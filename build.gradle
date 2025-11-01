@@ -87,13 +87,6 @@ dependencies {
         jarJar.ranged(it, "[0.5.0,)")
     }
 
-    implementation fg.deobf("curse.maven:mmmmmmmmmmmm-225738:6860192")
-    implementation fg.deobf("curse.maven:selene-499980:6902841")
-
-//    implementation fg.deobf("curse.maven:physics-mod-442735:5306442")
-//    implementation fg.deobf("curse.maven:sprite-arrows-1341561:6965865")
-//    implementation fg.deobf("curse.maven:jei-238222:6600311")
-
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
