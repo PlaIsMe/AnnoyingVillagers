@@ -213,16 +213,33 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob {
             }
             this.addEffect(new MobEffectInstance((MobEffect) EpicFightMobEffects.STUN_IMMUNITY.get(), 1, 3, false, false));
             if (this.wardenCallingCooldown == 0) {
-                ServerLevel serverlevel = (ServerLevel) this.level();
-                HerobrineWardenEntity herobrineWardenEntity = new HerobrineWardenEntity((EntityType) AnnoyingVillagersModEntities.HEROBRINE_WARDEN.get(), serverlevel);
-                double dist = (this.getBbWidth() + herobrineWardenEntity.getBbWidth()) * 0.5 + 0.5;
-                Vec3 backDir = Vec3.directionFromRotation(0.0F, this.getYRot()).normalize();
-                Vec3 backPos = this.position().subtract(backDir.scale(dist));
-                herobrineWardenEntity.moveTo(backPos.x, this.getY(), backPos.z, this.getYRot(), this.getXRot());
-                herobrineWardenEntity.finalizeSpawn(serverlevel, serverlevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, (SpawnGroupData) null, (CompoundTag) null);
-                herobrineWardenEntity.setEatingUUID(this.getUUID());
-                herobrineWardenEntity.setEatingHerobrine(this);
-                serverlevel.addFreshEntity(herobrineWardenEntity);
+                ServerLevel level = (ServerLevel) this.level();
+
+                HerobrineWardenEntity warden =
+                        new HerobrineWardenEntity((EntityType) AnnoyingVillagersModEntities.HEROBRINE_WARDEN.get(), level);
+                double dist = (this.getBbWidth() + warden.getBbWidth()) * 0.5D + 0.5D;
+                Vec3 forward = Vec3.directionFromRotation(0.0F, this.yBodyRot);
+                Vec3 spawn = this.position()
+                        .subtract(forward.scale(dist))
+                        .add(0.0D, 0.001D, 0.0D);
+
+                for (int i = 0; i < 5; i++) {
+                    warden.setPos(spawn.x, this.getY(), spawn.z);
+                    if (level.noCollision(warden)) break;
+                    spawn = spawn.subtract(forward.scale(0.3D));
+                }
+
+                warden.moveTo(spawn.x, this.getY(), spawn.z, this.yBodyRot, 0.0F);
+                warden.yBodyRot = this.yBodyRot;
+                warden.setYHeadRot(this.yBodyRot);
+
+                warden.finalizeSpawn(level, level.getCurrentDifficultyAt(this.blockPosition()),
+                        MobSpawnType.MOB_SUMMONED, null, null);
+
+                warden.setEatingUUID(this.getUUID());
+                warden.setEatingHerobrine(this);
+
+                level.addFreshEntity(warden);
             }
         }
     }
