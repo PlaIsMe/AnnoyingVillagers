@@ -160,8 +160,6 @@ public class PlayerNpcEntity extends PlayerMobEntity {
     }
 
     protected void registerGoals() {
-        super.registerGoals();
-
         this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(3, new OpenDoorGoal(this, true));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
