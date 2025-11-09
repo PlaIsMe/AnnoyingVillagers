@@ -155,6 +155,21 @@ public class AnnoyingVillagersModItems {
     public static final RegistryObject<Item> ELITE_OBSIDIAN_BIG = AnnoyingVillagersModItems.REGISTRY.register("elite_obsidian_big", () -> {
         return new EliteObsidianBigItem();
     });
+    public static final RegistryObject<Item> VILLAGER_SCOUT_HELMET_FIX = AnnoyingVillagersModItems.REGISTRY.register("villager_scout_helmet_fix", () -> {
+        return new VillagerScoutHelmetFixItem();
+    });
+    public static final RegistryObject<Item> RED_VILLAGER_GENERAL_HELMET_FIX = AnnoyingVillagersModItems.REGISTRY.register("red_villager_general_helmet_fix", () -> {
+        return new RedVillagerGeneralHelmetFixItem();
+    });
+    public static final RegistryObject<Item> BLUE_VILLAGER_GENERAL_HELMET_FIX = AnnoyingVillagersModItems.REGISTRY.register("blue_villager_general_helmet_fix", () -> {
+        return new BlueVillagerGeneralHelmetFixItem();
+    });
+    public static final RegistryObject<Item> GREEN_VILLAGER_GENERAL_HELMET_FIX = AnnoyingVillagersModItems.REGISTRY.register("purple_villager_general_helmet_fix", () -> {
+        return new GreenVillagerGeneralHelmetFixItem();
+    });
+    public static final RegistryObject<Item> PURPLE_VILLAGER_GENERAL_HELMET_FIX = AnnoyingVillagersModItems.REGISTRY.register("green_villager_general_helmet_fix", () -> {
+        return new PurpleVillagerGeneralHelmetFixItem();
+    });
     // ------------------------------
 
     // Gems

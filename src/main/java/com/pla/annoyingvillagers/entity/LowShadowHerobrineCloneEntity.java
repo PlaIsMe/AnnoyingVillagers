@@ -73,6 +73,14 @@ public class LowShadowHerobrineCloneEntity extends Monster {
     private boolean sacrificing = false;
     private final LivingEntityPatch<?> livingentitypatch = (LivingEntityPatch) EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
 
+    public boolean isSacrificing() {
+        return sacrificing;
+    }
+
+    public HerobrineMob getPossessedByEntity() {
+        return possessedByEntity;
+    }
+
     public void setProtectUUID(UUID protectUUID) {
         this.protectUUID = protectUUID;
     }
@@ -242,7 +250,6 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                 }
                 return false;
             } else {
-                LowShadowHerobrineCloneOnHurtProcedure.execute(this.level(), this.getX(), this.getY(), this.getZ(), damagesource.getEntity());
                 return super.hurt(damagesource, f/2.0F);
             }
         } else {

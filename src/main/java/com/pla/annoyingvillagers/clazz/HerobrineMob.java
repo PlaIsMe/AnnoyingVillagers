@@ -93,6 +93,22 @@ public class HerobrineMob extends Monster {
     private Entity fourthPossessedHerobrine;
     private UUID fourthPossessedHerobrineUuid;
 
+    public Entity getFirstPossessedHerobrine() {
+        return firstPossessedHerobrine;
+    }
+
+    public Entity getSecondPossessedHerobrine() {
+        return secondPossessedHerobrine;
+    }
+
+    public Entity getThirdPossessedHerobrine() {
+        return thirdPossessedHerobrine;
+    }
+
+    public Entity getFourthPossessedHerobrine() {
+        return fourthPossessedHerobrine;
+    }
+
     public boolean isAvailableSlot() {
         return firstPossessedHerobrineUuid == null || secondPossessedHerobrineUuid == null || thirdPossessedHerobrineUuid == null || fourthPossessedHerobrineUuid == null;
     }

@@ -69,6 +69,14 @@ public class LowHerobrineCloneEntity extends PlayerMobEntity {
     private UUID protectUUID;
     boolean renderPortal = false;
 
+    public boolean isSacrificing() {
+        return sacrificing;
+    }
+
+    public HerobrineMob getPossessedByEntity() {
+        return possessedByEntity;
+    }
+
     public void setRenderPortal(boolean renderPortal) {
         this.renderPortal = renderPortal;
     }
@@ -124,7 +132,6 @@ public class LowHerobrineCloneEntity extends PlayerMobEntity {
                 }
                 return false;
             } else {
-                LowHerobrineCloneOnHurtProcedure.execute(this.level(), this.getX(), this.getY(), this.getZ(), damagesource.getEntity());
                 return super.hurt(damagesource, f/2.0F);
             }
         } else {

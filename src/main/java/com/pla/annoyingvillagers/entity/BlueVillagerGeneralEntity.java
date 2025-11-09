@@ -53,7 +53,7 @@ public class BlueVillagerGeneralEntity extends PathfinderMobInventory {
         this.setNoAi(false);
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack((ItemLike) AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get()));
         this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.ENDER_PEARL));
-        this.setItemSlot(EquipmentSlot.HEAD, new ItemStack((ItemLike) AnnoyingVillagersModItems.BLUE_VILLAGER_GENERAL_HELMET.get()));
+        this.setItemSlot(EquipmentSlot.HEAD, new ItemStack((ItemLike) AnnoyingVillagersModItems.BLUE_VILLAGER_GENERAL_HELMET_FIX.get()));
         this.setItemSlot(EquipmentSlot.CHEST, new ItemStack((ItemLike) AnnoyingVillagersModItems.BLUE_VILLAGER_GENERAL_CHESTPLATE.get()));
         this.setItemSlot(EquipmentSlot.LEGS, new ItemStack((ItemLike) AnnoyingVillagersModItems.VILLAGER_GENERAL_LEGGINGS.get()));
         this.setItemSlot(EquipmentSlot.FEET, new ItemStack((ItemLike) AnnoyingVillagersModItems.VILLAGER_GENERAL_BOOTS.get()));
