@@ -22,7 +22,7 @@ public class PlayerMobDeadEntity extends PlayerMobEntity {
     }
 
     public PlayerMobDeadEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this((EntityType) AnnoyingVillagersModEntities.PLAYER_MOB_DEAD.get(), level);
+        this(AnnoyingVillagersModEntities.PLAYER_MOB_DEAD.get(), level);
     }
 
     @Override
@@ -31,6 +31,10 @@ public class PlayerMobDeadEntity extends PlayerMobEntity {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, (double)35.0F).add(Attributes.ATTACK_KNOCKBACK).add(Attributes.ATTACK_DAMAGE, (double)3.5F).add(Attributes.MOVEMENT_SPEED, 0.24);
+        return LivingEntity
+                .createLivingAttributes()
+                .add(Attributes.FOLLOW_RANGE, 20.0F)
+                .add(Attributes.ATTACK_KNOCKBACK).add(Attributes.ATTACK_DAMAGE, 3.5F)
+                .add(Attributes.MOVEMENT_SPEED, 0.24);
     }
 }

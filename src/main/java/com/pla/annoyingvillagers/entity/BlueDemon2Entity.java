@@ -245,7 +245,7 @@ public class BlueDemon2Entity extends Monster {
         builder = builder.add(Attributes.MAX_HEALTH, 40.0D);
         builder = builder.add(Attributes.ARMOR, 1.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 7.0D);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 126.0D);
+        builder = builder.add(Attributes.FOLLOW_RANGE, 48.0D);
         return builder;
     }
 }

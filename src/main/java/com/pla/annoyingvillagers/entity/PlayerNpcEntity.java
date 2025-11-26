@@ -274,70 +274,89 @@ public class PlayerNpcEntity extends PlayerMobEntity {
         }
     }
 
+    private boolean isInventoryFull() {
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack s = inventory.getItem(i);
+            if (s.isEmpty() || s.getCount() < s.getMaxStackSize()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void pickupNearbyItems() {
+        if (!isAlive() || isRemoved()) return;
+
+        var box = getBoundingBox().inflate(1.5D);
+        List<ItemEntity> items = level().getEntitiesOfClass(
+                ItemEntity.class,
+                box,
+                e -> !e.isRemoved() && !e.hasPickUpDelay()
+        );
+
+        for (ItemEntity itemEntity : items) {
+            tryPickup(itemEntity);
+        }
+    }
+
+    private void tryPickup(ItemEntity itemEntity) {
+        ItemStack remaining = itemEntity.getItem().copy();
+
+        for (int i = 0; i < inventory.getContainerSize() && !remaining.isEmpty(); i++) {
+            if (remaining.isEmpty()) break;
+            ItemStack slotStack = this.inventory.getItem(i);
+
+            if (slotStack.isEmpty()) {
+                this.inventory.setItem(i, remaining);
+                remaining = ItemStack.EMPTY;
+                break;
+            } else if (ItemStack.isSameItemSameTags(slotStack, remaining) &&
+                    slotStack.getCount() < slotStack.getMaxStackSize()) {
+                int transferable = Math.min(
+                        remaining.getCount(),
+                        slotStack.getMaxStackSize() - slotStack.getCount()
+                );
+                slotStack.grow(transferable);
+                remaining.shrink(transferable);
+            }
+        }
+
+        if (remaining.isEmpty()) {
+            itemEntity.setDeltaMovement(
+                    (this.getX() - itemEntity.getX()) * 0.25,
+                    (this.getY() + 1.0 - itemEntity.getY()) * 0.25,
+                    (this.getZ() - itemEntity.getZ()) * 0.25
+            );
+            itemEntity.setPickUpDelay(0);
+            Entity entity = this;
+            new DelayedTask(5) {
+                @Override
+                public void run() {
+                    if (!entity.isAlive() || entity.isRemoved() || entity.level() == null) return;
+                    itemEntity.discard();
+                    entity.level().playSound(null, entity.blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.HOSTILE, 0.2F, 1.0F);
+                }
+            };
+        } else {
+            itemEntity.setItem(remaining);
+        }
+    }
+
     @Override
     public void tick() {
         super.tick();
-        if (!this.level().isClientSide && this.tickCount % 20 == 0) {
-            if (!this.isAlive() || this.isRemoved() || this.level() == null) return;
-            List<ItemEntity> items = this.level().getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(2));
-            for (ItemEntity item : items) {
-                if (!item.hasPickUpDelay() && !item.isRemoved()) {
-                    final ItemEntity itemEntity = item;
-                    if (!this.isAlive() || this.isRemoved() || this.level() == null) return;
+        if (level().isClientSide) return;
 
-                    ItemStack stack = itemEntity.getItem();
-                    ItemStack remaining = stack.copy();
+        if (gapCooldown > 0) gapCooldown--;
+        if (enderPearlCooldown > 0) enderPearlCooldown--;
 
-                    for (int i = 0; i < this.inventory.getContainerSize(); i++) {
-                        if (remaining.isEmpty()) break;
-                        ItemStack slotStack = this.inventory.getItem(i);
-
-                        if (slotStack.isEmpty()) {
-                            this.inventory.setItem(i, remaining);
-                            remaining = ItemStack.EMPTY;
-                            break;
-                        } else if (ItemStack.isSameItemSameTags(slotStack, remaining) &&
-                                slotStack.getCount() < slotStack.getMaxStackSize()) {
-                            int transferable = Math.min(
-                                    remaining.getCount(),
-                                    slotStack.getMaxStackSize() - slotStack.getCount()
-                            );
-                            slotStack.grow(transferable);
-                            remaining.shrink(transferable);
-                        }
-                    }
-
-                    if (remaining.isEmpty()) {
-                        itemEntity.setDeltaMovement(
-                                (this.getX() - itemEntity.getX()) * 0.25,
-                                (this.getY() + 1.0 - itemEntity.getY()) * 0.25,
-                                (this.getZ() - itemEntity.getZ()) * 0.25
-                        );
-                        itemEntity.setPickUpDelay(0);
-                        Entity entity = this;
-                        new DelayedTask(5) {
-                            @Override
-                            public void run() {
-                                if (!entity.isAlive() || entity.isRemoved() || entity.level() == null) return;
-                                itemEntity.discard();
-                                entity.level().playSound(null, entity.blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.HOSTILE, 0.2F, 1.0F);
-                            }
-                        };
-                    } else {
-                        if (this.getHealth() <= 0.0F) return;
-                        itemEntity.setItem(remaining);
-                    }
-                }
-            }
+        if ((tickCount + getId()) % 20 != 0) {
+            return;
         }
-        if (!this.level().isClientSide) {
-            if (this.gapCooldown > 0) {
-                this.gapCooldown = this.gapCooldown - 1;
-            }
-            if (this.enderPearlCooldown > 0) {
-                this.enderPearlCooldown = this.enderPearlCooldown - 1;
-            }
-        }
+
+        if (isInventoryFull()) return;
+
+        pickupNearbyItems();
     }
 
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor serverlevelaccessor, DifficultyInstance difficultyinstance, MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
@@ -426,7 +445,7 @@ public class PlayerNpcEntity extends PlayerMobEntity {
         builder = builder.add(Attributes.MAX_HEALTH, 30.0D);
         builder = builder.add(Attributes.ARMOR, 0.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 0.0D);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 128.0D);
+        builder = builder.add(Attributes.FOLLOW_RANGE, 24.0D);
         return builder;
     }
 }

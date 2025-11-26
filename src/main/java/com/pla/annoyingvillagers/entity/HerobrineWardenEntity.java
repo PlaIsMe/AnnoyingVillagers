@@ -300,7 +300,7 @@ public class HerobrineWardenEntity extends Warden {
         builder = builder.add(Attributes.MAX_HEALTH, 500.0D);
         builder = builder.add(Attributes.ARMOR, 20.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 0.0D);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 128.0D);
+        builder = builder.add(Attributes.FOLLOW_RANGE, 24.0D);
         return builder;
     }
 }

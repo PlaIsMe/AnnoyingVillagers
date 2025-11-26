@@ -84,7 +84,7 @@ public class BlueDemonDeadEntity extends PathfinderMob {
         builder = builder.add(Attributes.MAX_HEALTH, 20.0D);
         builder = builder.add(Attributes.ARMOR, 0.1D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 0.0D);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 128.0D);
+        builder = builder.add(Attributes.FOLLOW_RANGE, 24.0D);
         return builder;
     }
 }

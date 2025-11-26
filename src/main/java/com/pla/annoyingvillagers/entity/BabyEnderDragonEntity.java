@@ -289,7 +289,7 @@ public class BabyEnderDragonEntity extends FlyingMob {
         builder = builder.add(Attributes.MAX_HEALTH, 150.0D);
         builder = builder.add(Attributes.FLYING_SPEED, 3.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 2.0D);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 128.0D);
+        builder = builder.add(Attributes.FOLLOW_RANGE, 24.0D);
         builder = builder.add(Attributes.ATTACK_KNOCKBACK, 1.0D);
         return builder;
     }

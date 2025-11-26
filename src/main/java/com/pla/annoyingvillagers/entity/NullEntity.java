@@ -679,7 +679,7 @@ public class NullEntity extends HerobrineMob {
         builder = builder.add(Attributes.MAX_HEALTH, 250.0D);
         builder = builder.add(Attributes.ARMOR, 40.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 8.0D);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 128.0D);
+        builder = builder.add(Attributes.FOLLOW_RANGE, 48.0D);
         builder = builder.add(Attributes.FLYING_SPEED, 3.0D);
         return builder;
     }

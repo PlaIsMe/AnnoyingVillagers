@@ -153,7 +153,7 @@ public class AngrySteveEntity extends PathfinderMobInventory {
         builder = builder.add(Attributes.MAX_HEALTH, 120.0D);
         builder = builder.add(Attributes.ARMOR, 30.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 0.0D);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 256.0D);
+        builder = builder.add(Attributes.FOLLOW_RANGE, 48.0D);
         return builder;
     }
 }

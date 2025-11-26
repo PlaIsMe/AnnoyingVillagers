@@ -219,7 +219,7 @@ public class Herobrine7Entity extends HerobrineMob {
         builder = builder.add(Attributes.MAX_HEALTH, 100.0D);
         builder = builder.add(Attributes.ARMOR, 10.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 7.0D);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 256.0D);
+        builder = builder.add(Attributes.FOLLOW_RANGE, 48.0D);
         return builder;
     }
 }

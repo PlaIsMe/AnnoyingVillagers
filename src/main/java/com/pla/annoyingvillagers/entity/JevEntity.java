@@ -253,7 +253,7 @@ public class JevEntity extends PathfinderMobInventory {
         builder = builder.add(Attributes.MAX_HEALTH, 50.0D);
         builder = builder.add(Attributes.ARMOR, 1.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 0.0D);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 128.0D);
+        builder = builder.add(Attributes.FOLLOW_RANGE, 24.0D);
         builder = builder.add(Attributes.KNOCKBACK_RESISTANCE, 5.0D);
         return builder;
     }
