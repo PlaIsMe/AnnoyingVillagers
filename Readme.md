@@ -35,6 +35,7 @@ contents of this repository.
 
 ### You CANNOT
 * Redistribute the mod.
+* Use or copy any part of the code for your own projects without explicit permission.
 
 ### Disclaimer
 <sub> 
