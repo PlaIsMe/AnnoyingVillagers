@@ -67,10 +67,6 @@ public class AddStarterSkillProcedure {
                             .withPermission(4);
                     try {
                         entity.getServer().getCommands().getDispatcher().execute(
-                                "epicfight skill add @s passive1 annoyingvillagers:clash",
-                                source
-                        );
-                        entity.getServer().getCommands().getDispatcher().execute(
                                 "epicfight skill add @s guard epicfight:guard",
                                 source
                         );
