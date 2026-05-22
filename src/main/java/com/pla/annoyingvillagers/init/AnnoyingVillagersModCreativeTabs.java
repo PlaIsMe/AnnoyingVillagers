@@ -126,6 +126,8 @@ public class AnnoyingVillagersModCreativeTabs {
                         pOutput.accept(AnnoyingVillagersModItems.GIANT_NETHERITE_AXE.get());
                         pOutput.accept(AnnoyingVillagersModItems.EXTERMINATOR_BATTLEAXE.get());
                         pOutput.accept(AnnoyingVillagersModItems.EXTERMINATOR_BATTLEAXE_GREEN.get());
+                        pOutput.accept(AnnoyingVillagersModItems.GOLDEN_MACE.get());
+                        pOutput.accept(AnnoyingVillagersModItems.DIAMOND_MACE.get());
                         pOutput.accept(AnnoyingVillagersModItems.IRON_GREATAXE.get());
                         pOutput.accept(AnnoyingVillagersModItems.DIAMOND_GREATAXE.get());
                         pOutput.accept(AnnoyingVillagersModItems.NETHERITE_GREATAXE.get());
@@ -154,8 +156,6 @@ public class AnnoyingVillagersModCreativeTabs {
                         pOutput.accept(AnnoyingVillagersModItems.IRON_SICKLE.get());
                         pOutput.accept(AnnoyingVillagersModItems.DIAMOND_SICKLE.get());
                         pOutput.accept(AnnoyingVillagersModItems.DIAMOND_BOLT.get());
-                        pOutput.accept(AnnoyingVillagersModItems.GOLDEN_MACE.get());
-                        pOutput.accept(AnnoyingVillagersModItems.DIAMOND_MACE.get());
                         pOutput.accept(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get());
                         pOutput.accept(AnnoyingVillagersModItems.DARK_NETHERITE.get());
                         pOutput.accept(AnnoyingVillagersModItems.RUBY.get());

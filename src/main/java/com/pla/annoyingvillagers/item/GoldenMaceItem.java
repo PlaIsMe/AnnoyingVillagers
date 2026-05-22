@@ -12,7 +12,7 @@ public class GoldenMaceItem extends SwordItem {
     public GoldenMaceItem() {
         super(new Tier() {
             public int getUses() {
-                return 32;
+                return 132;
             }
 
             public float getSpeed() {
@@ -34,12 +34,6 @@ public class GoldenMaceItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(Items.GOLD_INGOT));
             }
-        }, 3, -1.5F, (new Properties()));
-    }
-
-    @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.beta_update"));
+        }, 3, -28F, (new Properties()));
     }
 }

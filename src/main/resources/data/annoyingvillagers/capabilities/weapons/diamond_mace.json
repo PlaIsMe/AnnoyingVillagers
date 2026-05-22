@@ -1,3 +1,11 @@
 {
-  "type": "annoyingvillagers:av_axe"
+  "attributes":
+  {
+    "common":
+    {
+      "impact": 2.0,
+      "max_strikes": 2
+    }
+  },
+  "type": "annoyingvillagers:exterminator_battleaxe"
 }
