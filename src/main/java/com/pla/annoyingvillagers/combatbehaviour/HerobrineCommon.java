@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.combatbehaviour;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.entity.*;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -363,7 +363,7 @@ public class HerobrineCommon {
                 public void run() {
                     if (!mob.isAlive()) return;
 
-                    mobpatch.playAnimationSynchronized(AVAnimations.CASTING_ONE_HAND_INWARD, 0.0F);
+                    mobpatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_INWARD, 0.0F);
 
                     final LivingEntity target = mob.getTarget();
                     final Direction dir = (target != null)

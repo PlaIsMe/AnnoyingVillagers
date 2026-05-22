@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.item.DNAxHookedSwordItem;
 import com.pla.annoyingvillagers.item.DiamondBlasterSwordItem;
 import com.pla.annoyingvillagers.item.DiamondClawItem;
@@ -40,7 +42,7 @@ public class AnimationDamageEvent {
                     if (livingVictimPatch != null) {
                         AssetAccessor<? extends StaticAnimation> victimDynamicAnimation = Objects.requireNonNull(livingVictimPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
                         if (!EpicfightUtil.isLongHitAnimation(victimDynamicAnimation, livingVictimPatch)) {
-                            livingVictimPatch.playAnimationSynchronized(AVAnimations.LONGEST_HIT, 0.0F);
+                            livingVictimPatch.playAnimationSynchronized(AnimsPugilistSteve.LONGEST_HIT, 0.0F);
                         }
                     }
                     CommonUtil.pushEntityFromCaster(livingVictim, livingAttacker);
@@ -48,9 +50,9 @@ public class AnimationDamageEvent {
 
                 if (livingAttacker.getMainHandItem().getItem() instanceof DNAxHookedSwordItem
                         && victim instanceof Mob mob) {
-                    if (attackerDynamicAnimation == AVAnimations.DNAX_HOOK_SWEEPING_EDGE) {
+                    if (attackerDynamicAnimation == AnimsEpicFight.DNAX_HOOK_SWEEPING_EDGE) {
                         ObedienceMobEffect.applyObedience(mob, livingAttacker, 20 * 5);
-                    } else if (attackerDynamicAnimation == AVAnimations.DNAX_HOOK_DANCING_EDGE) {
+                    } else if (attackerDynamicAnimation == AnimsEpicFight.DNAX_HOOK_DANCING_EDGE) {
                         if (livingAttacker.getOffhandItem().getItem() instanceof DNAxHookedSwordItem) {
                             ObedienceMobEffect.applyObedience(mob, livingAttacker, 20 * 10);
                         } else {

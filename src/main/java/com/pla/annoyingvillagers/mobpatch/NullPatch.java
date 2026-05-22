@@ -4,7 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.combatbehaviour.HerobrineNullWeapon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.EscapeUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -44,7 +45,7 @@ public class NullPatch extends CEHumanoidPatch implements CustomExecuteEntity {
 
     public void initAnimator(Animator animator) {
         super.initAnimator(animator);
-        animator.addLivingAnimation(LivingMotions.BLOCK, AVAnimations.FIST_GUARD);
+        animator.addLivingAnimation(LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD);
         animator.addLivingAnimation(LivingMotions.IDLE, Animations.BIPED_CREATIVE_IDLE);
         animator.addLivingAnimation(LivingMotions.WALK, Animations.BIPED_CREATIVE_IDLE);
         animator.addLivingAnimation(LivingMotions.RUN, Animations.BIPED_CREATIVE_IDLE);
@@ -58,8 +59,8 @@ public class NullPatch extends CEHumanoidPatch implements CustomExecuteEntity {
                         ImmutableMap.of(
                                 Styles.TWO_HAND,
                                 Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AVAnimations.FIST_GUARD),
-                                        Pair.of(LivingMotions.IDLE, AVAnimations.CLONE_ANTITHEUS_ASCENDED_IDLE),
+                                        Pair.of(LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD),
+                                        Pair.of(LivingMotions.IDLE, AnimsWom.CLONE_ANTITHEUS_ASCENDED_IDLE),
                                         Pair.of(LivingMotions.WALK, WOMAnimations.ANTITHEUS_ASCENDED_WALK),
                                         Pair.of(LivingMotions.RUN, WOMAnimations.ANTITHEUS_ASCENDED_RUN),
                                         Pair.of(LivingMotions.CHASE, WOMAnimations.ANTITHEUS_ASCENDED_RUN),

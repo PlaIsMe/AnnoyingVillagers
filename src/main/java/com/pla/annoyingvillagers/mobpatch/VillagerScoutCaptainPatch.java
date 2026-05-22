@@ -2,11 +2,10 @@ package com.pla.annoyingvillagers.mobpatch;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
-import com.pla.annoyingvillagers.combatbehaviour.NpcBow;
 import com.pla.annoyingvillagers.combatbehaviour.NpcFist;
 import com.pla.annoyingvillagers.combatbehaviour.NpcSword;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.util.MobPatchCommon;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -92,8 +91,8 @@ public class VillagerScoutCaptainPatch extends CEHumanoidPatch implements Custom
                                         Pair.of(LivingMotions.BLOCK, Animations.SWORD_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, AVAnimations.BIPED_RUN_ESWORD),
-                                        Pair.of(LivingMotions.CHASE, AVAnimations.BIPED_RUN_ESWORD),
+                                        Pair.of(LivingMotions.RUN, AnimsPugilistSteve.BIPED_RUN_ESWORD),
+                                        Pair.of(LivingMotions.CHASE, AnimsPugilistSteve.BIPED_RUN_ESWORD),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 ),
                                 Styles.TWO_HAND,
@@ -101,8 +100,8 @@ public class VillagerScoutCaptainPatch extends CEHumanoidPatch implements Custom
                                         Pair.of(LivingMotions.BLOCK, Animations.SWORD_DUAL_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_HOLD_DUAL_WEAPON),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_HOLD_DUAL_WEAPON),
-                                        Pair.of(LivingMotions.RUN, AVAnimations.RUN_HOLD),
-                                        Pair.of(LivingMotions.CHASE, AVAnimations.RUN_HOLD),
+                                        Pair.of(LivingMotions.RUN, AnimsPugilistSteve.RUN_HOLD),
+                                        Pair.of(LivingMotions.CHASE, AnimsPugilistSteve.RUN_HOLD),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 )
                         ));

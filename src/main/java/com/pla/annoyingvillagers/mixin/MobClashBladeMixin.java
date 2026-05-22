@@ -10,6 +10,9 @@ import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.item.FlankerHookedSwordItem;
 import com.pla.annoyingvillagers.item.HookedDiamondSwordItem;
@@ -34,7 +37,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
@@ -79,14 +81,14 @@ public class MobClashBladeMixin {
 
         // Auto clash while playing animation
         if (defender instanceof AegisHerobrineEntity
-                && defenderDynamicAnimation == AVAnimations.AEGIS_SHIELD_SHOOT
+                && defenderDynamicAnimation == AnimsEpicFight.AEGIS_SHIELD_SHOOT
                 && defenderEntityState.getLevel() == 3) {
             cir.setReturnValue(true);
             return;
         }
 
         if (defender instanceof AegisHerobrineEntity
-                && defenderDynamicAnimation == AVAnimations.ENDER_AEGIS_NAPOLEON_RELOAD_1) {
+                && defenderDynamicAnimation == AnimsWom.ENDER_AEGIS_NAPOLEON_RELOAD_1) {
             cir.setReturnValue(true);
             return;
         }
@@ -98,7 +100,7 @@ public class MobClashBladeMixin {
         }
 
         if (defender instanceof GlaiveHerobrineEntity
-                && (defenderDynamicAnimation == AVAnimations.AGONY_GUARD_HIT_1)) {
+                && (defenderDynamicAnimation == AnimsWom.AGONY_GUARD_HIT_1)) {
             cir.setReturnValue(true);
             return;
         }
@@ -443,32 +445,32 @@ public class MobClashBladeMixin {
                     || defenderLivingDefender.getMainHandItem().getItem() instanceof HookedGoldenSwordItem
                     || defenderLivingDefender.getMainHandItem().getItem() instanceof HookedDiamondSwordItem
                     || defenderLivingDefender.getMainHandItem().getItem() instanceof FlankerHookedSwordItem) {
-                if (defenderDynamicAnimation == AVAnimations.HOOK_AXE_AUTO1) {
+                if (defenderDynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO1) {
                     CommonUtil.applyHookClashDisarmLogic(
                             defenderLivingDefender,
                             livingAttacker,
                             serverLevel,
-                            AVAnimations.KNOCKDOWN_RIGHT,
+                            AnimsPugilistSteve.KNOCKDOWN_RIGHT,
                             HookDisarmLaunch.RIGHT
                     );
                 }
 
-                if (defenderDynamicAnimation == AVAnimations.HOOK_AXE_AUTO2) {
+                if (defenderDynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO2) {
                     CommonUtil.applyHookClashDisarmLogic(
                             defenderLivingDefender,
                             livingAttacker,
                             serverLevel,
-                            AVAnimations.KNOCKDOWN_LEFT,
+                            AnimsPugilistSteve.KNOCKDOWN_LEFT,
                             HookDisarmLaunch.LEFT
                     );
                 }
 
-                if (defenderDynamicAnimation == AVAnimations.HOOK_DANCING_EDGE || defenderDynamicAnimation == AVAnimations.HOOK_HERRSCHER_UP) {
+                if (defenderDynamicAnimation == AnimsEpicFight.HOOK_DANCING_EDGE || defenderDynamicAnimation == AnimsWom.HOOK_HERRSCHER_UP) {
                     CommonUtil.applyHookClashDisarmLogic(
                             defenderLivingDefender,
                             livingAttacker,
                             serverLevel,
-                            AVAnimations.GUARD_BREAK_ATTACK,
+                            AnimsPugilistSteve.GUARD_BREAK_ATTACK,
                             HookDisarmLaunch.BACKWARD
                     );
                 }

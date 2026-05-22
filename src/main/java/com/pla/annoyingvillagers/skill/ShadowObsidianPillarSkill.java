@@ -1,11 +1,7 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.item.EnderGlaiveItem;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
@@ -24,7 +20,7 @@ public class ShadowObsidianPillarSkill extends WeaponInnateSkill {
         if (!this.isActivated(skillContainer)) {
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
-            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.OBSIDIAN_BIPED_LANDING, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFight.OBSIDIAN_BIPED_LANDING, 0.0F);
         }
     }
 

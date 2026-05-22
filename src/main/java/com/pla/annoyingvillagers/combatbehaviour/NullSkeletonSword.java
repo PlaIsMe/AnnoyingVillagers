@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.efkick.gameasset.EFKickAnimations;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import reascer.wom.gameasset.animations.weapons.AnimsHerrscher;
@@ -65,7 +65,7 @@ public class NullSkeletonSword {
                                                     CECombatBehaviors.Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -112,7 +112,7 @@ public class NullSkeletonSword {
                                                                                     CECombatBehaviors.Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     CECombatBehaviors.Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -139,7 +139,7 @@ public class NullSkeletonSword {
                                                     CECombatBehaviors.Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -182,7 +182,7 @@ public class NullSkeletonSword {
                                                     CECombatBehaviors.Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -219,7 +219,7 @@ public class NullSkeletonSword {
                                                     CECombatBehaviors.Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -261,7 +261,7 @@ public class NullSkeletonSword {
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                             .addNextBehavior(
                                                                                     CECombatBehaviors.Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -303,7 +303,7 @@ public class NullSkeletonSword {
                                                                                     CECombatBehaviors.Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     CECombatBehaviors.Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -330,7 +330,7 @@ public class NullSkeletonSword {
                                                     CECombatBehaviors.Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -373,7 +373,7 @@ public class NullSkeletonSword {
                                                     CECombatBehaviors.Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -416,7 +416,7 @@ public class NullSkeletonSword {
                                                     CECombatBehaviors.Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -458,7 +458,7 @@ public class NullSkeletonSword {
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                                             .addNextBehavior(
                                                                                     CECombatBehaviors.Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -490,7 +490,7 @@ public class NullSkeletonSword {
                                                     CECombatBehaviors.Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -533,7 +533,7 @@ public class NullSkeletonSword {
                                                     CECombatBehaviors.Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -586,7 +586,7 @@ public class NullSkeletonSword {
                                                                                     CECombatBehaviors.Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     CECombatBehaviors.Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -619,7 +619,7 @@ public class NullSkeletonSword {
                                                     CECombatBehaviors.Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -662,17 +662,17 @@ public class NullSkeletonSword {
                                     CECombatBehaviors.Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     CECombatBehaviors.Behavior.builder()
                                                             .withinDistance(0.0D, 3.0D)
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     CECombatBehaviors.Behavior.builder()
                                                                             .withinDistance(0.0D, 3.0D)
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             )
                                             )
                             )

@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
 import net.minecraft.network.FriendlyByteBuf;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -20,7 +20,7 @@ public class ObsidianWeaponSkill extends WeaponInnateSkill {
         if (!this.isActivated(skillContainer)) {
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
-            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.OBSIDIAN_ZOMBIE_ATTACK3, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFight.OBSIDIAN_ZOMBIE_ATTACK3, 0.0F);
         }
     }
 

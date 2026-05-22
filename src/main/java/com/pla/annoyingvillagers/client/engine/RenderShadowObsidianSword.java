@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.client.engine;
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,9 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimation;
-import reascer.wom.gameasset.WOMAnimations;
 import yesman.epicfight.api.animation.AnimationPlayer;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -53,22 +51,22 @@ public class RenderShadowObsidianSword extends RenderItemBase {
                 EntityState entityState = (dynamicAnimation.get()).getState(livingEntityPatch, elapsedTimeFloat);
                 ItemStack itemstack;
 
-                if (dynamicAnimation == AVAnimations.OBSIDIAN_FIST_DASH && entityState.getLevel() > 1) {
+                if (dynamicAnimation == AnimsPugilistSteve.OBSIDIAN_FIST_DASH && entityState.getLevel() > 1) {
                     itemstack = ItemStack.EMPTY;
                     poseStack.pushPose();
                     MathUtils.mulStack(poseStack, openmatrix4f);
                     Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                     poseStack.popPose();
-                } else if (((dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_ONEHAND_LONG
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_FIST_AIR_SLASH
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO4
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO5
+                } else if (((dynamicAnimation == AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_ONEHAND_LONG
+                        || dynamicAnimation == AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AIR_SLASH
+                        || dynamicAnimation == AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO4
+                        || dynamicAnimation == AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO5
                         || dynamicAnimation.get() instanceof ExecutionAttackAnimation) && entityState.getLevel() > 1)
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_TORMENT_AIRSLAM
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_TORMENT_BERSERK_DASH
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AIRSLASH
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE_PILLAR) {
+                        || dynamicAnimation == AnimsWom.SHADOW_OBSIDIAN_SWORD_TORMENT_AIRSLAM
+                        || dynamicAnimation == AnimsWom.SHADOW_OBSIDIAN_SWORD_TORMENT_BERSERK_DASH
+                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AIRSLASH
+                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE
+                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE_PILLAR) {
                     itemstack = new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_STRAIGHT.get());
                     if (itemstack.getTag() != null) {
                         itemstack.getTag().putBoolean("foil", livingEntityPatch.getOriginal().getMainHandItem().isEnchanted());
@@ -93,23 +91,23 @@ public class RenderShadowObsidianSword extends RenderItemBase {
                 float elapsedTimeFloat = animationPlayer.getElapsedTime();
                 EntityState entityState = (dynamicAnimation.get()).getState(livingEntityPatch, elapsedTimeFloat);
                 ItemStack itemstack;
-                if (((dynamicAnimation == AVAnimations.OBSIDIAN_INFERNAL_AUTO_1
-                        || dynamicAnimation == AVAnimations.OBSIDIAN_STRONG_PUNCH
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_FIST_AUTO1
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_FIST_AUTO3) && entityState.getLevel() > 1)
-                        || (dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_GESETZ_AUTO_3  && entityState.getLevel() > 2)) {
+                if (((dynamicAnimation == AnimsEpicFightInfernalGainer.OBSIDIAN_INFERNAL_AUTO_1
+                        || dynamicAnimation == AnimsWom.OBSIDIAN_STRONG_PUNCH
+                        || dynamicAnimation == AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO1
+                        || dynamicAnimation == AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO3) && entityState.getLevel() > 1)
+                        || (dynamicAnimation == AnimsWom.SHADOW_OBSIDIAN_SWORD_GESETZ_AUTO_3  && entityState.getLevel() > 2)) {
                     itemstack = ItemStack.EMPTY;
                     poseStack.pushPose();
                     MathUtils.mulStack(poseStack, openmatrix4f);
                     Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                     poseStack.popPose();
-                } else if (((dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO4
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO5
+                } else if (((dynamicAnimation == AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO4
+                        || dynamicAnimation == AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO5
                         || dynamicAnimation.get() instanceof ExecutionAttackAnimation) && entityState.getLevel() > 1)
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AUTO_3
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AIRSLASH
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE_PILLAR) {
+                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AUTO_3
+                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AIRSLASH
+                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE
+                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE_PILLAR) {
                     itemstack = new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_STRAIGHT.get());
                     if (itemstack.getTag() != null) {
                         itemstack.getTag().putBoolean("foil", livingEntityPatch.getOriginal().getOffhandItem().isEnchanted());

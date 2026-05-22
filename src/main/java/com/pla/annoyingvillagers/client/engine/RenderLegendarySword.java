@@ -2,6 +2,8 @@ package com.pla.annoyingvillagers.client.engine;
 
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -10,7 +12,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -42,13 +43,13 @@ public class RenderLegendarySword extends RenderItemBase {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             ItemStack itemstack;
 
-            if (dynamicAnimation == AVAnimations.LEGENDARY_SWORD_WAKE_UP_ATTACK
-                    || dynamicAnimation == AVAnimations.LEGENDARY_SWORD_HEAVY_ATTACK
-                    || dynamicAnimation == AVAnimations.YELLOW_SOLAR_AUTO_2
-                    || dynamicAnimation == AVAnimations.YELLOW_NAPOLEON_AUTO_3
-                    || dynamicAnimation == AVAnimations.YELLOW_NAPOLEON_AUSTERLITZ_SHOOT
-                    || dynamicAnimation == AVAnimations.CLONE_NAPOLEON_WATERLOW_SHOOT
-                    || dynamicAnimation == AVAnimations.YELLOW_TORMENT_CHARGED_ATTACK_3) {
+            if (dynamicAnimation == AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK
+                    || dynamicAnimation == AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK
+                    || dynamicAnimation == AnimsWom.YELLOW_SOLAR_AUTO_2
+                    || dynamicAnimation == AnimsWom.YELLOW_NAPOLEON_AUTO_3
+                    || dynamicAnimation == AnimsWom.YELLOW_NAPOLEON_AUSTERLITZ_SHOOT
+                    || dynamicAnimation == AnimsWom.CLONE_NAPOLEON_WATERLOW_SHOOT
+                    || dynamicAnimation == AnimsWom.YELLOW_TORMENT_CHARGED_ATTACK_3) {
                 itemstack = new ItemStack(AnnoyingVillagersModItems.HEAVY_ATTACK_LEGENDARY_SWORD.get());
                 poseStack.pushPose();
                 MathUtils.mulStack(poseStack, openmatrix4f);

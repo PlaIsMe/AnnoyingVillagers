@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
@@ -56,7 +58,7 @@ public class HerobrineEnderAegis {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .health(2.0F / 3.0F, HealthCheck.Comparator.LESS_RATIO_CONTAIN)
                                             .custom(HerobrineCommon::canPerformHealing)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_BUFF, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F)
                                             .addExBehavior(HerobrineCommon::performHealingAnimation)
                             )
             )
@@ -69,7 +71,7 @@ public class HerobrineEnderAegis {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(7.0D, 48.0D)
-                                            .animationBehavior(AVAnimations.HEROBRINE_MOB_ENDERSTEP_OBSCURIS, 0.0F)
+                                            .animationBehavior(AnimsWom.HEROBRINE_MOB_ENDERSTEP_OBSCURIS, 0.0F)
                                             .addExBehavior(HerobrineCommon::giveSlowFalling)
                             )
             )
@@ -97,12 +99,12 @@ public class HerobrineEnderAegis {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -128,7 +130,7 @@ public class HerobrineEnderAegis {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 6.0D)
-                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -148,12 +150,12 @@ public class HerobrineEnderAegis {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 6.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 6.0D)
-                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -168,12 +170,12 @@ public class HerobrineEnderAegis {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 6.0D)
-                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 6.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -223,7 +225,7 @@ public class HerobrineEnderAegis {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 9.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -243,12 +245,12 @@ public class HerobrineEnderAegis {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 9.0D)
-                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 6.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -278,7 +280,7 @@ public class HerobrineEnderAegis {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 6.0D)
-                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -333,7 +335,7 @@ public class HerobrineEnderAegis {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -359,12 +361,12 @@ public class HerobrineEnderAegis {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 6.0D)
-                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -380,7 +382,7 @@ public class HerobrineEnderAegis {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 6.0D)
-                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -411,17 +413,17 @@ public class HerobrineEnderAegis {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 9.0D)
-                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 6.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 6.0D)
-                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -447,7 +449,7 @@ public class HerobrineEnderAegis {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 6.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -488,7 +490,7 @@ public class HerobrineEnderAegis {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -504,7 +506,7 @@ public class HerobrineEnderAegis {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 6.0D)
-                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -519,7 +521,7 @@ public class HerobrineEnderAegis {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 9.0D)
-                                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -566,7 +568,7 @@ public class HerobrineEnderAegis {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 9.0D)
-                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -602,7 +604,7 @@ public class HerobrineEnderAegis {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 6.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -612,7 +614,7 @@ public class HerobrineEnderAegis {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -643,7 +645,7 @@ public class HerobrineEnderAegis {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 9.0D)
-                                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -664,7 +666,7 @@ public class HerobrineEnderAegis {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 6.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -695,12 +697,12 @@ public class HerobrineEnderAegis {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 9.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 6.0D)
-                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -721,7 +723,7 @@ public class HerobrineEnderAegis {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 6.0D)
-                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -731,7 +733,7 @@ public class HerobrineEnderAegis {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 6.0D)
-                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -757,7 +759,7 @@ public class HerobrineEnderAegis {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 6.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -788,12 +790,12 @@ public class HerobrineEnderAegis {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 6.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_MOONLESS_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 9.0D)
-                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -851,17 +853,17 @@ public class HerobrineEnderAegis {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 5.0D)
-                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 5.0D)
-                                                                            .animationBehavior(AVAnimations.ENDER_AEGIS_BULL_CHARGE, 0.0F)
+                                                                            .animationBehavior(AnimsWom.ENDER_AEGIS_BULL_CHARGE, 0.0F)
                                                             )
                                             )
                             )
@@ -894,7 +896,7 @@ public class HerobrineEnderAegis {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .custom(HerobrineCommon::canChangeToSecondForm)
                                             .withinDistance(0.0D, 8.0D)
-                                            .animationBehavior(AVAnimations.ENDER_AEGIS_NAPOLEON_RELOAD_1, 0.0F)
+                                            .animationBehavior(AnimsWom.ENDER_AEGIS_NAPOLEON_RELOAD_1, 0.0F)
                                             .addExBehavior(HerobrineCommon::changeToSecondForm)
                             )
             )
@@ -908,7 +910,7 @@ public class HerobrineEnderAegis {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 8.0D)
                                             .custom(HerobrineCommon::canPlaySecondFormAnimation)
-                                            .animationBehavior(AVAnimations.AEGIS_SHIELD_SHOOT, 0.0F)
+                                            .animationBehavior(AnimsEpicFight.AEGIS_SHIELD_SHOOT, 0.0F)
                                             .addExBehavior(HerobrineCommon::playSecondFormAnimation)
                             )
             )

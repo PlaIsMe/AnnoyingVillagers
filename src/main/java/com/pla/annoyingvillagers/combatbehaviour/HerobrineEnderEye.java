@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
@@ -17,7 +17,7 @@ public class HerobrineEnderEye {
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(HerobrineCommon::canPlayObsidianMachine)
-                                            .animationBehavior(AVAnimations.SHADOW_HEROBRINE_BIPED_LANDING, 0.0F)
+                                            .animationBehavior(AnimsEpicFight.SHADOW_HEROBRINE_BIPED_LANDING, 0.0F)
                             )
             );
 }

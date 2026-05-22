@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.combatbehaviour.*;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.util.MobPatchCommon;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -183,7 +183,7 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
                 .put(WOMWeaponCategories.ANTITHEUS,
                         ImmutableMap.of(Styles.TWO_HAND,
                                 Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AVAnimations.GLOWING_AGONY_GUARD),
+                                        Pair.of(LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD),
                                         Pair.of(LivingMotions.IDLE, AnimsAgony.AGONY_IDLE),
                                         Pair.of(LivingMotions.WALK, AnimsAgony.AGONY_WALK),
                                         Pair.of(LivingMotions.RUN, AnimsAgony.AGONY_RUN),
@@ -201,7 +201,7 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
                 .put(WOMWeaponCategories.NAPOLEON,
                         ImmutableMap.of(Styles.TWO_HAND,
                                 Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AVAnimations.GLOWING_AGONY_GUARD),
+                                        Pair.of(LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD),
                                         Pair.of(LivingMotions.IDLE, AnimsAgony.AGONY_IDLE),
                                         Pair.of(LivingMotions.WALK, AnimsAgony.AGONY_WALK),
                                         Pair.of(LivingMotions.RUN, AnimsAgony.AGONY_RUN),

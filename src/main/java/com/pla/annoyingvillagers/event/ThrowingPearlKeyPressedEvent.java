@@ -1,10 +1,9 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.entity.EnchantedEnderPearlEntity;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
-import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -18,9 +17,7 @@ import net.minecraft.world.entity.projectile.ThrownEnderpearl;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
@@ -74,7 +71,7 @@ public class ThrowingPearlKeyPressedEvent {
                         .filter(s -> !s.isEmpty() && s.is(AnnoyingVillagersModItems.ENCHANTED_ENDER_PEARL.get()))
                         .findFirst()
                         .map(stack -> {
-                            livingEntityPatch.playAnimationSynchronized(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
                             Level level = entity.level();
                             var projectile = new EnchantedEnderPearlEntity(
                                     AnnoyingVillagersModEntities.ENCHANTED_ENDER_PEARL_PROJECTILE.get(), level);
@@ -101,7 +98,7 @@ public class ThrowingPearlKeyPressedEvent {
             if (entity instanceof Player player) {
 
                 if (player.getInventory().contains(new ItemStack(Items.ENDER_PEARL))) {
-                    livingEntityPatch.playAnimationSynchronized(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F);
+                    livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
                     level = entity.level();
                     projectile = new ThrownEnderpearl(EntityType.ENDER_PEARL, level);
                     projectile.setOwner(entity);

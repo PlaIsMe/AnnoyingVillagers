@@ -1,11 +1,10 @@
 package com.pla.annoyingvillagers.mixin;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -23,9 +22,9 @@ public abstract class LivingEntityPatchMixin {
         if ((stunType == StunType.SHORT
                 || stunType == StunType.LONG
                 || stunType == StunType.HOLD)
-                && (dynamicAnimation == AVAnimations.HIT_BACKWARD
-                || dynamicAnimation == AVAnimations.HIT_LEFT
-                || dynamicAnimation == AVAnimations.HIT_RIGHT)) {
+                && (dynamicAnimation == AnimsPugilistSteve.HIT_BACKWARD
+                || dynamicAnimation == AnimsPugilistSteve.HIT_LEFT
+                || dynamicAnimation == AnimsPugilistSteve.HIT_RIGHT)) {
             self.getOriginal().xxa = 0.0F;
             self.getOriginal().yya = 0.0F;
             self.getOriginal().zza = 0.0F;

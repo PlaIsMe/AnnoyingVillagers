@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.client.engine;
 
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -11,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -42,7 +42,7 @@ public class RenderGreatSword extends RenderItemBase {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             ItemStack itemstack;
 
-            if (dynamicAnimation != AVAnimations.HARD_GREATSWORD_GUARD_SKILL && !dynamicAnimation.equals(AVAnimations.HARD_GREATSWORD_GUARD)) {
+            if (dynamicAnimation != AnimsPugilistSteve.HARD_GREATSWORD_GUARD_SKILL && !dynamicAnimation.equals(AnimsPugilistSteve.HARD_GREATSWORD_GUARD)) {
                 itemstack = new ItemStack(AnnoyingVillagersModItems.GREAT_SWORD.get());
                 poseStack.pushPose();
                 MathUtils.mulStack(poseStack, openmatrix4f);

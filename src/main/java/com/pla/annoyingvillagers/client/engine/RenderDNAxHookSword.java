@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.client.engine;
 
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -60,8 +60,8 @@ public class RenderDNAxHookSword extends RenderItemBase {
 
         AssetAccessor<? extends StaticAnimation> currentAnimation = animationPlayer.getRealAnimation();
 
-        boolean sweepingEdge = currentAnimation == AVAnimations.DNAX_HOOK_SWEEPING_EDGE;
-        boolean dancingEdge = currentAnimation == AVAnimations.DNAX_HOOK_DANCING_EDGE;
+        boolean sweepingEdge = currentAnimation == AnimsEpicFight.DNAX_HOOK_SWEEPING_EDGE;
+        boolean dancingEdge = currentAnimation == AnimsEpicFight.DNAX_HOOK_DANCING_EDGE;
 
         ItemStack renderStack;
 

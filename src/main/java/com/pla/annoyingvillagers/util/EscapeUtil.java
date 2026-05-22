@@ -7,6 +7,9 @@ import com.pla.annoyingvillagers.compat.EpicFightSwordSoaring;
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,15 +35,15 @@ public class EscapeUtil {
 
     static {
         DANGEROUS_ANIMATIONS.addAll(Set.of(
-                AVAnimations.ENDER_AEGIS_BULL_CHARGE.get().getRegistryName().toString(),
-                AVAnimations.YELLOW_TORMENT_CHARGED_ATTACK_3.get().getRegistryName().toString(),
-                AVAnimations.ENDER_GLAIVE_NAPOLEON_SHOOT_3.get().getRegistryName().toString(),
-                AVAnimations.ENDER_GLAIVE_AGONY_AUTO_1.get().getRegistryName().toString(),
-                AVAnimations.AEGIS_SHIELD_SHOOT.get().getRegistryName().toString(),
-                AVAnimations.CLONE_NAPOLEON_WATERLOW_SHOOT.get().getRegistryName().toString(),
+                AnimsWom.ENDER_AEGIS_BULL_CHARGE.get().getRegistryName().toString(),
+                AnimsWom.YELLOW_TORMENT_CHARGED_ATTACK_3.get().getRegistryName().toString(),
+                AnimsWom.ENDER_GLAIVE_NAPOLEON_SHOOT_3.get().getRegistryName().toString(),
+                AnimsWom.ENDER_GLAIVE_AGONY_AUTO_1.get().getRegistryName().toString(),
+                AnimsEpicFight.AEGIS_SHIELD_SHOOT.get().getRegistryName().toString(),
+                AnimsWom.CLONE_NAPOLEON_WATERLOW_SHOOT.get().getRegistryName().toString(),
                 AVAnimations.TRIDENT_ATTACK.get().getRegistryName().toString(),
-                AVAnimations.BLUE_DEMON_STATE_TRANSFORM.get().getRegistryName().toString(),
-                AVAnimations.ELECTRIC_FIELD.get().getRegistryName().toString(),
+                AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM.get().getRegistryName().toString(),
+                AnimsWom.ELECTRIC_FIELD.get().getRegistryName().toString(),
                 AVAnimations.SNAKE_BLADE_GUARD.get().getRegistryName().toString(),
                 AnimsAgony.AGONY_SKY_DIVE_X.get().getRegistryName().toString(),
                 AnimsAgony.AGONY_SKY_DIVE.get().getRegistryName().toString(),

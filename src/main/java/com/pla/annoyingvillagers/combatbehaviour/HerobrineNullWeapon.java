@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
@@ -55,7 +56,7 @@ public class HerobrineNullWeapon {
                                     Behavior.builder()
                                             .health(2.0F / 3.0F, HealthCheck.Comparator.LESS_RATIO_CONTAIN)
                                             .custom(HerobrineCommon::canPerformHealing)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_BUFF, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F)
                                             .addExBehavior(HerobrineCommon::performHealingAnimation)
                             )
             )
@@ -73,22 +74,22 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            .custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 5.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            .custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                             .withinDistance(0.0D, 5.0D)
-                                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
+                                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            .custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
+                                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -109,7 +110,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -119,7 +120,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -139,7 +140,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -149,7 +150,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -169,7 +170,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -179,7 +180,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -199,7 +200,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
+                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -209,7 +210,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -230,7 +231,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -240,7 +241,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -260,7 +261,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -270,7 +271,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -290,7 +291,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -300,7 +301,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -320,7 +321,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
+                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -330,7 +331,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -351,7 +352,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -361,7 +362,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -381,7 +382,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -391,7 +392,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -411,7 +412,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -421,7 +422,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -441,7 +442,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
+                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -451,7 +452,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -472,7 +473,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -482,7 +483,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -502,7 +503,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -512,7 +513,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -532,7 +533,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -542,7 +543,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -562,7 +563,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
+                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -572,7 +573,7 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -593,7 +594,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -603,12 +604,12 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -629,7 +630,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -639,12 +640,12 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
+                                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -665,7 +666,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -675,12 +676,12 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
+                                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -701,7 +702,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
+                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -711,12 +712,12 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -737,7 +738,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -747,12 +748,12 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
+                                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -773,7 +774,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -783,12 +784,12 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
+                                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -809,7 +810,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -819,12 +820,12 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -845,7 +846,7 @@ public class HerobrineNullWeapon {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                             .withinDistance(0.0D, 4.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -855,12 +856,12 @@ public class HerobrineNullWeapon {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                                                                                             .withinDistance(0.0D, 6.0D)
-                                                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
+                                                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLINK, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
@@ -883,17 +884,17 @@ public class HerobrineNullWeapon {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(2.0D, 15.0D)
-                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
+                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(2.0D, 15.0D)
-                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(2.0D, 15.0D)
-                                                                            .animationBehavior(AVAnimations.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
+                                                                            .animationBehavior(AnimsWom.NULL_ANTITHEUS_ASCENDED_AUTO_3, 0.0F)
                                                             )
                                             )
                             )
@@ -907,17 +908,17 @@ public class HerobrineNullWeapon {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(2.0D, 15.0D)
-                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(2.0D, 15.0D)
-                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(2.0D, 15.0D)
-                                                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_SHOOT, 0.0F)
+                                                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F)
                                                             )
                                             )
                             )
@@ -937,7 +938,7 @@ public class HerobrineNullWeapon {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(HerobrineCommon::canPlaySecondFormAnimation)                                            
                                             .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(AVAnimations.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
+                                            .animationBehavior(AnimsWom.CLONE_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F)
                             )
             )
             .newBehaviorRoot(
@@ -949,7 +950,7 @@ public class HerobrineNullWeapon {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(2.0D, 15.0D)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
                                             .addExBehavior(HerobrineCommon::releaseWeapon)
                             )
             )
@@ -963,7 +964,7 @@ public class HerobrineNullWeapon {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(2.0D, 15.0D)
                                             .custom(HerobrineCommon::canSummonNullSkeleton)
-                                            .animationBehavior(AVAnimations.NULL_SKELETON_ANTITHEUS_ASCENSION, 0.0F)
+                                            .animationBehavior(AnimsWom.NULL_SKELETON_ANTITHEUS_ASCENSION, 0.0F)
                             )
             )
             .newBehaviorRoot(

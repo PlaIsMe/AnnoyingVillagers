@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.skill;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.item.WoopieTheSwordItem;
 import com.pla.annoyingvillagers.network.ClientboundMuteExplosionAtPos;
 import com.pla.annoyingvillagers.network.ClientboundWoopieSwordWindFx;
@@ -15,7 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import reascer.wom.gameasset.animations.weapons.AnimsHerrscher;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -83,7 +82,7 @@ public class WoopieTheSwordSkill extends WeaponInnateSkill {
                     AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
                     if (dynamicAnimation == null) return;
 
-                    if (dynamicAnimation == AVAnimations.RUSH_SWORD && container.getStack() < 1) {
+                    if (dynamicAnimation == AnimsPugilistSteve.RUSH_SWORD && container.getStack() < 1) {
                         WoopieTheSwordSkill woopieTheSwordSkill = (WoopieTheSwordSkill) container.getSkill();
                         float currentResource = container.getResource();
                         float neededResource = container.getNeededResource();

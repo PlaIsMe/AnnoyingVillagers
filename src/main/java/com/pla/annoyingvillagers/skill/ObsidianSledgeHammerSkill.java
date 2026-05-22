@@ -1,9 +1,9 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import net.minecraft.network.FriendlyByteBuf;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.skill.SkillBuilder;
@@ -24,7 +24,7 @@ public class ObsidianSledgeHammerSkill extends WeaponInnateSkill {
     @Override
     public void executeOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
         if (!skillContainer.isActivated()) {
-            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.POSE_UP, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsPugilistSteve.POSE_UP, 0.0F);
             skillContainer.getExecutor().getOriginal().playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_WEAPON_SCREAMING.get(), 0.8F, 1.0F);
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
@@ -42,10 +42,10 @@ public class ObsidianSledgeHammerSkill extends WeaponInnateSkill {
                         event.setCanceled(true);
                         final PlayerPatch<?> playerPatch = event.getPlayerPatch();
                         AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-                        if (dynamicAnimation != null && dynamicAnimation == AVAnimations.SLEDGEHAMMER_TORMENT_BERSERK_AUTO_1) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.SLEDGEHAMMER_TORMENT_BERSERK_AUTO_2, 0.0F);
+                        if (dynamicAnimation != null && dynamicAnimation == AnimsWom.SLEDGEHAMMER_TORMENT_BERSERK_AUTO_1) {
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsWom.SLEDGEHAMMER_TORMENT_BERSERK_AUTO_2, 0.0F);
                         } else {
-                            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.SLEDGEHAMMER_TORMENT_BERSERK_AUTO_1, 0.0F);
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsWom.SLEDGEHAMMER_TORMENT_BERSERK_AUTO_1, 0.0F);
                         }
                     }
                 });

@@ -1,12 +1,10 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Builder;
-import net.shelmarow.combat_evolution.ai.condition.HealthCheck;
-import reascer.wom.gameasset.animations.weapons.AnimsHerrscher;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
@@ -57,7 +55,7 @@ public class NullWeaponSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -88,7 +86,7 @@ public class NullWeaponSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -119,7 +117,7 @@ public class NullWeaponSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -150,7 +148,7 @@ public class NullWeaponSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -192,7 +190,7 @@ public class NullWeaponSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -229,7 +227,7 @@ public class NullWeaponSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -266,7 +264,7 @@ public class NullWeaponSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -298,7 +296,7 @@ public class NullWeaponSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -346,7 +344,7 @@ public class NullWeaponSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -389,7 +387,7 @@ public class NullWeaponSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -432,7 +430,7 @@ public class NullWeaponSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -470,7 +468,7 @@ public class NullWeaponSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -513,7 +511,7 @@ public class NullWeaponSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -555,7 +553,7 @@ public class NullWeaponSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -592,7 +590,7 @@ public class NullWeaponSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -618,17 +616,17 @@ public class NullWeaponSword {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .withinDistance(0.0D, 3.0D)
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .withinDistance(0.0D, 3.0D)
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             )
                                             )
                             )

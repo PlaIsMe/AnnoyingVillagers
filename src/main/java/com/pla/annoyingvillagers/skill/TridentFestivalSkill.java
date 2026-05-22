@@ -1,14 +1,11 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.entity.*;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AVSkillDataKeys;
+import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
@@ -16,7 +13,6 @@ import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataManager;
@@ -64,12 +60,12 @@ public class TridentFestivalSkill extends WeaponInnateSkill {
                                 && BlueDemonTridentItem.isFullyCharged(mainHand)
                                 && BlueDemonTridentItem.isFullyCharged(offHand);
                 if (bothFullyCharged) {
-                    skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.TRIDENT_FESTIVAL, 0.0F);
+                    skillContainer.getExecutor().playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_FESTIVAL, 0.0F);
                 } else {
                     skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.TRIDENT_ATTACK, 0.0F);
                 }
             } else {
-                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.ELECTRIC_FIELD, 0.0F);
+                skillContainer.getExecutor().playAnimationSynchronized(AnimsWom.ELECTRIC_FIELD, 0.0F);
             }
         }
     }
@@ -122,21 +118,21 @@ public class TridentFestivalSkill extends WeaponInnateSkill {
                         AssetAccessor<? extends StaticAnimation> dynamicAnimation =
                                 Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
 
-                        if (dynamicAnimation != null && dynamicAnimation == AVAnimations.TRIDENT_THROW_1) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.TRIDENT_THROW_2, 0.0F);
-                        } else if (dynamicAnimation != null && dynamicAnimation == AVAnimations.TRIDENT_THROW_2) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.TRIDENT_THROW_3, 0.0F);
-                        } else if (dynamicAnimation != null && dynamicAnimation == AVAnimations.TRIDENT_THROW_3) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.DP_THROW_BLADE_AUTO_2, 0.0F);
-                        } else if (dynamicAnimation != null && dynamicAnimation == AVAnimations.DP_THROW_BLADE_AUTO_2) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.TRIDENT_THROW_5, 0.0F);
+                        if (dynamicAnimation != null && dynamicAnimation == AnimsEpicFightBattleArts.TRIDENT_THROW_1) {
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_THROW_2, 0.0F);
+                        } else if (dynamicAnimation != null && dynamicAnimation == AnimsPugilistSteve.TRIDENT_THROW_2) {
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightBattleArts.TRIDENT_THROW_3, 0.0F);
+                        } else if (dynamicAnimation != null && dynamicAnimation == AnimsEpicFightBattleArts.TRIDENT_THROW_3) {
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_2, 0.0F);
+                        } else if (dynamicAnimation != null && dynamicAnimation == AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_2) {
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightBattleArts.TRIDENT_THROW_5, 0.0F);
                         } else {
                             if (playerPatch.getOriginal().isSprinting()) {
-                                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.DP_THROW_BLADE_AUTO_1, 0.0F);
+                                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_1, 0.0F);
                             } else if (!playerPatch.getOriginal().onGround() && !playerPatch.getOriginal().isInWater()) {
-                                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.THROW_HOOK_SLASH_AIR, 0.0F);
+                                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightAwaken.THROW_HOOK_SLASH_AIR, 0.0F);
                             } else {
-                                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.TRIDENT_THROW_1, 0.0F);
+                                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightBattleArts.TRIDENT_THROW_1, 0.0F);
                             }
                         }
                     }
@@ -148,7 +144,7 @@ public class TridentFestivalSkill extends WeaponInnateSkill {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             if (dynamicAnimation == null) return;
 
-            if (dynamicAnimation == AVAnimations.TRIDENT_ATTACK || dynamicAnimation == AVAnimations.ELECTRIC_FIELD || dynamicAnimation == AVAnimations.TRIDENT_FESTIVAL) {
+            if (dynamicAnimation == AVAnimations.TRIDENT_ATTACK || dynamicAnimation == AnimsWom.ELECTRIC_FIELD || dynamicAnimation == AnimsPugilistSteve.TRIDENT_FESTIVAL) {
                 pre.setCanceled(true);
                 pre.setResult(AttackResult.ResultType.BLOCKED);
             }
@@ -165,9 +161,9 @@ public class TridentFestivalSkill extends WeaponInnateSkill {
                         EpicfightUtil.damageBlocked(pre.getDamageSource(), playerPatch.getOriginal(), serverLevel);
                     }
                     if (new Random().nextBoolean()) {
-                        playerPatch.playAnimationSynchronized(AVAnimations.TRIDENT_GUARD_HIT_1, 0.0F);
+                        playerPatch.playAnimationSynchronized(AnimsWom.TRIDENT_GUARD_HIT_1, 0.0F);
                     } else {
-                        playerPatch.playAnimationSynchronized(AVAnimations.TRIDENT_GUARD_HIT_2, 0.0F);
+                        playerPatch.playAnimationSynchronized(AnimsWom.TRIDENT_GUARD_HIT_2, 0.0F);
                     }
                 }
             }

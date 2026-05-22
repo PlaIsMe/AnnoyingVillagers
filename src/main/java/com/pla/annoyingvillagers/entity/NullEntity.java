@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.entity;
 import java.util.*;
 
 import com.pla.annoyingvillagers.clazz.NullWeapon;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -43,9 +43,6 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.gameasset.EpicFightSounds;
-import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
@@ -307,7 +304,7 @@ public class NullEntity extends HerobrineMob {
                 this.spawnNullWeapon = true;
                 initialSpawn();
             } else if (this.tickCount == 20 && this.getLivingEntityPatch() != null) {
-                this.getLivingEntityPatch().playAnimationSynchronized(AVAnimations.CLONE_ANTITHEUS_ASCENSION, 0.0F);
+                this.getLivingEntityPatch().playAnimationSynchronized(AnimsWom.CLONE_ANTITHEUS_ASCENSION, 0.0F);
             }
 
             if (nullSwordEntity == null && nullSwordUUID != null) {

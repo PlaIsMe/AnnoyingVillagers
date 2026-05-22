@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.efkick.gameasset.EFKickAnimations;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
@@ -89,7 +90,7 @@ public class NpcLadder {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .custom(CombatCommon::canThrowEnderPearl)
                                             .withinDistance(7.0D, 48.0D)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
                                             .addExBehavior(CombatCommon::performEnderPearlToTarget)
                             )
             )
@@ -112,7 +113,7 @@ public class NpcLadder {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 3.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -167,7 +168,7 @@ public class NpcLadder {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -224,7 +225,7 @@ public class NpcLadder {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -265,7 +266,7 @@ public class NpcLadder {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -328,7 +329,7 @@ public class NpcLadder {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -397,7 +398,7 @@ public class NpcLadder {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -438,7 +439,7 @@ public class NpcLadder {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -536,7 +537,7 @@ public class NpcLadder {
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -569,7 +570,7 @@ public class NpcLadder {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -617,7 +618,7 @@ public class NpcLadder {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -669,7 +670,7 @@ public class NpcLadder {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                             )
             )
             .newBehaviorRoot(
@@ -683,7 +684,7 @@ public class NpcLadder {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .custom(CombatCommon::canThrowEnderPearl)
                                             .custom(CombatCommon::canAttackWhileNotHealing)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
                                             .addExBehavior(CombatCommon::performEnderPearlAway)
                             )
             )

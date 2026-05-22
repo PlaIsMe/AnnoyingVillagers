@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
 import net.minecraft.network.FriendlyByteBuf;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -19,9 +19,9 @@ public class HookSwordSkill extends WeaponInnateSkill {
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
             if (new Random().nextBoolean()) {
-                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.HOOK_AXE_AUTO1, 0.0F);
+                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFight.HOOK_AXE_AUTO1, 0.0F);
             } else {
-                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.HOOK_AXE_AUTO2, 0.0F);
+                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFight.HOOK_AXE_AUTO2, 0.0F);
             }
         }
     }

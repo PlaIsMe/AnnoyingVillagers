@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.core.particles.ParticleTypes;
@@ -68,7 +68,7 @@ public class LegendarySwordSkill extends WeaponInnateSkill {
                         0.0D, 0.0D, 0.0D,
                         0.5D
                 );
-                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.LEGENDARY_SWORD_HEAVY_ATTACK, 0.0F);
+                skillContainer.getExecutor().playAnimationSynchronized(AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK, 0.0F);
             }
         };
         super.executeOnServer(skillContainer, friendlyByteBuf);

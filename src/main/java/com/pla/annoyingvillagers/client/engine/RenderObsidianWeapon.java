@@ -2,8 +2,9 @@ package com.pla.annoyingvillagers.client.engine;
 
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.pla.annoyingvillagers.clazz.HerobrineMob;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -18,7 +19,6 @@ import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimat
 import reascer.wom.gameasset.animations.weapons.AnimsEnderblaster;
 import reascer.wom.gameasset.animations.weapons.AnimsMoonless;
 import yesman.epicfight.api.animation.AnimationPlayer;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -53,20 +53,20 @@ public class RenderObsidianWeapon extends RenderItemBase {
             EntityState entityState = (dynamicAnimation.get()).getState(livingEntityPatch, elapsedTimeFloat);
             ItemStack itemstack;
 
-            if (dynamicAnimation == AVAnimations.OLD_MOONLESS_RUN
-                    || dynamicAnimation == AVAnimations.OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL
-                    || dynamicAnimation == AVAnimations.OBSIDIAN_ZOMBIE_ATTACK3
-                    || dynamicAnimation == AVAnimations.OBSIDIAN_FIST_AUTO3
-                    || dynamicAnimation == AVAnimations.OBSIDIAN_FIST_AUTO1
-                    || dynamicAnimation == AVAnimations.OBSIDIAN_BIPED_LANDING
-                    || dynamicAnimation == AVAnimations.OBSIDIAN_STRONG_PUNCH
+            if (dynamicAnimation == AnimsWom.OLD_MOONLESS_RUN
+                    || dynamicAnimation == AnimsWom.OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL
+                    || dynamicAnimation == AnimsEpicFight.OBSIDIAN_ZOMBIE_ATTACK3
+                    || dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AUTO3
+                    || dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AUTO1
+                    || dynamicAnimation == AnimsEpicFight.OBSIDIAN_BIPED_LANDING
+                    || dynamicAnimation == AnimsWom.OBSIDIAN_STRONG_PUNCH
                     || dynamicAnimation.get() instanceof ExecutionAttackAnimation) {
                 itemstack = ItemStack.EMPTY;
                 poseStack.pushPose();
                 MathUtils.mulStack(poseStack, openmatrix4f);
                 Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                 poseStack.popPose();
-            } else if (dynamicAnimation == AVAnimations.OBSIDIAN_FIST_DASH && entityState.getLevel() > 1) {
+            } else if (dynamicAnimation == AnimsPugilistSteve.OBSIDIAN_FIST_DASH && entityState.getLevel() > 1) {
                 itemstack = ItemStack.EMPTY;
                 poseStack.pushPose();
                 MathUtils.mulStack(poseStack, openmatrix4f);

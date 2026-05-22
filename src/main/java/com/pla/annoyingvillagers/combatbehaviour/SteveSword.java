@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.efkick.gameasset.EFKickAnimations;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
@@ -43,7 +44,7 @@ public class SteveSword {
                                     Behavior.builder()
                                             .custom(CombatCommon::canEscape)
                                             .withinDistance(0.0D, 48.0D)
-                                            .animationBehavior(AVAnimations.KNIFE_CHECK, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.KNIFE_CHECK, 0.0F)
                             )
             )
             .newBehaviorRoot(
@@ -111,7 +112,7 @@ public class SteveSword {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .custom(CombatCommon::canThrowEnderPearl)
                                             .withinDistance(7.0D, 48.0D)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
                                             .addExBehavior(CombatCommon::performEnderPearlToTarget)
                             )
             )
@@ -158,7 +159,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -189,7 +190,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -226,7 +227,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -269,7 +270,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -300,7 +301,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -337,7 +338,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -380,7 +381,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -416,7 +417,7 @@ public class SteveSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -458,7 +459,7 @@ public class SteveSword {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -491,7 +492,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -534,7 +535,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -570,7 +571,7 @@ public class SteveSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -602,7 +603,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -645,7 +646,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -687,7 +688,7 @@ public class SteveSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -720,17 +721,17 @@ public class SteveSword {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_1, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_2, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 3.0D)
-                                                                            .animationBehavior(AVAnimations.SWORD_HEAVY_AUTO_3, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F)
                                                             )
                                             )
                             )
@@ -770,7 +771,7 @@ public class SteveSword {
                                             .withinDistance(0.0D, 3.0D)
                                             .custom(CombatCommon::canThrowEnderPearl)
                                             .custom(CombatCommon::canAttackWhileNotHealing)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
                                             .addExBehavior(CombatCommon::performEnderPearlAway)
                             )
             )
@@ -955,7 +956,7 @@ public class SteveSword {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .custom(CombatCommon::canThrowEnderPearl)
                                             .withinDistance(7.0D, 48.0D)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
                                             .addExBehavior(CombatCommon::performEnderPearlToTarget)
                             )
             )
@@ -983,16 +984,16 @@ public class SteveSword {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 3.0D)
-                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD1, 0.0F).addNextBehavior(
+                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD1, 0.0F).addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                                             .withinDistance(0.0D, 3.0D)
-                                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD2, 0.0F)
+                                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD2, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                                                             .withinDistance(0.0D, 3.0D)
-                                                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD3, 0.0F)
+                                                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD3, 0.0F)
                                                                                                             )
                                                                                             )
                                                                             )
@@ -1076,7 +1077,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.DUAL_DANCING_EDGE, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.DUAL_DANCING_EDGE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1123,7 +1124,7 @@ public class SteveSword {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD1, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1145,12 +1146,12 @@ public class SteveSword {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(AVAnimations.DUAL_SWORD1, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.DUAL_SWORD_DANCING_EDGE, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD_DANCING_EDGE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1160,7 +1161,7 @@ public class SteveSword {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD2, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD2, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1250,7 +1251,7 @@ public class SteveSword {
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD1, 0.0F)
+                                                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD1, 0.0F)
                                                                                                                             .addNextBehavior(
                                                                                                                                     Behavior.builder()
                                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1273,7 +1274,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.DUAL_SWORD_DANCING_EDGE, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD_DANCING_EDGE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1293,7 +1294,7 @@ public class SteveSword {
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD1, 0.0F)
+                                                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD1, 0.0F)
                                                                                                                             .addNextBehavior(
                                                                                                                                     Behavior.builder()
                                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1311,7 +1312,7 @@ public class SteveSword {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(AVAnimations.DUAL_SWORD2, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD2, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1326,7 +1327,7 @@ public class SteveSword {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD3, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD3, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1353,7 +1354,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.DUAL_DANCING_EDGE, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.DUAL_DANCING_EDGE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1363,7 +1364,7 @@ public class SteveSword {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD1, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD1, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1427,7 +1428,7 @@ public class SteveSword {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.DUAL_SWORD_DANCING_EDGE, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD_DANCING_EDGE, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1442,7 +1443,7 @@ public class SteveSword {
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD1, 0.0F)
+                                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD1, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1465,7 +1466,7 @@ public class SteveSword {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(AVAnimations.DUAL_SWORD1, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1475,7 +1476,7 @@ public class SteveSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.DUAL_SWORD2, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD2, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1512,7 +1513,7 @@ public class SteveSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.DUAL_DANCING_EDGE, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_DANCING_EDGE, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1527,7 +1528,7 @@ public class SteveSword {
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD1, 0.0F)
+                                                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD1, 0.0F)
                                                                                                                             .addNextBehavior(
                                                                                                                                     Behavior.builder()
                                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1560,7 +1561,7 @@ public class SteveSword {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD_DANCING_EDGE, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD_DANCING_EDGE, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -1604,12 +1605,12 @@ public class SteveSword {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .withinDistance(0.0D, 3.0D)
-                                                                            .animationBehavior(AVAnimations.DUAL_DANCING_EDGE, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_DANCING_EDGE, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                                             .withinDistance(0.0D, 3.0D)
-                                                                                            .animationBehavior(AVAnimations.DUAL_SWORD_DANCING_EDGE, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.DUAL_SWORD_DANCING_EDGE, 0.0F)
                                                                             )
                                                             )
                                             )
@@ -1650,7 +1651,7 @@ public class SteveSword {
                                             .withinDistance(0.0D, 3.0D)
                                             .custom(CombatCommon::canThrowEnderPearl)
                                             .custom(CombatCommon::canAttackWhileNotHealing)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
                                             .addExBehavior(CombatCommon::performEnderPearlAway)
                             )
             )

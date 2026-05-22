@@ -2,12 +2,11 @@ package com.pla.annoyingvillagers.mobpatch;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
-import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.combatbehaviour.HerobrineEnderSlayerScythe;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.EscapeUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -25,9 +24,6 @@ import reascer.wom.gameasset.animations.weapons.AnimsEnderblaster;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.animation.types.AttackAnimation;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
-import yesman.epicfight.api.animation.types.GuardAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.AttackResult;
@@ -69,7 +65,7 @@ public class ReaperHerobrinePatch extends CEHumanoidPatch implements CustomExecu
                         ImmutableMap.of(
                                 Styles.TWO_HAND,
                                 Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AVAnimations.GLOWING_AGONY_GUARD),
+                                        Pair.of(LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD),
                                         Pair.of(LivingMotions.IDLE, AnimsEnderblaster.ENDERBLASTER_TWOHAND_IDLE),
                                         Pair.of(LivingMotions.WALK, AnimsEnderblaster.ENDERBLASTER_TWOHAND_IDLE),
                                         Pair.of(LivingMotions.RUN, AnimsEnderblaster.ENDERBLASTER_TWOHAND_IDLE),
@@ -78,7 +74,7 @@ public class ReaperHerobrinePatch extends CEHumanoidPatch implements CustomExecu
                                 ),
                                 Styles.MOUNT,
                                 Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AVAnimations.GLOWING_AGONY_GUARD),
+                                        Pair.of(LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD),
                                         Pair.of(LivingMotions.IDLE, AnimsEnderblaster.ENDERBLASTER_TWOHAND_IDLE),
                                         Pair.of(LivingMotions.WALK, AnimsEnderblaster.ENDERBLASTER_TWOHAND_IDLE),
                                         Pair.of(LivingMotions.RUN, AnimsEnderblaster.ENDERBLASTER_TWOHAND_IDLE),

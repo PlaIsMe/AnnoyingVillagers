@@ -3,9 +3,8 @@ package com.pla.annoyingvillagers.event;
 import com.pla.annoyingvillagers.entity.AlexEntity;
 import com.pla.annoyingvillagers.entity.ChrisEntity;
 import com.pla.annoyingvillagers.entity.SteveEntity;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -43,7 +42,7 @@ public class TotemUsingEvent {
                         steveEntity.setState(1);
                         LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
                         if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch != null) {
-                            livingEntityPatch.playAnimationSynchronized(AVAnimations.GUARD_BREAK_ATTACK, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
                         }
                     }
                 };
@@ -104,7 +103,7 @@ public class TotemUsingEvent {
                         alexEntity.setState(1);
                         LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
                         if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch != null) {
-                            livingEntityPatch.playAnimationSynchronized(AVAnimations.GUARD_BREAK_ATTACK, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
                         }
                     }
                 };
@@ -124,7 +123,7 @@ public class TotemUsingEvent {
                         chrisEntity.setState(1);
                         LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
                         if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch != null) {
-                            livingEntityPatch.playAnimationSynchronized(AVAnimations.GUARD_BREAK_ATTACK, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
                         }
                     }
                 };

@@ -3,11 +3,12 @@ package com.pla.annoyingvillagers.mobpatch;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.combatbehaviour.*;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.EscapeUtil;
 import com.pla.annoyingvillagers.util.MobPatchCommon;
@@ -22,7 +23,6 @@ import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
 import net.shelmarow.combat_evolution.ai.iml.CustomExecuteEntity;
 import net.shelmarow.combat_evolution.execution.ExecutionTypeManager;
-import reascer.wom.gameasset.WOMAnimations;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -94,11 +94,11 @@ public class AngryStevePatch extends CEHumanoidPatch implements CustomExecuteEnt
                         ImmutableMap.of(
                                 Styles.TWO_HAND,
                                 Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AVAnimations.LEGENDARY_SWORD_GUARD),
-                                        Pair.of(LivingMotions.IDLE, AVAnimations.LEGENDARY_SWORD_IDLE),
-                                        Pair.of(LivingMotions.WALK, AVAnimations.TORMENT_BERSERK_WALK),
-                                        Pair.of(LivingMotions.RUN, AVAnimations.RUN_DUAL_BIG),
-                                        Pair.of(LivingMotions.CHASE, AVAnimations.RUN_DUAL_BIG),
+                                        Pair.of(LivingMotions.BLOCK, AnimsPugilistSteve.LEGENDARY_SWORD_GUARD),
+                                        Pair.of(LivingMotions.IDLE, AnimsSculkSteve.LEGENDARY_SWORD_IDLE),
+                                        Pair.of(LivingMotions.WALK, AnimsWom.TORMENT_BERSERK_WALK),
+                                        Pair.of(LivingMotions.RUN, AnimsPugilistSteve.RUN_DUAL_BIG),
+                                        Pair.of(LivingMotions.CHASE, AnimsPugilistSteve.RUN_DUAL_BIG),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 )
                         ));

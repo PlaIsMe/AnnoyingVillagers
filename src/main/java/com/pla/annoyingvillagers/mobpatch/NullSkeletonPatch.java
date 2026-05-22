@@ -2,12 +2,9 @@ package com.pla.annoyingvillagers.mobpatch;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
-import com.pla.annoyingvillagers.combatbehaviour.NpcBow;
-import com.pla.annoyingvillagers.combatbehaviour.NpcFist;
-import com.pla.annoyingvillagers.combatbehaviour.NpcSword;
 import com.pla.annoyingvillagers.combatbehaviour.NullSkeletonSword;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -61,8 +58,8 @@ public class NullSkeletonPatch extends CEHumanoidPatch implements CustomExecuteE
                                         Pair.of(LivingMotions.BLOCK, Animations.SWORD_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, AVAnimations.BIPED_RUN_ESWORD),
-                                        Pair.of(LivingMotions.CHASE, AVAnimations.BIPED_RUN_ESWORD),
+                                        Pair.of(LivingMotions.RUN, AnimsPugilistSteve.BIPED_RUN_ESWORD),
+                                        Pair.of(LivingMotions.CHASE, AnimsPugilistSteve.BIPED_RUN_ESWORD),
                                         Pair.of(LivingMotions.DEATH, Animations.GREATSWORD_GUARD_BREAK)
                                 )
                         ));

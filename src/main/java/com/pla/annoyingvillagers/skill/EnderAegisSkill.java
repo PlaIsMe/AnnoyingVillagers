@@ -1,10 +1,9 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.item.EnderAegisItem;
-import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
@@ -12,18 +11,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationPlayer;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.gameasset.EpicFightSounds;
-import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
@@ -59,7 +53,7 @@ public class EnderAegisSkill extends WeaponInnateSkill {
     @Override
     public void executeOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
         if (!skillContainer.isActivated()) {
-            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.ENDER_AEGIS_NAPOLEON_RELOAD_1, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsWom.ENDER_AEGIS_NAPOLEON_RELOAD_1, 0.0F);
             skillContainer.getExecutor().getOriginal().playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_WEAPON_SCREAMING.get(), 0.8F, 1.0F);
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
@@ -89,7 +83,7 @@ public class EnderAegisSkill extends WeaponInnateSkill {
                             && itemStack.getTag() != null) {
                         event.setCanceled(true);
                         if (event.getPlayerPatch().getOriginal().getCooldowns().getCooldownPercent(itemStack.getItem(), 0) == 0) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.AEGIS_SHIELD_SHOOT, 0.0F);
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFight.AEGIS_SHIELD_SHOOT, 0.0F);
                         }
                     }
                 }
@@ -109,7 +103,7 @@ public class EnderAegisSkill extends WeaponInnateSkill {
 
             if (!damageSource.is(DamageTypes.MAGIC) && !damageSource.is(DamageTypes.EXPLOSION)
                     && !damageSource.is(DamageTypes.ON_FIRE) && !damageSource.is(DamageTypes.IN_FIRE) && !damageSource.is(DamageTypes.FALL)
-                    && skillContainer.isActivated() && dynamicAnimation == AVAnimations.AEGIS_SHIELD_SHOOT && entityState.getLevel() < 3) {
+                    && skillContainer.isActivated() && dynamicAnimation == AnimsEpicFight.AEGIS_SHIELD_SHOOT && entityState.getLevel() < 3) {
                 Entity entity = damageSource.getEntity();
                 if (entity != null) {
                     Vec3 entityPosition = entity.position();

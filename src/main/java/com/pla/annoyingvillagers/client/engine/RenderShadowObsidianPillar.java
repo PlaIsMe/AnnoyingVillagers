@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.client.engine;
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,7 +15,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimation;
 import yesman.epicfight.api.animation.AnimationPlayer;
-import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -52,21 +51,21 @@ public class RenderShadowObsidianPillar extends RenderItemBase {
                 EntityState entityState = (dynamicAnimation.get()).getState(livingEntityPatch, elapsedTimeFloat);
                 ItemStack itemstack;
 
-                if (dynamicAnimation == AVAnimations.OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL
-                        || dynamicAnimation == AVAnimations.OBSIDIAN_ZOMBIE_ATTACK3
-                        || dynamicAnimation == AVAnimations.OBSIDIAN_FIST_AUTO3
-                        || dynamicAnimation == AVAnimations.OBSIDIAN_FIST_AUTO1
-                        || dynamicAnimation == AVAnimations.OBSIDIAN_BIPED_LANDING) {
+                if (dynamicAnimation == AnimsWom.OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL
+                        || dynamicAnimation == AnimsEpicFight.OBSIDIAN_ZOMBIE_ATTACK3
+                        || dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AUTO3
+                        || dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AUTO1
+                        || dynamicAnimation == AnimsEpicFight.OBSIDIAN_BIPED_LANDING) {
                     itemstack = ItemStack.EMPTY;
                     poseStack.pushPose();
                     MathUtils.mulStack(poseStack, openmatrix4fmainHand);
                     Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                     poseStack.popPose();
-                } else if (((dynamicAnimation == AVAnimations.OBSIDIAN_FIST_AIR_SLASH
-                        || dynamicAnimation == AVAnimations.OBSIDIAN_INFERNAL_AUTO_2
+                } else if (((dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AIR_SLASH
+                        || dynamicAnimation == AnimsEpicFightInfernalGainer.OBSIDIAN_INFERNAL_AUTO_2
                         || dynamicAnimation.get() instanceof ExecutionAttackAnimation) && entityState.getLevel() > 1)
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE_PILLAR) {
+                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE
+                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE_PILLAR) {
                     itemstack = new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_BURST.get());
                     if (itemstack.getTag() != null) {
                         itemstack.getTag().putBoolean("foil", livingEntityPatch.getOriginal().getMainHandItem().isEnchanted());
@@ -75,10 +74,10 @@ public class RenderShadowObsidianPillar extends RenderItemBase {
                     MathUtils.mulStack(poseStack, openmatrix4fmainHand);
                     Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                     poseStack.popPose();
-                } else if ((dynamicAnimation == AVAnimations.OBSIDIAN_INFERNAL_AUTO_1
-                        || dynamicAnimation == AVAnimations.OBSIDIAN_STRONG_PUNCH
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_FIST_AUTO1
-                        || dynamicAnimation == AVAnimations.SHADOW_OBSIDIAN_FIST_AUTO3)
+                } else if ((dynamicAnimation == AnimsEpicFightInfernalGainer.OBSIDIAN_INFERNAL_AUTO_1
+                        || dynamicAnimation == AnimsWom.OBSIDIAN_STRONG_PUNCH
+                        || dynamicAnimation == AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO1
+                        || dynamicAnimation == AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO3)
                         && entityState.getLevel() > 1) {
                     itemstack = new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_PILLAR.get());
                     poseStack.pushPose();

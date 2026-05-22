@@ -4,7 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.combatbehaviour.HerobrineShadowObsidianPillar;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.EscapeUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -54,11 +55,11 @@ public class ShadowHerobrineClonePatch extends CEHumanoidPatch implements Custom
                         ImmutableMap.of(
                                 Styles.TWO_HAND,
                                 Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AVAnimations.FIST_GUARD),
+                                        Pair.of(LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, AVAnimations.OLD_MOONLESS_RUN),
-                                        Pair.of(LivingMotions.CHASE, AVAnimations.OLD_MOONLESS_RUN),
+                                        Pair.of(LivingMotions.RUN, AnimsWom.OLD_MOONLESS_RUN),
+                                        Pair.of(LivingMotions.CHASE, AnimsWom.OLD_MOONLESS_RUN),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 )
                         ));

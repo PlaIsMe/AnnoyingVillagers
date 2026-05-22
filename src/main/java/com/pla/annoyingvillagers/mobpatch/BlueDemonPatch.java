@@ -2,25 +2,19 @@ package com.pla.annoyingvillagers.mobpatch;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
-import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.combatbehaviour.*;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.EscapeUtil;
-import com.pla.annoyingvillagers.util.MobPatchCommon;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraftforge.fml.ModList;
-import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
 import net.shelmarow.combat_evolution.ai.iml.CustomExecuteEntity;
 import net.shelmarow.combat_evolution.execution.ExecutionTypeManager;
@@ -29,22 +23,17 @@ import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.api.utils.AttackResult.ResultType;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
-import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
-import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 public class BlueDemonPatch extends CEHumanoidPatch implements CustomExecuteEntity {
@@ -71,9 +60,9 @@ public class BlueDemonPatch extends CEHumanoidPatch implements CustomExecuteEnti
                                         Pair.of(LivingMotions.BLOCK, Animations.SWORD_DUAL_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_HOLD_DUAL_WEAPON),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_HOLD_DUAL_WEAPON),
-                                        Pair.of(LivingMotions.RUN, AVAnimations.TRIDENT_TWO_HAND_RUN),
-                                        Pair.of(LivingMotions.CHASE, AVAnimations.TRIDENT_TWO_HAND_RUN),
-                                        Pair.of(LivingMotions.DEATH, AVAnimations.BLUE_DEMON_STATE_TRANSFORM)
+                                        Pair.of(LivingMotions.RUN, AnimsWom.TRIDENT_TWO_HAND_RUN),
+                                        Pair.of(LivingMotions.CHASE, AnimsWom.TRIDENT_TWO_HAND_RUN),
+                                        Pair.of(LivingMotions.DEATH, AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM)
                                 )
                         ));
 
@@ -96,12 +85,12 @@ public class BlueDemonPatch extends CEHumanoidPatch implements CustomExecuteEnti
                         ImmutableMap.of(
                                 Styles.TWO_HAND,
                                 Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AVAnimations.LEGENDARY_SWORD_GUARD),
-                                        Pair.of(LivingMotions.IDLE, AVAnimations.LEGENDARY_SWORD_IDLE),
-                                        Pair.of(LivingMotions.WALK, AVAnimations.TORMENT_BERSERK_WALK),
-                                        Pair.of(LivingMotions.RUN, AVAnimations.RUN_DUAL_BIG),
-                                        Pair.of(LivingMotions.CHASE, AVAnimations.RUN_DUAL_BIG),
-                                        Pair.of(LivingMotions.DEATH, AVAnimations.BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK)
+                                        Pair.of(LivingMotions.BLOCK, AnimsPugilistSteve.LEGENDARY_SWORD_GUARD),
+                                        Pair.of(LivingMotions.IDLE, AnimsSculkSteve.LEGENDARY_SWORD_IDLE),
+                                        Pair.of(LivingMotions.WALK, AnimsWom.TORMENT_BERSERK_WALK),
+                                        Pair.of(LivingMotions.RUN, AnimsPugilistSteve.RUN_DUAL_BIG),
+                                        Pair.of(LivingMotions.CHASE, AnimsPugilistSteve.RUN_DUAL_BIG),
+                                        Pair.of(LivingMotions.DEATH, AnimsEpicFight.BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK)
                                 )
                         ));
         this.weaponAttackMotions

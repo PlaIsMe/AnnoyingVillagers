@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.potion;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsTacticalImbuements;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import net.minecraft.core.BlockPos;
@@ -49,9 +49,9 @@ public class ElectrifyMobEffect extends MobEffect {
                         && !(dynamicAnimation.get() instanceof ExecutionAttackAnimation)
                         && !(dynamicAnimation.get() instanceof ExecutionHitAnimation)) {
                     if (pAmplifier > 1) {
-                        livingEntityPatch.playAnimationSynchronized(AVAnimations.ZAP_LONG, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsTacticalImbuements.ZAP_LONG, 0.0F);
                     } else {
-                        livingEntityPatch.playAnimationSynchronized(AVAnimations.ZAP, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsTacticalImbuements.ZAP, 0.0F);
                     }
                 }
             }

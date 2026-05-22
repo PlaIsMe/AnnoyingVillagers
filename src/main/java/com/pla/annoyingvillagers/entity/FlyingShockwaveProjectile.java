@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.mojang.logging.LogUtils;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.mehvahdjukaar.dummmmmmy.Dummmmmmy;
 import net.mehvahdjukaar.dummmmmmy.common.TargetDummyEntity;
 import net.minecraft.world.InteractionHand;
@@ -136,7 +136,7 @@ public class FlyingShockwaveProjectile extends Projectile
                         return;
                     }
                 }
-                EpicFightDamageSource damage = playerpatch.getDamageSource(AVAnimations.WARBLADE_SATSUJIN_TSUKUYOMI, InteractionHand.MAIN_HAND);
+                EpicFightDamageSource damage = playerpatch.getDamageSource(AnimsWom.WARBLADE_SATSUJIN_TSUKUYOMI, InteractionHand.MAIN_HAND);
                 damage.setStunType(StunType.HOLD);
                 damage.setBaseImpact(0.5F);
                 damage.addRuntimeTag(EpicFightDamageTypeTags.WEAPON_INNATE);

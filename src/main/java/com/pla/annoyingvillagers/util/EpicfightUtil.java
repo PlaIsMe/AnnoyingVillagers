@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.util;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.FlyingShockwaveProjectile;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.server.level.ServerLevel;
@@ -22,7 +22,6 @@ import net.shelmarow.combat_evolution.ai.util.CEPatchUtils;
 import net.shelmarow.combat_evolution.effect.CEMobEffects;
 import net.shelmarow.combat_evolution.execution.ExecutionHandler;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionHitAnimation;
-import reascer.wom.gameasset.animations.weapons.*;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -109,7 +108,7 @@ public class EpicfightUtil {
     public static void dealStaminaDamage(DamageSource damageSource, float amount, LivingEntityPatch<?> livingEntityPatch, boolean playStunAnimation) {
         if (livingEntityPatch instanceof CEHumanoidPatch<?> ceHumanoidPatch) {
             if (!ceHumanoidPatch.dealStaminaDamage(damageSource, amount) && playStunAnimation) {
-                livingEntityPatch.playAnimationSynchronized(AVAnimations.GUARD_BREAK_ATTACK, 0.0F);
+                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
             }
         } else if (livingEntityPatch instanceof PlayerPatch<?> playerPatch) {
             float stamina = playerPatch.getStamina();

@@ -126,13 +126,21 @@ All required upstream notices must be preserved.
 **Paths / Files**
 - assets/annoyingvillagers/animmodels/animations/biped/epicfight_dual_greatsword
 
-### C4) ETactical Imbuements - M3tte - MIT
+### C4) Tactical Imbuements - M3tte - MIT
 - Type: code/assets adapted
 - License text: `third_party/licenses/MIT.md`
 - Source: https://www.curseforge.com/minecraft/mc-mods/tactical-imbuements
 
 **Paths / Files**
 - assets/annoyingvillagers/animmodels/animations/biped/tactical_imbuements
+
+### C5) Epic Sanji - reascer - MIT
+- Type: code/assets adapted
+- License text: `third_party/licenses/MIT.md`
+- Source: https://www.curseforge.com/minecraft/mc-mods/epic-sanji
+
+**Paths / Files**
+- assets/annoyingvillagers/animmodels/animations/biped/epicsanji
 
 ---
 
@@ -244,10 +252,18 @@ All required upstream notices must be preserved.
 ## H) Assets authorized by another author (Owned by the Original Author, you should contact the original author if you want to use it)
 
 ### H1) Sculk Steve
+- Type: assets authorized by original author
+- License text: `third_party/licenses/LicenseRef-Author-Permission.md`
+- Source: Authorized by original author; no public source URL recorded.
+
 **Paths / Files**
 - assets/annoyingvillagers/animmodels/animations/biped/sculk_steve
 
 ### H2) Yonchi Chikito
+- Type: assets authorized by original author
+- License text: `third_party/licenses/LicenseRef-Author-Permission.md`
+- Source: Authorized by original author; no public source URL recorded.
+
 **Paths / Files**
 - assets/annoyingvillagers/animmodels/animations/biped/yonchi_chikito
 

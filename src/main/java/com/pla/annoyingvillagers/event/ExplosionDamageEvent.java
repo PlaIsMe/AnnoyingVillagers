@@ -1,8 +1,9 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.entity.TridentLightningBolt;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.item.EnderGlaiveItem;
 import com.pla.annoyingvillagers.item.WoopieTheSwordItem;
 import com.pla.annoyingvillagers.skill.EnderGlaiveSkill;
@@ -46,7 +47,7 @@ public class ExplosionDamageEvent {
             if (livingEntityPatch == null) return;
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             if (livingEntity.getMainHandItem().getItem() instanceof EnderGlaiveItem
-                    && (dynamicAnimation == AVAnimations.ENDER_GLAIVE_AGONY_AUTO_1 || dynamicAnimation == AVAnimations.ENDER_GLAIVE_NAPOLEON_SHOOT_3)) {
+                    && (dynamicAnimation == AnimsWom.ENDER_GLAIVE_AGONY_AUTO_1 || dynamicAnimation == AnimsWom.ENDER_GLAIVE_NAPOLEON_SHOOT_3)) {
                 SkillContainer skillContainer = null;
                 if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                     skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_GLAIVE);
@@ -91,7 +92,7 @@ public class ExplosionDamageEvent {
                         if (explodedPatch != null) {
                             AssetAccessor<? extends StaticAnimation> explodedDynamicAnimation = Objects.requireNonNull(explodedPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
                             if (!EpicfightUtil.isLongHitAnimation(explodedDynamicAnimation, explodedPatch)) {
-                                explodedPatch.playAnimationSynchronized(AVAnimations.LONGEST_HIT, 0.0F);
+                                explodedPatch.playAnimationSynchronized(AnimsPugilistSteve.LONGEST_HIT, 0.0F);
                             }
                         }
                         if (!entity.isAlive()) continue;

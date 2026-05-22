@@ -1,8 +1,7 @@
 package com.pla.annoyingvillagers.skill;
 
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AVSkills;
+import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
@@ -114,7 +113,7 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
     @Override
     public void executeOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
         if (!skillContainer.isActivated()) {
-            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.AGONY_GUARD_HIT_1, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsWom.AGONY_GUARD_HIT_1, 0.0F);
             skillContainer.getExecutor().getOriginal().playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_WEAPON_SCREAMING.get(), 0.8F, 1.0F);
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
@@ -153,7 +152,7 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
                                 target = HerobrineDragonEntity.getNearestLivingEntity(player.level(), player, 48.0D);
                             }
                             if (entity instanceof HerobrineDragonEntity herobrineDragonEntity && target != null && target.isAlive()) {
-                                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F);
+                                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
                                 LivingEntity finalTarget = target;
                                 new DelayedTask(10) {
                                     @Override
@@ -170,7 +169,7 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
                             && player.getVehicle() instanceof HerobrineDragonEntity) {
                         event.setCanceled(true);
                         if (player.getMainHandItem().getItem() instanceof BowItem) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.BOW_AUTO_1, 0.0F);
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightACG.BOW_AUTO_1, 0.0F);
                         } else {
                             skillContainer.getExecutor().playAnimationSynchronized(AnimsAgony.AGONY_AUTO_1, 0.0F);
                         }
@@ -211,7 +210,7 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
                             ItemCooldowns cooldowns = event.getPlayerPatch().getOriginal().getCooldowns();
                             cooldowns.addCooldown(itemStack.getItem(), 20);
                             if (entity instanceof HerobrineDragonEntity herobrineDragonEntity && target != null && target.isAlive()) {
-                                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.CASTING_ONE_HAND_BUFF, 0.0F);
+                                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
                                 LivingEntity finalTarget = target;
                                 new DelayedTask(10) {
                                     @Override

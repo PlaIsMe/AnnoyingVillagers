@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightACG;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
@@ -40,14 +42,14 @@ public class PlayerNpcBow {
                                     Behavior.builder()
                                             .custom(CombatCommon::isRiding)
                                             .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(AVAnimations.KNIFE_CHECK, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.KNIFE_CHECK, 0.0F)
                                             .addExBehavior(CombatCommon::swapToMelee)
                             )
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::isRiding)
                                             .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(AVAnimations.KNIFE_CHECK, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.KNIFE_CHECK, 0.0F)
                                             .addExBehavior(CombatCommon::swapToMelee)
                             )
             )
@@ -78,15 +80,15 @@ public class PlayerNpcBow {
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .withinDistance(7.0D, 14.0D)
-                                            .animationBehavior(AVAnimations.BOW_AUTO_1, 0.0F)
+                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .withinDistance(7.0D, 14.0D)
-                                                            .animationBehavior(AVAnimations.BOW_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .withinDistance(7.0D, 14.0D)
-                                                                            .animationBehavior(AVAnimations.BOW_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                                             )
                                             )
                             )
@@ -100,7 +102,7 @@ public class PlayerNpcBow {
                                     Behavior.builder()
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 14.0D)
-                                            .animationBehavior(AVAnimations.BOW_AUTO_2, 0.0F)
+                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_2, 0.0F)
                             )
             )
             .newBehaviorRoot(
@@ -112,13 +114,13 @@ public class PlayerNpcBow {
                                     Behavior.builder()
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 14.0D)
-                                            .animationBehavior(AVAnimations.BOW_AUTO_3, 0.0F)
+                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_3, 0.0F)
                             )
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 14.0D)
-                                            .animationBehavior(AVAnimations.BOW_AUTO_5, 0.0F)
+                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_5, 0.0F)
                             )
             )
             .newBehaviorRoot(
@@ -130,13 +132,13 @@ public class PlayerNpcBow {
                                     Behavior.builder()
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 14.0D)
-                                            .animationBehavior(AVAnimations.BOW_AUTO_3, 0.0F)
+                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_3, 0.0F)
                             )
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 14.0D)
-                                            .animationBehavior(AVAnimations.BOW_AUTO_5, 0.0F)
+                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_5, 0.0F)
                             )
             )
             .newBehaviorRoot(
@@ -147,17 +149,17 @@ public class PlayerNpcBow {
                                     Behavior.builder()
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .withinDistance(7.0D, 80.0D)
-                                            .animationBehavior(AVAnimations.BOW_AUTO_1, 0.0F)
+                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                                             .withinDistance(7.0D, 80.0D)
-                                                            .animationBehavior(AVAnimations.BOW_AUTO_1, 0.0F)
+                                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                                                             .withinDistance(7.0D, 80.0D)
-                                                                            .animationBehavior(AVAnimations.BOW_AUTO_1, 0.0F)
+                                                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                                             )
                                             )
                             )
@@ -172,7 +174,7 @@ public class PlayerNpcBow {
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 80.0D)
-                                            .animationBehavior(AVAnimations.BOW_AUTO_2, 0.0F)
+                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_2, 0.0F)
                             )
             )
             .newBehaviorRoot(
@@ -185,14 +187,14 @@ public class PlayerNpcBow {
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 80.0D)
-                                            .animationBehavior(AVAnimations.BOW_AUTO_3, 0.0F)
+                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_3, 0.0F)
                             )
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 80.0D)
-                                            .animationBehavior(AVAnimations.BOW_AUTO_5, 0.0F)
+                                            .animationBehavior(AnimsEpicFightACG.BOW_AUTO_5, 0.0F)
                             )
             )
             .newBehaviorRoot(
@@ -222,7 +224,7 @@ public class PlayerNpcBow {
                                             .custom(CombatCommon::isNotRiding)
                                             .custom(CombatCommon::canThrowEnderPearl)
                                             .withinDistance(7.0D, 14.0D)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
                                             .addExBehavior(CombatCommon::performEnderPearlToTarget)
                             )
             );

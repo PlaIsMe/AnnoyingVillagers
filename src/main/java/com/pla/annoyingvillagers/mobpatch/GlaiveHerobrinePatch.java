@@ -2,12 +2,12 @@ package com.pla.annoyingvillagers.mobpatch;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
-import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.combatbehaviour.HerobrineEnderGlaive;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightValourGuard;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.EscapeUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -61,11 +61,11 @@ public class GlaiveHerobrinePatch extends CEHumanoidPatch implements CustomExecu
                         ImmutableMap.of(
                                 Styles.TWO_HAND,
                                 Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AVAnimations.GLOWING_AGONY_GUARD),
-                                        Pair.of(LivingMotions.IDLE, AVAnimations.VALOUR_HOLD_GREATSWORD),
-                                        Pair.of(LivingMotions.WALK, AVAnimations.VALOUR_WALK_GREATSWORD),
-                                        Pair.of(LivingMotions.RUN, AVAnimations.VALOUR_RUN_GREATSWORD),
-                                        Pair.of(LivingMotions.CHASE, AVAnimations.VALOUR_RUN_GREATSWORD),
+                                        Pair.of(LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD),
+                                        Pair.of(LivingMotions.IDLE, AnimsEpicFightValourGuard.VALOUR_HOLD_GREATSWORD),
+                                        Pair.of(LivingMotions.WALK, AnimsEpicFightValourGuard.VALOUR_WALK_GREATSWORD),
+                                        Pair.of(LivingMotions.RUN, AnimsEpicFightValourGuard.VALOUR_RUN_GREATSWORD),
+                                        Pair.of(LivingMotions.CHASE, AnimsEpicFightValourGuard.VALOUR_RUN_GREATSWORD),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 )
                         ));

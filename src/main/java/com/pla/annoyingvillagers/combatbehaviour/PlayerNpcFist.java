@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.efkick.gameasset.EFKickAnimations;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
@@ -108,7 +109,7 @@ public class PlayerNpcFist {
                                             .custom(CombatCommon::canThrowEnderPearl)
                                             .custom(CombatCommon::canAttackWhileNotHealing)
                                             .withinDistance(7.0D, 48.0D)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
                                             .addExBehavior(CombatCommon::performEnderPearlToTarget)
                             )
             )
@@ -147,7 +148,7 @@ public class PlayerNpcFist {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.FIST_LEFT, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.FIST_LEFT, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -200,7 +201,7 @@ public class PlayerNpcFist {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.WHIRLWIND_KICK_LEFT, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.WHIRLWIND_KICK_LEFT, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -242,7 +243,7 @@ public class PlayerNpcFist {
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                                            .animationBehavior(AVAnimations.FIST_UP, 0.0F)
+                                                                                                            .animationBehavior(AnimsPugilistSteve.FIST_UP, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -264,7 +265,7 @@ public class PlayerNpcFist {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.FIST_DASH, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.FIST_DASH, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -311,7 +312,7 @@ public class PlayerNpcFist {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.WHIRLWIND_KICK, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.WHIRLWIND_KICK, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -344,7 +345,7 @@ public class PlayerNpcFist {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.FIST_UP, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.FIST_UP, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -392,7 +393,7 @@ public class PlayerNpcFist {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.FIST_LEFT, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.FIST_LEFT, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -424,7 +425,7 @@ public class PlayerNpcFist {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.WHIRLWIND_KICK_LEFT, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.WHIRLWIND_KICK_LEFT, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -472,7 +473,7 @@ public class PlayerNpcFist {
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                                             .withinDistance(0.0D, 4.0D)
-                                                                            .animationBehavior(AVAnimations.FIST_DASH, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.FIST_DASH, 0.0F)
                                                                             .addNextBehavior(
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -504,7 +505,7 @@ public class PlayerNpcFist {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.WHIRLWIND_KICK, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.WHIRLWIND_KICK, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -562,7 +563,7 @@ public class PlayerNpcFist {
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                                            .animationBehavior(AVAnimations.FIST_UP, 0.0F)
+                                                                                                            .animationBehavior(AnimsPugilistSteve.FIST_UP, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -590,7 +591,7 @@ public class PlayerNpcFist {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.FIST_LEFT, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.FIST_LEFT, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -643,7 +644,7 @@ public class PlayerNpcFist {
                                                                                     Behavior.builder()
                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                                                             .withinDistance(0.0D, 4.0D)
-                                                                                            .animationBehavior(AVAnimations.FIST_UP, 0.0F)
+                                                                                            .animationBehavior(AnimsPugilistSteve.FIST_UP, 0.0F)
                                                                                             .addNextBehavior(
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -676,7 +677,7 @@ public class PlayerNpcFist {
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.FIST_DASH, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.FIST_DASH, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -728,7 +729,7 @@ public class PlayerNpcFist {
                                                                                                     Behavior.builder()
                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
                                                                                                             .withinDistance(0.0D, 5.0D)
-                                                                                                            .animationBehavior(AVAnimations.WHIRLWIND_KICK_LEFT, 0.0F)
+                                                                                                            .animationBehavior(AnimsPugilistSteve.WHIRLWIND_KICK_LEFT, 0.0F)
                                                                                                             .addNextBehavior(
                                                                                                                     Behavior.builder()
                                                                                                                             .custom(CombatCommon::canPerformNormalAttackLogic).custom(CombatCommon::canAttackWhileNotHealing)
@@ -757,19 +758,19 @@ public class PlayerNpcFist {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .custom(CombatCommon::canAttackWhileNotHealing)
                                             .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(AVAnimations.FIST_LEFT, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.FIST_LEFT, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                             .custom(CombatCommon::canAttackWhileNotHealing)
                                                             .withinDistance(0.0D, 3.0D)
-                                                            .animationBehavior(AVAnimations.FIST_UP, 0.0F)
+                                                            .animationBehavior(AnimsPugilistSteve.FIST_UP, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
                                                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                                                             .custom(CombatCommon::canAttackWhileNotHealing)
                                                                             .withinDistance(0.0D, 3.0D)
-                                                                            .animationBehavior(AVAnimations.FIST_DASH, 0.0F)
+                                                                            .animationBehavior(AnimsPugilistSteve.FIST_DASH, 0.0F)
                                                             )
                                             )
                             )
@@ -784,14 +785,14 @@ public class PlayerNpcFist {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .custom(CombatCommon::canAttackWhileNotHealing)
                                             .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(AVAnimations.WHIRLWIND_KICK_LEFT, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.WHIRLWIND_KICK_LEFT, 0.0F)
                             )
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .custom(CombatCommon::canAttackWhileNotHealing)
                                             .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(AVAnimations.WHIRLWIND_KICK, 0.0F)
+                                            .animationBehavior(AnimsPugilistSteve.WHIRLWIND_KICK, 0.0F)
                             )
                             .addFirstBehavior(
                                     Behavior.builder()
@@ -826,7 +827,7 @@ public class PlayerNpcFist {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .custom(CombatCommon::canThrowEnderPearl)
                                             .custom(CombatCommon::canAttackWhileNotHealing)
-                                            .animationBehavior(AVAnimations.CASTING_ONE_HAND_TOP, 0.0F)
+                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
                                             .addExBehavior(CombatCommon::performEnderPearlAway)
                             )
             )

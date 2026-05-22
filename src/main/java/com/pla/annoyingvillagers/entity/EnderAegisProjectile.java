@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.entity;
 import java.util.Objects;
 import java.util.Random;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
@@ -142,7 +142,7 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
                     0.1);
             LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(vicTim, LivingEntityPatch.class);
             if (livingEntityPatch != null) {
-                livingEntityPatch.playAnimationSynchronized(AVAnimations.LONGEST_HIT, 0.0F);
+                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LONGEST_HIT, 0.0F);
             }
         }
         super.onHitEntity(pResult);
