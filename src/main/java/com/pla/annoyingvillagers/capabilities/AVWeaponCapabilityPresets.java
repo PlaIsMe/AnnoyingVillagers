@@ -1007,48 +1007,6 @@ public class AVWeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, Animations.BIPED_WALK_LIECHTENAUER)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_LIECHTENAUER);
 
-    public static final Function<Item, Builder> DIAMOND_WARBLADE = (item) -> WeaponCapability.builder()
-            .category(WeaponCategories.SWORD)
-            .swingSound(AVSounds.SWORD_WHOOSH.get())
-            .styleProvider((livingEntityPatch) -> Styles.TWO_HAND)
-            .collider(ColliderPreset.SWORD)
-            .newStyleCombo(Styles.TWO_HAND,
-                    Animations.TACHI_AUTO1,
-                    Animations.TACHI_AUTO2,
-                    AnimsRuine.RUINE_AUTO_1,
-                    Animations.TACHI_AUTO3,
-                    AnimsRuine.RUINE_CHATIMENT,
-                    AVAnimations.TACHI_DASH,
-                    Animations.LONGSWORD_AIR_SLASH)
-            .innateSkill(Styles.TWO_HAND,
-                    (itemstack) -> AVSkills.DIAMOND_WARBLADE)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AVAnimations.SQUIRE_SWORD_IDLE)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AVAnimations.SQUIRE_SWORD_WALK)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.SQUIRE_SWORD_RUN)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.SQUIRE_SWORD_RUN)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
-
-    public static final Function<Item, Builder> DIAMOND_LAEVATEINN = (item) -> WeaponCapability.builder()
-            .category(WeaponCategories.SWORD)
-            .swingSound(AVSounds.SWORD_WHOOSH.get())
-            .styleProvider((livingEntityPatch) -> Styles.TWO_HAND)
-            .collider(ColliderPreset.SWORD)
-            .newStyleCombo(Styles.TWO_HAND,
-                    Animations.TACHI_AUTO1,
-                    Animations.TACHI_AUTO2,
-                    AnimsRuine.RUINE_AUTO_1,
-                    Animations.TACHI_AUTO3,
-                    AnimsRuine.RUINE_CHATIMENT,
-                    AVAnimations.TACHI_DASH,
-                    Animations.LONGSWORD_AIR_SLASH)
-            .innateSkill(Styles.TWO_HAND,
-                    (itemstack) -> AVSkills.DIAMOND_LAEVATEINN)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AVAnimations.SQUIRE_SWORD_IDLE)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AVAnimations.SQUIRE_SWORD_WALK)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.SQUIRE_SWORD_RUN)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.SQUIRE_SWORD_RUN)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
-
     public static final Function<Item, Builder> HOOK_SWORD = (item) -> WeaponCapability.builder()
             .category(WeaponCategories.SWORD)
             .swingSound(AVSounds.SWORD_WHOOSH.get())
@@ -1388,38 +1346,78 @@ public class AVWeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_SPEAR)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AVAnimations.GLOWING_AGONY_GUARD);
 
-    public static final Function<Item, Builder> AV_TACHI = (item) ->
+    public static final Function<Item, Builder> DIAMOND_WARBLADE = (item) -> WeaponCapability.builder()
+            .category(WeaponCategories.SWORD)
+            .swingSound(AVSounds.SWORD_WHOOSH.get())
+            .styleProvider((livingEntityPatch) -> Styles.TWO_HAND)
+            .collider(ColliderPreset.SWORD)
+            .newStyleCombo(Styles.TWO_HAND,
+                    AVAnimations.CUT_LEFT_DP_SHADOW_LUNGE_2,
+                    AVAnimations.CUT_LEFT_DP_SHADOW_LUNGE_1,
+                    AnimsRuine.RUINE_AUTO_1,
+                    AnimsRuine.RUINE_CHATIMENT,
+                    AVAnimations.CUT_LEFT_DP_SHADOW_LUNGE_3,
+                    AVAnimations.DP_HEAVY_AUTO_4_SPC,
+                    AnimsRuine.RUINE_COMET)
+            .innateSkill(Styles.TWO_HAND,
+                    (itemstack) -> AVSkills.DIAMOND_WARBLADE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AVAnimations.SQUIRE_SWORD_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AVAnimations.SQUIRE_SWORD_WALK)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.SQUIRE_SWORD_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.SQUIRE_SWORD_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
+
+    public static final Function<Item, Builder> DIAMOND_LAEVATEINN = (item) -> WeaponCapability.builder()
+            .category(WeaponCategories.SWORD)
+            .swingSound(AVSounds.SWORD_WHOOSH.get())
+            .styleProvider((livingEntityPatch) -> Styles.TWO_HAND)
+            .collider(ColliderPreset.SWORD)
+            .newStyleCombo(Styles.TWO_HAND,
+                    AVAnimations.CUT_LEFT_DP_SHADOW_LUNGE_2,
+                    AVAnimations.CUT_LEFT_DP_SHADOW_LUNGE_1,
+                    AnimsRuine.RUINE_AUTO_1,
+                    AnimsRuine.RUINE_CHATIMENT,
+                    AVAnimations.CUT_LEFT_DP_SHADOW_LUNGE_3,
+                    AVAnimations.DP_HEAVY_AUTO_4_SPC,
+                    AnimsRuine.RUINE_COMET)
+            .innateSkill(Styles.TWO_HAND,
+                    (itemstack) -> AVSkills.DIAMOND_LAEVATEINN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AVAnimations.SQUIRE_SWORD_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AVAnimations.SQUIRE_SWORD_WALK)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.SQUIRE_SWORD_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.SQUIRE_SWORD_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
+
+    public static final Function<Item, Builder> FALCHION = (item) ->
             WeaponCapability.builder()
                     .category(WeaponCategories.TACHI)
                     .collider(ColliderPreset.TACHI)
                     .hitSound(EpicFightSounds.BLADE_HIT.get())
                     .swingSound(AVSounds.SWORD_WHOOSH.get())
                     .styleProvider(
-                            (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() != WeaponCategories.TACHI
-                                    && livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() != WeaponCategories.AXE
-                                    && livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() != WeaponCategories.SWORD ? Styles.TWO_HAND : Styles.OCHS)
+                            (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.TACHI ? Styles.OCHS : Styles.TWO_HAND)
                     .newStyleCombo(Styles.TWO_HAND,
-                            Animations.TACHI_AUTO1,
-                            Animations.TACHI_AUTO2,
+                            AVAnimations.CUT_LEFT_DP_SHADOW_LUNGE_2,
+                            AVAnimations.CUT_LEFT_DP_SHADOW_LUNGE_1,
                             AnimsRuine.RUINE_AUTO_1,
-                            Animations.TACHI_AUTO3,
                             AnimsRuine.RUINE_CHATIMENT,
-                            AVAnimations.TACHI_DASH,
-                            AVAnimations.HOOK_SLASH_AIR)
+                            AVAnimations.CUT_LEFT_DP_SHADOW_LUNGE_3,
+                            AVAnimations.DP_HEAVY_AUTO_4_SPC,
+                            AnimsRuine.RUINE_COMET)
                     .innateSkill(Styles.TWO_HAND,
-                            (itemstack) -> AVSkills.SWORD)
+                            (itemstack) -> AVSkills.FALCHION)
                     .newStyleCombo(Styles.OCHS,
                             AVAnimations.DP_HEAVY_AUTO_1,
                             AVAnimations.DP_HEAVY_AUTO_2,
-                            AVAnimations.DUAL_SWORD_AUTO3,
-                            AVAnimations.DUAL_SWORD_AUTO4,
-                            AVAnimations.DUAL_SWORD_AUTO5,
-                            AVAnimations.DP_DASH,
+                            AVAnimations.DP_SHADOW_LUNGE_1,
+                            AVAnimations.DP_SHADOW_LUNGE_2,
+                            AVAnimations.DP_SHADOW_LUNGE_3,
+                            AVAnimations.DP_HEAVY_AUTO_4_SPC,
                             AVAnimations.DP_NIGHT_FALL)
                     .newStyleCombo(Styles.MOUNT,
                             Animations.SWORD_MOUNT_ATTACK)
                     .innateSkill(Styles.OCHS,
-                            (itemstack) -> AVSkills.DUAL_LONGSWORD)
+                            (itemstack) -> AVSkills.DUAL_FALCHION)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_TACHI)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_HOLD_TACHI)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, Animations.BIPED_HOLD_TACHI)
@@ -1430,11 +1428,8 @@ public class AVWeaponCapabilityPresets {
                     .livingMotionModifier(Styles.OCHS, LivingMotions.RUN, AVAnimations.RUN_DUAL_BIG)
                     .livingMotionModifier(Styles.OCHS, LivingMotions.CHASE, AVAnimations.RUN_DUAL_BIG)
                     .livingMotionModifier(Styles.OCHS, LivingMotions.BLOCK, AVAnimations.DUAL_TACHI_GUARD)
-                    .innateSkill(Styles.OCHS, (itemstack) -> EpicFightSkills.DANCING_EDGE)
                     .weaponCombinationPredicator(
-                            (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.AXE
-                                    || (livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.SWORD
-                                    || (livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.TACHI)));
+                            (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.TACHI);
 
     public static final Function<Item, Builder> AV_LONGSWORD = (item) ->
             WeaponCapability.builder()
@@ -1449,8 +1444,8 @@ public class AVWeaponCapabilityPresets {
                             AnimsRuine.RUINE_AUTO_2,
                             AnimsRuine.RUINE_AUTO_3,
                             AnimsRuine.RUINE_CHATIMENT,
-                            Animations.LONGSWORD_DASH,
-                            Animations.LONGSWORD_AIR_SLASH)
+                            AVAnimations.HOOK_GROUND,
+                            AnimsRuine.RUINE_COMET)
                     .innateSkill(Styles.ONE_HAND,
                             (itemstack) -> AVSkills.LONGSWORD)
                     .newStyleCombo(Styles.TWO_HAND,
@@ -1459,12 +1454,12 @@ public class AVWeaponCapabilityPresets {
                             AVAnimations.DUAL_SWORD_AUTO3,
                             AVAnimations.DUAL_SWORD_AUTO4,
                             AVAnimations.DUAL_SWORD_AUTO5,
-                            Animations.SWORD_DUAL_DASH,
-                            Animations.SWORD_DUAL_AIR_SLASH)
+                            AVAnimations.HOOK_GROUND,
+                            AVAnimations.DP_NIGHT_FALL)
                     .newStyleCombo(Styles.MOUNT,
                             Animations.SWORD_MOUNT_ATTACK)
                     .innateSkill(Styles.TWO_HAND,
-                            (itemstack) -> AVSkills.DUAL_LONGSWORD)
+                            (itemstack) -> AVSkills.LONGSWORD)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.IDLE, AnimsRuine.RUINE_IDLE)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.WALK, AnimsRuine.RUINE_WALK)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.RUN, AnimsRuine.RUINE_RUN)
@@ -1715,7 +1710,9 @@ public class AVWeaponCapabilityPresets {
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "red_axe"), AVWeaponCapabilityPresets.RED_AXE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "exterminator_battleaxe"), AVWeaponCapabilityPresets.EXTERMINATOR_BATTLE_AXE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "av_spear"), AVWeaponCapabilityPresets.AV_SPEAR);
-        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "av_tachi"), AVWeaponCapabilityPresets.AV_TACHI);
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "falchion"), AVWeaponCapabilityPresets.FALCHION);
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_warblade"), AVWeaponCapabilityPresets.DIAMOND_WARBLADE);
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_laevateinn"), AVWeaponCapabilityPresets.DIAMOND_LAEVATEINN);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "av_longsword"), AVWeaponCapabilityPresets.AV_LONGSWORD);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "chipped_longsword"), AVWeaponCapabilityPresets.CHIPPED_LONGSWORD);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "av_greatsword"), AVWeaponCapabilityPresets.AV_GREATSWORD);
@@ -1736,8 +1733,6 @@ public class AVWeaponCapabilityPresets {
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_blaster_sword"), AVWeaponCapabilityPresets.DIAMOND_BLASTER_SWORD);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "hacker_sword"), AVWeaponCapabilityPresets.HACKER_SWORD);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_sabre"), AVWeaponCapabilityPresets.DIAMOND_SABRE);
-        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_warblade"), AVWeaponCapabilityPresets.DIAMOND_WARBLADE);
-        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_laevateinn"), AVWeaponCapabilityPresets.DIAMOND_LAEVATEINN);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "hook_sword"), AVWeaponCapabilityPresets.HOOK_SWORD);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "flanker_hook_sword"), AVWeaponCapabilityPresets.FLANKER_HOOK_SWORD);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "dnax_hook_sword"), AVWeaponCapabilityPresets.DNAX_HOOK_SWORD);
