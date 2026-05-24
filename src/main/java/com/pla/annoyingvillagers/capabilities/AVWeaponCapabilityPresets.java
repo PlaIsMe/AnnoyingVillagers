@@ -23,6 +23,7 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
+@SuppressWarnings({"deprecation", "removal"})
 public class AVWeaponCapabilityPresets {
 
     public static final Function<Item, Builder> ENDER_AEGIS = (item) ->
@@ -1668,7 +1669,7 @@ public class AVWeaponCapabilityPresets {
 
     public static final Function<Item, CapabilityItem.Builder> BOW = (item) ->
             WeaponCapability.builder()
-                    .category(CapabilityItem.WeaponCategories.RANGED)
+                    .category(CapabilityItem.WeaponCategories.BOW)
                     .styleProvider((patch) -> CapabilityItem.Styles.ONE_HAND)
                     .zoomInType(CapabilityItem.ZoomInType.USE_TICK)
                     .swingSound(SoundEvents.ARROW_SHOOT)

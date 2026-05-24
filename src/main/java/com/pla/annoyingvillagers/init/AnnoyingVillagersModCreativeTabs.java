@@ -146,7 +146,6 @@ public class AnnoyingVillagersModCreativeTabs {
                         pOutput.accept(AnnoyingVillagersModItems.HEATER_SHIELD.get());
                         pOutput.accept(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get());
                         pOutput.accept(AnnoyingVillagersModItems.NETHERITE_SHIELD.get());
-                        pOutput.accept(AnnoyingVillagersModItems.BLACKSCRATCHER.get());
                         pOutput.accept(AnnoyingVillagersModItems.SPEAR_AXE.get());
                         pOutput.accept(AnnoyingVillagersModItems.DIAMOND_SPEAR.get());
                         pOutput.accept(AnnoyingVillagersModItems.NETHERITE_SPEAR.get());
@@ -155,6 +154,7 @@ public class AnnoyingVillagersModCreativeTabs {
                         pOutput.accept(AnnoyingVillagersModItems.DOUBLE_DIAMOND_GLAIVE.get());
                         pOutput.accept(AnnoyingVillagersModItems.IRON_SICKLE.get());
                         pOutput.accept(AnnoyingVillagersModItems.DIAMOND_SICKLE.get());
+                        pOutput.accept(AnnoyingVillagersModItems.BLACKSCRATCHER.get());
                         pOutput.accept(AnnoyingVillagersModItems.DIAMOND_BOLT.get());
                         pOutput.accept(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get());
                         pOutput.accept(AnnoyingVillagersModItems.DARK_NETHERITE.get());

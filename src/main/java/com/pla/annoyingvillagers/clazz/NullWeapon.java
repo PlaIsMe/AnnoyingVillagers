@@ -425,7 +425,8 @@ public class NullWeapon extends Monster {
         if (!(cap instanceof WeaponCapability weaponCap)) return true;
 
         var cat = weaponCap.getWeaponCategory();
-        return cat == CapabilityItem.WeaponCategories.RANGED
+        return cat == CapabilityItem.WeaponCategories.BOW
+                || cat == CapabilityItem.WeaponCategories.CROSSBOW
                 || cat == CapabilityItem.WeaponCategories.NOT_WEAPON;
     }
 

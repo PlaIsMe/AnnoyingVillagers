@@ -570,7 +570,8 @@ public class SpecialAttackOnKeyPressedEvent {
 
             if (playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.FIST
                     || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.NOT_WEAPON
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.RANGED) {
+                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.BOW
+                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.CROSSBOW) {
                 if (entity.level() instanceof ServerLevel) {
                     if (entity.isSprinting()) {
                         if (entity.isShiftKeyDown()) {
