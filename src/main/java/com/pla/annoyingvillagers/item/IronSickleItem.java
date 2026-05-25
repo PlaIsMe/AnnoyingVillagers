@@ -21,7 +21,7 @@ public class IronSickleItem extends SwordItem {
             }
 
             public float getAttackDamageBonus() {
-                return 1.4F;
+                return 2.4F;
             }
 
             public int getLevel() {
@@ -35,12 +35,6 @@ public class IronSickleItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(Items.IRON_INGOT));
             }
-        }, 3, -1.5F, (new Properties()));
-    }
-
-    @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.beta_update"));
+        }, 3, -2.6F, (new Properties()));
     }
 }

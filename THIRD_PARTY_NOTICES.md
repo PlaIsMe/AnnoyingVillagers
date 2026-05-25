@@ -76,6 +76,15 @@ All required upstream notices must be preserved.
 **Paths / Files**
 - assets/annoyingvillagers/animmodels/animations/biped/epicfight_awaken
 
+### A6) Epic Fight - Guandao Moveset - namelesslk - GPL-3.0
+- Type: code/assets adapted from upstream
+- License text: `third_party/licenses/GPL-3.0.md`
+- Source: https://www.curseforge.com/minecraft/mc-mods/epic-fight-guandao-moveset
+
+**Paths / Files**
+- com/pla/annoyingvillagers/gameasset/AnimsEpicFightGuandao.java
+- assets/annoyingvillagers/animmodels/animations/biped/falchion
+
 ---
 
 ## B) LGPL Components

@@ -99,6 +99,7 @@ public class AVAnimations {
         AnimsSculkSteve.build(builder);
         AnimsWom.build(builder);
         AnimsYonchiChikito.build(builder);
+        AnimsEpicFightGuandao.build(builder);
 
         Armatures.ArmatureAccessor<HumanoidArmature> humanoidArmature = Armatures.BIPED;
         TRIDENT_ATTACK = builder.nextAccessor("biped/pla/trident_attack",

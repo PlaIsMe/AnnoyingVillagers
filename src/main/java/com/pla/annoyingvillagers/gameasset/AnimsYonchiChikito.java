@@ -30,12 +30,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.network.PacketDistributor;
+import reascer.wom.animation.attacks.BasicMultipleAttackAnimation;
 import reascer.wom.gameasset.colliders.WOMWeaponColliders;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.*;
+import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
@@ -53,11 +55,18 @@ public class AnimsYonchiChikito {
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> SLAM_FIRST;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> SLAM_SECOND;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> SLAM_THIRD;
-    public static AnimationManager.AnimationAccessor<AttackAnimation> MOON_BLADE_SKILL;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> SAKURA_STAFF_IDLE;
+    public static AnimationManager.AnimationAccessor<MovementAnimation> SAKURA_STAFF_WALK;
+    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> SAKURA_STAFF_AUTO_1;
+    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> SAKURA_STAFF_AUTO_2;
+    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> SAKURA_STAFF_AUTO_3;
+    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> SAKURA_STAFF_AUTO_4;
+    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> SAKURA_STAFF_AUTO_5;
+    public static AnimationManager.AnimationAccessor<DashAttackAnimation> SAKURA_STAFF_DASH;
 
     public static void build(AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> humanoidArmature = Armatures.BIPED;
-        AnimsYonchiChikito.DIAMOND_ATTRACTOR_SKILL = builder.nextAccessor("biped/yonchi_chikito/diamond_attractor",
+        DIAMOND_ATTRACTOR_SKILL = builder.nextAccessor("biped/yonchi_chikito/diamond_attractor",
                 accessor -> new ActionAnimation(0.05F, Float.MAX_VALUE, accessor, humanoidArmature)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
                         .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, true)
@@ -88,20 +97,20 @@ public class AnimsYonchiChikito {
                                     }
                                 }, AnimationEvent.Side.SERVER)
                         ));
-        AnimsYonchiChikito.GREATAXE_IDLE = builder.nextAccessor("biped/yonchi_chikito/greataxe_idle",
+        GREATAXE_IDLE = builder.nextAccessor("biped/yonchi_chikito/greataxe_idle",
                 accessor -> new StaticAnimation(true, accessor, Armatures.BIPED));
-        AnimsYonchiChikito.GREATAXE_WALK = builder.nextAccessor("biped/yonchi_chikito/greataxe_walk",
+        GREATAXE_WALK = builder.nextAccessor("biped/yonchi_chikito/greataxe_walk",
                 accessor -> new MovementAnimation(true, accessor, Armatures.BIPED));
-        AnimsYonchiChikito.GREATAXE_SLASH = builder.nextAccessor("biped/yonchi_chikito/greataxe_slash",
+        GREATAXE_SLASH = builder.nextAccessor("biped/yonchi_chikito/greataxe_slash",
                 accessor -> (new BasicAttackAnimation(0.1F, 0.7F, 1.4F, 1.47F, null, (Armatures.BIPED.get()).toolR, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 0.8F)
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)));
-        AnimsYonchiChikito.GREATAXE_OFFHAND_ATTACK = builder.nextAccessor("biped/yonchi_chikito/greataxe_offhand_attack",
+        GREATAXE_OFFHAND_ATTACK = builder.nextAccessor("biped/yonchi_chikito/greataxe_offhand_attack",
                 accessor -> (new BasicAttackAnimation(0.1F, 0.7F, 1.4F, 1.47F, null, (Armatures.BIPED.get()).toolR, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 0.8F)
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)));
-        AnimsYonchiChikito.SLAM_FIRST = builder.nextAccessor("biped/yonchi_chikito/slamfirst",
+        SLAM_FIRST = builder.nextAccessor("biped/yonchi_chikito/slamfirst",
                 accessor -> (new BasicAttackAnimation(0.1F, 0.9F, 1.4F, 1.47F, WOMWeaponColliders.SOLAR, (Armatures.BIPED.get()).toolR, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.2F))
                         .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(4.0F))
@@ -111,7 +120,7 @@ public class AnimsYonchiChikito {
                         .addEvents(
                                 AnimationEvent.InTimeEvent.create(1.0F, reascer.wom.gameasset.ReuseableEvents.TORMENT_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT)
                         )));
-        AnimsYonchiChikito.SLAM_SECOND = builder.nextAccessor("biped/yonchi_chikito/slamsecond",
+        SLAM_SECOND = builder.nextAccessor("biped/yonchi_chikito/slamsecond",
                 accessor -> (new BasicAttackAnimation(0.1F, 2.1F, 3.0F, 3.0F, WOMWeaponColliders.SOLAR, (Armatures.BIPED.get()).toolR, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.6F))
                         .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(4.0F))
@@ -121,7 +130,7 @@ public class AnimsYonchiChikito {
                         .addEvents(
                                 AnimationEvent.InTimeEvent.create(2.0F, reascer.wom.gameasset.ReuseableEvents.TORMENT_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT)
                         )));
-        AnimsYonchiChikito.SLAM_THIRD = builder.nextAccessor("biped/yonchi_chikito/slamthird",
+        SLAM_THIRD = builder.nextAccessor("biped/yonchi_chikito/slamthird",
                 accessor -> (new BasicAttackAnimation(0.1F, 2.1F, 3.0F, 3.0F, WOMWeaponColliders.SOLAR, (Armatures.BIPED.get()).toolR, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.6F))
                         .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(4.0F))
@@ -131,7 +140,7 @@ public class AnimsYonchiChikito {
                         .addEvents(
                                 AnimationEvent.InTimeEvent.create(2.425F, reascer.wom.gameasset.ReuseableEvents.TORMENT_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT)
                         )));
-        AnimsYonchiChikito.SLAM_THIRD = builder.nextAccessor("biped/yonchi_chikito/slamthird",
+        SLAM_THIRD = builder.nextAccessor("biped/yonchi_chikito/slamthird",
                 accessor -> new BasicAttackAnimation(0.05F, accessor, humanoidArmature,
                         new AttackAnimation.Phase(2.26F, 2.5F, 3.5F, 3.56F, 3.56F, InteractionHand.MAIN_HAND, humanoidArmature.get().toolR, WOMWeaponColliders.SOLAR),
                         new AttackAnimation.Phase(2.26F, 2.5F, 3.5F, 3.56F, 3.56F, humanoidArmature.get().toolR, WOMWeaponColliders.SOLAR))
@@ -144,5 +153,27 @@ public class AnimsYonchiChikito {
                                 AnimationEvent.InTimeEvent.create(2.15F, reascer.wom.gameasset.ReuseableEvents.TORMENT_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT),
                                 AnimationEvent.InTimeEvent.create(3.4F, reascer.wom.gameasset.ReuseableEvents.TORMENT_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT)
                         ));
+        SAKURA_STAFF_IDLE = builder.nextAccessor("biped/yonchi_chikito/sakurastaff_idle",
+                accessor -> new StaticAnimation(true, accessor, Armatures.BIPED));
+        SAKURA_STAFF_WALK = builder.nextAccessor("biped/yonchi_chikito/sakurastaff_walk",
+                accessor -> new MovementAnimation(true, accessor, Armatures.BIPED));
+        SAKURA_STAFF_AUTO_1 = builder.nextAccessor("biped/yonchi_chikito/sakurastaff_auto1",
+                (accessor) -> (new BasicAttackAnimation(0.1F, 0.2F, 0.3F, 0.7F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F));
+        SAKURA_STAFF_AUTO_2 = builder.nextAccessor("biped/yonchi_chikito/sakurastaff_auto2",
+                (accessor) -> (new BasicAttackAnimation(0.1F, 0.2F, 0.3F, 0.7F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F));
+        SAKURA_STAFF_AUTO_3 = builder.nextAccessor("biped/yonchi_chikito/sakurastaff_auto3",
+                (accessor) -> (new BasicAttackAnimation(0.1F, 0.2F, 0.3F, 0.7F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F));
+        SAKURA_STAFF_AUTO_4 = builder.nextAccessor("biped/yonchi_chikito/sakurastaff_auto4",
+                (accessor) -> (new BasicAttackAnimation(0.1F, 0.2F, 0.3F, 0.7F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F));
+        SAKURA_STAFF_AUTO_5 = builder.nextAccessor("biped/yonchi_chikito/sakurastaff_auto5",
+                (accessor) -> (new BasicAttackAnimation(0.1F, 0.2F, 0.3F, 0.7F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F));
+        SAKURA_STAFF_DASH = builder.nextAccessor("biped/yonchi_chikito/sakurastaff_dash",
+                (accessor) -> (new DashAttackAnimation(0.1F, 0.25F, 0.3F, 0.4F, 0.8F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED, true))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F));
     }
 }

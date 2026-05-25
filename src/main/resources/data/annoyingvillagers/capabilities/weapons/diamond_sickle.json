@@ -1,3 +1,11 @@
 {
-  "type": "annoyingvillagers:av_spear"
+  "attributes":
+  {
+    "common":
+    {
+      "impact": 2.5,
+      "max_strikes": 3
+    }
+  },
+  "type": "annoyingvillagers:sickle"
 }

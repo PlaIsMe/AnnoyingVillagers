@@ -22,7 +22,7 @@ public class NetheriteSpearItem extends SwordItem {
             }
 
             public float getAttackDamageBonus() {
-                return 8.0F;
+                return 5.0F;
             }
 
             public int getLevel() {
@@ -36,12 +36,6 @@ public class NetheriteSpearItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.DARK_NETHERITE.get()));
             }
-        }, 3, -1.4F, (new Properties()));
-    }
-
-    @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.beta_update"));
+        }, 3, -2.2F, (new Properties()));
     }
 }

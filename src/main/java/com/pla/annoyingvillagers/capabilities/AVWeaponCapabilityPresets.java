@@ -1308,42 +1308,103 @@ public class AVWeaponCapabilityPresets {
             .weaponCombinationPredicator(
                     (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.AXE);
 
-    public static final Function<Item, Builder> AV_SPEAR = (item) -> WeaponCapability.builder()
+    public static final Function<Item, CapabilityItem.Builder> GUANDAO = (item) -> WeaponCapability.builder()
             .category(WeaponCategories.SPEAR)
             .styleProvider(
-                    (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory()
-                            == WeaponCategories.SHIELD ? Styles.ONE_HAND : Styles.TWO_HAND).collider(ColliderPreset.SPEAR)
+                    (livingentitypatch) -> Styles.TWO_HAND)
+            .collider(ColliderPreset.SPEAR)
             .swingSound(AVSounds.SWORD_WHOOSH.get())
             .hitSound(EpicFightSounds.BLADE_HIT.get())
             .canBePlacedOffhand(false)
-            .newStyleCombo(Styles.ONE_HAND,
-                    Animations.SPEAR_ONEHAND_AUTO,
-                    AnimsAgony.AGONY_AUTO_4,
-                    Animations.SPEAR_DASH,
-                    WOMAnimations.STAFF_KINKONG)
             .newStyleCombo(Styles.TWO_HAND,
-                    Animations.SPEAR_TWOHAND_AUTO1,
-                    Animations.SPEAR_TWOHAND_AUTO2,
-                    AnimsAgony.AGONY_AUTO_4,
+                    AnimsEpicFightGuandao.FALCHION_AUTO1,
+                    AnimsEpicFightGuandao.FALCHION_AUTO2,
+                    AnimsEpicFightGuandao.FALCHION_AUTO3,
+                    AnimsOrbit.ORBIT_ATTACK_4,
+                    AnimsOrbit.ORBIT_ATTACK_3,
+                    AnimsAgony.AGONY_CLAWSTRIKE,
+                    AnimsOrbit.ORBIT_MAD_REACH)
+            .innateSkill(Styles.TWO_HAND,
+                    (itemstack) -> AVSkills.GUANDAO)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsEpicFightGuandao.FALCHION_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsAgony.AGONY_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsAgony.AGONY_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsAgony.AGONY_WALK)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD);
+
+    public static final Function<Item, CapabilityItem.Builder> SPEAR_STAFF = (item) -> WeaponCapability.builder()
+            .category(WeaponCategories.SPEAR)
+            .styleProvider(
+                    (livingentitypatch) -> Styles.TWO_HAND)
+            .collider(ColliderPreset.SPEAR)
+            .swingSound(AVSounds.SWORD_WHOOSH.get())
+            .hitSound(EpicFightSounds.BLADE_HIT.get())
+            .canBePlacedOffhand(false)
+            .newStyleCombo(Styles.TWO_HAND,
+                    AnimsEpicFightGuandao.FALCHION_AUTO1,
+                    AnimsEpicFightGuandao.FALCHION_AUTO2,
                     WOMAnimations.STAFF_AUTO_2,
                     WOMAnimations.STAFF_AUTO_3,
-                    Animations.SPEAR_DASH,
-                    Animations.SPEAR_TWOHAND_AIR_SLASH)
-            .newStyleCombo(Styles.MOUNT,
-                    Animations.SPEAR_MOUNT_ATTACK,
-                    Animations.SPEAR_TWOHAND_AUTO1,
-                    Animations.SPEAR_TWOHAND_AUTO2,
-                    WOMAnimations.STAFF_AUTO_2)
-            .innateSkill(Styles.ONE_HAND,
-                    (itemstack) -> EpicFightSkills.HEARTPIERCER)
+                    WOMAnimations.STAFF_CHARYBDIS,
+                    AnimsYonchiChikito.SAKURA_STAFF_DASH,
+                    AnimsAgony.AGONY_RIPPING_FANGS)
             .innateSkill(Styles.TWO_HAND,
-                    (itemstack) -> EpicFightSkills.GRASPING_SPIRE)
-            .livingMotionModifier(Styles.ONE_HAND, LivingMotions.RUN, Animations.BIPED_RUN_SPEAR)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_SPEAR)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, Animations.BIPED_RUN_SPEAR)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, Animations.BIPED_RUN_SPEAR)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK_SPEAR)
+                    (itemstack) -> AVSkills.GUANDAO)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, WOMAnimations.STAFF_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsAgony.AGONY_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsAgony.AGONY_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsYonchiChikito.SAKURA_STAFF_WALK)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD);
+
+    public static final Function<Item, CapabilityItem.Builder> SICKLE = (item) -> WeaponCapability.builder()
+            .category(WeaponCategories.SPEAR)
+            .styleProvider(
+                    (livingentitypatch) -> Styles.TWO_HAND)
+            .collider(ColliderPreset.SPEAR)
+            .swingSound(AVSounds.SWORD_WHOOSH.get())
+            .hitSound(EpicFightSounds.BLADE_HIT.get())
+            .canBePlacedOffhand(false)
+            .newStyleCombo(Styles.TWO_HAND,
+                    AnimsEpicFightGuandao.FALCHION_AUTO2,
+                    AnimsEpicFightGuandao.FALCHION_AUTO1,
+                    AnimsWom.CLONE_ANTITHEUS_AUTO_2,
+                    AnimsWom.CLONE_ANTITHEUS_AUTO_1,
+                    AnimsWom.CLONE_ANTITHEUS_AUTO_4,
+                    AnimsOrbit.ORBIT_SATELITE,
+                    AnimsWom.CLONE_ANTITHEUS_GUILLOTINE)
+            .innateSkill(Styles.TWO_HAND,
+                    (itemstack) -> AVSkills.GUANDAO)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, WOMAnimations.ANTITHEUS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, WOMAnimations.ANTITHEUS_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, WOMAnimations.ANTITHEUS_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, WOMAnimations.ANTITHEUS_WALK)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD);
+
+    public static final Function<Item, CapabilityItem.Builder> BOLT = (item) -> WeaponCapability.builder()
+            .category(WeaponCategories.SPEAR)
+            .styleProvider(
+                    (livingentitypatch) -> Styles.TWO_HAND)
+            .zoomInType(CapabilityItem.ZoomInType.USE_TICK)
+            .collider(ColliderPreset.SPEAR)
+            .swingSound(AVSounds.SWORD_WHOOSH.get())
+            .hitSound(EpicFightSounds.BLADE_HIT.get())
+            .canBePlacedOffhand(false)
+            .newStyleCombo(Styles.TWO_HAND,
+                    AnimsEpicFightGuandao.FALCHION_AUTO1,
+                    AnimsEpicFightGuandao.FALCHION_AUTO2,
+                    AnimsEpicFightGuandao.FALCHION_AUTO3,
+                    AnimsPugilistSteve.SPEAR_THRUST,
+                    AnimsYonchiChikito.SAKURA_STAFF_DASH,
+                    AnimsOrbit.ORBIT_MAD_REACH)
+            .innateSkill(Styles.TWO_HAND,
+                    (itemstack) -> AVSkills.GUANDAO)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsYonchiChikito.SAKURA_STAFF_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsAgony.AGONY_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsAgony.AGONY_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsYonchiChikito.SAKURA_STAFF_WALK)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.AIM, Animations.BIPED_JAVELIN_AIM)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SHOT, Animations.BIPED_JAVELIN_THROW)
+            .constructor(AVThrowableSpearCapability::new);
 
     public static final Function<Item, Builder> DIAMOND_WARBLADE = (item) -> WeaponCapability.builder()
             .category(WeaponCategories.SWORD)
@@ -1708,7 +1769,10 @@ public class AVWeaponCapabilityPresets {
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "earth_axe"), AVWeaponCapabilityPresets.EARTH_AXE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "red_axe"), AVWeaponCapabilityPresets.RED_AXE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "exterminator_battleaxe"), AVWeaponCapabilityPresets.EXTERMINATOR_BATTLE_AXE);
-        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "av_spear"), AVWeaponCapabilityPresets.AV_SPEAR);
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "guandao"), AVWeaponCapabilityPresets.GUANDAO);
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "spear_staff"), AVWeaponCapabilityPresets.SPEAR_STAFF);
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "sickle"), AVWeaponCapabilityPresets.SICKLE);
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "bolt"), AVWeaponCapabilityPresets.BOLT);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "falchion"), AVWeaponCapabilityPresets.FALCHION);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_warblade"), AVWeaponCapabilityPresets.DIAMOND_WARBLADE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_laevateinn"), AVWeaponCapabilityPresets.DIAMOND_LAEVATEINN);

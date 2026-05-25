@@ -1,6 +1,10 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.clazz.ThrowableSpearItem;
+import com.pla.annoyingvillagers.entity.DiamondBoltProjectileEntity;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -8,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DiamondBoltItem extends SwordItem {
+public class DiamondBoltItem extends ThrowableSpearItem {
 
     public DiamondBoltItem() {
         super(new Tier() {
@@ -35,12 +39,16 @@ public class DiamondBoltItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(Items.DIAMOND));
             }
-        }, 3, -1.5F, (new Properties()));
+        }, 3, -2.6F, (new Properties()));
     }
 
     @Override
+    protected AbstractArrow createThrownProjectile(Level level, Player player, ItemStack stack) {
+        return new DiamondBoltProjectileEntity(level, player, stack);
+    }
+
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.beta_update"));
+        list.add(Component.translatable("tooltip.annoyingvillagers.diamond_bolt"));
     }
 }
