@@ -21,5 +21,7 @@ public class RenderEngine {
         add.addItemRenderer(ResourceLocation.tryBuild(AnnoyingVillagers.MODID, "diamond_bolt"), RenderDiamondBolt::new);
         add.addItemRenderer(ResourceLocation.tryBuild(AnnoyingVillagers.MODID, "dnax_hooked_sword"), RenderDNAxHookSword::new);
         add.addItemRenderer(ResourceLocation.tryBuild(AnnoyingVillagers.MODID, "red_axe"), RenderRedAxe::new);
+        add.addItemRenderer(ResourceLocation.tryBuild(AnnoyingVillagers.MODID, "blackscratcher"), RenderBlackscratcher::new);
+        add.addItemRenderer(ResourceLocation.tryBuild(AnnoyingVillagers.MODID, "twin_diamond_spear"), RenderTwinDiamondSpear::new);
     }
 }

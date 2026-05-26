@@ -178,6 +178,12 @@ public class SpecialAttackOnKeyPressedEvent {
                     return;
                 }
             }
+            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.TWIN_DIAMOND_SPEAR.get())) {
+                if (entity.level() instanceof ServerLevel) {
+                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SPEAR_THRUST, 0.0F);
+                    return;
+                }
+            }
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.ENDER_GLAIVE.get())) {
                 if (entity.level() instanceof ServerLevel) {
                     boolean success = false;

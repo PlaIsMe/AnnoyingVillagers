@@ -7,11 +7,9 @@ import com.pla.annoyingvillagers.clazz.TridentMode;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.item.*;
-import com.pla.annoyingvillagers.network.*;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.*;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -29,11 +27,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.jetbrains.annotations.NotNull;
 import reascer.wom.animation.attacks.BasicMultipleAttackAnimation;
 import reascer.wom.gameasset.colliders.WOMWeaponColliders;
 import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationEvent.Side;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
@@ -44,14 +40,12 @@ import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.animation.types.AttackAnimation.Phase;
 import yesman.epicfight.api.utils.HitEntityList.Priority;
 import yesman.epicfight.api.utils.TimePairList;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations.ReusableSources;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.model.armature.HumanoidArmature;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
@@ -79,6 +73,8 @@ public class AVAnimations {
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> DIAMOND_BLASTER_SKILL;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> EARTH_AXE_SHOOT;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> RED_AXE_ATTACK;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> BLACKSCRATCHER_IDLE;
+    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> BLACKSCRATCHER_ATTACK;
 
     @SubscribeEvent
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
@@ -243,6 +239,14 @@ public class AVAnimations {
                         }
                     }).addEvents(new AnimationEvent[]{AnimationEvent.InTimeEvent.create(0.35F, reascer.wom.gameasset.ReuseableEvents.AIRBURST_JUMP, Side.CLIENT), AnimationEvent.InTimeEvent.create(1.15F, reascer.wom.gameasset.ReuseableEvents.TORMENT_GROUNDSLAM, Side.CLIENT)
                     }));
+
+        BLACKSCRATCHER_IDLE = builder.nextAccessor("biped/pla/blackscratcher_idle",
+                accessor -> new StaticAnimation(true, accessor, humanoidArmature));
+
+        BLACKSCRATCHER_ATTACK = builder.nextAccessor("biped/pla/blackscratcher_attack.",
+                accessor -> new BasicAttackAnimation(0.08F, 0.05F, 0.15F, 0.2F, null, humanoidArmature.get().toolR, accessor, humanoidArmature)
+                        .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.5F))
+                        .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.5F)));
     }
 
     static class ReuseableEvents {
@@ -974,22 +978,5 @@ public class AVAnimations {
                     }
                 };
 
-        public static Vec3 getFloor(LivingEntityPatch<?> livingentitypatch, Vec3f vec3f, Joint joint) {
-            OpenMatrix4f openmatrix4f = livingentitypatch.getArmature().getBoundTransformFor(livingentitypatch.getAnimator().getPose(1.0F), joint);
-
-            openmatrix4f.translate(vec3f);
-            OpenMatrix4f openMatrix4f1 = new OpenMatrix4f().rotate(-((float) Math.toRadians(livingentitypatch.getOriginal().yRotO + 180.0F)), new Vec3f(0.0F, 1.0F, 0.0F));
-
-            OpenMatrix4f.mul(openMatrix4f1, openmatrix4f, openmatrix4f);
-            float f = openmatrix4f.m30 + (float) livingentitypatch.getOriginal().getX();
-            float f1 = openmatrix4f.m31 + (float) livingentitypatch.getOriginal().getY();
-            float f2 = openmatrix4f.m32 + (float) livingentitypatch.getOriginal().getZ();
-
-            for (BlockState blockstate = livingentitypatch.getOriginal().level().getBlockState(new BlockPos(new Vec3i((int) f, (int) f1, (int) f2))); (blockstate.getBlock() instanceof BushBlock || blockstate.isAir()) && !blockstate.is(Blocks.VOID_AIR); blockstate = livingentitypatch.getOriginal().level().getBlockState(new BlockPos(new Vec3i((int) f, (int) f1, (int) f2)))) {
-                --f1;
-            }
-
-            return new Vec3(f, f1, f2);
-        }
     }
 }

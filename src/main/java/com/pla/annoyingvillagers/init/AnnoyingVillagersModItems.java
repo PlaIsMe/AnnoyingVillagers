@@ -178,6 +178,8 @@ public class AnnoyingVillagersModItems {
     public static final RegistryObject<Item> JESSICA_THE_DARK_SHIELD = AnnoyingVillagersModItems.REGISTRY.register("jessica_the_dark_shield", JessicaTheDarkShieldItem::new);
     public static final RegistryObject<Item> NETHERITE_SHIELD = AnnoyingVillagersModItems.REGISTRY.register("netherite_shield", NetheriteShield::new);
     public static final RegistryObject<Item> BLACKSCRATCHER = AnnoyingVillagersModItems.REGISTRY.register("blackscratcher", BlackscratcherItem::new);
+    public static final RegistryObject<Item> BLACKSCRATCHER_TOP = AnnoyingVillagersModItems.REGISTRY.register("blackscratcher_top", BlackscratcherTopItem::new);
+    public static final RegistryObject<Item> BLACKSCRATCHER_BOTTOM = AnnoyingVillagersModItems.REGISTRY.register("blackscratcher_bottom", BlackscratcherBottomItem::new);
     public static final RegistryObject<Item> DIAMOND_BOLT = AnnoyingVillagersModItems.REGISTRY.register("diamond_bolt", DiamondBoltItem::new);
     public static final RegistryObject<Item> DIAMOND_SICKLE = AnnoyingVillagersModItems.REGISTRY.register("diamond_sickle", DiamondSickleItem::new);
     public static final RegistryObject<Item> DIAMOND_SPEAR = AnnoyingVillagersModItems.REGISTRY.register("diamond_spear", DiamondSpearItem::new);

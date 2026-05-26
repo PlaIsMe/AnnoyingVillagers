@@ -723,8 +723,7 @@ public class AVWeaponCapabilityPresets {
             .livingMotionModifier(Styles.COMMON, LivingMotions.CHASE, AnimsPugilistSteve.BIPED_RUN_ESWORD)
             .livingMotionModifier(Styles.COMMON, LivingMotions.WALK, Animations.BIPED_WALK)
             .weaponCombinationPredicator(
-                    (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory()
-                            == WeaponCategories.DAGGER);
+                    (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.GOLDEN_MOON_BLADE.get()) || livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.DIAMOND_MOON_BLADE.get()));
 
     public static final Function<Item, Builder> ARM_BLADE = (item) -> WeaponCapability.builder()
             .category(WeaponCategories.DAGGER)
@@ -747,13 +746,12 @@ public class AVWeaponCapabilityPresets {
             .livingMotionModifier(Styles.COMMON, LivingMotions.CHASE, AnimsPugilistSteve.BIPED_RUN_ESWORD)
             .livingMotionModifier(Styles.COMMON, LivingMotions.WALK, Animations.BIPED_WALK)
             .weaponCombinationPredicator(
-                    (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory()
-                            == WeaponCategories.DAGGER);
+                    (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.DIAMOND_ARMBLADE.get()));
 
     public static final Function<Item, Builder> CLAW = (item) -> WeaponCapability.builder()
             .category(WeaponCategories.DAGGER)
             .canBePlacedOffhand(false)
-            .swingSound(AVSounds.SWORD_WHOOSH.get())
+            .swingSound(SoundEvents.SHEEP_SHEAR)
             .collider(ColliderPreset.DAGGER)
             .newStyleCombo(Styles.COMMON,
                     AnimsEpicFightBattleArts.IRON_LOTUS_AUTO1,
@@ -1267,7 +1265,14 @@ public class AVWeaponCapabilityPresets {
             .category(WeaponCategories.AXE)
             .swingSound(AVSounds.SWORD_WHOOSH.get())
             .styleProvider(
-                    (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() != WeaponCategories.AXE ? Styles.ONE_HAND : Styles.TWO_HAND)
+                    (livingentitypatch) -> ((livingentitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND).getItem().equals(AnnoyingVillagersModItems.EXTERMINATOR_BATTLEAXE.get())
+                            || livingentitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND).getItem().equals(AnnoyingVillagersModItems.EXTERMINATOR_BATTLEAXE_GREEN.get()))
+                            && (livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.EXTERMINATOR_BATTLEAXE.get())
+                            || livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.EXTERMINATOR_BATTLEAXE_GREEN.get())))
+                            || ((livingentitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND).getItem().equals(AnnoyingVillagersModItems.GOLDEN_MACE.get())
+                            || livingentitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND).getItem().equals(AnnoyingVillagersModItems.DIAMOND_MACE.get()))
+                            && (livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.GOLDEN_MACE.get())
+                            || livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.DIAMOND_MACE.get()))) ? Styles.TWO_HAND : Styles.ONE_HAND)
             .collider(ColliderPreset.SWORD)
             .newStyleCombo(Styles.ONE_HAND,
                     Animations.AXE_AUTO1,
@@ -1306,7 +1311,14 @@ public class AVWeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsPugilistSteve.RUN_HOLD)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_HOLD_DUAL_WEAPON)
             .weaponCombinationPredicator(
-                    (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.AXE);
+                    (livingentitypatch) -> ((livingentitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND).getItem().equals(AnnoyingVillagersModItems.EXTERMINATOR_BATTLEAXE.get())
+                            || livingentitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND).getItem().equals(AnnoyingVillagersModItems.EXTERMINATOR_BATTLEAXE_GREEN.get()))
+                            && (livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.EXTERMINATOR_BATTLEAXE.get())
+                            || livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.EXTERMINATOR_BATTLEAXE_GREEN.get())))
+                            || ((livingentitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND).getItem().equals(AnnoyingVillagersModItems.GOLDEN_MACE.get())
+                            || livingentitypatch.getOriginal().getItemInHand(InteractionHand.MAIN_HAND).getItem().equals(AnnoyingVillagersModItems.DIAMOND_MACE.get()))
+                            && (livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.GOLDEN_MACE.get())
+                            || livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.DIAMOND_MACE.get()))));
 
     public static final Function<Item, CapabilityItem.Builder> GUANDAO = (item) -> WeaponCapability.builder()
             .category(WeaponCategories.SPEAR)
@@ -1355,6 +1367,44 @@ public class AVWeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsAgony.AGONY_RUN)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsYonchiChikito.SAKURA_STAFF_WALK)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD);
+
+    public static final Function<Item, CapabilityItem.Builder> GUANDAO_SPEAR_STAFF = (item) -> WeaponCapability.builder()
+            .category(WeaponCategories.SWORD)
+            .styleProvider(
+                    (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.TWIN_DIAMOND_SPEAR.get()) ? Styles.TWO_HAND : Styles.ONE_HAND)
+            .collider(ColliderPreset.SPEAR)
+            .swingSound(AVSounds.SWORD_WHOOSH.get())
+            .hitSound(EpicFightSounds.BLADE_HIT.get())
+            .canBePlacedOffhand(true)
+            .newStyleCombo(Styles.ONE_HAND,
+                    AnimsEpicFightGuandao.FALCHION_AUTO1,
+                    AnimsEpicFightGuandao.FALCHION_AUTO2,
+                    AnimsEpicFightGuandao.FALCHION_AUTO3,
+                    AnimsOrbit.ORBIT_ATTACK_4,
+                    AnimsOrbit.ORBIT_ATTACK_3,
+                    AnimsAgony.AGONY_CLAWSTRIKE,
+                    AnimsOrbit.ORBIT_MAD_REACH)
+            .newStyleCombo(Styles.TWO_HAND,
+                    AnimsEpicFightGuandao.FALCHION_AUTO1,
+                    AnimsEpicFightGuandao.FALCHION_AUTO2,
+                    WOMAnimations.STAFF_AUTO_2,
+                    WOMAnimations.STAFF_AUTO_3,
+                    WOMAnimations.STAFF_CHARYBDIS,
+                    AnimsYonchiChikito.SAKURA_STAFF_DASH,
+                    AnimsAgony.AGONY_RIPPING_FANGS)
+            .innateSkill(Styles.COMMON,
+                    (itemstack) -> AVSkills.GUANDAO)
+            .livingMotionModifier(Styles.ONE_HAND, LivingMotions.IDLE, AnimsEpicFightGuandao.FALCHION_IDLE)
+            .livingMotionModifier(Styles.ONE_HAND, LivingMotions.RUN, AnimsAgony.AGONY_RUN)
+            .livingMotionModifier(Styles.ONE_HAND, LivingMotions.CHASE, AnimsAgony.AGONY_RUN)
+            .livingMotionModifier(Styles.ONE_HAND, LivingMotions.WALK, AnimsAgony.AGONY_WALK)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, WOMAnimations.STAFF_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsAgony.AGONY_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsAgony.AGONY_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsYonchiChikito.SAKURA_STAFF_WALK)
+            .livingMotionModifier(Styles.COMMON, LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD)
+            .weaponCombinationPredicator(
+                    (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.TWIN_DIAMOND_SPEAR.get()));
 
     public static final Function<Item, CapabilityItem.Builder> SICKLE = (item) -> WeaponCapability.builder()
             .category(WeaponCategories.SPEAR)
@@ -1405,6 +1455,25 @@ public class AVWeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.AIM, Animations.BIPED_JAVELIN_AIM)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.SHOT, Animations.BIPED_JAVELIN_THROW)
             .constructor(AVThrowableSpearCapability::new);
+
+    public static final Function<Item, CapabilityItem.Builder> BLACK_SCRATCHER = (item) -> WeaponCapability.builder()
+            .category(WeaponCategories.SWORD)
+            .styleProvider(
+                    (livingentitypatch) -> Styles.TWO_HAND)
+            .collider(ColliderPreset.SPEAR)
+            .swingSound(SoundEvents.SHEEP_SHEAR)
+            .hitSound(EpicFightSounds.BLADE_HIT.get())
+            .canBePlacedOffhand(false)
+            .newStyleCombo(Styles.TWO_HAND,
+                    AVAnimations.BLACKSCRATCHER_ATTACK,
+                    AVAnimations.BLACKSCRATCHER_ATTACK,
+                    AVAnimations.BLACKSCRATCHER_ATTACK)
+            .innateSkill(Styles.TWO_HAND,
+                    (itemstack) -> AVSkills.BLACKSCRATCHER)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AVAnimations.BLACKSCRATCHER_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, Animations.BIPED_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, Animations.BIPED_RUN)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK);
 
     public static final Function<Item, Builder> DIAMOND_WARBLADE = (item) -> WeaponCapability.builder()
             .category(WeaponCategories.SWORD)
@@ -1771,8 +1840,10 @@ public class AVWeaponCapabilityPresets {
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "exterminator_battleaxe"), AVWeaponCapabilityPresets.EXTERMINATOR_BATTLE_AXE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "guandao"), AVWeaponCapabilityPresets.GUANDAO);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "spear_staff"), AVWeaponCapabilityPresets.SPEAR_STAFF);
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "guandao_spear_staff"), AVWeaponCapabilityPresets.GUANDAO_SPEAR_STAFF);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "sickle"), AVWeaponCapabilityPresets.SICKLE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "bolt"), AVWeaponCapabilityPresets.BOLT);
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "blackscratcher"), AVWeaponCapabilityPresets.BLACK_SCRATCHER);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "falchion"), AVWeaponCapabilityPresets.FALCHION);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_warblade"), AVWeaponCapabilityPresets.DIAMOND_WARBLADE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_laevateinn"), AVWeaponCapabilityPresets.DIAMOND_LAEVATEINN);
