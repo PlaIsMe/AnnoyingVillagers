@@ -243,7 +243,7 @@ public class VillagerScoutEntity extends AVNpc {
         builder = builder.add(Attributes.MAX_HEALTH, 20.0D);
         builder = builder.add(Attributes.ARMOR, 5.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 0.0D);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 48.0D);
+        builder = builder.add(Attributes.FOLLOW_RANGE, 32.0D);
         return builder;
     }
 }

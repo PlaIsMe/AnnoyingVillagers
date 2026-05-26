@@ -30,7 +30,7 @@ public class LegendarySwordItem extends SwordItem {
             }
 
             public float getAttackDamageBonus() {
-                return 4.0F;
+                return 6.0F;
             }
 
             public int getLevel() {
