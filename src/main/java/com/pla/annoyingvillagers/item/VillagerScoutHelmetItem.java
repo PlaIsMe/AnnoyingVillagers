@@ -37,10 +37,10 @@ public abstract class VillagerScoutHelmetItem extends ArmorItem {
             @Override
             public int getDefenseForType(ArmorItem.Type type) {
                 return switch (type) {
-                    case BOOTS      -> 2;
-                    case LEGGINGS   -> 5;
-                    case CHESTPLATE -> 6;
-                    case HELMET     -> 5;
+                    case BOOTS      -> 1;
+                    case LEGGINGS   -> 3;
+                    case CHESTPLATE -> 5;
+                    case HELMET     -> 4;
                 };
             }
 

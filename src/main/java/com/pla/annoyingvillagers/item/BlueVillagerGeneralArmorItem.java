@@ -41,8 +41,8 @@ public abstract class BlueVillagerGeneralArmorItem extends ArmorItem {
                 return switch (pType) {
                     case BOOTS      -> 4;
                     case LEGGINGS   -> 6;
-                    case CHESTPLATE -> 8;
-                    case HELMET     -> 4;
+                    case CHESTPLATE -> 7;
+                    case HELMET     -> 5;
                 };
             }
 

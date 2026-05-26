@@ -42,7 +42,7 @@ public abstract class RedVillagerGeneralArmorItem extends ArmorItem {
                     case BOOTS      -> 4;
                     case LEGGINGS   -> 5;
                     case CHESTPLATE -> 7;
-                    case HELMET     -> 6;
+                    case HELMET     -> 5;
                 };
             }
 
