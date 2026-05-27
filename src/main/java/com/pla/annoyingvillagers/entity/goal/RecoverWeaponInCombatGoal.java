@@ -24,6 +24,7 @@ public class RecoverWeaponInCombatGoal extends Goal {
 
     private ItemEntity targetItem;
     private int inventoryWeaponSlot = -1;
+    private boolean restoreCachedWeapon;
     private boolean finished;
 
     private LivingEntity savedCombatTarget;
@@ -66,6 +67,13 @@ public class RecoverWeaponInCombatGoal extends Goal {
             return false;
         }
 
+        restoreCachedWeapon = !getCachedMainWeapon().isEmpty();
+        if (restoreCachedWeapon) {
+            targetItem = null;
+            inventoryWeaponSlot = -1;
+            return true;
+        }
+
         inventoryWeaponSlot = findWeaponSlotInNpcInventory();
         if (inventoryWeaponSlot >= 0) {
             targetItem = null;
@@ -102,6 +110,13 @@ public class RecoverWeaponInCombatGoal extends Goal {
         this.lockTicks = 0;
         this.repathCooldown = 0;
         this.finished = false;
+
+        if (restoreCachedWeapon && restoreCachedMainWeapon()) {
+            this.finished = true;
+            this.targetItem = null;
+            this.restoreCachedWeapon = false;
+            return;
+        }
 
         if (inventoryWeaponSlot >= 0 && tryEquipWeaponFromInventory(inventoryWeaponSlot)) {
             this.finished = true;
@@ -196,6 +211,28 @@ public class RecoverWeaponInCombatGoal extends Goal {
         return true;
     }
 
+    private boolean restoreCachedMainWeapon() {
+        ItemStack weapon = getCachedMainWeapon();
+
+        if (weapon.isEmpty()) {
+            return false;
+        }
+
+        mob.setItemSlot(EquipmentSlot.MAINHAND, weapon.copy());
+
+        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
+            playerNpcEntity.setMainWeaponItem(weapon.copy());
+            playerNpcEntity.setMainWeaponDisarmed(false);
+        }
+
+        if (mob instanceof AVNpc avNpc) {
+            avNpc.setMainWeaponItem(weapon.copy());
+            avNpc.setMainWeaponDisarmed(false);
+        }
+
+        return true;
+    }
+
     private SimpleContainer getNpcInventory() {
         if (mob instanceof PlayerNpcEntity playerNpcEntity) {
             return playerNpcEntity.getInventory();
@@ -279,6 +316,7 @@ public class RecoverWeaponInCombatGoal extends Goal {
         inventoryWeaponSlot = -1;
         lockTicks = 0;
         repathCooldown = 0;
+        restoreCachedWeapon = false;
         finished = false;
     }
 
@@ -311,7 +349,24 @@ public class RecoverWeaponInCombatGoal extends Goal {
     }
 
     private boolean mainWeaponIsEmpty() {
-        return mob.getMainHandItem().isEmpty();
+        return mob.getMainHandItem().isEmpty()
+                || isFlintAndSteel(mob.getMainHandItem());
+    }
+
+    private ItemStack getCachedMainWeapon() {
+        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
+            return playerNpcEntity.getMainWeaponItem();
+        }
+
+        if (mob instanceof AVNpc avNpc) {
+            return avNpc.getMainWeaponItem();
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    private boolean isFlintAndSteel(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem() == Items.FLINT_AND_STEEL;
     }
 
     private boolean isUsefulWeapon(ItemStack stack) {

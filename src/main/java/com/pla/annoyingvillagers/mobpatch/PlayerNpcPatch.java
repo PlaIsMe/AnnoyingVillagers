@@ -162,7 +162,7 @@ public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEnti
 
         this.weaponAttackMotions
                 .put(WOMWeaponCategories.TORMENT,
-                        ImmutableMap.of(Styles.TWO_HAND, PlayerNpcGreatsword.AV_GREATSWORD));
+                        ImmutableMap.of(Styles.TWO_HAND, PlayerNpcGreatsword.GREATSWORD));
         this.weaponLivingMotions
                 .put(WOMWeaponCategories.TORMENT,
                         ImmutableMap.of(Styles.TWO_HAND,
@@ -178,7 +178,7 @@ public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEnti
         this.weaponAttackMotions
                 .put(WOMWeaponCategories.ANTITHEUS,
                         ImmutableMap.of(
-                                Styles.TWO_HAND, PlayerNpcSpear.AV_SPEAR
+                                Styles.TWO_HAND, PlayerNpcSpear.SPEAR
                         ));
         this.weaponLivingMotions
                 .put(WOMWeaponCategories.ANTITHEUS,
@@ -195,7 +195,7 @@ public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEnti
         this.weaponAttackMotions
                 .put(WOMWeaponCategories.NAPOLEON,
                         ImmutableMap.of(
-                                Styles.TWO_HAND, PlayerNpcSpear.AV_SPEAR
+                                Styles.TWO_HAND, PlayerNpcSpear.SPEAR
                         ));
 
         this.weaponLivingMotions

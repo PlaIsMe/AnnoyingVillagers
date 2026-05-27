@@ -117,6 +117,7 @@ public class AnimsWom {
     public static AnimationManager.AnimationAccessor<ActionAnimation> AGONY_GUARD_HIT_1;
     public static AnimationManager.AnimationAccessor<SpecialAttackAnimation> ENDER_GLAIVE_NAPOLEON_SHOOT_3;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> ENDER_GLAIVE_AGONY_AUTO_1;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> CLONE_ANTITHEUS_IDLE;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> CLONE_ANTITHEUS_AUTO_1;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> CLONE_ANTITHEUS_AUTO_2;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> CLONE_ANTITHEUS_AUTO_3;
@@ -362,6 +363,7 @@ public class AnimsWom {
                                     }
                                 }, AnimationEvent.Side.SERVER)
                         }));
+        CLONE_ANTITHEUS_IDLE = builder.nextAccessor("biped/wom_clone/clone_antitheus_idle", (accessor) -> (new StaticAnimation(0.2F, true, accessor, humanoidArmature)));
         CLONE_ANTITHEUS_AUTO_1 = builder.nextAccessor("biped/wom_clone/clone_antitheus_auto_1",
                 accessor -> new BasicMultipleAttackAnimation(0.15F, accessor, humanoidArmature,
                         new AttackAnimation.Phase(0.0F, 0.35F, 0.55F, 0.69F, 0.69F, humanoidArmature.get().toolR, null),

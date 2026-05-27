@@ -954,6 +954,42 @@ public class HerobrineEnderAegis {
                                             .withinDistance(0.0D, 5.0D)
                                             .animationBehavior(WOMAnimations.ENDERSTEP_RIGHT, 0.0F)
                             )
+                            .addFirstBehavior(
+                                    Behavior.builder()
+                                            .custom(CombatCommon::canPerformNormalAttackLogic)
+                                            .withinDistance(0.0D, 5.0D)
+                                            .animationBehavior(Animations.BIPED_STEP_BACKWARD, 0.0F)
+                            )
+                            .addFirstBehavior(
+                                    Behavior.builder()
+                                            .custom(CombatCommon::canPerformNormalAttackLogic)
+                                            .withinDistance(0.0D, 5.0D)
+                                            .animationBehavior(Animations.BIPED_STEP_FORWARD, 0.0F)
+                            )
+                            .addFirstBehavior(
+                                    Behavior.builder()
+                                            .custom(CombatCommon::canPerformNormalAttackLogic)
+                                            .withinDistance(0.0D, 5.0D)
+                                            .animationBehavior(Animations.BIPED_STEP_LEFT, 0.0F)
+                            )
+                            .addFirstBehavior(
+                                    Behavior.builder()
+                                            .custom(CombatCommon::canPerformNormalAttackLogic)
+                                            .withinDistance(0.0D, 5.0D)
+                                            .animationBehavior(Animations.BIPED_STEP_RIGHT, 0.0F)
+                            )
+                            .addFirstBehavior(
+                                    Behavior.builder()
+                                            .custom(CombatCommon::canPerformNormalAttackLogic)
+                                            .withinDistance(0.0D, 5.0D)
+                                            .animationBehavior(Animations.BIPED_ROLL_BACKWARD, 0.0F)
+                            )
+                            .addFirstBehavior(
+                                    Behavior.builder()
+                                            .custom(CombatCommon::canPerformNormalAttackLogic)
+                                            .withinDistance(0.0D, 5.0D)
+                                            .animationBehavior(Animations.BIPED_ROLL_FORWARD, 0.0F)
+                            )
             )
             .newBehaviorRoot(
                     BehaviorRoot.builder()

@@ -13,6 +13,7 @@ import com.pla.annoyingvillagers.task.MobExecutionTask;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.EscapeUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
+import com.pla.efkick.gameasset.EFKickAnimations;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,11 +39,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.execution.ExecutionHandler;
 import net.shelmarow.combat_evolution.execution.ExecutionTypeManager;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimation;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionHitAnimation;
 import net.shelmarow.combat_evolution.tickTask.TickTaskManager;
+import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.KnockdownAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -947,5 +950,146 @@ public class CombatCommon {
             blueDemonEntity.setHealingCooldown();
             blueDemonEntity.setHealingTick(600);
         }
+    }
+
+    public static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addRandomCombatChains(
+            CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] group1,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] group2,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] group3,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] kicks,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] rolls
+    ) {
+        return addRandomCombatChainsFromGroups(root, group1, group2, group3, kicks, rolls);
+    }
+
+    @SafeVarargs
+    public static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addRandomCombatChains(
+            CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] group1,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[]... groups
+    ) {
+        return addRandomCombatChainsFromGroups(root, group1, groups);
+    }
+
+    @SafeVarargs
+    public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] animations(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations
+    ) {
+        return animations;
+    }
+
+    public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] kickAnimations() {
+        return animations(
+                EFKickAnimations.KICK_1,
+                EFKickAnimations.KICK_2,
+                EFKickAnimations.KICK_3,
+                EFKickAnimations.KICK_4,
+                EFKickAnimations.KICK_C,
+                EFKickAnimations.KICK_RUSH,
+                EFKickAnimations.KICK_H
+        );
+    }
+
+    public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] fistKickAnimations() {
+        return animations(
+                EFKickAnimations.KICK_1,
+                EFKickAnimations.KICK_2,
+                EFKickAnimations.KICK_3,
+                EFKickAnimations.KICK_4,
+                EFKickAnimations.KICK_C,
+                EFKickAnimations.KICK_RUSH,
+                EFKickAnimations.KICK_COMBO
+        );
+    }
+
+    public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] basicKickAnimations() {
+        return animations(
+                EFKickAnimations.KICK_1,
+                EFKickAnimations.KICK_2,
+                EFKickAnimations.KICK_3,
+                EFKickAnimations.KICK_4
+        );
+    }
+
+    public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] rollAnimations() {
+        return animations(
+                Animations.BIPED_ROLL_BACKWARD,
+                Animations.BIPED_ROLL_FORWARD
+        );
+    }
+
+    public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] stepAnimations() {
+        return animations(
+                Animations.BIPED_STEP_BACKWARD,
+                Animations.BIPED_STEP_FORWARD,
+                Animations.BIPED_STEP_LEFT,
+                Animations.BIPED_STEP_RIGHT
+        );
+    }
+
+    public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] rollStepAnimations() {
+        return animations(
+                Animations.BIPED_ROLL_BACKWARD,
+                Animations.BIPED_ROLL_FORWARD,
+                Animations.BIPED_STEP_BACKWARD,
+                Animations.BIPED_STEP_FORWARD,
+                Animations.BIPED_STEP_LEFT,
+                Animations.BIPED_STEP_RIGHT
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addRandomCombatChainsFromGroups(
+            CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] group1,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[]... groups
+    ) {
+        for (int combo = 0; combo < 50; combo++) {
+            int maxGroup1Count = Math.min(3, group1.length);
+            int minGroup1Count = Math.min(2, maxGroup1Count);
+            int group1Count = minGroup1Count + combo % (maxGroup1Count - minGroup1Count + 1);
+            int group1Start = group1.length == group1Count ? 0 : combo / 2 % (group1.length - group1Count + 1);
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] chain =
+                    new AnimationManager.AnimationAccessor[group1Count + groups.length];
+            int index = 0;
+
+            for (int group1Index = 0; group1Index < group1Count; group1Index++) {
+                chain[index++] = group1[group1Start + group1Index];
+            }
+
+            for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+                AnimationManager.AnimationAccessor<? extends StaticAnimation>[] group = groups[groupIndex];
+                chain[index++] = group[(combo + groupIndex) % group.length];
+            }
+
+            root = root.addFirstBehavior(combatChain(chain));
+        }
+
+        return root;
+    }
+
+    @SafeVarargs
+    private static CECombatBehaviors.Behavior.Builder<MobPatch<?>> combatChain(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations
+    ) {
+        CECombatBehaviors.Behavior.Builder<MobPatch<?>> chain = combatStep(animations[animations.length - 1], animations.length - 1);
+
+        for (int i = animations.length - 2; i >= 0; i--) {
+            chain = combatStep(animations[i], i).addNextBehavior(chain);
+        }
+
+        return chain;
+    }
+
+    private static CECombatBehaviors.Behavior.Builder<MobPatch<?>> combatStep(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> animation,
+            int index
+    ) {
+        double maxDistance = index < 2 ? 3.0D : index < 4 ? 4.0D : 5.0D;
+        return CECombatBehaviors.Behavior.builder()
+                .custom(CombatCommon::canPerformNormalAttackLogic)
+                .withinDistance(0.0D, maxDistance)
+                .animationBehavior(animation, 0.0F);
     }
 }

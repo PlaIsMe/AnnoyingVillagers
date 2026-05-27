@@ -26,6 +26,8 @@ public class BurnNearbyItemGoal extends Goal {
     private final double speed;
     private final double searchRadius;
     private ItemEntity targetItem;
+    private ItemStack burnToolRestoreItem = ItemStack.EMPTY;
+    private boolean equippedBurnTool;
 
     private static List<String> keys(String prefix, int count) {
         List<String> list = new ArrayList<>(count);
@@ -76,6 +78,9 @@ public class BurnNearbyItemGoal extends Goal {
 
     @Override
     public void start() {
+        burnToolRestoreItem = ItemStack.EMPTY;
+        equippedBurnTool = false;
+
         if (targetItem == null) {
             return;
         }
@@ -159,12 +164,17 @@ public class BurnNearbyItemGoal extends Goal {
 
     @Override
     public void stop() {
+        boolean shouldRestoreBurnTool = equippedBurnTool || isFlintAndSteel(mob.getMainHandItem());
+
         targetItem = null;
         mob.getNavigation().stop();
 
-        if (findTargetItem() == null) {
+        if (shouldRestoreBurnTool) {
             restoreMainWeapon(true);
         }
+
+        burnToolRestoreItem = ItemStack.EMPTY;
+        equippedBurnTool = false;
     }
 
     private void tryBroadcastBurnMessage(ServerLevel serverLevel, ItemStack burnedStack) {
@@ -185,27 +195,28 @@ public class BurnNearbyItemGoal extends Goal {
     }
 
     private void restoreMainWeapon(boolean addIdleCooldown) {
-        ItemStack weapon = null;
+        ItemStack weapon = getCachedMainWeapon();
 
         if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            weapon = playerNpcEntity.getMainWeaponItem();
-
             if (addIdleCooldown) {
                 playerNpcEntity.setPlayingIdleCooldown(playerNpcEntity.getPlayingIdleCooldown() + 40);
             }
         }
 
         if (mob instanceof AVNpc avNpc) {
-            weapon = avNpc.getMainWeaponItem();
-
             if (addIdleCooldown) {
                 avNpc.setPlayingIdleCooldown(avNpc.getPlayingIdleCooldown() + 40);
             }
         }
 
+        if ((weapon == null || weapon.isEmpty()) && !burnToolRestoreItem.isEmpty()) {
+            weapon = burnToolRestoreItem;
+        }
+
         if (weapon != null && !weapon.isEmpty()) {
             mob.setItemSlot(EquipmentSlot.MAINHAND, weapon.copy());
-        } else {
+            cacheMainWeapon(weapon);
+        } else if (isFlintAndSteel(mob.getMainHandItem())) {
             mob.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
         }
     }
@@ -231,7 +242,10 @@ public class BurnNearbyItemGoal extends Goal {
     }
 
     private void equipFlintAndSteel() {
-        if (mob.getMainHandItem().getItem() != Items.FLINT_AND_STEEL) {
+        rememberRestoreItemBeforeBurnTool();
+        equippedBurnTool = true;
+
+        if (!isFlintAndSteel(mob.getMainHandItem())) {
             mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.FLINT_AND_STEEL));
         }
     }
@@ -455,21 +469,61 @@ public class BurnNearbyItemGoal extends Goal {
         return null;
     }
 
-    private boolean mainWeaponIsEmpty() {
+    private ItemStack getCachedMainWeapon() {
         if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.getMainWeaponItem().isEmpty()
-                    || mob.getMainHandItem().isEmpty()
-                    || mob.getMainHandItem().getItem() == Items.FLINT_AND_STEEL;
+            return playerNpcEntity.getMainWeaponItem();
         }
 
         if (mob instanceof AVNpc avNpc) {
-            return avNpc.getMainWeaponItem().isEmpty()
-                    || mob.getMainHandItem().isEmpty()
-                    || mob.getMainHandItem().getItem() == Items.FLINT_AND_STEEL;
+            return avNpc.getMainWeaponItem();
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    private void cacheMainWeapon(ItemStack weapon) {
+        if (weapon == null || weapon.isEmpty()) {
+            return;
+        }
+
+        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
+            playerNpcEntity.setMainWeaponItem(weapon.copy());
+        }
+
+        if (mob instanceof AVNpc avNpc) {
+            avNpc.setMainWeaponItem(weapon.copy());
+        }
+    }
+
+    private void rememberRestoreItemBeforeBurnTool() {
+        if (!burnToolRestoreItem.isEmpty()) {
+            return;
+        }
+
+        ItemStack cachedWeapon = getCachedMainWeapon();
+        if (!cachedWeapon.isEmpty()) {
+            burnToolRestoreItem = cachedWeapon.copy();
+            return;
+        }
+
+        ItemStack currentMainHand = mob.getMainHandItem();
+        if (!currentMainHand.isEmpty() && !isFlintAndSteel(currentMainHand) && isUsefulWeapon(currentMainHand)) {
+            burnToolRestoreItem = currentMainHand.copy();
+            cacheMainWeapon(currentMainHand);
+        }
+    }
+
+    private boolean mainWeaponIsEmpty() {
+        if (!getCachedMainWeapon().isEmpty()) {
+            return false;
         }
 
         return mob.getMainHandItem().isEmpty()
-                || mob.getMainHandItem().getItem() == Items.FLINT_AND_STEEL;
+                || isFlintAndSteel(mob.getMainHandItem());
+    }
+
+    private boolean isFlintAndSteel(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem() == Items.FLINT_AND_STEEL;
     }
 
     private boolean isUsefulWeapon(ItemStack stack) {

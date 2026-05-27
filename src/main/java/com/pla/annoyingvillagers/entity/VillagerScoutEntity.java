@@ -200,18 +200,14 @@ public class VillagerScoutEntity extends AVNpc {
 
         TeamUtil.addOrJoinTeam(this, "villagers");
 
+        this.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_SWORD));
         if (new Random().nextBoolean()) {
-            this.setItemInHand(InteractionHand.MAIN_HAND, this.getBowItem());
+            this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.IRON_SWORD));
         } else {
-            this.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_SWORD));
-            if (new Random().nextBoolean()) {
-                this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.IRON_SWORD));
-            } else {
-                this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.ENDER_PEARL));
-            }
-            if (new Random().nextBoolean()) {
-                this.setUseBow(false);
-            }
+            this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.ENDER_PEARL));
+        }
+        if (new Random().nextBoolean()) {
+            this.setUseBow(false);
         }
 
         this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(AnnoyingVillagersModItems.VILLAGER_SCOUT_HELMET_FIX.get()));

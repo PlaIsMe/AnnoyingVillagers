@@ -1424,7 +1424,7 @@ public class AVWeaponCapabilityPresets {
                     AnimsWom.CLONE_ANTITHEUS_GUILLOTINE)
             .innateSkill(Styles.TWO_HAND,
                     (itemstack) -> AVSkills.GUANDAO)
-            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, WOMAnimations.ANTITHEUS_IDLE)
+            .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsWom.CLONE_ANTITHEUS_IDLE)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, WOMAnimations.ANTITHEUS_RUN)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, WOMAnimations.ANTITHEUS_RUN)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, WOMAnimations.ANTITHEUS_WALK)

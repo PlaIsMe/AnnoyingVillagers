@@ -101,237 +101,237 @@ public class VillagerGeneralPatch extends CEHumanoidPatch implements CustomExecu
                                     Styles.ONE_HAND, NpcDagger.DAGGER,
                                     Styles.TWO_HAND, NpcDagger.DUAL_DAGGER
                             ));
-
-            this.weaponAttackMotions
-                    .put(WeaponCategories.UCHIGATANA,
-                            ImmutableMap.of(
-                                    Styles.TWO_HAND, NpcUchigatana.UCHIGATANA
-                            ));
-            this.weaponAttackMotions
-                    .put(WeaponCategories.SPEAR,
-                            ImmutableMap.of(
-                                    Styles.ONE_HAND, NpcSpear.SPEAR_SHIELD,
-                                    Styles.TWO_HAND, NpcSpear.SPEAR
-                            ));
-
-            this.weaponAttackMotions
-                    .put(WeaponCategories.LONGSWORD,
-                            ImmutableMap.of(
-                                    Styles.ONE_HAND, NpcLongsword.LONGSWORD_SHIELD,
-                                    Styles.TWO_HAND, NpcLongsword.LONGSWORD
-                            ));
-
-            this.weaponAttackMotions
-                    .put(WeaponCategories.TACHI,
-                            ImmutableMap.of(
-                                    Styles.TWO_HAND, NpcTachi.TACHI
-                            ));
+//
+//            this.weaponAttackMotions
+//                    .put(WeaponCategories.UCHIGATANA,
+//                            ImmutableMap.of(
+//                                    Styles.TWO_HAND, NpcUchigatana.UCHIGATANA
+//                            ));
+//            this.weaponAttackMotions
+//                    .put(WeaponCategories.SPEAR,
+//                            ImmutableMap.of(
+//                                    Styles.ONE_HAND, NpcSpear.SPEAR_SHIELD,
+//                                    Styles.TWO_HAND, NpcSpear.SPEAR
+//                            ));
+//
+//            this.weaponAttackMotions
+//                    .put(WeaponCategories.LONGSWORD,
+//                            ImmutableMap.of(
+//                                    Styles.ONE_HAND, NpcLongsword.LONGSWORD_SHIELD,
+//                                    Styles.TWO_HAND, NpcLongsword.LONGSWORD
+//                            ));
+//
+//            this.weaponAttackMotions
+//                    .put(WeaponCategories.TACHI,
+//                            ImmutableMap.of(
+//                                    Styles.TWO_HAND, NpcTachi.TACHI
+//                            ));
         }
 
-        if (!ModList.get().isLoaded("annoyingvillagers_moredual") && !ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
-            this.weaponAttackMotions
-                    .put(WeaponCategories.AXE,
-                            ImmutableMap.of(Styles.ONE_HAND, NpcAxe.AXE));
-        }
-
-        if (!ModList.get().isLoaded("annoyingvillagers_moredual") && !ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
-            this.weaponAttackMotions
-                    .put(WeaponCategories.GREATSWORD,
-                            ImmutableMap.of(Styles.TWO_HAND, NpcGreatsword.GREATSWORD));
-        }
-
-        this.weaponLivingMotions
-                .put(WOMWeaponCategories.ENDERBLASTER,
-                        ImmutableMap.of(Styles.ONE_HAND,
-                                Set.of(
-                                        Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
-                                        Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, Animations.BIPED_RUN),
-                                        Pair.of(LivingMotions.CHASE, Animations.BIPED_RUN),
-                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
-                                ), Styles.TWO_HAND,
-                                Set.of(
-                                        Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
-                                        Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, Animations.BIPED_RUN),
-                                        Pair.of(LivingMotions.CHASE, Animations.BIPED_RUN),
-                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
-                                )));
-        this.weaponAttackMotions
-                .put(WOMWeaponCategories.ENDERBLASTER,
-                        ImmutableMap.of(Styles.ONE_HAND, NpcFist.FIST, Styles.TWO_HAND, NpcFist.FIST));
-
-        this.weaponAttackMotions
-                .put(WOMWeaponCategories.TORMENT,
-                        ImmutableMap.of(Styles.TWO_HAND, NpcGreatsword.AV_GREATSWORD));
-        this.weaponLivingMotions
-                .put(WOMWeaponCategories.TORMENT,
-                        ImmutableMap.of(Styles.TWO_HAND,
-                                Set.of(
-                                        Pair.of(LivingMotions.BLOCK, Animations.BIPED_BLOCK),
-                                        Pair.of(LivingMotions.IDLE, WOMAnimations.TORMENT_IDLE),
-                                        Pair.of(LivingMotions.WALK, WOMAnimations.TORMENT_WALK),
-                                        Pair.of(LivingMotions.RUN, WOMAnimations.TORMENT_RUN),
-                                        Pair.of(LivingMotions.CHASE, WOMAnimations.TORMENT_RUN),
-                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
-                                )));
-
-        this.weaponAttackMotions
-                .put(WOMWeaponCategories.ANTITHEUS,
-                        ImmutableMap.of(
-                                Styles.TWO_HAND, NpcSpear.AV_SPEAR
-                        ));
-        this.weaponLivingMotions
-                .put(WOMWeaponCategories.ANTITHEUS,
-                        ImmutableMap.of(Styles.TWO_HAND,
-                                Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD),
-                                        Pair.of(LivingMotions.IDLE, AnimsAgony.AGONY_IDLE),
-                                        Pair.of(LivingMotions.WALK, AnimsAgony.AGONY_WALK),
-                                        Pair.of(LivingMotions.RUN, AnimsAgony.AGONY_RUN),
-                                        Pair.of(LivingMotions.CHASE, AnimsAgony.AGONY_RUN),
-                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
-                                )));
-
-        this.weaponAttackMotions
-                .put(WOMWeaponCategories.NAPOLEON,
-                        ImmutableMap.of(
-                                Styles.TWO_HAND, NpcSpear.AV_SPEAR
-                        ));
-
-        this.weaponLivingMotions
-                .put(WOMWeaponCategories.NAPOLEON,
-                        ImmutableMap.of(Styles.TWO_HAND,
-                                Set.of(
-                                        Pair.of(LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD),
-                                        Pair.of(LivingMotions.IDLE, AnimsAgony.AGONY_IDLE),
-                                        Pair.of(LivingMotions.WALK, AnimsAgony.AGONY_WALK),
-                                        Pair.of(LivingMotions.RUN, AnimsAgony.AGONY_RUN),
-                                        Pair.of(LivingMotions.CHASE, AnimsAgony.AGONY_RUN),
-                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
-                                )));
-
-
-        this.guardHitMotions.put(WeaponCategories.SWORD,
-                ImmutableMap.of(
-                        Styles.ONE_HAND, List.of(
-                                Animations.SWORD_GUARD_ACTIVE_HIT1,
-                                Animations.SWORD_GUARD_ACTIVE_HIT2,
-                                Animations.SWORD_GUARD_ACTIVE_HIT3
-                        ),
-                        Styles.TWO_HAND, List.of(
-                                Animations.SWORD_DUAL_GUARD_HIT
-                        )
-                )
-        );
-        this.guardHitMotions.put(WeaponCategories.LONGSWORD,
-                ImmutableMap.of(
-                        Styles.ONE_HAND, List.of(
-                                Animations.LONGSWORD_GUARD_ACTIVE_HIT1,
-                                Animations.LONGSWORD_GUARD_ACTIVE_HIT2
-                        ),
-                        Styles.TWO_HAND, List.of(
-                                Animations.LONGSWORD_GUARD_HIT
-                        )
-                )
-        );
-        if (!ModList.get().isLoaded("annoyingvillagers_moredual")) {
-            this.guardHitMotions.put(WeaponCategories.AXE,
-                    ImmutableMap.of(
-                            Styles.ONE_HAND, List.of(
-                                    Animations.SWORD_GUARD_ACTIVE_HIT1,
-                                    Animations.SWORD_GUARD_ACTIVE_HIT2,
-                                    Animations.SWORD_GUARD_ACTIVE_HIT3
-                            )
-                    )
-            );
-        }
-        this.guardHitMotions.put(WOMWeaponCategories.TORMENT,
-                ImmutableMap.of(
-                        Styles.TWO_HAND, List.of(
-                                Animations.GREATSWORD_GUARD_HIT
-                        )
-                )
-        );
-        if (!ModList.get().isLoaded("annoyingvillagers_moredual")) {
-            this.guardHitMotions.put(WeaponCategories.GREATSWORD,
-                    ImmutableMap.of(
-                            Styles.TWO_HAND, List.of(
-                                    Animations.GREATSWORD_GUARD_HIT
-                            )
-                    )
-            );
-        }
-        this.guardHitMotions.put(WOMWeaponCategories.ANTITHEUS,
-                ImmutableMap.of(
-                        Styles.TWO_HAND, List.of(
-                                Animations.SPEAR_GUARD_HIT
-                        )
-                )
-        );
-        this.guardHitMotions.put(WOMWeaponCategories.NAPOLEON,
-                ImmutableMap.of(
-                        Styles.TWO_HAND, List.of(
-                                Animations.SPEAR_GUARD_HIT
-                        )
-                )
-        );
-        this.guardHitMotions.put(WeaponCategories.SPEAR,
-                ImmutableMap.of(
-                        Styles.ONE_HAND, List.of(
-                                Animations.SPEAR_GUARD_HIT
-                        ),
-                        Styles.TWO_HAND, List.of(
-                                Animations.SPEAR_GUARD_HIT
-                        )
-                )
-        );
-        this.guardHitMotions.put(WeaponCategories.TRIDENT,
-                ImmutableMap.of(
-                        Styles.ONE_HAND, List.of(
-                                Animations.SPEAR_GUARD_HIT
-                        ),
-                        Styles.TWO_HAND, List.of(
-                                Animations.SPEAR_GUARD_HIT
-                        )
-                )
-        );
-        this.guardHitMotions.put(WeaponCategories.UCHIGATANA,
-                ImmutableMap.of(
-                        Styles.OCHS, List.of(
-                                Animations.SWORD_GUARD_ACTIVE_HIT1,
-                                Animations.SWORD_GUARD_ACTIVE_HIT2,
-                                Animations.SWORD_GUARD_ACTIVE_HIT3
-                        ),
-                        Styles.TWO_HAND, List.of(
-                                Animations.SWORD_DUAL_GUARD_HIT
-                        )
-                )
-        );
-        this.guardHitMotions.put(WeaponCategories.DAGGER,
-                ImmutableMap.of(
-                        Styles.ONE_HAND, List.of(
-                                Animations.SWORD_GUARD_ACTIVE_HIT1,
-                                Animations.SWORD_GUARD_ACTIVE_HIT2,
-                                Animations.SWORD_GUARD_ACTIVE_HIT3
-                        ),
-                        Styles.TWO_HAND, List.of(
-                                Animations.SWORD_DUAL_GUARD_HIT
-                        )
-                )
-        );
-        this.guardHitMotions.put(WeaponCategories.TACHI,
-                ImmutableMap.of(
-                        Styles.ONE_HAND, List.of(
-                                Animations.SWORD_GUARD_ACTIVE_HIT1,
-                                Animations.SWORD_GUARD_ACTIVE_HIT2,
-                                Animations.SWORD_GUARD_ACTIVE_HIT3
-                        ),
-                        Styles.TWO_HAND, List.of(
-                                Animations.SWORD_DUAL_GUARD_HIT
-                        )
-                )
-        );
+//        if (!ModList.get().isLoaded("annoyingvillagers_moredual") && !ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
+//            this.weaponAttackMotions
+//                    .put(WeaponCategories.AXE,
+//                            ImmutableMap.of(Styles.ONE_HAND, NpcAxe.AXE));
+//        }
+//
+//        if (!ModList.get().isLoaded("annoyingvillagers_moredual") && !ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
+//            this.weaponAttackMotions
+//                    .put(WeaponCategories.GREATSWORD,
+//                            ImmutableMap.of(Styles.TWO_HAND, NpcGreatsword.GREATSWORD));
+//        }
+//
+//        this.weaponLivingMotions
+//                .put(WOMWeaponCategories.ENDERBLASTER,
+//                        ImmutableMap.of(Styles.ONE_HAND,
+//                                Set.of(
+//                                        Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
+//                                        Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
+//                                        Pair.of(LivingMotions.RUN, Animations.BIPED_RUN),
+//                                        Pair.of(LivingMotions.CHASE, Animations.BIPED_RUN),
+//                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
+//                                ), Styles.TWO_HAND,
+//                                Set.of(
+//                                        Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
+//                                        Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
+//                                        Pair.of(LivingMotions.RUN, Animations.BIPED_RUN),
+//                                        Pair.of(LivingMotions.CHASE, Animations.BIPED_RUN),
+//                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
+//                                )));
+//        this.weaponAttackMotions
+//                .put(WOMWeaponCategories.ENDERBLASTER,
+//                        ImmutableMap.of(Styles.ONE_HAND, NpcFist.FIST, Styles.TWO_HAND, NpcFist.FIST));
+//
+//        this.weaponAttackMotions
+//                .put(WOMWeaponCategories.TORMENT,
+//                        ImmutableMap.of(Styles.TWO_HAND, NpcGreatsword.AV_GREATSWORD));
+//        this.weaponLivingMotions
+//                .put(WOMWeaponCategories.TORMENT,
+//                        ImmutableMap.of(Styles.TWO_HAND,
+//                                Set.of(
+//                                        Pair.of(LivingMotions.BLOCK, Animations.BIPED_BLOCK),
+//                                        Pair.of(LivingMotions.IDLE, WOMAnimations.TORMENT_IDLE),
+//                                        Pair.of(LivingMotions.WALK, WOMAnimations.TORMENT_WALK),
+//                                        Pair.of(LivingMotions.RUN, WOMAnimations.TORMENT_RUN),
+//                                        Pair.of(LivingMotions.CHASE, WOMAnimations.TORMENT_RUN),
+//                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
+//                                )));
+//
+//        this.weaponAttackMotions
+//                .put(WOMWeaponCategories.ANTITHEUS,
+//                        ImmutableMap.of(
+//                                Styles.TWO_HAND, NpcSpear.AV_SPEAR
+//                        ));
+//        this.weaponLivingMotions
+//                .put(WOMWeaponCategories.ANTITHEUS,
+//                        ImmutableMap.of(Styles.TWO_HAND,
+//                                Set.of(
+//                                        Pair.of(LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD),
+//                                        Pair.of(LivingMotions.IDLE, AnimsAgony.AGONY_IDLE),
+//                                        Pair.of(LivingMotions.WALK, AnimsAgony.AGONY_WALK),
+//                                        Pair.of(LivingMotions.RUN, AnimsAgony.AGONY_RUN),
+//                                        Pair.of(LivingMotions.CHASE, AnimsAgony.AGONY_RUN),
+//                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
+//                                )));
+//
+//        this.weaponAttackMotions
+//                .put(WOMWeaponCategories.NAPOLEON,
+//                        ImmutableMap.of(
+//                                Styles.TWO_HAND, NpcSpear.AV_SPEAR
+//                        ));
+//
+//        this.weaponLivingMotions
+//                .put(WOMWeaponCategories.NAPOLEON,
+//                        ImmutableMap.of(Styles.TWO_HAND,
+//                                Set.of(
+//                                        Pair.of(LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD),
+//                                        Pair.of(LivingMotions.IDLE, AnimsAgony.AGONY_IDLE),
+//                                        Pair.of(LivingMotions.WALK, AnimsAgony.AGONY_WALK),
+//                                        Pair.of(LivingMotions.RUN, AnimsAgony.AGONY_RUN),
+//                                        Pair.of(LivingMotions.CHASE, AnimsAgony.AGONY_RUN),
+//                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
+//                                )));
+//
+//
+//        this.guardHitMotions.put(WeaponCategories.SWORD,
+//                ImmutableMap.of(
+//                        Styles.ONE_HAND, List.of(
+//                                Animations.SWORD_GUARD_ACTIVE_HIT1,
+//                                Animations.SWORD_GUARD_ACTIVE_HIT2,
+//                                Animations.SWORD_GUARD_ACTIVE_HIT3
+//                        ),
+//                        Styles.TWO_HAND, List.of(
+//                                Animations.SWORD_DUAL_GUARD_HIT
+//                        )
+//                )
+//        );
+//        this.guardHitMotions.put(WeaponCategories.LONGSWORD,
+//                ImmutableMap.of(
+//                        Styles.ONE_HAND, List.of(
+//                                Animations.LONGSWORD_GUARD_ACTIVE_HIT1,
+//                                Animations.LONGSWORD_GUARD_ACTIVE_HIT2
+//                        ),
+//                        Styles.TWO_HAND, List.of(
+//                                Animations.LONGSWORD_GUARD_HIT
+//                        )
+//                )
+//        );
+//        if (!ModList.get().isLoaded("annoyingvillagers_moredual")) {
+//            this.guardHitMotions.put(WeaponCategories.AXE,
+//                    ImmutableMap.of(
+//                            Styles.ONE_HAND, List.of(
+//                                    Animations.SWORD_GUARD_ACTIVE_HIT1,
+//                                    Animations.SWORD_GUARD_ACTIVE_HIT2,
+//                                    Animations.SWORD_GUARD_ACTIVE_HIT3
+//                            )
+//                    )
+//            );
+//        }
+//        this.guardHitMotions.put(WOMWeaponCategories.TORMENT,
+//                ImmutableMap.of(
+//                        Styles.TWO_HAND, List.of(
+//                                Animations.GREATSWORD_GUARD_HIT
+//                        )
+//                )
+//        );
+//        if (!ModList.get().isLoaded("annoyingvillagers_moredual")) {
+//            this.guardHitMotions.put(WeaponCategories.GREATSWORD,
+//                    ImmutableMap.of(
+//                            Styles.TWO_HAND, List.of(
+//                                    Animations.GREATSWORD_GUARD_HIT
+//                            )
+//                    )
+//            );
+//        }
+//        this.guardHitMotions.put(WOMWeaponCategories.ANTITHEUS,
+//                ImmutableMap.of(
+//                        Styles.TWO_HAND, List.of(
+//                                Animations.SPEAR_GUARD_HIT
+//                        )
+//                )
+//        );
+//        this.guardHitMotions.put(WOMWeaponCategories.NAPOLEON,
+//                ImmutableMap.of(
+//                        Styles.TWO_HAND, List.of(
+//                                Animations.SPEAR_GUARD_HIT
+//                        )
+//                )
+//        );
+//        this.guardHitMotions.put(WeaponCategories.SPEAR,
+//                ImmutableMap.of(
+//                        Styles.ONE_HAND, List.of(
+//                                Animations.SPEAR_GUARD_HIT
+//                        ),
+//                        Styles.TWO_HAND, List.of(
+//                                Animations.SPEAR_GUARD_HIT
+//                        )
+//                )
+//        );
+//        this.guardHitMotions.put(WeaponCategories.TRIDENT,
+//                ImmutableMap.of(
+//                        Styles.ONE_HAND, List.of(
+//                                Animations.SPEAR_GUARD_HIT
+//                        ),
+//                        Styles.TWO_HAND, List.of(
+//                                Animations.SPEAR_GUARD_HIT
+//                        )
+//                )
+//        );
+//        this.guardHitMotions.put(WeaponCategories.UCHIGATANA,
+//                ImmutableMap.of(
+//                        Styles.OCHS, List.of(
+//                                Animations.SWORD_GUARD_ACTIVE_HIT1,
+//                                Animations.SWORD_GUARD_ACTIVE_HIT2,
+//                                Animations.SWORD_GUARD_ACTIVE_HIT3
+//                        ),
+//                        Styles.TWO_HAND, List.of(
+//                                Animations.SWORD_DUAL_GUARD_HIT
+//                        )
+//                )
+//        );
+//        this.guardHitMotions.put(WeaponCategories.DAGGER,
+//                ImmutableMap.of(
+//                        Styles.ONE_HAND, List.of(
+//                                Animations.SWORD_GUARD_ACTIVE_HIT1,
+//                                Animations.SWORD_GUARD_ACTIVE_HIT2,
+//                                Animations.SWORD_GUARD_ACTIVE_HIT3
+//                        ),
+//                        Styles.TWO_HAND, List.of(
+//                                Animations.SWORD_DUAL_GUARD_HIT
+//                        )
+//                )
+//        );
+//        this.guardHitMotions.put(WeaponCategories.TACHI,
+//                ImmutableMap.of(
+//                        Styles.ONE_HAND, List.of(
+//                                Animations.SWORD_GUARD_ACTIVE_HIT1,
+//                                Animations.SWORD_GUARD_ACTIVE_HIT2,
+//                                Animations.SWORD_GUARD_ACTIVE_HIT3
+//                        ),
+//                        Styles.TWO_HAND, List.of(
+//                                Animations.SWORD_DUAL_GUARD_HIT
+//                        )
+//                )
+//        );
     }
 
     @Override
