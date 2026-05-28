@@ -1,24 +1,21 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightAwaken;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Builder;
+import reascer.wom.gameasset.animations.weapons.AnimsHerrscher;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
-public class PlayerNpcDagger {
-    public static final Builder<MobPatch<?>> DAGGER = CECombatBehaviors.builder()
+public class PlayerNpcBlackFireSword {
+    public static final Builder<MobPatch<?>> BLACK_FIRE_SWORD = CECombatBehaviors.builder()
             .newBehaviorRoot(CombatBehaviourTemplates.executionRoot())
-            .newBehaviorRoot(CombatBehaviourTemplates.escapeWithAnimationRoot(
-                    Animations.BIPED_ROLL_BACKWARD,
-                    AnimsPugilistSteve.KNIFE_CHECK
-            ))
+            .newBehaviorRoot(CombatBehaviourTemplates.escapeWithGuardRoot(Animations.BIPED_ROLL_BACKWARD))
             .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot(Animations.BIPED_ROLL_BACKWARD))
-            .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(
-                    Animations.BIPED_ROLL_BACKWARD,
-                    Animations.BIPED_ROLL_FORWARD
-            ))
+            .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(Animations.BIPED_ROLL_BACKWARD, Animations.BIPED_ROLL_FORWARD))
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot())
             .newBehaviorRoot(
                     CombatCommon.addRandomCombatChains(
@@ -27,9 +24,11 @@ public class PlayerNpcDagger {
                                     .weight(40.0D)
                                     .maxCooldown(20),
                             CombatCommon.animations(
-                                    Animations.DAGGER_AUTO1,
-                                    Animations.DAGGER_AUTO2,
-                                    Animations.DAGGER_AUTO3
+                                    AnimsEpicFightAwaken.CUT_LEFT_DP_AUTO_3,
+                                    AnimsPugilistSteve.SWORD_DASH,
+                                    AnimsPugilistSteve.DAGGER_AUTO1,
+                                    AnimsHerrscher.HERRSCHER_AUTO_1,
+                                    AnimsHerrscher.HERRSCHER_AUTO_2
                             ),
                             CombatCommon.animations(
                                     AnimsPugilistSteve.SWORD_HEAVY_AUTO_1,
@@ -37,28 +36,22 @@ public class PlayerNpcDagger {
                                     AnimsPugilistSteve.SWORD_HEAVY_AUTO_3
                             ),
                             CombatCommon.animations(
-                                    Animations.DAGGER_DASH,
-                                    Animations.DAGGER_AIR_SLASH,
-                                    Animations.EVISCERATE_FIRST,
-                                    Animations.EVISCERATE_SECOND
+                                    AnimsEpicFightAwaken.CUT_LEFT_DP_DASH,
+                                    AnimsEpicFightAwaken.HOOK_SLASH_AIR,
+                                    AVAnimations.BLACK_FIRE_SWORD_SKILL
                             ),
                             CombatCommon.kickAnimations(),
                             CombatCommon.rollAnimations())
             )
-            .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(false))
+            .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(true))
+            .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());
 
-    public static final Builder<MobPatch<?>> DUAL_DAGGER = CECombatBehaviors.builder()
+    public static final Builder<MobPatch<?>> DUAL_BLACK_FIRE_SWORD = CECombatBehaviors.builder()
             .newBehaviorRoot(CombatBehaviourTemplates.executionRoot())
-            .newBehaviorRoot(CombatBehaviourTemplates.escapeWithAnimationRoot(
-                    Animations.BIPED_ROLL_BACKWARD,
-                    AnimsPugilistSteve.KNIFE_CHECK
-            ))
+            .newBehaviorRoot(CombatBehaviourTemplates.escapeWithGuardRoot(Animations.BIPED_ROLL_BACKWARD))
             .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot(Animations.BIPED_ROLL_BACKWARD))
-            .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(
-                    Animations.BIPED_ROLL_BACKWARD,
-                    Animations.BIPED_ROLL_FORWARD
-            ))
+            .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(Animations.BIPED_ROLL_BACKWARD, Animations.BIPED_ROLL_FORWARD))
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot())
             .newBehaviorRoot(
                     CombatCommon.addRandomCombatChains(
@@ -67,27 +60,27 @@ public class PlayerNpcDagger {
                                     .weight(40.0D)
                                     .maxCooldown(20),
                             CombatCommon.animations(
-                                    Animations.DAGGER_DUAL_AUTO1,
-                                    Animations.DAGGER_DUAL_AUTO2,
-                                    Animations.DAGGER_DUAL_AUTO3,
-                                    AnimsPugilistSteve.DAGGER_DUAL_AUTO4
+                                    AnimsEpicFightAwaken.DP_AUTO_1,
+                                    AnimsEpicFightAwaken.DP_AUTO_2,
+                                    AnimsEpicFightAwaken.DP_AUTO_3,
+                                    AnimsEpicFightAwaken.DP_AUTO_4,
+                                    AnimsPugilistSteve.DUAL_SWORD_AUTO2
                             ),
                             CombatCommon.animations(
+                                    Animations.DAGGER_DUAL_DASH,
+                                    Animations.LONGSWORD_AUTO2,
                                     AnimsPugilistSteve.DUAL_DANCING_EDGE,
                                     AnimsPugilistSteve.DUAL_SWORD_DANCING_EDGE
                             ),
                             CombatCommon.animations(
-                                    Animations.DAGGER_DUAL_DASH,
-                                    Animations.DAGGER_AIR_SLASH,
-                                    Animations.LONGSWORD_AUTO2,
-                                    Animations.BLADE_RUSH_COMBO1,
-                                    Animations.BLADE_RUSH_COMBO2,
-                                    Animations.BLADE_RUSH_COMBO3,
-                                    Animations.DAGGER_DUAL_AUTO4
+                                    AnimsEpicFightAwaken.DP_DASH,
+                                    AnimsEpicFightAwaken.DP_NIGHT_FALL,
+                                    AVAnimations.BLACK_FIRE_SWORD_SKILL
                             ),
                             CombatCommon.kickAnimations(),
                             CombatCommon.rollAnimations())
             )
-            .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(false))
+            .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(100, true))
+            .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());
 }

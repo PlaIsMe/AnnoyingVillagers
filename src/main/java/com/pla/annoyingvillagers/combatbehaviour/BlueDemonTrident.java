@@ -1,5 +1,3 @@
-
-
 package com.pla.annoyingvillagers.combatbehaviour;
 
 import com.pla.annoyingvillagers.gameasset.*;
@@ -13,24 +11,12 @@ import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 public class BlueDemonTrident {
     public static final Builder<MobPatch<?>> TRIDENT = CECombatBehaviors.builder()
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(4.0D)
-                            .weight(1000.0D)
-                            .maxCooldown (0)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canExecute)
-                                            .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(Animations.BIPED_SNEAK, 0.0F)
-                                            .addExBehavior(CombatCommon::performExecute)
-                            )
-            )
+            .newBehaviorRoot(CombatBehaviourTemplates.executionRoot())
             .newBehaviorRoot(
                     BehaviorRoot.builder()
                             .priority(3.0D)
                             .weight(1000.0D)
-                            .maxCooldown (0)
+                            .maxCooldown(0)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::canEscape)
@@ -56,7 +42,7 @@ public class BlueDemonTrident {
                     BehaviorRoot.builder()
                             .priority(3.0D)
                             .weight(100.0D)
-                            .maxCooldown (120)
+                            .maxCooldown(120)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -104,7 +90,7 @@ public class BlueDemonTrident {
                     BehaviorRoot.builder()
                             .priority(2.0D)
                             .weight(70.0D)
-                            .maxCooldown (0)
+                            .maxCooldown(0)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -115,12 +101,34 @@ public class BlueDemonTrident {
                             )
             )
             .newBehaviorRoot(
-                    addTridentRandomCombatChains(
+                    CombatCommon.addRandomCombatChains(
                             BehaviorRoot.builder()
                                     .priority(1.0D)
                                     .weight(40.0D)
-                                    .maxCooldown(20)
-                    )
+                                    .maxCooldown(20),
+                            CombatCommon.animations(
+                                    AnimsEpicFightBattleArts.ADVANCED_LANCER_AUTO1,
+                                    AnimsPugilistSteve.TRIDENT_DUAL_AUTO2,
+                                    AnimsEpicFightBattleArts.ADVANCED_DUELIST_SHOOTING_STAR,
+                                    AnimsEpicFightAwaken.CUT_DP_AIR_ATTACK,
+                                    AnimsEpicFightBattleArts.ADVANCED_LANCER_AUTO3,
+                                    AnimsEpicFightBattleArts.ADVANCED_DUELIST_WHIRLEDGE
+                            ),
+                            CombatCommon.animations(
+                                    AnimsEpicFightBattleArts.TRIDENT_THROW_1,
+                                    AnimsPugilistSteve.TRIDENT_THROW_2,
+                                    AnimsEpicFightBattleArts.TRIDENT_THROW_3,
+                                    AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_2,
+                                    AnimsEpicFightBattleArts.TRIDENT_THROW_5
+                            ),
+                            CombatCommon.animations(
+                                    AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_1,
+                                    AnimsEpicFight.NERF_TSUNAMI_REINFORCED,
+                                    AnimsEpicFightAwaken.CUT_HOOK_SPIN_SLASH_AIR,
+                                    AnimsEpicFightAwaken.THROW_HOOK_SLASH_AIR,
+                                    AnimsPugilistSteve.DUAL_SWORD_AUTO2
+                            ),
+                            CombatCommon.rollStepAnimations())
             )
             .newBehaviorRoot(
                     BehaviorRoot.builder()
@@ -166,36 +174,6 @@ public class BlueDemonTrident {
             .newBehaviorRoot(
                     BehaviorRoot.builder()
                             .priority(1.0D)
-                            .weight(10.0D)
-                            .maxCooldown (80)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(AnimsEpicFight.NERF_TSUNAMI_REINFORCED, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 4.0D)
-                                            .animationBehavior(AnimsEpicFightAwaken.CUT_HOOK_SPIN_SLASH_AIR, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(5.0D, 10.0D)
-                                            .animationBehavior(AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_1, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(5.0D, 10.0D)
-                                            .animationBehavior(AnimsEpicFightAwaken.THROW_HOOK_SLASH_AIR, 0.0F)
-                            )
-            )
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(1.0D)
                             .weight(10)
                             .maxCooldown(600)
                             .addFirstBehavior(
@@ -212,101 +190,8 @@ public class BlueDemonTrident {
                                             .animationBehavior(AVAnimations.TRIDENT_ATTACK, 0.0F)
                             )
             )
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(1.0D)
-                            .weight(15.0D)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.5D, 3.0D)
-                                            .custom(CombatCommon::canPerformGuarding)
-                                            .guard(40)
-                            )
-            )
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(1.0D)
-                            .weight(10.0D)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(Animations.BIPED_STEP_BACKWARD, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(Animations.BIPED_STEP_FORWARD, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(Animations.BIPED_STEP_LEFT, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(Animations.BIPED_STEP_RIGHT, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(Animations.BIPED_ROLL_BACKWARD, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(Animations.BIPED_ROLL_FORWARD, 0.0F)
-                            )
-            )
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(1.0D)
-                            .weight(40.0D)
-                            .maxCooldown(160)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .custom(CombatCommon::canJump)
-                                            .withinDistance(5.0D, 14.0D)
-                                            .animationBehavior(Animations.BIPED_JUMP, 0.0F)
-                                            .addExBehavior(CombatCommon::jump)
-                            )
-            );
+            .newBehaviorRoot(CombatBehaviourTemplates.guardRoot(0.5D))
+            .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());
 
-    private static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addTridentRandomCombatChains(CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root) {
-        return CombatCommon.addRandomCombatChains(
-                root,
-                CombatCommon.animations(
-                        AnimsEpicFightBattleArts.ADVANCED_LANCER_AUTO1,
-                        AnimsPugilistSteve.TRIDENT_DUAL_AUTO2,
-                        AnimsEpicFightBattleArts.ADVANCED_DUELIST_SHOOTING_STAR,
-                        AnimsEpicFightAwaken.CUT_DP_AIR_ATTACK,
-                        AnimsEpicFightBattleArts.ADVANCED_LANCER_AUTO3,
-                        AnimsEpicFightBattleArts.ADVANCED_DUELIST_WHIRLEDGE
-                ),
-                CombatCommon.animations(
-                        AnimsEpicFightBattleArts.TRIDENT_THROW_1,
-                        AnimsPugilistSteve.TRIDENT_THROW_2,
-                        AnimsEpicFightBattleArts.TRIDENT_THROW_3,
-                        AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_2,
-                        AnimsEpicFightBattleArts.TRIDENT_THROW_5
-                ),
-                CombatCommon.animations(
-                        AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_1,
-                        AnimsEpicFight.NERF_TSUNAMI_REINFORCED,
-                        AnimsEpicFightAwaken.CUT_HOOK_SPIN_SLASH_AIR,
-                        AnimsEpicFightAwaken.THROW_HOOK_SLASH_AIR,
-                        AnimsPugilistSteve.DUAL_SWORD_AUTO2
-                ),
-                CombatCommon.rollStepAnimations()
-        );
-    }
 
 }

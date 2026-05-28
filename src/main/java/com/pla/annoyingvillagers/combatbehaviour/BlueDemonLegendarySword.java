@@ -25,91 +25,13 @@ import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.effect.EpicFightMobEffects;
 
 public class BlueDemonLegendarySword {
-    static void legendarySwordHeavyAttack(MobPatch<?> mobpatch) {
-        BlueDemonEntity blueDemonEntity = (BlueDemonEntity) mobpatch.getOriginal();
-        ItemStack itemStack = blueDemonEntity.getMainHandItem();
-        if (itemStack.getItem() instanceof LegendarySwordItem && blueDemonEntity.level() instanceof ServerLevel serverLevel) {
-            blueDemonEntity.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 60, 2));
-            new DelayedTask(10) {
-                @Override
-                public void run() {
-                    serverLevel.playSound(
-                            null,
-                            blueDemonEntity.getX(), blueDemonEntity.getY(), blueDemonEntity.getZ(),
-                            AnnoyingVillagersModSounds.HEAVY_ATTACK_START.get(),
-                            SoundSource.NEUTRAL,
-                            1.0F, 1.0F
-                    );
-
-                    serverLevel.playSound(
-                            null,
-                            blueDemonEntity.getX(), blueDemonEntity.getY(), blueDemonEntity.getZ(),
-                            AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(),
-                            SoundSource.NEUTRAL,
-                            1.0F, 1.0F
-                    );
-
-                    serverLevel.playSound(
-                            null,
-                            blueDemonEntity.getX(), blueDemonEntity.getY(), blueDemonEntity.getZ(),
-                            AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(),
-                            SoundSource.NEUTRAL,
-                            1.0F, 1.0F
-                    );
-
-                    serverLevel.sendParticles(
-                            ParticleTypes.TOTEM_OF_UNDYING,
-                            blueDemonEntity.getX(), blueDemonEntity.getY(), blueDemonEntity.getZ(),
-                            15,
-                            0.0D, 0.0D, 0.0D,
-                            0.2D);
-
-                    serverLevel.sendParticles(
-                            ParticleTypes.TOTEM_OF_UNDYING,
-                            blueDemonEntity.getX(), blueDemonEntity.getEyeY(), blueDemonEntity.getZ(),
-                            100,
-                            0.0D, 0.0D, 0.0D,
-                            0.5D
-                    );
-                    mobpatch.playAnimationSynchronized(AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK, 0.0F);
-                }
-            };
-        }
-    }
-
-    static void legendarySwordSpecialAttack(MobPatch<?> mobpatch) {
-        BlueDemonEntity blueDemonEntity = (BlueDemonEntity) mobpatch.getOriginal();
-        ItemStack itemStack = blueDemonEntity.getMainHandItem();
-        if (itemStack.getItem() instanceof LegendarySwordItem && blueDemonEntity.level() instanceof ServerLevel) {
-            blueDemonEntity.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 60, 2));
-            new DelayedTask(20) {
-                @Override
-                public void run() {
-                    mobpatch.playAnimationSynchronized(AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK, 0.0F);
-                }
-            };
-        }
-    }
-
     public static final Builder<MobPatch<?>> LEGENDARY_SWORD = CECombatBehaviors.builder()
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(4.0D)
-                            .weight(1000.0D)
-                            .maxCooldown (0)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canExecute)
-                                            .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(Animations.BIPED_SNEAK, 0.0F)
-                                            .addExBehavior(CombatCommon::performExecute)
-                            )
-            )
+            .newBehaviorRoot(CombatBehaviourTemplates.executionRoot())
             .newBehaviorRoot(
                     BehaviorRoot.builder()
                             .priority(3.0D)
                             .weight(1000.0D)
-                            .maxCooldown (0)
+                            .maxCooldown(0)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -129,7 +51,7 @@ public class BlueDemonLegendarySword {
                     BehaviorRoot.builder()
                             .priority(3.0D)
                             .weight(100.0D)
-                            .maxCooldown (120)
+                            .maxCooldown(120)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -174,12 +96,54 @@ public class BlueDemonLegendarySword {
                             )
             )
             .newBehaviorRoot(
-                    addLegendarySwordRandomCombatChains(
+                    CombatCommon.addRandomCombatChains(
                             BehaviorRoot.builder()
                                     .priority(1.0D)
                                     .weight(40.0D)
-                                    .maxCooldown(20)
-                    )
+                                    .maxCooldown(20),
+                            CombatCommon.animations(
+                                    WOMAnimations.TORMENT_AUTO_1,
+                                    WOMAnimations.TORMENT_AUTO_2,
+                                    AnimsSolar.SOLAR_AUTO_1,
+                                    AnimsPugilistSteve.LEGENDARY_SWORD_AUTO_4,
+                                    AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK,
+                                    AnimsWom.YELLOW_SOLAR_AUTO_2,
+                                    AnimsWom.YELLOW_NAPOLEON_AUTO_3,
+                                    AnimsWom.DEMONIAC_TORMENT_CHARGED_ATTACK_2
+                            ),
+                            CombatCommon.animations(
+                                    AnimsEnderblaster.ENDERBLASTER_TWOHAND_TISHNAW
+                            ),
+                            CombatCommon.animations(
+                                    AnimsSolar.SOLAR_AUTO_4,
+                                    WOMAnimations.TORMENT_AIRSLAM,
+                                    WOMAnimations.TORMENT_AUTO_3,
+                                    WOMAnimations.TORMENT_AUTO_4,
+                                    WOMAnimations.TORMENT_DASH,
+                                    AnimsWom.DEMONIAC_RUINE_AUTO_1,
+                                    AnimsWom.DEMONIAC_RUINE_AUTO_4,
+                                    AnimsWom.DEMONIAC_RUINE_AUTO_2,
+                                    AnimsRuine.RUINE_CHATIMENT,
+                                    WOMAnimations.TORMENT_BERSERK_DASH,
+                                    WOMAnimations.TORMENT_BERSERK_AUTO_1,
+                                    WOMAnimations.TORMENT_BERSERK_AUTO_2,
+                                    WOMAnimations.TORMENT_BERSERK_AIRSLAM,
+                                    Animations.GREATSWORD_AUTO1,
+                                    Animations.GREATSWORD_AUTO2,
+                                    Animations.THE_GUILLOTINE,
+                                    WOMAnimations.TORMENT_CHARGED_ATTACK_1,
+                                    WOMAnimations.TORMENT_CHARGED_ATTACK_3,
+                                    AnimsSolar.SOLAR_AUTO_2,
+                                    AnimsAgony.AGONY_RIPPING_FANGS,
+                                    AnimsAgony.AGONY_AUTO_3,
+                                    AnimsWom.ELECTRIC_FIELD,
+                                    AnimsWom.DEMONIAC_RUINE_COMET,
+                                    AnimsWom.CLONE_ENDERBLASTER_ONEHAND_DASH,
+                                    AnimsWom.YELLOW_NAPOLEON_AUSTERLITZ_SHOOT,
+                                    AnimsSolar.SOLAR_OBSCURIDAD_AUTO_4,
+                                    AnimsWom.CLONE_NAPOLEON_WATERLOW_SHOOT
+                            ),
+                            CombatCommon.rollStepAnimations())
             )
             .newBehaviorRoot(
                     BehaviorRoot.builder()
@@ -264,7 +228,7 @@ public class BlueDemonLegendarySword {
                     BehaviorRoot.builder()
                             .priority(1.0D)
                             .weight(20.0D)
-                            .maxCooldown (200)
+                            .maxCooldown(200)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -277,7 +241,7 @@ public class BlueDemonLegendarySword {
                     BehaviorRoot.builder()
                             .priority(1.0D)
                             .weight(10.0D)
-                            .maxCooldown (400)
+                            .maxCooldown(400)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
@@ -285,108 +249,72 @@ public class BlueDemonLegendarySword {
                                             .animationBehavior(AnimsWom.ELECTRIC_FIELD, 0.0F)
                             )
             )
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(1.0D)
-                            .weight(15.0D)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .custom(CombatCommon::canPerformGuarding)
-                                            .guard(40)
-                            )
-            )
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(1.0D)
-                            .weight(10.0D)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(Animations.BIPED_STEP_BACKWARD, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(Animations.BIPED_STEP_FORWARD, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(Animations.BIPED_STEP_LEFT, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 3.0D)
-                                            .animationBehavior(Animations.BIPED_STEP_RIGHT, 0.0F)
-                            )
-            )
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(1.0D)
-                            .weight(40.0D)
-                            .maxCooldown(160)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .custom(CombatCommon::canJump)
-                                            .withinDistance(5.0D, 14.0D)
-                                            .animationBehavior(Animations.BIPED_JUMP, 0.0F)
-                                            .addExBehavior(CombatCommon::jump)
-                            )
-            );
+            .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())
+            .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());
 
-    private static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addLegendarySwordRandomCombatChains(CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root) {
-        return CombatCommon.addRandomCombatChains(
-                root,
-                CombatCommon.animations(
-                        WOMAnimations.TORMENT_AUTO_1,
-                        WOMAnimations.TORMENT_AUTO_2,
-                        AnimsSolar.SOLAR_AUTO_1,
-                        AnimsPugilistSteve.LEGENDARY_SWORD_AUTO_4,
-                        AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK,
-                        AnimsWom.YELLOW_SOLAR_AUTO_2,
-                        AnimsWom.YELLOW_NAPOLEON_AUTO_3,
-                        AnimsWom.DEMONIAC_TORMENT_CHARGED_ATTACK_2
-                ),
-                CombatCommon.animations(
-                        AnimsEnderblaster.ENDERBLASTER_TWOHAND_TISHNAW
-                ),
-                CombatCommon.animations(
-                        AnimsSolar.SOLAR_AUTO_4,
-                        WOMAnimations.TORMENT_AIRSLAM,
-                        WOMAnimations.TORMENT_AUTO_3,
-                        WOMAnimations.TORMENT_AUTO_4,
-                        WOMAnimations.TORMENT_DASH,
-                        AnimsWom.DEMONIAC_RUINE_AUTO_1,
-                        AnimsWom.DEMONIAC_RUINE_AUTO_4,
-                        AnimsWom.DEMONIAC_RUINE_AUTO_2,
-                        AnimsRuine.RUINE_CHATIMENT,
-                        WOMAnimations.TORMENT_BERSERK_DASH,
-                        WOMAnimations.TORMENT_BERSERK_AUTO_1,
-                        WOMAnimations.TORMENT_BERSERK_AUTO_2,
-                        WOMAnimations.TORMENT_BERSERK_AIRSLAM,
-                        Animations.GREATSWORD_AUTO1,
-                        Animations.GREATSWORD_AUTO2,
-                        Animations.THE_GUILLOTINE,
-                        WOMAnimations.TORMENT_CHARGED_ATTACK_1,
-                        WOMAnimations.TORMENT_CHARGED_ATTACK_3,
-                        AnimsSolar.SOLAR_AUTO_2,
-                        AnimsAgony.AGONY_RIPPING_FANGS,
-                        AnimsAgony.AGONY_AUTO_3,
-                        AnimsWom.ELECTRIC_FIELD,
-                        AnimsWom.DEMONIAC_RUINE_COMET,
-                        AnimsWom.CLONE_ENDERBLASTER_ONEHAND_DASH,
-                        AnimsWom.YELLOW_NAPOLEON_AUSTERLITZ_SHOOT,
-                        AnimsSolar.SOLAR_OBSCURIDAD_AUTO_4,
-                        AnimsWom.CLONE_NAPOLEON_WATERLOW_SHOOT
-                )
-        );
+    static void legendarySwordHeavyAttack(MobPatch<?> mobpatch) {
+        BlueDemonEntity blueDemonEntity = (BlueDemonEntity) mobpatch.getOriginal();
+        ItemStack itemStack = blueDemonEntity.getMainHandItem();
+        if (itemStack.getItem() instanceof LegendarySwordItem && blueDemonEntity.level() instanceof ServerLevel serverLevel) {
+            blueDemonEntity.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 60, 2));
+            new DelayedTask(10) {
+                @Override
+                public void run() {
+                    serverLevel.playSound(
+                            null,
+                            blueDemonEntity.getX(), blueDemonEntity.getY(), blueDemonEntity.getZ(),
+                            AnnoyingVillagersModSounds.HEAVY_ATTACK_START.get(),
+                            SoundSource.NEUTRAL,
+                            1.0F, 1.0F
+                    );
+
+                    serverLevel.playSound(
+                            null,
+                            blueDemonEntity.getX(), blueDemonEntity.getY(), blueDemonEntity.getZ(),
+                            AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(),
+                            SoundSource.NEUTRAL,
+                            1.0F, 1.0F
+                    );
+
+                    serverLevel.playSound(
+                            null,
+                            blueDemonEntity.getX(), blueDemonEntity.getY(), blueDemonEntity.getZ(),
+                            AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(),
+                            SoundSource.NEUTRAL,
+                            1.0F, 1.0F
+                    );
+
+                    serverLevel.sendParticles(
+                            ParticleTypes.TOTEM_OF_UNDYING,
+                            blueDemonEntity.getX(), blueDemonEntity.getY(), blueDemonEntity.getZ(),
+                            15,
+                            0.0D, 0.0D, 0.0D,
+                            0.2D);
+
+                    serverLevel.sendParticles(
+                            ParticleTypes.TOTEM_OF_UNDYING,
+                            blueDemonEntity.getX(), blueDemonEntity.getEyeY(), blueDemonEntity.getZ(),
+                            100,
+                            0.0D, 0.0D, 0.0D,
+                            0.5D
+                    );
+                    mobpatch.playAnimationSynchronized(AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK, 0.0F);
+                }
+            };
+        }
     }
 
+    static void legendarySwordSpecialAttack(MobPatch<?> mobpatch) {
+        BlueDemonEntity blueDemonEntity = (BlueDemonEntity) mobpatch.getOriginal();
+        ItemStack itemStack = blueDemonEntity.getMainHandItem();
+        if (itemStack.getItem() instanceof LegendarySwordItem && blueDemonEntity.level() instanceof ServerLevel) {
+            blueDemonEntity.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 60, 2));
+            new DelayedTask(20) {
+                @Override
+                public void run() {
+                    mobpatch.playAnimationSynchronized(AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK, 0.0F);
+                }
+            };
+        }
+    }
 }

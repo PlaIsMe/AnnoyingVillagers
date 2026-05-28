@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightAwaken;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
@@ -9,76 +10,8 @@ import reascer.wom.gameasset.animations.weapons.AnimsHerrscher;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
-public class NpcSword {
-    public static final Builder<MobPatch<?>> SWORD = CECombatBehaviors.builder()
-            .newBehaviorRoot(CombatBehaviourTemplates.executionRoot())
-            .newBehaviorRoot(CombatBehaviourTemplates.escapeWithGuardRoot())
-            .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot())
-            .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(Animations.BIPED_STEP_FORWARD, Animations.BIPED_STEP_BACKWARD, Animations.BIPED_STEP_LEFT, Animations.BIPED_STEP_RIGHT))
-            .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot())
-            .newBehaviorRoot(
-                    CombatCommon.addRandomCombatChains(
-                            BehaviorRoot.builder()
-                                    .priority(1.0D)
-                                    .weight(40.0D)
-                                    .maxCooldown(20),
-                            CombatCommon.animations(
-                                    Animations.SWORD_AUTO1,
-                                    Animations.SWORD_AUTO2,
-                                    Animations.SWORD_AUTO3
-                            ),
-                            CombatCommon.animations(
-                                    AnimsPugilistSteve.SWORD_HEAVY_AUTO_1,
-                                    AnimsPugilistSteve.SWORD_HEAVY_AUTO_2,
-                                    AnimsPugilistSteve.SWORD_HEAVY_AUTO_3
-                            ),
-                            CombatCommon.animations(
-                                    Animations.SWORD_DASH,
-                                    Animations.SWORD_AIR_SLASH,
-                                    Animations.SWEEPING_EDGE
-                            ),
-                            CombatCommon.kickAnimations(),
-                            CombatCommon.stepAnimations())
-            )
-            .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(true))
-            .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());
-
-    public static final Builder<MobPatch<?>> DUAL_SWORD = CECombatBehaviors.builder()
-            .newBehaviorRoot(CombatBehaviourTemplates.executionRoot())
-            .newBehaviorRoot(CombatBehaviourTemplates.escapeWithGuardRoot())
-            .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot())
-            .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(Animations.BIPED_STEP_FORWARD, Animations.BIPED_STEP_BACKWARD, Animations.BIPED_STEP_FORWARD, Animations.BIPED_STEP_BACKWARD))
-            .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot())
-            .newBehaviorRoot(
-                    CombatCommon.addRandomCombatChains(
-                            BehaviorRoot.builder()
-                                    .priority(1.0D)
-                                    .weight(40.0D)
-                                    .maxCooldown(20),
-                            CombatCommon.animations(
-                                    Animations.SWORD_DUAL_AUTO1,
-                                    Animations.SWORD_DUAL_AUTO2,
-                                    Animations.SWORD_DUAL_AUTO3
-                            ),
-                            CombatCommon.animations(
-                                    Animations.DAGGER_DUAL_DASH,
-                                    Animations.LONGSWORD_AUTO2,
-                                    AnimsPugilistSteve.DUAL_DANCING_EDGE,
-                                    AnimsPugilistSteve.DUAL_SWORD_DANCING_EDGE
-                            ),
-                            CombatCommon.animations(
-                                    Animations.SWORD_DUAL_DASH,
-                                    Animations.SWORD_DUAL_AIR_SLASH,
-                                    Animations.DANCING_EDGE
-                            ),
-                            CombatCommon.kickAnimations(),
-                            CombatCommon.stepAnimations())
-            )
-            .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(100, true))
-            .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())
-            .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());
-
-    public static final Builder<MobPatch<?>> AV_SWORD = CECombatBehaviors.builder()
+public class AlexThunderDiamondBlade {
+    public static final Builder<MobPatch<?>> THUNDER_DIAMOND_BLADE = CECombatBehaviors.builder()
             .newBehaviorRoot(CombatBehaviourTemplates.executionRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.escapeWithGuardRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot())
@@ -105,7 +38,7 @@ public class NpcSword {
                             CombatCommon.animations(
                                     AnimsEpicFightAwaken.CUT_LEFT_DP_DASH,
                                     AnimsEpicFightAwaken.HOOK_SLASH_AIR,
-                                    AnimsEpicFightAwaken.CUT_LEFT_DP_DUSK_REAVER_2
+                                    AnimsEpicFight.THUNDER_SWEEPING_EDGE
                             ),
                             CombatCommon.kickAnimations(),
                             CombatCommon.stepAnimations())
@@ -114,7 +47,7 @@ public class NpcSword {
             .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());
 
-    public static final Builder<MobPatch<?>> AV_DUAL_SWORD = CECombatBehaviors.builder()
+    public static final Builder<MobPatch<?>> DUAL_THUNDER_DIAMOND_BLADE = CECombatBehaviors.builder()
             .newBehaviorRoot(CombatBehaviourTemplates.executionRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.escapeWithGuardRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot())
@@ -142,7 +75,7 @@ public class NpcSword {
                             CombatCommon.animations(
                                     AnimsEpicFightAwaken.DP_DASH,
                                     AnimsEpicFightAwaken.DP_NIGHT_FALL,
-                                    AnimsEpicFightAwaken.HOOK_SLASH_GROUND
+                                    AnimsEpicFight.THUNDER_DANCING_EDGE
                             ),
                             CombatCommon.kickAnimations(),
                             CombatCommon.stepAnimations())

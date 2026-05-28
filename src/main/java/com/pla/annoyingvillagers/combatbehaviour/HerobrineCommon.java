@@ -28,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import reascer.wom.gameasset.animations.weapons.AnimsAgony;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.function.BiFunction;
 
 import static com.pla.annoyingvillagers.combatbehaviour.CombatCommon.getIntegerIntegerBiFunction;
@@ -180,7 +182,7 @@ public class HerobrineCommon {
         Entity chosen;
         if (bound.isEmpty()) {
             double radius = 3.0D + random.nextDouble() * 3.0D;
-            double angle  = random.nextDouble() * (Math.PI * 2.0D);
+            double angle = random.nextDouble() * (Math.PI * 2.0D);
 
             double dx = Math.cos(angle) * radius;
             double dz = Math.sin(angle) * radius;

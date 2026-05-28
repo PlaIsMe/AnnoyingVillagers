@@ -1,13 +1,11 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightACG;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Builder;
-import net.shelmarow.combat_evolution.ai.condition.HealthCheck;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
@@ -53,26 +51,7 @@ public class PlayerNpcBow {
                                             .addExBehavior(CombatCommon::swapToMelee)
                             )
             )
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(2.0D)
-                            .weight(70.0D)
-                            .maxCooldown (0)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .health(2.0F / 3.0F, HealthCheck.Comparator.LESS_RATIO_CONTAIN)
-                                            .custom(CombatCommon::canPerformEating)
-                                            .animationBehavior(Animations.BIPED_ROLL_BACKWARD, 0.0F)
-                                            .addExBehavior(CombatCommon::performEatingAnimation)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .health(2.0F / 3.0F, HealthCheck.Comparator.LESS_RATIO_CONTAIN)
-                                            .custom(CombatCommon::canPerformEating)
-                                            .animationBehavior(Animations.BIPED_ROLL_FORWARD, 0.0F)
-                                            .addExBehavior(CombatCommon::performEatingAnimation)
-                            )
-            )
+            .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot(Animations.BIPED_ROLL_BACKWARD))
             .newBehaviorRoot(
                     BehaviorRoot.builder()
                             .priority(1.0D)
@@ -97,7 +76,7 @@ public class PlayerNpcBow {
                     BehaviorRoot.builder()
                             .priority(1.0D)
                             .weight(20.0D)
-                            .maxCooldown (100)
+                            .maxCooldown(100)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::isNotRiding)
@@ -109,7 +88,7 @@ public class PlayerNpcBow {
                     BehaviorRoot.builder()
                             .priority(1.0D)
                             .weight(10.0D)
-                            .maxCooldown (100)
+                            .maxCooldown(100)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::isNotRiding)
@@ -127,7 +106,7 @@ public class PlayerNpcBow {
                     BehaviorRoot.builder()
                             .priority(1.0D)
                             .weight(10.0D)
-                            .maxCooldown (100)
+                            .maxCooldown(100)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::isNotRiding)
@@ -168,7 +147,7 @@ public class PlayerNpcBow {
                     BehaviorRoot.builder()
                             .priority(1.0D)
                             .weight(20.0D)
-                            .maxCooldown (100)
+                            .maxCooldown(100)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
@@ -181,7 +160,7 @@ public class PlayerNpcBow {
                     BehaviorRoot.builder()
                             .priority(1.0D)
                             .weight(10.0D)
-                            .maxCooldown (100)
+                            .maxCooldown(100)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
@@ -214,18 +193,5 @@ public class PlayerNpcBow {
                                             .animationBehavior(Animations.BIPED_ROLL_FORWARD, 0.0F)
                             )
             )
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(1.0D)
-                            .weight(60.0D)
-                            .maxCooldown(120)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::isNotRiding)
-                                            .custom(CombatCommon::canThrowEnderPearl)
-                                            .withinDistance(7.0D, 14.0D)
-                                            .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
-                                            .addExBehavior(CombatCommon::performEnderPearlToTarget)
-                            )
-            );
+            .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot());
 }

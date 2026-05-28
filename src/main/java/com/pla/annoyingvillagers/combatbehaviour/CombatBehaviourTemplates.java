@@ -1,0 +1,297 @@
+package com.pla.annoyingvillagers.combatbehaviour;
+
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
+import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
+import net.shelmarow.combat_evolution.ai.condition.HealthCheck;
+import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
+
+public final class CombatBehaviourTemplates {
+    private CombatBehaviourTemplates() {
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> executionRoot() {
+        return executionRoot(4.0D);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> executionRoot(double priority) {
+        return BehaviorRoot.builder()
+                .priority(priority)
+                .weight(1000.0D)
+                .maxCooldown(0)
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .custom(CombatCommon::canExecute)
+                                .withinDistance(0.0D, 5.0D)
+                                .animationBehavior(Animations.BIPED_SNEAK, 0.0F)
+                                .addExBehavior(CombatCommon::performExecute)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithGuardRoot() {
+        return escapeWithGuardRoot(Animations.BIPED_STEP_BACKWARD);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithGuardRoot(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation
+    ) {
+        return escapeWithGuardRoot(3.0D, escapeAnimation, false);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithGuardRoot(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation,
+            boolean requireNormalAttackLogic
+    ) {
+        return escapeWithGuardRoot(3.0D, escapeAnimation, requireNormalAttackLogic);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithGuardRoot(
+            double priority,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation,
+            boolean requireNormalAttackLogic
+    ) {
+        Behavior.Builder<MobPatch<?>> escapeBehavior = Behavior.builder();
+        if (requireNormalAttackLogic) {
+            escapeBehavior = escapeBehavior.custom(CombatCommon::canPerformNormalAttackLogic);
+        }
+
+        return BehaviorRoot.builder()
+                .priority(priority)
+                .weight(1000.0D)
+                .maxCooldown(0)
+                .addFirstBehavior(
+                        escapeBehavior
+                                .custom(CombatCommon::canEscape)
+                                .withinDistance(0.0D, 8.0D)
+                                .animationBehavior(escapeAnimation, 0.0F)
+                                .addExBehavior(CombatCommon::swapToBlockToEscape)
+                )
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .custom(CombatCommon::canEscape)
+                                .withinDistance(0.0D, 48.0D)
+                                .guard(40)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithAnimationRoot(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> followUpAnimation
+    ) {
+        return escapeWithAnimationRoot(3.0D, escapeAnimation, followUpAnimation, false);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithAnimationRoot(
+            double priority,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> followUpAnimation,
+            boolean requireNormalAttackLogic
+    ) {
+        Behavior.Builder<MobPatch<?>> escapeBehavior = Behavior.builder();
+        if (requireNormalAttackLogic) {
+            escapeBehavior = escapeBehavior.custom(CombatCommon::canPerformNormalAttackLogic);
+        }
+
+        return BehaviorRoot.builder()
+                .priority(priority)
+                .weight(1000.0D)
+                .maxCooldown(0)
+                .addFirstBehavior(
+                        escapeBehavior
+                                .custom(CombatCommon::canEscape)
+                                .withinDistance(0.0D, 8.0D)
+                                .animationBehavior(escapeAnimation, 0.0F)
+                                .addExBehavior(CombatCommon::swapToBlockToEscape)
+                )
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .custom(CombatCommon::canEscape)
+                                .withinDistance(0.0D, 48.0D)
+                                .animationBehavior(followUpAnimation, 0.0F)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> eatingRoot() {
+        return eatingRoot(Animations.BIPED_STEP_BACKWARD);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> eatingRoot(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> animation
+    ) {
+        return BehaviorRoot.builder()
+                .priority(2.0D)
+                .weight(70.0D)
+                .maxCooldown(0)
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .health(2.0F / 3.0F, HealthCheck.Comparator.LESS_RATIO_CONTAIN)
+                                .custom(CombatCommon::canPerformEating)
+                                .animationBehavior(animation, 0.0F)
+                                .addExBehavior(CombatCommon::performEatingAnimation)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> swapToBowRoot() {
+        return swapToBowRoot(Animations.BIPED_STEP_BACKWARD, Animations.BIPED_STEP_FORWARD);
+    }
+
+    @SafeVarargs
+    public static BehaviorRoot.Builder<MobPatch<?>> swapToBowRoot(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations
+    ) {
+        BehaviorRoot.Builder<MobPatch<?>> root = BehaviorRoot.builder()
+                .priority(2.0D)
+                .weight(100.0D)
+                .maxCooldown(120);
+
+        for (AnimationManager.AnimationAccessor<? extends StaticAnimation> animation : animations) {
+            root = root.addFirstBehavior(
+                    Behavior.builder()
+                            .custom(CombatCommon::canPerformNormalAttackLogic)
+                            .custom(CombatCommon::canSwapToBow)
+                            .withinDistance(7.0D, 14.0D)
+                            .animationBehavior(animation, 0.0F)
+                            .addExBehavior(CombatCommon::swapToBow)
+            );
+        }
+
+        return root;
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> enderPearlToTargetRoot() {
+        return enderPearlToTargetRoot(false);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> enderPearlToTargetRoot(boolean requireAttackWhileNotHealing) {
+        Behavior.Builder<MobPatch<?>> behavior = Behavior.builder()
+                .custom(CombatCommon::canPerformNormalAttackLogic)
+                .custom(CombatCommon::canThrowEnderPearl);
+
+        if (requireAttackWhileNotHealing) {
+            behavior = behavior.custom(CombatCommon::canAttackWhileNotHealing);
+        }
+
+        return BehaviorRoot.builder()
+                .priority(2.0D)
+                .weight(80.0D)
+                .maxCooldown(120)
+                .addFirstBehavior(
+                        behavior
+                                .withinDistance(7.0D, 48.0D)
+                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
+                                .addExBehavior(CombatCommon::performEnderPearlToTarget)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> enderPearlAwayRoot(boolean requireAttackWhileNotHealing) {
+        return enderPearlAwayRoot(40, requireAttackWhileNotHealing);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> enderPearlAwayRoot(
+            int maxCooldown,
+            boolean requireAttackWhileNotHealing
+    ) {
+        Behavior.Builder<MobPatch<?>> behavior = Behavior.builder()
+                .custom(CombatCommon::canPerformNormalAttackLogic)
+                .withinDistance(0.0D, 3.0D)
+                .custom(CombatCommon::canThrowEnderPearl);
+
+        if (requireAttackWhileNotHealing) {
+            behavior = behavior.custom(CombatCommon::canAttackWhileNotHealing);
+        }
+
+        return BehaviorRoot.builder()
+                .priority(1.0D)
+                .weight(10.0D)
+                .maxCooldown(maxCooldown)
+                .addFirstBehavior(
+                        behavior
+                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
+                                .addExBehavior(CombatCommon::performEnderPearlAway)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> guardRoot() {
+        return guardRoot(0.0D, CombatCommon::canPerformGuarding);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> guardRoot(double minDistance) {
+        return guardRoot(minDistance, CombatCommon::canPerformGuarding);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> guardRoot(CombatCommon.MobPatchCondition guardCondition) {
+        return guardRoot(0.0D, guardCondition);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> guardRoot(
+            double minDistance,
+            CombatCommon.MobPatchCondition guardCondition
+    ) {
+        return guardRoot(minDistance, 3.0D, guardCondition);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> guardRoot(
+            double minDistance,
+            double maxDistance,
+            CombatCommon.MobPatchCondition guardCondition
+    ) {
+        return BehaviorRoot.builder()
+                .priority(1.0D)
+                .weight(15.0D)
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .custom(CombatCommon::canPerformNormalAttackLogic)
+                                .withinDistance(minDistance, maxDistance)
+                                .custom(guardCondition)
+                                .guard(40)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> jumpRoot() {
+        return BehaviorRoot.builder()
+                .priority(1.0D)
+                .weight(40.0D)
+                .maxCooldown(160)
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .custom(CombatCommon::canPerformNormalAttackLogic)
+                                .custom(CombatCommon::canJump)
+                                .withinDistance(5.0D, 14.0D)
+                                .animationBehavior(Animations.BIPED_JUMP, 0.0F)
+                                .addExBehavior(CombatCommon::jump)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> herobrineHealingRoot() {
+        return BehaviorRoot.builder()
+                .priority(2.0D)
+                .weight(70.0D)
+                .maxCooldown(0)
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .custom(CombatCommon::canPerformNormalAttackLogic)
+                                .health(2.0F / 3.0F, HealthCheck.Comparator.LESS_RATIO_CONTAIN)
+                                .custom(HerobrineCommon::canPerformHealing)
+                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F)
+                                .addExBehavior(HerobrineCommon::performHealingAnimation)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> herobrineJumpRoot() {
+        return BehaviorRoot.builder()
+                .priority(1.0D)
+                .weight(20.0D)
+                .maxCooldown(160)
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .custom(CombatCommon::canPerformNormalAttackLogic)
+                                .custom(HerobrineCommon::canJump)
+                                .withinDistance(5.0D, 14.0D)
+                                .animationBehavior(Animations.BIPED_JUMP, 0.0F)
+                                .addExBehavior(HerobrineCommon::jump)
+                );
+    }
+}

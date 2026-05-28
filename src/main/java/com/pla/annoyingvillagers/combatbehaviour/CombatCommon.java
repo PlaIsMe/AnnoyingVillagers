@@ -1,8 +1,8 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
 import com.pla.annoyingvillagers.block.ShadowObsidianBlock;
-import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
@@ -45,6 +45,7 @@ import net.shelmarow.combat_evolution.execution.ExecutionTypeManager;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimation;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionHitAnimation;
 import net.shelmarow.combat_evolution.tickTask.TickTaskManager;
+import reascer.wom.gameasset.WOMAnimations;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.KnockdownAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -60,9 +61,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class CombatCommon {
-    public static boolean isHoldingWeapon(LivingEntity entity){
+    public static boolean isHoldingWeapon(LivingEntity entity) {
         CapabilityItem capabilityItem = EpicFightCapabilities.getItemStackCapability(entity.getItemInHand(InteractionHand.MAIN_HAND));
         return capabilityItem.getWeaponCategory() != CapabilityItem.WeaponCategories.NOT_WEAPON && capabilityItem.getWeaponCategory() != CapabilityItem.WeaponCategories.FIST;
     }
@@ -103,7 +105,7 @@ public class CombatCommon {
             Vec3 executorPos = executor.position();
             Vec3 targetPos = target.position();
             Vec3 deltaVec = executorPos.subtract(targetPos);
-            float startAngle = (float)(Math.toDegrees(Mth.atan2(deltaVec.z, deltaVec.x)) - (double)90.0F);
+            float startAngle = (float) (Math.toDegrees(Mth.atan2(deltaVec.z, deltaVec.x)) - (double) 90.0F);
             float allowedY = 0.5F;
             executionTransform = findPosAround(level, executor, target, offset, startAngle, 12.0F, allowedY);
             if (executionTransform == null) {
@@ -117,9 +119,9 @@ public class CombatCommon {
 
     @Nullable
     private static ExecutionHandler.ExecutionTransform findPosAround(Level level, LivingEntity executor, LivingEntity target, Vec3 offset, float startAngle, float angleStep, float allowedY) {
-        for(float angleOffset = 0.0F; angleOffset < 360.0F; angleOffset += angleStep) {
+        for (float angleOffset = 0.0F; angleOffset < 360.0F; angleOffset += angleStep) {
             float yaw = startAngle + angleOffset;
-            double rad = Math.toRadians((double)yaw);
+            double rad = Math.toRadians(yaw);
             double forwardX = -Math.sin(rad);
             double forwardZ = Math.cos(rad);
             double rightX = Math.cos(rad);
@@ -143,14 +145,14 @@ public class CombatCommon {
         double width = entityBox.getXsize();
         double height = entityBox.getYsize();
 
-        for(float i = allowedY; i > -allowedY; i -= 0.05F) {
-            BlockPos blockPosBelow = BlockPos.containing(pos.x, pos.y + (double)i, pos.z);
+        for (float i = allowedY; i > -allowedY; i -= 0.05F) {
+            BlockPos blockPosBelow = BlockPos.containing(pos.x, pos.y + (double) i, pos.z);
             BlockState stateBelow = level.getBlockState(blockPosBelow);
             VoxelShape shapeBelow = stateBelow.getCollisionShape(level, blockPosBelow);
             if (!shapeBelow.isEmpty()) {
                 double offsetY = shapeBelow.max(Direction.Axis.Y);
-                AABB checkBox = new AABB(pos.x - width / (double)2.0F, (double)blockPosBelow.getY() + offsetY, pos.z - width / (double)2.0F, pos.x + width / (double)2.0F, (double)blockPosBelow.getY() + offsetY + height, pos.z + width / (double)2.0F);
-                Vec3 standPos = new Vec3(pos.x, (double)blockPosBelow.getY() + offsetY, pos.z);
+                AABB checkBox = new AABB(pos.x - width / (double) 2.0F, (double) blockPosBelow.getY() + offsetY, pos.z - width / (double) 2.0F, pos.x + width / (double) 2.0F, (double) blockPosBelow.getY() + offsetY + height, pos.z + width / (double) 2.0F);
+                Vec3 standPos = new Vec3(pos.x, (double) blockPosBelow.getY() + offsetY, pos.z);
                 if (level.noCollision(checkBox) && getEntityInView(executor, new Vec3(standPos.x, executor.getEyePosition().y, standPos.z), target) != null) {
                     return standPos;
                 }
@@ -164,7 +166,7 @@ public class CombatCommon {
         BlockHitResult blockHit = executor.level().clip(new ClipContext(startPos, target.getEyePosition(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, executor));
         double blockDistanceSqr = blockHit.getType() != HitResult.Type.MISS ? startPos.distanceToSqr(blockHit.getLocation()) : Double.MAX_VALUE;
         double entityDistanceSqr = startPos.distanceToSqr(target.getEyePosition());
-        return entityDistanceSqr < blockDistanceSqr && blockDistanceSqr - entityDistanceSqr > target.getBoundingBox().minX ? (LivingEntity)target : null;
+        return entityDistanceSqr < blockDistanceSqr && blockDistanceSqr - entityDistanceSqr > target.getBoundingBox().minX ? (LivingEntity) target : null;
     }
 
     public static boolean canExecute(MobPatch<?> mobPatch) {
@@ -244,10 +246,7 @@ public class CombatCommon {
         if (mobpatch.getOriginal() instanceof AVNpc AVNpc) {
             return !AVNpc.isHealing();
         }
-        if (mobpatch.getOriginal() instanceof LowShadowHerobrineCloneEntity || mobpatch.getOriginal() instanceof LowHerobrineCloneEntity) {
-            return true;
-        }
-        return false;
+        return mobpatch.getOriginal() instanceof LowShadowHerobrineCloneEntity || mobpatch.getOriginal() instanceof LowHerobrineCloneEntity;
     }
 
     public static boolean canEscape(MobPatch<?> mobpatch) {
@@ -373,7 +372,8 @@ public class CombatCommon {
                     return false;
                 }
                 if (AVNpc instanceof SteveEntity steveEntity) {
-                    if (steveEntity.getItemInHand(InteractionHand.OFF_HAND).getItem().equals(Items.TOTEM_OF_UNDYING)) return false;
+                    if (steveEntity.getItemInHand(InteractionHand.OFF_HAND).getItem().equals(Items.TOTEM_OF_UNDYING))
+                        return false;
                 }
             }
 
@@ -392,7 +392,7 @@ public class CombatCommon {
         if (mobpatch.getOriginal() instanceof SteveEntity steveEntity) {
             return steveEntity.getBlockDamage() == null && steveEntity.getSwapWeaponCooldown() == 0 || (steveEntity.getState() == 0 && steveEntity.getHealth() <= 20 && !steveEntity.getMainHandItem().getItem().equals(Items.DIAMOND_SWORD));
         } else if (mobpatch.getOriginal() instanceof HerobrineMob herobrineMob) {
-            return (herobrineMob instanceof ArmoredHerobrineEntity || herobrineMob instanceof ShadowHerobrineEntity) && herobrineMob.getSwapWeaponCooldown() == 0 ;
+            return (herobrineMob instanceof ArmoredHerobrineEntity || herobrineMob instanceof ShadowHerobrineEntity) && herobrineMob.getSwapWeaponCooldown() == 0;
         } else if (mobpatch.getOriginal() instanceof BlueDemonEntity blueDemonEntity) {
             return blueDemonEntity.getState() == 3 && blueDemonEntity.getSwapWeaponCooldown() == 0;
         }
@@ -573,8 +573,10 @@ public class CombatCommon {
         for (int i = 0; i < rot; i++) {
             int nfx = rx, nfz = rz;
             int nrx = -fz, nrz = fx;
-            fx = nfx; fz = nfz;
-            rx = nrx; rz = nrz;
+            fx = nfx;
+            fz = nfz;
+            rx = nrx;
+            rz = nrz;
         }
 
         int finalRx = rx;
@@ -582,7 +584,7 @@ public class CombatCommon {
         int finalRz = rz;
         int finalFz = fz;
 
-        return (a, b) -> new int[] { a * finalRx + b * finalFx, a * finalRz + b * finalFz };
+        return (a, b) -> new int[]{a * finalRx + b * finalFx, a * finalRz + b * finalFz};
     }
 
     private static void placeIfReplaceable(ServerLevel level, BlockPos pos, BlockState state, MobPatch<?> mobpatch, Mob mob) {
@@ -631,7 +633,8 @@ public class CombatCommon {
                     .add(right.scale((r.nextDouble() - 0.5D) * 0.10D));
             int delay = i * 2;
             new DelayedTask(delay) {
-                @Override public void run() {
+                @Override
+                public void run() {
                     if (!mob.isAlive()) return;
                     mob.setDeltaMovement(mob.getDeltaMovement().add(tail.x, 0.0D, tail.z));
                     mob.hasImpulse = true;
@@ -641,7 +644,8 @@ public class CombatCommon {
 
         int jumpDelay = pulses * 2 + 1;
         new DelayedTask(jumpDelay) {
-            @Override public void run() {
+            @Override
+            public void run() {
                 if (!mob.isAlive() || !mob.onGround()) return;
 
                 if (mob instanceof AVNpc AVNpc) {
@@ -659,7 +663,8 @@ public class CombatCommon {
                 || mob instanceof ShadowHerobrineCloneEntity || mob instanceof Herobrine7Entity
                 || mob instanceof ArmoredHerobrineEntity || mob instanceof ShadowHerobrineEntity) {
             new DelayedTask(1) {
-                @Override public void run() {
+                @Override
+                public void run() {
                     if (isGroundWithin(mob, 3.0)) {
                         placeRandomFrontWall(mobpatch);
                     }
@@ -781,7 +786,7 @@ public class CombatCommon {
             bow.enchant(Enchantments.PUNCH_ARROWS, 2);
         }
         if ((entity instanceof SteveEntity steveEntity && steveEntity.getState() == 1)
-        || entity instanceof AngrySteveEntity) {
+                || entity instanceof AngrySteveEntity) {
             bow.enchant(Enchantments.POWER_ARROWS, 2);
             bow.enchant(Enchantments.PUNCH_ARROWS, 2);
             if (entity instanceof AngrySteveEntity) {
@@ -929,8 +934,8 @@ public class CombatCommon {
         double horiz = Math.sqrt(dx * dx + dz * dz);
         if (horiz < 1.0E-6) horiz = 1.0E-6;
 
-        float yaw   = (float)(Mth.atan2(dz, dx) * (180F / Math.PI)) - 90.0F;
-        float pitch = (float)(-(Mth.atan2(dy, horiz) * (180F / Math.PI)));
+        float yaw = (float) (Mth.atan2(dz, dx) * (180F / Math.PI)) - 90.0F;
+        float pitch = (float) (-(Mth.atan2(dy, horiz) * (180F / Math.PI)));
 
         self.getNavigation().stop();
         self.setYRot(yaw);
@@ -960,7 +965,17 @@ public class CombatCommon {
             AnimationManager.AnimationAccessor<? extends StaticAnimation>[] kicks,
             AnimationManager.AnimationAccessor<? extends StaticAnimation>[] rolls
     ) {
-        return addRandomCombatChainsFromGroups(root, group1, group2, group3, kicks, rolls);
+        return addRandomCombatChainsFromGroups(root, conditions(), group1, group2, group3, kicks, rolls);
+    }
+
+    @SafeVarargs
+    public static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addRandomCombatChains(
+            CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root,
+            MobPatchCondition[] customConditions,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] group1,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[]... groups
+    ) {
+        return addRandomCombatChainsFromGroups(root, customConditions, group1, groups);
     }
 
     @SafeVarargs
@@ -969,7 +984,49 @@ public class CombatCommon {
             AnimationManager.AnimationAccessor<? extends StaticAnimation>[] group1,
             AnimationManager.AnimationAccessor<? extends StaticAnimation>[]... groups
     ) {
-        return addRandomCombatChainsFromGroups(root, group1, groups);
+        return addRandomCombatChainsFromGroups(root, conditions(), group1, groups);
+    }
+
+    @SafeVarargs
+    public static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addRandomCombatChains(
+            CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root,
+            CombatChainStep[] group1,
+            CombatChainStep[]... groups
+    ) {
+        return addRandomCombatChainsFromStepGroups(root, conditions(), group1, groups);
+    }
+
+    @SafeVarargs
+    public static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addRandomCombatChains(
+            CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root,
+            MobPatchCondition[] customConditions,
+            CombatChainStep[] group1,
+            CombatChainStep[]... groups
+    ) {
+        return addRandomCombatChainsFromStepGroups(root, customConditions, group1, groups);
+    }
+
+    public static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addAnimationBehaviors(
+            CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root,
+            double minDistance,
+            double maxDistance,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] animations
+    ) {
+        return addAnimationBehaviors(root, minDistance, maxDistance, conditions(), animations);
+    }
+
+    public static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addAnimationBehaviors(
+            CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root,
+            double minDistance,
+            double maxDistance,
+            MobPatchCondition[] customConditions,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] animations
+    ) {
+        for (AnimationManager.AnimationAccessor<? extends StaticAnimation> animation : animations) {
+            root = root.addFirstBehavior(animationStep(animation, minDistance, maxDistance, customConditions));
+        }
+
+        return root;
     }
 
     @SafeVarargs
@@ -977,6 +1034,54 @@ public class CombatCommon {
             AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations
     ) {
         return animations;
+    }
+
+    @SafeVarargs
+    public static MobPatchCondition[] conditions(MobPatchCondition... conditions) {
+        return conditions;
+    }
+
+    @SafeVarargs
+    public static CombatChainStep[] steps(CombatChainStep... steps) {
+        return steps;
+    }
+
+    @SafeVarargs
+    public static CombatChainStep[] steps(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations
+    ) {
+        CombatChainStep[] steps = new CombatChainStep[animations.length];
+        for (int i = 0; i < animations.length; i++) {
+            steps[i] = animation(animations[i]);
+        }
+        return steps;
+    }
+
+    @SafeVarargs
+    public static CombatChainStep animation(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> animation,
+            MobPatchCondition... customConditions
+    ) {
+        return new CombatChainStep(animation, -1, null, customConditions);
+    }
+
+    @SafeVarargs
+    public static CombatChainStep animation(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> animation,
+            double maxDistance,
+            MobPatchCondition... customConditions
+    ) {
+        return new CombatChainStep(animation, -1, maxDistance, customConditions);
+    }
+
+    @SafeVarargs
+    public static CombatChainStep guard(int ticks, MobPatchCondition... customConditions) {
+        return new CombatChainStep(null, ticks, null, customConditions);
+    }
+
+    @SafeVarargs
+    public static CombatChainStep guard(int ticks, double maxDistance, MobPatchCondition... customConditions) {
+        return new CombatChainStep(null, ticks, maxDistance, customConditions);
     }
 
     public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] kickAnimations() {
@@ -1039,19 +1144,67 @@ public class CombatCommon {
         );
     }
 
+    public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] enderStepAnimations() {
+        return animations(
+                WOMAnimations.ENDERSTEP_FORWARD,
+                WOMAnimations.ENDERSTEP_BACKWARD,
+                WOMAnimations.ENDERSTEP_LEFT,
+                WOMAnimations.ENDERSTEP_RIGHT
+        );
+    }
+
+    public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] shadowStepAnimations() {
+        return animations(
+                WOMAnimations.SHADOWSTEP_FORWARD,
+                WOMAnimations.SHADOWSTEP_BACKWARD,
+                WOMAnimations.SHADOWSTEP_RIGHT,
+                WOMAnimations.SHADOWSTEP_LEFT
+        );
+    }
+
+    public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] enderStepRollAnimations() {
+        return animations(
+                WOMAnimations.ENDERSTEP_FORWARD,
+                WOMAnimations.ENDERSTEP_BACKWARD,
+                WOMAnimations.ENDERSTEP_LEFT,
+                WOMAnimations.ENDERSTEP_RIGHT,
+                Animations.BIPED_STEP_BACKWARD,
+                Animations.BIPED_STEP_FORWARD,
+                Animations.BIPED_STEP_LEFT,
+                Animations.BIPED_STEP_RIGHT,
+                Animations.BIPED_ROLL_BACKWARD,
+                Animations.BIPED_ROLL_FORWARD
+        );
+    }
+
     @SuppressWarnings("unchecked")
     private static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addRandomCombatChainsFromGroups(
             CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root,
+            MobPatchCondition[] customConditions,
             AnimationManager.AnimationAccessor<? extends StaticAnimation>[] group1,
             AnimationManager.AnimationAccessor<? extends StaticAnimation>[]... groups
+    ) {
+        CombatChainStep[][] stepGroups = new CombatChainStep[groups.length][];
+        for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+            stepGroups[groupIndex] = toSteps(groups[groupIndex]);
+        }
+
+        return addRandomCombatChainsFromStepGroups(root, customConditions, toSteps(group1), stepGroups);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> addRandomCombatChainsFromStepGroups(
+            CECombatBehaviors.BehaviorRoot.Builder<MobPatch<?>> root,
+            MobPatchCondition[] customConditions,
+            CombatChainStep[] group1,
+            CombatChainStep[]... groups
     ) {
         for (int combo = 0; combo < 50; combo++) {
             int maxGroup1Count = Math.min(3, group1.length);
             int minGroup1Count = Math.min(2, maxGroup1Count);
             int group1Count = minGroup1Count + combo % (maxGroup1Count - minGroup1Count + 1);
             int group1Start = group1.length == group1Count ? 0 : combo / 2 % (group1.length - group1Count + 1);
-            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] chain =
-                    new AnimationManager.AnimationAccessor[group1Count + groups.length];
+            CombatChainStep[] chain = new CombatChainStep[group1Count + groups.length];
             int index = 0;
 
             for (int group1Index = 0; group1Index < group1Count; group1Index++) {
@@ -1059,11 +1212,11 @@ public class CombatCommon {
             }
 
             for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-                AnimationManager.AnimationAccessor<? extends StaticAnimation>[] group = groups[groupIndex];
+                CombatChainStep[] group = groups[groupIndex];
                 chain[index++] = group[(combo + groupIndex) % group.length];
             }
 
-            root = root.addFirstBehavior(combatChain(chain));
+            root = root.addFirstBehavior(combatChain(customConditions, chain));
         }
 
         return root;
@@ -1071,25 +1224,90 @@ public class CombatCommon {
 
     @SafeVarargs
     private static CECombatBehaviors.Behavior.Builder<MobPatch<?>> combatChain(
-            AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations
+            MobPatchCondition[] customConditions,
+            CombatChainStep... steps
     ) {
-        CECombatBehaviors.Behavior.Builder<MobPatch<?>> chain = combatStep(animations[animations.length - 1], animations.length - 1);
+        CECombatBehaviors.Behavior.Builder<MobPatch<?>> chain = combatStep(steps[steps.length - 1], steps.length - 1, customConditions);
 
-        for (int i = animations.length - 2; i >= 0; i--) {
-            chain = combatStep(animations[i], i).addNextBehavior(chain);
+        for (int i = steps.length - 2; i >= 0; i--) {
+            chain = combatStep(steps[i], i, customConditions).addNextBehavior(chain);
         }
 
         return chain;
     }
 
     private static CECombatBehaviors.Behavior.Builder<MobPatch<?>> combatStep(
-            AnimationManager.AnimationAccessor<? extends StaticAnimation> animation,
-            int index
+            CombatChainStep step,
+            int index,
+            MobPatchCondition[] customConditions
     ) {
-        double maxDistance = index < 2 ? 3.0D : index < 4 ? 4.0D : 5.0D;
-        return CECombatBehaviors.Behavior.builder()
-                .custom(CombatCommon::canPerformNormalAttackLogic)
-                .withinDistance(0.0D, maxDistance)
-                .animationBehavior(animation, 0.0F);
+        double maxDistance = step.maxDistance != null ? step.maxDistance : index < 2 ? 3.0D : index < 4 ? 4.0D : 5.0D;
+        CECombatBehaviors.Behavior.Builder<MobPatch<?>> builder = applyCombatConditions(
+                CECombatBehaviors.Behavior.builder(),
+                customConditions,
+                step.customConditions
+        ).withinDistance(0.0D, maxDistance);
+
+        if (step.guardTicks >= 0) {
+            return builder.guard(step.guardTicks);
+        }
+
+        return builder.animationBehavior(step.animation, 0.0F);
+    }
+
+    private static CECombatBehaviors.Behavior.Builder<MobPatch<?>> animationStep(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> animation,
+            double minDistance,
+            double maxDistance,
+            MobPatchCondition[] customConditions
+    ) {
+        return applyCombatConditions(
+                CECombatBehaviors.Behavior.builder(),
+                customConditions
+        ).withinDistance(minDistance, maxDistance).animationBehavior(animation, 0.0F);
+    }
+
+    private static CECombatBehaviors.Behavior.Builder<MobPatch<?>> applyCombatConditions(
+            CECombatBehaviors.Behavior.Builder<MobPatch<?>> builder,
+            MobPatchCondition[]... conditionGroups
+    ) {
+        builder = builder.custom(CombatCommon::canPerformNormalAttackLogic);
+        for (MobPatchCondition[] conditionGroup : conditionGroups) {
+            for (MobPatchCondition condition : conditionGroup) {
+                builder = builder.custom(condition);
+            }
+        }
+        return builder;
+    }
+
+    private static CombatChainStep[] toSteps(AnimationManager.AnimationAccessor<? extends StaticAnimation>[] animations) {
+        CombatChainStep[] steps = new CombatChainStep[animations.length];
+        for (int i = 0; i < animations.length; i++) {
+            steps[i] = animation(animations[i]);
+        }
+        return steps;
+    }
+
+    @FunctionalInterface
+    public interface MobPatchCondition extends Function<MobPatch<?>, Boolean> {
+    }
+
+    public static final class CombatChainStep {
+        private final AnimationManager.AnimationAccessor<? extends StaticAnimation> animation;
+        private final int guardTicks;
+        private final Double maxDistance;
+        private final MobPatchCondition[] customConditions;
+
+        private CombatChainStep(
+                AnimationManager.AnimationAccessor<? extends StaticAnimation> animation,
+                int guardTicks,
+                Double maxDistance,
+                MobPatchCondition[] customConditions
+        ) {
+            this.animation = animation;
+            this.guardTicks = guardTicks;
+            this.maxDistance = maxDistance;
+            this.customConditions = customConditions;
+        }
     }
 }
