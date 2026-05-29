@@ -19,8 +19,14 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
@@ -31,9 +37,10 @@ import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.UUID;
 
-public class FloatingLookBlockEntity extends Entity {
+public class FloatingLookBlockEntity extends LivingEntity {
     public static final int PHASE_RISING = 0;
     public static final int PHASE_FLOATING = 1;
     public static final int PHASE_FALLING = 2;
@@ -41,6 +48,7 @@ public class FloatingLookBlockEntity extends Entity {
     private static final int RISE_TICKS = 16;
     private static final int FLOAT_TICKS = 200;
     private static final int HARD_DESPAWN_TICKS = 20 * 30;
+    private static final int OWNER_ATTRACT_TICKS = RISE_TICKS + FLOAT_TICKS;
 
     private static final double LIFT_HEIGHT = 2.25D;
     private static final double FLOAT_BOB = 0.08D;
@@ -64,9 +72,15 @@ public class FloatingLookBlockEntity extends Entity {
     private UUID ownerUuid;
 
     @Nullable
+    private UUID ownerPreviousTargetUuid;
+
+    @Nullable
     private CompoundTag carriedBlockEntityTag;
 
     private boolean launched;
+    private boolean attractingOwner;
+    private boolean ownerAttractionFinished;
+    private int ownerAttractTicks;
 
     public FloatingLookBlockEntity(EntityType<? extends FloatingLookBlockEntity> entityType, Level level) {
         super(entityType, level);
@@ -100,9 +114,17 @@ public class FloatingLookBlockEntity extends Entity {
 
     @Override
     protected void defineSynchedData() {
+        super.defineSynchedData();
         this.entityData.define(DATA_ORIGINAL_POS, BlockPos.ZERO);
         this.entityData.define(DATA_BLOCK_STATE, Blocks.AIR.defaultBlockState());
         this.entityData.define(DATA_PHASE, PHASE_RISING);
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return LivingEntity.createLivingAttributes()
+                .add(Attributes.MAX_HEALTH, 1.0D)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
+                .add(Attributes.MOVEMENT_SPEED, 0.0D);
     }
 
     public BlockPos getOriginalPos() {
@@ -171,6 +193,10 @@ public class FloatingLookBlockEntity extends Entity {
             case PHASE_FALLING -> tickFalling();
             default -> this.discard();
         }
+
+        if (!this.isRemoved() && !this.launched) {
+            this.tickOwnerAttraction();
+        }
     }
 
     private void tickRising() {
@@ -210,6 +236,7 @@ public class FloatingLookBlockEntity extends Entity {
     }
 
     private void tickFalling() {
+        this.restoreOwnerTarget();
         this.setPos(this.getX(), this.getY() - FALL_SPEED, this.getZ());
 
         if (this.level() instanceof ServerLevel serverLevel) {
@@ -219,6 +246,85 @@ public class FloatingLookBlockEntity extends Entity {
         if (this.getY() < this.level().getMinBuildHeight() - 8) {
             this.discard();
         }
+    }
+
+    private void tickOwnerAttraction() {
+        if (this.ownerAttractionFinished) {
+            return;
+        }
+
+        if (!(this.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        Mob owner = this.getOwnerMob(serverLevel);
+
+        if (owner == null || this.getPhase() == PHASE_FALLING) {
+            this.restoreOwnerTarget();
+            return;
+        }
+
+        if (!this.attractingOwner) {
+            LivingEntity previousTarget = owner.getTarget();
+            this.ownerPreviousTargetUuid = previousTarget != null && previousTarget != this
+                    ? previousTarget.getUUID()
+                    : null;
+            this.attractingOwner = true;
+            this.ownerAttractTicks = 0;
+        }
+
+        if (this.ownerAttractTicks++ >= OWNER_ATTRACT_TICKS) {
+            this.restoreOwnerTarget();
+            return;
+        }
+
+        owner.setTarget(this);
+        owner.getLookControl().setLookAt(this, 30.0F, 30.0F);
+    }
+
+    @Nullable
+    private Mob getOwnerMob(ServerLevel serverLevel) {
+        if (this.ownerUuid == null) {
+            return null;
+        }
+
+        Entity owner = serverLevel.getEntity(this.ownerUuid);
+        return owner instanceof Mob mob && mob.isAlive() ? mob : null;
+    }
+
+    private void restoreOwnerTarget() {
+        if (!this.attractingOwner || !(this.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        Mob owner = this.getOwnerMob(serverLevel);
+
+        if (owner != null && owner.getTarget() == this) {
+            LivingEntity previousTarget = this.getPreviousOwnerTarget(serverLevel);
+            owner.setTarget(previousTarget);
+        }
+
+        this.attractingOwner = false;
+        this.ownerAttractionFinished = true;
+        this.ownerAttractTicks = 0;
+        this.ownerPreviousTargetUuid = null;
+    }
+
+    @Nullable
+    private LivingEntity getPreviousOwnerTarget(ServerLevel serverLevel) {
+        if (this.ownerPreviousTargetUuid == null) {
+            return null;
+        }
+
+        Entity entity = serverLevel.getEntity(this.ownerPreviousTargetUuid);
+
+        if (entity == null) {
+            entity = serverLevel.getPlayerByUUID(this.ownerPreviousTargetUuid);
+        }
+
+        return entity instanceof LivingEntity livingEntity && livingEntity.isAlive()
+                ? livingEntity
+                : null;
     }
 
     private void tryRestoreIfTouchingSupport(ServerLevel level) {
@@ -433,7 +539,8 @@ public class FloatingLookBlockEntity extends Entity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
         tag.put("OriginalPos", NbtUtils.writeBlockPos(this.getOriginalPos()));
         tag.put("BlockState", NbtUtils.writeBlockState(this.getCarriedBlock()));
         tag.putInt("Phase", this.getPhase());
@@ -450,7 +557,8 @@ public class FloatingLookBlockEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag tag) {
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
         this.setOriginalPos(NbtUtils.readBlockPos(tag.getCompound("OriginalPos")));
 
         this.setCarriedBlock(NbtUtils.readBlockState(
@@ -475,8 +583,38 @@ public class FloatingLookBlockEntity extends Entity {
     }
 
     @Override
+    public boolean isAttackable() {
+        return true;
+    }
+
+    @Override
     public boolean skipAttackInteraction(@NotNull Entity attacker) {
         return false;
+    }
+
+    @Override
+    public void remove(@NotNull RemovalReason reason) {
+        this.restoreOwnerTarget();
+        super.remove(reason);
+    }
+
+    @Override
+    public @NotNull Iterable<ItemStack> getArmorSlots() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public @NotNull ItemStack getItemBySlot(@NotNull EquipmentSlot slot) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public void setItemSlot(@NotNull EquipmentSlot slot, @NotNull ItemStack stack) {
+    }
+
+    @Override
+    public @NotNull HumanoidArm getMainArm() {
+        return HumanoidArm.RIGHT;
     }
 
     @Override

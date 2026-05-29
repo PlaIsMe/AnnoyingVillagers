@@ -27,6 +27,7 @@
     "BasicAttackMixin",
     "AbstractArrowBreakMixin",
     "OpenMatrix4fInvertFixMixin",
+    "AttackAnimationMixin",
     "LivingEntityPatchMixin",
     "ExecutionHandlerMixin",
     "EnderHandMixin",

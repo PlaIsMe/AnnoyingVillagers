@@ -64,6 +64,10 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class CombatCommon {
+    private static final int RANDOM_COMBAT_CHAIN_COUNT = 50;
+    private static final int MAX_RANDOM_OPENING_STEPS = 2;
+    private static final int RANDOM_FOLLOW_UP_STEPS = 3;
+
     public static boolean isHoldingWeapon(LivingEntity entity) {
         CapabilityItem capabilityItem = EpicFightCapabilities.getItemStackCapability(entity.getItemInHand(InteractionHand.MAIN_HAND));
         return capabilityItem.getWeaponCategory() != CapabilityItem.WeaponCategories.NOT_WEAPON && capabilityItem.getWeaponCategory() != CapabilityItem.WeaponCategories.FIST;
@@ -1209,21 +1213,43 @@ public class CombatCommon {
             CombatChainStep[] group1,
             CombatChainStep[]... groups
     ) {
-        for (int combo = 0; combo < 50; combo++) {
-            int maxGroup1Count = Math.min(3, group1.length);
-            int minGroup1Count = Math.min(2, maxGroup1Count);
-            int group1Count = minGroup1Count + combo % (maxGroup1Count - minGroup1Count + 1);
-            int group1Start = group1.length == group1Count ? 0 : combo / 2 % (group1.length - group1Count + 1);
-            CombatChainStep[] chain = new CombatChainStep[group1Count + groups.length];
+        List<CombatChainStep[]> openingGroups = new java.util.ArrayList<>(2);
+        int openingStepCount = 0;
+        if (group1.length > 0) {
+            openingGroups.add(group1);
+            openingStepCount += group1.length;
+        }
+        if (groups.length > 0 && groups[0].length > 0) {
+            openingGroups.add(groups[0]);
+            openingStepCount += groups[0].length;
+        }
+        if (openingGroups.isEmpty()) {
+            return root;
+        }
+
+        List<CombatChainStep[]> followUpGroups = new java.util.ArrayList<>(Math.max(0, groups.length - 1));
+        for (int groupIndex = 1; groupIndex < groups.length; groupIndex++) {
+            if (groups[groupIndex].length > 0) {
+                followUpGroups.add(groups[groupIndex]);
+            }
+        }
+
+        int maxOpeningSteps = Math.min(MAX_RANDOM_OPENING_STEPS, openingStepCount);
+        Random random = new Random(0xA7C0B);
+        for (int combo = 0; combo < RANDOM_COMBAT_CHAIN_COUNT; combo++) {
+            int openingSteps = maxOpeningSteps == 1 ? 1 : 1 + random.nextInt(maxOpeningSteps);
+            int followUpSteps = followUpGroups.isEmpty() ? 0 : RANDOM_FOLLOW_UP_STEPS;
+            CombatChainStep[] chain = new CombatChainStep[openingSteps + followUpSteps];
             int index = 0;
 
-            for (int group1Index = 0; group1Index < group1Count; group1Index++) {
-                chain[index++] = group1[group1Start + group1Index];
+            for (int openingIndex = 0; openingIndex < openingSteps; openingIndex++) {
+                CombatChainStep[] group = openingGroups.get(random.nextInt(openingGroups.size()));
+                chain[index++] = group[random.nextInt(group.length)];
             }
 
-            for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-                CombatChainStep[] group = groups[groupIndex];
-                chain[index++] = group[(combo + groupIndex) % group.length];
+            for (int followUpIndex = 0; followUpIndex < followUpSteps; followUpIndex++) {
+                CombatChainStep[] group = followUpGroups.get(random.nextInt(followUpGroups.size()));
+                chain[index++] = group[random.nextInt(group.length)];
             }
 
             root = root.addFirstBehavior(combatChain(customConditions, chain));

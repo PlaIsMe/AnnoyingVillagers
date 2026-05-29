@@ -318,5 +318,6 @@ public class AnnoyingVillagersModEntities {
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.DRAGON_METEORITE.get(), DragonMeteoriteEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.OBSIDIAN_SLEDGEHAMMER_PROJECTILE.get(), ObsidianSledgehammerProjectileEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.NULL_SKELETON.get(), NullSkeletonEntity.createAttributes().build());
+        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.FLOATING_LOOK_BLOCK.get(), FloatingLookBlockEntity.createAttributes().build());
     }
 }
