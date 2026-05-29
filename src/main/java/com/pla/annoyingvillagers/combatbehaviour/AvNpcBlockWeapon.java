@@ -10,7 +10,7 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 public class AvNpcBlockWeapon {
-    public static final Builder<MobPatch<?>> WOODEN_DOOR = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> WOODEN_DOOR = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     Animations.GREATSWORD_AUTO1,
                     Animations.GREATSWORD_AUTO2,
@@ -25,7 +25,7 @@ public class AvNpcBlockWeapon {
             )
     );
 
-    public static final Builder<MobPatch<?>> TRAPDOOR = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> TRAPDOOR = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     Animations.SWORD_AUTO1,
                     Animations.SWORD_AUTO3,
@@ -43,7 +43,7 @@ public class AvNpcBlockWeapon {
             )
     );
 
-    public static final Builder<MobPatch<?>> LADDER = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> LADDER = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     Animations.SWORD_AUTO1,
                     Animations.SWORD_AUTO3,
@@ -58,7 +58,7 @@ public class AvNpcBlockWeapon {
             )
     );
 
-    public static final Builder<MobPatch<?>> CRAFTING_TABLE = AvNpcCombatBehaviorBuilder.aggressive(
+    public static final Builder<MobPatch<?>> CRAFTING_TABLE = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     Animations.TACHI_AUTO2,
                     Animations.TACHI_AUTO3,

@@ -5,11 +5,13 @@ import com.pla.annoyingvillagers.gameasset.AnimsEpicFightBattleArts;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Builder;
 import reascer.wom.gameasset.animations.weapons.AnimsRuine;
+import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 public class AvNpcLongsword {
-    public static final Builder<MobPatch<?>> LONGSWORD_SHIELD = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> LONGSWORD_SHIELD = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     Animations.LONGSWORD_AUTO1,
                     Animations.LONGSWORD_AUTO2,
@@ -28,7 +30,7 @@ public class AvNpcLongsword {
             )
     );
 
-    public static final Builder<MobPatch<?>> LONGSWORD = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> LONGSWORD = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     Animations.LONGSWORD_AUTO1,
                     Animations.LONGSWORD_AUTO2,
@@ -48,7 +50,7 @@ public class AvNpcLongsword {
             )
     );
 
-    public static final Builder<MobPatch<?>> AV_LONGSWORD = AvNpcCombatBehaviorBuilder.aggressive(
+    public static final Builder<MobPatch<?>> AV_LONGSWORD = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     AnimsRuine.RUINE_AUTO_1,
                     AnimsRuine.RUINE_AUTO_2,
@@ -67,7 +69,7 @@ public class AvNpcLongsword {
             )
     );
 
-    public static final Builder<MobPatch<?>> DUAL_AV_LONGSWORD = AvNpcCombatBehaviorBuilder.dual(
+    public static final Builder<MobPatch<?>> DUAL_AV_LONGSWORD = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     AnimsEpicFightAwaken.DP_HEAVY_AUTO_3,
                     AnimsPugilistSteve.DUAL_SWORD_AUTO2,
@@ -88,7 +90,7 @@ public class AvNpcLongsword {
             )
     );
 
-    public static final Builder<MobPatch<?>> CHIPPED_LONGSWORD = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> CHIPPED_LONGSWORD = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     AnimsRuine.RUINE_AUTO_1,
                     AnimsRuine.RUINE_AUTO_2,
@@ -108,7 +110,7 @@ public class AvNpcLongsword {
             )
     );
 
-    public static final Builder<MobPatch<?>> DIAMOND_SABRE = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> DIAMOND_SABRE = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     Animations.LONGSWORD_LIECHTENAUER_AUTO1,
                     Animations.LONGSWORD_LIECHTENAUER_AUTO2,

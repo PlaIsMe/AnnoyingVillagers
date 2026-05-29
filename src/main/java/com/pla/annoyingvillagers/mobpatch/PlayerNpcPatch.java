@@ -336,8 +336,8 @@ public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEnti
     @Override
     protected CECombatBehaviors.Builder<MobPatch<?>> getCustomWeaponMotionBuilder() {
         CapabilityItem mainHandCap = this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
-        CECombatBehaviors.Builder<MobPatch<?>> customOverride = MobPatchCommon.overideCustomWeaponMotionBuilderForPlayerNpc(mainHandCap, mainHandCap.getStyle(this));
-        if (customOverride == null) customOverride = MobPatchCommon.overideBowMotionBuilderForPlayerNpc(mainHandCap, mainHandCap.getStyle(this));
+        CECombatBehaviors.Builder<MobPatch<?>> customOverride = MobPatchCommon.overideCustomWeaponMotionBuilderForAvNpc(mainHandCap, mainHandCap.getStyle(this));
+        if (customOverride == null) customOverride = MobPatchCommon.overideBowMotionBuilderForAvNpc(mainHandCap, mainHandCap.getStyle(this));
         return customOverride != null ? customOverride : super.getCustomWeaponMotionBuilder();
     }
 

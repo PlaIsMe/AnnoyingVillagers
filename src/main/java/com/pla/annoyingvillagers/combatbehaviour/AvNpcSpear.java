@@ -9,11 +9,13 @@ import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Builder;
 import reascer.wom.gameasset.WOMAnimations;
 import reascer.wom.gameasset.animations.weapons.AnimsAgony;
 import reascer.wom.gameasset.animations.weapons.AnimsOrbit;
+import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 public class AvNpcSpear {
-    public static final Builder<MobPatch<?>> SPEAR_SHIELD = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> SPEAR_SHIELD = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     Animations.SPEAR_ONEHAND_AUTO
             ),
@@ -27,7 +29,7 @@ public class AvNpcSpear {
             )
     );
 
-    public static final Builder<MobPatch<?>> SPEAR = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> SPEAR = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     Animations.SPEAR_TWOHAND_AUTO1,
                     Animations.SPEAR_TWOHAND_AUTO2
@@ -43,7 +45,7 @@ public class AvNpcSpear {
             )
     );
 
-    public static final Builder<MobPatch<?>> GUANDAO = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> GUANDAO = avSpearMoveset(
             CombatCommon.animations(
                     AnimsEpicFightGuandao.FALCHION_AUTO1,
                     AnimsEpicFightGuandao.FALCHION_AUTO2,
@@ -55,15 +57,10 @@ public class AvNpcSpear {
                     AnimsAgony.AGONY_CLAWSTRIKE,
                     AnimsOrbit.ORBIT_MAD_REACH,
                     AnimsPugilistSteve.SPEAR_THRUST
-            ),
-            CombatCommon.animations(
-                    AnimsEpicFightGuandao.FALCHION_FORWARD,
-                    AnimsEpicFightGuandao.FALCHION_BACKWARD,
-                    AnimsEpicFightGuandao.FALCHION_SIDE
             )
     );
 
-    public static final Builder<MobPatch<?>> SPEAR_STAFF = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> SPEAR_STAFF = avSpearMoveset(
             CombatCommon.animations(
                     AnimsEpicFightGuandao.FALCHION_AUTO1,
                     AnimsEpicFightGuandao.FALCHION_AUTO2,
@@ -75,15 +72,10 @@ public class AvNpcSpear {
                     AnimsYonchiChikito.SAKURA_STAFF_DASH,
                     AnimsAgony.AGONY_RIPPING_FANGS,
                     AnimsPugilistSteve.SPEAR_THRUST
-            ),
-            CombatCommon.animations(
-                    AnimsEpicFightGuandao.FALCHION_FORWARD,
-                    AnimsEpicFightGuandao.FALCHION_BACKWARD,
-                    AnimsEpicFightGuandao.FALCHION_SIDE
             )
     );
 
-    public static final Builder<MobPatch<?>> SICKLE = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> SICKLE = avSpearMoveset(
             CombatCommon.animations(
                     AnimsEpicFightGuandao.FALCHION_AUTO2,
                     AnimsEpicFightGuandao.FALCHION_AUTO1,
@@ -95,15 +87,10 @@ public class AvNpcSpear {
                     AnimsOrbit.ORBIT_SATELITE,
                     AnimsWom.CLONE_ANTITHEUS_GUILLOTINE,
                     AnimsPugilistSteve.SPEAR_THRUST
-            ),
-            CombatCommon.animations(
-                    AnimsEpicFightGuandao.FALCHION_FORWARD,
-                    AnimsEpicFightGuandao.FALCHION_BACKWARD,
-                    AnimsEpicFightGuandao.FALCHION_SIDE
             )
     );
 
-    public static final Builder<MobPatch<?>> BOLT = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> BOLT = avSpearMoveset(
             CombatCommon.animations(
                     AnimsEpicFightGuandao.FALCHION_AUTO1,
                     AnimsEpicFightGuandao.FALCHION_AUTO2,
@@ -114,15 +101,10 @@ public class AvNpcSpear {
                     AnimsAgony.AGONY_CLAWSTRIKE,
                     AnimsOrbit.ORBIT_MAD_REACH,
                     AnimsPugilistSteve.SPEAR_THRUST
-            ),
-            CombatCommon.animations(
-                    AnimsEpicFightGuandao.FALCHION_FORWARD,
-                    AnimsEpicFightGuandao.FALCHION_BACKWARD,
-                    AnimsEpicFightGuandao.FALCHION_SIDE
             )
     );
 
-    public static final Builder<MobPatch<?>> BLACK_SCRATCHER = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> BLACK_SCRATCHER = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     AVAnimations.BLACKSCRATCHER_ATTACK,
                     AVAnimations.BLACKSCRATCHER_ATTACK,
@@ -136,7 +118,7 @@ public class AvNpcSpear {
             )
     );
 
-    public static final Builder<MobPatch<?>> STAFF = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> STAFF = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     WOMAnimations.STAFF_AUTO_1,
                     WOMAnimations.STAFF_AUTO_2,
@@ -151,4 +133,32 @@ public class AvNpcSpear {
                     AnimsPugilistSteve.SPEAR_THRUST
             )
     );
+
+    private static Builder<MobPatch<?>> avSpearMoveset(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] opener,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] utility
+    ) {
+        return AvNpcCombatBehaviorBuilder.weapon(opener,
+                utility,
+                CombatCommon.animations(
+                        AnimsEpicFightGuandao.FALCHION_FORWARD,
+                        AnimsEpicFightGuandao.FALCHION_BACKWARD,
+                        AnimsEpicFightGuandao.FALCHION_SIDE
+                )
+        );
+    }
+
+    private static Builder<MobPatch<?>> avSpearStaffMoveset(
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] opener,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>[] utility
+    ) {
+        return AvNpcCombatBehaviorBuilder.weapon(opener,
+                utility,
+                CombatCommon.animations(
+                        AnimsEpicFightGuandao.FALCHION_FORWARD,
+                        AnimsEpicFightGuandao.FALCHION_BACKWARD,
+                        AnimsEpicFightGuandao.FALCHION_SIDE
+                )
+        );
+    }
 }

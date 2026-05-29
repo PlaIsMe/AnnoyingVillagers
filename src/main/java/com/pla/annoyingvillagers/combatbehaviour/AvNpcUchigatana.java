@@ -6,7 +6,7 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 public class AvNpcUchigatana {
-    public static final Builder<MobPatch<?>> UCHIGATANA = AvNpcCombatBehaviorBuilder.guarded(
+    public static final Builder<MobPatch<?>> UCHIGATANA = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
                     Animations.UCHIGATANA_AUTO1,
                     Animations.UCHIGATANA_AUTO2,
