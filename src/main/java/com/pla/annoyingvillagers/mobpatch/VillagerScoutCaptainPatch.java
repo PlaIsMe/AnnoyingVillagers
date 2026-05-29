@@ -2,8 +2,8 @@ package com.pla.annoyingvillagers.mobpatch;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
-import com.pla.annoyingvillagers.combatbehaviour.NpcFist;
-import com.pla.annoyingvillagers.combatbehaviour.NpcSword;
+import com.pla.annoyingvillagers.combatbehaviour.AvNpcFist;
+import com.pla.annoyingvillagers.combatbehaviour.AvNpcSword;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.util.MobPatchCommon;
@@ -67,7 +67,7 @@ public class VillagerScoutCaptainPatch extends CEHumanoidPatch implements Custom
                                 )));
         this.weaponAttackMotions
                 .put(WeaponCategories.NOT_WEAPON,
-                        ImmutableMap.of(Styles.ONE_HAND, NpcFist.FIST));
+                        ImmutableMap.of(Styles.ONE_HAND, AvNpcFist.FIST));
 
         this.weaponLivingMotions
                 .put(WeaponCategories.FIST,
@@ -81,7 +81,7 @@ public class VillagerScoutCaptainPatch extends CEHumanoidPatch implements Custom
                                 )));
         this.weaponAttackMotions
                 .put(WeaponCategories.FIST,
-                        ImmutableMap.of(Styles.ONE_HAND, NpcFist.FIST));
+                        ImmutableMap.of(Styles.ONE_HAND, AvNpcFist.FIST));
 
         this.weaponLivingMotions
                 .put(WeaponCategories.SWORD,
@@ -108,8 +108,8 @@ public class VillagerScoutCaptainPatch extends CEHumanoidPatch implements Custom
         this.weaponAttackMotions
                 .put(WeaponCategories.SWORD,
                         ImmutableMap.of(
-                                Styles.ONE_HAND, NpcSword.AV_SWORD,
-                                Styles.TWO_HAND, NpcSword.AV_DUAL_SWORD
+                                Styles.ONE_HAND, AvNpcSword.AV_SWORD,
+                                Styles.TWO_HAND, AvNpcSword.AV_DUAL_SWORD
                         ));
 
         this.guardHitMotions.put(WeaponCategories.SWORD,

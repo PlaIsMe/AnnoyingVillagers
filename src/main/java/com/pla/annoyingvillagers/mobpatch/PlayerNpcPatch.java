@@ -71,7 +71,7 @@ public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEnti
                                 )));
         this.weaponAttackMotions
                 .put(WeaponCategories.NOT_WEAPON,
-                        ImmutableMap.of(Styles.COMMON, PlayerNpcFist.FIST));
+                        ImmutableMap.of(Styles.COMMON, AvNpcFist.FIST));
 
         this.weaponLivingMotions
                 .put(WeaponCategories.FIST,
@@ -86,57 +86,57 @@ public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEnti
         if (!ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
             this.weaponAttackMotions
                     .put(WeaponCategories.FIST,
-                            ImmutableMap.of(Styles.COMMON, PlayerNpcFist.FIST));
+                            ImmutableMap.of(Styles.COMMON, AvNpcFist.FIST));
             this.weaponAttackMotions
                     .put(WeaponCategories.SWORD,
                             ImmutableMap.of(
-                                    Styles.ONE_HAND, PlayerNpcSword.SWORD,
-                                    Styles.TWO_HAND, PlayerNpcSword.DUAL_SWORD
+                                    Styles.ONE_HAND, AvNpcSword.SWORD,
+                                    Styles.TWO_HAND, AvNpcSword.DUAL_SWORD
                             ));
 
             this.weaponAttackMotions
                     .put(WeaponCategories.DAGGER,
                             ImmutableMap.of(
-                                    Styles.ONE_HAND, PlayerNpcDagger.DAGGER,
-                                    Styles.TWO_HAND, PlayerNpcDagger.DUAL_DAGGER
+                                    Styles.ONE_HAND, AvNpcDagger.DAGGER,
+                                    Styles.TWO_HAND, AvNpcDagger.DUAL_DAGGER
                             ));
 
             this.weaponAttackMotions
                     .put(WeaponCategories.UCHIGATANA,
                             ImmutableMap.of(
-                                    Styles.TWO_HAND, PlayerNpcUchigatana.UCHIGATANA
+                                    Styles.TWO_HAND, AvNpcUchigatana.UCHIGATANA
                             ));
             this.weaponAttackMotions
                     .put(WeaponCategories.SPEAR,
                             ImmutableMap.of(
-                                    Styles.ONE_HAND, PlayerNpcSpear.SPEAR_SHIELD,
-                                    Styles.TWO_HAND, PlayerNpcSpear.SPEAR
+                                    Styles.ONE_HAND, AvNpcSpear.SPEAR_SHIELD,
+                                    Styles.TWO_HAND, AvNpcSpear.SPEAR
                             ));
 
             this.weaponAttackMotions
                     .put(WeaponCategories.LONGSWORD,
                             ImmutableMap.of(
-                                    Styles.ONE_HAND, PlayerNpcLongsword.LONGSWORD_SHIELD,
-                                    Styles.TWO_HAND, PlayerNpcLongsword.LONGSWORD
+                                    Styles.ONE_HAND, AvNpcLongsword.LONGSWORD_SHIELD,
+                                    Styles.TWO_HAND, AvNpcLongsword.LONGSWORD
                             ));
 
             this.weaponAttackMotions
                     .put(WeaponCategories.TACHI,
                             ImmutableMap.of(
-                                    Styles.TWO_HAND, PlayerNpcTachi.TACHI
+                                    Styles.TWO_HAND, AvNpcTachi.TACHI
                             ));
         }
 
         if (!ModList.get().isLoaded("annoyingvillagers_moredual") && !ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
             this.weaponAttackMotions
                     .put(WeaponCategories.AXE,
-                            ImmutableMap.of(Styles.ONE_HAND, PlayerNpcAxe.AXE));
+                            ImmutableMap.of(Styles.ONE_HAND, AvNpcAxe.AXE));
         }
 
         if (!ModList.get().isLoaded("annoyingvillagers_moredual") && !ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
             this.weaponAttackMotions
                     .put(WeaponCategories.GREATSWORD,
-                            ImmutableMap.of(Styles.TWO_HAND, PlayerNpcGreatsword.GREATSWORD));
+                            ImmutableMap.of(Styles.TWO_HAND, AvNpcGreatsword.GREATSWORD));
         }
 
         this.weaponLivingMotions
@@ -158,11 +158,11 @@ public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEnti
                                 )));
         this.weaponAttackMotions
                 .put(WOMWeaponCategories.ENDERBLASTER,
-                        ImmutableMap.of(Styles.ONE_HAND, PlayerNpcFist.FIST, Styles.TWO_HAND, PlayerNpcFist.FIST));
+                        ImmutableMap.of(Styles.ONE_HAND, AvNpcFist.FIST, Styles.TWO_HAND, AvNpcFist.FIST));
 
         this.weaponAttackMotions
                 .put(WOMWeaponCategories.TORMENT,
-                        ImmutableMap.of(Styles.TWO_HAND, PlayerNpcGreatsword.GREATSWORD));
+                        ImmutableMap.of(Styles.TWO_HAND, AvNpcGreatsword.GREATSWORD));
         this.weaponLivingMotions
                 .put(WOMWeaponCategories.TORMENT,
                         ImmutableMap.of(Styles.TWO_HAND,
@@ -178,7 +178,7 @@ public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEnti
         this.weaponAttackMotions
                 .put(WOMWeaponCategories.ANTITHEUS,
                         ImmutableMap.of(
-                                Styles.TWO_HAND, PlayerNpcSpear.SPEAR
+                                Styles.TWO_HAND, AvNpcSpear.SPEAR
                         ));
         this.weaponLivingMotions
                 .put(WOMWeaponCategories.ANTITHEUS,
@@ -195,7 +195,7 @@ public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEnti
         this.weaponAttackMotions
                 .put(WOMWeaponCategories.NAPOLEON,
                         ImmutableMap.of(
-                                Styles.TWO_HAND, PlayerNpcSpear.SPEAR
+                                Styles.TWO_HAND, AvNpcSpear.SPEAR
                         ));
 
         this.weaponLivingMotions

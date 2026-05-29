@@ -69,7 +69,7 @@ public class AlexPatch extends CEHumanoidPatch implements CustomExecuteEntity {
                                 )));
         this.weaponAttackMotions
                 .put(WeaponCategories.NOT_WEAPON,
-                        ImmutableMap.of(Styles.ONE_HAND, NpcFist.FIST));
+                        ImmutableMap.of(Styles.ONE_HAND, AvNpcFist.FIST));
 
         this.weaponLivingMotions
                 .put(WeaponCategories.FIST,
@@ -83,7 +83,7 @@ public class AlexPatch extends CEHumanoidPatch implements CustomExecuteEntity {
                                 )));
         this.weaponAttackMotions
                 .put(WeaponCategories.FIST,
-                        ImmutableMap.of(Styles.ONE_HAND, NpcFist.FIST));
+                        ImmutableMap.of(Styles.ONE_HAND, AvNpcFist.FIST));
 
         this.weaponLivingMotions
                 .put(WeaponCategories.SWORD,
@@ -110,8 +110,8 @@ public class AlexPatch extends CEHumanoidPatch implements CustomExecuteEntity {
         this.weaponAttackMotions
                 .put(WeaponCategories.SWORD,
                         ImmutableMap.of(
-                                Styles.ONE_HAND, NpcSword.AV_SWORD,
-                                Styles.TWO_HAND, NpcSword.AV_DUAL_SWORD
+                                Styles.ONE_HAND, AvNpcSword.AV_SWORD,
+                                Styles.TWO_HAND, AvNpcSword.AV_DUAL_SWORD
                         ));
         
         this.guardHitMotions.put(WeaponCategories.SWORD,

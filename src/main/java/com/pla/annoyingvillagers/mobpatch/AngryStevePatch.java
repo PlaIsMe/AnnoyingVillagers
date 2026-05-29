@@ -73,7 +73,7 @@ public class AngryStevePatch extends CEHumanoidPatch implements CustomExecuteEnt
                                 )));
         this.weaponAttackMotions
                 .put(WeaponCategories.NOT_WEAPON,
-                        ImmutableMap.of(Styles.ONE_HAND, NpcFist.FIST));
+                        ImmutableMap.of(Styles.ONE_HAND, AvNpcFist.FIST));
 
         this.weaponLivingMotions
                 .put(WeaponCategories.FIST,
@@ -87,7 +87,7 @@ public class AngryStevePatch extends CEHumanoidPatch implements CustomExecuteEnt
                                 )));
         this.weaponAttackMotions
                 .put(WeaponCategories.FIST,
-                        ImmutableMap.of(Styles.ONE_HAND, NpcFist.FIST));
+                        ImmutableMap.of(Styles.ONE_HAND, AvNpcFist.FIST));
 
         this.weaponLivingMotions
                 .put(WeaponCategories.GREATSWORD,

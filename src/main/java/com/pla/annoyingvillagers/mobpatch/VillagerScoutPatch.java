@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.combatbehaviour.*;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.util.MobPatchCommon;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -17,9 +16,6 @@ import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
 import net.shelmarow.combat_evolution.ai.iml.CustomExecuteEntity;
 import net.shelmarow.combat_evolution.execution.ExecutionTypeManager;
-import reascer.wom.gameasset.WOMAnimations;
-import reascer.wom.gameasset.animations.weapons.AnimsAgony;
-import reascer.wom.world.capabilities.item.WOMWeaponCategories;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -39,7 +35,6 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.StunType;
 
-import java.util.List;
 import java.util.Set;
 
 public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecuteEntity {
@@ -70,7 +65,7 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
                                 )));
         this.weaponAttackMotions
                 .put(WeaponCategories.NOT_WEAPON,
-                        ImmutableMap.of(Styles.COMMON, NpcFist.FIST));
+                        ImmutableMap.of(Styles.COMMON, AvNpcFist.FIST));
 
         this.weaponLivingMotions
                 .put(WeaponCategories.FIST,
@@ -85,56 +80,56 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
         if (!ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
             this.weaponAttackMotions
                     .put(WeaponCategories.FIST,
-                            ImmutableMap.of(Styles.COMMON, NpcFist.FIST));
+                            ImmutableMap.of(Styles.COMMON, AvNpcFist.FIST));
             this.weaponAttackMotions
                     .put(WeaponCategories.SWORD,
                             ImmutableMap.of(
-                                    Styles.ONE_HAND, NpcSword.SWORD,
-                                    Styles.TWO_HAND, NpcSword.DUAL_SWORD
+                                    Styles.ONE_HAND, AvNpcSword.SWORD,
+                                    Styles.TWO_HAND, AvNpcSword.DUAL_SWORD
                             ));
 
             this.weaponAttackMotions
                     .put(WeaponCategories.DAGGER,
                             ImmutableMap.of(
-                                    Styles.ONE_HAND, NpcDagger.DAGGER,
-                                    Styles.TWO_HAND, NpcDagger.DUAL_DAGGER
+                                    Styles.ONE_HAND, AvNpcDagger.DAGGER,
+                                    Styles.TWO_HAND, AvNpcDagger.DUAL_DAGGER
                             ));
 //            this.weaponAttackMotions
 //                    .put(WeaponCategories.UCHIGATANA,
 //                            ImmutableMap.of(
-//                                    Styles.TWO_HAND, NpcUchigatana.UCHIGATANA
+//                                    Styles.TWO_HAND, AvUchigatana.UCHIGATANA
 //                            ));
 //            this.weaponAttackMotions
 //                    .put(WeaponCategories.SPEAR,
 //                            ImmutableMap.of(
-//                                    Styles.ONE_HAND, NpcSpear.SPEAR_SHIELD,
-//                                    Styles.TWO_HAND, NpcSpear.SPEAR
+//                                    Styles.ONE_HAND, AvSpear.SPEAR_SHIELD,
+//                                    Styles.TWO_HAND, AvSpear.SPEAR
 //                            ));
 //
 //            this.weaponAttackMotions
 //                    .put(WeaponCategories.LONGSWORD,
 //                            ImmutableMap.of(
-//                                    Styles.ONE_HAND, NpcLongsword.LONGSWORD_SHIELD,
-//                                    Styles.TWO_HAND, NpcLongsword.LONGSWORD
+//                                    Styles.ONE_HAND, AvLongsword.LONGSWORD_SHIELD,
+//                                    Styles.TWO_HAND, AvLongsword.LONGSWORD
 //                            ));
 //
 //            this.weaponAttackMotions
 //                    .put(WeaponCategories.TACHI,
 //                            ImmutableMap.of(
-//                                    Styles.TWO_HAND, NpcTachi.TACHI
+//                                    Styles.TWO_HAND, AvTachi.TACHI
 //                            ));
         }
 //
 //        if (!ModList.get().isLoaded("annoyingvillagers_moredual") && !ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
 //            this.weaponAttackMotions
 //                    .put(WeaponCategories.AXE,
-//                            ImmutableMap.of(Styles.ONE_HAND, NpcAxe.AXE));
+//                            ImmutableMap.of(Styles.ONE_HAND, AvAxe.AXE));
 //        }
 //
 //        if (!ModList.get().isLoaded("annoyingvillagers_moredual") && !ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
 //            this.weaponAttackMotions
 //                    .put(WeaponCategories.GREATSWORD,
-//                            ImmutableMap.of(Styles.TWO_HAND, NpcGreatsword.GREATSWORD));
+//                            ImmutableMap.of(Styles.TWO_HAND, AvGreatsword.GREATSWORD));
 //        }
 //
 //        this.weaponLivingMotions
@@ -156,11 +151,11 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
 //                                )));
 //        this.weaponAttackMotions
 //                .put(WOMWeaponCategories.ENDERBLASTER,
-//                        ImmutableMap.of(Styles.ONE_HAND, NpcFist.FIST, Styles.TWO_HAND, NpcFist.FIST));
+//                        ImmutableMap.of(Styles.ONE_HAND, AvFist.FIST, Styles.TWO_HAND, AvFist.FIST));
 //
 //        this.weaponAttackMotions
 //                .put(WOMWeaponCategories.TORMENT,
-//                        ImmutableMap.of(Styles.TWO_HAND, NpcGreatsword.AV_GREATSWORD));
+//                        ImmutableMap.of(Styles.TWO_HAND, AvGreatsword.AV_GREATSWORD));
 //        this.weaponLivingMotions
 //                .put(WOMWeaponCategories.TORMENT,
 //                        ImmutableMap.of(Styles.TWO_HAND,
@@ -176,7 +171,7 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
 //        this.weaponAttackMotions
 //                .put(WOMWeaponCategories.ANTITHEUS,
 //                        ImmutableMap.of(
-//                                Styles.TWO_HAND, NpcSpear.AV_SPEAR
+//                                Styles.TWO_HAND, AvSpear.AV_SPEAR
 //                        ));
 //        this.weaponLivingMotions
 //                .put(WOMWeaponCategories.ANTITHEUS,
@@ -193,7 +188,7 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
 //        this.weaponAttackMotions
 //                .put(WOMWeaponCategories.NAPOLEON,
 //                        ImmutableMap.of(
-//                                Styles.TWO_HAND, NpcSpear.AV_SPEAR
+//                                Styles.TWO_HAND, AvSpear.AV_SPEAR
 //                        ));
 //
 //        this.weaponLivingMotions

@@ -13,6 +13,13 @@ public final class CombatBehaviourTemplates {
     private CombatBehaviourTemplates() {
     }
 
+    private static Behavior.Builder<MobPatch<?>> withCondition(
+            Behavior.Builder<MobPatch<?>> behavior,
+            CombatCommon.MobPatchCondition condition
+    ) {
+        return condition == null ? behavior : behavior.custom(condition);
+    }
+
     public static BehaviorRoot.Builder<MobPatch<?>> executionRoot() {
         return executionRoot(4.0D);
     }
@@ -42,6 +49,13 @@ public final class CombatBehaviourTemplates {
     }
 
     public static BehaviorRoot.Builder<MobPatch<?>> escapeWithGuardRoot(
+            CombatCommon.MobPatchCondition movesetCondition,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation
+    ) {
+        return escapeWithGuardRoot(3.0D, movesetCondition, escapeAnimation, false);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithGuardRoot(
             AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation,
             boolean requireNormalAttackLogic
     ) {
@@ -49,11 +63,28 @@ public final class CombatBehaviourTemplates {
     }
 
     public static BehaviorRoot.Builder<MobPatch<?>> escapeWithGuardRoot(
+            CombatCommon.MobPatchCondition movesetCondition,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation,
+            boolean requireNormalAttackLogic
+    ) {
+        return escapeWithGuardRoot(3.0D, movesetCondition, escapeAnimation, requireNormalAttackLogic);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithGuardRoot(
             double priority,
             AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation,
             boolean requireNormalAttackLogic
     ) {
-        Behavior.Builder<MobPatch<?>> escapeBehavior = Behavior.builder();
+        return escapeWithGuardRoot(priority, null, escapeAnimation, requireNormalAttackLogic);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithGuardRoot(
+            double priority,
+            CombatCommon.MobPatchCondition movesetCondition,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation,
+            boolean requireNormalAttackLogic
+    ) {
+        Behavior.Builder<MobPatch<?>> escapeBehavior = withCondition(Behavior.builder(), movesetCondition);
         if (requireNormalAttackLogic) {
             escapeBehavior = escapeBehavior.custom(CombatCommon::canPerformNormalAttackLogic);
         }
@@ -70,7 +101,7 @@ public final class CombatBehaviourTemplates {
                                 .addExBehavior(CombatCommon::swapToBlockToEscape)
                 )
                 .addFirstBehavior(
-                        Behavior.builder()
+                        withCondition(Behavior.builder(), movesetCondition)
                                 .custom(CombatCommon::canEscape)
                                 .withinDistance(0.0D, 48.0D)
                                 .guard(40)
@@ -90,7 +121,25 @@ public final class CombatBehaviourTemplates {
             AnimationManager.AnimationAccessor<? extends StaticAnimation> followUpAnimation,
             boolean requireNormalAttackLogic
     ) {
-        Behavior.Builder<MobPatch<?>> escapeBehavior = Behavior.builder();
+        return escapeWithAnimationRoot(priority, null, escapeAnimation, followUpAnimation, requireNormalAttackLogic);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithAnimationRoot(
+            CombatCommon.MobPatchCondition movesetCondition,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> followUpAnimation
+    ) {
+        return escapeWithAnimationRoot(3.0D, movesetCondition, escapeAnimation, followUpAnimation, false);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> escapeWithAnimationRoot(
+            double priority,
+            CombatCommon.MobPatchCondition movesetCondition,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> escapeAnimation,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> followUpAnimation,
+            boolean requireNormalAttackLogic
+    ) {
+        Behavior.Builder<MobPatch<?>> escapeBehavior = withCondition(Behavior.builder(), movesetCondition);
         if (requireNormalAttackLogic) {
             escapeBehavior = escapeBehavior.custom(CombatCommon::canPerformNormalAttackLogic);
         }
@@ -107,7 +156,7 @@ public final class CombatBehaviourTemplates {
                                 .addExBehavior(CombatCommon::swapToBlockToEscape)
                 )
                 .addFirstBehavior(
-                        Behavior.builder()
+                        withCondition(Behavior.builder(), movesetCondition)
                                 .custom(CombatCommon::canEscape)
                                 .withinDistance(0.0D, 48.0D)
                                 .animationBehavior(followUpAnimation, 0.0F)
@@ -121,12 +170,19 @@ public final class CombatBehaviourTemplates {
     public static BehaviorRoot.Builder<MobPatch<?>> eatingRoot(
             AnimationManager.AnimationAccessor<? extends StaticAnimation> animation
     ) {
+        return eatingRoot(null, animation);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> eatingRoot(
+            CombatCommon.MobPatchCondition movesetCondition,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation> animation
+    ) {
         return BehaviorRoot.builder()
                 .priority(2.0D)
                 .weight(70.0D)
                 .maxCooldown(0)
                 .addFirstBehavior(
-                        Behavior.builder()
+                        withCondition(Behavior.builder(), movesetCondition)
                                 .health(2.0F / 3.0F, HealthCheck.Comparator.LESS_RATIO_CONTAIN)
                                 .custom(CombatCommon::canPerformEating)
                                 .animationBehavior(animation, 0.0F)
@@ -142,6 +198,14 @@ public final class CombatBehaviourTemplates {
     public static BehaviorRoot.Builder<MobPatch<?>> swapToBowRoot(
             AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations
     ) {
+        return swapToBowRoot(null, animations);
+    }
+
+    @SafeVarargs
+    public static BehaviorRoot.Builder<MobPatch<?>> swapToBowRoot(
+            CombatCommon.MobPatchCondition movesetCondition,
+            AnimationManager.AnimationAccessor<? extends StaticAnimation>... animations
+    ) {
         BehaviorRoot.Builder<MobPatch<?>> root = BehaviorRoot.builder()
                 .priority(2.0D)
                 .weight(100.0D)
@@ -149,7 +213,7 @@ public final class CombatBehaviourTemplates {
 
         for (AnimationManager.AnimationAccessor<? extends StaticAnimation> animation : animations) {
             root = root.addFirstBehavior(
-                    Behavior.builder()
+                    withCondition(Behavior.builder(), movesetCondition)
                             .custom(CombatCommon::canPerformNormalAttackLogic)
                             .custom(CombatCommon::canSwapToBow)
                             .withinDistance(7.0D, 14.0D)
@@ -191,10 +255,25 @@ public final class CombatBehaviourTemplates {
     }
 
     public static BehaviorRoot.Builder<MobPatch<?>> enderPearlAwayRoot(
+            CombatCommon.MobPatchCondition movesetCondition,
+            boolean requireAttackWhileNotHealing
+    ) {
+        return enderPearlAwayRoot(40, movesetCondition, requireAttackWhileNotHealing);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> enderPearlAwayRoot(
             int maxCooldown,
             boolean requireAttackWhileNotHealing
     ) {
-        Behavior.Builder<MobPatch<?>> behavior = Behavior.builder()
+        return enderPearlAwayRoot(maxCooldown, null, requireAttackWhileNotHealing);
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> enderPearlAwayRoot(
+            int maxCooldown,
+            CombatCommon.MobPatchCondition movesetCondition,
+            boolean requireAttackWhileNotHealing
+    ) {
+        Behavior.Builder<MobPatch<?>> behavior = withCondition(Behavior.builder(), movesetCondition)
                 .custom(CombatCommon::canPerformNormalAttackLogic)
                 .withinDistance(0.0D, 3.0D)
                 .custom(CombatCommon::canThrowEnderPearl);
