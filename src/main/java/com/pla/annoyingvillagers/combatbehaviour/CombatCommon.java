@@ -208,6 +208,15 @@ public class CombatCommon {
     public static boolean canPerformNormalAttackLogic(MobPatch<?> mobpatch) {
         LivingEntity attacker = mobpatch.getOriginal();
         LivingEntity victim = mobpatch.getOriginal().getTarget();
+        if (!mobpatch.getEntityState().canBasicAttack()) {
+            return false;
+        }
+        if (attacker instanceof PlayerNpcEntity playerNpcEntity && playerNpcEntity.isHealing()) {
+            return false;
+        }
+        if (attacker instanceof AVNpc AVNpc && AVNpc.isHealing()) {
+            return false;
+        }
         if (attacker instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity
                 && swordsmanHerobrineEntity.getMainHandItem().getTag() != null
                 && swordsmanHerobrineEntity.getMainHandItem().getTag().contains("SnakeAnimation")) {
@@ -265,15 +274,18 @@ public class CombatCommon {
 
     public static boolean canEscape(MobPatch<?> mobpatch) {
         Mob entity = mobpatch.getOriginal();
-        AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(mobpatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-        if (dynamicAnimation.get() instanceof ExecutionAttackAnimation || dynamicAnimation.get() instanceof ExecutionHitAnimation) {
+        var animationPlayer = mobpatch.getAnimator().getPlayerFor(null);
+        if (animationPlayer == null) return false;
+        AssetAccessor<? extends StaticAnimation> dynamicAnimation = animationPlayer.getRealAnimation();
+        StaticAnimation currentAnimation = dynamicAnimation != null ? dynamicAnimation.get() : null;
+        if (currentAnimation instanceof ExecutionAttackAnimation || currentAnimation instanceof ExecutionHitAnimation) {
             return false;
         }
         if (EscapeUtil.checkEscape(entity)) {
             if (entity instanceof HerobrineMob || entity instanceof BlueDemonEntity) {
                 return true;
-            } else if (entity instanceof AVNpc AVNpc
-                    && new Random().nextDouble() <= AVNpc.getPlaceBlockToParryChance()) {
+            } else if (entity instanceof AVNpc avNpc
+                    && avNpc.rollsPlaceBlockToParryChance()) {
                 return true;
             } else return entity instanceof PlayerNpcEntity playerNpcEntity
                     && new Random().nextDouble() <= playerNpcEntity.getPlaceBlockToParryChance();
@@ -302,6 +314,7 @@ public class CombatCommon {
 
     public static boolean canPerformEating(MobPatch<?> mobpatch) {
         if (canExecute(mobpatch)) return false;
+        if (!mobpatch.getEntityState().canBasicAttack()) return false;
         if (mobpatch.getOriginal() instanceof PlayerNpcEntity playerNpcEntity) {
             if (playerNpcEntity.getGapCooldown() > 0) {
                 return false;
@@ -319,6 +332,7 @@ public class CombatCommon {
 
     public static boolean canPerformGuarding(MobPatch<?> mobpatch) {
         if (canEscape(mobpatch)) return false;
+        if (!mobpatch.getEntityState().canBasicAttack()) return false;
         if (mobpatch.getOriginal() instanceof PlayerNpcEntity playerNpcEntity) {
             return !playerNpcEntity.isHealing();
         }
@@ -896,6 +910,9 @@ public class CombatCommon {
             } else {
                 livingEntity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.OAK_PLANKS));
             }
+            if (livingEntity instanceof AVNpc avNpc) {
+                avNpc.setPlaceBlockParryCooldown();
+            }
         }
     }
 
@@ -913,6 +930,9 @@ public class CombatCommon {
                 entity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DARK_OAK_PLANKS));
             } else {
                 entity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.OAK_PLANKS));
+            }
+            if (entity instanceof AVNpc avNpc) {
+                avNpc.setPlaceBlockParryCooldown();
             }
         }
     }

@@ -17,6 +17,11 @@ import org.jetbrains.annotations.NotNull;
 import se.gory_moon.player_mobs.entity.PlayerMobEntity;
 
 public class CommonGoals {
+    private static boolean hasCombatTarget(Mob mob) {
+        LivingEntity target = mob.getTarget();
+        return target != null && target.isAlive();
+    }
+
     public static void registerGoalForHostileNpc(Monster monster) {
         monster.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
         monster.targetSelector.addGoal(1, new HurtByTargetGoal(monster));
@@ -85,11 +90,57 @@ public class CommonGoals {
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AlexEntity.class, true, false));
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, ChrisEntity.class, true, false));
         mob.goalSelector.addGoal(5, new MeleeAttackGoal(mob, 1.2D, false));
-        mob.goalSelector.addGoal(6, new RandomStrollGoal(mob, 1.0D));
-        mob.goalSelector.addGoal(7, new FollowMobGoal(mob, 1.3D, 20.0F, 15.0F));
+        mob.goalSelector.addGoal(6, new RandomStrollGoal(mob, 1.0D) {
+            @Override
+            public boolean canUse() {
+                return !hasCombatTarget(mob) && super.canUse();
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                return !hasCombatTarget(mob) && super.canContinueToUse();
+            }
+
+            @Override
+            public void stop() {
+                super.stop();
+                if (hasCombatTarget(mob)) {
+                    mob.getNavigation().stop();
+                }
+            }
+        });
+        mob.goalSelector.addGoal(7, new FollowMobGoal(mob, 1.3D, 20.0F, 15.0F) {
+            @Override
+            public boolean canUse() {
+                return !hasCombatTarget(mob) && super.canUse();
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                return !hasCombatTarget(mob) && super.canContinueToUse();
+            }
+
+            @Override
+            public void stop() {
+                super.stop();
+                if (hasCombatTarget(mob)) {
+                    mob.getNavigation().stop();
+                }
+            }
+        });
         mob.goalSelector.addGoal(8, new OpenDoorGoal(mob, true));
         mob.goalSelector.addGoal(9, new OpenDoorGoal(mob, false));
-        mob.goalSelector.addGoal(10, new RandomLookAroundGoal(mob));
+        mob.goalSelector.addGoal(10, new RandomLookAroundGoal(mob) {
+            @Override
+            public boolean canUse() {
+                return !hasCombatTarget(mob) && super.canUse();
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                return !hasCombatTarget(mob) && super.canContinueToUse();
+            }
+        });
         mob.goalSelector.addGoal(11, new FloatGoal(mob));
     }
 

@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.blockentity.CryingObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
+import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
@@ -544,7 +545,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             Entity entity = serverLevel.getEntity(this.gregUUID);
             if (entity instanceof HerobrineGregEntity herobrineGregEntity && entity.isAlive()) {
                 if (this instanceof ShadowHerobrineEntity) {
-                    this.playSound(AnnoyingVillagersModSounds.SHADOW_HEROBRINE_SAY_ON_PHASE_2.get(), 1.0F, 1.0F);
+                    if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                        this.playSound(AnnoyingVillagersModSounds.SHADOW_HEROBRINE_SAY_ON_PHASE_2.get(), 0.5F, 1.0F);
+                    }
                 } else {
                     herobrineGregEntity.playSound(AnnoyingVillagersModSounds.GREG_REQUESTING_ASSISTANCE.get(), 1.0F, 1.0F);
                 }
@@ -557,7 +560,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         }
 
         if (this instanceof ShadowHerobrineEntity) {
-            this.playSound(AnnoyingVillagersModSounds.SHADOW_HEROBRINE_SAY_ON_PHASE_2.get(), 1.0F, 1.0F);
+            if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                this.playSound(AnnoyingVillagersModSounds.SHADOW_HEROBRINE_SAY_ON_PHASE_2.get(), 0.5F, 1.0F);
+            }
         } else {
             this.playSound(AnnoyingVillagersModSounds.SELF_REQUESTING_ASSISTANCE.get(), 1.0F, 1.0F);
         }
@@ -793,7 +798,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             this.getLivingEntityPatch().applyStun(StunType.FALL, 0.0F);
         }
         if (this instanceof AegisHerobrineEntity) {
-            this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 1.0F, 1.0F);
+            if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
+            }
             ItemStack enderAegis = new ItemStack(AnnoyingVillagersModItems.ENDER_AEGIS.get());
             enderAegis.enchant(Enchantments.SHARPNESS, 3);
             enderAegis.enchant(Enchantments.SWEEPING_EDGE, 3);
@@ -801,7 +808,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             this.setItemInHand(InteractionHand.MAIN_HAND, enderAegis);
         }
         if (this instanceof SwordsmanHerobrineEntity) {
-            this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 1.0F, 1.0F);
+            if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
+            }
             ItemStack demoniacVoltageReaver = new ItemStack(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get());
             demoniacVoltageReaver.enchant(Enchantments.SHARPNESS, 3);
             demoniacVoltageReaver.enchant(Enchantments.SWEEPING_EDGE, 3);
@@ -809,7 +818,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             this.setItemInHand(InteractionHand.MAIN_HAND, demoniacVoltageReaver);
         }
         if (this instanceof SledgehammerHerobrineEntity) {
-            this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 1.0F, 1.0F);
+            if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
+            }
             ItemStack obsidianSledgehammer = new ItemStack(AnnoyingVillagersModItems.OBSIDIAN_SLEDGEHAMMER.get());
             obsidianSledgehammer.enchant(Enchantments.SHARPNESS, 3);
             obsidianSledgehammer.enchant(Enchantments.SWEEPING_EDGE, 3);
@@ -817,7 +828,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             this.setItemInHand(InteractionHand.MAIN_HAND, obsidianSledgehammer);
         }
         if (this instanceof GlaiveHerobrineEntity) {
-            this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 1.0F, 1.0F);
+            if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
+            }
             ItemStack enderGlaive = new ItemStack(AnnoyingVillagersModItems.ENDER_GLAIVE.get());
             enderGlaive.enchant(Enchantments.SHARPNESS, 3);
             enderGlaive.enchant(Enchantments.SWEEPING_EDGE, 3);
@@ -825,7 +838,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             this.setItemInHand(InteractionHand.MAIN_HAND, enderGlaive);
         }
         if (this instanceof ReaperHerobrineEntity reaperHerobrineEntity) {
-            this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 1.0F, 1.0F);
+            if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
+            }
             ItemStack enderSlayerScythe = new ItemStack(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get());
             enderSlayerScythe.enchant(Enchantments.SHARPNESS, 3);
             enderSlayerScythe.enchant(Enchantments.SWEEPING_EDGE, 3);
@@ -1149,7 +1164,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                         lowShadowHerobrineCloneEntity.setSacrificing(true);
                     }
                     firstPossessedHerobrine.lookAt(EntityAnchorArgument.Anchor.EYES, new Vec3(this.getX(), this.getY(), this.getZ()));
-                    firstPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 1.0F, 1.0F);
+                    firstPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
                 }
                 if (this.secondPossessedHerobrine != null) {
                     ((Mob) secondPossessedHerobrine).addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 10, 3, false, false));
@@ -1158,7 +1173,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                         lowShadowHerobrineCloneEntity.setSacrificing(true);
                     }
                     secondPossessedHerobrine.lookAt(EntityAnchorArgument.Anchor.EYES, new Vec3(this.getX(), this.getY(), this.getZ()));
-                    secondPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 1.0F, 1.0F);
+                    secondPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
                 }
                 if (this.thirdPossessedHerobrine != null) {
                     ((Mob) thirdPossessedHerobrine).addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 10, 3, false, false));
@@ -1168,7 +1183,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                     }
                     thirdPossessedHerobrine.lookAt(EntityAnchorArgument.Anchor.EYES, new Vec3(this.getX(), this.getY(), this.getZ()));
                     thirdPossessedHerobrine.lookAt(EntityAnchorArgument.Anchor.EYES, new Vec3(this.getX(), this.getY(), this.getZ()));
-                    thirdPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 1.0F, 1.0F);
+                    thirdPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
                 }
                 if (this.fourthPossessedHerobrine != null) {
                     ((Mob) fourthPossessedHerobrine).addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 10, 3, false, false));
@@ -1177,7 +1192,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                         lowShadowHerobrineCloneEntity.setSacrificing(true);
                     }
                     fourthPossessedHerobrine.lookAt(EntityAnchorArgument.Anchor.EYES, new Vec3(this.getX(), this.getY(), this.getZ()));
-                    fourthPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 1.0F, 1.0F);
+                    fourthPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
                 }
             }
             if (this.sacrificing && this.sacrificingAnimationCooldown == 0) {

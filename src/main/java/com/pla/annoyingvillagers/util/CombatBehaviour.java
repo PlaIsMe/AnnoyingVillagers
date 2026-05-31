@@ -24,6 +24,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -109,20 +110,47 @@ public class CombatBehaviour {
 
     private static void recoverItemDueToFailure(Entity entity) {
         if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setItemInHand(InteractionHand.MAIN_HAND, playerNpcEntity.getMainWeaponItem());
+            playerNpcEntity.setItemInHand(InteractionHand.MAIN_HAND, playerNpcEntity.getMainWeaponItem().copy());
             playerNpcEntity.setHealing(false);
             playerNpcEntity.resetGapCooldown();
         }
         if (entity instanceof AVNpc AVNpc) {
-            AVNpc.setItemInHand(InteractionHand.MAIN_HAND, AVNpc.getMainWeaponItem());
+            AVNpc.setItemInHand(InteractionHand.MAIN_HAND, AVNpc.getMainWeaponItem().copy());
             AVNpc.setHealing(false);
             AVNpc.resetGapCooldown();
         }
     }
 
+    private static boolean isTrackedHealingCancelled(Entity entity) {
+        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
+            return !playerNpcEntity.isHealing();
+        }
+        if (entity instanceof AVNpc AVNpc) {
+            return !AVNpc.isHealing();
+        }
+        return false;
+    }
+
+    private static boolean trackedNpcHoldsMainHandItem(Entity entity, Item expectedItem) {
+        if (!(entity instanceof PlayerNpcEntity || entity instanceof AVNpc)) {
+            return true;
+        }
+        return entity instanceof LivingEntity livingEntity
+                && livingEntity.getMainHandItem().getItem().equals(expectedItem);
+    }
+
     private static void performEatingGoldenAppleActionMainHand(Entity entity,
-                                                               LevelAccessor levelaccessor,
-                                                               LivingEntityPatch<?> livingEntityPatch) {
+                                                                LevelAccessor levelaccessor,
+                                                                LivingEntityPatch<?> livingEntityPatch,
+                                                                boolean isEnchanted) {
+        if (isTrackedHealingCancelled(entity)) {
+            return;
+        }
+        if (!trackedNpcHoldsMainHandItem(entity, isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE)) {
+            recoverItemDueToFailure(entity);
+            return;
+        }
+
         AssetAccessor<? extends StaticAnimation> currentAnim = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
         if (currentAnim.get() instanceof AttackAnimation
                 || EpicfightUtil.isLongHitAnimation(currentAnim, livingEntityPatch)
@@ -163,8 +191,16 @@ public class CombatBehaviour {
     }
 
     private static void performDrinkingHealingPotionActionMainhand(Entity entity,
-                                                                   LevelAccessor levelaccessor,
-                                                                   LivingEntityPatch<?> livingEntityPatch) {
+                                                                    LevelAccessor levelaccessor,
+                                                                    LivingEntityPatch<?> livingEntityPatch) {
+        if (isTrackedHealingCancelled(entity)) {
+            return;
+        }
+        if (!trackedNpcHoldsMainHandItem(entity, Items.POTION)) {
+            recoverItemDueToFailure(entity);
+            return;
+        }
+
         AssetAccessor<? extends StaticAnimation> currentAnim = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
         if (currentAnim.get() instanceof AttackAnimation
                 || EpicfightUtil.isLongHitAnimation(currentAnim, livingEntityPatch)
@@ -217,9 +253,17 @@ public class CombatBehaviour {
                 @Override
                 public void run() {
                     if (!entity.isAlive()) return;
+                    if (isTrackedHealingCancelled(entity)) return;
+                    if (!trackedNpcHoldsMainHandItem(entity, isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE)) {
+                        recoverItemDueToFailure(entity);
+                        return;
+                    }
 
                     LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-                    if (patch == null) return;
+                    if (patch == null) {
+                        recoverItemDueToFailure(entity);
+                        return;
+                    }
                     AssetAccessor<? extends StaticAnimation> currentAnim = Objects.requireNonNull(patch.getAnimator().getPlayerFor(null)).getRealAnimation();
                     if (currentAnim.get() instanceof AttackAnimation
                             || EpicfightUtil.isLongHitAnimation(currentAnim, patch)
@@ -227,7 +271,7 @@ public class CombatBehaviour {
                         recoverItemDueToFailure(entity);
                         return;
                     }
-                    Runnable bite = () -> performEatingGoldenAppleActionMainHand(entity, levelaccessor, patch);
+                    Runnable bite = () -> performEatingGoldenAppleActionMainHand(entity, levelaccessor, patch, isEnchanted);
                     int biteDelay = 4;
                     int totalBites = 7;
 
@@ -247,6 +291,11 @@ public class CombatBehaviour {
                         @Override
                         public void run() {
                             if (!entity.isAlive()) return;
+                            if (isTrackedHealingCancelled(entity)) return;
+                            if (!trackedNpcHoldsMainHandItem(entity, isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE)) {
+                                recoverItemDueToFailure(entity);
+                                return;
+                            }
                             if (levelaccessor instanceof ServerLevel serverLevel) {
                                 serverLevel.playSound(null,
                                         entity.blockPosition(),
@@ -260,6 +309,11 @@ public class CombatBehaviour {
                         @Override
                         public void run() {
                             if (!entity.isAlive()) return;
+                            if (isTrackedHealingCancelled(entity)) return;
+                            if (!trackedNpcHoldsMainHandItem(entity, isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE)) {
+                                recoverItemDueToFailure(entity);
+                                return;
+                            }
 
                             LivingEntityPatch<?> livingEntityPatch1 = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
                             if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch1 != null) {
@@ -267,13 +321,13 @@ public class CombatBehaviour {
                             }
 
                             if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                                livingEntity.setItemInHand(InteractionHand.MAIN_HAND, playerNpcEntity.getMainWeaponItem());
+                                livingEntity.setItemInHand(InteractionHand.MAIN_HAND, playerNpcEntity.getMainWeaponItem().copy());
                             }
-                            if (entity instanceof AVNpc AVNpc && livingEntityPatch1 != null) {
-                                if (AVNpc instanceof SteveEntity && CombatCommon.canSwitchWeapon((MobPatch<?>) livingEntityPatch1)) {
+                            if (entity instanceof AVNpc AVNpc) {
+                                if (livingEntityPatch1 != null && AVNpc instanceof SteveEntity && CombatCommon.canSwitchWeapon((MobPatch<?>) livingEntityPatch1)) {
                                     CombatCommon.switchWeapon((MobPatch<?>) livingEntityPatch1);
                                 } else {
-                                    livingEntity.setItemInHand(InteractionHand.MAIN_HAND, AVNpc.getMainWeaponItem());
+                                    livingEntity.setItemInHand(InteractionHand.MAIN_HAND, AVNpc.getMainWeaponItem().copy());
                                 }
                             }
 
@@ -333,9 +387,17 @@ public class CombatBehaviour {
                 @Override
                 public void run() {
                     if (!entity.isAlive()) return;
+                    if (isTrackedHealingCancelled(entity)) return;
+                    if (!trackedNpcHoldsMainHandItem(entity, Items.POTION)) {
+                        recoverItemDueToFailure(entity);
+                        return;
+                    }
 
                     LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-                    if (patch == null) return;
+                    if (patch == null) {
+                        recoverItemDueToFailure(entity);
+                        return;
+                    }
                     AssetAccessor<? extends StaticAnimation> currentAnim = Objects.requireNonNull(patch.getAnimator().getPlayerFor(null)).getRealAnimation();
                     if (currentAnim.get() instanceof AttackAnimation
                             || EpicfightUtil.isLongHitAnimation(currentAnim, patch)
@@ -363,6 +425,11 @@ public class CombatBehaviour {
                         @Override
                         public void run() {
                             if (!entity.isAlive()) return;
+                            if (isTrackedHealingCancelled(entity)) return;
+                            if (!trackedNpcHoldsMainHandItem(entity, Items.POTION)) {
+                                recoverItemDueToFailure(entity);
+                                return;
+                            }
                             if (levelaccessor instanceof ServerLevel serverLevel) {
                                 serverLevel.playSound(null,
                                         entity.blockPosition(),
@@ -376,6 +443,11 @@ public class CombatBehaviour {
                         @Override
                         public void run() {
                             if (!entity.isAlive()) return;
+                            if (isTrackedHealingCancelled(entity)) return;
+                            if (!trackedNpcHoldsMainHandItem(entity, Items.POTION)) {
+                                recoverItemDueToFailure(entity);
+                                return;
+                            }
 
                             LivingEntityPatch<?> livingEntityPatch1 = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
                             if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch1 != null) {
@@ -383,13 +455,13 @@ public class CombatBehaviour {
                             }
 
                             if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                                livingEntity.setItemInHand(InteractionHand.MAIN_HAND, playerNpcEntity.getMainWeaponItem());
+                                livingEntity.setItemInHand(InteractionHand.MAIN_HAND, playerNpcEntity.getMainWeaponItem().copy());
                             }
-                            if (entity instanceof AVNpc AVNpc && livingEntityPatch1 != null) {
-                                if (AVNpc instanceof SteveEntity && CombatCommon.canSwitchWeapon((MobPatch<?>) livingEntityPatch1)) {
+                            if (entity instanceof AVNpc AVNpc) {
+                                if (livingEntityPatch1 != null && AVNpc instanceof SteveEntity && CombatCommon.canSwitchWeapon((MobPatch<?>) livingEntityPatch1)) {
                                     CombatCommon.switchWeapon((MobPatch<?>) livingEntityPatch1);
                                 } else {
-                                    livingEntity.setItemInHand(InteractionHand.MAIN_HAND, AVNpc.getMainWeaponItem());
+                                    livingEntity.setItemInHand(InteractionHand.MAIN_HAND, AVNpc.getMainWeaponItem().copy());
                                 }
                             }
 

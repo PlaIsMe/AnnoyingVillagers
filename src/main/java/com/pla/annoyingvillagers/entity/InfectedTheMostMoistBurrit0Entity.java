@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import javax.annotation.Nullable;
 
+import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.TeamUtil;
@@ -74,7 +75,9 @@ public class InfectedTheMostMoistBurrit0Entity extends PathfinderMob {
         super.tick();
         if (!(this.level() instanceof ServerLevel)) return;
         if (this.tickCount == 1 && !this.initialSpawn) {
-            this.playSound(AnnoyingVillagersModSounds.INFECTED_THE_MOSTMOISTBURRIT0_SAY_ON_SPAWN.get(), 1.0F, 1.0F);
+            if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                this.playSound(AnnoyingVillagersModSounds.INFECTED_THE_MOSTMOISTBURRIT0_SAY_ON_SPAWN.get(), 0.5F, 1.0F);
+            }
             this.initialSpawn = true;
         }
         if (this.livingEntityPatch != null) {

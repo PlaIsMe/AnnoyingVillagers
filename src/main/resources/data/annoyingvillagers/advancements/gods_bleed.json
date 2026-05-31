@@ -1,0 +1,28 @@
+{
+  "parent": "annoyingvillagers:compressed_diamond",
+  "display": {
+    "icon": {
+      "item": "annoyingvillagers:obsidian_weapon"
+    },
+    "title": {
+      "translate": "advancement.tellmegodsbleed.title"
+    },
+    "description": {
+      "translate": "advancement.tellmegodsbleed.description"
+    },
+    "frame": "task",
+    "announce_to_chat": true,
+    "show_toast": true,
+    "hidden": false
+  },
+  "criteria": {
+    "hit_herobrine": {
+      "trigger": "minecraft:player_hurt_entity",
+      "conditions": {
+        "entity": {
+          "type": "annoyingvillagers:herobrine_chris"
+        }
+      }
+    }
+  }
+}

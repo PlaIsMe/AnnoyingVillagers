@@ -89,7 +89,7 @@ public class AlexEntity extends AVNpc {
         this.state = state;
         if (state == 1 && this.jevToProtect != null && this.level() instanceof ServerLevel) {
             jevToProtect.playSound(AnnoyingVillagersModSounds.JEV_SAY_WHEN_ALEX_SECOND_PHASE.get(),
-                    1.0F, 1.0F);
+                    0.5F, 1.0F);
         }
     }
 

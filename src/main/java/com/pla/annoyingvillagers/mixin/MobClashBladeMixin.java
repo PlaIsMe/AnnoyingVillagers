@@ -179,11 +179,11 @@ public class MobClashBladeMixin {
                     || livingAttackEvent.getSource().getEntity() instanceof ObsidianSledgehammerProjectileEntity;
             if (isDamageFromGunKnight || ignisFileBall || isMeteorite || livingAttackEvent.getSource().is(DamageTypes.EXPLOSION)) {
                 if (defender instanceof AVNpc AVNpc
-                        && AVNpc.getBlockDamage() == null
-                        && new Random().nextDouble() <= AVNpc.getPlaceBlockToParryChance()
+                        && AVNpc.rollsPlaceBlockToParryChance()
                         && (AVNpc.getItemInHand(InteractionHand.MAIN_HAND).getItem()
                         .equals(AVNpc.getMainWeaponItem().getItem())
                         || AVNpc.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof BowItem)) {
+                    AVNpc.setPlaceBlockParryCooldown();
                     AVNpc.setBlockDamage(livingAttackEvent.getSource().getDirectEntity());
                     CombatCommon.swapToBlock((MobPatch<?>) defenderLivingEntityPatch);
                     cir.setReturnValue(true);

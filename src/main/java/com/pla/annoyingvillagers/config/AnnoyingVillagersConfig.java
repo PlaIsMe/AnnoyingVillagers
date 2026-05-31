@@ -21,6 +21,7 @@ public class AnnoyingVillagersConfig {
     public static ForgeConfigSpec.ConfigValue<Double> MOB_GUARD_BREAK_WAKE_UP_MIN_CHANCE;
     public static ForgeConfigSpec.ConfigValue<Double> MOB_GUARD_BREAK_WAKE_UP_MAX_CHANCE;
     public static ForgeConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_CHAT;
+    public static ForgeConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_VOICE;
     public static ForgeConfigSpec.ConfigValue<Boolean> ARROW_CAN_BREAK_BLOCK;
     public static ForgeConfigSpec.ConfigValue<Boolean> CAN_EXECUTE_AV_MOB;
     public static ForgeConfigSpec.ConfigValue<Boolean> AV_MOB_CAN_EXECUTE;
@@ -92,6 +93,10 @@ public class AnnoyingVillagersConfig {
         TURN_ON_NPC_CHAT = BUILDER.comment(
                         "Turn on all chatting for NPC")
                 .define("turnOnNpcChat", true);
+
+        TURN_ON_NPC_VOICE = BUILDER.comment(
+                        "Turn on all voice for NPC")
+                .define("turnOnNpcVoice", true);
 
         ARROW_CAN_BREAK_BLOCK = BUILDER.comment(
                         "Make arrow can break block")

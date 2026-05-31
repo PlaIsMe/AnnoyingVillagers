@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.clazz;
 
+import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -69,6 +70,10 @@ public interface CombatVoiceLineEntity {
             return;
         }
 
+        if (!AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+            return;
+        }
+
         SoundEvent sound = getHurtVoiceSound();
         if (sound == null) {
             return;
@@ -85,7 +90,7 @@ public interface CombatVoiceLineEntity {
                 self.getZ(),
                 sound,
                 SoundSource.HOSTILE,
-                1.0F,
+                0.5F,
                 1.0F
         );
 
@@ -94,6 +99,10 @@ public interface CombatVoiceLineEntity {
 
     default void sayAttackSound(Mob self, Entity target) {
         if (!(self.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        if (!AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
             return;
         }
 
@@ -113,7 +122,7 @@ public interface CombatVoiceLineEntity {
                 self.getZ(),
                 sound,
                 SoundSource.HOSTILE,
-                1.0F,
+                0.5F,
                 1.0F
         );
 

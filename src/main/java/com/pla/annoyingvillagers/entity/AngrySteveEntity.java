@@ -187,7 +187,9 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
     public void die(@NotNull DamageSource damageSource) {
         super.die(damageSource);
         if (this.level() instanceof ServerLevel) {
-            this.playSound(AnnoyingVillagersModSounds.STEVE_SAY_ON_DEATH.get());
+            if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                this.playSound(AnnoyingVillagersModSounds.STEVE_SAY_ON_DEATH.get(), 0.5F, 1.0F);
+            }
         }
     }
 

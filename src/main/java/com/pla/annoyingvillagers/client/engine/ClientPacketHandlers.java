@@ -1,13 +1,18 @@
 package com.pla.annoyingvillagers.client.engine;
 
 import com.pla.annoyingvillagers.event.NoVfxPortalEvent;
+import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.entity.BlackFireEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.*;
 import com.pla.annoyingvillagers.util.AAAParticlesUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.ExplosionFxMute;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -16,11 +21,41 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
+import org.joml.Vector3f;
+import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.gameasset.Armatures;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class ClientPacketHandlers {
+    private static final int BLACK_FIRE_FALLBACK_LOOKUP_TICKS = 80;
+    private static final Map<Integer, Long> ACTIVE_BLACK_FIRE_FALLBACKS = new HashMap<>();
+    private static Level blackFireFallbackLevel;
+    private static final DustParticleOptions BLACK_FIRE_DUST =
+            new DustParticleOptions(new Vector3f(0.03F, 0.03F, 0.035F), 1.35F);
+    private static final DustParticleOptions BLACK_FIRE_FLASH_DUST =
+            new DustParticleOptions(new Vector3f(0.85F, 0.9F, 0.8F), 0.9F);
+    private static final DustParticleOptions DIAMOND_GREEN_DUST =
+            new DustParticleOptions(new Vector3f(0.0F, 1.0F, 0.3F), 1.15F);
+    private static final DustParticleOptions DIAMOND_GLOW_DUST =
+            new DustParticleOptions(new Vector3f(0.9F, 1.0F, 0.2F), 0.9F);
+
     private ClientPacketHandlers() {}
+
+    private static void resetBlackFireFallbacks(Level level) {
+        if (blackFireFallbackLevel != level) {
+            ACTIVE_BLACK_FIRE_FALLBACKS.clear();
+            blackFireFallbackLevel = level;
+        }
+    }
 
     private static void spawnOmniRings(Level level, RandomSource rand, Vec3 center) {
         int ringPlanes = 6;
@@ -72,6 +107,213 @@ public final class ClientPacketHandlers {
         double a = rand.nextDouble() * Math.PI * 2.0;
         double r = Math.sqrt(Math.max(0.0, 1.0 - z * z));
         return new Vec3(r * Math.cos(a), z, r * Math.sin(a));
+    }
+
+    private static void spawnParticle(Level level, ParticleOptions particle, Vec3 pos, Vec3 velocity) {
+        level.addParticle(particle, true, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
+    }
+
+    private static Vec3 getSwordOrBodyPosition(Entity entity) {
+        try {
+            Vec3 pos = EpicfightUtil.getJointWithTranslation(
+                    entity,
+                    new Vec3f(0.0F, 0.0F, 0.0F),
+                    Armatures.BIPED.get().toolR,
+                    Minecraft.getInstance().getFrameTime(),
+                    0.0F
+            );
+
+            if (pos != null) {
+                return pos;
+            }
+        } catch (Exception ignored) {
+        }
+
+        return entity.position().add(0.0D, entity.getBbHeight() * 0.65D, 0.0D);
+    }
+
+    private static Vec3 getBlackFireFallbackPosition(Entity entity) {
+        if (entity instanceof BlackFireEntity blackFire) {
+            if (blackFire.isFollowOwnerSwordMode()) {
+                Entity owner = blackFire.getOwnerEntity();
+
+                if (owner != null && owner.isAlive() && !owner.isRemoved()) {
+                    return getSwordOrBodyPosition(owner);
+                }
+            }
+
+            return blackFire.position();
+        }
+
+        return getSwordOrBodyPosition(entity);
+    }
+
+    private static void startBlackFireFallback(Level level, int entityId) {
+        resetBlackFireFallbacks(level);
+        ACTIVE_BLACK_FIRE_FALLBACKS.put(entityId, level.getGameTime() + BLACK_FIRE_FALLBACK_LOOKUP_TICKS);
+
+        Entity entity = level.getEntity(entityId);
+        if (entity != null && entity.isAlive() && !entity.isRemoved()) {
+            spawnBlackFireFallback(level, entity, true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
+
+        Minecraft minecraft = Minecraft.getInstance();
+        Level level = minecraft.level;
+
+        if (level == null) {
+            ACTIVE_BLACK_FIRE_FALLBACKS.clear();
+            blackFireFallbackLevel = level;
+            return;
+        }
+
+        resetBlackFireFallbacks(level);
+
+        if (ACTIVE_BLACK_FIRE_FALLBACKS.isEmpty()) {
+            return;
+        }
+
+        long now = level.getGameTime();
+        Iterator<Map.Entry<Integer, Long>> iterator = ACTIVE_BLACK_FIRE_FALLBACKS.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, Long> active = iterator.next();
+            Entity entity = level.getEntity(active.getKey());
+
+            if (entity == null) {
+                if (now > active.getValue()) {
+                    iterator.remove();
+                }
+
+                continue;
+            }
+
+            if (!entity.isAlive() || entity.isRemoved()) {
+                iterator.remove();
+                continue;
+            }
+
+            spawnBlackFireFallback(level, entity);
+        }
+    }
+
+    private static void spawnBlackFireFallback(Level level, Entity entity) {
+        spawnBlackFireFallback(level, entity, false);
+    }
+
+    private static void spawnBlackFireFallback(Level level, Entity entity, boolean burst) {
+        if (entity == null) {
+            return;
+        }
+
+        RandomSource rand = level.getRandom();
+        Vec3 center = getBlackFireFallbackPosition(entity);
+        double radius = Math.max(0.35D, entity.getBbWidth() * 0.85D);
+        double height = Math.max(0.45D, entity.getBbHeight() * 0.75D);
+        int ringParticles = burst ? 54 : 16;
+        int coreParticles = burst ? 12 : 4;
+
+        for (int i = 0; i < ringParticles; i++) {
+            double angle = (i / (double) ringParticles) * Math.PI * 2.0D + rand.nextDouble() * 0.35D;
+            double cos = Math.cos(angle);
+            double sin = Math.sin(angle);
+            double ringRadius = radius * (0.55D + rand.nextDouble() * 0.75D);
+
+            Vec3 outward = new Vec3(cos, 0.0D, sin);
+            Vec3 tangent = new Vec3(-sin, 0.0D, cos);
+            Vec3 pos = center
+                    .add(outward.scale(ringRadius))
+                    .add(0.0D, (rand.nextDouble() - 0.35D) * height, 0.0D);
+            Vec3 velocity = tangent.scale(0.035D + rand.nextDouble() * 0.055D)
+                    .add(outward.scale((rand.nextDouble() - 0.45D) * 0.035D))
+                    .add(0.0D, 0.025D + rand.nextDouble() * 0.055D, 0.0D);
+
+            spawnParticle(level, rand.nextBoolean() ? ParticleTypes.SMOKE : ParticleTypes.LARGE_SMOKE, pos, velocity);
+
+            if ((i & 3) == 0) {
+                spawnParticle(level, BLACK_FIRE_DUST, pos, velocity.scale(0.35D));
+            }
+
+            if (i % 5 == 0) {
+                spawnParticle(level, ParticleTypes.SOUL_FIRE_FLAME, pos, velocity.scale(0.45D));
+            }
+        }
+
+        for (int i = 0; i < coreParticles; i++) {
+            Vec3 offset = randomUnit(rand).scale(rand.nextDouble() * radius * 0.45D);
+            Vec3 pos = center.add(offset);
+            Vec3 velocity = offset.scale(0.03D).add(0.0D, 0.04D + rand.nextDouble() * 0.06D, 0.0D);
+
+            spawnParticle(level, BLACK_FIRE_FLASH_DUST, pos, velocity);
+            if ((i & 1) == 0) {
+                spawnParticle(level, ParticleTypes.POOF, pos, velocity.scale(0.55D));
+            }
+        }
+    }
+
+    private static void spawnDiamondAttractorFallback(Level level, Entity entity) {
+        if (entity == null) {
+            return;
+        }
+
+        RandomSource rand = level.getRandom();
+        Vec3 center = getSwordOrBodyPosition(entity);
+        Vec3 forward = entity.getLookAngle();
+
+        if (forward.lengthSqr() < 1.0e-6D) {
+            forward = new Vec3(0.0D, 0.0D, 1.0D);
+        }
+
+        forward = forward.normalize();
+
+        Vec3 side = new Vec3(-forward.z, 0.0D, forward.x);
+        if (side.lengthSqr() < 1.0e-6D) {
+            side = new Vec3(1.0D, 0.0D, 0.0D);
+        }
+        side = side.normalize();
+
+        Vec3 up = side.cross(forward).normalize();
+
+        for (int i = 0; i < 86; i++) {
+            double progress = i / 85.0D;
+            double angle = progress * Math.PI * 4.0D + rand.nextDouble() * 0.18D;
+            double radius = 0.16D + Math.sin(progress * Math.PI) * 0.72D;
+
+            Vec3 radial = side.scale(Math.cos(angle)).add(up.scale(Math.sin(angle)));
+            Vec3 pos = center
+                    .add(forward.scale((progress - 0.5D) * 1.25D))
+                    .add(radial.scale(radius));
+
+            Vec3 tangent = forward.cross(radial).normalize().scale(0.065D + rand.nextDouble() * 0.04D);
+            Vec3 pull = center.subtract(pos).normalize().scale(0.025D);
+            Vec3 velocity = tangent.add(pull).add(forward.scale(0.015D));
+
+            spawnParticle(level, rand.nextBoolean() ? DIAMOND_GREEN_DUST : DIAMOND_GLOW_DUST, pos, velocity);
+
+            if ((i & 3) == 0) {
+                spawnParticle(level, ParticleTypes.END_ROD, pos, velocity.scale(0.4D));
+            }
+
+            if (i % 6 == 0) {
+                spawnParticle(level, ParticleTypes.ELECTRIC_SPARK, pos, velocity.scale(0.7D));
+            }
+        }
+
+        for (int i = 0; i < 32; i++) {
+            Vec3 offset = randomUnit(rand).scale(0.85D + rand.nextDouble() * 1.25D);
+            Vec3 pos = center.add(offset);
+            Vec3 velocity = center.subtract(pos).normalize().scale(0.07D + rand.nextDouble() * 0.05D);
+
+            spawnParticle(level, ParticleTypes.ENCHANT, pos, velocity);
+            if ((i & 1) == 0) {
+                spawnParticle(level, DIAMOND_GREEN_DUST, pos, velocity);
+            }
+        }
     }
 
     public static void handleGlaiveExplosion(ClientboundGlaiveExplosionFx msg) {
@@ -187,10 +429,11 @@ public final class ClientPacketHandlers {
         if (level == null) {
             return;
         }
-
         if (ModList.get().isLoaded("aaa_particles")) {
             Entity entity = level.getEntity(msg.entityId());
             AAAParticlesUtil.sendBlackFire(level, entity);
+        } else {
+            startBlackFireFallback(level, msg.entityId());
         }
     }
 
@@ -204,6 +447,9 @@ public final class ClientPacketHandlers {
         if (ModList.get().isLoaded("aaa_particles")) {
             Entity entity = level.getEntity(msg.entityId());
             AAAParticlesUtil.sendDiamondAttractor(level, entity);
+        } else {
+            Entity entity = level.getEntity(msg.entityId());
+            spawnDiamondAttractorFallback(level, entity);
         }
     }
 }

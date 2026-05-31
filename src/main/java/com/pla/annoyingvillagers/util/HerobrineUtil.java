@@ -243,12 +243,12 @@ public class HerobrineUtil {
                     || entity instanceof HerobrineChrisEntity
                     || entity instanceof Herobrine7Entity
                     || entity instanceof ArmoredHerobrineEntity)) {
-                entity.playSound(AnnoyingVillagersModSounds.HEROBRINE_CLONE_SAY_ON_SPAWN.get(), 1.0F, 1.0F);
+                entity.playSound(AnnoyingVillagersModSounds.HEROBRINE_CLONE_SAY_ON_SPAWN.get(), 0.5F, 1.0F);
             }
 
             if (entity.level() instanceof ServerLevel
                     && entity instanceof ShadowHerobrineEntity) {
-                entity.playSound(AnnoyingVillagersModSounds.SHADOW_HEROBRINE_SAY_ON_SPAWN.get(), 1.0F, 1.0F);
+                entity.playSound(AnnoyingVillagersModSounds.SHADOW_HEROBRINE_SAY_ON_SPAWN.get(), 0.5F, 1.0F);
             }
 
             TeamUtil.addOrJoinTeam(entity, "herobrine");

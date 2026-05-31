@@ -24,6 +24,106 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
     private static final Random RANDOM = new Random();
     private static final Map<String, List<String>> EQUIP_ITEMS = new HashMap<>();
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final String ANNOYING_VILLAGERS = "annoyingvillagers";
+    private static final String EPIC_FIGHT = "epicfight";
+    private static final String MINECRAFT = "minecraft";
+    private static final String SHIELD_ITEM_ID = "minecraft:shield";
+    private static final List<String> LONGSWORD_OFFHAND_POOL = List.of(
+            avItem("diamond_longsword"),
+            avItem("golden_longsword"),
+            avItem("iron_longsword"),
+            epicFightItem("stone_longsword"),
+            epicFightItem("iron_longsword"),
+            epicFightItem("golden_longsword"),
+            epicFightItem("diamond_longsword"),
+            epicFightItem("netherite_longsword")
+    );
+    private static final List<String> FALCHION_OFFHAND_POOL = List.of(
+            avItem("diamond_falchion"),
+            avItem("diamond_great_falchion"),
+            avItem("netherite_falchion"),
+            epicFightItem("wooden_tachi"),
+            epicFightItem("stone_tachi"),
+            epicFightItem("iron_tachi"),
+            epicFightItem("golden_tachi"),
+            epicFightItem("diamond_tachi"),
+            epicFightItem("netherite_tachi"),
+            epicFightItem("wooden_falchion"),
+            epicFightItem("stone_falchion"),
+            epicFightItem("iron_falchion"),
+            epicFightItem("golden_falchion"),
+            epicFightItem("diamond_falchion"),
+            epicFightItem("netherite_falchion")
+    );
+    private static final List<String> SWORD_OFFHAND_POOL = List.of(
+            avItem("jade_sword"),
+            avItem("red_diamond_sword"),
+            minecraftItem("golden_sword"),
+            minecraftItem("stone_sword"),
+            minecraftItem("diamond_sword"),
+            minecraftItem("netherite_sword"),
+            minecraftItem("iron_sword")
+    );
+    private static final List<String> DAGGER_OFFHAND_POOL = List.of(
+            avItem("knife"),
+            avItem("netherite_knife"),
+            avItem("diamond_knife"),
+            epicFightItem("iron_dagger"),
+            epicFightItem("stone_dagger"),
+            epicFightItem("golden_dagger"),
+            epicFightItem("diamond_dagger"),
+            epicFightItem("netherite_dagger")
+    );
+    private static final Map<String, List<String>> BOUND_OFFHAND_WEAPONS = Map.ofEntries(
+            Map.entry(avItem("exterminator_battleaxe"), List.of(
+                    avItem("exterminator_battleaxe"),
+                    avItem("exterminator_battleaxe_green")
+            )),
+            Map.entry(avItem("exterminator_battleaxe_green"), List.of(
+                    avItem("exterminator_battleaxe"),
+                    avItem("exterminator_battleaxe_green")
+            )),
+            Map.entry(avItem("diamond_mace"), List.of(
+                    avItem("diamond_mace"),
+                    avItem("golden_mace")
+            )),
+            Map.entry(avItem("golden_mace"), List.of(
+                    avItem("diamond_mace"),
+                    avItem("golden_mace")
+            )),
+            Map.entry(avItem("diamond_armblade"), List.of(
+                    avItem("diamond_armblade")
+            )),
+            Map.entry(avItem("diamond_moon_blade"), List.of(
+                    avItem("diamond_moon_blade"),
+                    avItem("golden_moon_blade")
+            )),
+            Map.entry(avItem("golden_moon_blade"), List.of(
+                    avItem("diamond_moon_blade"),
+                    avItem("golden_moon_blade")
+            )),
+            Map.entry(avItem("twin_diamond_spear"), List.of(
+                    avItem("twin_diamond_spear")
+            )),
+            Map.entry(avItem("diamond_longsword"), LONGSWORD_OFFHAND_POOL),
+            Map.entry(avItem("golden_longsword"), LONGSWORD_OFFHAND_POOL),
+            Map.entry(avItem("iron_longsword"), LONGSWORD_OFFHAND_POOL),
+            Map.entry(avItem("diamond_falchion"), FALCHION_OFFHAND_POOL),
+            Map.entry(avItem("diamond_great_falchion"), FALCHION_OFFHAND_POOL),
+            Map.entry(avItem("netherite_falchion"), FALCHION_OFFHAND_POOL)
+    );
+    private static final Set<String> RANDOM_OFFHAND_WEAPON_BLACKLIST = Set.of(
+            avItem("diamond_moon_blade"),
+            avItem("golden_moon_blade"),
+            avItem("diamond_armblade"),
+            avItem("diamond_claw"),
+            avItem("iron_cleaver"),
+            avItem("diamond_sabre"),
+            avItem("netherite_sabre"),
+            avItem("blackscratcher"),
+            avItem("diamond_warblade"),
+            avItem("diamond_laevateinn")
+    );
 
     public EquipmentDataLoader() {
         super(GSON, "mobs_equipment");
@@ -64,10 +164,77 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
         return false;
     }
 
+    private static String avItem(String path) {
+        return ANNOYING_VILLAGERS + ":" + path;
+    }
+
+    private static String epicFightItem(String path) {
+        return EPIC_FIGHT + ":" + path;
+    }
+
+    private static String minecraftItem(String path) {
+        return MINECRAFT + ":" + path;
+    }
+
+    private static String getItemId(ItemStack stack) {
+        ResourceLocation key = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        return key == null ? "" : key.toString();
+    }
+
+    private static boolean itemExists(String itemId) {
+        String[] parts = itemId.split(":", 2);
+        if (parts.length != 2) {
+            return false;
+        }
+
+        return ForgeRegistries.ITEMS.getValue(ResourceLocation.fromNamespaceAndPath(parts[0], parts[1])) != null;
+    }
+
+    private static Optional<String> getRandomExistingItem(List<String> itemIds) {
+        List<String> validItems = itemIds.stream()
+                .filter(EquipmentDataLoader::itemExists)
+                .toList();
+
+        if (validItems.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(validItems.get(RANDOM.nextInt(validItems.size())));
+    }
+
+    private static Optional<String> getBoundOffhandWeapon(ItemStack mainHandStack) {
+        List<String> offhandItems = BOUND_OFFHAND_WEAPONS.get(getItemId(mainHandStack));
+        if (offhandItems == null || offhandItems.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return getRandomExistingItem(offhandItems);
+    }
+
+    private static boolean isRandomOffhandWeaponBlacklisted(ItemStack stack) {
+        String itemId = getItemId(stack);
+        return RANDOM_OFFHAND_WEAPON_BLACKLIST.contains(itemId)
+                || BOUND_OFFHAND_WEAPONS.containsKey(itemId);
+    }
+
+    private static boolean isAnnoyingVillagersSpear(ItemStack stack, WeaponCapability weaponCapability) {
+        ResourceLocation key = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        if (key == null || !ANNOYING_VILLAGERS.equals(key.getNamespace())) {
+            return false;
+        }
+
+        return key.getPath().contains("spear")
+                || weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.SPEAR;
+    }
+
     public static boolean canUseShield(ItemStack stack) {
         CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(stack);
 
         if (cap instanceof WeaponCapability weaponCapability) {
+            if (isAnnoyingVillagersSpear(stack, weaponCapability)) {
+                return false;
+            }
+
             return weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.SWORD ||
                     weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.LONGSWORD ||
                     weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.SPEAR
@@ -78,6 +245,10 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
     }
 
     public static boolean canTwoHand(ItemStack stack) {
+        if (isRandomOffhandWeaponBlacklisted(stack)) {
+            return false;
+        }
+
         CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(stack);
 
         if (cap instanceof WeaponCapability weaponCapability) {
@@ -90,6 +261,52 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
         return false;
     }
 
+    private static Optional<String> getLegacyRandomOffhandWeapon(ItemStack mainHandStack) {
+        if (isRandomOffhandWeaponBlacklisted(mainHandStack)) {
+            return Optional.empty();
+        }
+
+        CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(mainHandStack);
+        if (cap instanceof WeaponCapability weaponCapability) {
+            if (weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.SWORD) {
+                return getRandomExistingItem(SWORD_OFFHAND_POOL);
+            }
+
+            if (weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.DAGGER) {
+                return getRandomExistingItem(DAGGER_OFFHAND_POOL);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private static String getTwoHandOffhandWeapon(String mainHandItemId, ItemStack mainHandStack) {
+        return getLegacyRandomOffhandWeapon(mainHandStack).orElse(mainHandItemId);
+    }
+
+    private static Optional<String> getGeneratedOffhandItem(String mainHandItemId, ItemStack mainHandStack) {
+        Optional<String> boundOffhandWeapon = getBoundOffhandWeapon(mainHandStack);
+        if (boundOffhandWeapon.isPresent()) {
+            return boundOffhandWeapon;
+        }
+
+        if (RANDOM.nextBoolean()) {
+            if (canTwoHand(mainHandStack)) {
+                return Optional.of(getTwoHandOffhandWeapon(mainHandItemId, mainHandStack));
+            } else if (canUseShield(mainHandStack)) {
+                return Optional.of(SHIELD_ITEM_ID);
+            }
+        } else {
+            if (canUseShield(mainHandStack)) {
+                return Optional.of(SHIELD_ITEM_ID);
+            } else if (canTwoHand(mainHandStack)) {
+                return Optional.of(getTwoHandOffhandWeapon(mainHandItemId, mainHandStack));
+            }
+        }
+
+        return Optional.empty();
+    }
+
     public static int getRandomDamage(ItemStack itemStack) {
         int maxDamage = itemStack.getMaxDamage();
         int min = maxDamage / 3;
@@ -100,7 +317,7 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
 
     public static List<String> getEquipCommands(float equipChanceArmor, Entity entity) {
         List<String> cmds = new ArrayList<>();
-        String oneHandWeaponInMainHand = null;
+        String generatedOffhandItem = null;
 
         for (String slot : List.of("MAINHAND", "OFFHAND", "HEAD", "CHEST", "LEGS", "FEET")) {
             List<String> pool = EQUIP_ITEMS.getOrDefault(slot, List.of());
@@ -110,9 +327,9 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
             if (!alwaysEquip && RANDOM.nextFloat() > equipChanceArmor) continue;
 
             String itemId;
-            if (slot.equals("OFFHAND") && oneHandWeaponInMainHand != null) {
-                if (new Random().nextFloat() < 0.25f) {
-                    itemId = oneHandWeaponInMainHand;
+            if (slot.equals("OFFHAND") && generatedOffhandItem != null) {
+                if (RANDOM.nextFloat() < 0.25f) {
+                    itemId = generatedOffhandItem;
                 } else {
                     continue;
                 }
@@ -133,19 +350,7 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
 
             ItemStack itemStack = new ItemStack(item);
             if (slot.equals("MAINHAND")) {
-                if (new Random().nextBoolean()) {
-                    if (canTwoHand(itemStack)) {
-                        oneHandWeaponInMainHand = itemId;
-                    } else if (canUseShield(itemStack)) {
-                        oneHandWeaponInMainHand = "minecraft:shield";
-                    }
-                } else {
-                    if (canUseShield(itemStack)) {
-                        oneHandWeaponInMainHand = "minecraft:shield";
-                    } else if (canTwoHand(itemStack)) {
-                        oneHandWeaponInMainHand = itemId;
-                    }
-                }
+                generatedOffhandItem = getGeneratedOffhandItem(itemId, itemStack).orElse(null);
             }
         }
 

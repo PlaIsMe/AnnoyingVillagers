@@ -87,12 +87,14 @@ dependencies {
     implementation fg.deobf("curse.maven:epic-fight-avalon-1268823:7619938")
     implementation fg.deobf("curse.maven:epic-fight-invincible-1184379:7679941")
     implementation fg.deobf("curse.maven:sword-soaring-1011068:7627333")
+
     implementation fg.deobf("curse.maven:mmmmmmmmmmmm-225738:6860192")
     implementation fg.deobf("curse.maven:selene-499980:7541536")
 
     implementation fg.deobf("curse.maven:epicfight-resurrection-1151542:6931390")
-//    implementation fg.deobf("curse.maven:combat-evolution-x-epicfight-resurrection-1521545:7966282")
     implementation fg.deobf("curse.maven:epicfight-dancing-1521730:7967290")
+
+    implementation fg.deobf("curse.maven:combat-evolution-x-more-execution-animations-1521545:8167727")
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
 

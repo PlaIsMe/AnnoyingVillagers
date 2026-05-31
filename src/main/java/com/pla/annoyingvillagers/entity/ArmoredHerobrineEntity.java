@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -88,7 +89,9 @@ public class ArmoredHerobrineEntity extends HerobrineMob {
     public void die(@NotNull DamageSource damagesource) {
         super.die(damagesource);
         if (this.level() instanceof ServerLevel serverLevel) {
-            this.playSound(AnnoyingVillagersModSounds.ARMORED_HEROBRINE_SAY_ON_DEATH.get(), 1.0F, 1.0F);
+            if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                this.playSound(AnnoyingVillagersModSounds.ARMORED_HEROBRINE_SAY_ON_DEATH.get(), 0.5F, 1.0F);
+            }
             InfectedTheMostMoistBurrit0Entity infectedTheMostMoistBurrit0Entity = new InfectedTheMostMoistBurrit0Entity(AnnoyingVillagersModEntities.INFECTED_THEMOSTMOISTBURRIT0.get(), serverLevel);
 
             infectedTheMostMoistBurrit0Entity.moveTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);

@@ -65,6 +65,7 @@ public class AnnoyingVillagersModItems {
     public static final RegistryObject<Item> ELITE_OBSIDIAN = AnnoyingVillagersModItems.REGISTRY.register("elite_obsidian", EliteObsidianItem::new);
     public static final RegistryObject<Item> ELITE_OBSIDIAN_LONG = AnnoyingVillagersModItems.REGISTRY.register("elite_obsidian_long", EliteObsidianLongItem::new);
     public static final RegistryObject<Item> ELITE_OBSIDIAN_BIG = AnnoyingVillagersModItems.REGISTRY.register("elite_obsidian_big", EliteObsidianBigItem::new);
+    public static final RegistryObject<Item> ELITE_OBSIDIAN_BODY = AnnoyingVillagersModItems.REGISTRY.register("elite_obsidian_body", EliteObsidianBodyItem::new);
     public static final RegistryObject<Item> VILLAGER_SCOUT_HELMET_FIX = AnnoyingVillagersModItems.REGISTRY.register("villager_scout_helmet_fix", VillagerScoutHelmetFixItem::new);
     public static final RegistryObject<Item> RED_VILLAGER_GENERAL_HELMET_FIX = AnnoyingVillagersModItems.REGISTRY.register("red_villager_general_helmet_fix", RedVillagerGeneralHelmetFixItem::new);
     public static final RegistryObject<Item> BLUE_VILLAGER_GENERAL_HELMET_FIX = AnnoyingVillagersModItems.REGISTRY.register("blue_villager_general_helmet_fix", BlueVillagerGeneralHelmetFixItem::new);

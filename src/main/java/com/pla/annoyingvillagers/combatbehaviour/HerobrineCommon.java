@@ -292,6 +292,7 @@ public class HerobrineCommon {
             } else if (herobrineMob instanceof ReaperHerobrineEntity reaperHerobrineEntity && herobrineMob.level() instanceof ServerLevel) {
                 HerobrineDragonEntity herobrineDragonEntity = reaperHerobrineEntity.getThunderHerobrineDragon();
                 if (herobrineDragonEntity != null) {
+                    reaperHerobrineEntity.playSound(AnnoyingVillagersModSounds.REAPER_FIRE.get(), 1.0F, 1.0F);
                     herobrineDragonEntity.shootThunderBreathAtTarget(herobrineMob.getTarget());
                 }
             }

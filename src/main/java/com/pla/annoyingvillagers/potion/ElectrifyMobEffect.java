@@ -14,12 +14,11 @@ import net.shelmarow.combat_evolution.execution.ExecutionHandler;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimation;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionHitAnimation;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-
-import java.util.Objects;
 
 public class ElectrifyMobEffect extends MobEffect {
 
@@ -42,16 +41,19 @@ public class ElectrifyMobEffect extends MobEffect {
             LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(pLivingEntity, LivingEntityPatch.class);
 
             if (livingEntityPatch != null) {
-                AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-                if (dynamicAnimation != null
-                        && !livingEntityPatch.isStunned()
-                        && !ExecutionHandler.isTargetGuardBreak(dynamicAnimation, livingEntityPatch)
-                        && !(dynamicAnimation.get() instanceof ExecutionAttackAnimation)
-                        && !(dynamicAnimation.get() instanceof ExecutionHitAnimation)) {
-                    if (pAmplifier > 1) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsTacticalImbuements.ZAP_LONG, 0.0F);
-                    } else {
-                        livingEntityPatch.playAnimationSynchronized(AnimsTacticalImbuements.ZAP, 0.0F);
+                AnimationPlayer animationPlayer = livingEntityPatch.getAnimator().getPlayerFor(null);
+                if (animationPlayer != null) {
+                    AssetAccessor<? extends StaticAnimation> dynamicAnimation = animationPlayer.getRealAnimation();
+                    StaticAnimation currentAnimation = dynamicAnimation != null ? dynamicAnimation.get() : null;
+                    if (dynamicAnimation != null
+                            && currentAnimation != null
+                            && !livingEntityPatch.isStunned()
+                            && !ExecutionHandler.isTargetGuardBreak(dynamicAnimation, livingEntityPatch)
+                            && !(currentAnimation instanceof ExecutionAttackAnimation)
+                            && !(currentAnimation instanceof ExecutionHitAnimation)) {
+                        playElectrifyAnimation(livingEntityPatch, pAmplifier > 1
+                                ? AnimsTacticalImbuements.ZAP_LONG
+                                : AnimsTacticalImbuements.ZAP);
                     }
                 }
             }
@@ -90,5 +92,12 @@ public class ElectrifyMobEffect extends MobEffect {
 
     public boolean isDurationEffectTick(int i, int j) {
         return true;
+    }
+
+    private static void playElectrifyAnimation(LivingEntityPatch<?> livingEntityPatch,
+                                               AssetAccessor<? extends StaticAnimation> animation) {
+        if (animation != null && animation.get() != null) {
+            livingEntityPatch.playAnimationSynchronized(animation, 0.0F);
+        }
     }
 }

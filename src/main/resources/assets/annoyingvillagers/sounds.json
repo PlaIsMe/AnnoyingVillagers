@@ -372,6 +372,10 @@
       {
         "name": "annoyingvillagers:portal_summon",
         "stream": false
+      },
+      {
+        "name": "annoyingvillagers:portal_transport",
+        "stream": false
       }
     ]
   },
@@ -651,6 +655,9 @@
     "sounds": [
       {
         "name": "annoyingvillagers:entity/armored_herobrine/armored_herobrine_when_fighting"
+      },
+      {
+        "name": "annoyingvillagers:entity/armored_herobrine/armor_herobrine_say_lets_serve"
       }
     ]
   },
@@ -760,6 +767,12 @@
       },
       {
         "name": "annoyingvillagers:entity/herobrine_clone/how_foolish"
+      },
+      {
+        "name": "annoyingvillagers:entity/herobrine_clone/im_a_god"
+      },
+      {
+        "name": "annoyingvillagers:entity/herobrine_clone/herobrine_lets_begin"
       }
     ]
   },
@@ -886,6 +899,12 @@
       },
       {
         "name": "annoyingvillagers:entity/steve/crazy_laughter"
+      },
+      {
+        "name": "annoyingvillagers:entity/steve/angry_steve_say_kill_you"
+      },
+      {
+        "name": "annoyingvillagers:entity/steve/angry_steve_say_what_your_learn"
       }
     ]
   },
@@ -950,6 +969,15 @@
       },
       {
         "name": "annoyingvillagers:entity/villager_scouts/take_him_down"
+      },
+      {
+        "name": "annoyingvillagers:entity/villager_scouts/scout_say_and_hurt"
+      },
+      {
+        "name": "annoyingvillagers:entity/villager_scouts/scout_say_long"
+      },
+      {
+        "name": "annoyingvillagers:entity/villager_scouts/scout_say_stop_it"
       }
     ]
   },
@@ -986,6 +1014,13 @@
     "sounds": [
       {
         "name": "annoyingvillagers:diamond_attractor"
+      }
+    ]
+  },
+  "reaper_fire": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:entity/elite_herobrine/reaper_fire"
       }
     ]
   }

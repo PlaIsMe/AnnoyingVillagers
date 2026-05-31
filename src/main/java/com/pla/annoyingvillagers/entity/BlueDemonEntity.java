@@ -1350,7 +1350,9 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
                     if (stateTransformCooldown > 20) {
                         this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
                     } else if (stateTransformCooldown == 20) {
-                        this.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_PHASE_2_RELEASE.get(), 1.0F, 1.0F);
+                        if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                            this.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_PHASE_2_RELEASE.get(), 0.5F, 1.0F);
+                        }
                         this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END, 0.0F);
                     } else if (stateTransformCooldown == 10) {
                         ItemStack legendaryStack = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
@@ -1392,7 +1394,9 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
                 }
 
                 if (remaining <= 0) {
-                    this.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_WHEN_RETREAT.get(), 1.0F, 1.0F);
+                    if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                        this.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_WHEN_RETREAT.get(), 0.5F, 1.0F);
+                    }
                     serverLevel.getServer().getPlayerList().broadcastSystemMessage(
                             Component.literal("<" + this.getName().getString() + "> " + Component.translatable("subtitles.blue_demon_retreat").getString()),
                             false

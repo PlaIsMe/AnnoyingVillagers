@@ -2,11 +2,17 @@ package com.pla.annoyingvillagers.clazz;
 
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
+import com.pla.annoyingvillagers.entity.BlueVillagerGeneralEntity;
+import com.pla.annoyingvillagers.entity.GreenVillagerGeneralEntity;
+import com.pla.annoyingvillagers.entity.PurpleVillagerGeneralEntity;
+import com.pla.annoyingvillagers.entity.RedVillagerGeneralEntity;
+import com.pla.annoyingvillagers.entity.VillagerScoutCaptainEntity;
 import com.pla.annoyingvillagers.entity.goal.BurnNearbyItemGoal;
 import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
 import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
 import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
@@ -46,6 +52,12 @@ import java.util.Objects;
 import java.util.Random;
 
 public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoiceLineEntity {
+    private static final int PLACE_BLOCK_PARRY_COOLDOWN_TICKS = 60;
+    private static final float VILLAGER_ARMOR_DROP_CHANCE = 0.18F;
+    private static final float VILLAGER_WEAPON_DROP_CHANCE = 0.22F;
+    private static final float VILLAGER_OFFHAND_EQUIPMENT_DROP_CHANCE = 0.14F;
+    private static final float VILLAGER_EQUIPMENT_LOOTING_BONUS = 0.025F;
+
     private final SimpleContainer inventory = new SimpleContainer(27);
     private int gapCooldown;
     private int enderPearlCooldown;
@@ -57,6 +69,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private boolean useBow = true;
     private Entity blockDamage = null;
     private double placeBlockToParryChance;
+    private int placeBlockParryCooldown = 0;
     private boolean swapBackToBow = false;;
     private int stunEscapeCooldown = 0;
     @Nullable
@@ -188,6 +201,17 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.placeBlockToParryChance = placeBlockToParryChance;
     }
 
+    public boolean rollsPlaceBlockToParryChance() {
+        return this.placeBlockParryCooldown == 0
+                && this.blockDamage == null
+                && !this.isHealing()
+                && this.random.nextDouble() <= this.placeBlockToParryChance;
+    }
+
+    public void setPlaceBlockParryCooldown() {
+        this.placeBlockParryCooldown = PLACE_BLOCK_PARRY_COOLDOWN_TICKS;
+    }
+
     public void setBlockDamage(Entity blockDamage) {
         this.blockDamage = blockDamage;
     }
@@ -285,6 +309,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         tag.putBoolean("InitialSpawn", this.initialSpawn);
         tag.putBoolean("UseBow", this.useBow);
         tag.putDouble("BlockProjectileChance", this.placeBlockToParryChance);
+        tag.putInt("BlockParryCooldown", this.placeBlockParryCooldown);
         if (!this.mainWeaponItem.isEmpty()) {
             CompoundTag itemTag = new CompoundTag();
             this.mainWeaponItem.save(itemTag);
@@ -334,6 +359,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.initialSpawn = tag.getBoolean("InitialSpawn");
         this.useBow = tag.getBoolean("UseBow");
         this.placeBlockToParryChance = tag.getDouble("BlockProjectileChance");
+        this.placeBlockParryCooldown = tag.getInt("BlockParryCooldown");
         if (tag.contains("MainHandItem", Tag.TAG_COMPOUND)) {
             this.mainWeaponItem = ItemStack.of(tag.getCompound("MainHandItem"));
         } else {
@@ -358,6 +384,120 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
                 this.spawnAtLocation(stack);
             }
         }
+
+        this.dropVillagerCombatEquipment(looting);
+    }
+
+    private void dropVillagerCombatEquipment(int looting) {
+        if (!this.shouldDropVillagerCombatEquipment()) {
+            return;
+        }
+
+        this.tryDropVillagerEquipmentSlot(EquipmentSlot.MAINHAND, VILLAGER_WEAPON_DROP_CHANCE, looting);
+        this.tryDropVillagerEquipmentSlot(EquipmentSlot.OFFHAND, VILLAGER_OFFHAND_EQUIPMENT_DROP_CHANCE, looting);
+
+        this.tryDropVillagerEquipmentSlot(EquipmentSlot.HEAD, VILLAGER_ARMOR_DROP_CHANCE, looting);
+        this.tryDropVillagerEquipmentSlot(EquipmentSlot.CHEST, VILLAGER_ARMOR_DROP_CHANCE, looting);
+        this.tryDropVillagerEquipmentSlot(EquipmentSlot.LEGS, VILLAGER_ARMOR_DROP_CHANCE, looting);
+        this.tryDropVillagerEquipmentSlot(EquipmentSlot.FEET, VILLAGER_ARMOR_DROP_CHANCE, looting);
+    }
+
+    private boolean shouldDropVillagerCombatEquipment() {
+        return this instanceof BlueVillagerGeneralEntity
+                || this instanceof GreenVillagerGeneralEntity
+                || this instanceof RedVillagerGeneralEntity
+                || this instanceof PurpleVillagerGeneralEntity
+                || this instanceof VillagerScoutCaptainEntity;
+    }
+
+    private void tryDropVillagerEquipmentSlot(EquipmentSlot slot, float baseChance, int looting) {
+        ItemStack equipped = this.getDroppableEquipmentStack(slot);
+
+        if (equipped.isEmpty()) {
+            return;
+        }
+
+        float chance = Math.min(0.85F, baseChance + looting * VILLAGER_EQUIPMENT_LOOTING_BONUS);
+        if (this.random.nextFloat() > chance) {
+            return;
+        }
+
+        ItemStack drop = this.prepareVillagerEquipmentDrop(equipped);
+        if (!drop.isEmpty()) {
+            this.spawnAtLocation(drop);
+        }
+    }
+
+    private ItemStack getDroppableEquipmentStack(EquipmentSlot slot) {
+        ItemStack equipped = this.getItemBySlot(slot);
+
+        if (slot == EquipmentSlot.MAINHAND) {
+            if (!this.mainWeaponItem.isEmpty()) {
+                return this.mainWeaponItem.copy();
+            }
+
+            return this.isDroppableMainhandEquipment(equipped) ? equipped : ItemStack.EMPTY;
+        }
+
+        if (slot == EquipmentSlot.OFFHAND && !this.isDroppableOffhandEquipment(equipped)) {
+            return ItemStack.EMPTY;
+        }
+
+        return equipped;
+    }
+
+    private boolean isDroppableMainhandEquipment(ItemStack stack) {
+        Item item = stack.getItem();
+        return item instanceof SwordItem
+                || item instanceof DiggerItem
+                || item instanceof TridentItem;
+    }
+
+    private boolean isDroppableOffhandEquipment(ItemStack stack) {
+        Item item = stack.getItem();
+        return item instanceof SwordItem
+                || item instanceof AxeItem
+                || item instanceof ShieldItem;
+    }
+
+    private ItemStack prepareVillagerEquipmentDrop(ItemStack equipped) {
+        ItemStack drop = this.convertVillagerHelmetFixItem(equipped);
+        drop.setCount(1);
+
+        if (drop.isDamageableItem()) {
+            int maxDamage = drop.getMaxDamage();
+            int minDamage = Math.max(1, maxDamage / 3);
+            int maxDamageBound = Math.max(minDamage + 1, maxDamage * 3 / 4);
+            drop.setDamageValue(this.random.nextInt(minDamage, maxDamageBound));
+        }
+
+        return drop;
+    }
+
+    private ItemStack convertVillagerHelmetFixItem(ItemStack equipped) {
+        Item replacement = null;
+
+        if (equipped.is(AnnoyingVillagersModItems.VILLAGER_SCOUT_HELMET_FIX.get())) {
+            replacement = AnnoyingVillagersModItems.VILLAGER_SCOUT_HELMET.get();
+        } else if (equipped.is(AnnoyingVillagersModItems.BLUE_VILLAGER_GENERAL_HELMET_FIX.get())) {
+            replacement = AnnoyingVillagersModItems.BLUE_VILLAGER_GENERAL_HELMET.get();
+        } else if (equipped.is(AnnoyingVillagersModItems.RED_VILLAGER_GENERAL_HELMET_FIX.get())) {
+            replacement = AnnoyingVillagersModItems.RED_VILLAGER_GENERAL_HELMET.get();
+        } else if (equipped.is(AnnoyingVillagersModItems.GREEN_VILLAGER_GENERAL_HELMET_FIX.get())) {
+            replacement = AnnoyingVillagersModItems.PURPLE_VILLAGER_GENERAL_HELMET.get();
+        } else if (equipped.is(AnnoyingVillagersModItems.PURPLE_VILLAGER_GENERAL_HELMET_FIX.get())) {
+            replacement = AnnoyingVillagersModItems.GREEN_VILLAGER_GENERAL_HELMET.get();
+        }
+
+        if (replacement == null) {
+            return equipped.copy();
+        }
+
+        ItemStack converted = new ItemStack(replacement);
+        if (equipped.hasTag()) {
+            converted.setTag(equipped.getTag().copy());
+        }
+        return converted;
     }
 
     @Override
@@ -730,6 +870,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         if (gapCooldown > 0) gapCooldown--;
         if (enderPearlCooldown > 0) enderPearlCooldown--;
         if (swapToBowCooldown > 0) swapToBowCooldown--;
+        if (placeBlockParryCooldown > 0) placeBlockParryCooldown--;
         if (stunEscapeCooldown > 0) stunEscapeCooldown--;
         if (playingIdleCooldown > 0) playingIdleCooldown--;
         if (efnGuardHitCooldown > 0) efnGuardHitCooldown--;

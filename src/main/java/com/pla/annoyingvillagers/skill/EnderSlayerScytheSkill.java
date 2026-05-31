@@ -114,7 +114,7 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
     public void executeOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
         if (!skillContainer.isActivated()) {
             skillContainer.getExecutor().playAnimationSynchronized(AnimsWom.AGONY_GUARD_HIT_1, 0.0F);
-            skillContainer.getExecutor().getOriginal().playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_WEAPON_SCREAMING.get(), 0.8F, 1.0F);
+            skillContainer.getExecutor().getOriginal().playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_WEAPON_SCREAMING.get(), 0.5F, 1.0F);
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
         }

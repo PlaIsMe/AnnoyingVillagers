@@ -152,14 +152,14 @@ public class BowFunction {
         level.addFreshEntity(abstractArrow);
         if ((shooter instanceof VillagerScoutEntity
                 || shooter instanceof VillagerScoutCaptainEntity) && ((AVNpc) shooter).getVoiceCooldown() == 0) {
-            shooter.playSound(AnnoyingVillagersModSounds.VILLAGER_SCOUTS_SAY_ON_FIRE.get(), 1.0F, 1.0F);
+            shooter.playSound(AnnoyingVillagersModSounds.VILLAGER_SCOUTS_SAY_ON_FIRE.get(), 0.5F, 1.0F);
             ((AVNpc) shooter).resetVoiceCooldown((Mob) shooter);
         }
         if ((shooter instanceof RedVillagerGeneralEntity
                 || shooter instanceof BlueVillagerGeneralEntity
                 || shooter instanceof GreenVillagerGeneralEntity
                 || shooter instanceof PurpleVillagerGeneralEntity) && ((AVNpc) shooter).getVoiceCooldown() == 0) {
-            shooter.playSound(AnnoyingVillagersModSounds.VILLAGER_GENERALS_SAY_ON_FIRE.get(), 1.0F, 1.0F);
+            shooter.playSound(AnnoyingVillagersModSounds.VILLAGER_GENERALS_SAY_ON_FIRE.get(), 0.5F, 1.0F);
             ((AVNpc) shooter).resetVoiceCooldown((Mob) shooter);
         }
         level.playSound(

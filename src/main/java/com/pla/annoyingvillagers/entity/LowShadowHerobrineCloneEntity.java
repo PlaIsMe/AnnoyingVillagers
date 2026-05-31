@@ -449,7 +449,7 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                     }
                 }
                 if (this.tickCount % 140 == 0 && this.possessedByEntity.getHealth() < this.possessedByEntity.getMaxHealth() * 0.8) {
-                    this.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 1.0F, 1.0F);
+                    this.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
                 }
                 if (this.tickCount % 20 == 0 && this.possessedByEntity != null) {
                     if (this.possessedByEntity.getMaxHealth() == this.possessedByEntity.getHealth()) {

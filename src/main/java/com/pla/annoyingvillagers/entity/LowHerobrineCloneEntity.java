@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
@@ -420,7 +421,9 @@ public class LowHerobrineCloneEntity extends PlayerMobEntity {
                     this.livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_SACRIFICING, 0.0F);
                 }
                 if (this.tickCount % 140 == 0 && this.possessedByEntity.getHealth() < this.possessedByEntity.getMaxHealth() * 0.8) {
-                    this.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 1.0F, 1.0F);
+                    if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                        this.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
+                    }
                 }
                 if (this.tickCount % 20 == 0 && this.possessedByEntity != null) {
                     if (this.possessedByEntity.getMaxHealth() == this.possessedByEntity.getHealth()) {

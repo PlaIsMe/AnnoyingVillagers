@@ -34,7 +34,7 @@ public class VillagerUtil {
         } else if (chance <= 0.6F) {
             itemStack = new ItemStack(AnnoyingVillagersModItems.HOOKED_DIAMOND_SWORD.get());
         } else {
-            itemStack = new ItemStack(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get());
+            itemStack = new ItemStack(AnnoyingVillagersModItems.DIAMOND_KNIGHT_SWORD.get());
         }
 
         float enchantChance = new Random().nextFloat();

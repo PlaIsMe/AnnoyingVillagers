@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -86,7 +87,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob {
         this.setPersistenceRequired();
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(AnnoyingVillagersModItems.ELITE_OBSIDIAN_LONG.get()));
         this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(AnnoyingVillagersModItems.ELITE_OBSIDIAN_BIG.get()));
-        this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(AnnoyingVillagersModItems.ELITE_OBSIDIAN.get()));
+        this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(AnnoyingVillagersModItems.ELITE_OBSIDIAN_BODY.get()));
         this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
         this.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
         this.setDropChance(EquipmentSlot.HEAD, 1.0F);
@@ -134,7 +135,9 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob {
             eatCount = eatCount + 1;
             if (this.level() instanceof ServerLevel serverLevel) {
                 if (this.eatCount == 1) {
-                    this.playSound(AnnoyingVillagersModSounds.KNOCKED_ELITE_HEROBRINE_SAY_ON_BEING_EATEN.get(), 1.0F, 1.0F);
+                    if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                        this.playSound(AnnoyingVillagersModSounds.KNOCKED_ELITE_HEROBRINE_SAY_ON_BEING_EATEN.get(), 0.5F, 1.0F);
+                    }
                 }
                 serverLevel.playSound(
                         null,
@@ -197,7 +200,9 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob {
         super.tick();
         if (!level().isClientSide()) {
             if (this.tickCount == 1 && !this.initialSpawn) {
-                this.playSound(AnnoyingVillagersModSounds.KNOCKED_ELITE_HEROBRINE_SAY_ON_SPAWN.get(), 1.0F, 1.0F);
+                if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                    this.playSound(AnnoyingVillagersModSounds.KNOCKED_ELITE_HEROBRINE_SAY_ON_SPAWN.get(), 0.5F, 1.0F);
+                }
                 this.initialSpawn = true;
             }
             solidifyFeetAndStandOnTop();

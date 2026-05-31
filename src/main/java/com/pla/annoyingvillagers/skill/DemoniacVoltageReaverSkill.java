@@ -122,7 +122,7 @@ public class DemoniacVoltageReaverSkill extends WeaponInnateSkill {
                 itemStack.getItem() instanceof DemoniacVoltageReaverItem
                 && !itemStack.getTag().getBoolean("SnakeAnimation")
                 && !itemStack.getTag().getBoolean("PlaySound")) {
-            container.getExecutor().getOriginal().playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_WEAPON_SCREAMING.get(), 0.8F, 1.0F);
+            container.getExecutor().getOriginal().playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_WEAPON_SCREAMING.get(), 0.5F, 1.0F);
             itemStack.getTag().putBoolean("PlaySound", true);
         } else if (container.getStack() < 1 && itemStack.getTag() != null &&
                 itemStack.getItem() instanceof DemoniacVoltageReaverItem && itemStack.getTag().getBoolean("PlaySound")) {
