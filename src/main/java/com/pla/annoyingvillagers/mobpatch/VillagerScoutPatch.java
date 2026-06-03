@@ -3,6 +3,9 @@ package com.pla.annoyingvillagers.mobpatch;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.combatbehaviour.*;
+import com.pla.annoyingvillagers.compat.dualaxes.AvNpcDualAxe;
+import com.pla.annoyingvillagers.compat.dualgreatsword.AvNpcDualGreatsword;
+import com.pla.annoyingvillagers.compat.epicfightx.*;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.util.MobPatchCommon;
@@ -82,7 +85,7 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
                                         Pair.of(LivingMotions.CHASE, Animations.BIPED_RUN),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 )));
-        if (!ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
+        if (!ModList.get().isLoaded("epicfightx")) {
             this.weaponAttackMotions
                     .put(WeaponCategories.FIST,
                             ImmutableMap.of(Styles.COMMON, AvNpcFist.FIST));
@@ -123,15 +126,81 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
                             ImmutableMap.of(
                                     Styles.TWO_HAND, AvNpcTachi.TACHI
                             ));
+        } else {
+            this.weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.FIST,
+                            ImmutableMap.of(CapabilityItem.Styles.COMMON, AvNpcXFist.X_FIST));
+            this.weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.SWORD,
+                            ImmutableMap.of(
+                                    CapabilityItem.Styles.ONE_HAND, AvNpcXSword.X_SWORD,
+                                    CapabilityItem.Styles.TWO_HAND, AvNpcXSword.X_DUAL_SWORD
+                            ));
+
+            this.weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.DAGGER,
+                            ImmutableMap.of(
+                                    CapabilityItem.Styles.ONE_HAND, AvNpcXDagger.X_DAGGER,
+                                    CapabilityItem.Styles.TWO_HAND, AvNpcXDagger.X_DUAL_DAGGER
+                            ));
+
+            this.weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.UCHIGATANA,
+                            ImmutableMap.of(
+                                    CapabilityItem.Styles.TWO_HAND, AvNpcXUchigatana.X_UCHIGATANA
+                            ));
+            this.weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.SPEAR,
+                            ImmutableMap.of(
+                                    CapabilityItem.Styles.ONE_HAND, AvNpcXSpear.X_SPEAR_SHIELD,
+                                    CapabilityItem.Styles.TWO_HAND, AvNpcXSpear.X_SPEAR
+                            ));
+
+            this.weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.LONGSWORD,
+                            ImmutableMap.of(
+                                    CapabilityItem.Styles.ONE_HAND, AvNpcXLongsword.X_LONGSWORD_SHIELD,
+                                    CapabilityItem.Styles.TWO_HAND, AvNpcXLongsword.X_LONGSWORD
+                            ));
+
+            this.weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.TACHI,
+                            ImmutableMap.of(
+                                    CapabilityItem.Styles.TWO_HAND, AvNpcXTachi.X_TACHI
+                            ));
         }
 
-        if (!ModList.get().isLoaded("annoyingvillagers_moredual") && !ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
+        if (ModList.get().isLoaded("epicfightx")) {
+            weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.AXE,
+                            ImmutableMap.of(
+                                    CapabilityItem.Styles.ONE_HAND, AvNpcXAxe.X_AXE)
+                    );
+        } else if (ModList.get().isLoaded("dualaxes")) {
+            weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.AXE,
+                            ImmutableMap.of(
+                                    CapabilityItem.Styles.ONE_HAND, AvNpcDualAxe.AXE,
+                                    CapabilityItem.Styles.TWO_HAND, AvNpcDualAxe.DUAL_AXE)
+                    );
+        } else {
             this.weaponAttackMotions
                     .put(WeaponCategories.AXE,
                             ImmutableMap.of(Styles.ONE_HAND, AvNpcAxe.AXE));
         }
 
-        if (!ModList.get().isLoaded("annoyingvillagers_moredual") && !ModList.get().isLoaded("annoyingvillagers_epicfightx")) {
+        if (ModList.get().isLoaded("epicfightx")) {
+            weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.GREATSWORD,
+                            ImmutableMap.of(
+                                    CapabilityItem.Styles.TWO_HAND, AvNpcXGreatsword.X_GREATSWORD));
+        } else if (ModList.get().isLoaded("dualgreatswords")) {
+            weaponAttackMotions
+                    .put(CapabilityItem.WeaponCategories.GREATSWORD,
+                            ImmutableMap.of(
+                                    CapabilityItem.Styles.TWO_HAND, AvNpcGreatsword.GREATSWORD,
+                                    CapabilityItem.Styles.OCHS, AvNpcDualGreatsword.DUAL_GREATSWORD));
+        } else {
             this.weaponAttackMotions
                     .put(WeaponCategories.GREATSWORD,
                             ImmutableMap.of(Styles.TWO_HAND, AvNpcGreatsword.GREATSWORD));
@@ -232,13 +301,46 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
                         )
                 )
         );
-        if (!ModList.get().isLoaded("annoyingvillagers_moredual")) {
+        if (ModList.get().isLoaded("dualaxes")) {
+            this.guardHitMotions.put(CapabilityItem.WeaponCategories.AXE,
+                    ImmutableMap.of(
+                            CapabilityItem.Styles.ONE_HAND, List.of(
+                                    Animations.SWORD_GUARD_ACTIVE_HIT1,
+                                    Animations.SWORD_GUARD_ACTIVE_HIT2,
+                                    Animations.SWORD_GUARD_ACTIVE_HIT3
+                            ),
+                            CapabilityItem.Styles.TWO_HAND, List.of(
+                                    Animations.SWORD_DUAL_GUARD_HIT
+                            )
+                    )
+            );
+        } else {
             this.guardHitMotions.put(WeaponCategories.AXE,
                     ImmutableMap.of(
                             Styles.ONE_HAND, List.of(
                                     Animations.SWORD_GUARD_ACTIVE_HIT1,
                                     Animations.SWORD_GUARD_ACTIVE_HIT2,
                                     Animations.SWORD_GUARD_ACTIVE_HIT3
+                            )
+                    )
+            );
+        }
+        if (ModList.get().isLoaded("dualgreatswords")) {
+            guardHitMotions.put(CapabilityItem.WeaponCategories.GREATSWORD,
+                    ImmutableMap.of(
+                            CapabilityItem.Styles.TWO_HAND, List.of(
+                                    Animations.GREATSWORD_GUARD_HIT
+                            ),
+                            CapabilityItem.Styles.OCHS, List.of(
+                                    Animations.SWORD_DUAL_GUARD_HIT
+                            )
+                    )
+            );
+        } else {
+            this.guardHitMotions.put(WeaponCategories.GREATSWORD,
+                    ImmutableMap.of(
+                            Styles.TWO_HAND, List.of(
+                                    Animations.GREATSWORD_GUARD_HIT
                             )
                     )
             );
@@ -250,15 +352,6 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
                         )
                 )
         );
-        if (!ModList.get().isLoaded("annoyingvillagers_moredual")) {
-            this.guardHitMotions.put(WeaponCategories.GREATSWORD,
-                    ImmutableMap.of(
-                            Styles.TWO_HAND, List.of(
-                                    Animations.GREATSWORD_GUARD_HIT
-                            )
-                    )
-            );
-        }
         this.guardHitMotions.put(WOMWeaponCategories.ANTITHEUS,
                 ImmutableMap.of(
                         Styles.TWO_HAND, List.of(
@@ -335,7 +428,7 @@ public class VillagerScoutPatch extends CEHumanoidPatch implements CustomExecute
     protected CECombatBehaviors.Builder<MobPatch<?>> getCustomWeaponMotionBuilder() {
         CapabilityItem mainHandCap = this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
         CECombatBehaviors.Builder<MobPatch<?>> customOverride = MobPatchCommon.overideCustomWeaponMotionBuilderForAvNpc(mainHandCap, mainHandCap.getStyle(this));
-        if (customOverride == null) customOverride = MobPatchCommon.overideBowMotionBuilderForAvNpc(mainHandCap, mainHandCap.getStyle(this));
+        if (customOverride == null) customOverride = MobPatchCommon.overideBowMotionBuilderForNpc(mainHandCap, mainHandCap.getStyle(this));
         return customOverride != null ? customOverride : super.getCustomWeaponMotionBuilder();
     }
 

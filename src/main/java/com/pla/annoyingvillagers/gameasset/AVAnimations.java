@@ -4,6 +4,7 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.block.ObsidianBlock;
 import com.pla.annoyingvillagers.block.ShadowObsidianBlock;
 import com.pla.annoyingvillagers.clazz.TridentMode;
+import com.pla.annoyingvillagers.compat.p1nero_bow.AnimsP1neroEpicBow;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.item.*;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import reascer.wom.animation.attacks.BasicMultipleAttackAnimation;
 import reascer.wom.gameasset.colliders.WOMWeaponColliders;
@@ -97,6 +99,9 @@ public class AVAnimations {
         AnimsYonchiChikito.build(builder);
         AnimsEpicFightGuandao.build(builder);
         AnimsTacticalImbuements.build(builder);
+        if (ModList.get().isLoaded("p1nero_bow")) {
+            AnimsP1neroEpicBow.build(builder);
+        }
 
         Armatures.ArmatureAccessor<HumanoidArmature> humanoidArmature = Armatures.BIPED;
         TRIDENT_ATTACK = builder.nextAccessor("biped/pla/trident_attack",

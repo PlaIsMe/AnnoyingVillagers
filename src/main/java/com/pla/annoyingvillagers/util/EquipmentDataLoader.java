@@ -27,6 +27,7 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
     private static final String ANNOYING_VILLAGERS = "annoyingvillagers";
     private static final String EPIC_FIGHT = "epicfight";
     private static final String MINECRAFT = "minecraft";
+    private static final String WOM = "wom";
     private static final String SHIELD_ITEM_ID = "minecraft:shield";
     private static final List<String> LONGSWORD_OFFHAND_POOL = List.of(
             avItem("diamond_longsword"),
@@ -73,6 +74,25 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
             epicFightItem("golden_dagger"),
             epicFightItem("diamond_dagger"),
             epicFightItem("netherite_dagger")
+    );
+    private static final List<String> DUAL_AXE_OFFHAND_POOL = List.of(
+            minecraftItem("wooden_axe"),
+            minecraftItem("stone_axe"),
+            minecraftItem("golden_axe"),
+            minecraftItem("iron_axe"),
+            minecraftItem("diamond_axe")
+    );
+    private static final List<String> DUAL_GREATSWORD_OFFHAND_POOL = List.of(
+            epicFightItem("wooden_greatsword"),
+            epicFightItem("stone_greatsword"),
+            epicFightItem("golden_greatsword"),
+            epicFightItem("iron_greatsword"),
+            epicFightItem("diamond_greatsword"),
+            womItem("wooden_greataxe"),
+            womItem("iron_greataxe"),
+            womItem("stone_greataxe"),
+            womItem("golden_greataxe"),
+            womItem("diamond_greataxe")
     );
     private static final Map<String, List<String>> BOUND_OFFHAND_WEAPONS = Map.ofEntries(
             Map.entry(avItem("exterminator_battleaxe"), List.of(
@@ -156,8 +176,15 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
         }
     }
 
-    private static boolean addMoreDualCap(WeaponCapability weaponCapability) {
-        return false;
+    private static boolean addMoreDualCap(ItemStack stack, WeaponCapability weaponCapability) {
+        if (isAnnoyingVillagersItem(stack)) {
+            return false;
+        }
+
+        return (ModList.get().isLoaded("dualaxes")
+                && weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.AXE)
+                || (ModList.get().isLoaded("dualgreatswords")
+                && weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.GREATSWORD);
     }
 
     private static boolean addMoreShieldCap(WeaponCapability weaponCapability) {
@@ -176,9 +203,18 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
         return MINECRAFT + ":" + path;
     }
 
+    private static String womItem(String path) {
+        return WOM + ":" + path;
+    }
+
     private static String getItemId(ItemStack stack) {
         ResourceLocation key = ForgeRegistries.ITEMS.getKey(stack.getItem());
         return key == null ? "" : key.toString();
+    }
+
+    private static boolean isAnnoyingVillagersItem(ItemStack stack) {
+        ResourceLocation key = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        return key != null && ANNOYING_VILLAGERS.equals(key.getNamespace());
     }
 
     private static boolean itemExists(String itemId) {
@@ -218,11 +254,11 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
     }
 
     private static boolean isAnnoyingVillagersSpear(ItemStack stack, WeaponCapability weaponCapability) {
-        ResourceLocation key = ForgeRegistries.ITEMS.getKey(stack.getItem());
-        if (key == null || !ANNOYING_VILLAGERS.equals(key.getNamespace())) {
+        if (!isAnnoyingVillagersItem(stack)) {
             return false;
         }
 
+        ResourceLocation key = ForgeRegistries.ITEMS.getKey(stack.getItem());
         return key.getPath().contains("spear")
                 || weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.SPEAR;
     }
@@ -255,7 +291,7 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
             return weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.SWORD ||
                     weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.FIST ||
                     weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.DAGGER
-                    || addMoreDualCap(weaponCapability);
+                    || addMoreDualCap(stack, weaponCapability);
         }
 
         return false;
@@ -280,8 +316,37 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
         return Optional.empty();
     }
 
+    private static String getRandomOffhandOrMainHand(String mainHandItemId, List<String> itemIds) {
+        if (RANDOM.nextBoolean()) {
+            return mainHandItemId;
+        }
+
+        return getRandomExistingItem(itemIds).orElse(mainHandItemId);
+    }
+
+    private static Optional<String> getDualModOffhandWeapon(String mainHandItemId, ItemStack mainHandStack) {
+        CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(mainHandStack);
+        if (!(cap instanceof WeaponCapability weaponCapability) || isAnnoyingVillagersItem(mainHandStack)) {
+            return Optional.empty();
+        }
+
+        if (ModList.get().isLoaded("dualaxes")
+                && weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.AXE) {
+            return Optional.of(getRandomOffhandOrMainHand(mainHandItemId, DUAL_AXE_OFFHAND_POOL));
+        }
+
+        if (ModList.get().isLoaded("dualgreatswords")
+                && weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.GREATSWORD) {
+            return Optional.of(getRandomOffhandOrMainHand(mainHandItemId, DUAL_GREATSWORD_OFFHAND_POOL));
+        }
+
+        return Optional.empty();
+    }
+
     private static String getTwoHandOffhandWeapon(String mainHandItemId, ItemStack mainHandStack) {
-        return getLegacyRandomOffhandWeapon(mainHandStack).orElse(mainHandItemId);
+        return getLegacyRandomOffhandWeapon(mainHandStack)
+                .or(() -> getDualModOffhandWeapon(mainHandItemId, mainHandStack))
+                .orElse(mainHandItemId);
     }
 
     private static Optional<String> getGeneratedOffhandItem(String mainHandItemId, ItemStack mainHandStack) {

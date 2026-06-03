@@ -3,6 +3,10 @@ package com.pla.annoyingvillagers.capabilities;
 import java.util.function.Function;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.compat.dualaxes.EpicFightDualAxe;
+import com.pla.annoyingvillagers.compat.dualaxes.EpicFightXDualAxe;
+import com.pla.annoyingvillagers.compat.dualgreatsword.EpicFightDualGreatsword;
+import com.pla.annoyingvillagers.compat.dualgreatsword.EpicFightXDualGreatsword;
 import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -11,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.fml.ModList;
 import reascer.wom.gameasset.WOMAnimations;
 import reascer.wom.gameasset.animations.weapons.*;
 import reascer.wom.gameasset.colliders.WOMWeaponColliders;
@@ -1873,7 +1878,9 @@ public class AVWeaponCapabilityPresets {
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "battle_axe"), AVWeaponCapabilityPresets.BATTLE_AXE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "cleaver"), AVWeaponCapabilityPresets.CLEAVER);
 
-        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "av_bow"), AVWeaponCapabilityPresets.BOW);
+        if (ModList.get().isLoaded("p1nero_bow")) {
+            weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath("epicfight", "bow"), AVWeaponCapabilityPresets.BOW);
+        }
 
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "wooden_door"), AVWeaponCapabilityPresets.WOODEN_DOOR);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "crafting_table"), AVWeaponCapabilityPresets.CRAFTING_TABLE);
@@ -1884,5 +1891,21 @@ public class AVWeaponCapabilityPresets {
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "arm_blade"), AVWeaponCapabilityPresets.ARM_BLADE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "moon_blade"), AVWeaponCapabilityPresets.MOON_BLADE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "claw"), AVWeaponCapabilityPresets.CLAW);
+
+        if (ModList.get().isLoaded("dualaxes")) {
+            weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath("epicfight", "axe"),
+                    ModList.get().isLoaded("epicfightx") ?
+                            EpicFightXDualAxe.X_AXE_DUAL :
+                            EpicFightDualAxe.AXE_DUAL
+            );
+        }
+
+        if (ModList.get().isLoaded("dualgreatswords")) {
+            weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath("epicfight", "greatsword"),
+                    ModList.get().isLoaded("epicfightx") ?
+                            EpicFightXDualGreatsword.X_GREATSWORD_DUAL :
+                            EpicFightDualGreatsword.GREATSWORD_DUAL
+            );
+        }
     }
 }

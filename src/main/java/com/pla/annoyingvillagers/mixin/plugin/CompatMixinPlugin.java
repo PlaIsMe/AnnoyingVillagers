@@ -10,10 +10,13 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 public final class CompatMixinPlugin implements IMixinConfigPlugin {
     private static final String EFN_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.efn.";
+    private static final String EPICFIGHT_X_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.epicfightx.";
+    private static final String DUAL_AXES_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.dualaxes.";
+    private static final String DUAL_GREATSWORDS_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.dualgreatswords.";
 
-    private static boolean isEfnLoadedEarly() {
+    private static boolean isModLoadedEarly(String modId) {
         LoadingModList list = FMLLoader.getLoadingModList();
-        return list != null && list.getModFileById("efn") != null;
+        return list != null && list.getModFileById(modId) != null;
     }
 
     @Override
@@ -28,7 +31,16 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (mixinClassName.startsWith(EFN_COMPAT_PREFIX)) {
-            return isEfnLoadedEarly();
+            return isModLoadedEarly("efn");
+        }
+        if (mixinClassName.startsWith(EPICFIGHT_X_COMPAT_PREFIX)) {
+            return isModLoadedEarly("epicfightx");
+        }
+        if (mixinClassName.startsWith(DUAL_AXES_COMPAT_PREFIX)) {
+            return isModLoadedEarly("dualaxes");
+        }
+        if (mixinClassName.startsWith(DUAL_GREATSWORDS_COMPAT_PREFIX)) {
+            return isModLoadedEarly("dualgreatswords");
         }
         return true;
     }

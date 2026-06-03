@@ -256,6 +256,21 @@ All required upstream notices must be preserved.
 - Redistribution of these assets may require explicit permission from the reacer.
 - Users should obtain Weapon Of Miracle via its official distribution channel and comply with its terms.
 
+### G2) P1nero Epic Bow - P1nero - Proprietary / All Rights Reserved
+- Type: cloned/copied animations used for registration/compatibility
+- Source: https://github.com/P1neapplell0/Epic-Bow
+
+**Paths / Files**
+- assets/annoyingvillagers/animmodels/animations/biped/p1nero_bow_clone
+
+**Notes**
+- These files are NOT AnnoyingVillagers Original Materials (AV-RO does not apply).
+- Copyright remains with P1nero and contributors.
+- The cloned animation path is included so AnnoyingVillagers can register compatible animations and allow mobs to play them.
+- These animations are only activated when the P1nero Epic Bow mod is installed.
+- Redistribution of these assets may require explicit permission from P1nero.
+- Users should obtain P1nero Epic Bow via its official distribution channel and comply with its terms.
+
 ---
 
 ## H) Assets authorized by another author (Owned by the Original Author, you should contact the original author if you want to use it)

@@ -54,7 +54,10 @@
     "compat.efn.StopEffectMixin",
     "ExecutionTaskMixin",
     "PlayerMixin",
-    "MixinPIllagerRenderer"
+    "MixinPIllagerRenderer",
+    "compat.epicfightx.CEHumanoidPatchMixin",
+    "compat.dualgreatswords.DualGreatswordMixin",
+    "compat.dualaxes.DualAxeMixin"
   ],
   "client": [
     "client.ModelPartMixin",

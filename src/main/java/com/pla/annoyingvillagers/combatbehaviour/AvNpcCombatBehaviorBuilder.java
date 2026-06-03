@@ -10,14 +10,14 @@ import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import java.util.Arrays;
 
-final class AvNpcCombatBehaviorBuilder {
+public final class AvNpcCombatBehaviorBuilder {
     private static final int WEAPON_ENDER_PEARL_AWAY_COOLDOWN = 60;
 
     private AvNpcCombatBehaviorBuilder() {
     }
 
     @SafeVarargs
-    static Builder<MobPatch<?>> weapon(
+    public static Builder<MobPatch<?>> weapon(
             AnimationManager.AnimationAccessor<? extends StaticAnimation>[] opener,
             AnimationManager.AnimationAccessor<? extends StaticAnimation>[]... groups
     ) {
@@ -56,7 +56,7 @@ final class AvNpcCombatBehaviorBuilder {
     }
 
     @SafeVarargs
-    static Builder<MobPatch<?>> fist(
+    public static Builder<MobPatch<?>> fist(
             AnimationManager.AnimationAccessor<? extends StaticAnimation>[] opener,
             AnimationManager.AnimationAccessor<? extends StaticAnimation>[]... groups
     ) {

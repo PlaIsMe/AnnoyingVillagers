@@ -193,7 +193,7 @@ public class StevePatch extends CEHumanoidPatch implements CustomExecuteEntity {
             }
         }
 
-        CECombatBehaviors.Builder<MobPatch<?>> customOverride = MobPatchCommon.overideBowMotionBuilderForAvNpc(mainHandCap, mainHandCap.getStyle(this));
+        CECombatBehaviors.Builder<MobPatch<?>> customOverride = MobPatchCommon.overideBowMotionBuilderForNpc(mainHandCap, mainHandCap.getStyle(this));
         return customOverride != null ? customOverride : super.getCustomWeaponMotionBuilder();
     }
 

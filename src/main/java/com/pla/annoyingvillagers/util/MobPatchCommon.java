@@ -1,9 +1,15 @@
 package com.pla.annoyingvillagers.util;
 
+import com.p1nero.epicfightbow.item.EFBowItems;
 import com.pla.annoyingvillagers.combatbehaviour.*;
+import com.pla.annoyingvillagers.compat.p1nero_bow.NpcP1neroBow;
+import com.pla.annoyingvillagers.compat.p1nero_bow.NpcP1neroMortisBow;
+import com.pla.annoyingvillagers.compat.p1nero_bow.PlayerNpcP1neroBow;
+import com.pla.annoyingvillagers.compat.p1nero_bow.PlayerNpcP1neroMortisBow;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.RegistryObject;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import reascer.wom.world.item.WOMItems;
@@ -554,11 +560,36 @@ public class MobPatchCommon {
         return null;
     }
 
-    public static CECombatBehaviors.Builder<MobPatch<?>> overideBowMotionBuilderForAvNpc(CapabilityItem mainHandCap, Style style) {
-        if (mainHandCap == EpicFightCapabilities.getItemStackCapability(Items.BOW.getDefaultInstance())) {
-            return AvNpcBow.BOW;
+    public static CECombatBehaviors.Builder<MobPatch<?>> overideBowMotionBuilderForNpc(CapabilityItem mainHandCap, Style style) {
+        if (ModList.get().isLoaded("p1nero_bow")) {
+            if (mainHandCap == EpicFightCapabilities.getItemStackCapability(EFBowItems.MORTIS.get().getDefaultInstance())) {
+                return NpcP1neroMortisBow.MORTIS_BOW;
+            }
+            if (mainHandCap == EpicFightCapabilities.getItemStackCapability(Items.BOW.getDefaultInstance())) {
+                return NpcP1neroBow.BOW;
+            }
+        } else {
+            if (mainHandCap == EpicFightCapabilities.getItemStackCapability(Items.BOW.getDefaultInstance())) {
+                return NpcBow.BOW;
+            }
         }
 
+        return null;
+    }
+
+    public static CECombatBehaviors.Builder<MobPatch<?>> overideBowMotionBuilderForPlayerNpc(CapabilityItem mainHandCap, Style style) {
+        if (ModList.get().isLoaded("p1nero_bow")) {
+            if (mainHandCap == EpicFightCapabilities.getItemStackCapability(EFBowItems.MORTIS.get().getDefaultInstance())) {
+                return PlayerNpcP1neroMortisBow.MORTIS_BOW;
+            }
+            if (mainHandCap == EpicFightCapabilities.getItemStackCapability(Items.BOW.getDefaultInstance())) {
+                return PlayerNpcP1neroBow.BOW;
+            }
+        } else {
+            if (mainHandCap == EpicFightCapabilities.getItemStackCapability(Items.BOW.getDefaultInstance())) {
+                return PlayerNpcBow.BOW;
+            }
+        }
         return null;
     }
 }

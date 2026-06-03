@@ -67,3 +67,21 @@ description='''${mod_description}'''
     versionRange="[0,)"
     ordering="AFTER"
     side="BOTH"
+[[dependencies.annoyingvillagers]]
+    modId="epicfightx"
+    mandatory=true
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.annoyingvillagers]]
+    modId="dualaxes"
+    mandatory=true
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.annoyingvillagers]]
+    modId="dualgreatswords"
+    mandatory=true
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
