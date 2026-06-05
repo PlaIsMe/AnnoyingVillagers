@@ -178,7 +178,7 @@ public class AnimsEpicFightAwaken {
                         .newTimePair(0.0F, 1.0F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
         CUT_LEFT_DP_AUTO_3 = builder.nextAccessor("biped/epicfight_awaken/cut_left_dp_auto_3",
                 (animationaccessor) -> (new AttackAnimation(0.05F, animationaccessor, Armatures.BIPED,
-                        new AttackAnimation.Phase(0.5F, 0.5F, 0.5F, 0.67F, 1.43F, Float.MAX_VALUE, InteractionHand.MAIN_HAND, Armatures.BIPED.get().toolR, null)
+                        new AttackAnimation.Phase(0.0F, 0.5F, 0.5F, 0.67F, 1.43F, Float.MAX_VALUE, InteractionHand.MAIN_HAND, Armatures.BIPED.get().toolR, null)
                                 .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)))
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.2F)
                         .newTimePair(0.0F, 0.7F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
