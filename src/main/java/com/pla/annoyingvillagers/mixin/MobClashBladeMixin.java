@@ -2,12 +2,18 @@ package com.pla.annoyingvillagers.mixin;
 
 import com.pla.annoyingvillagers.animations.BowAttackAnimation;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.clazz.HookDisarmLaunch;
 import com.pla.annoyingvillagers.compat.EfKick;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.item.FlankerHookedSwordItem;
+import com.pla.annoyingvillagers.item.HookedDiamondSwordItem;
+import com.pla.annoyingvillagers.item.HookedGoldenSwordItem;
+import com.pla.annoyingvillagers.item.HookedIronSwordItem;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.EscapeUtil;
@@ -149,7 +155,45 @@ public class MobClashBladeMixin {
                                                   EntityState defenderEntityState, Entity attacker,
                                                   Entity defender, int clashBy,
                                                   CallbackInfo ci) {
-        if (!(defender.level() instanceof ServerLevel)) return;
+        if (!(defender.level() instanceof ServerLevel serverLevel)) return;
+
+        // Hook Sword
+        if (attacker instanceof LivingEntity livingAttacker && defender instanceof LivingEntity defenderLivingDefender) {
+            if (defenderLivingDefender.getMainHandItem().getItem() instanceof HookedIronSwordItem
+                    || defenderLivingDefender.getMainHandItem().getItem() instanceof HookedGoldenSwordItem
+                    || defenderLivingDefender.getMainHandItem().getItem() instanceof HookedDiamondSwordItem
+                    || defenderLivingDefender.getMainHandItem().getItem() instanceof FlankerHookedSwordItem) {
+                if (defenderDynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO1) {
+                    CommonUtil.applyHookClashDisarmLogic(
+                            defenderLivingDefender,
+                            livingAttacker,
+                            serverLevel,
+                            AnimsPugilistSteve.KNOCKDOWN_RIGHT,
+                            HookDisarmLaunch.RIGHT
+                    );
+                }
+
+                if (defenderDynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO2) {
+                    CommonUtil.applyHookClashDisarmLogic(
+                            defenderLivingDefender,
+                            livingAttacker,
+                            serverLevel,
+                            AnimsPugilistSteve.KNOCKDOWN_LEFT,
+                            HookDisarmLaunch.LEFT
+                    );
+                }
+
+                if (defenderDynamicAnimation == AnimsEpicFight.HOOK_DANCING_EDGE || defenderDynamicAnimation == AnimsWom.HOOK_HERRSCHER_UP) {
+                    CommonUtil.applyHookClashDisarmLogic(
+                            defenderLivingDefender,
+                            livingAttacker,
+                            serverLevel,
+                            AnimsPugilistSteve.GUARD_BREAK_ATTACK,
+                            HookDisarmLaunch.BACKWARD
+                    );
+                }
+            }
+        }
 
         LivingEntityPatch<?> attackerLivingEntityPatch = EpicFightCapabilities.getEntityPatch(attacker, LivingEntityPatch.class);
 

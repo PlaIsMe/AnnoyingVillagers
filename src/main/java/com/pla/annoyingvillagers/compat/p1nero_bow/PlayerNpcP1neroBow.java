@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.compat.p1nero_bow;
 
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightACG;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;

@@ -17,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.AttackAnimation;
@@ -30,55 +31,57 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 public class HookSwordEvent {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingDamage(LivingDamageEvent event) {
-        if (event.isCanceled() || event.getAmount() <= 0.0F) {
-            return;
-        }
+        if (!ModList.get().isLoaded("efclash_blade")) {
+            if (event.isCanceled() || event.getAmount() <= 0.0F) {
+                return;
+            }
 
-        LivingEntity defender = event.getEntity();
-        if (!(defender.level() instanceof ServerLevel serverLevel)) {
-            return;
-        }
+            LivingEntity defender = event.getEntity();
+            if (!(defender.level() instanceof ServerLevel serverLevel)) {
+                return;
+            }
 
-        if (!CommonUtil.isHookSword(defender.getMainHandItem())) {
-            return;
-        }
+            if (!CommonUtil.isHookSword(defender.getMainHandItem())) {
+                return;
+            }
 
-        DamageSource damageSource = event.getSource();
-        if (isIgnoredDamageSource(damageSource)) {
-            return;
-        }
+            DamageSource damageSource = event.getSource();
+            if (isIgnoredDamageSource(damageSource)) {
+                return;
+            }
 
-        LivingEntity attacker = getLivingAttacker(damageSource, defender);
-        if (attacker == null || !attacker.isAlive() || !isAttackerInFront(defender, attacker)) {
-            return;
-        }
+            LivingEntity attacker = getLivingAttacker(damageSource, defender);
+            if (attacker == null || !attacker.isAlive() || !isAttackerInFront(defender, attacker)) {
+                return;
+            }
 
-        LivingEntityPatch<?> defenderPatch =
-                EpicFightCapabilities.getEntityPatch(defender, LivingEntityPatch.class);
-        if (defenderPatch == null) {
-            return;
-        }
+            LivingEntityPatch<?> defenderPatch =
+                    EpicFightCapabilities.getEntityPatch(defender, LivingEntityPatch.class);
+            if (defenderPatch == null) {
+                return;
+            }
 
-        AnimationPlayer animationPlayer = defenderPatch.getAnimator().getPlayerFor(null);
-        if (animationPlayer == null) {
-            return;
-        }
+            AnimationPlayer animationPlayer = defenderPatch.getAnimator().getPlayerFor(null);
+            if (animationPlayer == null) {
+                return;
+            }
 
-        AssetAccessor<? extends StaticAnimation> defenderAnimation = animationPlayer.getRealAnimation();
-        if (!isValidHookClash(defenderPatch, animationPlayer, defenderAnimation)) {
-            return;
-        }
+            AssetAccessor<? extends StaticAnimation> defenderAnimation = animationPlayer.getRealAnimation();
+            if (!isValidHookClash(defenderPatch, animationPlayer, defenderAnimation)) {
+                return;
+            }
 
-        event.setAmount(0.0F);
-        event.setCanceled(true);
-        EpicfightUtil.damageBlockedForce(defender, attacker, serverLevel);
-        CommonUtil.applyHookClashDisarmLogic(
-                defender,
-                attacker,
-                serverLevel,
-                getKnockdownAnimation(defenderAnimation),
-                getLaunchDirection(defenderAnimation)
-        );
+            event.setAmount(0.0F);
+            event.setCanceled(true);
+            EpicfightUtil.damageBlockedForce(defender, attacker, serverLevel);
+            CommonUtil.applyHookClashDisarmLogic(
+                    defender,
+                    attacker,
+                    serverLevel,
+                    getKnockdownAnimation(defenderAnimation),
+                    getLaunchDirection(defenderAnimation)
+            );
+        }
     }
 
     private static boolean isValidHookClash(
