@@ -58,14 +58,17 @@ public class PlayerNpcBow {
                             .weight(40.0D)
                             .addFirstBehavior(
                                     Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .withinDistance(7.0D, 14.0D)
                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
+                                                            .custom(CombatCommon::hasClearBowShot)
                                                             .withinDistance(7.0D, 14.0D)
                                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
+                                                                            .custom(CombatCommon::hasClearBowShot)
                                                                             .withinDistance(7.0D, 14.0D)
                                                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                                             )
@@ -79,6 +82,7 @@ public class PlayerNpcBow {
                             .maxCooldown(100)
                             .addFirstBehavior(
                                     Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 14.0D)
                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_2, 0.0F)
@@ -91,12 +95,14 @@ public class PlayerNpcBow {
                             .maxCooldown(100)
                             .addFirstBehavior(
                                     Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 14.0D)
                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_3, 0.0F)
                             )
                             .addFirstBehavior(
                                     Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 14.0D)
                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_5, 0.0F)
@@ -109,12 +115,14 @@ public class PlayerNpcBow {
                             .maxCooldown(100)
                             .addFirstBehavior(
                                     Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 14.0D)
                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_3, 0.0F)
                             )
                             .addFirstBehavior(
                                     Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 14.0D)
                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_5, 0.0F)
@@ -126,16 +134,19 @@ public class PlayerNpcBow {
                             .weight(40.0D)
                             .addFirstBehavior(
                                     Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .withinDistance(7.0D, 80.0D)
                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                             .addNextBehavior(
                                                     Behavior.builder()
+                                                            .custom(CombatCommon::hasClearBowShot)
                                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                                             .withinDistance(7.0D, 80.0D)
                                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
                                                             .addNextBehavior(
                                                                     Behavior.builder()
+                                                                            .custom(CombatCommon::hasClearBowShot)
                                                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                                                             .withinDistance(7.0D, 80.0D)
                                                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_1, 0.0F)
@@ -150,6 +161,7 @@ public class PlayerNpcBow {
                             .maxCooldown(100)
                             .addFirstBehavior(
                                     Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 80.0D)
@@ -163,6 +175,7 @@ public class PlayerNpcBow {
                             .maxCooldown(100)
                             .addFirstBehavior(
                                     Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 80.0D)
@@ -170,6 +183,7 @@ public class PlayerNpcBow {
                             )
                             .addFirstBehavior(
                                     Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 80.0D)

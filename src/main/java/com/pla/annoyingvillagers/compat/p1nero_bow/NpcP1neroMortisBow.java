@@ -34,11 +34,13 @@ public class NpcP1neroMortisBow {
                             )
                             .addFirstBehavior(
                                     CECombatBehaviors.Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(0.0D, 5.0D)
                                             .animationBehavior(EFBowAnimations.ELBOW_2, 0.0F)
                                             .addNextBehavior(
                                                     CECombatBehaviors.Behavior.builder()
+                                                            .custom(CombatCommon::hasClearBowShot)
                                                             .custom(CombatCommon::isNotRiding)
                                                             .withinDistance(0.0D, 5.0D)
                                                             .animationBehavior(AnimsP1neroEpicBow.P1NERO_MOB_BOW_JUMP_ATTACK, 0.0F)
@@ -47,11 +49,13 @@ public class NpcP1neroMortisBow {
                             )
                             .addFirstBehavior(
                                     CECombatBehaviors.Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(0.0D, 5.0D)
                                             .animationBehavior(EFBowAnimations.ELBOW_3, 0.0F)
                                             .addNextBehavior(
                                                     CECombatBehaviors.Behavior.builder()
+                                                            .custom(CombatCommon::hasClearBowShot)
                                                             .custom(CombatCommon::isNotRiding)
                                                             .withinDistance(0.0D, 5.0D)
                                                             .animationBehavior(AnimsP1neroEpicBow.P1NERO_MOB_BOW_JUMP_ATTACK, 0.0F)
@@ -105,16 +109,19 @@ public class NpcP1neroMortisBow {
                             .weight(40.0D)
                             .addFirstBehavior(
                                     CECombatBehaviors.Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .withinDistance(7.0D, 14.0D)
                                             .animationBehavior(AnimsP1neroEpicBow.P1NERO_MOB_BOW_AUTO1, 0.0F)
                             )
                             .addFirstBehavior(
                                     CECombatBehaviors.Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .withinDistance(7.0D, 14.0D)
                                             .animationBehavior(AnimsP1neroEpicBow.P1NERO_MOB_BOW_AUTO2, 0.0F)
                             )
                             .addFirstBehavior(
                                     CECombatBehaviors.Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .withinDistance(7.0D, 14.0D)
                                             .animationBehavior(AnimsP1neroEpicBow.P1NERO_MOB_BOW_AUTO3, 0.0F)
                             )
@@ -126,6 +133,7 @@ public class NpcP1neroMortisBow {
                             .maxCooldown (100)
                             .addFirstBehavior(
                                     CECombatBehaviors.Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .withinDistance(7.0D, 14.0D)
                                             .animationBehavior(AnimsEpicFightACG.BOW_AUTO_2, 0.0F)
                             )
@@ -148,18 +156,21 @@ public class NpcP1neroMortisBow {
                             .weight(40.0D)
                             .addFirstBehavior(
                                     CECombatBehaviors.Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .withinDistance(7.0D, 80.0D)
                                             .animationBehavior(AnimsP1neroEpicBow.P1NERO_MOB_BOW_AUTO1, 0.0F)
                             )
                             .addFirstBehavior(
                                     CECombatBehaviors.Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .withinDistance(7.0D, 80.0D)
                                             .animationBehavior(AnimsP1neroEpicBow.P1NERO_MOB_BOW_AUTO2, 0.0F)
                             )
                             .addFirstBehavior(
                                     CECombatBehaviors.Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .withinDistance(7.0D, 80.0D)
                                             .animationBehavior(AnimsP1neroEpicBow.P1NERO_MOB_BOW_AUTO2, 0.0F)
@@ -172,6 +183,7 @@ public class NpcP1neroMortisBow {
                             .maxCooldown (100)
                             .addFirstBehavior(
                                     CECombatBehaviors.Behavior.builder()
+                                            .custom(CombatCommon::hasClearBowShot)
                                             .custom(CombatCommon::isTargetingHerobrineDragon)
                                             .custom(CombatCommon::isNotRiding)
                                             .withinDistance(7.0D, 80.0D)

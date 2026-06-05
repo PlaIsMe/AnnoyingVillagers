@@ -24,11 +24,20 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
     private static final Random RANDOM = new Random();
     private static final Map<String, List<String>> EQUIP_ITEMS = new HashMap<>();
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final float MIN_ARMOR_SET_MATCH_CHANCE = 0.30F;
+    private static final float MAX_ARMOR_SET_MATCH_CHANCE = 0.50F;
     private static final String ANNOYING_VILLAGERS = "annoyingvillagers";
     private static final String EPIC_FIGHT = "epicfight";
     private static final String MINECRAFT = "minecraft";
     private static final String WOM = "wom";
     private static final String SHIELD_ITEM_ID = "minecraft:shield";
+    private static final List<String> EQUIPMENT_SLOTS = List.of("MAINHAND", "OFFHAND", "HEAD", "CHEST", "LEGS", "FEET");
+    private static final Map<String, List<String>> ARMOR_SLOT_SUFFIXES = Map.of(
+            "HEAD", List.of("helmet"),
+            "CHEST", List.of("chestplate"),
+            "LEGS", List.of("leggings", "legging"),
+            "FEET", List.of("boots", "boot")
+    );
     private static final List<String> LONGSWORD_OFFHAND_POOL = List.of(
             avItem("diamond_longsword"),
             avItem("golden_longsword"),
@@ -162,7 +171,7 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
                 continue;
             }
 
-            for (String slot : List.of("MAINHAND", "OFFHAND", "HEAD", "CHEST", "LEGS", "FEET")) {
+            for (String slot : EQUIPMENT_SLOTS) {
                 if (!root.has(slot)) continue;
 
                 JsonArray array = root.getAsJsonArray(slot);
@@ -236,6 +245,65 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
         }
 
         return Optional.of(validItems.get(RANDOM.nextInt(validItems.size())));
+    }
+
+    private static boolean isArmorSlot(String slot) {
+        return ARMOR_SLOT_SUFFIXES.containsKey(slot);
+    }
+
+    private static boolean shouldMatchPreviousArmorSet() {
+        float chance = MIN_ARMOR_SET_MATCH_CHANCE
+                + RANDOM.nextFloat() * (MAX_ARMOR_SET_MATCH_CHANCE - MIN_ARMOR_SET_MATCH_CHANCE);
+        return RANDOM.nextFloat() < chance;
+    }
+
+    private static Optional<String> getArmorSetPrefix(String itemId) {
+        String[] parts = itemId.split(":", 2);
+        if (parts.length != 2) {
+            return Optional.empty();
+        }
+
+        String path = parts[1];
+        for (List<String> suffixes : ARMOR_SLOT_SUFFIXES.values()) {
+            for (String suffix : suffixes) {
+                String suffixPattern = "_" + suffix;
+                if (path.endsWith(suffixPattern) && path.length() > suffixPattern.length()) {
+                    return Optional.of(path.substring(0, path.length() - suffixPattern.length()));
+                }
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private static Optional<String> getMatchingArmorItem(String slot, List<String> pool, String previousArmorItemId) {
+        if (previousArmorItemId == null || !shouldMatchPreviousArmorSet()) {
+            return Optional.empty();
+        }
+
+        String[] parts = previousArmorItemId.split(":", 2);
+        if (parts.length != 2) {
+            return Optional.empty();
+        }
+
+        Optional<String> prefix = getArmorSetPrefix(previousArmorItemId);
+        if (prefix.isEmpty()) {
+            return Optional.empty();
+        }
+
+        for (String suffix : ARMOR_SLOT_SUFFIXES.getOrDefault(slot, List.of())) {
+            String candidate = parts[0] + ":" + prefix.get() + "_" + suffix;
+            if (pool.contains(candidate) && itemExists(candidate)) {
+                return Optional.of(candidate);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private static Optional<String> getArmorItemForSlot(String slot, List<String> pool, String previousArmorItemId) {
+        return getMatchingArmorItem(slot, pool, previousArmorItemId)
+                .or(() -> getRandomExistingItem(pool));
     }
 
     private static Optional<String> getBoundOffhandWeapon(ItemStack mainHandStack) {
@@ -383,8 +451,9 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
     public static List<String> getEquipCommands(float equipChanceArmor, Entity entity) {
         List<String> cmds = new ArrayList<>();
         String generatedOffhandItem = null;
+        String previousArmorItemId = null;
 
-        for (String slot : List.of("MAINHAND", "OFFHAND", "HEAD", "CHEST", "LEGS", "FEET")) {
+        for (String slot : EQUIPMENT_SLOTS) {
             List<String> pool = EQUIP_ITEMS.getOrDefault(slot, List.of());
             if (pool.isEmpty()) continue;
 
@@ -392,7 +461,11 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
             if (!alwaysEquip && RANDOM.nextFloat() > equipChanceArmor) continue;
 
             String itemId;
-            if (slot.equals("OFFHAND") && generatedOffhandItem != null) {
+            if (isArmorSlot(slot)) {
+                Optional<String> armorItem = getArmorItemForSlot(slot, pool, previousArmorItemId);
+                if (armorItem.isEmpty()) continue;
+                itemId = armorItem.get();
+            } else if (slot.equals("OFFHAND") && generatedOffhandItem != null) {
                 if (RANDOM.nextFloat() < 0.25f) {
                     itemId = generatedOffhandItem;
                 } else {
@@ -416,6 +489,9 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
             ItemStack itemStack = new ItemStack(item);
             if (slot.equals("MAINHAND")) {
                 generatedOffhandItem = getGeneratedOffhandItem(itemId, itemStack).orElse(null);
+            }
+            if (isArmorSlot(slot)) {
+                previousArmorItemId = itemId;
             }
         }
 

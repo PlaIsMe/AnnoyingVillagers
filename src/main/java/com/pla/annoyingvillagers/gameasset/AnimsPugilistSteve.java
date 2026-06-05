@@ -65,6 +65,7 @@ import java.util.Set;
 
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Bus.MOD)
 public class AnimsPugilistSteve {
+    public static AnimationManager.AnimationAccessor<StaticAnimation> LAYING_DEATH;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_STATE_TRANSFORM;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_STATE_TRANSFORM_END;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_DIE;
@@ -177,6 +178,10 @@ public class AnimsPugilistSteve {
         MultiCollider<OBBCollider> executionCollider = new MultiOBBCollider(3, 1.25F, 1.5F, 1.5F, 0.0F, 1.5F, -1.5F);
         MultiCollider<OBBCollider> executionColliderBack = new MultiOBBCollider(3, 1.25F, 1.5F, 1.5F, 0.0F, 1.5F, 1.5F);
 
+        LAYING_DEATH = builder.nextAccessor("biped/pugilist_steve/death_emote",
+                (accessor) -> new StaticAnimation(true, accessor, humanoidArmature)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, true)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, true));
         BLUE_DEMON_STATE_TRANSFORM = builder.nextAccessor("biped/pugilist_steve/blue_demon_state_transform",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
         BLUE_DEMON_STATE_TRANSFORM_END = builder.nextAccessor("biped/pugilist_steve/blue_demon_state_transform_end",

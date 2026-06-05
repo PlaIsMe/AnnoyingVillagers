@@ -55,7 +55,6 @@
     "ExecutionTaskMixin",
     "PlayerMixin",
     "MixinPIllagerRenderer",
-    "compat.epicfightx.CEHumanoidPatchMixin",
     "compat.dualgreatswords.DualGreatswordMixin",
     "compat.dualaxes.DualAxeMixin"
   ],

@@ -4,6 +4,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.pla.annoyingvillagers.clazz.IdleAnimation;
 import com.pla.annoyingvillagers.clazz.PlayerNpcTarget;
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
+import com.pla.annoyingvillagers.entity.goal.BowLineOfSightGoal;
 import com.pla.annoyingvillagers.entity.goal.BurnNearbyItemGoal;
 import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
 import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
@@ -37,6 +38,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -63,7 +65,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-public class PlayerNpcEntity extends PlayerMobEntity {
+public class PlayerNpcEntity extends PlayerMobEntity implements RangedAttackMob {
     private final SimpleContainer inventory = new SimpleContainer(27);
     private int gapCooldown = 0;
     private int enderPearlCooldown = 0;
@@ -424,9 +426,7 @@ public class PlayerNpcEntity extends PlayerMobEntity {
         this.goalSelector.addGoal(6, new PlayIdleAnimationGoal(this, new Random().nextInt(3000, 6000)));
         this.goalSelector.addGoal(7, new LockedRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(5, new OpenDoorGoal(this, true));
-        if (this.getMainHandItem().getItem() instanceof BowItem) {
-            this.goalSelector.addGoal(4, new RangedBowAttackGoal<>(this, 1.0D, 20, 48.0F));
-        }
+        this.goalSelector.addGoal(4, new BowLineOfSightGoal(this, 1.15D, 7.0D, 14.0D));
         ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
     }
 
@@ -514,6 +514,10 @@ public class PlayerNpcEntity extends PlayerMobEntity {
 
     @Override
     public void performRangedAttack(@NotNull LivingEntity pTarget, float pVelocity) {
+        if (!BowFunction.hasClearShot(this, pTarget)) {
+            return;
+        }
+
         ItemStack weaponStack = this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, this::canFireProjectileWeapon));
         ItemStack itemstack = this.getProjectile(weaponStack);
         AbstractArrow mobArrow = ProjectileUtil.getMobArrow(this, itemstack, pVelocity);

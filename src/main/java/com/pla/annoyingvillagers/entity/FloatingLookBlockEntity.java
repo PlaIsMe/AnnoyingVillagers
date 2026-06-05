@@ -26,6 +26,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -469,13 +470,7 @@ public class FloatingLookBlockEntity extends LivingEntity {
         projectile.setPos(this.getX(), this.getY(), this.getZ());
         projectile.setDamageOverride(LAUNCHED_PROJECTILE_DAMAGE);
 
-        Vec3 direction;
-
-        if (shooter != null) {
-            direction = shooter.getLookAngle();
-        } else {
-            direction = this.getDeltaMovement();
-        }
+        Vec3 direction = this.getLaunchDirection(serverLevel, shooter, projectile.position());
 
         if (direction.lengthSqr() < 1.0E-6D) {
             direction = new Vec3(0.0D, 0.1D, 1.0D);
@@ -511,6 +506,24 @@ public class FloatingLookBlockEntity extends LivingEntity {
                 1.0F,
                 0.9F + serverLevel.random.nextFloat() * 0.2F
         );
+    }
+
+    private Vec3 getLaunchDirection(ServerLevel serverLevel, @Nullable LivingEntity shooter, Vec3 projectilePos) {
+        if (shooter != null && !(shooter instanceof Player)) {
+            LivingEntity previousTarget = this.getPreviousOwnerTarget(serverLevel);
+            if (previousTarget != null && previousTarget != shooter && previousTarget != this) {
+                Vec3 direction = previousTarget.getEyePosition().subtract(projectilePos);
+                if (direction.lengthSqr() > 1.0E-6D) {
+                    return direction;
+                }
+            }
+        }
+
+        if (shooter != null) {
+            return shooter.getLookAngle();
+        }
+
+        return this.getDeltaMovement();
     }
 
     @Nullable

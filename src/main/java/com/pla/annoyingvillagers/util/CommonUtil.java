@@ -5,6 +5,12 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.HookDisarmLaunch;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.item.FlankerHookedSwordItem;
+import com.pla.annoyingvillagers.item.HookedDiamondSwordItem;
+import com.pla.annoyingvillagers.item.HookedGoldenSwordItem;
+import com.pla.annoyingvillagers.item.HookedIronSwordItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -317,6 +323,25 @@ public class CommonUtil {
         }
 
         return false;
+    }
+
+    public static boolean isHookSword(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        Item item = stack.getItem();
+        return item instanceof HookedIronSwordItem
+                || item instanceof HookedGoldenSwordItem
+                || item instanceof HookedDiamondSwordItem
+                || item instanceof FlankerHookedSwordItem;
+    }
+
+    public static boolean isHookSwordClashAnimation(AssetAccessor<? extends StaticAnimation> dynamicAnimation) {
+        return dynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO1
+                || dynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO2
+                || dynamicAnimation == AnimsEpicFight.HOOK_DANCING_EDGE
+                || dynamicAnimation == AnimsWom.HOOK_HERRSCHER_UP;
     }
 
     public static void applyHookClashDisarmLogic(

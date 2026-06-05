@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.entity.GreenVillagerGeneralEntity;
 import com.pla.annoyingvillagers.entity.PurpleVillagerGeneralEntity;
 import com.pla.annoyingvillagers.entity.RedVillagerGeneralEntity;
 import com.pla.annoyingvillagers.entity.VillagerScoutCaptainEntity;
+import com.pla.annoyingvillagers.entity.goal.BowLineOfSightGoal;
 import com.pla.annoyingvillagers.entity.goal.BurnNearbyItemGoal;
 import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
 import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
@@ -14,6 +15,7 @@ import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.task.DelayedTask;
+import com.pla.annoyingvillagers.util.BowFunction;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -27,7 +29,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -206,6 +207,10 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
                 && this.blockDamage == null
                 && !this.isHealing()
                 && this.random.nextDouble() <= this.placeBlockToParryChance;
+    }
+
+    public boolean hasPlaceBlockParryCooldown() {
+        return this.placeBlockParryCooldown > 0;
     }
 
     public void setPlaceBlockParryCooldown() {
@@ -505,9 +510,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         super.registerGoals();
         this.goalSelector.addGoal(-2, new RecoverWeaponInCombatGoal(this, 1.2D, 10.0D));
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        if (this.getMainHandItem().getItem() instanceof BowItem) {
-            this.goalSelector.addGoal(4, new RangedBowAttackGoal<>(this, 1.0D, 20, 10.0F));
-        }
+        this.goalSelector.addGoal(4, new BowLineOfSightGoal(this, 1.15D, 7.0D, 14.0D));
         this.goalSelector.addGoal(5, new BurnNearbyItemGoal(this, 1.0D, 10.0D));
         this.goalSelector.addGoal(6, new PlayIdleAnimationGoal(this, new Random().nextInt(3000, 6000)));
         this.goalSelector.addGoal(7, new LockedRandomStrollGoal(this, 1.0D));
@@ -527,6 +530,10 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     @Override
     public void performRangedAttack(@NotNull LivingEntity pTarget, float pVelocity) {
+        if (!BowFunction.hasClearShot(this, pTarget)) {
+            return;
+        }
+
         ItemStack weaponStack = this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, this::canFireProjectileWeapon));
         ItemStack itemstack = this.getProjectile(weaponStack);
         AbstractArrow mobArrow = ProjectileUtil.getMobArrow(this, itemstack, pVelocity);

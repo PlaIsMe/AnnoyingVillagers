@@ -20,7 +20,7 @@
 		"idle": "epicfight:biped/living/idle",
 		"walk": "epicfight:biped/living/walk",
 		"chase": "epicfight:biped/living/run",
-		"death": "efdancing:biped/pugilist_steve/death_emote"
+		"death": "annoyingvillagers:biped/pugilist_steve/death_emote"
 	},
 	"humanoid_weapon_motions": [
 	],

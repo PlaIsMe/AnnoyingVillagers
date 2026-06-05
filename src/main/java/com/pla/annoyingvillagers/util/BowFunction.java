@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +18,10 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class BowFunction {
@@ -33,6 +37,11 @@ public class BowFunction {
         }
 
         if (shooter instanceof Player && !BowFunction.hasArrowOrInfinity(shooter, bowStack)) {
+            return;
+        }
+
+        LivingEntity target = !(shooter instanceof Player) ? livingEntityPatch.getTarget() : null;
+        if (target != null && target.isAlive() && !hasClearShot(shooter, target)) {
             return;
         }
 
@@ -84,8 +93,6 @@ public class BowFunction {
         float arrowInaccuracy = 1.0F;
 
         if (!(shooter instanceof Player)) {
-            LivingEntity target = livingEntityPatch.getTarget();
-
             if (target != null && target.isAlive()) {
                 double distance = shooter.distanceTo(target);
 
@@ -205,5 +212,30 @@ public class BowFunction {
         boolean hasArrow = !projectile.isEmpty();
 
         return hasArrow || hasInfinity;
+    }
+
+    public static boolean hasClearShot(LivingEntity shooter, LivingEntity target) {
+        if (target == null || !target.isAlive() || shooter.level() != target.level()) {
+            return false;
+        }
+
+        return hasClearShotFrom(shooter.level(), shooter, shooter.getEyePosition(), target);
+    }
+
+    public static boolean hasClearShotFrom(Level level, Entity clipOwner, Vec3 from, LivingEntity target) {
+        if (target == null || !target.isAlive() || level != target.level()) {
+            return false;
+        }
+
+        Vec3 eye = target.getEyePosition();
+        Vec3 body = new Vec3(target.getX(), target.getY(0.5D), target.getZ());
+
+        return hasClearPath(level, clipOwner, from, eye)
+                || hasClearPath(level, clipOwner, from, body);
+    }
+
+    private static boolean hasClearPath(Level level, Entity clipOwner, Vec3 from, Vec3 to) {
+        return level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, clipOwner))
+                .getType() == HitResult.Type.MISS;
     }
 }

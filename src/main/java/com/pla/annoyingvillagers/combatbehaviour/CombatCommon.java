@@ -3,17 +3,17 @@ package com.pla.annoyingvillagers.combatbehaviour;
 import com.pla.annoyingvillagers.block.ShadowObsidianBlock;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.compat.EfKick;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.task.MobExecutionTask;
+import com.pla.annoyingvillagers.util.BowFunction;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.EscapeUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
-import com.pla.efkick.gameasset.EFKickAnimations;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -39,13 +39,17 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.fml.ModList;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
+import net.shelmarow.combat_evolution.ai.util.BehaviorUtils;
+import net.shelmarow.combat_evolution.ai.util.CEPatchUtils;
 import net.shelmarow.combat_evolution.execution.ExecutionHandler;
 import net.shelmarow.combat_evolution.execution.ExecutionTypeManager;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimation;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionHitAnimation;
 import net.shelmarow.combat_evolution.tickTask.TickTaskManager;
 import reascer.wom.gameasset.WOMAnimations;
+import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.KnockdownAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -67,6 +71,10 @@ public class CombatCommon {
     private static final int RANDOM_COMBAT_CHAIN_COUNT = 50;
     private static final int MAX_RANDOM_OPENING_STEPS = 2;
     private static final int RANDOM_FOLLOW_UP_STEPS = 3;
+    private static final double MAX_PLACE_BLOCK_GROUND_GAP = 2.0D;
+    private static final int PLACE_BLOCK_INITIAL_DELAY = 1;
+    private static final int PLACE_BLOCK_LAYER_INTERVAL = 3;
+    private static final int PLACE_BLOCK_LANE_INTERVAL = 2;
 
     public static boolean isHoldingWeapon(LivingEntity entity) {
         CapabilityItem capabilityItem = EpicFightCapabilities.getItemStackCapability(entity.getItemInHand(InteractionHand.MAIN_HAND));
@@ -217,6 +225,9 @@ public class CombatCommon {
         if (attacker instanceof AVNpc AVNpc && AVNpc.isHealing()) {
             return false;
         }
+        if (attacker instanceof AVNpc AVNpc && AVNpc.hasPlaceBlockParryCooldown()) {
+            return false;
+        }
         if (attacker instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity
                 && swordsmanHerobrineEntity.getMainHandItem().getTag() != null
                 && swordsmanHerobrineEntity.getMainHandItem().getTag().contains("SnakeAnimation")) {
@@ -250,6 +261,12 @@ public class CombatCommon {
 
     public static boolean isRiding(MobPatch<?> mobpatch) {
         return mobpatch.getOriginal().isPassenger();
+    }
+
+    public static boolean hasClearBowShot(MobPatch<?> mobpatch) {
+        Mob mob = mobpatch.getOriginal();
+        LivingEntity target = mob.getTarget();
+        return target != null && target.isAlive() && BowFunction.hasClearShot(mob, target);
     }
 
     public static boolean usesStepMoveset(MobPatch<?> mobpatch) {
@@ -506,6 +523,7 @@ public class CombatCommon {
     public static void placeRandomFrontWall(MobPatch<?> mobpatch) {
         final Mob mob = mobpatch.getOriginal();
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+        if (!isGroundWithin(mob, MAX_PLACE_BLOCK_GROUND_GAP)) return;
 
         final LivingEntity target = mob.getTarget();
         final Direction dir = (target != null)
@@ -535,9 +553,11 @@ public class CombatCommon {
             final int pattern = random.nextInt(11);
             final int rot = random.nextInt(4);
             final BiFunction<Integer, Integer, int[]> toWorld = getIntegerIntegerBiFunction(mob, rot);
+            final BlockState finalPlaceState = placeState;
 
             final BlockPos baseXZ = mob.blockPosition().relative(dir, dist);
             final int topY = Mth.floor(mob.getY() + mob.getBbHeight());
+            final int laneStartDelay = PLACE_BLOCK_INITIAL_DELAY + (dist - 1) * PLACE_BLOCK_LANE_INTERVAL;
 
             final int surfaceY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, baseXZ).getY();
             final BlockPos projXZ = new BlockPos(baseXZ.getX(), 0, baseXZ.getZ());
@@ -548,9 +568,7 @@ public class CombatCommon {
                 final BlockPos center = new BlockPos(projXZ.getX(), y, projXZ.getZ());
                 if (!serverLevel.getBlockState(center).canBeReplaced()) break;
 
-                placeIfReplaceable(serverLevel, center, placeState, mobpatch, mob);
-
-                int[][] extrasLocal = switch (pattern) {
+                final int[][] extrasLocal = switch (pattern) {
                     case 0 -> new int[][]{};
 
                     case 1 -> (layer == 3) ? new int[][]{{1, 0}} : new int[][]{};
@@ -578,14 +596,26 @@ public class CombatCommon {
                     default -> (layer == 1) ? new int[][]{{-1, 0}} : new int[][]{};
                 };
 
-                for (int[] ab : extrasLocal) {
-                    int[] dzdx = toWorld.apply(ab[0], ab[1]);
-                    int dx = dzdx[0];
-                    int dz = dzdx[1];
+                final BlockPos layerCenter = center;
+                final int delay = laneStartDelay + layer * PLACE_BLOCK_LAYER_INTERVAL;
+                new DelayedTask(delay) {
+                    @Override
+                    public void run() {
+                        if (!mob.isAlive() || !isGroundWithin(mob, MAX_PLACE_BLOCK_GROUND_GAP)) return;
+                        if (!serverLevel.getBlockState(layerCenter).canBeReplaced()) return;
 
-                    BlockPos p = center.offset(dx, 0, dz);
-                    placeIfReplaceable(serverLevel, p, placeState, mobpatch, mob);
-                }
+                        placeIfReplaceable(serverLevel, layerCenter, finalPlaceState, mob);
+
+                        for (int[] ab : extrasLocal) {
+                            int[] dzdx = toWorld.apply(ab[0], ab[1]);
+                            int dx = dzdx[0];
+                            int dz = dzdx[1];
+
+                            BlockPos p = layerCenter.offset(dx, 0, dz);
+                            placeIfReplaceable(serverLevel, p, finalPlaceState, mob);
+                        }
+                    }
+                };
             }
         }
     }
@@ -615,12 +645,13 @@ public class CombatCommon {
         return (a, b) -> new int[]{a * finalRx + b * finalFx, a * finalRz + b * finalFz};
     }
 
-    private static void placeIfReplaceable(ServerLevel level, BlockPos pos, BlockState state, MobPatch<?> mobpatch, Mob mob) {
+    private static void placeIfReplaceable(ServerLevel level, BlockPos pos, BlockState state, Mob mob) {
         if (mob instanceof HerobrineMob) {
+            mob.swing(InteractionHand.MAIN_HAND, true);
             HerobrineUtil.placeIfReplaceable(level, pos, state, mob);
         } else {
             if (!level.getBlockState(pos).canBeReplaced()) return;
-            mobpatch.playAnimationSynchronized(AVAnimations.PLACE_BLOCK, 0.0F);
+            mob.swing(InteractionHand.MAIN_HAND, true);
             mob.playSound(SoundEvents.STONE_PLACE, 2.0F, 1.0F);
             level.setBlockAndUpdate(pos, state);
         }
@@ -693,7 +724,7 @@ public class CombatCommon {
             new DelayedTask(1) {
                 @Override
                 public void run() {
-                    if (isGroundWithin(mob, 3.0)) {
+                    if (isGroundWithin(mob, MAX_PLACE_BLOCK_GROUND_GAP)) {
                         placeRandomFrontWall(mobpatch);
                     }
                 }
@@ -701,7 +732,12 @@ public class CombatCommon {
         }
     }
 
-    private static boolean isGroundWithin(Entity e, double maxGap) {
+    public static void swapToBlockAndPerformEscapeRunAway(MobPatch<?> mobpatch) {
+        swapToBlockToEscape(mobpatch);
+        performEscapeRunAway(mobpatch);
+    }
+
+    public static boolean isGroundWithin(Entity e, double maxGap) {
         Level level = e.level();
         AABB bb = e.getBoundingBox();
         double feetY = bb.minY;
@@ -898,6 +934,7 @@ public class CombatCommon {
     public static void swapToBlockToEscape(MobPatch<?> mobpatch) {
         Entity entity = mobpatch.getOriginal();
         if (entity instanceof LivingEntity livingEntity) {
+            cancelCombatEvolutionGuard(mobpatch);
             double chance = new Random().nextDouble(0.0, 1.0);
             if (chance <= 0.2) {
                 livingEntity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.COBBLESTONE));
@@ -919,6 +956,7 @@ public class CombatCommon {
     public static void swapToBlock(MobPatch<?> mobpatch) {
         LivingEntity entity = mobpatch.getOriginal();
         if (entity instanceof PlayerNpcEntity || entity instanceof AVNpc) {
+            cancelCombatEvolutionGuard(mobpatch);
             double chance = new Random().nextDouble(0.0, 1.0);
             if (chance <= 0.2) {
                 entity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.COBBLESTONE));
@@ -934,6 +972,42 @@ public class CombatCommon {
             if (entity instanceof AVNpc avNpc) {
                 avNpc.setPlaceBlockParryCooldown();
             }
+        }
+    }
+
+    public static void cancelCombatEvolutionGuard(MobPatch<?> mobpatch) {
+        LivingEntity livingEntity = mobpatch.getOriginal();
+        CECombatBehaviors.Behavior<?> currentBehavior = BehaviorUtils.getCurrentBehavior(mobpatch);
+
+        if (isCombatEvolutionGuardBehavior(currentBehavior)) {
+            BehaviorUtils.stopCurrentBehavior(livingEntity);
+        }
+
+        CEPatchUtils.setGuard(mobpatch, false);
+        CEPatchUtils.setWander(mobpatch, false);
+        CEPatchUtils.setInCounter(mobpatch, false);
+        livingEntity.stopUsingItem();
+        stopCombatEvolutionBlockAnimation(mobpatch);
+    }
+
+    private static boolean isCombatEvolutionGuardBehavior(CECombatBehaviors.Behavior<?> behavior) {
+        if (behavior == null) {
+            return false;
+        }
+
+        CECombatBehaviors.BehaviorType type = behavior.getType();
+        return type == CECombatBehaviors.BehaviorType.GUARD
+                || type == CECombatBehaviors.BehaviorType.GUARD_WANDER;
+    }
+
+    private static void stopCombatEvolutionBlockAnimation(MobPatch<?> mobpatch) {
+        AssetAccessor<? extends StaticAnimation> blockAnimation = mobpatch.getAnimator()
+                .getLivingAnimation(LivingMotions.BLOCK, Animations.SWORD_GUARD);
+
+        if (mobpatch.isLogicalClient()) {
+            mobpatch.getAnimator().stopPlaying(blockAnimation);
+        } else {
+            mobpatch.stopPlaying(blockAnimation);
         }
     }
 
@@ -1119,36 +1193,15 @@ public class CombatCommon {
     }
 
     public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] kickAnimations() {
-        return animations(
-                EFKickAnimations.KICK_1,
-                EFKickAnimations.KICK_2,
-                EFKickAnimations.KICK_3,
-                EFKickAnimations.KICK_4,
-                EFKickAnimations.KICK_C,
-                EFKickAnimations.KICK_RUSH,
-                EFKickAnimations.KICK_H
-        );
+        return ModList.get().isLoaded("efkick") ? EfKick.kickAnimations() : animations();
     }
 
     public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] fistKickAnimations() {
-        return animations(
-                EFKickAnimations.KICK_1,
-                EFKickAnimations.KICK_2,
-                EFKickAnimations.KICK_3,
-                EFKickAnimations.KICK_4,
-                EFKickAnimations.KICK_C,
-                EFKickAnimations.KICK_RUSH,
-                EFKickAnimations.KICK_COMBO
-        );
+        return ModList.get().isLoaded("efkick") ? EfKick.fistKickAnimations() : animations();
     }
 
     public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] basicKickAnimations() {
-        return animations(
-                EFKickAnimations.KICK_1,
-                EFKickAnimations.KICK_2,
-                EFKickAnimations.KICK_3,
-                EFKickAnimations.KICK_4
-        );
+        return ModList.get().isLoaded("efkick") ? EfKick.basicKickAnimations() : animations();
     }
 
     public static AnimationManager.AnimationAccessor<? extends StaticAnimation>[] rollAnimations() {

@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
 import com.pla.annoyingvillagers.gameasset.*;
-import com.pla.efkick.gameasset.EFKickAnimations;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
@@ -241,36 +240,6 @@ public class HerobrineShadowObsidianPillar {
                                             .custom(HerobrineCommon::canPlayObsidianMachine)
                                             .animationBehavior(Animations.BIPED_STEP_BACKWARD, 0.0F)
                                             .addExBehavior(HerobrineCommon::performObsidianMachine)
-                            )
-            )
-            .newBehaviorRoot(
-                    BehaviorRoot.builder()
-                            .priority(1.0D)
-                            .weight(2.0D)
-                            .maxCooldown(100)
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(EFKickAnimations.KICK_1, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(EFKickAnimations.KICK_2, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(EFKickAnimations.KICK_3, 0.0F)
-                            )
-                            .addFirstBehavior(
-                                    Behavior.builder()
-                                            .custom(CombatCommon::canPerformNormalAttackLogic)
-                                            .withinDistance(0.0D, 5.0D)
-                                            .animationBehavior(EFKickAnimations.KICK_4, 0.0F)
                             )
             )
             .newBehaviorRoot(CombatBehaviourTemplates.guardRoot(HerobrineCommon::canPerformGuarding))

@@ -1,18 +1,19 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.clazz.IdleAnimation;
+import com.pla.annoyingvillagers.compat.EfDancing;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.JevEntity;
 import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.clazz.IdleAnimation;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
-import com.pla.efdancing.gameasset.EFDancingAnimations;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraftforge.fml.ModList;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
@@ -62,6 +63,7 @@ public class PlayIdleAnimationGoal extends Goal {
 
     @Override
     public boolean canUse() {
+        if (!ModList.get().isLoaded("efdancing")) return false;
         if (mob.level().isClientSide) return false;
         if (mob instanceof JevEntity) return false;
         if (mob.tickCount <= 30) return false;
@@ -97,6 +99,7 @@ public class PlayIdleAnimationGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
+        if (!ModList.get().isLoaded("efdancing")) return false;
         if (mob.level().isClientSide) return false;
         if (mob instanceof JevEntity) return false;
         if (mob.tickCount <= 30) return false;
@@ -132,6 +135,7 @@ public class PlayIdleAnimationGoal extends Goal {
 
     @Override
     public void start() {
+        if (!ModList.get().isLoaded("efdancing")) return;
         if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return;
         ticksLeft = minDurationTicks;
 
@@ -183,6 +187,10 @@ public class PlayIdleAnimationGoal extends Goal {
 
     @Override
     public void tick() {
+        if (!ModList.get().isLoaded("efdancing")) {
+            ticksLeft = 0;
+            return;
+        }
         if (mob.getTarget() != null || mob.getNavigation().isInProgress() || !mob.onGround()) {
             ticksLeft = 0;
             return;
@@ -261,26 +269,7 @@ public class PlayIdleAnimationGoal extends Goal {
     }
 
     private AssetAccessor<? extends StaticAnimation> resolveAnimation(IdleAnimation idle) {
-        return switch (idle) {
-            case PUSH_UP -> EFDancingAnimations.PUSH_UP_EMOTE;
-            case LAY -> EFDancingAnimations.LAY_EMOTE;
-            case SLEEP -> EFDancingAnimations.DEATH_EMOTE;
-            case SIT -> EFDancingAnimations.SIT_EMOTE;
-            case FUN_SIT -> EFDancingAnimations.FUNNY_EMOTE;
-            case SLIGHT -> EFDancingAnimations.SLIGHT_EMOTE;
-            case LAY_RELAX_EMOTE -> EFDancingAnimations.LAY_RELAX_EMOTE;
-            case ONE_ARM_LAY_EMOTE -> EFDancingAnimations.ONE_ARM_LAY_EMOTE;
-            case SALUTE_LEFT_HAND_EMOTE -> EFDancingAnimations.SALUTE_LEFT_HAND_EMOTE;
-            case SIT_NO_WEAPON_EMOTE -> EFDancingAnimations.SIT_NO_WEAPON_EMOTE;
-            case SORROW_EMOTE -> EFDancingAnimations.SORROW_EMOTE;
-            case SURRENDER_EMOTE -> EFDancingAnimations.SURRENDER_EMOTE;
-            case ATTENTION_EMOTE -> EFDancingAnimations.ATTENTION_EMOTE;
-            case FLAPPING_EMOTE -> EFDancingAnimations.FLAPPING_EMOTE;
-            case FUN_JUMP_EMOTE -> EFDancingAnimations.FUN_JUMP_EMOTE;
-            case JUMP_EMOTE -> EFDancingAnimations.JUMP_EMOTE;
-            case PRONE_EMOTE -> EFDancingAnimations.PRONE_EMOTE;
-            case SALUTE_EMOTE -> EFDancingAnimations.SALUTE_EMOTE;
-        };
+        return EfDancing.resolveIdleAnimation(idle);
     }
 
     private void tryBroadcastIdleMessage(IdleAnimation idle) {

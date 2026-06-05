@@ -70,6 +70,9 @@ import yesman.epicfight.world.damagesource.StunType;
 import java.util.Random;
 
 public class ObsidianSledgehammerProjectileEntity extends PathfinderMob {
+    private static final int MAX_LIFETIME_TICKS = 20 * 8;
+    private static final double meteoriteTrailStartDistanceSquared = 4.0D;
+
     private Vec3 posToAim;
     private LivingEntity owner;
 
@@ -81,7 +84,6 @@ public class ObsidianSledgehammerProjectileEntity extends PathfinderMob {
     private boolean shouldStun = false;
 
     private boolean meteoriteTrailEnabled = false;
-    private static final double meteoriteTrailStartDistanceSquared = 4.0D;
 
     public void setPosToAim(@Nullable Vec3 pos) {
         this.posToAim = pos;
@@ -109,7 +111,6 @@ public class ObsidianSledgehammerProjectileEntity extends PathfinderMob {
         this.setMaxUpStep(0.6F);
         this.xpReward = 0;
         this.setNoAi(false);
-        this.setPersistenceRequired();
     }
 
     @Override
@@ -148,6 +149,11 @@ public class ObsidianSledgehammerProjectileEntity extends PathfinderMob {
     }
 
     public boolean removeWhenFarAway(double d0) {
+        return false;
+    }
+
+    @Override
+    public boolean shouldBeSaved() {
         return false;
     }
 
@@ -275,6 +281,11 @@ public class ObsidianSledgehammerProjectileEntity extends PathfinderMob {
     public void baseTick() {
         super.baseTick();
         if (this.level() instanceof ServerLevel serverLevel) {
+            if (this.tickCount > MAX_LIFETIME_TICKS || !serverLevel.hasChunkAt(this.blockPosition())) {
+                this.discard();
+                return;
+            }
+
             double d0 = this.getX();
             double d1 = this.getY();
             double d2 = this.getZ();
@@ -311,6 +322,11 @@ public class ObsidianSledgehammerProjectileEntity extends PathfinderMob {
 
             Vec3 start = this.position();
             Vec3 end = start.add(xd, yd, zd);
+
+            if (!serverLevel.hasChunkAt(BlockPos.containing(end))) {
+                this.discard();
+                return;
+            }
 
             EntityHitResult entityHitResult = findEntityHit(serverLevel, start, end);
             if (entityHitResult != null) {
