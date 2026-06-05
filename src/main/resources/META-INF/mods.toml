@@ -51,19 +51,19 @@ description='''${mod_description}'''
     side="BOTH"
 [[dependencies.annoyingvillagers]]
     modId="epicfightx"
-    mandatory=true
+    mandatory=false
     versionRange="[0,)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.annoyingvillagers]]
     modId="dualaxes"
-    mandatory=true
+    mandatory=false
     versionRange="[0,)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.annoyingvillagers]]
     modId="dualgreatswords"
-    mandatory=true
+    mandatory=false
     versionRange="[0,)"
     ordering="AFTER"
     side="BOTH"
