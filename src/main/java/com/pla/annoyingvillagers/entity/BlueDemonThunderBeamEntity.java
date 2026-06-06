@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.client.engine.PhotonClientFxUtil;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.AAAParticlesUtil;
@@ -304,7 +305,15 @@ public class BlueDemonThunderBeamEntity extends Entity {
 
         if (level().isClientSide && !renderBeam && tickCount >= 2) {
             renderBeam = true;
-            if (ModList.get().isLoaded("aaa_particles")) {
+            if (ModList.get().isLoaded("photon")) {
+                PhotonClientFxUtil.updateBeam(
+                        "blue_demon_thunder_beam:" + getId(),
+                        level(),
+                        "bluedemonbeam",
+                        start,
+                        end,
+                        getDuration() + 5);
+            } else if (ModList.get().isLoaded("aaa_particles")) {
                 AAAParticlesUtil.sendBlueDemonThunderBeam(level(), this);
             } else {
                 setUseNoVfxThunder(true);

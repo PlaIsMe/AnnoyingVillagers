@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.client.engine.PhotonClientFxUtil;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -238,7 +239,9 @@ public class DragonBeamEntity extends Entity {
             this.blockSide = result.blockHit.getDirection();
 
             if (world.isClientSide) {
-                if (ModList.get().isLoaded("aaa_particles")) {
+                if (PhotonClientFxUtil.spawnAt(world, "dragonhitfire", hitVec)) {
+                    // Photon handled the impact effect.
+                } else if (ModList.get().isLoaded("aaa_particles")) {
                     AAAParticlesUtil.sendDragonBeamHit(world, hitBlock);
                 } else {
                     world.addParticle(
@@ -320,6 +323,18 @@ public class DragonBeamEntity extends Entity {
 
     public boolean isRenderable() {
         return (this.target != null && this.target.isAlive()) || this.targetPos != null;
+    }
+
+    private Vec3 getBeamStopPos() {
+        if (this.target != null && this.target.isAlive()) {
+            return this.target.getEyePosition(1.0F);
+        }
+
+        if (this.targetPos != null) {
+            return this.targetPos;
+        }
+
+        return new Vec3(this.endPosX, this.endPosY, this.endPosZ);
     }
 
     public void push(@NotNull Entity entityIn) {
@@ -457,7 +472,18 @@ public class DragonBeamEntity extends Entity {
 
         if (this.level().isClientSide) {
             if (this.isRenderable() && !renderBeam) {
-                if (ModList.get().isLoaded("aaa_particles")) {
+                if (ModList.get().isLoaded("photon")) {
+                    if (this.tickCount >= 3) {
+                        renderBeam = true;
+                        PhotonClientFxUtil.updateBeam(
+                                "dragon_beam:" + getId(),
+                                this.level(),
+                                "dragonbeam",
+                                this.caster.beamMouthPos(1.0F),
+                                getBeamStopPos(),
+                                getDuration() + 5);
+                    }
+                } else if (ModList.get().isLoaded("aaa_particles")) {
                     if (this.tickCount >= 3) {
                         renderBeam = true;
                         AAAParticlesUtil.sendDragonBeam(caster.beamMouthPos(1.0F), target.getEyePosition(1.0F), this.level(), caster, target);

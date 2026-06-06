@@ -320,7 +320,9 @@ public final class ClientPacketHandlers {
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        if (ModList.get().isLoaded("aaa_particles")) {
+        if (PhotonClientFxUtil.spawnDirectional(level, "av_explodepurpur", msg.from(), msg.to(), true)) {
+            // Photon handled this effect; sound still plays below.
+        } else if (ModList.get().isLoaded("aaa_particles")) {
             AAAParticlesUtil.sendEnderGlaiveExplosion(msg.from(), msg.to(), level);
         } else {
             Vec3 center = msg.to();
@@ -371,7 +373,9 @@ public final class ClientPacketHandlers {
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        if (ModList.get().isLoaded("aaa_particles")) {
+        if (PhotonClientFxUtil.spawnAt(level, "whoopiewind", msg.from())) {
+            // Photon handled this effect; sound still plays below.
+        } else if (ModList.get().isLoaded("aaa_particles")) {
             AAAParticlesUtil.sendWoopieWind(level, msg.from().x, msg.from().y, msg.from().z);
         } else {
             RandomSource rand = level.getRandom();
@@ -429,8 +433,22 @@ public final class ClientPacketHandlers {
         if (level == null) {
             return;
         }
+        Entity entity = level.getEntity(msg.entityId());
+        if (entity != null && PhotonClientFxUtil.followPosition(
+                "blackfire:" + msg.entityId(),
+                level,
+                "blackfire",
+                () -> {
+                    Entity current = level.getEntity(msg.entityId());
+                    return current == null || !current.isAlive() || current.isRemoved()
+                            ? null
+                            : getBlackFireFallbackPosition(current);
+                },
+                60)) {
+            return;
+        }
+
         if (ModList.get().isLoaded("aaa_particles")) {
-            Entity entity = level.getEntity(msg.entityId());
             AAAParticlesUtil.sendBlackFire(level, entity);
         } else {
             startBlackFireFallback(level, msg.entityId());
@@ -444,11 +462,14 @@ public final class ClientPacketHandlers {
             return;
         }
 
+        Entity entity = level.getEntity(msg.entityId());
+        if (entity != null && PhotonClientFxUtil.spawnAt(level, "av_attractor", getSwordOrBodyPosition(entity))) {
+            return;
+        }
+
         if (ModList.get().isLoaded("aaa_particles")) {
-            Entity entity = level.getEntity(msg.entityId());
             AAAParticlesUtil.sendDiamondAttractor(level, entity);
         } else {
-            Entity entity = level.getEntity(msg.entityId());
             spawnDiamondAttractorFallback(level, entity);
         }
     }

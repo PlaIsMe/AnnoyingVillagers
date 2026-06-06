@@ -66,6 +66,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import reascer.wom.world.entity.mob.EnderHand;
@@ -338,7 +339,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         double baseForward = Math.max(1.0, this.getBbWidth() * 0.7);
 
         boolean hasPlayerRider = this.getFirstPassenger() instanceof Player;
-        double extraUp = (hasPlayerRider ? 1.0 : 4.0) * this.getScale();
+        double extraUp = (hasPlayerRider || ModList.get().isLoaded("photon") ? 1.0 : 4.0) * this.getScale();
         double extraForward = 5.2 * this.getScale();
 
         double forward = baseForward + extraForward;
