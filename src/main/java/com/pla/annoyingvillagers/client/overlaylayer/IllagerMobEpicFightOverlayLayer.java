@@ -4,28 +4,26 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.potion.ObedienceMobEffect;
-import net.minecraft.client.model.IllagerModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.AbstractIllager;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.patched.layer.ModelRenderLayer;
-import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-public class IllagerMobEpicFightOverlayLayer<E extends AbstractIllager, T extends MobPatch<E>>
-        extends ModelRenderLayer<
-        E,
-        T,
-        IllagerModel<E>,
-        RenderLayer<E, IllagerModel<E>>,
-        HumanoidMesh
-        > {
+public class IllagerMobEpicFightOverlayLayer<
+        E extends LivingEntity,
+        T extends LivingEntityPatch<E>,
+        M extends EntityModel<E>,
+        R extends RenderLayer<E, M>> extends ModelRenderLayer<E, T, M, R, HumanoidMesh> {
 
     private static final ResourceLocation ILLAGER_EYES =
             ResourceLocation.fromNamespaceAndPath(
@@ -39,7 +37,8 @@ public class IllagerMobEpicFightOverlayLayer<E extends AbstractIllager, T extend
 
     @Nullable
     private ResourceLocation pickTexture(E entity) {
-        if (ObedienceMobEffect.canBeObedientMob(entity)
+        if (entity instanceof AbstractIllager
+                && ObedienceMobEffect.canBeObedientMob(entity)
                 && entity.hasEffect(AnnoyingVillagersModMobEffects.OBEDIENCE.get())) {
             return ILLAGER_EYES;
         }
@@ -51,7 +50,7 @@ public class IllagerMobEpicFightOverlayLayer<E extends AbstractIllager, T extend
     protected void renderLayer(
             T entityPatch,
             E entity,
-            @Nullable RenderLayer<E, IllagerModel<E>> vanillaLayer,
+            @Nullable R vanillaLayer,
             PoseStack poseStack,
             MultiBufferSource buffer,
             int packedLight,
