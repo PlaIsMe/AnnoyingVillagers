@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.client.engine;
 
 import com.pla.annoyingvillagers.event.NoVfxPortalEvent;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlackFireSwordItem;
 import com.pla.annoyingvillagers.item.EnderGlaiveItem;
@@ -43,6 +44,39 @@ public final class ClientPacketHandlers {
         level.addParticle(particle, true, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
     }
 
+    private static void spawnSpreadParticle(Level level, ParticleOptions particle, Vec3 center, RandomSource rand,
+                                            double xOffset, double yOffset, double zOffset, double speed) {
+        Vec3 pos = center.add(
+                (rand.nextDouble() * 2.0D - 1.0D) * xOffset,
+                (rand.nextDouble() * 2.0D - 1.0D) * yOffset,
+                (rand.nextDouble() * 2.0D - 1.0D) * zOffset);
+        Vec3 velocity = speed == 0.0D ? Vec3.ZERO : randomUnit(rand).scale(speed);
+        spawnParticle(level, particle, pos, velocity);
+    }
+
+    private static Vec3 randomRaisedSpread(Vec3 center, RandomSource rand,
+                                           double xOffset, double minYOffset, double maxYOffset, double zOffset) {
+        return center.add(
+                (rand.nextDouble() * 2.0D - 1.0D) * xOffset,
+                minYOffset + rand.nextDouble() * Math.max(0.0D, maxYOffset - minYOffset),
+                (rand.nextDouble() * 2.0D - 1.0D) * zOffset);
+    }
+
+    private static String pulseKey(String prefix, int entityId, int tickCount, String suffix) {
+        return prefix + ":" + entityId + ":" + tickCount + suffix;
+    }
+
+    private static boolean followPhotonEntity(Level level, String effectPath, String key, Entity entity,
+                                              Vec3 offset, int lifetimeTicks) {
+        if (entity == null || entity.isRemoved()) {
+            return false;
+        }
+
+        Vec3 fixedOffset = offset == null ? Vec3.ZERO : offset;
+        return PhotonClientFxUtil.followPosition(key, level, effectPath,
+                () -> entity.isRemoved() ? null : entity.position().add(fixedOffset), lifetimeTicks);
+    }
+
     public static void handleGlaiveExplosion(ClientboundGlaiveExplosionFx msg) {
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
@@ -69,21 +103,117 @@ public final class ClientPacketHandlers {
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        if (ModList.get().isLoaded("aaa_particles")) {
+        if (PhotonClientFxUtil.spawnAt(level, "normalsummoning",
+                msg.from().add(0.0D, 1.0D, 0.0D))) {
+            // Photon handled this effect.
+        } else if (ModList.get().isLoaded("aaa_particles")) {
             AAAParticlesUtil.sendHerobrinePortal(level, msg.from().x, msg.from().y, msg.from().z);
         } else {
             NoVfxPortalEvent.spawn(msg.from(), 60);
         }
     }
 
-    public static void handleHerobrineAssistanceFx(ClientboundHerobrineAssistancelFx msg) {
+    public static void handleHerobrineAssistanceFx(ClientboundHerobrineAssistanceFx msg) {
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        if (ModList.get().isLoaded("aaa_particles")) {
+        if (PhotonClientFxUtil.spawnAt(level, "requestingassistance", msg.from())) {
+            // Photon handled this effect.
+        } else if (ModList.get().isLoaded("aaa_particles")) {
             AAAParticlesUtil.sendHerobrineAssistance(level, msg.from().x, msg.from().y, msg.from().z);
         } else {
             HerobrineUtil.startHerobrineAssistanceFallback(level, msg.from());
+        }
+    }
+
+    public static void handleEnderAegisSparkFx(ClientboundEnderAegisSparkFx msg) {
+        Level level = Minecraft.getInstance().level;
+        if (level == null) return;
+
+        if (PhotonClientFxUtil.spawnDirectional(level, "aegissparks", msg.from(), msg.to(), false)) {
+            return;
+        }
+
+        RandomSource rand = level.getRandom();
+        for (int i = 0; i < 300; i++) {
+            Vec3 velocity = randomUnit(rand).scale(0.02D + rand.nextDouble() * 0.20D);
+            spawnParticle(level, AnnoyingVillagersModParticleTypes.SPARK.get(), msg.to(), velocity);
+        }
+    }
+
+    public static void handleEliteHerobrineFx(ClientboundEliteHerobrineFx msg) {
+        Level level = Minecraft.getInstance().level;
+        if (level == null) return;
+
+        RandomSource rand = level.getRandom();
+        if (PhotonClientFxUtil.isLoaded()) {
+            if (msg.tickCount() % 10 != 0) {
+                return;
+            }
+
+            Entity entity = level.getEntity(msg.entityId());
+            Vec3 mainOffset = randomRaisedSpread(Vec3.ZERO, rand, 0.4D, 0.65D, 1.6D, 0.4D);
+            boolean handled = followPhotonEntity(level, "reaverlightning",
+                    pulseKey("elite-herobrine", msg.entityId(), msg.tickCount(), ":main"),
+                    entity, mainOffset, 22);
+            if (!handled) {
+                handled = PhotonClientFxUtil.spawnAt(level, "reaverlightning", msg.pos().add(mainOffset));
+            }
+
+            if (msg.extraParticle()) {
+                Vec3 extraOffset = randomRaisedSpread(Vec3.ZERO, rand, 0.45D, 0.75D, 2.0D, 0.3D);
+                boolean extraHandled = followPhotonEntity(level, "reaverlightning",
+                        pulseKey("elite-herobrine", msg.entityId(), msg.tickCount(), ":extra"),
+                        entity, extraOffset, 22);
+                if (!extraHandled) {
+                    extraHandled = PhotonClientFxUtil.spawnAt(level, "reaverlightning", msg.pos().add(extraOffset));
+                }
+
+                handled = handled || extraHandled;
+            }
+
+            if (handled) {
+                return;
+            }
+        }
+
+        spawnSpreadParticle(level, AnnoyingVillagersModParticleTypes.PE.get(), msg.pos(), rand, 0.4D, 1.1D, 0.4D, 0.0D);
+        if (msg.extraParticle()) {
+            spawnSpreadParticle(level, AnnoyingVillagersModParticleTypes.PE.get(), msg.pos(), rand, 0.45D, 1.5D, 0.3D, 0.0D);
+        }
+    }
+
+    public static void handleBlueDemonEffectFx(ClientboundBlueDemonEffectFx msg) {
+        Level level = Minecraft.getInstance().level;
+        if (level == null) return;
+
+        if (PhotonClientFxUtil.isLoaded()) {
+            boolean handled;
+            if (msg.followEntity()) {
+                if (msg.tickCount() % 10 != 0) {
+                    return;
+                }
+
+                handled = followPhotonEntity(level, "bluedemonlightning",
+                        pulseKey("blue-demon-chestplate", msg.entityId(), msg.tickCount(), ""),
+                        level.getEntity(msg.entityId()), Vec3.ZERO, 22);
+                if (!handled) {
+                    handled = PhotonClientFxUtil.spawnAt(level, "bluedemonlightning", msg.pos());
+                }
+            } else {
+                handled = PhotonClientFxUtil.spawnAt(level, "bluedemonlightning", msg.pos());
+            }
+
+            if (handled) {
+                return;
+            }
+        }
+
+        RandomSource rand = level.getRandom();
+        int count = Math.max(1, msg.count());
+        for (int i = 0; i < count; i++) {
+            spawnSpreadParticle(level, AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(), msg.pos(), rand,
+                    msg.xOffset(), msg.yOffset(), msg.zOffset(), msg.speed());
         }
     }
 

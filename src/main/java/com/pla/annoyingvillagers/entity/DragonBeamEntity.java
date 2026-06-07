@@ -377,12 +377,17 @@ public class DragonBeamEntity extends Entity {
     }
 
     private Vec3 getPhotonBeamEnd(float partialTicks) {
-        if (this.target != null && this.target.isAlive()) {
-            return this.target.getEyePosition(partialTicks);
+        Vec3 start = this.getPhotonBeamStart(partialTicks);
+        Vec3 fullEnd = new Vec3(this.endPosX, this.endPosY, this.endPosZ);
+
+        if (start != null) {
+            BlockHitResult hit = this.level().clip(new ClipContext(start, fullEnd, Block.COLLIDER, Fluid.NONE, this));
+            if (hit.getType() == Type.BLOCK) {
+                return hit.getLocation();
+            }
         }
 
-        Vec3 storedTargetPos = this.getStoredTargetPos();
-        return storedTargetPos != null ? storedTargetPos : getBeamStopPos();
+        return fullEnd;
     }
 
     private boolean isPhotonBeamAlive() {

@@ -13,13 +13,13 @@ import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.spawnhandler.BluedemonData;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
+import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import com.pla.annoyingvillagers.util.CommonGoals;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.TeamUtil;
@@ -1246,13 +1246,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         ));
 
         if (serverLevel.random.nextDouble() <= 0.1D) {
-            serverLevel.sendParticles(
-                    AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(),
-                    this.getX(), this.getY(), this.getZ(),
-                    1,
-                    0.3D, 1.2D, 0.3D,
-                    0.0D
-            );
+            BlueDemonUtil.spawnBlueDemonEffect(serverLevel, this);
 
             if (serverLevel.random.nextDouble() <= 0.8D) {
                 float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);

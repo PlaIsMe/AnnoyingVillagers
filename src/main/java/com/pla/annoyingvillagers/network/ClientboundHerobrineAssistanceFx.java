@@ -9,20 +9,20 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public record ClientboundHerobrineAssistancelFx(Vec3 from) {
+public record ClientboundHerobrineAssistanceFx(Vec3 from) {
 
-    public static void encode(ClientboundHerobrineAssistancelFx msg, FriendlyByteBuf buf) {
+    public static void encode(ClientboundHerobrineAssistanceFx msg, FriendlyByteBuf buf) {
         buf.writeDouble(msg.from.x);
         buf.writeDouble(msg.from.y);
         buf.writeDouble(msg.from.z);
     }
 
-    public static ClientboundHerobrineAssistancelFx decode(FriendlyByteBuf buf) {
+    public static ClientboundHerobrineAssistanceFx decode(FriendlyByteBuf buf) {
         Vec3 f = new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
-        return new ClientboundHerobrineAssistancelFx(f);
+        return new ClientboundHerobrineAssistanceFx(f);
     }
 
-    public static void handle(ClientboundHerobrineAssistancelFx msg, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(ClientboundHerobrineAssistanceFx msg, Supplier<NetworkEvent.Context> ctx) {
         NetworkEvent.Context c = ctx.get();
         c.enqueueWork(() -> {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.handleHerobrineAssistanceFx(msg));

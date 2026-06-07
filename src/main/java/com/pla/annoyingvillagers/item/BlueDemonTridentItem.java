@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.entity.ElectricAreaEntity;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -587,13 +588,7 @@ public class BlueDemonTridentItem extends SwordItem {
                         double d1 = entity.getY();
                         double d2 = entity.getZ();
                         if (Math.random() <= 0.1D) {
-                            serverLevel.sendParticles(
-                                    AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(),
-                                    entity.getX(), entity.getY(), entity.getZ(),
-                                    1,
-                                    0.3D, 1.2D, 0.3D,
-                                    0.0D
-                            );
+                            BlueDemonUtil.spawnBlueDemonEffect(serverLevel, entity);
 
                             if (serverLevel.random.nextDouble() <= 0.8D) {
                                 float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);

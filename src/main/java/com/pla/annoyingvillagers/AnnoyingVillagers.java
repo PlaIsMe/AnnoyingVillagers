@@ -145,10 +145,28 @@ public class AnnoyingVillagers {
                     ClientboundDiamondAttractorFx::handle
             );
             AnnoyingVillagers.addNetworkMessage(
-                    ClientboundHerobrineAssistancelFx.class,
-                    ClientboundHerobrineAssistancelFx::encode,
-                    ClientboundHerobrineAssistancelFx::decode,
-                    ClientboundHerobrineAssistancelFx::handle
+                    ClientboundHerobrineAssistanceFx.class,
+                    ClientboundHerobrineAssistanceFx::encode,
+                    ClientboundHerobrineAssistanceFx::decode,
+                    ClientboundHerobrineAssistanceFx::handle
+            );
+            AnnoyingVillagers.addNetworkMessage(
+                    ClientboundEnderAegisSparkFx.class,
+                    ClientboundEnderAegisSparkFx::encode,
+                    ClientboundEnderAegisSparkFx::decode,
+                    ClientboundEnderAegisSparkFx::handle
+            );
+            AnnoyingVillagers.addNetworkMessage(
+                    ClientboundEliteHerobrineFx.class,
+                    ClientboundEliteHerobrineFx::encode,
+                    ClientboundEliteHerobrineFx::decode,
+                    ClientboundEliteHerobrineFx::handle
+            );
+            AnnoyingVillagers.addNetworkMessage(
+                    ClientboundBlueDemonEffectFx.class,
+                    ClientboundBlueDemonEffectFx::encode,
+                    ClientboundBlueDemonEffectFx::decode,
+                    ClientboundBlueDemonEffectFx::handle
             );
         }
     }

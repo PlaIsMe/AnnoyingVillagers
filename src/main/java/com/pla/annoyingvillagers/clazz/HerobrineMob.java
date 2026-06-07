@@ -14,7 +14,7 @@ import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.*;
-import com.pla.annoyingvillagers.network.ClientboundHerobrineAssistancelFx;
+import com.pla.annoyingvillagers.network.ClientboundHerobrineAssistanceFx;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.task.DelayedTask;
@@ -1130,7 +1130,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 }
                 AnnoyingVillagers.PACKET_HANDLER.send(
                         PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this),
-                        new ClientboundHerobrineAssistancelFx(new Vec3(this.getX(), this.getY(), this.getZ()))
+                        new ClientboundHerobrineAssistanceFx(new Vec3(this.getX(), this.getY(), this.getZ()))
                 );
                 if (this.level() instanceof ServerLevel) {
                     this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);;

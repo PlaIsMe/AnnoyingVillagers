@@ -272,13 +272,7 @@ public class AVAnimations {
                             );
                             if (jointVec == null) return;
 
-                            serverLevel.sendParticles(
-                                    AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(),
-                                    jointVec.x, jointVec.y, jointVec.z,
-                                    1,
-                                    0.0D, 0.0D, 0.0D,
-                                    0.0D
-                            );
+                            BlueDemonUtil.spawnBlueDemonEffect(serverLevel, livingEntity, jointVec, 1, 0.0D, 0.0D, 0.0D, 0.0D);
 
                             float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
                             float pitch = (float) Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
@@ -306,13 +300,7 @@ public class AVAnimations {
                             );
                             if (jointVec == null) return;
 
-                            serverLevel.sendParticles(
-                                    AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(),
-                                    jointVec.x, jointVec.y, jointVec.z,
-                                    1,
-                                    0.0D, 0.0D, 0.0D,
-                                    0.0D
-                            );
+                            BlueDemonUtil.spawnBlueDemonEffect(serverLevel, livingEntity, jointVec, 1, 0.0D, 0.0D, 0.0D, 0.0D);
 
                             float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
                             float pitch = (float) Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
@@ -340,13 +328,7 @@ public class AVAnimations {
                             );
                             if (jointVec == null) return;
 
-                            serverLevel.sendParticles(
-                                    AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(),
-                                    jointVec.x, jointVec.y, jointVec.z,
-                                    1,
-                                    0.0D, 0.0D, 0.0D,
-                                    0.0D
-                            );
+                            BlueDemonUtil.spawnBlueDemonEffect(serverLevel, livingEntity, jointVec, 1, 0.0D, 0.0D, 0.0D, 0.0D);
 
                             float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
                             float pitch = (float) Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);

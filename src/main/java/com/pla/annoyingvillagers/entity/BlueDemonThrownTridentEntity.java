@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
+import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -1189,13 +1190,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
     private void tickElectricEffects() {
         if (this.level() instanceof ServerLevel serverLevel && this.tickCount % 5 == 0) {
             if (Math.random() <= 0.1D) {
-                serverLevel.sendParticles(
-                        AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(),
-                        this.getX(), this.getY(), this.getZ(),
-                        1,
-                        0.3D, 1.2D, 0.3D,
-                        0.0D
-                );
+                BlueDemonUtil.spawnBlueDemonEffect(serverLevel, this);
 
                 if (serverLevel.random.nextDouble() <= 0.8D) {
                     float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);

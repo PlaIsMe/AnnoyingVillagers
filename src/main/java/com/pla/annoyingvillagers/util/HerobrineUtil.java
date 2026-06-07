@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.clazz.ProjectileBreakableBlocks;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.*;
+import com.pla.annoyingvillagers.network.ClientboundEliteHerobrineFx;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -46,6 +47,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.PacketDistributor;
 import se.gory_moon.player_mobs.entity.PlayerMobEntity;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -437,23 +439,15 @@ public class HerobrineUtil {
     public static void spawnEliteEffect(Level level, double x, double y, double z, Entity entity) {
         if (entity != null && level instanceof ServerLevel serverLevel) {
             if (Math.random() <= 0.3D) {
-                serverLevel.sendParticles(
-                        AnnoyingVillagersModParticleTypes.PE.get(),
-                        x, y, z,
-                        1,
-                        0.4D, 1.1D, 0.4D,
-                        0.0D
+                boolean extraParticle = Math.random() <= 0.87D;
+                AnnoyingVillagers.PACKET_HANDLER.send(
+                        PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity),
+                        new ClientboundEliteHerobrineFx(entity.getId(), entity.tickCount, new Vec3(x, y, z), extraParticle)
                 );
-                if (Math.random() <= 0.87D) {
-                    serverLevel.sendParticles(
-                            AnnoyingVillagersModParticleTypes.PE.get(),
-                            x, y, z,
-                            1,
-                            0.45D, 1.5D, 0.3D,
-                            0.0D
-                    );
+
+                if (extraParticle) {
                     serverLevel.playSound(
-                            null
+                                null
                             , x, y, z, AnnoyingVillagersModSounds.ELECTRIFY.get(),
                             SoundSource.NEUTRAL,
                             new Random().nextFloat(0.05F, 0.4F),

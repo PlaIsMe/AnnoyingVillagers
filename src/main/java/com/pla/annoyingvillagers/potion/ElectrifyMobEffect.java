@@ -1,8 +1,8 @@
 package com.pla.annoyingvillagers.potion;
 
 import com.pla.annoyingvillagers.gameasset.AnimsTacticalImbuements;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -61,13 +61,7 @@ public class ElectrifyMobEffect extends MobEffect {
 
         if (Math.random() <= 0.1D) {
             if (pLivingEntity.level() instanceof ServerLevel serverLevel) {
-                serverLevel.sendParticles(
-                        AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(),
-                        pLivingEntity.getX(), pLivingEntity.getY(), pLivingEntity.getZ(),
-                        1,
-                        0.3D, 1.2D, 0.3D,
-                        0.0D
-                );
+                BlueDemonUtil.spawnBlueDemonEffect(serverLevel, pLivingEntity);
 
                 if (serverLevel.random.nextDouble() <= 0.8D) {
                     float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);

@@ -2,8 +2,8 @@ package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -270,13 +270,7 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
             ));
 
             if (serverLevel.random.nextDouble() <= 0.1D) {
-                serverLevel.sendParticles(
-                        AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(),
-                        player.getX(), player.getY(), player.getZ(),
-                        1,
-                        0.3D, 1.2D, 0.3D,
-                        0.0D
-                );
+                BlueDemonUtil.spawnBlueDemonChestplateEffect(serverLevel, player);
 
                 if (serverLevel.random.nextDouble() <= 0.8D) {
                     float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
