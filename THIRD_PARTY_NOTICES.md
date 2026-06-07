@@ -291,6 +291,15 @@ All required upstream notices must be preserved.
 **Paths / Files**
 - assets/annoyingvillagers/animmodels/animations/biped/yonchi_chikito
 
+### H3) Photon VFX - Sidtheplayer
+- Type: Photon visual effect assets authorized by original author
+- Owner / Author: Sidtheplayer
+- License text: `third_party/licenses/LicenseRef-Author-Permission.md`
+- Source: Authorized by original author; no public source URL recorded.
+
+**Paths / Files**
+- assets/photon/fx
+
 ---
 
 ## I) Credits - Annoying Villagers (textures / models / languages)
