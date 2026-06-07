@@ -56,9 +56,9 @@ public class AAAParticlesUtil {
                         .position(x, y, z));
     }
 
-    public static void sendLitePortal(Level level, double x, double y, double z) {
+    public static void sendHerobrineAssistance(Level level, double x, double y, double z) {
         AAALevel.addParticle(level, false,
-                new ParticleEmitterInfo(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "lite_portal"))
+                new ParticleEmitterInfo(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "requesting_assistance"))
                         .clone()
                         .position(x, y, z));
     }

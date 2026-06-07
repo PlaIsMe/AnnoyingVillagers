@@ -4,6 +4,7 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,11 +18,11 @@ import org.joml.Vector3f;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
@@ -36,6 +37,16 @@ public final class PhotonClientFxUtil {
     private static boolean warnedReflectionFailure;
 
     private PhotonClientFxUtil() {
+    }
+
+    @FunctionalInterface
+    public interface BeamPositionProvider {
+        Vec3 get(float partialTicks);
+    }
+
+    public enum BeamForwardAxis {
+        POSITIVE_Z,
+        POSITIVE_X
     }
 
     public static boolean isLoaded() {
@@ -130,33 +141,38 @@ public final class PhotonClientFxUtil {
         }
     }
 
-    public static boolean updateBeam(String key, Level level, String effectPath, Vec3 from, Vec3 to, int lifetimeTicks) {
-        if (!canUse(level) || from == null || to == null) {
+    public static boolean followBeam(String key, Level level, String effectPath, Entity owner,
+                                     BeamPositionProvider startProvider,
+                                     BeamPositionProvider endProvider,
+                                     BooleanSupplier aliveSupplier,
+                                     int lifetimeTicks) {
+        return followBeam(key, level, effectPath, owner, startProvider, endProvider, aliveSupplier, BeamForwardAxis.POSITIVE_Z, 0.0F, lifetimeTicks);
+    }
+
+    public static boolean followBeam(String key, Level level, String effectPath, Entity owner,
+                                     BeamPositionProvider startProvider,
+                                     BeamPositionProvider endProvider,
+                                     BooleanSupplier aliveSupplier,
+                                     BeamForwardAxis forwardAxis,
+                                     float visualBaseLength,
+                                     int lifetimeTicks) {
+        if (!canUse(level) || owner == null || startProvider == null || endProvider == null || aliveSupplier == null) {
             return false;
         }
 
         try {
-            Reflection r = reflection();
-            if (r == null) {
-                return false;
-            }
-
-            long now = level.getGameTime();
-            String normalizedKey = normalizeKey(key, effectPath);
-            ActiveEffect active = ACTIVE_EFFECTS.get(normalizedKey);
-
-            if (active == null || active.level != level || !active.isAlive(r)) {
-                active = createRuntimeEffect(r, level, effectPath, from, now, lifetimeTicks);
-                if (active == null) {
-                    return false;
-                }
-
-                ACTIVE_EFFECTS.put(normalizedKey, active);
-            }
-
-            active.updateBeam(r, from, to, now, lifetimeTicks);
-            return true;
-        } catch (ReflectiveOperationException | RuntimeException e) {
+            return PhotonBeamEffect.startOrUpdate(
+                    photon(effectPath),
+                    level,
+                    owner,
+                    normalizeKey(key, effectPath),
+                    startProvider,
+                    endProvider,
+                    aliveSupplier,
+                    forwardAxis == null ? BeamForwardAxis.POSITIVE_Z : forwardAxis,
+                    visualBaseLength,
+                    lifetimeTicks);
+        } catch (LinkageError | RuntimeException e) {
             warnReflectionFailure(e);
             return false;
         }
@@ -261,12 +277,6 @@ public final class PhotonClientFxUtil {
         return new Quaternionf().rotateXYZ(pitch, yaw, 0.0F);
     }
 
-    private static Transform beamTransform(Vec3 from, Vec3 to) {
-        Vec3 delta = to.subtract(from);
-        double length = Math.max(delta.length(), 1.0e-4D);
-        return new Transform(rotationFromTo(from, to, false), (float) length);
-    }
-
     private static Reflection reflection() {
         if (reflection != null) {
             return reflection;
@@ -283,8 +293,6 @@ public final class PhotonClientFxUtil {
             Class<?> blockEffectClass = Class.forName("com.lowdragmc.photon.client.fx.BlockEffect");
             Class<?> fxRuntimeClass = Class.forName("com.lowdragmc.photon.client.fx.FXRuntime");
             Class<?> fxObjectClass = Class.forName("com.lowdragmc.photon.client.gameobject.IFXObject");
-            Class<?> beamEmitterClass = Class.forName("com.lowdragmc.photon.client.gameobject.emitter.beam.BeamEmitter");
-            Class<?> beamConfigClass = Class.forName("com.lowdragmc.photon.client.gameobject.emitter.beam.BeamConfig");
 
             reflection = new Reflection(
                     fxHelperClass.getMethod("getFX", ResourceLocation.class),
@@ -296,15 +304,10 @@ public final class PhotonClientFxUtil {
                     fxEffectClass.getMethod("getRuntime"),
                     blockEffectClass.getMethod("start"),
                     fxRuntimeClass.getMethod("getRoot"),
-                    fxRuntimeClass.getMethod("getAllSceneObjects"),
                     fxRuntimeClass.getMethod("isAlive"),
                     fxRuntimeClass.getMethod("destroy", boolean.class),
                     fxObjectClass.getMethod("updatePos", Vector3f.class),
-                    fxObjectClass.getMethod("updateRotation", Quaternionf.class),
-                    fxObjectClass.getMethod("updateScale", Vector3f.class),
-                    beamEmitterClass,
-                    beamEmitterClass.getMethod("getConfig"),
-                    beamConfigClass.getMethod("getEnd"));
+                    fxObjectClass.getMethod("updateScale", Vector3f.class));
             return reflection;
         } catch (ReflectiveOperationException | LinkageError e) {
             reflectionFailed = true;
@@ -332,18 +335,10 @@ public final class PhotonClientFxUtil {
             Method getRuntime,
             Method blockStart,
             Method getRoot,
-            Method getAllSceneObjects,
             Method isAlive,
             Method destroy,
             Method updatePos,
-            Method updateRotation,
-            Method updateScale,
-            Class<?> beamEmitterClass,
-            Method getBeamConfig,
-            Method getBeamEnd) {
-    }
-
-    private record Transform(Quaternionf rotation, float length) {
+            Method updateScale) {
     }
 
     private static final class ActiveEffect {
@@ -383,39 +378,6 @@ public final class PhotonClientFxUtil {
             } catch (ReflectiveOperationException | RuntimeException ignored) {
                 return false;
             }
-        }
-
-        private void updateBeam(Reflection r, Vec3 from, Vec3 to, long now, int lifetimeTicks) throws ReflectiveOperationException {
-            Transform transform = beamTransform(from, to);
-            boolean usesBeamEmitters = updateBeamEmitterEnds(r, transform.length);
-            r.updatePos.invoke(root, new Vector3f((float) from.x, (float) from.y, (float) from.z));
-            r.updateRotation.invoke(root, transform.rotation);
-            r.updateScale.invoke(root, usesBeamEmitters ? new Vector3f(1.0F, 1.0F, 1.0F) : new Vector3f(1.0F, 1.0F, transform.length));
-            lastUpdateTick = now;
-            expireTick = now + Math.max(lifetimeTicks, STALE_TICKS);
-        }
-
-        private boolean updateBeamEmitterEnds(Reflection r, float length) throws ReflectiveOperationException {
-            Object sceneObjects = r.getAllSceneObjects.invoke(runtime);
-            if (!(sceneObjects instanceof Collection<?> collection)) {
-                return false;
-            }
-
-            boolean updated = false;
-            for (Object object : collection) {
-                if (!r.beamEmitterClass.isInstance(object)) {
-                    continue;
-                }
-
-                Object config = r.getBeamConfig.invoke(object);
-                Object end = r.getBeamEnd.invoke(config);
-                if (end instanceof Vector3f endVector) {
-                    endVector.set(0.0F, 0.0F, length);
-                    updated = true;
-                }
-            }
-
-            return updated;
         }
 
         private boolean isAlive(Reflection r) {

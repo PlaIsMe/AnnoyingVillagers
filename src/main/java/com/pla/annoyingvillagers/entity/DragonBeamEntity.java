@@ -69,11 +69,14 @@ public class DragonBeamEntity extends Entity {
     public float prevYaw;
     public float prevPitch;
     private Vec3 targetPos;
+    private static final float DRAGON_PHOTON_VISUAL_BASE_LENGTH = 192.0F; // 0 disables authored-axis scaling.
     private boolean renderBeam = false;
     private boolean playSound = false;
     private static final EntityDataAccessor<Boolean> USE_NO_VFX_THUNDER = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Vector3f> THUNDER_START = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.VECTOR3);
     private static final EntityDataAccessor<Vector3f> THUNDER_STOP = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.VECTOR3);
+    private static final EntityDataAccessor<Boolean> HAS_TARGET_POS = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Vector3f> TARGET_POS = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.VECTOR3);
 
     public DragonBeamEntity(EntityType<? extends DragonBeamEntity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -92,6 +95,7 @@ public class DragonBeamEntity extends Entity {
 
         Vec3 from = new Vec3(x, y, z);
         Vec3 to = target.getEyePosition(1.0F);
+        this.setTargetPos(to);
 
         float yawRad   = yawTowards(from, to);
         float pitchRad = pitchTowards(from, to);
@@ -120,6 +124,8 @@ public class DragonBeamEntity extends Entity {
         this.entityData.define(USE_NO_VFX_THUNDER, false);
         this.entityData.define(THUNDER_START, new Vector3f());
         this.entityData.define(THUNDER_STOP,  new Vector3f());
+        this.entityData.define(HAS_TARGET_POS, false);
+        this.entityData.define(TARGET_POS, new Vector3f());
     }
 
     public void setTargetID(int id) {
@@ -157,6 +163,30 @@ public class DragonBeamEntity extends Entity {
     public void setThunderStartStop(Vec3 from, Vec3 to) {
         this.entityData.set(THUNDER_START, new Vector3f((float) from.x, (float) from.y, (float) from.z));
         this.entityData.set(THUNDER_STOP, new Vector3f((float) to.x, (float) to.y, (float) to.z));
+    }
+
+    private void setTargetPos(Vec3 pos) {
+        if (pos == null) {
+            return;
+        }
+
+        this.targetPos = pos;
+        this.entityData.set(TARGET_POS, new Vector3f((float) pos.x, (float) pos.y, (float) pos.z));
+        this.entityData.set(HAS_TARGET_POS, true);
+    }
+
+    private Vec3 getStoredTargetPos() {
+        if (this.targetPos != null) {
+            return this.targetPos;
+        }
+
+        if (!this.entityData.get(HAS_TARGET_POS)) {
+            return null;
+        }
+
+        Vector3f stored = this.entityData.get(TARGET_POS);
+        this.targetPos = new Vec3(stored.x, stored.y, stored.z);
+        return this.targetPos;
     }
 
     public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
@@ -322,7 +352,7 @@ public class DragonBeamEntity extends Entity {
     }
 
     public boolean isRenderable() {
-        return (this.target != null && this.target.isAlive()) || this.targetPos != null;
+        return (this.target != null && this.target.isAlive()) || this.getStoredTargetPos() != null;
     }
 
     private Vec3 getBeamStopPos() {
@@ -330,11 +360,38 @@ public class DragonBeamEntity extends Entity {
             return this.target.getEyePosition(1.0F);
         }
 
-        if (this.targetPos != null) {
-            return this.targetPos;
+        Vec3 storedTargetPos = this.getStoredTargetPos();
+        if (storedTargetPos != null) {
+            return storedTargetPos;
         }
 
         return new Vec3(this.endPosX, this.endPosY, this.endPosZ);
+    }
+
+    private Vec3 getPhotonBeamStart(float partialTicks) {
+        if (this.caster == null || !this.caster.isAlive()) {
+            return null;
+        }
+
+        return this.caster.beamMouthPos(partialTicks);
+    }
+
+    private Vec3 getPhotonBeamEnd(float partialTicks) {
+        if (this.target != null && this.target.isAlive()) {
+            return this.target.getEyePosition(partialTicks);
+        }
+
+        Vec3 storedTargetPos = this.getStoredTargetPos();
+        return storedTargetPos != null ? storedTargetPos : getBeamStopPos();
+    }
+
+    private boolean isPhotonBeamAlive() {
+        return this.on
+                && this.isAlive()
+                && !this.isRemoved()
+                && this.caster != null
+                && this.caster.isAlive()
+                && this.isRenderable();
     }
 
     public void push(@NotNull Entity entityIn) {
@@ -403,7 +460,7 @@ public class DragonBeamEntity extends Entity {
                 && this.tickCount >= 50) {
             Vec3 center = (this.blockSide != null)
                     ? new Vec3(this.collidePosX, this.collidePosY, this.collidePosZ)
-                    : (this.targetPos != null ? this.targetPos : this.position());
+                    : (this.getStoredTargetPos() != null ? this.getStoredTargetPos() : this.position());
 
             ScreenShakeUtil.applyScreenShake(serverLevel, center, 24.0, 4, 6);
             if (this.caster != null && this.caster.getPassengers().contains(this.caster.getSummoner()) && this.caster.getSummoner() instanceof Player) {
@@ -416,7 +473,7 @@ public class DragonBeamEntity extends Entity {
             Vec3 from = new Vec3(this.getX(), this.getY(), this.getZ());
             Vec3 to = target.getEyePosition(1.0F);
 
-            this.targetPos = to;
+            this.setTargetPos(to);
 
             float targetYaw = yawTowards(from, to);
             float targetPitch = pitchTowards(from, to);
@@ -431,9 +488,13 @@ public class DragonBeamEntity extends Entity {
                 this.renderYaw = interpolatedYaw;
                 this.renderPitch = interpolatedPitch;
             }
-        } else if (this.targetPos != null) {
+        } else {
             Vec3 from = new Vec3(this.getX(), this.getY(), this.getZ());
-            Vec3 to = this.targetPos;
+            Vec3 to = this.getStoredTargetPos();
+            if (to == null) {
+                to = new Vec3(this.endPosX, this.endPosY, this.endPosZ);
+                this.setTargetPos(to);
+            }
 
             float targetYaw = yawTowards(from, to);
             float targetPitch = pitchTowards(from, to);
@@ -448,8 +509,6 @@ public class DragonBeamEntity extends Entity {
                 this.renderYaw = interpolatedYaw;
                 this.renderPitch = interpolatedPitch;
             }
-        } else {
-            return;
         }
 
         if (!this.on || (this.caster != null && !this.caster.isAlive())) {
@@ -471,24 +530,27 @@ public class DragonBeamEntity extends Entity {
         this.calculateEndPos();
 
         if (this.level().isClientSide) {
-            if (this.isRenderable() && !renderBeam) {
-                if (ModList.get().isLoaded("photon")) {
-                    if (this.tickCount >= 3) {
-                        renderBeam = true;
-                        PhotonClientFxUtil.updateBeam(
+            if (this.isRenderable() && ModList.get().isLoaded("photon")) {
+                if (this.tickCount >= 3 && this.caster != null && PhotonClientFxUtil.followBeam(
                                 "dragon_beam:" + getId(),
                                 this.level(),
                                 "dragonbeam",
-                                this.caster.beamMouthPos(1.0F),
-                                getBeamStopPos(),
-                                getDuration() + 5);
-                    }
-                } else if (ModList.get().isLoaded("aaa_particles")) {
-                    if (this.tickCount >= 3) {
+                                this,
+                                this::getPhotonBeamStart,
+                                this::getPhotonBeamEnd,
+                                this::isPhotonBeamAlive,
+                                PhotonClientFxUtil.BeamForwardAxis.POSITIVE_X,
+                                DRAGON_PHOTON_VISUAL_BASE_LENGTH,
+                                getDuration() + 5)) {
+                    renderBeam = true;
+                }
+            } else if (this.isRenderable() && !renderBeam) {
+                if (ModList.get().isLoaded("aaa_particles")) {
+                    if (this.tickCount >= 3 && this.caster != null && this.target != null) {
                         renderBeam = true;
                         AAAParticlesUtil.sendDragonBeam(caster.beamMouthPos(1.0F), target.getEyePosition(1.0F), this.level(), caster, target);
                     }
-                } else {
+                } else if (this.caster != null) {
                     if (this.tickCount >= 3) {
                         this.level().addParticle(ParticleTypes.DRAGON_BREATH, true,
                                 caster.beamMouthPos(1.0F).x + new Random().nextDouble(-1, 1),
@@ -499,7 +561,7 @@ public class DragonBeamEntity extends Entity {
                     if (this.tickCount >= 50) {
                         renderBeam = true;
                         setUseNoVfxThunder(true);
-                        setThunderStartStop(caster.beamMouthPos(1.0F), target.getOnPos().getCenter());
+                        setThunderStartStop(caster.beamMouthPos(1.0F), getBeamStopPos());
                     }
                 }
             }

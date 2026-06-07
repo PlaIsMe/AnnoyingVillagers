@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.blockentity.*;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
@@ -8,13 +9,17 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.task.DelayedTask;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -36,15 +41,63 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import se.gory_moon.player_mobs.entity.PlayerMobEntity;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.utils.math.Vec3f;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 
 public class HerobrineUtil {
+    private static final int HEROBRINE_ASSISTANCE_FALLBACK_TICKS = 34;
+    private static final double HEROBRINE_ASSISTANCE_FALLBACK_HEIGHT = 3.25D;
+    private static final double HEROBRINE_ASSISTANCE_FALLBACK_RADIUS = 1.15D;
+    private static final List<AssistanceSpiralFx> ACTIVE_ASSISTANCE_SPIRALS = new ArrayList<>();
+    private static Level assistanceSpiralLevel;
+
+    public static void startHerobrineAssistanceFallback(Level level, Vec3 origin) {
+        if (level == null || !level.isClientSide() || origin == null) {
+            return;
+        }
+
+        resetAssistanceSpirals(level);
+        RandomSource rand = level.getRandom();
+        AssistanceSpiralFx fx = new AssistanceSpiralFx(origin, rand.nextDouble() * Math.PI * 2.0D);
+        ACTIVE_ASSISTANCE_SPIRALS.add(fx);
+        fx.spawnBaseBurst(level);
+    }
+
+    public static void tickHerobrineAssistanceFallbacks(Level level) {
+        if (level == null) {
+            ACTIVE_ASSISTANCE_SPIRALS.clear();
+            assistanceSpiralLevel = null;
+            return;
+        }
+
+        resetAssistanceSpirals(level);
+        Iterator<AssistanceSpiralFx> iterator = ACTIVE_ASSISTANCE_SPIRALS.iterator();
+        while (iterator.hasNext()) {
+            if (!iterator.next().tick(level)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private static void resetAssistanceSpirals(Level level) {
+        if (assistanceSpiralLevel != level) {
+            ACTIVE_ASSISTANCE_SPIRALS.clear();
+            assistanceSpiralLevel = level;
+        }
+    }
+
     public static boolean isHerobrineFaction(Entity e) {
         return e instanceof HerobrineMob
                 || e instanceof HerobrineGregEntity
@@ -60,6 +113,132 @@ public class HerobrineUtil {
                 || e instanceof NullHoeEntity
                 || e instanceof BlockProjectileEntity
                 || e instanceof EliteHerobrineKnockedEntity;
+    }
+
+    private static Vec3 randomUnit(RandomSource rand) {
+        double z = rand.nextDouble() * 2.0D - 1.0D;
+        double angle = rand.nextDouble() * Math.PI * 2.0D;
+        double radius = Math.sqrt(Math.max(0.0D, 1.0D - z * z));
+        return new Vec3(radius * Math.cos(angle), z, radius * Math.sin(angle));
+    }
+
+    private static void spawnParticle(Level level, ParticleOptions particle, Vec3 pos, Vec3 velocity) {
+        level.addParticle(particle, true, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
+    }
+
+    private static final class AssistanceSpiralFx {
+        private final Vec3 origin;
+        private final double seedAngle;
+        private int age;
+
+        private AssistanceSpiralFx(Vec3 origin, double seedAngle) {
+            this.origin = origin;
+            this.seedAngle = seedAngle;
+        }
+
+        private boolean tick(Level level) {
+            if (age >= HEROBRINE_ASSISTANCE_FALLBACK_TICKS) {
+                spawnTopBurst(level);
+                return false;
+            }
+
+            RandomSource rand = level.getRandom();
+            double progress = age / (double) HEROBRINE_ASSISTANCE_FALLBACK_TICKS;
+            double baseHeight = 0.12D + progress * HEROBRINE_ASSISTANCE_FALLBACK_HEIGHT;
+            double turnAngle = seedAngle + progress * Math.PI * 7.0D;
+
+            for (int arm = 0; arm < 2; arm++) {
+                double armAngle = turnAngle + arm * Math.PI;
+
+                for (int trail = 0; trail < 4; trail++) {
+                    double trailProgress = Math.max(0.0D, progress - trail * 0.022D);
+                    double angle = armAngle - trail * 0.42D;
+                    double radius = HEROBRINE_ASSISTANCE_FALLBACK_RADIUS * (1.0D - trailProgress * 0.48D)
+                            + (rand.nextDouble() - 0.5D) * 0.08D;
+                    double cos = Math.cos(angle);
+                    double sin = Math.sin(angle);
+
+                    Vec3 radial = new Vec3(cos, 0.0D, sin);
+                    Vec3 tangent = new Vec3(-sin, 0.0D, cos);
+                    Vec3 pos = origin
+                            .add(radial.scale(radius))
+                            .add(0.0D, baseHeight - trail * 0.055D + (rand.nextDouble() - 0.5D) * 0.07D, 0.0D);
+                    Vec3 velocity = tangent.scale(0.045D + rand.nextDouble() * 0.025D)
+                            .add(radial.scale(-0.012D))
+                            .add(0.0D, 0.045D + rand.nextDouble() * 0.035D, 0.0D);
+
+                    spawnParticle(level, ParticleTypes.ENCHANT, pos, velocity);
+
+                    if ((age + trail + arm) % 6 == 0) {
+                        spawnParticle(level, ParticleTypes.END_ROD, pos, velocity.scale(0.45D));
+                    }
+                }
+            }
+
+            for (int i = 0; i < 3; i++) {
+                double angle = seedAngle - progress * Math.PI * 4.0D + rand.nextDouble() * Math.PI * 2.0D;
+                double radius = 0.22D + rand.nextDouble() * 0.55D;
+                double cos = Math.cos(angle);
+                double sin = Math.sin(angle);
+                Vec3 pos = origin.add(cos * radius, 0.08D + rand.nextDouble() * 0.22D, sin * radius);
+                Vec3 velocity = new Vec3(-sin, 0.0D, cos).scale(0.018D)
+                        .add(-cos * 0.01D, 0.025D + rand.nextDouble() * 0.035D, -sin * 0.01D);
+
+                spawnParticle(level, ParticleTypes.ENCHANT, pos, velocity);
+            }
+
+            age++;
+            return true;
+        }
+
+        private void spawnBaseBurst(Level level) {
+            RandomSource rand = level.getRandom();
+            for (int i = 0; i < 36; i++) {
+                double angle = seedAngle + i / 36.0D * Math.PI * 2.0D;
+                double cos = Math.cos(angle);
+                double sin = Math.sin(angle);
+                double radius = 0.35D + rand.nextDouble() * 0.85D;
+                Vec3 pos = origin.add(cos * radius, 0.08D + rand.nextDouble() * 0.18D, sin * radius);
+                Vec3 velocity = new Vec3(-sin, 0.0D, cos).scale(0.055D + rand.nextDouble() * 0.035D)
+                        .add(cos * 0.015D, 0.04D + rand.nextDouble() * 0.045D, sin * 0.015D);
+
+                spawnParticle(level, ParticleTypes.ENCHANT, pos, velocity);
+                if ((i & 3) == 0) {
+                    spawnParticle(level, ParticleTypes.END_ROD, pos, velocity.scale(0.35D));
+                }
+            }
+        }
+
+        private void spawnTopBurst(Level level) {
+            RandomSource rand = level.getRandom();
+            Vec3 top = origin.add(0.0D, HEROBRINE_ASSISTANCE_FALLBACK_HEIGHT + 0.35D, 0.0D);
+
+            for (int i = 0; i < 28; i++) {
+                Vec3 offset = randomUnit(rand).scale(0.18D + rand.nextDouble() * 0.62D);
+                Vec3 pos = top.add(offset);
+                Vec3 velocity = offset.normalize().scale(0.025D + rand.nextDouble() * 0.045D)
+                        .add(0.0D, 0.015D + rand.nextDouble() * 0.045D, 0.0D);
+
+                spawnParticle(level, ParticleTypes.ENCHANT, pos, velocity);
+                if ((i & 2) == 0) {
+                    spawnParticle(level, ParticleTypes.END_ROD, pos, velocity.scale(0.55D));
+                }
+            }
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
+    public static final class ClientEvents {
+        private ClientEvents() {
+        }
+
+        @SubscribeEvent
+        public static void onClientTick(TickEvent.ClientTickEvent event) {
+            if (event.phase == TickEvent.Phase.END) {
+                tickHerobrineAssistanceFallbacks(Minecraft.getInstance().level);
+            }
+        }
     }
 
     public static void placeIfReplaceable(ServerLevel level, BlockPos pos, BlockState state, Entity ownerEntity) {

@@ -127,12 +127,6 @@ public class AnnoyingVillagers {
                     ClientboundWoopieSwordWindFx::handle
             );
             AnnoyingVillagers.addNetworkMessage(
-                    ClientboundLitePortalFx.class,
-                    ClientboundLitePortalFx::encode,
-                    ClientboundLitePortalFx::decode,
-                    ClientboundLitePortalFx::handle
-            );
-            AnnoyingVillagers.addNetworkMessage(
                     ClientboundBlackFireFx.class,
                     ClientboundBlackFireFx::encode,
                     ClientboundBlackFireFx::decode,
@@ -149,6 +143,12 @@ public class AnnoyingVillagers {
                     ClientboundDiamondAttractorFx::encode,
                     ClientboundDiamondAttractorFx::decode,
                     ClientboundDiamondAttractorFx::handle
+            );
+            AnnoyingVillagers.addNetworkMessage(
+                    ClientboundHerobrineAssistancelFx.class,
+                    ClientboundHerobrineAssistancelFx::encode,
+                    ClientboundHerobrineAssistancelFx::decode,
+                    ClientboundHerobrineAssistancelFx::handle
             );
         }
     }

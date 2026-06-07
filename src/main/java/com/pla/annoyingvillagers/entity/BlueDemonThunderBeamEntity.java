@@ -195,6 +195,10 @@ public class BlueDemonThunderBeamEntity extends Entity {
         entityData.set(LAST_DIR_Z, (float) dir.z);
     }
 
+    private boolean isPhotonBeamAlive() {
+        return this.on && this.isAlive() && !this.isRemoved() && this.caster != null && this.caster.isAlive();
+    }
+
     public void initSpawnState() {
         if (caster == null) return;
 
@@ -303,19 +307,24 @@ public class BlueDemonThunderBeamEntity extends Entity {
         Vec3 start = getStartPos();
         Vec3 end = getEndPos();
 
-        if (level().isClientSide && !renderBeam && tickCount >= 2) {
-            renderBeam = true;
+        if (level().isClientSide && tickCount >= 2) {
             if (ModList.get().isLoaded("photon")) {
-                PhotonClientFxUtil.updateBeam(
+                if (caster != null && PhotonClientFxUtil.followBeam(
                         "blue_demon_thunder_beam:" + getId(),
                         level(),
                         "bluedemonbeam",
-                        start,
-                        end,
-                        getDuration() + 5);
-            } else if (ModList.get().isLoaded("aaa_particles")) {
+                        this,
+                        partialTicks -> getStartPos(),
+                        partialTicks -> getEndPos(),
+                        this::isPhotonBeamAlive,
+                        getDuration() + 5)) {
+                    renderBeam = true;
+                }
+            } else if (!renderBeam && ModList.get().isLoaded("aaa_particles")) {
+                renderBeam = true;
                 AAAParticlesUtil.sendBlueDemonThunderBeam(level(), this);
-            } else {
+            } else if (!renderBeam) {
+                renderBeam = true;
                 setUseNoVfxThunder(true);
             }
         }

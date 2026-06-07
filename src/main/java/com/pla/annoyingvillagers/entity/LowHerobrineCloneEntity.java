@@ -5,7 +5,6 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
-import com.pla.annoyingvillagers.network.ClientboundLitePortalFx;
 import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import net.minecraft.nbt.CompoundTag;
@@ -439,10 +438,6 @@ public class LowHerobrineCloneEntity extends PlayerMobEntity {
                         this.setHealth(this.getHealth() - 2.0F);
                     }
                     this.possessedByEntity.heal(this.possessedByEntity.getMaxHealth() * 0.01F);
-                    AnnoyingVillagers.PACKET_HANDLER.send(
-                            PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this),
-                            new ClientboundLitePortalFx(new Vec3(this.getX(), this.getY(), this.getZ()))
-                    );
                     CombatBehaviour.forceLookAt(this, this.possessedByEntity, 60.0F, 60.0F);
                 }
                 if (this.possessedByEntity != null && this.possessedByEntity.isAlive()) {

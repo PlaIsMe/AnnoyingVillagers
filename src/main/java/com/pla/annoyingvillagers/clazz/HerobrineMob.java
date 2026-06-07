@@ -14,8 +14,8 @@ import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.*;
+import com.pla.annoyingvillagers.network.ClientboundHerobrineAssistancelFx;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
-import com.pla.annoyingvillagers.network.ClientboundLitePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.*;
@@ -1130,7 +1130,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 }
                 AnnoyingVillagers.PACKET_HANDLER.send(
                         PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this),
-                        new ClientboundHerobrinePortalFx(new Vec3(this.getX(), this.getY(), this.getZ()))
+                        new ClientboundHerobrineAssistancelFx(new Vec3(this.getX(), this.getY(), this.getZ()))
                 );
                 if (this.level() instanceof ServerLevel) {
                     this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);;
@@ -1210,12 +1210,6 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             }
             if (this.secondFormHitLeft == 0 && this.state == 1) {
                 this.state = 0;
-            }
-            if (this.tickCount % 20 == 0 && this.sacrificing && this.sacrificingAnimationCooldown == 0) {
-                AnnoyingVillagers.PACKET_HANDLER.send(
-                        PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this),
-                        new ClientboundLitePortalFx(new Vec3(this.getX(), this.getY(), this.getZ()))
-                );
             }
         }
     }

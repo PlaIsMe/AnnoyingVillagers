@@ -5,7 +5,6 @@ import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
-import com.pla.annoyingvillagers.network.ClientboundLitePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.task.DelayedTask;
@@ -468,10 +467,6 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                     }
                     this.possessedByEntity.heal(this.possessedByEntity.getMaxHealth() * 0.01F);
                     if (this.healing) {
-                        AnnoyingVillagers.PACKET_HANDLER.send(
-                                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this),
-                                new ClientboundLitePortalFx(new Vec3(this.getX(), this.getY(), this.getZ()))
-                        );
                         CombatBehaviour.forceLookAt(this, this.possessedByEntity, 60.0F, 60.0F);
                     }
                 }
