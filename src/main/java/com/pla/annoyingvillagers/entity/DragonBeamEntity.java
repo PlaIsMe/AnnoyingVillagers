@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.client.engine.ClientVfxRouter;
 import com.pla.annoyingvillagers.client.engine.PhotonClientFxUtil;
+import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -32,7 +34,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
@@ -269,27 +270,30 @@ public class DragonBeamEntity extends Entity {
             this.blockSide = result.blockHit.getDirection();
 
             if (world.isClientSide) {
-                if (PhotonClientFxUtil.spawnAt(world, "dragonhitfire", hitVec)) {
-                    // Photon handled the impact effect.
-                } else if (ModList.get().isLoaded("aaa_particles")) {
-                    AAAParticlesUtil.sendDragonBeamHit(world, hitBlock);
-                } else {
-                    world.addParticle(
-                            ParticleTypes.EXPLOSION,
-                            true,
-                            hitBlock.getX(), hitBlock.getY() + 1.0D, hitBlock.getZ(),
-                            0, 0, 0);
-                    world.addParticle(
-                            AnnoyingVillagersModParticleTypes.METEORITE_TRAIL.get(),
-                            true,
-                            hitBlock.getX(), hitBlock.getY() + 1.0D, hitBlock.getZ(),
-                            0, 0, 0);
-                    world.addParticle(
-                            ParticleTypes.FLASH,
-                            true,
-                            hitBlock.getX(), hitBlock.getY() + 1.0D, hitBlock.getZ(),
-                            0, 0, 0);
-                }
+                ClientVfxRouter.run(
+                        VfxEffect.DRAGON_BEAM_HIT,
+                        () -> PhotonClientFxUtil.spawnAt(world, "dragonhitfire", hitVec),
+                        () -> {
+                            AAAParticlesUtil.sendDragonBeamHit(world, hitBlock);
+                            return true;
+                        },
+                        () -> {
+                            world.addParticle(
+                                    ParticleTypes.EXPLOSION,
+                                    true,
+                                    hitBlock.getX(), hitBlock.getY() + 1.0D, hitBlock.getZ(),
+                                    0, 0, 0);
+                            world.addParticle(
+                                    AnnoyingVillagersModParticleTypes.METEORITE_TRAIL.get(),
+                                    true,
+                                    hitBlock.getX(), hitBlock.getY() + 1.0D, hitBlock.getZ(),
+                                    0, 0, 0);
+                            world.addParticle(
+                                    ParticleTypes.FLASH,
+                                    true,
+                                    hitBlock.getX(), hitBlock.getY() + 1.0D, hitBlock.getZ(),
+                                    0, 0, 0);
+                        });
             }
 
             if (!world.isClientSide) {
@@ -534,9 +538,18 @@ public class DragonBeamEntity extends Entity {
 
         this.calculateEndPos();
 
-        if (this.level().isClientSide) {
-            if (this.isRenderable() && ModList.get().isLoaded("photon")) {
-                if (this.tickCount >= 3 && this.caster != null && PhotonClientFxUtil.followBeam(
+        if (this.level().isClientSide && this.isRenderable()) {
+            ClientVfxRouter.run(
+                    VfxEffect.DRAGON_BEAM,
+                    () -> {
+                        if (!PhotonClientFxUtil.isLoaded()) {
+                            return false;
+                        }
+                        if (this.tickCount < 3 || this.caster == null) {
+                            return true;
+                        }
+
+                        boolean handled = PhotonClientFxUtil.followBeam(
                                 "dragon_beam:" + getId(),
                                 this.level(),
                                 "dragonbeam",
@@ -546,30 +559,43 @@ public class DragonBeamEntity extends Entity {
                                 this::isPhotonBeamAlive,
                                 PhotonClientFxUtil.BeamForwardAxis.POSITIVE_X,
                                 DRAGON_PHOTON_VISUAL_BASE_LENGTH,
-                                getDuration() + 5)) {
-                    renderBeam = true;
-                }
-            } else if (this.isRenderable() && !renderBeam) {
-                if (ModList.get().isLoaded("aaa_particles")) {
-                    if (this.tickCount >= 3 && this.caster != null && this.target != null) {
+                                getDuration() + 5);
+                        if (handled) {
+                            renderBeam = true;
+                        }
+                        return handled;
+                    },
+                    () -> {
+                        if (renderBeam) {
+                            return true;
+                        }
+                        if (this.tickCount < 3 || this.caster == null || this.target == null) {
+                            return true;
+                        }
+
                         renderBeam = true;
                         AAAParticlesUtil.sendDragonBeam(caster.beamMouthPos(1.0F), target.getEyePosition(1.0F), this.level(), caster, target);
-                    }
-                } else if (this.caster != null) {
-                    if (this.tickCount >= 3) {
-                        this.level().addParticle(ParticleTypes.DRAGON_BREATH, true,
-                                caster.beamMouthPos(1.0F).x + new Random().nextDouble(-1, 1),
-                                caster.beamMouthPos(1.0F).y + new Random().nextDouble(-1, 1),
-                                caster.beamMouthPos(1.0F).z + new Random().nextDouble(-1, 1),
-                                0, 0, 0);
-                    }
-                    if (this.tickCount >= 50) {
-                        renderBeam = true;
-                        setUseNoVfxThunder(true);
-                        setThunderStartStop(caster.beamMouthPos(1.0F), getBeamStopPos());
-                    }
-                }
-            }
+                        return true;
+                    },
+                    () -> {
+                        if (renderBeam || this.caster == null) {
+                            return;
+                        }
+
+                        if (this.tickCount >= 3) {
+                            Vec3 mouthPos = caster.beamMouthPos(1.0F);
+                            this.level().addParticle(ParticleTypes.DRAGON_BREATH, true,
+                                    mouthPos.x + new Random().nextDouble(-1, 1),
+                                    mouthPos.y + new Random().nextDouble(-1, 1),
+                                    mouthPos.z + new Random().nextDouble(-1, 1),
+                                    0, 0, 0);
+                        }
+                        if (this.tickCount >= 50) {
+                            renderBeam = true;
+                            setUseNoVfxThunder(true);
+                            setThunderStartStop(caster.beamMouthPos(1.0F), getBeamStopPos());
+                        }
+                    });
         }
 
         if (this.isRenderable() && this.tickCount >= 50) {

@@ -1,7 +1,9 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.client.engine.ClientVfxRouter;
 import com.pla.annoyingvillagers.client.engine.PhotonClientFxUtil;
+import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.AAAParticlesUtil;
@@ -28,7 +30,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -308,25 +309,45 @@ public class BlueDemonThunderBeamEntity extends Entity {
         Vec3 end = getEndPos();
 
         if (level().isClientSide && tickCount >= 2) {
-            if (ModList.get().isLoaded("photon")) {
-                if (caster != null && PhotonClientFxUtil.followBeam(
-                        "blue_demon_thunder_beam:" + getId(),
-                        level(),
-                        "bluedemonbeam",
-                        this,
-                        partialTicks -> getStartPos(),
-                        partialTicks -> getEndPos(),
-                        this::isPhotonBeamAlive,
-                        getDuration() + 5)) {
-                    renderBeam = true;
-                }
-            } else if (!renderBeam && ModList.get().isLoaded("aaa_particles")) {
-                renderBeam = true;
-                AAAParticlesUtil.sendBlueDemonThunderBeam(level(), this);
-            } else if (!renderBeam) {
-                renderBeam = true;
-                setUseNoVfxThunder(true);
-            }
+            ClientVfxRouter.run(
+                    VfxEffect.BLUE_DEMON_THUNDER_BEAM,
+                    () -> {
+                        if (!PhotonClientFxUtil.isLoaded()) {
+                            return false;
+                        }
+                        if (caster == null) {
+                            return true;
+                        }
+
+                        boolean handled = PhotonClientFxUtil.followBeam(
+                                "blue_demon_thunder_beam:" + getId(),
+                                level(),
+                                "bluedemonbeam",
+                                this,
+                                partialTicks -> getStartPos(),
+                                partialTicks -> getEndPos(),
+                                this::isPhotonBeamAlive,
+                                getDuration() + 5);
+                        if (handled) {
+                            renderBeam = true;
+                        }
+                        return handled;
+                    },
+                    () -> {
+                        if (renderBeam) {
+                            return true;
+                        }
+
+                        renderBeam = true;
+                        AAAParticlesUtil.sendBlueDemonThunderBeam(level(), this);
+                        return true;
+                    },
+                    () -> {
+                        if (!renderBeam) {
+                            renderBeam = true;
+                            setUseNoVfxThunder(true);
+                        }
+                    });
         }
 
         if (!playSound) {

@@ -21,6 +21,8 @@ package com.pla.annoyingvillagers.entity;
 import com.pla.annoyingvillagers.client.animation.DragonAnimator;
 import com.pla.annoyingvillagers.client.engine.MountCameraManager;
 import com.pla.annoyingvillagers.client.engine.MountControlsMessenger;
+import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig;
+import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.entity.goal.DragonOrbitLeaderGoal;
 import com.pla.annoyingvillagers.entity.goal.RecallLandGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
@@ -66,7 +68,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import reascer.wom.world.entity.mob.EnderHand;
@@ -339,7 +340,12 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         double baseForward = Math.max(1.0, this.getBbWidth() * 0.7);
 
         boolean hasPlayerRider = this.getFirstPassenger() instanceof Player;
-        double extraUp = (hasPlayerRider ? 1.0 : ModList.get().isLoaded("photon") ? 2.0: 4.0) * this.getScale();
+        boolean usePhotonOffset = AnnoyingVillagersClientConfig.isPhotonModLoaded();
+        if (this.level().isClientSide()) {
+            usePhotonOffset = AnnoyingVillagersClientConfig.shouldUsePhotonWhenAvailable(VfxEffect.DRAGON_BEAM);
+        }
+
+        double extraUp = (hasPlayerRider ? 1.0 : usePhotonOffset ? 3.0: 4.0) * this.getScale();
         double extraForward = 5.2 * this.getScale();
 
         double forward = baseForward + extraForward;

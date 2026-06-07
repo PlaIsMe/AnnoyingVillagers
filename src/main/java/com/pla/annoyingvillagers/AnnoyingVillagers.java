@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import com.mojang.serialization.Codec;
 import com.pla.annoyingvillagers.client.engine.CameraEngine;
 import com.pla.annoyingvillagers.client.engine.SpriteArrowsCommonEntrypoint;
+import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersSpawnConfig;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.*;
@@ -78,6 +79,7 @@ public class AnnoyingVillagers {
         AVSkillDataKeys.DATA_KEYS.register(modEventBus);
 
         if (FMLEnvironment.dist.isClient()) {
+            context.registerConfig(ModConfig.Type.CLIENT, AnnoyingVillagersClientConfig.SPEC, "annoyingvillagers-client.toml");
             modEventBus.addListener(this::clientSetup);
             modEventBus.addListener(EventPriority.LOWEST, ClassLoadingProtection::listen);
         }
