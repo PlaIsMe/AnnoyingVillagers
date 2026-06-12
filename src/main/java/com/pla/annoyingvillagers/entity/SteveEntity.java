@@ -257,12 +257,28 @@ public class SteveEntity extends AVNpc {
             damagedStacks.add(mendingDiamondSword);
         }
 
-        ItemStack woopieTheSword = new ItemStack(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get());
-        woopieTheSword.enchant(Enchantments.SHARPNESS, 5);
-        woopieTheSword.enchant(Enchantments.SMITE, 5);
-        woopieTheSword.enchant(Enchantments.SWEEPING_EDGE, 5);
-        damagedStacks.add(woopieTheSword);
+        double rareWeaponRoll = new Random().nextDouble(0.0D, 1.0D);
+        if (rareWeaponRoll < 0.3D) {
+            ItemStack diamondGreatsword = new ItemStack(AnnoyingVillagersModItems.DIAMOND_GREATSWORD.get());
+            diamondGreatsword.enchant(Enchantments.SHARPNESS, 5);
+            diamondGreatsword.enchant(Enchantments.SMITE, 5);
+            diamondGreatsword.enchant(Enchantments.SWEEPING_EDGE, 5);
+            damagedStacks.add(diamondGreatsword);
+        } else if (rareWeaponRoll < 0.6D) {
+            ItemStack samanthaTheKillerAxe = new ItemStack(AnnoyingVillagersModItems.SAMANTHA_THE_KILLER_AXE.get());
+            samanthaTheKillerAxe.enchant(Enchantments.SHARPNESS, 5);
+            samanthaTheKillerAxe.enchant(Enchantments.SMITE, 5);
+            samanthaTheKillerAxe.enchant(Enchantments.SWEEPING_EDGE, 5);
+            damagedStacks.add(samanthaTheKillerAxe);
+        } else {
+            ItemStack woopieTheSword = new ItemStack(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get());
+            woopieTheSword.enchant(Enchantments.SHARPNESS, 5);
+            woopieTheSword.enchant(Enchantments.SMITE, 5);
+            woopieTheSword.enchant(Enchantments.SWEEPING_EDGE, 5);
+            damagedStacks.add(woopieTheSword);
+        }
         damagedStacks.add(new ItemStack(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get()));
+        damagedStacks.add(new ItemStack(AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get()));
 
         for (ItemStack stack : damagedStacks) {
             stack.setDamageValue(EquipmentDataLoader.getRandomDamage(stack));
@@ -287,7 +303,6 @@ public class SteveEntity extends AVNpc {
                 Items.CAKE,
                 Items.WATER_BUCKET,
                 Items.COOKED_BEEF, Items.COOKED_BEEF, Items.COOKED_BEEF,
-                Items.FISHING_ROD,
                 Items.LIGHT_GRAY_DYE,
                 Items.CARROT, Items.CARROT,
                 Items.BAKED_POTATO, Items.BAKED_POTATO,
@@ -335,12 +350,27 @@ public class SteveEntity extends AVNpc {
         if (this.state == 1) {
             chance = new Random().nextDouble(0.0, 1.0);
             if (this.getHealth() > this.getMaxHealth() / 2) {
-                if (chance <= 0.6) {
+                if (chance < 0.2) {
                     ItemStack woopieTheSword = new ItemStack(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get());
                     woopieTheSword.enchant(Enchantments.SHARPNESS, 5);
                     woopieTheSword.enchant(Enchantments.SMITE, 5);
                     woopieTheSword.enchant(Enchantments.SWEEPING_EDGE, 5);
                     this.setItemInHand(InteractionHand.MAIN_HAND, woopieTheSword);
+
+                    this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get()));
+                    this.setOffWeaponItem(this.getOffWeaponItem().copy());
+                    setWeapon = true;
+                } else if (chance < 0.4) {
+                    ItemStack diamondGreatsword = new ItemStack(AnnoyingVillagersModItems.DIAMOND_GREATSWORD.get());
+                    diamondGreatsword.enchant(Enchantments.SHARPNESS, 5);
+                    diamondGreatsword.enchant(Enchantments.KNOCKBACK, 5);
+                    this.setItemInHand(InteractionHand.MAIN_HAND, diamondGreatsword);
+                    setWeapon = true;
+                } else if (chance < 0.6) {
+                    ItemStack killerAxe = new ItemStack(AnnoyingVillagersModItems.SAMANTHA_THE_KILLER_AXE.get());
+                    killerAxe.enchant(Enchantments.SHARPNESS, 5);
+                    killerAxe.enchant(Enchantments.FIRE_ASPECT, 2);
+                    this.setItemInHand(InteractionHand.MAIN_HAND, killerAxe);
 
                     this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get()));
                     this.setOffWeaponItem(this.getOffWeaponItem().copy());

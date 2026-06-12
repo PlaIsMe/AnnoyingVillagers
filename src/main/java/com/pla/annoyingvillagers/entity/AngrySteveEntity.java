@@ -281,6 +281,7 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         legendarySword.enchant(Enchantments.SMITE, 5);
         legendarySword.enchant(Enchantments.SWEEPING_EDGE, 5);
         damagedStacks.add(legendarySword);
+        damagedStacks.add(new ItemStack(AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get()));
 
         for (ItemStack stack : damagedStacks) {
             stack.setDamageValue(EquipmentDataLoader.getRandomDamage(stack));

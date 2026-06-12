@@ -158,39 +158,35 @@ public class StevePatch extends CEHumanoidPatch implements CustomExecuteEntity {
         Style style = mainHandCap.getStyle(this);
 
         if (mainHandCap == EpicFightCapabilities.getItemStackCapability(AnnoyingVillagersModItems.WOODEN_DOOR.get().getDefaultInstance())) {
-            if (style == CapabilityItem.Styles.TWO_HAND) {
-                return SteveWoodenDoor.WOODEN_DOOR;
-            }
+            return SteveWoodenDoor.WOODEN_DOOR;
         }
 
         if (mainHandCap == EpicFightCapabilities.getItemStackCapability(AnnoyingVillagersModItems.CRAFTING_TABLE.get().getDefaultInstance())) {
-            if (style == CapabilityItem.Styles.TWO_HAND) {
-                return SteveCraftingTable.CRAFTING_TABLE;
-            }
+            return SteveCraftingTable.CRAFTING_TABLE;
         }
 
         if (mainHandCap == EpicFightCapabilities.getItemStackCapability(AnnoyingVillagersModItems.LADDER.get().getDefaultInstance())) {
-            if (style == CapabilityItem.Styles.TWO_HAND) {
-                return SteveLadder.LADDER;
-            }
+            return SteveLadder.LADDER;
         }
 
         if (mainHandCap == EpicFightCapabilities.getItemStackCapability(AnnoyingVillagersModItems.TRAPDOOR.get().getDefaultInstance())) {
-            if (style == CapabilityItem.Styles.TWO_HAND) {
-                return SteveTrapdoor.TRAPDOOR;
-            }
+            return SteveTrapdoor.TRAPDOOR;
         }
 
         if (mainHandCap == EpicFightCapabilities.getItemStackCapability(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get().getDefaultInstance())) {
-            if (style == Styles.ONE_HAND) {
-                return SteveWoopieSword.WOOPIE_THE_SWORD;
-            }
+            return SteveWoopieSword.WOOPIE_THE_SWORD;
         }
 
         if (mainHandCap == EpicFightCapabilities.getItemStackCapability(AnnoyingVillagersModItems.LEGENDARY_SWORD.get().getDefaultInstance())) {
-            if (style == CapabilityItem.Styles.TWO_HAND) {
-                return SteveLegendarySword.LEGENDARY_SWORD;
-            }
+            return SteveLegendarySword.LEGENDARY_SWORD;
+        }
+
+        if (mainHandCap == EpicFightCapabilities.getItemStackCapability(AnnoyingVillagersModItems.DIAMOND_GREATSWORD.get().getDefaultInstance())) {
+            return SteveGreatsword.GREATSWORD;
+        }
+
+        if (mainHandCap == EpicFightCapabilities.getItemStackCapability(AnnoyingVillagersModItems.SAMANTHA_THE_KILLER_AXE.get().getDefaultInstance())) {
+            return SteveKillerAxe.KILLER_AXE;
         }
 
         CECombatBehaviors.Builder<MobPatch<?>> customOverride = MobPatchCommon.overideBowMotionBuilderForNpc(mainHandCap, mainHandCap.getStyle(this));

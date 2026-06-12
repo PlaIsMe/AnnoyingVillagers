@@ -18,6 +18,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.BowFunction;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
+import com.pla.annoyingvillagers.util.EquipmentDataLoader;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -478,6 +479,14 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
 
         return drop;
+    }
+
+    protected ItemStack createDamagedDropStack(Item item) {
+        ItemStack stack = new ItemStack(item);
+        if (stack.isDamageableItem()) {
+            stack.setDamageValue(EquipmentDataLoader.getRandomDamage(stack));
+        }
+        return stack;
     }
 
     private ItemStack convertVillagerHelmetFixItem(ItemStack equipped) {
