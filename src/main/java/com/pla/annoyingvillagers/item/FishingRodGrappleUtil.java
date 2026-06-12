@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -28,6 +29,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ToolActions;
 
+import javax.annotation.Nullable;
+
 public final class FishingRodGrappleUtil {
     private static final String KEY_GRAPPLE_HOOK = "avGrappleFishingRod";
     private static final String KEY_RETURNING = "avReturningToRod";
@@ -38,6 +41,15 @@ public final class FishingRodGrappleUtil {
     private static final String KEY_PENDING_RETURN_DAMAGE = "avPendingReturnDamage";
     private static final String KEY_LATCHED = "avLatched";
     private static final String KEY_TARGET_PLUNGED = "avTargetPlunged";
+    private static final String KEY_NPC_COMBAT_HOOK = "avNpcCombatFishingHook";
+    private static final String KEY_NPC_HOOK_RETURNING = "avNpcHookReturning";
+    private static final String KEY_NPC_HOOK_LIFE = "avNpcHookLife";
+    private static final String KEY_NPC_HOOK_RESOLVED = "avNpcHookResolved";
+    private static final String KEY_NPC_HOOK_TIMED_OUT = "avNpcHookTimedOut";
+    private static final String KEY_NPC_HOOK_TARGET_X = "avNpcHookTargetX";
+    private static final String KEY_NPC_HOOK_TARGET_Y = "avNpcHookTargetY";
+    private static final String KEY_NPC_HOOK_TARGET_Z = "avNpcHookTargetZ";
+    private static final String KEY_NPC_HOOK_TARGET_ENTITY_ID = "avNpcHookTargetEntityId";
     private static final String KEY_ANCHOR_X = "avAX";
     private static final String KEY_ANCHOR_Y = "avAY";
     private static final String KEY_ANCHOR_Z = "avAZ";
@@ -62,6 +74,11 @@ public final class FishingRodGrappleUtil {
     private static final double TONY_DETACHED_HOOK_GRAVITY = 0.03D;
     private static final double ITEM_ENTITY_STOP_SEARCH_INFLATION = 0.6D;
     private static final double ITEM_ENTITY_STOP_BOX_INFLATION = 0.35D;
+    private static final double NPC_COMBAT_HOOK_CAST_SPEED = 1.65D;
+    private static final double NPC_COMBAT_HOOK_RETURN_SPEED = 1.85D;
+    private static final double NPC_COMBAT_HOOK_ARRIVE_DISTANCE = 0.55D;
+    private static final int NPC_COMBAT_HOOK_MAX_LIFE = 80;
+    private static final int NPC_COMBAT_HOOK_MAX_RETURN_LIFE = 140;
     private static final int GRAPPLE_COOLDOWN_TICKS = 20;
 
     private FishingRodGrappleUtil() {
@@ -267,8 +284,167 @@ public final class FishingRodGrappleUtil {
         return hook != null
                 && projectile != null
                 && hook.isAlive()
-                && hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)
+                && (hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)
+                || hook.getPersistentData().getBoolean(KEY_NPC_COMBAT_HOOK))
                 && hook.getPersistentData().getInt(KEY_STICKY_ITEM_PROJECTILE_ID) == projectile.getId();
+    }
+
+    @Nullable
+    public static FishingHook spawnNpcCombatFishingHook(LivingEntity owner, Vec3 destination) {
+        return spawnNpcCombatFishingHook(owner, destination, null);
+    }
+
+    @Nullable
+    public static FishingHook spawnNpcCombatFishingHook(LivingEntity owner, Vec3 destination, @Nullable Entity trackedTarget) {
+        if (owner.level().isClientSide || destination == null) {
+            return null;
+        }
+
+        Vec3 start = getNpcCombatHookCastOrigin(owner);
+        Vec3 toDestination = destination.subtract(start);
+        if (toDestination.lengthSqr() < 1.0e-6D) {
+            toDestination = owner.getLookAngle().scale(4.0D);
+            destination = start.add(toDestination);
+        }
+
+        FishingHook hook = new FishingHook(EntityType.FISHING_BOBBER, owner.level());
+        hook.setOwner(owner);
+        hook.moveTo(start.x, start.y, start.z, owner.getYRot(), owner.getXRot());
+        Vec3 velocity = toDestination.normalize().scale(NPC_COMBAT_HOOK_CAST_SPEED);
+        hook.setDeltaMovement(velocity);
+        rotateHookToward(hook, velocity);
+        hook.getPersistentData().putBoolean(KEY_NPC_COMBAT_HOOK, true);
+        hook.getPersistentData().putBoolean(KEY_NPC_HOOK_RETURNING, false);
+        hook.getPersistentData().putInt(KEY_NPC_HOOK_LIFE, 0);
+        hook.getPersistentData().putBoolean(KEY_NPC_HOOK_RESOLVED, false);
+        hook.getPersistentData().putBoolean(KEY_NPC_HOOK_TIMED_OUT, false);
+        hook.getPersistentData().putDouble(KEY_NPC_HOOK_TARGET_X, destination.x);
+        hook.getPersistentData().putDouble(KEY_NPC_HOOK_TARGET_Y, destination.y);
+        hook.getPersistentData().putDouble(KEY_NPC_HOOK_TARGET_Z, destination.z);
+        if (trackedTarget != null && trackedTarget.isAlive() && trackedTarget != owner) {
+            hook.getPersistentData().putInt(KEY_NPC_HOOK_TARGET_ENTITY_ID, trackedTarget.getId());
+        }
+        owner.level().addFreshEntity(hook);
+        return hook;
+    }
+
+    public static void attachNpcCombatFishingHookPayload(@Nullable FishingHook hook, LivingEntity owner, ItemStack stack) {
+        if (hook == null || !hook.isAlive() || stack.isEmpty()
+                || !hook.getPersistentData().getBoolean(KEY_NPC_COMBAT_HOOK)) {
+            return;
+        }
+
+        ItemProjectile projectile = ItemProjectile.createHookPayload(hook.level(), hook, stack.copy(), hook.position());
+        projectile.setDiscardWhenHookLost(true);
+        hook.level().addFreshEntity(projectile);
+
+        hook.getPersistentData().putInt(KEY_STICKY_ITEM_PROJECTILE_ID, projectile.getId());
+        hook.getPersistentData().putBoolean(KEY_COLLECT_RETURNING_ITEM, false);
+        hook.getPersistentData().remove(KEY_STICKY_TARGET_ID);
+        projectile.moveWithHook(hook.position(), owner);
+    }
+
+    public static boolean isNpcCombatFishingHookResolved(@Nullable FishingHook hook) {
+        return hook == null
+                || !hook.isAlive()
+                || hook.getPersistentData().getBoolean(KEY_NPC_HOOK_RESOLVED)
+                || hook.getPersistentData().getBoolean(KEY_NPC_HOOK_TIMED_OUT);
+    }
+
+    public static void forceNpcCombatFishingHookReturn(@Nullable FishingHook hook) {
+        if (hook == null || !hook.isAlive() || !hook.getPersistentData().getBoolean(KEY_NPC_COMBAT_HOOK)) {
+            return;
+        }
+
+        markNpcCombatHookResolved(hook, true);
+    }
+
+    public static boolean tickNpcCombatFishingHook(FishingHook hook) {
+        Entity ownerEntity = hook.getOwner();
+        boolean serverHook = hook.getPersistentData().getBoolean(KEY_NPC_COMBAT_HOOK);
+        if (!serverHook && !isNpcCombatFishingHookOwner(ownerEntity)) {
+            return false;
+        }
+        if (!(ownerEntity instanceof LivingEntity owner) || !owner.isAlive() || owner.isRemoved()) {
+            discardNpcCombatHookPayload(hook);
+            hook.discard();
+            return true;
+        }
+
+        if (!serverHook) {
+            tickClientNpcCombatFishingHook(hook);
+            return true;
+        }
+
+        int life = hook.getPersistentData().getInt(KEY_NPC_HOOK_LIFE) + 1;
+        hook.getPersistentData().putInt(KEY_NPC_HOOK_LIFE, life);
+
+        boolean returning = hook.getPersistentData().getBoolean(KEY_NPC_HOOK_RETURNING);
+        if (!returning && life >= NPC_COMBAT_HOOK_MAX_LIFE) {
+            markNpcCombatHookResolved(hook, true);
+            returning = true;
+        } else if (returning && life > NPC_COMBAT_HOOK_MAX_RETURN_LIFE) {
+            discardNpcCombatHookPayload(hook);
+            hook.discard();
+            return true;
+        }
+
+        Vec3 destination = returning ? getNpcCombatHookCastOrigin(owner) : getNpcCombatHookTarget(hook);
+        Vec3 current = hook.position();
+        Vec3 toDestination = destination.subtract(current);
+        double distance = toDestination.length();
+
+        if (distance <= NPC_COMBAT_HOOK_ARRIVE_DISTANCE) {
+            hook.setDeltaMovement(Vec3.ZERO);
+            hook.setNoGravity(true);
+            hook.setPos(destination.x, destination.y, destination.z);
+            moveTonyPayloadWithHook(hook, Vec3.ZERO);
+            if (returning) {
+                discardNpcCombatHookPayload(hook);
+                hook.discard();
+            } else {
+                markNpcCombatHookResolved(hook, false);
+            }
+            return true;
+        }
+
+        if (distance <= 1.0e-6D) {
+            return true;
+        }
+
+        double speed = returning ? NPC_COMBAT_HOOK_RETURN_SPEED : NPC_COMBAT_HOOK_CAST_SPEED;
+        Vec3 step = toDestination.scale(Math.min(speed, distance) / distance);
+        hook.setNoGravity(true);
+        hook.fallDistance = 0.0F;
+        hook.setDeltaMovement(step);
+        hook.setPos(current.x + step.x, current.y + step.y, current.z + step.z);
+        rotateHookToward(hook, step);
+        moveTonyPayloadWithHook(hook, step);
+        hook.hasImpulse = true;
+        return true;
+    }
+
+    private static void discardNpcCombatHookPayload(FishingHook hook) {
+        ItemProjectile projectile = getStickyItemProjectile(hook);
+        if (projectile != null) {
+            projectile.discard();
+        }
+
+        hook.getPersistentData().remove(KEY_STICKY_ITEM_PROJECTILE_ID);
+        hook.getPersistentData().putBoolean(KEY_COLLECT_RETURNING_ITEM, false);
+        setVanillaHookedEntity(hook, null);
+    }
+
+    private static void markNpcCombatHookResolved(FishingHook hook, boolean timedOut) {
+        hook.getPersistentData().putBoolean(KEY_NPC_HOOK_RESOLVED, true);
+        hook.getPersistentData().putBoolean(KEY_NPC_HOOK_TIMED_OUT, timedOut);
+        hook.getPersistentData().putBoolean(KEY_NPC_HOOK_RETURNING, true);
+    }
+
+    public static boolean isNpcCombatFishingHookOwner(Entity entity) {
+        return entity instanceof LivingEntity owner
+                && !(owner instanceof Player)
+                && isHoldingGrappleRod(owner);
     }
 
     public static void onGrappleHookRemoved(FishingHook hook) {
@@ -405,6 +581,50 @@ public final class FishingRodGrappleUtil {
                 || owner.getOffhandItem().getItem() instanceof TonyTheFishingRod
                 || owner.getMainHandItem().getItem() instanceof AdvancedFishingRod
                 || owner.getOffhandItem().getItem() instanceof AdvancedFishingRod;
+    }
+
+    private static Vec3 getNpcCombatHookCastOrigin(LivingEntity owner) {
+        return new Vec3(owner.getX(), owner.getEyeY() - 0.1D, owner.getZ());
+    }
+
+    private static Vec3 getNpcCombatHookTarget(FishingHook hook) {
+        Entity trackedTarget = getNpcCombatHookTrackedTarget(hook);
+        if (trackedTarget != null) {
+            return trackedTarget.position().add(0.0D, trackedTarget.getBbHeight() * 0.55D, 0.0D);
+        }
+
+        return new Vec3(
+                hook.getPersistentData().getDouble(KEY_NPC_HOOK_TARGET_X),
+                hook.getPersistentData().getDouble(KEY_NPC_HOOK_TARGET_Y),
+                hook.getPersistentData().getDouble(KEY_NPC_HOOK_TARGET_Z)
+        );
+    }
+
+    @Nullable
+    private static Entity getNpcCombatHookTrackedTarget(FishingHook hook) {
+        int targetId = hook.getPersistentData().getInt(KEY_NPC_HOOK_TARGET_ENTITY_ID);
+        if (targetId <= 0) {
+            return null;
+        }
+
+        Entity target = hook.level().getEntity(targetId);
+        if (target == null || !target.isAlive() || target.isRemoved() || target == hook.getOwner()) {
+            hook.getPersistentData().remove(KEY_NPC_HOOK_TARGET_ENTITY_ID);
+            return null;
+        }
+
+        return target;
+    }
+
+    private static void tickClientNpcCombatFishingHook(FishingHook hook) {
+        Vec3 current = hook.position();
+        Vec3 movement = hook.getDeltaMovement();
+        hook.setPos(current.x + movement.x, current.y + movement.y, current.z + movement.z);
+        if (!hook.isNoGravity()) {
+            hook.setDeltaMovement(movement.x * 0.98D, movement.y - TONY_DETACHED_HOOK_GRAVITY, movement.z * 0.98D);
+        }
+        rotateHookToward(hook, movement);
+        hook.hasImpulse = true;
     }
 
     private static void rotateHookToward(FishingHook hook, Vec3 movement) {

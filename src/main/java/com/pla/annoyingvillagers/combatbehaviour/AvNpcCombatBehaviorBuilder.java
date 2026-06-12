@@ -36,6 +36,8 @@ public final class AvNpcCombatBehaviorBuilder {
                         Animations.BIPED_ROLL_FORWARD
                 ))
                 .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot())
+                .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodRoot())
+                .newBehaviorRoot(CombatBehaviourTemplates.villagerGeneralLavaBucketRoot())
                 .newBehaviorRoot(combatRoot(
                         CombatCommon::usesStepMoveset,
                         CombatCommon.stepAnimations(),
@@ -50,6 +52,7 @@ public final class AvNpcCombatBehaviorBuilder {
                         opener,
                         groups
                 ))
+                .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodEscapeRoot())
                 .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(WEAPON_ENDER_PEARL_AWAY_COOLDOWN, false))
                 .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())
                 .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());
@@ -79,6 +82,8 @@ public final class AvNpcCombatBehaviorBuilder {
                         Animations.BIPED_ROLL_FORWARD
                 ))
                 .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot(true))
+                .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodRoot())
+                .newBehaviorRoot(CombatBehaviourTemplates.villagerGeneralLavaBucketRoot())
                 .newBehaviorRoot(combatRoot(
                         CombatCommon::usesStepMoveset,
                         CombatCommon.stepAnimations(),
@@ -93,6 +98,7 @@ public final class AvNpcCombatBehaviorBuilder {
                         opener,
                         groups
                 ))
+                .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodEscapeRoot())
                 .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(true))
                 .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());
     }

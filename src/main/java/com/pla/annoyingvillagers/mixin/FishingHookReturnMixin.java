@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.mixin;
 
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.FishingHook;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,7 +22,24 @@ public abstract class FishingHookReturnMixin {
             cancellable = true
     )
     private void annoyingVillagers$tickTonyReturn(CallbackInfo ci) {
-        if (FishingRodGrappleUtil.tickTonyReturningHook((FishingHook)(Object)this)) {
+        FishingHook hook = (FishingHook)(Object)this;
+        if (FishingRodGrappleUtil.tickNpcCombatFishingHook(hook)
+                || FishingRodGrappleUtil.tickTonyReturningHook(hook)) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(
+            method = "recreateFromPacket",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/projectile/FishingHook;getPlayerOwner()Lnet/minecraft/world/entity/player/Player;"
+            ),
+            cancellable = true
+    )
+    private void annoyingVillagers$allowNpcCombatFishingHookOwner(ClientboundAddEntityPacket packet, CallbackInfo ci) {
+        Entity owner = ((FishingHook)(Object)this).level().getEntity(packet.getData());
+        if (FishingRodGrappleUtil.isNpcCombatFishingHookOwner(owner)) {
             ci.cancel();
         }
     }

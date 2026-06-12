@@ -95,6 +95,11 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
                     ItemProjectile.class,
                     EntityDataSerializers.BOOLEAN
             );
+    private static final EntityDataAccessor<Boolean> DATA_DISCARD_WHEN_HOOK_LOST =
+            SynchedEntityData.defineId(
+                    ItemProjectile.class,
+                    EntityDataSerializers.BOOLEAN
+            );
 
     private static final double ARRIVE_DISTANCE = 0.65D;
     private static final int MAX_LIFE = 80;
@@ -124,6 +129,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         this.entityData.define(DATA_DISARM_MOTION_Y, 0.0F);
         this.entityData.define(DATA_DISARM_MOTION_Z, 0.0F);
         this.entityData.define(DATA_HOOK_ATTACHED, false);
+        this.entityData.define(DATA_DISCARD_WHEN_HOOK_LOST, false);
     }
 
     private boolean isDisarmLaunchMode() {
@@ -228,6 +234,10 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
 
     public void setHookAttached(boolean hookAttached) {
         this.entityData.set(DATA_HOOK_ATTACHED, hookAttached);
+    }
+
+    public void setDiscardWhenHookLost(boolean discardWhenHookLost) {
+        this.entityData.set(DATA_DISCARD_WHEN_HOOK_LOST, discardWhenHookLost);
     }
 
     public void moveWithHook(Vec3 newPos, Entity ownerEntity) {
@@ -402,6 +412,10 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
 
         if (!this.level().isClientSide && !this.hasActiveHookController()) {
             this.setHookAttached(false);
+            if (this.entityData.get(DATA_DISCARD_WHEN_HOOK_LOST)) {
+                this.discard();
+                return;
+            }
             this.dropBackToItem();
         }
     }
@@ -633,6 +647,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         tag.putFloat("DisarmMotionY", this.entityData.get(DATA_DISARM_MOTION_Y));
         tag.putFloat("DisarmMotionZ", this.entityData.get(DATA_DISARM_MOTION_Z));
         tag.putBoolean("HookAttached", this.entityData.get(DATA_HOOK_ATTACHED));
+        tag.putBoolean("DiscardWhenHookLost", this.entityData.get(DATA_DISCARD_WHEN_HOOK_LOST));
     }
 
     @Override
@@ -661,6 +676,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         }
 
         this.entityData.set(DATA_HOOK_ATTACHED, tag.getBoolean("HookAttached"));
+        this.entityData.set(DATA_DISCARD_WHEN_HOOK_LOST, tag.getBoolean("DiscardWhenHookLost"));
     }
 
     @Override

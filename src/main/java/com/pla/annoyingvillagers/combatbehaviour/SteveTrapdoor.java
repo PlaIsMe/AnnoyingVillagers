@@ -36,6 +36,7 @@ public class SteveTrapdoor {
             .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot(Animations.BIPED_ROLL_BACKWARD))
             .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(Animations.BIPED_ROLL_FORWARD, Animations.BIPED_ROLL_BACKWARD))
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot())
+            .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodRoot())
             .newBehaviorRoot(
                     CombatCommon.addRandomCombatChains(
                             BehaviorRoot.builder()
@@ -60,6 +61,7 @@ public class SteveTrapdoor {
                             CombatCommon.kickAnimations(),
                             CombatCommon.rollAnimations())
             )
+            .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodEscapeRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(true))
             .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());

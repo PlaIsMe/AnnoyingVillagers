@@ -37,6 +37,7 @@ public class SteveCraftingTable {
             .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot(Animations.BIPED_ROLL_BACKWARD))
             .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(Animations.BIPED_ROLL_BACKWARD, Animations.BIPED_ROLL_FORWARD))
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot())
+            .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodRoot())
             .newBehaviorRoot(
                     CombatCommon.addRandomCombatChains(
                             BehaviorRoot.builder()
@@ -58,6 +59,7 @@ public class SteveCraftingTable {
                             CombatCommon.kickAnimations(),
                             CombatCommon.rollAnimations())
             )
+            .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodEscapeRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(true))
             .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());

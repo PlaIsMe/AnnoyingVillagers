@@ -16,75 +16,154 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
+import javax.annotation.Nullable;
+
 @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class MobTargetRedirectEvent {
+    public static boolean shouldPreserveRedirectTarget(Mob mob) {
+        LivingEntity currentTarget = mob.getTarget();
+        return currentTarget != null
+                && (getRedirectTarget(mob, currentTarget) != null || isActiveRedirectObjective(currentTarget));
+    }
+
+    @Nullable
+    public static LivingEntity getRedirectTarget(Mob mob, @Nullable LivingEntity currentTarget) {
+        if (currentTarget == null || mob instanceof BlueDemonEntity || mob instanceof BbqEntity) {
+            return null;
+        }
+
+        if (currentTarget instanceof HerobrineMob herobrineMob
+                && (herobrineMob.isSacrificing() || herobrineMob.isHealing())) {
+            if (herobrineMob.getFirstPossessedHerobrine() instanceof LivingEntity living) {
+                return normalizeRedirectTarget(living);
+            } else if (herobrineMob.getSecondPossessedHerobrine() instanceof LivingEntity living) {
+                return normalizeRedirectTarget(living);
+            } else if (herobrineMob.getThirdPossessedHerobrine() instanceof LivingEntity living) {
+                return normalizeRedirectTarget(living);
+            } else if (herobrineMob.getFourthPossessedHerobrine() instanceof LivingEntity living) {
+                return normalizeRedirectTarget(living);
+            }
+        }
+
+        if (currentTarget instanceof LowHerobrineCloneEntity lowHerobrineCloneEntity
+                && lowHerobrineCloneEntity.isHealing()
+                && lowHerobrineCloneEntity.getPossessedByEntity() != null
+                && !lowHerobrineCloneEntity.isAlive()) {
+            return lowHerobrineCloneEntity.getPossessedByEntity();
+        }
+
+        if (currentTarget instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity
+                && (lowShadowHerobrineCloneEntity.isSacrificing() || lowShadowHerobrineCloneEntity.isHealing())
+                && lowShadowHerobrineCloneEntity.getPossessedByEntity() != null
+                && !lowShadowHerobrineCloneEntity.isAlive()) {
+            return lowShadowHerobrineCloneEntity.getPossessedByEntity();
+        }
+
+        if (currentTarget instanceof NullEntity nullEntity) {
+            if (nullEntity.getFirstWitherSkeleton() != null) {
+                return normalizeRedirectTarget(nullEntity.getFirstWitherSkeleton());
+            } else if (nullEntity.getSecondWitherSkeleton() != null) {
+                return normalizeRedirectTarget(nullEntity.getSecondWitherSkeleton());
+            }
+        }
+
+        if (currentTarget instanceof NullSkeletonEntity nullSkeletonEntity
+                && nullSkeletonEntity.getNullEntity() != null
+                && !nullSkeletonEntity.isAlive()) {
+            return nullSkeletonEntity.getNullEntity();
+        }
+
+        if (currentTarget instanceof ReaperHerobrineEntity reaperHerobrineEntity
+                && reaperHerobrineEntity.isPassenger()
+                && reaperHerobrineEntity.getVehicle() instanceof HerobrineDragonEntity herobrineDragonEntity) {
+            return herobrineDragonEntity;
+        }
+
+        if (currentTarget instanceof HerobrineDragonEntity herobrineDragonEntity
+                && herobrineDragonEntity.getSummoner() instanceof ReaperHerobrineEntity reaperHerobrineEntity
+                && !reaperHerobrineEntity.isPassenger()) {
+            return reaperHerobrineEntity;
+        }
+
+        return null;
+    }
+
+    private static LivingEntity normalizeRedirectTarget(LivingEntity redirectTarget) {
+        if (redirectTarget instanceof LowHerobrineCloneEntity lowHerobrineCloneEntity
+                && lowHerobrineCloneEntity.isHealing()
+                && lowHerobrineCloneEntity.getPossessedByEntity() != null
+                && !lowHerobrineCloneEntity.isAlive()) {
+            return lowHerobrineCloneEntity.getPossessedByEntity();
+        }
+
+        if (redirectTarget instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity
+                && (lowShadowHerobrineCloneEntity.isSacrificing() || lowShadowHerobrineCloneEntity.isHealing())
+                && lowShadowHerobrineCloneEntity.getPossessedByEntity() != null
+                && !lowShadowHerobrineCloneEntity.isAlive()) {
+            return lowShadowHerobrineCloneEntity.getPossessedByEntity();
+        }
+
+        if (redirectTarget instanceof NullSkeletonEntity nullSkeletonEntity
+                && nullSkeletonEntity.getNullEntity() != null
+                && !nullSkeletonEntity.isAlive()) {
+            return nullSkeletonEntity.getNullEntity();
+        }
+
+        return redirectTarget;
+    }
+
+    private static boolean isActiveRedirectObjective(LivingEntity currentTarget) {
+        if (currentTarget instanceof LowHerobrineCloneEntity lowHerobrineCloneEntity) {
+            HerobrineMob owner = lowHerobrineCloneEntity.getPossessedByEntity();
+            return lowHerobrineCloneEntity.isHealing()
+                    && owner != null
+                    && owner.isAlive()
+                    && owner.isHealing();
+        }
+
+        if (currentTarget instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity) {
+            HerobrineMob owner = lowShadowHerobrineCloneEntity.getPossessedByEntity();
+            return (lowShadowHerobrineCloneEntity.isSacrificing() || lowShadowHerobrineCloneEntity.isHealing())
+                    && owner != null
+                    && owner.isAlive()
+                    && (owner.isSacrificing() || owner.isHealing());
+        }
+
+        if (currentTarget instanceof NullSkeletonEntity nullSkeletonEntity) {
+            NullEntity nullEntity = nullSkeletonEntity.getNullEntity();
+            return nullEntity != null
+                    && nullEntity.isAlive()
+                    && (nullEntity.getFirstWitherSkeleton() == nullSkeletonEntity
+                    || nullEntity.getSecondWitherSkeleton() == nullSkeletonEntity);
+        }
+
+        if (currentTarget instanceof HerobrineDragonEntity herobrineDragonEntity) {
+            return herobrineDragonEntity.getSummoner() instanceof ReaperHerobrineEntity reaperHerobrineEntity
+                    && reaperHerobrineEntity.isAlive()
+                    && reaperHerobrineEntity.isPassenger()
+                    && reaperHerobrineEntity.getVehicle() == herobrineDragonEntity;
+        }
+
+        return false;
+    }
+
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
         LivingEntity livingEntity = event.getEntity();
         if (livingEntity instanceof Mob mob) {
             if (mob instanceof BlueDemonEntity || mob instanceof BbqEntity) return;
-            if (mob.getTarget() instanceof HerobrineMob herobrineMob
-                    && (herobrineMob.isSacrificing() || herobrineMob.isHealing())) {
-                if (herobrineMob.getFirstPossessedHerobrine() != null
-                        && herobrineMob.getFirstPossessedHerobrine() instanceof LivingEntity living) {
-                    mob.setTarget(living);
-                } else if (herobrineMob.getSecondPossessedHerobrine() != null
-                        && herobrineMob.getSecondPossessedHerobrine() instanceof LivingEntity living) {
-                    mob.setTarget(living);
-                } else if (herobrineMob.getThirdPossessedHerobrine() != null
-                        && herobrineMob.getThirdPossessedHerobrine() instanceof LivingEntity living) {
-                    mob.setTarget(living);
-                } else if (herobrineMob.getFourthPossessedHerobrine() != null
-                        && herobrineMob.getFourthPossessedHerobrine() instanceof LivingEntity living) {
-                    mob.setTarget(living);
-                }
-            }
 
-            if (mob.getTarget() instanceof LowHerobrineCloneEntity lowHerobrineCloneEntity
-                    && lowHerobrineCloneEntity.isHealing()
-                    && lowHerobrineCloneEntity.getPossessedByEntity() != null) {
-                if (!lowHerobrineCloneEntity.isAlive()) {
-                    mob.setTarget(lowHerobrineCloneEntity.getPossessedByEntity());
-                }
-            }
-
-            if (mob.getTarget() instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity
-                    && (lowShadowHerobrineCloneEntity.isSacrificing() || lowShadowHerobrineCloneEntity.isHealing())
-                    && lowShadowHerobrineCloneEntity.getPossessedByEntity() != null) {
-                if (!lowShadowHerobrineCloneEntity.isAlive()) {
-                    mob.setTarget(lowShadowHerobrineCloneEntity.getPossessedByEntity());
-                }
-            }
-
-            if (mob.getTarget() instanceof NullEntity nullEntity
-                    && nullEntity.getFirstWitherSkeleton() != null) {
-                mob.setTarget(nullEntity.getFirstWitherSkeleton());
-            }
-
-            if (mob.getTarget() instanceof NullEntity nullEntity
-                    && nullEntity.getSecondWitherSkeleton() != null) {
-                mob.setTarget(nullEntity.getSecondWitherSkeleton());
-            }
-
-            if (mob.getTarget() instanceof NullSkeletonEntity nullSkeletonEntity
-                    && nullSkeletonEntity.getNullEntity() != null) {
-                if (!nullSkeletonEntity.isAlive()) {
-                    mob.setTarget(nullSkeletonEntity.getNullEntity());
-                }
-            }
-
-            if (mob.getTarget() instanceof ReaperHerobrineEntity reaperHerobrineEntity
-                    && reaperHerobrineEntity.isPassenger() && reaperHerobrineEntity.getVehicle() instanceof HerobrineDragonEntity herobrineDragonEntity) {
-                mob.setTarget(herobrineDragonEntity);
+            LivingEntity currentTarget = mob.getTarget();
+            LivingEntity redirectTarget = getRedirectTarget(mob, currentTarget);
+            if (redirectTarget != null) {
+                mob.setTarget(redirectTarget);
                 LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(mob, LivingEntityPatch.class);
-                if (livingEntityPatch != null && (mob instanceof AVNpc || mob instanceof PlayerNpcEntity)) {
+                if (currentTarget instanceof ReaperHerobrineEntity
+                        && redirectTarget instanceof HerobrineDragonEntity
+                        && livingEntityPatch != null
+                        && (mob instanceof AVNpc || mob instanceof PlayerNpcEntity)) {
                     CombatCommon.swapToBow((MobPatch<?>) livingEntityPatch);
                 }
-            }
-
-            if (mob.getTarget() instanceof HerobrineDragonEntity herobrineDragonEntity
-                    && herobrineDragonEntity.getSummoner() instanceof ReaperHerobrineEntity reaperHerobrineEntity && !reaperHerobrineEntity.isPassenger()) {
-                mob.setTarget(reaperHerobrineEntity);
             }
         }
     }

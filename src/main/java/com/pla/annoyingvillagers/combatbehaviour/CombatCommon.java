@@ -6,8 +6,11 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.compat.EfKick;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
+import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.task.MobExecutionTask;
 import com.pla.annoyingvillagers.util.BowFunction;
@@ -17,14 +20,18 @@ import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
@@ -59,6 +66,7 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.damagesource.StunType;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -75,6 +83,31 @@ public class CombatCommon {
     private static final int PLACE_BLOCK_INITIAL_DELAY = 1;
     private static final int PLACE_BLOCK_LAYER_INTERVAL = 3;
     private static final int PLACE_BLOCK_LANE_INTERVAL = 2;
+    private static final double NPC_COMBAT_FISHING_ROD_RADIUS = 32.0D;
+    private static final double NPC_COMBAT_FISHING_ROD_RADIUS_SQR = NPC_COMBAT_FISHING_ROD_RADIUS * NPC_COMBAT_FISHING_ROD_RADIUS;
+    private static final int NPC_COMBAT_FISHING_ROD_MIN_COOLDOWN = 120;
+    private static final int NPC_COMBAT_FISHING_ROD_RANDOM_COOLDOWN = 120;
+    private static final int NPC_COMBAT_FISHING_ROD_MAX_WAIT_TICKS = 80;
+    private static final int NPC_COMBAT_FISHING_ROD_AROUND_SEARCH_RADIUS = 12;
+    private static final double NPC_COMBAT_FISHING_ROD_STICK_CHANCE_MIN = 0.30D;
+    private static final double NPC_COMBAT_FISHING_ROD_STICK_CHANCE_MAX = 0.50D;
+    private static final double NPC_COMBAT_FISHING_ROD_STICK_LOSE_CHANCE = 0.35D;
+    private static final int NPC_FISHING_ROD_ACTION_PULL_TARGET = 0;
+    private static final int NPC_FISHING_ROD_ACTION_SELF_TO_TARGET = 1;
+    private static final int NPC_FISHING_ROD_ACTION_AROUND = 2;
+    private static final int NPC_FISHING_ROD_ACTION_JESSICA_PULL_TARGET = 3;
+    private static final int NPC_LAVA_BUCKET_MIN_COOLDOWN = 160;
+    private static final int NPC_LAVA_BUCKET_RANDOM_COOLDOWN = 140;
+    private static final int NPC_LAVA_BUCKET_ACTION_DELAY = 6;
+    private static final int NPC_LAVA_BUCKET_PICKUP_DELAY = 40;
+    private static final int NPC_LAVA_BUCKET_RESTORE_DELAY = 4;
+    private static final String KEY_NPC_COMBAT_FISHING_ROD_ACTIVE = "avNpcCombatFishingRodActive";
+    private static final String KEY_NPC_COMBAT_FISHING_ROD_ORIGINAL_OFFHAND = "avNpcCombatFishingRodOriginalOffhand";
+    private static final String KEY_NPC_COMBAT_FISHING_ROD_USE_COUNT = "avNpcCombatFishingRodUseCount";
+    private static final String KEY_NPC_COMBAT_FISHING_ROD_COOLDOWN_UNTIL = "avNpcCombatFishingRodCooldownUntil";
+    private static final String KEY_NPC_COMBAT_FISHING_ROD_STICKY_TARGET_ID = "avNpcCombatFishingRodStickyTargetId";
+    private static final String KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND = "avNpcLavaBucketOriginalOffhand";
+    private static final String KEY_NPC_LAVA_BUCKET_COOLDOWN_UNTIL = "avNpcLavaBucketCooldownUntil";
 
     public static boolean isHoldingWeapon(LivingEntity entity) {
         CapabilityItem capabilityItem = EpicFightCapabilities.getItemStackCapability(entity.getItemInHand(InteractionHand.MAIN_HAND));
@@ -391,6 +424,69 @@ public class CombatCommon {
         return false;
     }
 
+    public static boolean isGeneral(MobPatch<?> mobpatch) {
+        return isGeneralMob(mobpatch.getOriginal());
+    }
+
+    public static boolean canUseNpcCombatFishingRod(MobPatch<?> mobpatch) {
+        Mob mob = mobpatch.getOriginal();
+        LivingEntity target = getNpcCombatFishingRodStickyTarget(mob);
+        if (target == null) {
+            target = mob.getTarget();
+        }
+        if (!isNpcCombatFishingRodUser(mobpatch) || target == null || !target.isAlive()) {
+            return false;
+        }
+        if (mob.level().isClientSide || mob.isPassenger()) {
+            return false;
+        }
+        if (mob.distanceToSqr(target) > NPC_COMBAT_FISHING_ROD_RADIUS_SQR) {
+            return false;
+        }
+        if (isStevePhaseOneFishingRodBlocked(mob)) {
+            return false;
+        }
+
+        return isNpcCombatFishingRodSessionActive(mob)
+                || mob.level().getGameTime() >= getPersistentLong(mob, KEY_NPC_COMBAT_FISHING_ROD_COOLDOWN_UNTIL);
+    }
+
+    public static boolean canUseNpcCombatFishingRodEscape(MobPatch<?> mobpatch) {
+        Mob mob = mobpatch.getOriginal();
+        if (!isNpcCombatFishingRodUser(mobpatch) || mob.level().isClientSide || mob.isPassenger()) {
+            return false;
+        }
+        LivingEntity target = mob.getTarget();
+        if (target != null && mob.distanceToSqr(target) > NPC_COMBAT_FISHING_ROD_RADIUS_SQR) {
+            return false;
+        }
+        if (isStevePhaseOneFishingRodBlocked(mob)) {
+            return false;
+        }
+
+        return isNpcCombatFishingRodSessionActive(mob)
+                || mob.level().getGameTime() >= getPersistentLong(mob, KEY_NPC_COMBAT_FISHING_ROD_COOLDOWN_UNTIL);
+    }
+
+    public static boolean canUseVillagerGeneralLavaBucket(MobPatch<?> mobpatch) {
+        Mob mob = mobpatch.getOriginal();
+        LivingEntity target = mob.getTarget();
+        if (!isGeneral(mobpatch) || target == null || !target.isAlive()) {
+            return false;
+        }
+        if (!(mob.level() instanceof ServerLevel serverLevel) || mob.isPassenger() || isNpcCombatFishingRodSessionActive(mob)) {
+            return false;
+        }
+        if (mob.distanceToSqr(target) > 144.0D) {
+            return false;
+        }
+        if (mob.level().getGameTime() < getPersistentLong(mob, KEY_NPC_LAVA_BUCKET_COOLDOWN_UNTIL)) {
+            return false;
+        }
+
+        return findLavaPlacement(serverLevel, target) != null;
+    }
+
     public static boolean canSwapToBow(MobPatch<?> mobpatch) {
         LivingEntity target = mobpatch.getOriginal().getTarget();
         if (target == null || !target.isAlive()) {
@@ -518,6 +614,196 @@ public class CombatCommon {
             AVNpc.setEnderPearlCooldown();
         }
         CombatBehaviour.throwEnderPearl(entity, 0.0F);
+    }
+
+    public static void performNpcCombatFishingRod(MobPatch<?> mobpatch) {
+        performNpcCombatFishingRod(mobpatch, false);
+    }
+
+    public static void performNpcCombatFishingRodEscape(MobPatch<?> mobpatch) {
+        performNpcCombatFishingRod(mobpatch, true);
+    }
+
+    private static void performNpcCombatFishingRod(MobPatch<?> mobpatch, boolean escape) {
+        if (escape) {
+            if (!canUseNpcCombatFishingRodEscape(mobpatch)) return;
+        } else if (!canUseNpcCombatFishingRod(mobpatch)) {
+            return;
+        }
+
+        final Mob mob = mobpatch.getOriginal();
+        LivingEntity stickyTarget = getNpcCombatFishingRodStickyTarget(mob);
+        final LivingEntity target = stickyTarget != null ? stickyTarget : mob.getTarget();
+        if (tryRestoreNpcCombatFishingRodBeforeNextHook(mob)) {
+            return;
+        }
+
+        beginNpcCombatFishingRodSession(mob);
+        cancelCombatEvolutionGuard(mobpatch);
+        mob.getNavigation().stop();
+        mob.swing(InteractionHand.OFF_HAND, true);
+        mob.playSound(SoundEvents.FISHING_BOBBER_THROW, 1.0F, 1.0F);
+        if (target != null) {
+            mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
+        }
+
+        final int action = escape ? NPC_FISHING_ROD_ACTION_AROUND : chooseNpcCombatFishingRodAction(mob, target);
+        final Vec3 hookAnchor = resolveNpcCombatFishingRodAnchor(mob, target, action, escape);
+        Vec3 visualHookTarget = hookAnchor;
+        if (visualHookTarget == null && target != null) {
+            visualHookTarget = target.position().add(0.0D, target.getBbHeight() * 0.55D, 0.0D);
+        }
+        final Entity trackedHookTarget = target != null && (isNpcCombatFishingRodTargetPullAction(action) || hookAnchor == null) ? target : null;
+        final FishingHook hook = visualHookTarget != null ? FishingRodGrappleUtil.spawnNpcCombatFishingHook(mob, visualHookTarget, trackedHookTarget) : null;
+        final ItemStack stuckItem = shouldUseSteveJessicaHook(mob, action) ? new ItemStack(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get()) : ItemStack.EMPTY;
+        if (!stuckItem.isEmpty()) {
+            FishingRodGrappleUtil.attachNpcCombatFishingHookPayload(hook, mob, stuckItem);
+        }
+
+        scheduleNpcCombatFishingRodResolution(mob, target, action, hookAnchor, stuckItem, hook, 0);
+        incrementNpcCombatFishingRodUseCount(mob);
+    }
+
+    private static void scheduleNpcCombatFishingRodResolution(
+            Mob mob,
+            @Nullable LivingEntity target,
+            int action,
+            @Nullable Vec3 hookAnchor,
+            ItemStack stuckItem,
+            @Nullable FishingHook hook,
+            int waitedTicks
+    ) {
+        new DelayedTask(1) {
+            @Override
+            public void run() {
+                if (!mob.isAlive()) {
+                    FishingRodGrappleUtil.forceNpcCombatFishingHookReturn(hook);
+                    return;
+                }
+
+                boolean maxWaitReached = waitedTicks >= NPC_COMBAT_FISHING_ROD_MAX_WAIT_TICKS;
+                if (!FishingRodGrappleUtil.isNpcCombatFishingHookResolved(hook) && !maxWaitReached) {
+                    scheduleNpcCombatFishingRodResolution(mob, target, action, hookAnchor, stuckItem, hook, waitedTicks + 1);
+                    return;
+                }
+
+                if (maxWaitReached) {
+                    FishingRodGrappleUtil.forceNpcCombatFishingHookReturn(hook);
+                }
+
+                LivingEntity currentTarget = target != null && target.isAlive() ? target : mob.getTarget();
+                if (currentTarget != null) {
+                    mob.getLookControl().setLookAt(currentTarget, 30.0F, 30.0F);
+                }
+
+                if (isNpcCombatFishingRodTargetPullAction(action) && currentTarget != null && currentTarget.isAlive()) {
+                    pullTargetToMob(mob, currentTarget);
+                    updateNpcCombatFishingRodStickyTarget(mob, currentTarget, action);
+                    if (!stuckItem.isEmpty()) {
+                        damageEnemyHitByNpcHookedFishingRodItem(mob, currentTarget, stuckItem);
+                    }
+                } else {
+                    Vec3 destination = hookAnchor;
+                    if (destination == null && currentTarget != null) {
+                        destination = currentTarget.position().add(0.0D, currentTarget.getBbHeight() * 0.45D, 0.0D);
+                    }
+                    if (destination != null) {
+                        pullEntityToward(mob, destination, 1.25D, 0.25D);
+                    }
+                }
+
+                mob.playSound(SoundEvents.FISHING_BOBBER_RETRIEVE, 1.0F, 1.0F);
+            }
+        };
+    }
+
+    public static boolean damageEnemyHitByNpcHookedFishingRodItem(Mob owner, LivingEntity target, ItemStack stuckItem) {
+        if (!owner.isAlive() || !target.isAlive() || target.isSpectator() || owner.isAlliedTo(target)) {
+            return false;
+        }
+
+        float damage = calculateNpcHookedFishingRodItemDamage(stuckItem, target);
+        if (!target.hurt(target.level().damageSources().mobAttack(owner), damage)) {
+            return false;
+        }
+
+        if (stuckItem.is(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get())) {
+            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+            if (targetPatch != null) {
+                if (!targetPatch.isStunned()) {
+                    targetPatch.applyStun(StunType.LONG, 0.0F);
+                }
+                if (targetPatch.isStunned()) {
+                    targetPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+                }
+            }
+            target.playSound(SoundEvents.SHIELD_BLOCK, 1.0F, 0.8F);
+        }
+
+        return true;
+    }
+
+    public static void performVillagerGeneralLavaBucket(MobPatch<?> mobpatch) {
+        if (!canUseVillagerGeneralLavaBucket(mobpatch)) {
+            return;
+        }
+
+        final Mob mob = mobpatch.getOriginal();
+        final LivingEntity target = mob.getTarget();
+        if (!(mob.level() instanceof ServerLevel serverLevel) || target == null) {
+            return;
+        }
+
+        cancelCombatEvolutionGuard(mobpatch);
+        equipTemporaryOffhand(mob, new ItemStack(Items.LAVA_BUCKET), KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND);
+        setPersistentLong(mob, KEY_NPC_LAVA_BUCKET_COOLDOWN_UNTIL,
+                mob.level().getGameTime() + NPC_LAVA_BUCKET_MIN_COOLDOWN + new Random().nextInt(NPC_LAVA_BUCKET_RANDOM_COOLDOWN + 1));
+        mob.swing(InteractionHand.OFF_HAND, true);
+        mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
+
+        new DelayedTask(NPC_LAVA_BUCKET_ACTION_DELAY) {
+            @Override
+            public void run() {
+                if (!mob.isAlive()) return;
+                if (!target.isAlive()) {
+                    restoreTemporaryOffhand(mob, KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND);
+                    return;
+                }
+
+                final BlockPos placement = findLavaPlacement(serverLevel, target);
+                if (placement != null) {
+                    mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
+                    mob.playSound(SoundEvents.BUCKET_EMPTY_LAVA, 1.0F, 1.0F);
+                    serverLevel.setBlockAndUpdate(placement, Blocks.LAVA.defaultBlockState());
+                    mob.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.BUCKET));
+
+                    new DelayedTask(NPC_LAVA_BUCKET_PICKUP_DELAY) {
+                        @Override
+                        public void run() {
+                            if (!mob.isAlive()) return;
+
+                            mob.swing(InteractionHand.OFF_HAND, true);
+                            if (serverLevel.getBlockState(placement).is(Blocks.LAVA)) {
+                                mob.playSound(SoundEvents.BUCKET_FILL_LAVA, 1.0F, 1.0F);
+                                serverLevel.setBlockAndUpdate(placement, Blocks.AIR.defaultBlockState());
+                            }
+                            mob.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.LAVA_BUCKET));
+
+                            new DelayedTask(NPC_LAVA_BUCKET_RESTORE_DELAY) {
+                                @Override
+                                public void run() {
+                                    if (mob.isAlive()) {
+                                        restoreTemporaryOffhand(mob, KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND);
+                                    }
+                                }
+                            };
+                        }
+                    };
+                } else {
+                    restoreTemporaryOffhand(mob, KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND);
+                }
+            }
+        };
     }
 
     public static void placeRandomFrontWall(MobPatch<?> mobpatch) {
@@ -909,6 +1195,399 @@ public class CombatCommon {
             }
             AVNpc.setSwapToBowCooldown();
         }
+    }
+
+    private static boolean isNpcCombatFishingRodUser(MobPatch<?> mobpatch) {
+        Mob mob = mobpatch.getOriginal();
+        return isGeneral(mobpatch) || mob instanceof SteveEntity || mob instanceof AngrySteveEntity;
+    }
+
+    private static boolean isGeneralMob(Mob mob) {
+        return mob instanceof RedVillagerGeneralEntity
+                || mob instanceof BlueVillagerGeneralEntity
+                || mob instanceof GreenVillagerGeneralEntity
+                || mob instanceof PurpleVillagerGeneralEntity;
+    }
+
+    private static boolean isNpcCombatFishingRodSessionActive(Mob mob) {
+        return mob.getPersistentData().getBoolean(KEY_NPC_COMBAT_FISHING_ROD_ACTIVE);
+    }
+
+    private static boolean isStevePhaseOneFishingRodBlocked(Mob mob) {
+        return mob instanceof SteveEntity steveEntity
+                && steveEntity.getState() == 0
+                && !isNpcCombatFishingRodSessionActive(mob);
+    }
+
+    private static Item getNpcCombatFishingRodItem(Mob mob) {
+        return isGeneralMob(mob)
+                ? AnnoyingVillagersModItems.ADVANCED_FISHING_ROD.get()
+                : AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get();
+    }
+
+    private static void beginNpcCombatFishingRodSession(Mob mob) {
+        CompoundTag data = mob.getPersistentData();
+        if (!data.getBoolean(KEY_NPC_COMBAT_FISHING_ROD_ACTIVE)) {
+            saveOffhand(mob, KEY_NPC_COMBAT_FISHING_ROD_ORIGINAL_OFFHAND);
+            data.putBoolean(KEY_NPC_COMBAT_FISHING_ROD_ACTIVE, true);
+            data.putInt(KEY_NPC_COMBAT_FISHING_ROD_USE_COUNT, 0);
+        }
+
+        Item rodItem = getNpcCombatFishingRodItem(mob);
+        if (!mob.getOffhandItem().is(rodItem)) {
+            mob.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(rodItem));
+        }
+    }
+
+    private static boolean tryRestoreNpcCombatFishingRodBeforeNextHook(Mob mob) {
+        if (!isNpcCombatFishingRodSessionActive(mob)) {
+            return false;
+        }
+        if (getNpcCombatFishingRodStickyTarget(mob) != null) {
+            return false;
+        }
+
+        int useCount = Math.max(0, mob.getPersistentData().getInt(KEY_NPC_COMBAT_FISHING_ROD_USE_COUNT));
+        if (useCount == 0) {
+            return false;
+        }
+
+        double restoreChance = Math.min(0.6D, (double) useCount * 0.2D);
+        if (new Random().nextDouble() > restoreChance) {
+            return false;
+        }
+
+        restoreNpcCombatFishingRodSession(mob, true);
+        return true;
+    }
+
+    private static void incrementNpcCombatFishingRodUseCount(Mob mob) {
+        CompoundTag data = mob.getPersistentData();
+        data.putInt(KEY_NPC_COMBAT_FISHING_ROD_USE_COUNT, data.getInt(KEY_NPC_COMBAT_FISHING_ROD_USE_COUNT) + 1);
+    }
+
+    private static void restoreNpcCombatFishingRodSession(Mob mob, boolean setCooldown) {
+        ItemStack originalOffhand = loadOffhand(mob, KEY_NPC_COMBAT_FISHING_ROD_ORIGINAL_OFFHAND);
+        mob.setItemInHand(InteractionHand.OFF_HAND, originalOffhand.copy());
+
+        CompoundTag data = mob.getPersistentData();
+        data.remove(KEY_NPC_COMBAT_FISHING_ROD_ACTIVE);
+        data.remove(KEY_NPC_COMBAT_FISHING_ROD_ORIGINAL_OFFHAND);
+        data.remove(KEY_NPC_COMBAT_FISHING_ROD_USE_COUNT);
+        data.remove(KEY_NPC_COMBAT_FISHING_ROD_STICKY_TARGET_ID);
+
+        if (setCooldown) {
+            setPersistentLong(mob, KEY_NPC_COMBAT_FISHING_ROD_COOLDOWN_UNTIL,
+                    mob.level().getGameTime() + NPC_COMBAT_FISHING_ROD_MIN_COOLDOWN + new Random().nextInt(NPC_COMBAT_FISHING_ROD_RANDOM_COOLDOWN + 1));
+        }
+    }
+
+    private static int chooseNpcCombatFishingRodAction(Mob mob, @Nullable LivingEntity target) {
+        if (target == null) {
+            return NPC_FISHING_ROD_ACTION_AROUND;
+        }
+
+        double roll = new Random().nextDouble();
+        double distance = mob.distanceTo(target);
+        if (getNpcCombatFishingRodStickyTarget(mob) != null) {
+            return NPC_FISHING_ROD_ACTION_PULL_TARGET;
+        }
+        if (mob instanceof SteveEntity steveEntity && steveEntity.getState() == 1) {
+            if (roll < 0.50D) return NPC_FISHING_ROD_ACTION_JESSICA_PULL_TARGET;
+            if (roll < 0.70D) return NPC_FISHING_ROD_ACTION_PULL_TARGET;
+            if (roll < 0.90D) return NPC_FISHING_ROD_ACTION_SELF_TO_TARGET;
+            return NPC_FISHING_ROD_ACTION_AROUND;
+        }
+        if (mob instanceof AngrySteveEntity) {
+            if (roll < 0.30D) return NPC_FISHING_ROD_ACTION_PULL_TARGET;
+            if (roll < 0.70D || distance > 8.0D) return NPC_FISHING_ROD_ACTION_SELF_TO_TARGET;
+            return NPC_FISHING_ROD_ACTION_AROUND;
+        }
+        if (distance > 12.0D) {
+            return roll < 0.55D ? NPC_FISHING_ROD_ACTION_SELF_TO_TARGET : NPC_FISHING_ROD_ACTION_PULL_TARGET;
+        }
+        if (distance < 3.0D) {
+            return roll < 0.45D ? NPC_FISHING_ROD_ACTION_PULL_TARGET : NPC_FISHING_ROD_ACTION_AROUND;
+        }
+
+        if (roll < 0.45D) return NPC_FISHING_ROD_ACTION_PULL_TARGET;
+        if (roll < 0.80D) return NPC_FISHING_ROD_ACTION_SELF_TO_TARGET;
+        return NPC_FISHING_ROD_ACTION_AROUND;
+    }
+
+    private static boolean shouldUseSteveJessicaHook(Mob mob, int action) {
+        return action == NPC_FISHING_ROD_ACTION_JESSICA_PULL_TARGET
+                && mob instanceof SteveEntity steveEntity
+                && steveEntity.getState() == 1;
+    }
+
+    private static boolean isNpcCombatFishingRodTargetPullAction(int action) {
+        return action == NPC_FISHING_ROD_ACTION_PULL_TARGET
+                || action == NPC_FISHING_ROD_ACTION_JESSICA_PULL_TARGET;
+    }
+
+    @Nullable
+    private static LivingEntity getNpcCombatFishingRodStickyTarget(Mob mob) {
+        int stickyTargetId = mob.getPersistentData().getInt(KEY_NPC_COMBAT_FISHING_ROD_STICKY_TARGET_ID);
+        if (stickyTargetId <= 0) {
+            return null;
+        }
+
+        Entity entity = mob.level().getEntity(stickyTargetId);
+        if (!(entity instanceof LivingEntity livingEntity)
+                || !livingEntity.isAlive()
+                || livingEntity.isRemoved()
+                || livingEntity == mob
+                || mob.isAlliedTo(livingEntity)) {
+            mob.getPersistentData().remove(KEY_NPC_COMBAT_FISHING_ROD_STICKY_TARGET_ID);
+            return null;
+        }
+
+        return livingEntity;
+    }
+
+    private static void updateNpcCombatFishingRodStickyTarget(Mob mob, LivingEntity target, int action) {
+        if (action != NPC_FISHING_ROD_ACTION_PULL_TARGET) {
+            return;
+        }
+
+        CompoundTag data = mob.getPersistentData();
+        int stickyTargetId = data.getInt(KEY_NPC_COMBAT_FISHING_ROD_STICKY_TARGET_ID);
+        if (stickyTargetId == target.getId()) {
+            if (new Random().nextDouble() < NPC_COMBAT_FISHING_ROD_STICK_LOSE_CHANCE) {
+                data.remove(KEY_NPC_COMBAT_FISHING_ROD_STICKY_TARGET_ID);
+            }
+            return;
+        }
+
+        double stickChance = NPC_COMBAT_FISHING_ROD_STICK_CHANCE_MIN
+                + new Random().nextDouble() * (NPC_COMBAT_FISHING_ROD_STICK_CHANCE_MAX - NPC_COMBAT_FISHING_ROD_STICK_CHANCE_MIN);
+        if (new Random().nextDouble() < stickChance) {
+            data.putInt(KEY_NPC_COMBAT_FISHING_ROD_STICKY_TARGET_ID, target.getId());
+        }
+    }
+
+    @Nullable
+    private static Vec3 resolveNpcCombatFishingRodAnchor(Mob mob, @Nullable LivingEntity target, int action, boolean escape) {
+        if (action == NPC_FISHING_ROD_ACTION_SELF_TO_TARGET) {
+            Vec3 blockBetween = findHookBlockBetween(mob, target);
+            if (blockBetween != null) {
+                return blockBetween;
+            }
+            return target == null ? null : target.position().add(0.0D, target.getBbHeight() * 0.45D, 0.0D);
+        }
+
+        if (action == NPC_FISHING_ROD_ACTION_AROUND) {
+            Vec3 aroundAnchor = findNpcCombatFishingRodAroundAnchor(mob, target, escape);
+            if (aroundAnchor != null) {
+                return aroundAnchor;
+            }
+            if (escape && target != null) {
+                Vec3 away = mob.position().subtract(target.position());
+                if (away.lengthSqr() > 1.0E-6D) {
+                    Vec3 horizontal = new Vec3(away.x, 0.0D, away.z).normalize();
+                    return mob.position().add(horizontal.scale(6.0D)).add(0.0D, 2.0D, 0.0D);
+                }
+            }
+            return target == null ? null : target.position().add(0.0D, target.getBbHeight() * 0.45D, 0.0D);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private static Vec3 findHookBlockBetween(Mob mob, @Nullable LivingEntity target) {
+        if (target == null) {
+            return null;
+        }
+
+        Level level = mob.level();
+        Vec3 start = mob.getEyePosition();
+        Vec3 end = target.getEyePosition();
+        Vec3 delta = end.subtract(start);
+        for (int i = 2; i <= 14; i++) {
+            double t = (double) i / 16.0D;
+            BlockPos pos = BlockPos.containing(start.add(delta.scale(t)));
+            BlockState state = level.getBlockState(pos);
+            if (isHookAnchorBlock(level, pos, state) && hasHookLine(level, mob, pos)) {
+                return Vec3.atCenterOf(pos);
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private static Vec3 findNpcCombatFishingRodAroundAnchor(Mob mob, @Nullable LivingEntity target, boolean escape) {
+        Level level = mob.level();
+        BlockPos origin = mob.blockPosition();
+        Vec3 targetDirection = Vec3.ZERO;
+        if (target != null) {
+            Vec3 towardTarget = target.position().subtract(mob.position());
+            Vec3 horizontal = new Vec3(towardTarget.x, 0.0D, towardTarget.z);
+            if (horizontal.lengthSqr() > 1.0E-6D) {
+                targetDirection = horizontal.normalize();
+            }
+        }
+
+        BlockPos bestPos = null;
+        double bestScore = -Double.MAX_VALUE;
+        int radius = NPC_COMBAT_FISHING_ROD_AROUND_SEARCH_RADIUS;
+        int radiusSqr = radius * radius;
+        for (int dy = -2; dy <= 12; dy++) {
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    int distSqr = dx * dx + dy * dy + dz * dz;
+                    if (distSqr < 9 || distSqr > radiusSqr) {
+                        continue;
+                    }
+
+                    BlockPos pos = origin.offset(dx, dy, dz);
+                    BlockState state = level.getBlockState(pos);
+                    if (!isHookAnchorBlock(level, pos, state) || !hasHookLine(level, mob, pos)) {
+                        continue;
+                    }
+
+                    double score = Math.sqrt(distSqr);
+                    if (state.is(BlockTags.LEAVES)) {
+                        score += 1000.0D;
+                    }
+                    if (dy > 0) {
+                        score += (double) dy * 4.0D;
+                    }
+
+                    if (targetDirection != Vec3.ZERO) {
+                        Vec3 toAnchor = new Vec3(dx, 0.0D, dz);
+                        if (toAnchor.lengthSqr() > 1.0E-6D) {
+                            double dot = toAnchor.normalize().dot(targetDirection);
+                            if (escape) {
+                                score -= dot * 90.0D;
+                            } else {
+                                score += dot > 0.75D ? -60.0D : (0.35D - Math.min(dot, 0.35D)) * 35.0D;
+                            }
+                        }
+                    }
+
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestPos = pos;
+                    }
+                }
+            }
+        }
+
+        return bestPos == null ? null : Vec3.atCenterOf(bestPos);
+    }
+
+    private static boolean isHookAnchorBlock(Level level, BlockPos pos, BlockState state) {
+        return state.is(BlockTags.LEAVES) || !state.getCollisionShape(level, pos).isEmpty();
+    }
+
+    private static boolean hasHookLine(Level level, Mob mob, BlockPos pos) {
+        BlockHitResult hit = level.clip(new ClipContext(
+                mob.getEyePosition(),
+                Vec3.atCenterOf(pos),
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                mob
+        ));
+        return hit.getType() == HitResult.Type.MISS || hit.getBlockPos().equals(pos);
+    }
+
+    private static void pullTargetToMob(Mob mob, LivingEntity target) {
+        Vec3 destination = mob.position().add(0.0D, mob.getBbHeight() * 0.45D, 0.0D);
+        pullEntityToward(target, destination, 1.05D, 0.20D);
+    }
+
+    private static void pullEntityToward(Entity entity, Vec3 destination, double power, double yBoost) {
+        Vec3 center = entity.position().add(0.0D, entity.getBbHeight() * 0.5D, 0.0D);
+        Vec3 delta = destination.subtract(center);
+        if (delta.lengthSqr() < 1.0E-4D) {
+            return;
+        }
+
+        Vec3 impulse = delta.normalize().scale(power);
+        impulse = new Vec3(impulse.x, Math.max(impulse.y + yBoost, yBoost), impulse.z);
+        entity.setDeltaMovement(entity.getDeltaMovement().add(impulse));
+        entity.hasImpulse = true;
+        entity.hurtMarked = true;
+        entity.fallDistance = 0.0F;
+        if (entity instanceof Mob mob) {
+            mob.getNavigation().stop();
+        }
+    }
+
+    private static float calculateNpcHookedFishingRodItemDamage(ItemStack stuckItem, LivingEntity target) {
+        if (stuckItem.is(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get())) {
+            return 10.0F;
+        }
+        if (stuckItem.getItem() instanceof ShieldItem) {
+            return 8.0F;
+        }
+        return 4.0F;
+    }
+
+    @Nullable
+    private static BlockPos findLavaPlacement(ServerLevel level, LivingEntity target) {
+        BlockPos foot = target.blockPosition();
+        if (canPlaceLavaAt(level, foot)) {
+            return foot;
+        }
+        BlockPos above = foot.above();
+        if (canPlaceLavaAt(level, above)) {
+            return above;
+        }
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            BlockPos side = foot.relative(direction);
+            if (canPlaceLavaAt(level, side)) {
+                return side;
+            }
+        }
+        return null;
+    }
+
+    private static boolean canPlaceLavaAt(ServerLevel level, BlockPos pos) {
+        return level.getBlockState(pos).canBeReplaced();
+    }
+
+    private static void equipTemporaryOffhand(Mob mob, ItemStack stack, String originalKey) {
+        saveOffhand(mob, originalKey);
+        mob.setItemInHand(InteractionHand.OFF_HAND, stack.copy());
+    }
+
+    private static void restoreTemporaryOffhand(Mob mob, String originalKey) {
+        ItemStack original = loadOffhand(mob, originalKey);
+        mob.setItemInHand(InteractionHand.OFF_HAND, original.copy());
+        mob.getPersistentData().remove(originalKey);
+    }
+
+    private static void saveOffhand(Mob mob, String key) {
+        CompoundTag data = mob.getPersistentData();
+        ItemStack stack = mob.getOffhandItem();
+        if (stack.isEmpty()) {
+            data.remove(key);
+            return;
+        }
+
+        CompoundTag stackTag = new CompoundTag();
+        stack.save(stackTag);
+        data.put(key, stackTag);
+    }
+
+    private static ItemStack loadOffhand(Mob mob, String key) {
+        CompoundTag data = mob.getPersistentData();
+        if (!data.contains(key, Tag.TAG_COMPOUND)) {
+            return ItemStack.EMPTY;
+        }
+        return ItemStack.of(data.getCompound(key));
+    }
+
+    private static long getPersistentLong(Mob mob, String key) {
+        return mob.getPersistentData().getLong(key);
+    }
+
+    private static void setPersistentLong(Mob mob, String key, long value) {
+        mob.getPersistentData().putLong(key, value);
     }
 
     public static void jump(MobPatch<?> mobpatch) {

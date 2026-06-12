@@ -10,6 +10,7 @@ import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
+import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
@@ -414,6 +415,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
 
     protected void registerGoals() {
         super.registerGoals();
+        this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
         this.goalSelector.addGoal(1, new KeepPositionGoal(this));
         this.goalSelector.addGoal(1, new Goal() {
             @Override

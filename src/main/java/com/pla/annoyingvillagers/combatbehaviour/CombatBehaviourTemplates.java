@@ -229,6 +229,52 @@ public final class CombatBehaviourTemplates {
         return enderPearlToTargetRoot(false);
     }
 
+    public static BehaviorRoot.Builder<MobPatch<?>> combatFishingRodRoot() {
+        return BehaviorRoot.builder()
+                .priority(2.0D)
+                .weight(55.0D)
+                .maxCooldown(35)
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .custom(CombatCommon::canPerformNormalAttackLogic)
+                                .custom(CombatCommon::canUseNpcCombatFishingRod)
+                                .withinDistance(0.0D, 32.0D)
+                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
+                                .addExBehavior(CombatCommon::performNpcCombatFishingRod)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> combatFishingRodEscapeRoot() {
+        return BehaviorRoot.builder()
+                .priority(3.0D)
+                .weight(1000.0D)
+                .maxCooldown(35)
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .custom(CombatCommon::canEscape)
+                                .custom(CombatCommon::canUseNpcCombatFishingRodEscape)
+                                .withinDistance(0.0D, 32.0D)
+                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
+                                .addExBehavior(CombatCommon::performNpcCombatFishingRodEscape)
+                );
+    }
+
+    public static BehaviorRoot.Builder<MobPatch<?>> villagerGeneralLavaBucketRoot() {
+        return BehaviorRoot.builder()
+                .priority(2.0D)
+                .weight(30.0D)
+                .maxCooldown(120)
+                .addFirstBehavior(
+                        Behavior.builder()
+                                .custom(CombatCommon::canPerformNormalAttackLogic)
+                                .custom(CombatCommon::isGeneral)
+                                .custom(CombatCommon::canUseVillagerGeneralLavaBucket)
+                                .withinDistance(0.0D, 5.0D)
+                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
+                                .addExBehavior(CombatCommon::performVillagerGeneralLavaBucket)
+                );
+    }
+
     public static BehaviorRoot.Builder<MobPatch<?>> enderPearlToTargetRoot(boolean requireAttackWhileNotHealing) {
         Behavior.Builder<MobPatch<?>> behavior = Behavior.builder()
                 .custom(CombatCommon::canPerformNormalAttackLogic)

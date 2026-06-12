@@ -65,6 +65,7 @@ public class SteveLegendarySword {
             .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(Animations.BIPED_STEP_FORWARD, Animations.BIPED_STEP_BACKWARD, Animations.BIPED_STEP_LEFT, Animations.BIPED_STEP_RIGHT))
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot())
+            .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodRoot())
             .newBehaviorRoot(
                     CombatCommon.addRandomCombatChains(
                             BehaviorRoot.builder()
@@ -116,6 +117,7 @@ public class SteveLegendarySword {
                                             .addExBehavior(SteveLegendarySword::legendarySwordHeavyAttack)
                             )
             )
+            .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodEscapeRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(true))
             .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());

@@ -56,6 +56,7 @@ public class SteveFist {
             .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot(Animations.BIPED_ROLL_BACKWARD))
             .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(Animations.BIPED_ROLL_BACKWARD, Animations.BIPED_ROLL_FORWARD))
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot(true))
+            .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodRoot())
             .newBehaviorRoot(
                     CombatCommon.addRandomCombatChains(
                             BehaviorRoot.builder()
@@ -82,6 +83,7 @@ public class SteveFist {
                             CombatCommon.fistKickAnimations(),
                             CombatCommon.rollAnimations())
             )
+            .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodEscapeRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(true))
             .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());
 }

@@ -31,6 +31,7 @@ public class AngrySteveLegendarySword {
             .newBehaviorRoot(CombatBehaviourTemplates.eatingRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.swapToBowRoot(Animations.BIPED_STEP_FORWARD, Animations.BIPED_STEP_BACKWARD, Animations.BIPED_STEP_LEFT, Animations.BIPED_STEP_RIGHT))
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot())
+            .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodRoot())
             .newBehaviorRoot(
                     CombatCommon.addRandomCombatChains(
                             BehaviorRoot.builder()
@@ -108,6 +109,7 @@ public class AngrySteveLegendarySword {
                                             .addExBehavior(AngrySteveLegendarySword::legendarySwordHeavyAttack)
                             )
             )
+            .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodEscapeRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.enderPearlAwayRoot(true))
             .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())
             .newBehaviorRoot(CombatBehaviourTemplates.jumpRoot());

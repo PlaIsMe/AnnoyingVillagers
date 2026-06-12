@@ -13,7 +13,9 @@ import net.minecraft.client.renderer.entity.FishingHookRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.ItemStack;
@@ -61,8 +63,8 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
             int packedLight,
             CallbackInfo ci
     ) {
-        Player player = hook.getPlayerOwner();
-        if (player != null) {
+        Entity hookOwner = hook.getOwner();
+        if (hookOwner instanceof LivingEntity owner) {
             poseStack.pushPose();
             poseStack.pushPose();
             poseStack.scale(0.5F, 0.5F, 0.5F);
@@ -79,15 +81,15 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
             annoyingVillagers$vertex(hookBuffer, matrix, normal, packedLight, 0.0F, 1, 0, 0);
             poseStack.popPose();
 
-            int armSign = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
-            ItemStack mainHand = player.getMainHandItem();
+            int armSign = owner.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+            ItemStack mainHand = owner.getMainHandItem();
             if (!mainHand.canPerformAction(ToolActions.FISHING_ROD_CAST)) {
                 armSign = -armSign;
             }
 
-            float attackAnim = player.getAttackAnim(partialTicks);
+            float attackAnim = owner.getAttackAnim(partialTicks);
             float attackSwing = Mth.sin(Mth.sqrt(attackAnim) * (float) Math.PI);
-            float bodyYaw = Mth.lerp(partialTicks, player.yBodyRotO, player.yBodyRot) * Mth.DEG_TO_RAD;
+            float bodyYaw = Mth.lerp(partialTicks, owner.yBodyRotO, owner.yBodyRot) * Mth.DEG_TO_RAD;
             double sinYaw = Mth.sin(bodyYaw);
             double cosYaw = Mth.cos(bodyYaw);
             double armOffset = (double) armSign * 0.35D;
@@ -97,7 +99,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
             double lineZ;
             float lineYOffset;
 
-            if (annoyingVillagers$isFirstPersonOwner(player)) {
+            if (owner instanceof Player player && annoyingVillagers$isFirstPersonOwner(player)) {
                 double fovScale = annoyingVillagers$viewBobbingScale
                         / (double) this.entityRenderDispatcher.options.fov().get().intValue();
                 Vec3 nearPlane = this.entityRenderDispatcher.camera.getNearPlane()
@@ -111,17 +113,17 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
                 lineZ = Mth.lerp((double) partialTicks, player.zo, player.getZ()) + nearPlane.z;
                 lineYOffset = player.getEyeHeight();
             } else {
-                Vec3 epicFightAnchor = annoyingVillagers$getEpicFightRodAnchor(player, armSign, partialTicks);
+                Vec3 epicFightAnchor = annoyingVillagers$getEpicFightRodAnchor(owner, armSign, partialTicks);
                 if (epicFightAnchor != null) {
                     lineX = epicFightAnchor.x;
                     lineY = epicFightAnchor.y;
                     lineZ = epicFightAnchor.z;
                     lineYOffset = 0.0F;
                 } else {
-                    lineX = Mth.lerp((double) partialTicks, player.xo, player.getX()) - cosYaw * armOffset - sinYaw * 0.8D;
-                    lineY = player.yo + (double) player.getEyeHeight() + (player.getY() - player.yo) * (double) partialTicks - 0.45D;
-                    lineZ = Mth.lerp((double) partialTicks, player.zo, player.getZ()) - sinYaw * armOffset + cosYaw * 0.8D;
-                    lineYOffset = player.isCrouching() ? -0.1875F : 0.0F;
+                    lineX = Mth.lerp((double) partialTicks, owner.xo, owner.getX()) - cosYaw * armOffset - sinYaw * 0.8D;
+                    lineY = owner.yo + (double) owner.getEyeHeight() + (owner.getY() - owner.yo) * (double) partialTicks - 0.45D;
+                    lineZ = Mth.lerp((double) partialTicks, owner.zo, owner.getZ()) - sinYaw * armOffset + cosYaw * 0.8D;
+                    lineYOffset = owner.isCrouching() ? -0.1875F : 0.0F;
                 }
             }
 
@@ -161,9 +163,9 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
     }
 
     @Unique
-    private static Vec3 annoyingVillagers$getEpicFightRodAnchor(Player player, int armSign, float partialTicks) {
-        if (!player.getMainHandItem().canPerformAction(ToolActions.FISHING_ROD_CAST)
-                && !player.getOffhandItem().canPerformAction(ToolActions.FISHING_ROD_CAST)) {
+    private static Vec3 annoyingVillagers$getEpicFightRodAnchor(LivingEntity owner, int armSign, float partialTicks) {
+        if (!owner.getMainHandItem().canPerformAction(ToolActions.FISHING_ROD_CAST)
+                && !owner.getOffhandItem().canPerformAction(ToolActions.FISHING_ROD_CAST)) {
             return null;
         }
 
@@ -178,7 +180,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
             }
 
             Vec3 anchor = EpicfightUtil.getJointWithTranslation(
-                    player,
+                    owner,
                     annoyingVillagers$noTranslation,
                     joint,
                     0.5F,
@@ -189,9 +191,9 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
             }
 
             return anchor.add(
-                    Mth.lerp((double) partialTicks, player.xo, player.getX()) - player.getX(),
-                    Mth.lerp((double) partialTicks, player.yo, player.getY()) - player.getY(),
-                    Mth.lerp((double) partialTicks, player.zo, player.getZ()) - player.getZ()
+                    Mth.lerp((double) partialTicks, owner.xo, owner.getX()) - owner.getX(),
+                    Mth.lerp((double) partialTicks, owner.yo, owner.getY()) - owner.getY(),
+                    Mth.lerp((double) partialTicks, owner.zo, owner.getZ()) - owner.getZ()
             );
         } catch (Exception ignored) {
             return null;
