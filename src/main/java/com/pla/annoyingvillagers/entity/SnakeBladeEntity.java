@@ -205,7 +205,7 @@ public class SnakeBladeEntity extends Entity {
                 );
             }
 
-            this.playSound(AnnoyingVillagersModSounds.OBSIDIAN_HIT.get(), 1.0F, (float) (0.5 + Math.random() * 0.5));
+            this.playSound(AnnoyingVillagersModSounds.OBSIDIAN_HIT.get(), 0.5F, (float) (0.5 + Math.random() * 0.5));
 
             LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
 
@@ -321,7 +321,7 @@ public class SnakeBladeEntity extends Entity {
                 );
             }
 
-            this.playSound(AnnoyingVillagersModSounds.OBSIDIAN_HIT.get(), 1.0F, (float) (0.5 + Math.random() * 0.5));
+            this.playSound(AnnoyingVillagersModSounds.OBSIDIAN_HIT.get(), 0.5F, (float) (0.5 + Math.random() * 0.5));
             LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
             if (targetPatch != null) {
                 EpicfightUtil.dealStaminaDamageByPercentage(

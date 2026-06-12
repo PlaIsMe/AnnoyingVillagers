@@ -28,21 +28,6 @@ Some compatibility animation assets are cloned/copied only so Annoying Villagers
 the matching animations when the related mod is installed. These assets are not Annoying Villagers Original Materials;
 their upstream ownership and license terms still apply. See `THIRD_PARTY_NOTICES.md` for the complete notices.
 
-### Photon VFX - Sidtheplayer
-- Photon visual effect assets in `src/main/resources/assets/photon/fx` are credited to Sidtheplayer.
-- See `THIRD_PARTY_NOTICES.md` for the full notice and permission terms.
-
-### P1nero Epic Bow - P1nero - All Rights Reserved
-- Type: cloned/copied animations used for registration/compatibility
-- Source: https://github.com/P1neapplell0/Epic-Bow
-
-**Paths / Files**
-- `src/main/resources/assets/annoyingvillagers/animmodels/animations/biped/p1nero_bow_clone`
-
-**Compatibility Note**
-- Cloning is necessary so mobs can play the registered animation.
-- These animations are only activated when the P1nero Epic Bow mod is installed.
-
 # LICENSE
 
 Annoying Villagers Read-Only License (AV-RO) v1.0

@@ -50,6 +50,8 @@ public class AnnoyingVillagersModItems {
     // Misc item
     public static final RegistryObject<Item> ENCHANT_BED_ITEM = AnnoyingVillagersModItems.REGISTRY.register("enchant_bed_item", EnchantBedItem::new);
     public static final RegistryObject<Item> ENCHANTED_ARROW = AnnoyingVillagersModItems.REGISTRY.register("enchanted_arrow", () -> new EnchantedArrowItem(new Item.Properties()));
+    public static final RegistryObject<Item> ADVANCED_FISHING_ROD = AnnoyingVillagersModItems.REGISTRY.register("advanced_fishing_rod", AdvancedFishingRod::new);
+    public static final RegistryObject<Item> TONY_THE_FISHING_ROD = AnnoyingVillagersModItems.REGISTRY.register("tony_the_fishing_rod", TonyTheFishingRod::new);
     public static final RegistryObject<Item> VILLAGER_HEAD = AnnoyingVillagersModItems.REGISTRY.register("villager_head", VillagerHeadItem::new);
     public static final RegistryObject<Item> JEV_GLASSES = AnnoyingVillagersModItems.REGISTRY.register("jev_glasses", JevGlassesItem::new);
     public static final RegistryObject<Item> ENCHANTED_ENDER_PEARL = AnnoyingVillagersModItems.REGISTRY.register("enchanted_ender_pearl", EnchantedEnderPearlItem::new);

@@ -26,6 +26,8 @@
     "EnsureSafeFlyingVehicleMixin",
     "BasicAttackMixin",
     "AbstractArrowBreakMixin",
+    "FishingHookAccessor",
+    "FishingHookReturnMixin",
     "OpenMatrix4fInvertFixMixin",
     "AttackAnimationMixin",
     "LivingEntityPatchMixin",
@@ -64,8 +66,11 @@
     "client.HumanoidArmorLayerMixin",
     "client.ItemRendererMixin",
     "client.WearableItemLayerMixin",
+    "client.PatchedItemInHandLayerMixin",
     "client.ArrowLayerMixin",
-    "client.PatchedArrowLayerMixin"
+    "client.PatchedArrowLayerMixin",
+    "client.FishingHookRendererMixin",
+    "client.ControlEngineMixin"
   ],
   "minVersion": "0.8"
 }

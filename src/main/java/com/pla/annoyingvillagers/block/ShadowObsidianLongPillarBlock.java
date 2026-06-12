@@ -94,7 +94,7 @@ public class ShadowObsidianLongPillarBlock extends HerobrineObsidianBlock implem
                 blockPos.getX(), blockPos.getY(), blockPos.getZ(),
                 AnnoyingVillagersModSounds.OB_PLACE.get(),
                 SoundSource.BLOCKS,
-                new Random().nextFloat(0.2F, 0.6F), 1.0F
+                0.5F, 1.0F
         );
     }
 
@@ -106,7 +106,7 @@ public class ShadowObsidianLongPillarBlock extends HerobrineObsidianBlock implem
                 blockPos.getX(), blockPos.getY(), blockPos.getZ(),
                 AnnoyingVillagersModSounds.OB_PLACE.get(),
                 SoundSource.BLOCKS,
-                new Random().nextFloat(0.2F, 0.6F), 1.0F
+                0.5F, 1.0F
         );
     }
 

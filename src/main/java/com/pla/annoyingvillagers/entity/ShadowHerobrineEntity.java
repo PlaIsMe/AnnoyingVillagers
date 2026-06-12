@@ -120,7 +120,7 @@ public class ShadowHerobrineEntity extends HerobrineMob {
                     && !damageSource.is(DamageTypes.IN_WALL)
                     && !damageSource.is(DamageTypes.IN_FIRE)
                     && !damageSource.is(DamageTypes.ON_FIRE)) {
-                    serverLevel.playSound(null, this.blockPosition(), AnnoyingVillagersModSounds.OBSIDIAN_PLACE.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                    serverLevel.playSound(null, this.blockPosition(), AnnoyingVillagersModSounds.OBSIDIAN_PLACE.get(), SoundSource.NEUTRAL, 0.5F, 1.0F);
                     HerobrineUtil.spawnObsidianEyeLineStaggered(serverLevel, this, AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState(), 1);
             } else if (this.getState() == 2
                 && damageSource.getEntity() instanceof LivingEntity livingEntity

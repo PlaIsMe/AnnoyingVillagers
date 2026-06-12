@@ -252,7 +252,7 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                     && !damageSource.is(DamageTypes.ON_FIRE)
                     && !this.forEscaping) {
                 if (this.level() instanceof ServerLevel serverLevel) {
-                    serverLevel.playSound(null, this.blockPosition(), AnnoyingVillagersModSounds.OBSIDIAN_PLACE.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                    serverLevel.playSound(null, this.blockPosition(), AnnoyingVillagersModSounds.OBSIDIAN_PLACE.get(), SoundSource.NEUTRAL, 0.5F, 1.0F);
                     com.pla.annoyingvillagers.util.HerobrineUtil.spawnObsidianEyeLineStaggered(serverLevel, this, AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState(), 1);
                 }
             }

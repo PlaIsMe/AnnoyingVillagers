@@ -1,7 +1,11 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.google.common.collect.Multimap;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 
 import net.minecraft.nbt.CompoundTag;
@@ -18,9 +22,12 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ItemSupplier;
+import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
@@ -32,6 +39,9 @@ import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -80,6 +90,11 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
                     ItemProjectile.class,
                     EntityDataSerializers.FLOAT
             );
+    private static final EntityDataAccessor<Boolean> DATA_HOOK_ATTACHED =
+            SynchedEntityData.defineId(
+                    ItemProjectile.class,
+                    EntityDataSerializers.BOOLEAN
+            );
 
     private static final double ARRIVE_DISTANCE = 0.65D;
     private static final int MAX_LIFE = 80;
@@ -108,6 +123,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         this.entityData.define(DATA_DISARM_MOTION_X, 0.0F);
         this.entityData.define(DATA_DISARM_MOTION_Y, 0.0F);
         this.entityData.define(DATA_DISARM_MOTION_Z, 0.0F);
+        this.entityData.define(DATA_HOOK_ATTACHED, false);
     }
 
     private boolean isDisarmLaunchMode() {
@@ -182,6 +198,17 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         return projectile;
     }
 
+    public static ItemProjectile createHookPayload(Level level, Entity owner, ItemStack stack, Vec3 spawnPos) {
+        ItemProjectile projectile = new ItemProjectile(AnnoyingVillagersModEntities.ITEM_PROJECTILE.get(), level);
+        projectile.setOwner(owner);
+        projectile.setWeaponStack(stack);
+        projectile.setPos(spawnPos.x, spawnPos.y, spawnPos.z);
+        projectile.noPhysics = true;
+        projectile.setNoGravity(true);
+        projectile.setHookAttached(true);
+        return projectile;
+    }
+
     public void setWeaponStack(ItemStack stack) {
         this.entityData.set(DATA_STACK, stack.copy());
     }
@@ -193,6 +220,63 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     @Override
     public @NotNull ItemStack getItem() {
         return this.getWeaponStack();
+    }
+
+    public boolean isHookAttached() {
+        return this.entityData.get(DATA_HOOK_ATTACHED);
+    }
+
+    public void setHookAttached(boolean hookAttached) {
+        this.entityData.set(DATA_HOOK_ATTACHED, hookAttached);
+    }
+
+    public void moveWithHook(Vec3 newPos, Entity ownerEntity) {
+        Vec3 oldPos = this.position();
+        Vec3 motion = newPos.subtract(oldPos);
+
+        this.setHookAttached(true);
+        this.noPhysics = true;
+        this.setNoGravity(true);
+        this.setDeltaMovement(motion);
+        this.setPos(newPos.x, newPos.y, newPos.z);
+        this.updateRotationFromMotion(motion);
+
+        if (!this.level().isClientSide) {
+            this.damageEntitiesAlongPath(oldPos, newPos, ownerEntity);
+        }
+    }
+
+    public void dropAsItem(Vec3 motion) {
+        this.dropBackToItem(motion);
+    }
+
+    public void giveToOwnerOrDrop(Entity receiver) {
+        if (this.level().isClientSide) {
+            return;
+        }
+
+        ItemStack stack = this.getWeaponStack().copy();
+        if (stack.isEmpty()) {
+            this.discard();
+            return;
+        }
+
+        if (receiver instanceof Player player) {
+            ItemStack remaining = stack.copy();
+            player.getInventory().add(remaining);
+
+            if (remaining.isEmpty()) {
+                this.discard();
+                return;
+            }
+
+            this.dropStack(remaining, receiver.position(), Vec3.ZERO);
+            this.discard();
+            return;
+        }
+
+        this.dropStack(stack, receiver.position(), Vec3.ZERO);
+        this.discard();
     }
 
     private void initializeArcPath(Vec3 firstTargetPos) {
@@ -262,6 +346,11 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
             return;
         }
 
+        if (this.isHookAttached()) {
+            this.tickHookAttached();
+            return;
+        }
+
         Entity ownerEntity = this.getOwner();
         if (!(ownerEntity instanceof LivingEntity owner) || !owner.isAlive()) {
             if (!this.level().isClientSide) {
@@ -306,6 +395,30 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         }
     }
 
+    private void tickHookAttached() {
+        this.noPhysics = true;
+        this.setNoGravity(true);
+        this.clearOldHitCooldowns();
+
+        if (!this.level().isClientSide && !this.hasActiveHookController()) {
+            this.setHookAttached(false);
+            this.dropBackToItem();
+        }
+    }
+
+    private boolean hasActiveHookController() {
+        Entity ownerEntity = this.getOwner();
+        if (ownerEntity instanceof Player player) {
+            return FishingRodGrappleUtil.isHookControllingItemProjectile(player.fishing, this);
+        }
+
+        if (ownerEntity instanceof FishingHook hook) {
+            return FishingRodGrappleUtil.isHookControllingItemProjectile(hook, this);
+        }
+
+        return false;
+    }
+
     private Vec3 getTargetHandPosition(LivingEntity owner) {
         Vec3 jointPos = null;
 
@@ -331,7 +444,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
                 .subtract(0.0D, 0.25D, 0.0D);
     }
 
-    private void damageEntitiesAlongPath(Vec3 from, Vec3 to, LivingEntity owner) {
+    private void damageEntitiesAlongPath(Vec3 from, Vec3 to, Entity owner) {
         if (this.level().isClientSide) {
             return;
         }
@@ -352,18 +465,64 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
                 continue;
             }
 
-            float damage = this.calculateWeaponDamage(target);
-
-            DamageSource source = this.level().damageSources().thrown(this, owner);
-            if (target.hurt(source, damage)) {
+            boolean damaged = this.isHookAttached()
+                    ? this.damageEnemyHitByHookedItem(target, owner)
+                    : this.damageEnemyHitByThrownItem(target, owner);
+            if (damaged) {
                 this.recentHits.put(target.getId(), this.tickCount + HIT_COOLDOWN_TICKS);
-                this.applyWeaponEnchantEffects(owner, target);
-                this.playSound(SoundEvents.TRIDENT_HIT, 0.9F, 1.25F);
             }
         }
     }
 
-    private boolean canDamage(LivingEntity target, LivingEntity owner) {
+    protected boolean damageEnemyHitByHookedItem(LivingEntity target, Entity owner) {
+        DamageSource source = this.level().damageSources().thrown(this, owner);
+        if (!target.hurt(source, this.calculateHookAttachedItemDamage(target))) {
+            return false;
+        }
+
+        if (owner instanceof LivingEntity livingOwner) {
+            this.applyWeaponEnchantEffects(livingOwner, target);
+        }
+
+        this.afterHookAttachedItemHit(target, owner);
+        this.playSound(AnnoyingVillagersModSounds.OB_PLACE.get(), 0.5F, 1.0F);
+        return true;
+    }
+
+    protected float calculateHookAttachedItemDamage(LivingEntity target) {
+        ItemStack stack = this.getWeaponStack();
+        if (stack.getItem() instanceof ShieldItem) {
+            return 15.0F;
+        }
+
+        return this.calculateWeaponDamage(target);
+    }
+
+    protected void afterHookAttachedItemHit(LivingEntity target, Entity owner) {
+        ItemStack stack = this.getWeaponStack();
+        if (stack.getItem() instanceof ShieldItem) {
+            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+            if (targetPatch != null && !targetPatch.isStunned()) {
+                targetPatch.applyStun(StunType.LONG, 0.0F);
+            }
+        }
+    }
+
+    private boolean damageEnemyHitByThrownItem(LivingEntity target, Entity owner) {
+        DamageSource source = this.level().damageSources().thrown(this, owner);
+        if (!target.hurt(source, this.calculateWeaponDamage(target))) {
+            return false;
+        }
+
+        if (owner instanceof LivingEntity livingOwner) {
+            this.applyWeaponEnchantEffects(livingOwner, target);
+        }
+
+        this.playSound(AnnoyingVillagersModSounds.OB_PLACE.get(), 0.5F, 1.0F);
+        return true;
+    }
+
+    private boolean canDamage(LivingEntity target, Entity owner) {
         if (!target.isAlive()) {
             return false;
         }
@@ -376,7 +535,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
             return false;
         }
 
-        return !target.isAlliedTo(owner);
+        return !(owner instanceof LivingEntity livingOwner) || !target.isAlliedTo(livingOwner);
     }
 
     private float calculateWeaponDamage(LivingEntity target) {
@@ -423,22 +582,26 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
             ItemStack stack = this.getWeaponStack().copy();
 
             if (!stack.isEmpty()) {
-                ItemEntity itemEntity = new ItemEntity(
-                        this.level(),
-                        this.getX(),
-                        this.getY(),
-                        this.getZ(),
-                        stack
-                );
-
-                itemEntity.setPickUpDelay(20);
-                itemEntity.setDeltaMovement(motion);
-
-                this.level().addFreshEntity(itemEntity);
+                this.dropStack(stack, this.position(), motion);
             }
         }
 
         this.discard();
+    }
+
+    private void dropStack(ItemStack stack, Vec3 position, Vec3 motion) {
+        ItemEntity itemEntity = new ItemEntity(
+                this.level(),
+                position.x,
+                position.y,
+                position.z,
+                stack
+        );
+
+        itemEntity.setPickUpDelay(20);
+        itemEntity.setDeltaMovement(motion);
+
+        this.level().addFreshEntity(itemEntity);
     }
 
     private void updateRotationFromMotion(Vec3 motion) {
@@ -469,6 +632,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         tag.putFloat("DisarmMotionX", this.entityData.get(DATA_DISARM_MOTION_X));
         tag.putFloat("DisarmMotionY", this.entityData.get(DATA_DISARM_MOTION_Y));
         tag.putFloat("DisarmMotionZ", this.entityData.get(DATA_DISARM_MOTION_Z));
+        tag.putBoolean("HookAttached", this.entityData.get(DATA_HOOK_ATTACHED));
     }
 
     @Override
@@ -495,6 +659,8 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
                     tag.getFloat("DisarmMotionZ")
             );
         }
+
+        this.entityData.set(DATA_HOOK_ATTACHED, tag.getBoolean("HookAttached"));
     }
 
     @Override

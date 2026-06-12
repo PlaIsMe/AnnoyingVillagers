@@ -143,7 +143,7 @@ public class BlockProjectileEntity extends ThrowableProjectile {
                     this.getX(), this.getY(), this.getZ(),
                     AnnoyingVillagersModSounds.OBSIDIAN_HIT.get(),
                     SoundSource.BLOCKS,
-                    1.0F, 1.0F
+                    0.5F, 1.0F
             );
 
             float damage = resolveImpactDamage();

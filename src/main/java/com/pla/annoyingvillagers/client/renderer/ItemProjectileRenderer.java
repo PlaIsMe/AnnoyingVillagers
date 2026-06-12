@@ -12,8 +12,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
@@ -105,6 +107,15 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
         return value;
     }
 
+    private static float getOwnerLookYaw(ItemProjectile entity, float partialTick) {
+        Entity owner = entity.getOwner();
+        if (owner != null) {
+            return Mth.lerp(partialTick, owner.yRotO, owner.getYRot());
+        }
+
+        return Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
+    }
+
     @Override
     public void render(
             ItemProjectile entity,
@@ -119,14 +130,21 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
         if (!stack.isEmpty()) {
             poseStack.pushPose();
 
-            float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
-            float age = entity.tickCount + partialTick;
-            int spinSeed = entity.getUUID().hashCode();
+            boolean shield = stack.getItem() instanceof ShieldItem;
 
             poseStack.translate(0.0D, 0.15D, 0.0D);
-            poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90.0F));
+            if (shield) {
+                poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - getOwnerLookYaw(entity, partialTick)));
+            } else {
+                float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
 
-            applyRandomSpin(poseStack, age, spinSeed);
+                poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90.0F));
+                if (!entity.isHookAttached()) {
+                    float age = entity.tickCount + partialTick;
+                    int spinSeed = entity.getUUID().hashCode();
+                    applyRandomSpin(poseStack, age, spinSeed);
+                }
+            }
 
             poseStack.scale(0.85F, 0.85F, 0.85F);
 
