@@ -13,6 +13,7 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
+import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.network.*;
 import com.pla.annoyingvillagers.event.NpcGearLoadEvent;
 import com.pla.annoyingvillagers.world.AVMobSpawnBiomeModifier;
@@ -268,6 +269,17 @@ public class AnnoyingVillagers {
                         AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get(),
                         ResourceLocation.fromNamespaceAndPath("minecraft", "cast"),
                         (stack, level, entity, seed) -> FishingRodGrappleUtil.getCastProperty(stack, entity)
+                );
+                ItemProperties.register(
+                        AnnoyingVillagersModItems.HOOK_GUN.get(),
+                        ResourceLocation.fromNamespaceAndPath(MODID, "hook"),
+                        (stack, level, entity, seed) -> stack.hasTag() && stack.getTag().contains("hook") ? 1.0F : 0.0F
+                );
+                ItemProperties.register(
+                        AnnoyingVillagersModItems.HOOK_GUN.get(),
+                        ResourceLocation.fromNamespaceAndPath(MODID, "attached"),
+                        (stack, level, entity, seed) -> entity != null
+                                && HookGunItem.hasAttachedHook(entity.level(), entity) ? 1.0F : 0.0F
                 );
                 for (Item item : ForgeRegistries.ITEMS.getValues()) {
                     if (item instanceof BowItem) {

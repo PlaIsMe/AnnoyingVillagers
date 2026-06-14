@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
 import com.pla.annoyingvillagers.entity.ItemProjectile;
+import com.pla.annoyingvillagers.util.HookUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -13,9 +14,10 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
@@ -116,6 +118,50 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
         return Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
     }
 
+    private static Vec3 getSharpProjectileDirection(ItemProjectile entity, float partialTick) {
+        if (entity.isHookAttached()) {
+            Entity owner = getRopeOwner(entity.getOwner());
+            if (owner != null) {
+                Vec3 direction = partialPosition(entity, partialTick).subtract(owner.getEyePosition(partialTick));
+                if (direction.lengthSqr() > 1.0E-7D) {
+                    return direction;
+                }
+            }
+        }
+
+        Vec3 motion = entity.getDeltaMovement();
+        if (motion.lengthSqr() > 1.0E-7D) {
+            return motion;
+        }
+
+        return Vec3.directionFromRotation(entity.getXRot(), entity.getYRot());
+    }
+
+    private static Entity getRopeOwner(Entity owner) {
+        if (owner instanceof Projectile projectile && projectile.getOwner() != null) {
+            return projectile.getOwner();
+        }
+
+        return owner;
+    }
+
+    private static Vec3 partialPosition(Entity entity, float partialTick) {
+        return new Vec3(
+                Mth.lerp(partialTick, entity.xOld, entity.getX()),
+                Mth.lerp(partialTick, entity.yOld, entity.getY()),
+                Mth.lerp(partialTick, entity.zOld, entity.getZ())
+        );
+    }
+
+    private static float yawFromDirection(Vec3 direction) {
+        return (float) (Mth.atan2(direction.x, direction.z) * Mth.RAD_TO_DEG);
+    }
+
+    private static float pitchFromDirection(Vec3 direction) {
+        double horizontal = Math.sqrt(direction.x * direction.x + direction.z * direction.z);
+        return (float) (Mth.atan2(direction.y, horizontal) * Mth.RAD_TO_DEG);
+    }
+
     @Override
     public void render(
             ItemProjectile entity,
@@ -130,16 +176,25 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
         if (!stack.isEmpty()) {
             poseStack.pushPose();
 
-            boolean shield = stack.getItem() instanceof ShieldItem;
-
             poseStack.translate(0.0D, 0.15D, 0.0D);
-            if (shield) {
+            if (HookUtil.shouldUseShieldFacing(stack)) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - getOwnerLookYaw(entity, partialTick)));
-            } else {
-                float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
+            } else if (!HookUtil.shouldRenderWithoutProjectileSpin(stack) || !entity.isHookAttached()) {
+                boolean sharpItem = HookUtil.shouldAlignSharpEdge(stack);
+                float yaw;
+                float pitch;
 
-                poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90.0F));
-                if (!entity.isHookAttached()) {
+                if (sharpItem) {
+                    Vec3 direction = getSharpProjectileDirection(entity, partialTick);
+                    yaw = yawFromDirection(direction);
+                    pitch = pitchFromDirection(direction);
+                } else {
+                    yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
+                    pitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
+                }
+
+                HookItemRenderTransforms.applyProjectileFacing(poseStack, stack, yaw, pitch);
+                if (!sharpItem && !entity.isHookAttached()) {
                     float age = entity.tickCount + partialTick;
                     int spinSeed = entity.getUUID().hashCode();
                     applyRandomSpin(poseStack, age, spinSeed);
@@ -150,7 +205,7 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
 
             this.itemRenderer.renderStatic(
                     stack,
-                    ItemDisplayContext.FIXED,
+                    HookItemRenderTransforms.getProjectileDisplayContext(stack),
                     packedLight,
                     OverlayTexture.NO_OVERLAY,
                     poseStack,

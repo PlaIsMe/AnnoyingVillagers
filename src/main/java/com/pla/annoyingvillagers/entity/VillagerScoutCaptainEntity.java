@@ -1,11 +1,11 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.clazz.VillagerArmyEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.CommonGoals;
-import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.util.RidingUtil;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import com.pla.annoyingvillagers.util.VillagerUtil;
@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class VillagerScoutCaptainEntity extends AVNpc {
+public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
     public VillagerScoutCaptainEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(), level);
     }

@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.clazz.VillagerArmyEntity;
 import com.pla.annoyingvillagers.entity.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -13,7 +14,6 @@ import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 import se.gory_moon.player_mobs.entity.PlayerMobEntity;
 
 public class CommonGoals {
@@ -73,7 +73,9 @@ public class CommonGoals {
 
     public static void registerGoalForVillagerKnightNpc(PathfinderMob mob) {
         mob.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
-        mob.targetSelector.addGoal(1, (new HurtByTargetGoal(mob)).setAlertOthers());
+        if (!(mob instanceof VillagerArmyEntity)) {
+            mob.targetSelector.addGoal(1, (new HurtByTargetGoal(mob)).setAlertOthers());
+        }
 
         mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, HerobrineMob.class, true, false));
         mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowHerobrineCloneEntity.class, true, false));

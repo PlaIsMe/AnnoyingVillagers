@@ -1,0 +1,488 @@
+package com.pla.annoyingvillagers.util;
+
+import com.google.common.collect.Multimap;
+import com.mojang.datafixers.util.Pair;
+import com.pla.annoyingvillagers.clazz.NullWeapon;
+import com.pla.annoyingvillagers.entity.ArmoredHerobrineEntity;
+import com.pla.annoyingvillagers.entity.BlueDemonEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.item.EggItem;
+import net.minecraft.world.item.FlintAndSteelItem;
+import net.minecraft.world.item.HoeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PickaxeItem;
+import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.ThrowablePotionItem;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ToolActions;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.StunType;
+
+import javax.annotation.Nullable;
+
+public final class HookUtil {
+    public enum HitResult {
+        PASS,
+        HANDLED
+    }
+
+    private HookUtil() {
+    }
+
+    public static boolean isPickaxe(ItemStack stack) {
+        return !stack.isEmpty()
+                && (stack.getItem() instanceof PickaxeItem
+                || stack.canPerformAction(ToolActions.PICKAXE_DIG));
+    }
+
+    public static boolean shouldUseShieldFacing(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem() instanceof ShieldItem;
+    }
+
+    public static boolean shouldAlignSharpEdge(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        return stack.getItem() instanceof SwordItem
+                || stack.getItem() instanceof AxeItem
+                || stack.getItem() instanceof HoeItem
+                || stack.getItem() instanceof ShovelItem
+                || stack.getItem() instanceof PickaxeItem
+                || stack.canPerformAction(ToolActions.SWORD_DIG)
+                || stack.canPerformAction(ToolActions.AXE_DIG)
+                || stack.canPerformAction(ToolActions.HOE_DIG)
+                || stack.canPerformAction(ToolActions.SHOVEL_DIG)
+                || stack.canPerformAction(ToolActions.PICKAXE_DIG);
+    }
+
+    public static boolean shouldRenderWithoutProjectileSpin(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem() instanceof BlockItem;
+    }
+
+    public static HitResult handleEntityHit(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
+        if (boundStack.isEmpty() || !target.isAlive() || target.isSpectator()) {
+            return HitResult.PASS;
+        }
+
+        if (owner != null && (target == owner || target.isAlliedTo(owner))) {
+            return HitResult.HANDLED;
+        }
+
+        if (boundStack.getItem() instanceof SpawnEggItem) {
+            return spawnFromSpawnEgg(level, boundStack, owner, target.blockPosition(), false, false);
+        }
+
+        if (boundStack.getItem() instanceof EggItem) {
+            return hatchChickenEgg(level, boundStack, hitPosition(target));
+        }
+
+        if (boundStack.getItem() instanceof ShieldItem) {
+            return hitWithShield(level, boundStack, projectile, owner, target);
+        }
+
+        if (isWeaponLike(boundStack)) {
+            return hitWithWeapon(level, boundStack, projectile, owner, target);
+        }
+
+        if (boundStack.getItem() instanceof ArmorItem armorItem) {
+            return equipArmor(boundStack, target, armorItem);
+        }
+
+        if (isPotion(boundStack)) {
+            return applyPotion(level, boundStack, projectile, owner, target);
+        }
+
+        FoodProperties food = boundStack.getFoodProperties(target);
+        if (food != null) {
+            return feedTarget(level, boundStack, target, food);
+        }
+
+        if (boundStack.getItem() instanceof FlintAndSteelItem) {
+            target.setSecondsOnFire(8);
+            damageTool(boundStack, owner);
+            level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                    SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+            return HitResult.HANDLED;
+        }
+
+        return HitResult.PASS;
+    }
+
+    public static HitResult handleBlockHit(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, BlockHitResult hitResult) {
+        if (boundStack.isEmpty()) {
+            return HitResult.PASS;
+        }
+
+        if (boundStack.getItem() instanceof SpawnEggItem) {
+            BlockPos blockPos = getSpawnEggBlockPos(level, hitResult);
+            boolean offsetForFace = hitResult.getDirection() == Direction.UP
+                    && !blockPos.equals(hitResult.getBlockPos());
+            return spawnFromSpawnEgg(level, boundStack, owner, blockPos, true, offsetForFace);
+        }
+
+        if (boundStack.getItem() instanceof EggItem) {
+            return hatchChickenEgg(level, boundStack, hitResult.getLocation());
+        }
+
+        if (boundStack.getItem() instanceof FlintAndSteelItem) {
+            if (igniteTntBlock(level, hitResult.getBlockPos(), owner) || placeFire(level, hitResult)) {
+                damageTool(boundStack, owner);
+                level.playSound(null, hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z,
+                        SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                return HitResult.HANDLED;
+            }
+
+            return HitResult.PASS;
+        }
+
+        if (boundStack.getItem() instanceof BoneMealItem) {
+            return applyBoneMeal(level, boundStack, hitResult);
+        }
+
+        if (boundStack.getItem() instanceof BlockItem blockItem) {
+            return placeBoundBlock(level, boundStack, owner, blockItem, hitResult);
+        }
+
+        return HitResult.PASS;
+    }
+
+    public static float calculateWeaponDamage(ItemStack stack, LivingEntity target) {
+        double damage = 1.0D;
+        Multimap<Attribute, AttributeModifier> modifiers = stack.getAttributeModifiers(EquipmentSlot.MAINHAND);
+
+        for (AttributeModifier modifier : modifiers.get(Attributes.ATTACK_DAMAGE)) {
+            if (modifier.getOperation() == AttributeModifier.Operation.ADDITION) {
+                damage += modifier.getAmount();
+            } else if (modifier.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE) {
+                damage += damage * modifier.getAmount();
+            } else if (modifier.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL) {
+                damage *= 1.0D + modifier.getAmount();
+            }
+        }
+
+        damage += EnchantmentHelper.getDamageBonus(stack, target.getMobType());
+        return (float) Math.max(1.0D, damage);
+    }
+
+    private static boolean isWeaponLike(ItemStack stack) {
+        return stack.getItem() instanceof SwordItem
+                || stack.getItem() instanceof AxeItem
+                || stack.getItem() instanceof HoeItem
+                || stack.getItem() instanceof ShovelItem
+                || stack.getItem() instanceof PickaxeItem
+                || shouldAlignSharpEdge(stack);
+    }
+
+    private static boolean isPotion(ItemStack stack) {
+        return !PotionUtils.getMobEffects(stack).isEmpty()
+                || stack.getItem() instanceof ThrowablePotionItem;
+    }
+
+    private static BlockPos getSpawnEggBlockPos(Level level, BlockHitResult hitResult) {
+        BlockPos hitPos = hitResult.getBlockPos();
+        BlockState hitState = level.getBlockState(hitPos);
+        return hitState.getCollisionShape(level, hitPos).isEmpty()
+                ? hitPos
+                : hitPos.relative(hitResult.getDirection());
+    }
+
+    private static HitResult spawnFromSpawnEgg(
+            Level level,
+            ItemStack boundStack,
+            @Nullable LivingEntity owner,
+            BlockPos spawnPos,
+            boolean shouldOffsetY,
+            boolean shouldOffsetYMore
+    ) {
+        if (!(level instanceof ServerLevel serverLevel)
+                || !(boundStack.getItem() instanceof SpawnEggItem spawnEggItem)) {
+            return HitResult.HANDLED;
+        }
+
+        EntityType<?> entityType = spawnEggItem.getType(boundStack.getTag());
+        Player player = owner instanceof Player ownerPlayer ? ownerPlayer : null;
+        Entity spawned = entityType.spawn(
+                serverLevel,
+                boundStack,
+                player,
+                spawnPos,
+                MobSpawnType.SPAWN_EGG,
+                shouldOffsetY,
+                shouldOffsetYMore
+        );
+
+        if (spawned != null) {
+            boundStack.shrink(1);
+        }
+
+        return HitResult.HANDLED;
+    }
+
+    private static HitResult hatchChickenEgg(Level level, ItemStack boundStack, Vec3 hitPos) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return HitResult.HANDLED;
+        }
+
+        serverLevel.playSound(null, hitPos.x, hitPos.y, hitPos.z,
+                SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.5F,
+                0.4F / (serverLevel.random.nextFloat() * 0.4F + 0.8F));
+
+        if (serverLevel.random.nextInt(8) == 0) {
+            int count = serverLevel.random.nextInt(32) == 0 ? 4 : 1;
+            for (int i = 0; i < count; i++) {
+                Chicken chicken = EntityType.CHICKEN.create(serverLevel);
+                if (chicken != null) {
+                    chicken.setAge(-24000);
+                    chicken.moveTo(hitPos.x, hitPos.y, hitPos.z, 0.0F, 0.0F);
+                    serverLevel.addFreshEntity(chicken);
+                }
+            }
+        }
+
+        boundStack.shrink(1);
+        return HitResult.HANDLED;
+    }
+
+    private static Vec3 hitPosition(LivingEntity target) {
+        return new Vec3(target.getX(), target.getY() + target.getBbHeight() * 0.5D, target.getZ());
+    }
+
+    private static HitResult hitWithShield(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
+        DamageSource source = level.damageSources().thrown(projectile, owner);
+        if (!target.hurt(source, 15.0F)) {
+            return HitResult.PASS;
+        }
+
+        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+        if (targetPatch != null && !targetPatch.isStunned()) {
+            targetPatch.applyStun(StunType.LONG, 0.0F);
+        }
+
+        damageTool(boundStack, owner);
+        level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                EpicFightSounds.BLUNT_HIT_HARD.get(), SoundSource.PLAYERS, 0.8F, 1.0F);
+        return HitResult.HANDLED;
+    }
+
+    private static HitResult hitWithWeapon(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
+        DamageSource source = level.damageSources().thrown(projectile, owner);
+        if (!target.hurt(source, calculateWeaponDamage(boundStack, target))) {
+            return HitResult.PASS;
+        }
+
+        if (owner != null) {
+            applyWeaponEnchantEffects(boundStack, owner, target);
+        }
+
+        damageTool(boundStack, owner);
+        level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                EpicFightSounds.BLADE_HIT.get(), SoundSource.PLAYERS, 0.8F, 1.0F);
+        return HitResult.HANDLED;
+    }
+
+    private static void applyWeaponEnchantEffects(ItemStack stack, LivingEntity owner, LivingEntity target) {
+        int fireAspect = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, stack);
+        if (fireAspect > 0) {
+            target.setSecondsOnFire(fireAspect * 4);
+        }
+
+        EnchantmentHelper.doPostHurtEffects(target, owner);
+        EnchantmentHelper.doPostDamageEffects(owner, target);
+    }
+
+    private static HitResult equipArmor(ItemStack boundStack, LivingEntity target, ArmorItem armorItem) {
+        if (isArmorTargetBlacklisted(target)) {
+            return HitResult.HANDLED;
+        }
+
+        EquipmentSlot slot = armorItem.getEquipmentSlot();
+        if (!target.getItemBySlot(slot).isEmpty()) {
+            return HitResult.HANDLED;
+        }
+
+        ItemStack equipped = boundStack.copy();
+        equipped.setCount(1);
+        target.setItemSlot(slot, equipped);
+        if (target instanceof Mob mob) {
+            mob.setDropChance(slot, 1.0F);
+        }
+        boundStack.shrink(1);
+        return HitResult.HANDLED;
+    }
+
+    private static boolean isArmorTargetBlacklisted(LivingEntity target) {
+        return target instanceof NullWeapon
+                || target instanceof BlueDemonEntity
+                || target instanceof ArmoredHerobrineEntity;
+    }
+
+    private static HitResult applyPotion(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
+        for (MobEffectInstance effect : PotionUtils.getMobEffects(boundStack)) {
+            if (effect.getEffect().isInstantenous()) {
+                effect.getEffect().applyInstantenousEffect(projectile, owner, target, effect.getAmplifier(), 1.0D);
+            } else {
+                target.addEffect(new MobEffectInstance(effect));
+            }
+        }
+
+        if (isFlashPotion(boundStack) && level instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.FLASH, target.getX(), target.getEyeY(), target.getZ(),
+                    1, 0.0D, 0.0D, 0.0D, 0.0D);
+        }
+
+        level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                SoundEvents.SPLASH_POTION_BREAK, SoundSource.PLAYERS, 0.8F, 1.0F);
+        boundStack.shrink(1);
+        return HitResult.HANDLED;
+    }
+
+    private static boolean isFlashPotion(ItemStack stack) {
+        String descriptionId = stack.getDescriptionId().toLowerCase();
+        return descriptionId.contains("flash");
+    }
+
+    private static HitResult feedTarget(Level level, ItemStack boundStack, LivingEntity target, FoodProperties food) {
+        if (target.isInvertedHealAndHarm()) {
+            float damage = Math.max(1.0F, food.getNutrition());
+            target.hurt(level.damageSources().magic(), damage);
+        } else {
+            target.heal(Math.max(1.0F, food.getNutrition()));
+            for (Pair<MobEffectInstance, Float> effectPair : food.getEffects()) {
+                if (target.getRandom().nextFloat() < effectPair.getSecond()) {
+                    target.addEffect(new MobEffectInstance(effectPair.getFirst()));
+                }
+            }
+        }
+
+        level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                SoundEvents.GENERIC_EAT, SoundSource.PLAYERS, 0.8F, 1.0F);
+        boundStack.shrink(1);
+        return HitResult.HANDLED;
+    }
+
+    private static HitResult placeBoundBlock(Level level, ItemStack boundStack, @Nullable LivingEntity owner, BlockItem blockItem, BlockHitResult hitResult) {
+        BlockPos hitPos = hitResult.getBlockPos();
+        BlockState hitState = level.getBlockState(hitPos);
+        BlockPos placePos = hitState.canBeReplaced() ? hitPos : hitPos.relative(hitResult.getDirection());
+        BlockState existingState = level.getBlockState(placePos);
+
+        if (!existingState.canBeReplaced() || !level.getFluidState(placePos).isEmpty()) {
+            return HitResult.PASS;
+        }
+
+        BlockState placeState = blockItem.getBlock().defaultBlockState();
+        if (!placeState.canSurvive(level, placePos)) {
+            return HitResult.PASS;
+        }
+
+        if (!level.setBlock(placePos, placeState, Block.UPDATE_ALL)) {
+            return HitResult.PASS;
+        }
+
+        blockItem.getBlock().setPlacedBy(level, placePos, placeState, owner, boundStack);
+        level.playSound(null, placePos, placeState.getSoundType(level, placePos, owner).getPlaceSound(),
+                SoundSource.BLOCKS, 1.0F, 1.0F);
+        boundStack.shrink(1);
+        return HitResult.HANDLED;
+    }
+
+    private static HitResult applyBoneMeal(Level level, ItemStack boundStack, BlockHitResult hitResult) {
+        BlockPos pos = hitResult.getBlockPos();
+        BlockState state = level.getBlockState(pos);
+
+        if (!(state.getBlock() instanceof BonemealableBlock bonemealableBlock)) {
+            return HitResult.PASS;
+        }
+
+        if (level instanceof ServerLevel serverLevel
+                && bonemealableBlock.isValidBonemealTarget(level, pos, state, false)
+                && bonemealableBlock.isBonemealSuccess(level, level.random, pos, state)) {
+            bonemealableBlock.performBonemeal(serverLevel, level.random, pos, state);
+            level.levelEvent(1505, pos, 0);
+            boundStack.shrink(1);
+            return HitResult.HANDLED;
+        }
+
+        return HitResult.PASS;
+    }
+
+    private static boolean igniteTntBlock(Level level, BlockPos pos, @Nullable LivingEntity owner) {
+        BlockState state = level.getBlockState(pos);
+        if (!state.is(Blocks.TNT)) {
+            return false;
+        }
+
+        if (!level.isClientSide) {
+            PrimedTnt primedTnt = new PrimedTnt(level, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, owner);
+            level.addFreshEntity(primedTnt);
+            level.removeBlock(pos, false);
+            level.playSound(null, pos, SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
+        return true;
+    }
+
+    private static boolean placeFire(Level level, BlockHitResult hitResult) {
+        BlockPos firePos = hitResult.getBlockPos().relative(hitResult.getDirection());
+        BlockState fireState = Blocks.FIRE.defaultBlockState();
+        if (!level.getBlockState(firePos).canBeReplaced() || !fireState.canSurvive(level, firePos)) {
+            return false;
+        }
+
+        level.setBlock(firePos, fireState, Block.UPDATE_ALL);
+        return true;
+    }
+
+    private static void damageTool(ItemStack stack, @Nullable LivingEntity owner) {
+        if (!stack.isDamageableItem()) {
+            return;
+        }
+
+        ServerPlayer serverPlayer = owner instanceof ServerPlayer player ? player : null;
+        RandomSource random = owner != null ? owner.getRandom() : RandomSource.create();
+        if (stack.hurt(1, random, serverPlayer)) {
+            stack.shrink(1);
+            stack.setDamageValue(0);
+        }
+    }
+}

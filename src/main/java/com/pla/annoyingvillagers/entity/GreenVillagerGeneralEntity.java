@@ -2,11 +2,11 @@ package com.pla.annoyingvillagers.entity;
 
 import javax.annotation.Nullable;
 
+import com.pla.annoyingvillagers.clazz.VillagerArmyEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.*;
-import com.pla.annoyingvillagers.clazz.AVNpc;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -30,13 +30,12 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import java.util.Random;
 import java.util.function.Consumer;
 
 
-public class GreenVillagerGeneralEntity extends AVNpc {
+public class GreenVillagerGeneralEntity extends VillagerArmyEntity {
 
     public GreenVillagerGeneralEntity(SpawnEntity spawnentity, Level level) {
         this(AnnoyingVillagersModEntities.PURPLE_VILLAGER_GENERAL.get(), level);

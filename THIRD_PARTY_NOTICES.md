@@ -85,6 +85,21 @@ All required upstream notices must be preserved.
 - com/pla/annoyingvillagers/gameasset/AnimsEpicFightGuandao.java
 - assets/annoyingvillagers/animmodels/animations/biped/falchion
 
+### A7) GrappleMod - yyonne - GPL-3.0
+- Type: code, client rendering behavior, and assets adapted from the local fixed GrappleMod source
+- License text: `third_party/licenses/GPL-3.0.md`
+- Source used: `Grappling-Hook-Mod-Reforged-main`
+- Original project/author attribution supplied with the source: GrappleMod by yyonne
+
+**Paths / Files**
+- com/pla/annoyingvillagers/item/HookGunItem.java
+- com/pla/annoyingvillagers/entity/HookGunHookEntity.java
+- com/pla/annoyingvillagers/client/renderer/HookGunHookRenderer.java
+- com/pla/annoyingvillagers/client/renderer/HookGunCrosshairRenderer.java
+- assets/annoyingvillagers/models/item/hook_gun*.json
+- assets/annoyingvillagers/textures/item/hook_gun*.png
+- assets/annoyingvillagers/textures/entity/hook_gun_rope.png
+
 ---
 
 ## B) LGPL Components

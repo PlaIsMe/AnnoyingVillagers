@@ -2,12 +2,12 @@ package com.pla.annoyingvillagers.entity;
 
 import javax.annotation.Nullable;
 
+import com.pla.annoyingvillagers.clazz.VillagerArmyEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.*;
-import com.pla.annoyingvillagers.clazz.AVNpc;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -37,7 +37,7 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 
-public class VillagerScoutEntity extends AVNpc {
+public class VillagerScoutEntity extends VillagerArmyEntity {
     public VillagerScoutEntity(SpawnEntity spawnentity, Level level) {
         this(AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(), level);
     }

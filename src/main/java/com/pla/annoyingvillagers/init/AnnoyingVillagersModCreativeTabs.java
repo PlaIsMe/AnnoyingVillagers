@@ -50,6 +50,7 @@ public class AnnoyingVillagersModCreativeTabs {
                         pOutput.accept(AnnoyingVillagersModItems.ENCHANTED_ARROW.get());
                         pOutput.accept(AnnoyingVillagersModItems.ADVANCED_FISHING_ROD.get());
                         pOutput.accept(AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get());
+                        pOutput.accept(AnnoyingVillagersModItems.HOOK_GUN.get());
                         pOutput.accept(AnnoyingVillagersModItems.VILLAGER_HEAD.get());
                         pOutput.accept(AnnoyingVillagersModItems.JEV_GLASSES.get());
                         pOutput.accept(AnnoyingVillagersModItems.JEV_BOOK.get());

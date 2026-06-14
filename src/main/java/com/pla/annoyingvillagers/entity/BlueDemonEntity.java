@@ -9,6 +9,7 @@ import com.pla.annoyingvillagers.clazz.SauceType;
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
+import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
@@ -33,6 +34,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -42,6 +44,8 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -53,6 +57,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathFinder;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
@@ -74,6 +81,9 @@ import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public class BlueDemonEntity extends Monster implements BurstProtectEntity, CombatVoiceLineEntity {
+    private static final float WATER_SWIM_ACCELERATION = 0.08F;
+    private static final double WATER_SWIM_HORIZONTAL_SPEED = 0.42D;
+
     @Nullable
     private BbqEntity bbqSauce;
     @Nullable
@@ -619,6 +629,8 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
     public BlueDemonEntity(EntityType<? extends BlueDemonEntity> type, Level level) {
         super(type, level);
         this.setMaxUpStep(3.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, 0.0F);
         this.xpReward = 0;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -630,6 +642,63 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
         this.setDropChance(EquipmentSlot.CHEST, 0.0F);
         this.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
+    }
+
+    @Override
+    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
+        return new BlueDemonWaterPathNavigation(this, level);
+    }
+
+    private static class BlueDemonWaterPathNavigation extends GroundPathNavigation {
+        public BlueDemonWaterPathNavigation(Mob mob, Level level) {
+            super(mob, level);
+        }
+
+        @Override
+        protected @NotNull PathFinder createPathFinder(int maxVisitedNodes) {
+            this.nodeEvaluator = new WalkNodeEvaluator();
+            this.nodeEvaluator.setCanPassDoors(true);
+            return new PathFinder(this.nodeEvaluator, maxVisitedNodes);
+        }
+
+        @Override
+        protected boolean hasValidPathType(@NotNull BlockPathTypes type) {
+            if (type == BlockPathTypes.WATER || type == BlockPathTypes.WATER_BORDER) {
+                return true;
+            }
+            return super.hasValidPathType(type);
+        }
+
+        @Override
+        public boolean isStableDestination(@NotNull BlockPos blockPos) {
+            return this.level.getFluidState(blockPos).is(FluidTags.WATER) || super.isStableDestination(blockPos);
+        }
+    }
+
+    @Override
+    public void travel(@NotNull Vec3 travelVector) {
+        if (this.isInWater() && !this.isNoAi() && !this.isPassenger()) {
+            this.moveRelative(WATER_SWIM_ACCELERATION, travelVector);
+            super.travel(travelVector);
+            this.setDeltaMovement(this.limitWaterHorizontalMotion(this.getDeltaMovement()));
+            return;
+        }
+        super.travel(travelVector);
+    }
+
+    private Vec3 limitWaterHorizontalMotion(Vec3 motion) {
+        double horizontalSpeedSqr = motion.x * motion.x + motion.z * motion.z;
+        double maxSpeedSqr = WATER_SWIM_HORIZONTAL_SPEED * WATER_SWIM_HORIZONTAL_SPEED;
+        if (horizontalSpeedSqr <= maxSpeedSqr) {
+            return motion;
+        }
+
+        double horizontalSpeed = Math.sqrt(horizontalSpeedSqr);
+        return new Vec3(
+                motion.x / horizontalSpeed * WATER_SWIM_HORIZONTAL_SPEED,
+                motion.y,
+                motion.z / horizontalSpeed * WATER_SWIM_HORIZONTAL_SPEED
+        );
     }
 
     @Override
@@ -650,6 +719,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new KeepPositionGoal(this));
+        this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
         CommonGoals.registerGoalForBlueDemonNpc(this);
     }
 

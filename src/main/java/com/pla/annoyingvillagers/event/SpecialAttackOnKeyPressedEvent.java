@@ -149,6 +149,11 @@ public class SpecialAttackOnKeyPressedEvent {
             ItemStack holdingItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
 
+            if (!player.level().isClientSide() && HookGunItem.tryBindFromSpecialAttack(player)) {
+                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.KNIFE_CHECK, 0.0F);
+                return;
+            }
+
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
                 if (entity.level() instanceof ServerLevel) {
                     if (offHandItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {

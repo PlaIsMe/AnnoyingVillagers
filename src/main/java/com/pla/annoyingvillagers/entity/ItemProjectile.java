@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
+import com.pla.annoyingvillagers.util.HookUtil;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -489,6 +490,10 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     }
 
     protected boolean damageEnemyHitByHookedItem(LivingEntity target, Entity owner) {
+        if (this.tryHandleSpecialBoundItemHit(target, owner)) {
+            return true;
+        }
+
         DamageSource source = this.level().damageSources().thrown(this, owner);
         if (!target.hurt(source, this.calculateHookAttachedItemDamage(target))) {
             return false;
@@ -523,6 +528,10 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     }
 
     private boolean damageEnemyHitByThrownItem(LivingEntity target, Entity owner) {
+        if (this.tryHandleSpecialBoundItemHit(target, owner)) {
+            return true;
+        }
+
         DamageSource source = this.level().damageSources().thrown(this, owner);
         if (!target.hurt(source, this.calculateWeaponDamage(target))) {
             return false;
@@ -533,6 +542,20 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         }
 
         this.playSound(AnnoyingVillagersModSounds.OB_PLACE.get(), 0.5F, 1.0F);
+        return true;
+    }
+
+    private boolean tryHandleSpecialBoundItemHit(LivingEntity target, Entity owner) {
+        ItemStack mutableStack = this.getWeaponStack().copy();
+        LivingEntity livingOwner = owner instanceof LivingEntity ownerLiving ? ownerLiving : null;
+        if (HookUtil.handleEntityHit(this.level(), mutableStack, this, livingOwner, target) != HookUtil.HitResult.HANDLED) {
+            return false;
+        }
+
+        this.setWeaponStack(mutableStack);
+        if (mutableStack.isEmpty()) {
+            this.discard();
+        }
         return true;
     }
 

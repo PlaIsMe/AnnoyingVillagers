@@ -41,7 +41,7 @@ public class AnnoyingVillagersConfig {
 
     static {
         HEROBRINE_POSSESS_RATE = BUILDER.comment(
-                        "Chance for Herobrine possess another player npc into Herobrine #5 and Herobrine #6")
+                        "Chance for Herobrine possess another player npc into Low Herobrine Clone")
                 .defineInRange("herobrinePossessRate", 0.5, 0, 1);
 
         HEROBRINE_RECALL_MIN_TIME = BUILDER.comment(

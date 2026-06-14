@@ -2,16 +2,15 @@ package com.pla.annoyingvillagers.entity;
 
 import javax.annotation.Nullable;
 
+import com.pla.annoyingvillagers.clazz.VillagerArmyEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.HookedDiamondSwordItem;
 import com.pla.annoyingvillagers.item.WoopieTheSwordItem;
 import com.pla.annoyingvillagers.util.*;
-import com.pla.annoyingvillagers.clazz.AVNpc;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
@@ -33,13 +32,12 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import java.util.Random;
 import java.util.function.Consumer;
 
 
-public class RedVillagerGeneralEntity extends AVNpc {
+public class RedVillagerGeneralEntity extends VillagerArmyEntity {
     public RedVillagerGeneralEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.RED_VILLAGER_GENERAL.get(), level);
     }

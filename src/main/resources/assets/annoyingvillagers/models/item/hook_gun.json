@@ -1,0 +1,33 @@
+{
+  "parent": "builtin/entity",
+  "gui_light": "front",
+  "textures": {
+    "particle": "annoyingvillagers:item/hook_gun_rope"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [45, 90, 0],
+      "translation": [-0.5, 1, -1.5]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [45, -90, 0],
+      "translation": [0.5, 0, -1.5]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, 88, 0],
+      "translation": [0, 1.25, 0]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, -88, 0],
+      "translation": [0, 1.25, 0]
+    },
+    "gui": {
+      "rotation": [0, 0, 71],
+      "translation": [-1, 0, 0],
+      "scale": [1.6, 1.6, 1.6]
+    },
+    "fixed": {
+      "scale": [1.6, 1.6, 1.6]
+    }
+  }
+}
