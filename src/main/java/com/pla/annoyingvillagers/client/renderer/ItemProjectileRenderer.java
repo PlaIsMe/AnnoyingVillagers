@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -174,6 +175,7 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
 
         if (!stack.isEmpty()) {
             poseStack.pushPose();
+            BakedModel model = this.itemRenderer.getModel(stack, entity.level(), null, entity.getId());
 
             poseStack.translate(0.0D, 0.15D, 0.0D);
             if (HookUtil.shouldUseShieldFacing(stack)) {
@@ -192,7 +194,7 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
                     pitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
                 }
 
-                HookItemRenderTransforms.applyProjectileFacing(poseStack, stack, yaw, pitch);
+                HookItemRenderTransforms.applyProjectileFacing(poseStack, stack, model, yaw, pitch);
                 if (!sharpItem && !entity.isHookAttached()) {
                     float age = entity.tickCount + partialTick;
                     int spinSeed = entity.getUUID().hashCode();
@@ -202,15 +204,15 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
 
             poseStack.scale(0.85F, 0.85F, 0.85F);
 
-            this.itemRenderer.renderStatic(
+            this.itemRenderer.render(
                     stack,
-                    HookItemRenderTransforms.getProjectileDisplayContext(stack),
-                    packedLight,
-                    OverlayTexture.NO_OVERLAY,
+                    HookItemRenderTransforms.getProjectileDisplayContext(stack, model),
+                    false,
                     poseStack,
                     buffer,
-                    entity.level(),
-                    entity.getId()
+                    packedLight,
+                    OverlayTexture.NO_OVERLAY,
+                    model
             );
 
             poseStack.popPose();

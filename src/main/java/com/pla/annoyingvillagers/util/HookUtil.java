@@ -56,6 +56,8 @@ import net.minecraftforge.common.ToolActions;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.WeaponCategory;
 import yesman.epicfight.world.damagesource.StunType;
 
 import javax.annotation.Nullable;
@@ -72,7 +74,8 @@ public final class HookUtil {
     public static boolean isPickaxe(ItemStack stack) {
         return !stack.isEmpty()
                 && (stack.getItem() instanceof PickaxeItem
-                || stack.canPerformAction(ToolActions.PICKAXE_DIG));
+                || stack.canPerformAction(ToolActions.PICKAXE_DIG)
+                || hasEpicFightWeaponCategory(stack, CapabilityItem.WeaponCategories.PICKAXE));
     }
 
     public static boolean shouldUseShieldFacing(ItemStack stack) {
@@ -93,7 +96,8 @@ public final class HookUtil {
                 || stack.canPerformAction(ToolActions.AXE_DIG)
                 || stack.canPerformAction(ToolActions.HOE_DIG)
                 || stack.canPerformAction(ToolActions.SHOVEL_DIG)
-                || stack.canPerformAction(ToolActions.PICKAXE_DIG);
+                || stack.canPerformAction(ToolActions.PICKAXE_DIG)
+                || isEpicFightMeleeWeapon(stack);
     }
 
     public static boolean shouldRenderWithoutProjectileSpin(ItemStack stack) {
@@ -212,6 +216,44 @@ public final class HookUtil {
                 || stack.getItem() instanceof ShovelItem
                 || stack.getItem() instanceof PickaxeItem
                 || shouldAlignSharpEdge(stack);
+    }
+
+    private static boolean isEpicFightMeleeWeapon(ItemStack stack) {
+        return hasEpicFightWeaponCategory(
+                stack,
+                CapabilityItem.WeaponCategories.AXE,
+                CapabilityItem.WeaponCategories.GREATSWORD,
+                CapabilityItem.WeaponCategories.HOE,
+                CapabilityItem.WeaponCategories.PICKAXE,
+                CapabilityItem.WeaponCategories.SHOVEL,
+                CapabilityItem.WeaponCategories.SWORD,
+                CapabilityItem.WeaponCategories.UCHIGATANA,
+                CapabilityItem.WeaponCategories.SPEAR,
+                CapabilityItem.WeaponCategories.TACHI,
+                CapabilityItem.WeaponCategories.TRIDENT,
+                CapabilityItem.WeaponCategories.LONGSWORD,
+                CapabilityItem.WeaponCategories.DAGGER
+        );
+    }
+
+    private static boolean hasEpicFightWeaponCategory(ItemStack stack, CapabilityItem.WeaponCategories... categories) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        CapabilityItem capability = EpicFightCapabilities.getItemStackCapability(stack);
+        if (capability == null || capability.isEmpty()) {
+            return false;
+        }
+
+        WeaponCategory weaponCategory = capability.getWeaponCategory();
+        for (CapabilityItem.WeaponCategories category : categories) {
+            if (weaponCategory == category) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static boolean isPotion(ItemStack stack) {

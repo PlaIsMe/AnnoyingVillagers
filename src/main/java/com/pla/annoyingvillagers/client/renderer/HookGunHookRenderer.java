@@ -81,6 +81,7 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
             return;
         }
 
+        BakedModel model = this.context.getItemRenderer().getModel(stack, hook.level(), null, hook.getId());
         poseStack.pushPose();
         poseStack.scale(0.5F, 0.5F, 0.5F);
 
@@ -91,17 +92,16 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
             double horizontal = Math.sqrt(shootDirection.x * shootDirection.x + shootDirection.z * shootDirection.z);
             float yaw = (float) (Mth.atan2(shootDirection.x, shootDirection.z) * Mth.RAD_TO_DEG);
             float pitch = (float) (Mth.atan2(shootDirection.y, horizontal) * Mth.RAD_TO_DEG);
-            HookItemRenderTransforms.applyProjectileFacing(poseStack, stack, yaw, pitch);
+            HookItemRenderTransforms.applyProjectileFacing(poseStack, stack, model, yaw, pitch);
             if (!HookUtil.shouldAlignSharpEdge(stack)) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(45.0F * handRight));
                 poseStack.mulPose(Axis.ZP.rotationDegrees(-45.0F));
             }
         }
 
-        BakedModel model = this.context.getItemRenderer().getModel(stack, hook.level(), null, hook.getId());
         this.context.getItemRenderer().render(
                 stack,
-                ItemDisplayContext.NONE,
+                HookItemRenderTransforms.getProjectileDisplayContext(stack, model),
                 false,
                 poseStack,
                 buffer,
