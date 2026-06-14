@@ -2,7 +2,7 @@
   "parent": "builtin/entity",
   "gui_light": "front",
   "textures": {
-    "particle": "annoyingvillagers:item/hook_gun_rope"
+    "particle": "annoyingvillagers:item/hook_gun"
   },
   "display": {
     "thirdperson_righthand": {

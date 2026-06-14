@@ -150,7 +150,7 @@ public class SpecialAttackOnKeyPressedEvent {
             ItemStack offHandItem = player.getOffhandItem();
 
             if (!player.level().isClientSide() && HookGunItem.tryBindFromSpecialAttack(player)) {
-                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.KNIFE_CHECK, 0.0F);
+                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.HOOK_GUN, 0.0F);
                 return;
             }
 

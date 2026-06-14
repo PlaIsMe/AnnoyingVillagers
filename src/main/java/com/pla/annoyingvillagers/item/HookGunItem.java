@@ -73,8 +73,12 @@ public class HookGunItem extends Item {
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (level.isClientSide) {
-            if (isHoldingHookGunInBothHands(player)) {
+            if (isHoldingHookGunInBothHands(player) && hasActiveHook(level, player)) {
                 swingBothHands(player);
+            } else if (!hasLaunchableBoundItem(player, hand)) {
+                return InteractionResultHolder.pass(stack);
+            } else if (isHoldingHookGunInBothHands(player)) {
+                swingLaunchableHands(player);
             }
             return InteractionResultHolder.sidedSuccess(stack, true);
         }
@@ -92,15 +96,39 @@ public class HookGunItem extends Item {
 
         boolean doubleMode = isHoldingHookGunInBothHands(player);
         if (doubleMode) {
-            double angle = getDoubleHookAngle(player);
-            launchHook(level, player, -angle, true, false, getBoundItem(player.getOffhandItem()));
-            launchHook(level, player, angle, true, true, getBoundItem(player.getMainHandItem()));
-            swingBothHands(player);
+            ItemStack offHand = player.getOffhandItem();
+            ItemStack mainHand = player.getMainHandItem();
+            ItemStack offBoundItem = getBoundItem(offHand);
+            ItemStack mainBoundItem = getBoundItem(mainHand);
+            boolean launchOffHand = !offBoundItem.isEmpty();
+            boolean launchMainHand = !mainBoundItem.isEmpty();
+
+            if (!launchOffHand && !launchMainHand) {
+                return InteractionResultHolder.pass(stack);
+            }
+
+            if (launchOffHand && launchMainHand) {
+                double angle = getDoubleHookAngle(player);
+                launchHook(level, player, -angle, true, false, offBoundItem);
+                launchHook(level, player, angle, true, true, mainBoundItem);
+            } else if (launchOffHand) {
+                launchHook(level, player, 0.0D, false, false, offBoundItem);
+            } else {
+                launchHook(level, player, 0.0D, false, true, mainBoundItem);
+            }
+
+            swingLaunchedHands(player, launchMainHand, launchOffHand);
+            damageLaunchedStacks(player, launchMainHand, launchOffHand);
         } else {
-            launchHook(level, player, 0.0D, false, hand == InteractionHand.MAIN_HAND, getBoundItem(stack));
+            ItemStack boundItem = getBoundItem(stack);
+            if (boundItem.isEmpty()) {
+                return InteractionResultHolder.pass(stack);
+            }
+
+            launchHook(level, player, 0.0D, false, hand == InteractionHand.MAIN_HAND, boundItem);
+            damageStack(player, stack, hand);
         }
 
-        damageUsedStacks(player, hand, doubleMode);
         player.getCooldowns().addCooldown(this, USE_COOLDOWN_TICKS);
         player.awardStat(Stats.ITEM_USED.get(this));
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ARROW_SHOOT,
@@ -125,6 +153,15 @@ public class HookGunItem extends Item {
 
     public static double getDoubleHookAngle(LivingEntity entity) {
         return entity.isCrouching() ? SNEAKING_DOUBLE_HOOK_ANGLE : DOUBLE_HOOK_ANGLE;
+    }
+
+    private static boolean hasLaunchableBoundItem(Player player, InteractionHand hand) {
+        if (isHoldingHookGunInBothHands(player)) {
+            return !getBoundItem(player.getMainHandItem()).isEmpty()
+                    || !getBoundItem(player.getOffhandItem()).isEmpty();
+        }
+
+        return !getBoundItem(player.getItemInHand(hand)).isEmpty();
     }
 
     public static boolean hasAttachedHook(Level level, LivingEntity owner) {
@@ -189,17 +226,17 @@ public class HookGunItem extends Item {
         boolean offHookGun = offHand.getItem() instanceof HookGunItem;
 
         if (mainHookGun && !offHookGun) {
-            return bindOrUnbind(player, mainHand, offHand);
+            return bindOrUnbind(player, mainHand, offHand, InteractionHand.OFF_HAND);
         }
 
         if (offHookGun && !mainHookGun) {
-            return bindOrUnbind(player, offHand, mainHand);
+            return bindOrUnbind(player, offHand, mainHand, InteractionHand.MAIN_HAND);
         }
 
         return false;
     }
 
-    private static boolean bindOrUnbind(Player player, ItemStack hookGunStack, ItemStack sourceStack) {
+    private static boolean bindOrUnbind(Player player, ItemStack hookGunStack, ItemStack sourceStack, InteractionHand sourceHand) {
         if (sourceStack.isEmpty()) {
             ItemStack boundItem = getBoundItem(hookGunStack);
             if (boundItem.isEmpty()) {
@@ -217,12 +254,14 @@ public class HookGunItem extends Item {
             return false;
         }
 
+        ItemStack previousBoundItem = getBoundItem(hookGunStack);
         ItemStack boundItem = sourceStack.copy();
         boundItem.setCount(1);
         setBoundItem(hookGunStack, boundItem);
         if (!player.getAbilities().instabuild) {
             sourceStack.shrink(1);
         }
+        returnPreviousBoundItem(player, previousBoundItem, sourceHand);
 
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.ARMOR_EQUIP_LEATHER, SoundSource.PLAYERS, 0.7F, 1.2F);
@@ -235,6 +274,21 @@ public class HookGunItem extends Item {
         if (!remaining.isEmpty()) {
             player.drop(remaining, false);
         }
+    }
+
+    private static void returnPreviousBoundItem(Player player, ItemStack previousBoundItem, InteractionHand sourceHand) {
+        if (previousBoundItem.isEmpty()) {
+            return;
+        }
+
+        ItemStack returned = previousBoundItem.copy();
+        ItemStack sourceHandStack = player.getItemInHand(sourceHand);
+        if (sourceHandStack.isEmpty()) {
+            player.setItemInHand(sourceHand, returned);
+            return;
+        }
+
+        giveOrDrop(player, returned);
     }
 
     private static void launchHook(Level level, Player player, double yawOffset, boolean doubleMode, boolean rightHand, ItemStack boundItem) {
@@ -385,11 +439,12 @@ public class HookGunItem extends Item {
         }
     }
 
-    private static void damageUsedStacks(Player player, InteractionHand hand, boolean doubleMode) {
-        damageStack(player, player.getItemInHand(hand), hand);
-        if (doubleMode) {
-            InteractionHand otherHand = hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
-            damageStack(player, player.getItemInHand(otherHand), otherHand);
+    private static void damageLaunchedStacks(Player player, boolean mainHand, boolean offHand) {
+        if (mainHand) {
+            damageStack(player, player.getMainHandItem(), InteractionHand.MAIN_HAND);
+        }
+        if (offHand) {
+            damageStack(player, player.getOffhandItem(), InteractionHand.OFF_HAND);
         }
     }
 
@@ -410,6 +465,24 @@ public class HookGunItem extends Item {
     private static void swingBothHands(Player player) {
         player.swing(InteractionHand.MAIN_HAND, true);
         player.swing(InteractionHand.OFF_HAND, true);
+    }
+
+    private static void swingLaunchableHands(Player player) {
+        swingLaunchedHands(
+                player,
+                !getBoundItem(player.getMainHandItem()).isEmpty(),
+                !getBoundItem(player.getOffhandItem()).isEmpty()
+        );
+    }
+
+    private static void swingLaunchedHands(Player player, boolean mainHand, boolean offHand) {
+        if (mainHand && offHand) {
+            swingBothHands(player);
+        } else if (mainHand) {
+            player.swing(InteractionHand.MAIN_HAND, true);
+        } else if (offHand) {
+            player.swing(InteractionHand.OFF_HAND, true);
+        }
     }
 
     private static void playRetrieveSound(Level level, Player player) {

@@ -26,8 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
-    private static final ResourceLocation ROPE_MODEL =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "item/hook_gun_rope");
+    private static final ResourceLocation BASE_MODEL =
+            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "item/hook_gun/body");
 
     public static HookGunItemRenderer instance;
 
@@ -43,7 +43,7 @@ public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
 
     @SubscribeEvent
     public static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
-        event.register(ROPE_MODEL);
+        event.register(BASE_MODEL);
     }
 
     public static HookGunItemRenderer getInstance() {
@@ -72,9 +72,9 @@ public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
     ) {
         Minecraft minecraft = Minecraft.getInstance();
         ItemRenderer itemRenderer = minecraft.getItemRenderer();
-        BakedModel ropeModel = minecraft.getModelManager().getModel(ROPE_MODEL);
+        BakedModel baseModel = minecraft.getModelManager().getModel(BASE_MODEL);
 
-        renderBakedModel(itemRenderer, ropeModel, stack, poseStack, buffer, combinedLight, combinedOverlay);
+        renderBakedModel(itemRenderer, baseModel, stack, poseStack, buffer, combinedLight, combinedOverlay);
 
         ItemStack boundItem = HookGunItem.getBoundItem(stack);
         if (boundItem.isEmpty() || isHookingWithRenderedStack(minecraft, stack)) {

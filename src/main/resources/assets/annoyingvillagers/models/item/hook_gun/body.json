@@ -2,8 +2,8 @@
   "format_version": "1.9.0",
   "credit": "Made with Blockbench",
   "textures": {
-    "0": "annoyingvillagers:item/hook_gun_rope",
-    "particle": "annoyingvillagers:item/hook_gun_rope"
+    "0": "annoyingvillagers:item/hook_gun",
+    "particle": "annoyingvillagers:item/hook_gun"
   },
   "elements": [
     {

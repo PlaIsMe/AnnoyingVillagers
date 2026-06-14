@@ -108,6 +108,7 @@ public class AnimsPugilistSteve {
     public static AnimationManager.AnimationAccessor<MovementAnimation> KNIFE_RUN;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> KNIFE_ATTACK;
     public static AnimationManager.AnimationAccessor<StaticAnimation> KNIFE_CHECK;
+    public static AnimationManager.AnimationAccessor<ActionAnimation> HOOK_GUN;
     public static AnimationManager.AnimationAccessor<StaticAnimation> CARRY;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> FIST_LEFT;
     public static AnimationManager.AnimationAccessor<KnockdownAnimation> KNOCKDOWN_FORWARD;
@@ -442,6 +443,9 @@ public class AnimsPugilistSteve {
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
         KNIFE_CHECK = builder.nextAccessor("biped/pugilist_steve/knife_check",
                 accessor -> new StaticAnimation(false, accessor, humanoidArmature)
+                        .addState(EntityState.CAN_BASIC_ATTACK, false));
+        HOOK_GUN = builder.nextAccessor("biped/pugilist_steve/hook_gun",
+                accessor -> new ActionAnimation(0.0F, 1.85F, accessor, humanoidArmature)
                         .addState(EntityState.CAN_BASIC_ATTACK, false));
         CARRY = builder.nextAccessor("biped/pugilist_steve/carry",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
