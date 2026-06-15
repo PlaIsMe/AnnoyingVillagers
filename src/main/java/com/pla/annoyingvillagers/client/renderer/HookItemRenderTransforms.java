@@ -28,6 +28,10 @@ final class HookItemRenderTransforms {
     private static final double HOOK_GUN_ATTACHMENT_Y = 0.1D;
     private static final double HOOK_GUN_ATTACHMENT_Z = 0.55D;
     private static final float HOOK_GUN_ATTACHMENT_SCALE = 0.65F;
+    private static final double SHIELD_HOOK_GUN_ATTACHMENT_Z_OFFSET = 0.25D;
+    private static final float HOOK_GUN_PROJECTILE_SCALE = 0.5F;
+    private static final float SHIELD_HOOK_GUN_PROJECTILE_SCALE = 1.0F;
+    private static final double ITEM_DISPLAY_TRANSLATION_SCALE = 16.0D;
 
     private HookItemRenderTransforms() {
     }
@@ -61,15 +65,47 @@ final class HookItemRenderTransforms {
     }
 
     static ItemDisplayContext getHookGunAttachmentDisplayContext(ItemStack stack, ItemDisplayContext context) {
+        if (HookUtil.shouldUseShieldFacing(stack)) {
+            return ItemDisplayContext.NONE;
+        }
+
         return ItemDisplayContext.GUI;
     }
 
     static void applyHookGunAttachment(PoseStack poseStack, ItemStack stack, ItemDisplayContext context) {
-        applyHookGunAttachmentTransform(poseStack);
+        double zOffset = HookUtil.shouldUseShieldFacing(stack) ? SHIELD_HOOK_GUN_ATTACHMENT_Z_OFFSET : 0.0D;
+        applyHookGunAttachmentTransform(poseStack, zOffset);
     }
 
-    private static void applyHookGunAttachmentTransform(PoseStack poseStack) {
-        poseStack.translate(HOOK_GUN_ATTACHMENT_X, HOOK_GUN_ATTACHMENT_Y, HOOK_GUN_ATTACHMENT_Z);
+    static ItemDisplayContext getHookGunProjectileDisplayContext(ItemStack stack, @Nullable BakedModel model) {
+        if (HookUtil.shouldUseShieldFacing(stack)) {
+            return ItemDisplayContext.NONE;
+        }
+
+        return getProjectileDisplayContext(stack, model);
+    }
+
+    static float getHookGunProjectileScale(ItemStack stack) {
+        return HookUtil.shouldUseShieldFacing(stack)
+                ? SHIELD_HOOK_GUN_PROJECTILE_SCALE
+                : HOOK_GUN_PROJECTILE_SCALE;
+    }
+
+    static void applyShieldProjectileTransform(PoseStack poseStack, @Nullable BakedModel model) {
+        if (model == null || !model.getTransforms().hasTransform(ItemDisplayContext.FIXED)) {
+            return;
+        }
+
+        ItemTransform fixedTransform = model.getTransforms().getTransform(ItemDisplayContext.FIXED);
+        poseStack.translate(
+                -fixedTransform.translation.x() / ITEM_DISPLAY_TRANSLATION_SCALE,
+                -fixedTransform.translation.y() / ITEM_DISPLAY_TRANSLATION_SCALE,
+                -fixedTransform.translation.z() / ITEM_DISPLAY_TRANSLATION_SCALE
+        );
+    }
+
+    private static void applyHookGunAttachmentTransform(PoseStack poseStack, double zOffset) {
+        poseStack.translate(HOOK_GUN_ATTACHMENT_X, HOOK_GUN_ATTACHMENT_Y, HOOK_GUN_ATTACHMENT_Z + zOffset);
         poseStack.mulPose(Axis.ZP.rotationDegrees(HOOK_GUN_ATTACHMENT_ROLL));
         poseStack.scale(HOOK_GUN_ATTACHMENT_SCALE, HOOK_GUN_ATTACHMENT_SCALE, HOOK_GUN_ATTACHMENT_SCALE);
     }

@@ -89,6 +89,23 @@ public class EpicfightUtil {
                 || ExecutionHandler.isTargetGuardBreak(dynamicAnimation, livingEntityPatch);
     }
 
+    public static void stopAnimationSynchronized(LivingEntity entity, AssetAccessor<? extends StaticAnimation> animation) {
+        if (entity == null || animation == null) {
+            return;
+        }
+
+        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+        if (livingEntityPatch == null) {
+            return;
+        }
+
+        if (livingEntityPatch.isLogicalClient()) {
+            livingEntityPatch.getAnimator().stopPlaying(animation);
+        } else {
+            livingEntityPatch.stopPlaying(animation);
+        }
+    }
+
     public static void dealStaminaDamageByPercentage(DamageSource damageSource, LivingEntityPatch<?> livingEntityPatch, double percentage, boolean playStunAnimation) {
         float decrease = 0.0F;
         if (livingEntityPatch instanceof CEHumanoidPatch) {

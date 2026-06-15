@@ -3,6 +3,8 @@ package com.pla.annoyingvillagers.entity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.util.HookUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -19,6 +21,8 @@ import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -161,12 +165,21 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
             return;
         }
 
+        BlockHitResult emptyBucketFluidHit = this.getEmptyBucketFluidHit();
+        if (emptyBucketFluidHit != null && !ForgeEventFactory.onProjectileImpact(this, emptyBucketFluidHit)) {
+            this.onHit(emptyBucketFluidHit);
+        }
+
+        if (this.isRemoved() || this.isAttached() || this.isReturning()) {
+            return;
+        }
+
         HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
         if (hitResult.getType() != HitResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, hitResult)) {
             this.onHit(hitResult);
         }
 
-        if (this.isRemoved() || this.isAttached()) {
+        if (this.isRemoved() || this.isAttached() || this.isReturning()) {
             return;
         }
 
@@ -174,6 +187,43 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         this.move(MoverType.SELF, motion);
         this.updateRotationFromMotion(motion);
         this.setDeltaMovement(motion.scale(AIR_DRAG).add(0.0D, -HOOK_GRAVITY, 0.0D));
+    }
+
+    @Nullable
+    private BlockHitResult getEmptyBucketFluidHit() {
+        if (!this.getBoundItem().is(Items.BUCKET)) {
+            return null;
+        }
+
+        Vec3 start = this.position();
+        Vec3 end = start.add(this.getDeltaMovement());
+        HitResult hitResult = this.level().clip(new ClipContext(
+                start,
+                end,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.SOURCE_ONLY,
+                this
+        ));
+
+        if (hitResult instanceof BlockHitResult blockHitResult && this.isSourceFluid(blockHitResult.getBlockPos())) {
+            return blockHitResult;
+        }
+
+        BlockPos currentPos = BlockPos.containing(start);
+        if (this.isSourceFluid(currentPos)) {
+            return new BlockHitResult(start, Direction.UP, currentPos, false);
+        }
+
+        BlockPos nextPos = BlockPos.containing(end);
+        if (this.isSourceFluid(nextPos)) {
+            return new BlockHitResult(end, Direction.UP, nextPos, false);
+        }
+
+        return null;
+    }
+
+    private boolean isSourceFluid(BlockPos pos) {
+        return !this.level().getFluidState(pos).isEmpty() && this.level().getFluidState(pos).isSource();
     }
 
     @Override
@@ -198,8 +248,10 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         }
 
         ItemStack mutableBoundItem = boundItem.copy();
-        if (HookUtil.handleBlockHit(this.level(), mutableBoundItem, this, this.getHookOwner(), hitResult) == HookUtil.HitResult.HANDLED) {
-            this.updateSourceBoundItem(mutableBoundItem);
+        HookUtil.ItemInteractionResult itemResult =
+                HookUtil.handleBlockHitWithResult(this.level(), mutableBoundItem, this, this.getHookOwner(), hitResult);
+        if (itemResult.handled()) {
+            this.updateSourceBoundItem(itemResult.itemStack());
         }
 
         this.startReturning();
@@ -221,8 +273,10 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
 
         if (target instanceof LivingEntity livingTarget) {
             ItemStack mutableBoundItem = boundItem.copy();
-            if (HookUtil.handleEntityHit(this.level(), mutableBoundItem, this, this.getHookOwner(), livingTarget) == HookUtil.HitResult.HANDLED) {
-                this.updateSourceBoundItem(mutableBoundItem);
+            HookUtil.ItemInteractionResult itemResult =
+                    HookUtil.handleEntityHitWithResult(this.level(), mutableBoundItem, this, this.getHookOwner(), livingTarget);
+            if (itemResult.handled()) {
+                this.updateSourceBoundItem(itemResult.itemStack());
             }
         }
 

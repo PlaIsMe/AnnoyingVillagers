@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.mixin;
 import com.pla.annoyingvillagers.item.BedrockWeaponItem;
 import com.pla.annoyingvillagers.item.EnderAegisItem;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
+import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.skill.BedrockWeaponSkill;
 import com.pla.annoyingvillagers.skill.EnderAegisSkill;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,9 +25,10 @@ import java.util.Objects;
 @Mixin(value = {GuardSkill.class}, remap = false)
 public abstract class GuardSkillMixin {
     @Inject(method = {"canExecute"}, at = {@At("HEAD")}, cancellable = true)
-    private void annoyingVillagers$skipGuardForOffhandFishingRod(SkillContainer container, CallbackInfoReturnable<Boolean> cir) {
+    private void annoyingVillagers$skipGuardForOffhandUtilityItem(SkillContainer container, CallbackInfoReturnable<Boolean> cir) {
         Player player = container.getExecutor().getOriginal();
-        if (FishingRodGrappleUtil.shouldOffhandFishingRodTakeRightClick(player)) {
+        if (FishingRodGrappleUtil.shouldOffhandFishingRodTakeRightClick(player)
+                || HookGunItem.shouldOffhandHookGunTakeRightClick(player)) {
             cir.setReturnValue(false);
         }
     }

@@ -82,11 +82,16 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
         }
 
         BakedModel model = this.context.getItemRenderer().getModel(stack, hook.level(), null, hook.getId());
+        ItemDisplayContext displayContext = HookItemRenderTransforms.getHookGunProjectileDisplayContext(stack, model);
         poseStack.pushPose();
-        poseStack.scale(0.5F, 0.5F, 0.5F);
+        float projectileScale = HookItemRenderTransforms.getHookGunProjectileScale(stack);
+        poseStack.scale(projectileScale, projectileScale, projectileScale);
 
         if (HookUtil.shouldUseShieldFacing(stack)) {
             poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - getOwnerLookYaw(hook, partialTicks)));
+            if (displayContext == ItemDisplayContext.FIXED) {
+                HookItemRenderTransforms.applyShieldProjectileTransform(poseStack, model);
+            }
         } else if (!HookUtil.shouldRenderWithoutProjectileSpin(stack)) {
             Vec3 shootDirection = attachDirection.scale(-1.0D);
             double horizontal = Math.sqrt(shootDirection.x * shootDirection.x + shootDirection.z * shootDirection.z);
@@ -101,7 +106,7 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
 
         this.context.getItemRenderer().render(
                 stack,
-                HookItemRenderTransforms.getProjectileDisplayContext(stack, model),
+                displayContext,
                 false,
                 poseStack,
                 buffer,

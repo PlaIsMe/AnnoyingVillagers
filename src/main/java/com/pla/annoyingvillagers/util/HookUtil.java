@@ -12,6 +12,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -24,7 +26,9 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
@@ -32,12 +36,16 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.EggItem;
+import net.minecraft.world.item.FireChargeItem;
 import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.SwordItem;
@@ -46,12 +54,20 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.IForgeShearable;
 import net.minecraftforge.common.ToolActions;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -61,11 +77,18 @@ import yesman.epicfight.world.capabilities.item.WeaponCategory;
 import yesman.epicfight.world.damagesource.StunType;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public final class HookUtil {
     public enum HitResult {
         PASS,
         HANDLED
+    }
+
+    public record ItemInteractionResult(HitResult hitResult, ItemStack itemStack) {
+        public boolean handled() {
+            return this.hitResult == HitResult.HANDLED;
+        }
     }
 
     private HookUtil() {
@@ -105,41 +128,67 @@ public final class HookUtil {
     }
 
     public static HitResult handleEntityHit(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
+        return handleEntityHitWithResult(level, boundStack, projectile, owner, target).hitResult();
+    }
+
+    public static ItemInteractionResult handleEntityHitWithResult(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
         if (boundStack.isEmpty() || !target.isAlive() || target.isSpectator()) {
-            return HitResult.PASS;
+            return pass(boundStack);
         }
 
         if (owner != null && (target == owner || target.isAlliedTo(owner))) {
-            return HitResult.HANDLED;
+            return handled(boundStack);
         }
 
         if (boundStack.getItem() instanceof SpawnEggItem) {
-            return spawnFromSpawnEgg(level, boundStack, owner, target.blockPosition(), false, false);
+            return result(spawnFromSpawnEgg(level, boundStack, owner, target.blockPosition(), false, false), boundStack);
         }
 
         if (boundStack.getItem() instanceof EggItem) {
-            return hatchChickenEgg(level, boundStack, hitPosition(target));
+            return result(hatchChickenEgg(level, boundStack, hitPosition(target)), boundStack);
+        }
+
+        if (isShears(boundStack)) {
+            HitResult shearResult = shearEntity(level, boundStack, owner, target);
+            if (shearResult == HitResult.HANDLED) {
+                return handled(boundStack);
+            }
+        }
+
+        if (boundStack.is(Items.BUCKET)) {
+            ItemInteractionResult bucketResult = fillBucketFromEntity(level, boundStack, target);
+            if (bucketResult.handled()) {
+                return bucketResult;
+            }
         }
 
         if (boundStack.getItem() instanceof ShieldItem) {
-            return hitWithShield(level, boundStack, projectile, owner, target);
+            return result(hitWithShield(level, boundStack, projectile, owner, target), boundStack);
         }
 
         if (isWeaponLike(boundStack)) {
-            return hitWithWeapon(level, boundStack, projectile, owner, target);
+            return result(hitWithWeapon(level, boundStack, projectile, owner, target), boundStack);
         }
 
         if (boundStack.getItem() instanceof ArmorItem armorItem) {
-            return equipArmor(boundStack, target, armorItem);
+            return result(equipArmor(boundStack, target, armorItem), boundStack);
         }
 
         if (isPotion(boundStack)) {
-            return applyPotion(level, boundStack, projectile, owner, target);
+            return result(applyPotion(level, boundStack, projectile, owner, target), boundStack);
         }
 
         FoodProperties food = boundStack.getFoodProperties(target);
         if (food != null) {
-            return feedTarget(level, boundStack, target, food);
+            return result(feedTarget(level, boundStack, target, food), boundStack);
+        }
+
+        if (boundStack.getItem() instanceof FireChargeItem) {
+            target.setSecondsOnFire(8);
+            boundStack.shrink(1);
+            level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                    SoundEvents.FIRECHARGE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+            return handled(boundStack);
         }
 
         if (boundStack.getItem() instanceof FlintAndSteelItem) {
@@ -147,26 +196,51 @@ public final class HookUtil {
             damageTool(boundStack, owner);
             level.playSound(null, target.getX(), target.getY(), target.getZ(),
                     SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
-            return HitResult.HANDLED;
+            return handled(boundStack);
         }
 
-        return HitResult.PASS;
+        return pass(boundStack);
     }
 
     public static HitResult handleBlockHit(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, BlockHitResult hitResult) {
+        return handleBlockHitWithResult(level, boundStack, projectile, owner, hitResult).hitResult();
+    }
+
+    public static ItemInteractionResult handleBlockHitWithResult(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, BlockHitResult hitResult) {
         if (boundStack.isEmpty()) {
-            return HitResult.PASS;
+            return pass(boundStack);
         }
 
         if (boundStack.getItem() instanceof SpawnEggItem) {
             BlockPos blockPos = getSpawnEggBlockPos(level, hitResult);
             boolean offsetForFace = hitResult.getDirection() == Direction.UP
                     && !blockPos.equals(hitResult.getBlockPos());
-            return spawnFromSpawnEgg(level, boundStack, owner, blockPos, true, offsetForFace);
+            return result(spawnFromSpawnEgg(level, boundStack, owner, blockPos, true, offsetForFace), boundStack);
         }
 
         if (boundStack.getItem() instanceof EggItem) {
-            return hatchChickenEgg(level, boundStack, hitResult.getLocation());
+            return result(hatchChickenEgg(level, boundStack, hitResult.getLocation()), boundStack);
+        }
+
+        if (isShears(boundStack)) {
+            HitResult shearResult = shearBlock(level, boundStack, owner, hitResult);
+            if (shearResult == HitResult.HANDLED) {
+                return handled(boundStack);
+            }
+        }
+
+        if (boundStack.getItem() instanceof FireChargeItem) {
+            ItemInteractionResult fireChargeResult = useFireCharge(level, boundStack, owner, hitResult);
+            if (fireChargeResult.handled()) {
+                return fireChargeResult;
+            }
+        }
+
+        if (boundStack.getItem() instanceof BucketItem bucketItem) {
+            ItemInteractionResult bucketResult = useBucket(level, boundStack, owner, bucketItem, hitResult);
+            if (bucketResult.handled()) {
+                return bucketResult;
+            }
         }
 
         if (boundStack.getItem() instanceof FlintAndSteelItem) {
@@ -174,21 +248,240 @@ public final class HookUtil {
                 damageTool(boundStack, owner);
                 level.playSound(null, hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z,
                         SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
-                return HitResult.HANDLED;
+                return handled(boundStack);
             }
 
-            return HitResult.PASS;
+            return pass(boundStack);
         }
 
         if (boundStack.getItem() instanceof BoneMealItem) {
-            return applyBoneMeal(level, boundStack, hitResult);
+            return result(applyBoneMeal(level, boundStack, hitResult), boundStack);
         }
 
         if (boundStack.getItem() instanceof BlockItem blockItem) {
-            return placeBoundBlock(level, boundStack, owner, blockItem, hitResult);
+            return result(placeBoundBlock(level, boundStack, owner, blockItem, hitResult), boundStack);
         }
 
-        return HitResult.PASS;
+        return pass(boundStack);
+    }
+
+    private static ItemInteractionResult handled(ItemStack itemStack) {
+        return new ItemInteractionResult(HitResult.HANDLED, itemStack);
+    }
+
+    private static ItemInteractionResult pass(ItemStack itemStack) {
+        return new ItemInteractionResult(HitResult.PASS, itemStack);
+    }
+
+    private static ItemInteractionResult result(HitResult hitResult, ItemStack itemStack) {
+        return new ItemInteractionResult(hitResult, itemStack);
+    }
+
+    private static boolean isShears(ItemStack stack) {
+        return !stack.isEmpty()
+                && (stack.getItem() instanceof ShearsItem
+                || stack.canPerformAction(ToolActions.SHEARS_DIG)
+                || stack.canPerformAction(ToolActions.SHEARS_HARVEST));
+    }
+
+    private static HitResult shearEntity(Level level, ItemStack boundStack, @Nullable LivingEntity owner, LivingEntity target) {
+        if (!(target instanceof IForgeShearable shearable)) {
+            return HitResult.PASS;
+        }
+
+        BlockPos pos = target.blockPosition();
+        if (!shearable.isShearable(boundStack, level, pos)) {
+            return HitResult.PASS;
+        }
+
+        Player player = owner instanceof Player ownerPlayer ? ownerPlayer : null;
+        int fortune = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BLOCK_FORTUNE, boundStack);
+        List<ItemStack> drops = shearable.onSheared(player, boundStack, level, pos, fortune);
+        RandomSource random = target.getRandom();
+
+        for (ItemStack drop : drops) {
+            ItemEntity itemEntity = target.spawnAtLocation(drop, 1.0F);
+            if (itemEntity != null) {
+                itemEntity.setDeltaMovement(itemEntity.getDeltaMovement().add(
+                        (random.nextFloat() - random.nextFloat()) * 0.1F,
+                        random.nextFloat() * 0.05F,
+                        (random.nextFloat() - random.nextFloat()) * 0.1F
+                ));
+            }
+        }
+
+        damageTool(boundStack, owner);
+        return HitResult.HANDLED;
+    }
+
+    private static HitResult shearBlock(Level level, ItemStack boundStack, @Nullable LivingEntity owner, BlockHitResult hitResult) {
+        BlockPos pos = hitResult.getBlockPos();
+        BlockState state = level.getBlockState(pos);
+        if (!state.is(BlockTags.LEAVES)) {
+            return HitResult.PASS;
+        }
+
+        Block.dropResources(state, level, pos, level.getBlockEntity(pos), owner, boundStack);
+        level.levelEvent(2001, pos, Block.getId(state));
+        level.removeBlock(pos, false);
+        level.gameEvent(owner, GameEvent.BLOCK_DESTROY, pos);
+        damageTool(boundStack, owner);
+        return HitResult.HANDLED;
+    }
+
+    private static ItemInteractionResult useFireCharge(Level level, ItemStack boundStack, @Nullable LivingEntity owner, BlockHitResult hitResult) {
+        if (!igniteTntBlock(level, hitResult.getBlockPos(), owner) && !placeFireChargeFire(level, owner, hitResult)) {
+            return pass(boundStack);
+        }
+
+        boundStack.shrink(1);
+        RandomSource random = level.getRandom();
+        level.playSound(null, hitResult.getBlockPos(), SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS,
+                1.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
+        return handled(boundStack);
+    }
+
+    private static boolean placeFireChargeFire(Level level, @Nullable LivingEntity owner, BlockHitResult hitResult) {
+        BlockPos firePos = hitResult.getBlockPos().relative(hitResult.getDirection());
+        Direction direction = owner != null ? owner.getDirection() : Direction.NORTH;
+        if (!BaseFireBlock.canBePlacedAt(level, firePos, direction)) {
+            return false;
+        }
+
+        level.setBlockAndUpdate(firePos, BaseFireBlock.getState(level, firePos));
+        level.gameEvent(owner, GameEvent.BLOCK_PLACE, firePos);
+        return true;
+    }
+
+    private static ItemInteractionResult useBucket(Level level, ItemStack boundStack, @Nullable LivingEntity owner, BucketItem bucketItem, BlockHitResult hitResult) {
+        if (boundStack.is(Items.BUCKET)) {
+            return fillBucketFromBlock(level, boundStack, owner, hitResult);
+        }
+
+        if (bucketItem.getFluid() == Fluids.EMPTY) {
+            return pass(boundStack);
+        }
+
+        return emptyBucket(level, boundStack, owner, bucketItem, hitResult);
+    }
+
+    private static ItemInteractionResult emptyBucket(Level level, ItemStack boundStack, @Nullable LivingEntity owner, BucketItem bucketItem, BlockHitResult hitResult) {
+        BlockPos hitPos = hitResult.getBlockPos();
+        BlockState hitState = level.getBlockState(hitPos);
+        Fluid fluid = bucketItem.getFluid();
+        BlockPos placePos = canPlaceBucketFluidInBlock(level, hitPos, hitState, fluid)
+                ? hitPos
+                : hitPos.relative(hitResult.getDirection());
+
+        Player player = owner instanceof Player ownerPlayer ? ownerPlayer : null;
+        if (!bucketItem.emptyContents(player, level, placePos, hitResult, boundStack)) {
+            return pass(boundStack);
+        }
+
+        bucketItem.checkExtraContent(player, level, boundStack, placePos);
+        return handled(new ItemStack(Items.BUCKET));
+    }
+
+    private static boolean canPlaceBucketFluidInBlock(Level level, BlockPos pos, BlockState state, Fluid fluid) {
+        return state.getBlock() instanceof LiquidBlockContainer liquidBlockContainer
+                && liquidBlockContainer.canPlaceLiquid(level, pos, state, fluid);
+    }
+
+    private static ItemInteractionResult fillBucketFromBlock(Level level, ItemStack boundStack, @Nullable LivingEntity owner, BlockHitResult hitResult) {
+        BlockPos pos = hitResult.getBlockPos();
+        BlockState state = level.getBlockState(pos);
+        boolean pickedUpWater = state.getFluidState().is(FluidTags.WATER);
+
+        if (!(state.getBlock() instanceof BucketPickup bucketPickup)) {
+            return pass(boundStack);
+        }
+
+        ItemStack filledBucket = bucketPickup.pickupBlock(level, pos, state);
+        if (filledBucket.isEmpty()) {
+            return pass(boundStack);
+        }
+
+        bucketPickup.getPickupSound(state).ifPresent(soundEvent ->
+                level.playSound(null, pos, soundEvent, SoundSource.BLOCKS, 1.0F, 1.0F));
+        level.gameEvent(owner, GameEvent.FLUID_PICKUP, pos);
+
+        if (pickedUpWater) {
+            ItemInteractionResult bucketableResult = fillBucketFromNearbyBucketable(level, boundStack, pos);
+            if (bucketableResult.handled()) {
+                return bucketableResult;
+            }
+        }
+
+        return handled(filledBucket);
+    }
+
+    private static ItemInteractionResult fillBucketFromNearbyBucketable(Level level, ItemStack boundStack, BlockPos pos) {
+        List<LivingEntity> bucketableTargets = level.getEntitiesOfClass(
+                LivingEntity.class,
+                new AABB(pos).inflate(0.75D),
+                entity -> entity.isAlive() && entity instanceof Bucketable
+        );
+
+        if (bucketableTargets.isEmpty()) {
+            return pass(boundStack);
+        }
+
+        return bucketEntity(level, bucketableTargets.get(0));
+    }
+
+    private static ItemInteractionResult fillBucketFromEntity(Level level, ItemStack boundStack, LivingEntity target) {
+        if (!(target instanceof Bucketable bucketable)) {
+            return pass(boundStack);
+        }
+
+        if (!pickupNearbyWaterSource(level, target)) {
+            return pass(boundStack);
+        }
+
+        return bucketEntity(level, target);
+    }
+
+    private static boolean pickupNearbyWaterSource(Level level, LivingEntity target) {
+        BlockPos center = target.blockPosition();
+        for (BlockPos pos : BlockPos.betweenClosed(center.offset(-1, -1, -1), center.offset(1, 1, 1))) {
+            if (level.getFluidState(pos).is(FluidTags.WATER) && level.getFluidState(pos).isSource()
+                    && pickupFluidBlock(level, target, pos.immutable())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean pickupFluidBlock(Level level, @Nullable LivingEntity owner, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof BucketPickup bucketPickup)) {
+            return false;
+        }
+
+        ItemStack pickedBucket = bucketPickup.pickupBlock(level, pos, state);
+        if (pickedBucket.isEmpty()) {
+            return false;
+        }
+
+        bucketPickup.getPickupSound(state).ifPresent(soundEvent ->
+                level.playSound(null, pos, soundEvent, SoundSource.BLOCKS, 1.0F, 1.0F));
+        level.gameEvent(owner, GameEvent.FLUID_PICKUP, pos);
+        return true;
+    }
+
+    private static ItemInteractionResult bucketEntity(Level level, LivingEntity target) {
+        if (!(target instanceof Bucketable bucketable)) {
+            return pass(ItemStack.EMPTY);
+        }
+
+        ItemStack filledBucket = bucketable.getBucketItemStack();
+        bucketable.saveToBucketTag(filledBucket);
+        target.playSound(bucketable.getPickupSound(), 1.0F, 1.0F);
+        if (!level.isClientSide) {
+            target.discard();
+        }
+        return handled(filledBucket);
     }
 
     public static float calculateWeaponDamage(ItemStack stack, LivingEntity target) {

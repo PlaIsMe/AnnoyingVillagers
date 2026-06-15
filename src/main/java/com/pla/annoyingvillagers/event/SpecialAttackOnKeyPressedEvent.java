@@ -46,6 +46,22 @@ public class SpecialAttackOnKeyPressedEvent {
     private static void registerMoreSpecialAttackCategories(PlayerPatch<?> playerpatch, Entity entity, LivingEntityPatch<?> livingEntityPatch) {
     }
 
+    private static void playHookGunBindAnimationAfterHandRefresh(Player player) {
+        new DelayedTask(2) {
+            @Override
+            public void run() {
+                if (player.isRemoved() || player.level().isClientSide()) {
+                    return;
+                }
+
+                LivingEntityPatch<?> freshPatch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
+                if (freshPatch != null) {
+                    freshPatch.playAnimationSynchronized(AnimsPugilistSteve.HOOK_GUN, 0.0F);
+                }
+            }
+        };
+    }
+
     public static void execute(LevelAccessor world, Entity entity) {
         if (entity == null) return;
 
@@ -54,6 +70,13 @@ public class SpecialAttackOnKeyPressedEvent {
         if (livingEntityPatch == null) return;
         AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
         if (EpicfightUtil.isLongHitAnimation(dynamicAnimation, livingEntityPatch)) {
+            return;
+        }
+
+        if (entity instanceof Player player
+                && !player.level().isClientSide()
+                && HookGunItem.tryBindFromSpecialAttack(player)) {
+            playHookGunBindAnimationAfterHandRefresh(player);
             return;
         }
 
@@ -148,11 +171,6 @@ public class SpecialAttackOnKeyPressedEvent {
             // Check by item
             ItemStack holdingItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
-
-            if (!player.level().isClientSide() && HookGunItem.tryBindFromSpecialAttack(player)) {
-                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.HOOK_GUN, 0.0F);
-                return;
-            }
 
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
                 if (entity.level() instanceof ServerLevel) {

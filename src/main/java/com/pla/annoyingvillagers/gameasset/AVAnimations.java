@@ -77,6 +77,10 @@ public class AVAnimations {
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> RED_AXE_ATTACK;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLACKSCRATCHER_IDLE;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> BLACKSCRATCHER_ATTACK;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> HOOK_HAND_LEFT;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> HOOK_HAND_LEFT_TOP;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> HOOK_HAND_RIGHT;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> HOOK_HAND_RIGHT_TOP;
 
     @SubscribeEvent
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
@@ -253,6 +257,18 @@ public class AVAnimations {
                 accessor -> new BasicAttackAnimation(0.08F, 0.05F, 0.15F, 0.2F, null, humanoidArmature.get().toolR, accessor, humanoidArmature)
                         .addProperty(AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.5F))
                         .addProperty(AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.5F)));
+
+        HOOK_HAND_LEFT = builder.nextAccessor("biped/pla/left_hand_hook",
+                accessor -> new StaticAnimation(true, accessor, humanoidArmature));
+
+        HOOK_HAND_LEFT_TOP = builder.nextAccessor("biped/pla/left_hand_hook_top",
+                accessor -> new StaticAnimation(true, accessor, humanoidArmature));
+
+        HOOK_HAND_RIGHT = builder.nextAccessor("biped/pla/right_hand_hook",
+                accessor -> new StaticAnimation(true, accessor, humanoidArmature));
+
+        HOOK_HAND_RIGHT_TOP = builder.nextAccessor("biped/pla/right_hand_hook_top",
+                accessor -> new StaticAnimation(true, accessor, humanoidArmature));
     }
 
     static class ReuseableEvents {

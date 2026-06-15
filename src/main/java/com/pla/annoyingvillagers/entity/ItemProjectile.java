@@ -545,12 +545,14 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     private boolean tryHandleSpecialBoundItemHit(LivingEntity target, Entity owner) {
         ItemStack mutableStack = this.getWeaponStack().copy();
         LivingEntity livingOwner = owner instanceof LivingEntity ownerLiving ? ownerLiving : null;
-        if (HookUtil.handleEntityHit(this.level(), mutableStack, this, livingOwner, target) != HookUtil.HitResult.HANDLED) {
+        HookUtil.ItemInteractionResult itemResult =
+                HookUtil.handleEntityHitWithResult(this.level(), mutableStack, this, livingOwner, target);
+        if (!itemResult.handled()) {
             return false;
         }
 
-        this.setWeaponStack(mutableStack);
-        if (mutableStack.isEmpty()) {
+        this.setWeaponStack(itemResult.itemStack());
+        if (itemResult.itemStack().isEmpty()) {
             this.discard();
         }
         return true;

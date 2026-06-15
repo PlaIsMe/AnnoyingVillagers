@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.mixin.client;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
+import com.pla.annoyingvillagers.item.HookGunItem;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +20,7 @@ public abstract class PatchedItemInHandLayerMixin {
                     target = "Lyesman/epicfight/world/capabilities/entitypatch/LivingEntityPatch;isOffhandItemValid()Z"
             )
     )
-    private boolean annoyingVillagers$forceOffhandFishingRodRender(
+    private boolean annoyingVillagers$forceOffhandUtilityItemRender(
             LivingEntityPatch<?> entityPatch,
             Operation<Boolean> original
     ) {
@@ -29,6 +30,7 @@ public abstract class PatchedItemInHandLayerMixin {
 
         Entity entity = entityPatch.getOriginal();
         return entity instanceof LivingEntity livingEntity
-                && FishingRodGrappleUtil.shouldForceOffhandFishingRodRender(livingEntity);
+                && (FishingRodGrappleUtil.shouldForceOffhandFishingRodRender(livingEntity)
+                || HookGunItem.shouldForceOffhandHookGunRender(livingEntity));
     }
 }

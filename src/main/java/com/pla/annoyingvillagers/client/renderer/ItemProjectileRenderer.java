@@ -180,6 +180,7 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
             poseStack.translate(0.0D, 0.15D, 0.0D);
             if (HookUtil.shouldUseShieldFacing(stack)) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - getOwnerLookYaw(entity, partialTick)));
+                HookItemRenderTransforms.applyShieldProjectileTransform(poseStack, model);
             } else if (!HookUtil.shouldRenderWithoutProjectileSpin(stack) || !entity.isHookAttached()) {
                 boolean sharpItem = HookUtil.shouldAlignSharpEdge(stack);
                 float yaw;
