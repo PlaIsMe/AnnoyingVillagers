@@ -204,21 +204,30 @@ public final class AlexJevHookCombat {
 
         AlexEntity alex = jev.getFollowTarget();
         cleanupFinishedSession(jev);
-        syncAlexAndJevTarget(alex, jev);
         moveJevAroundPartner(jev, alex);
 
-        if (jev.getPersistentData().getLong(KEY_JEV_RUN_AWAY_UNTIL) > serverLevel.getGameTime()) {
-            tryJevHookAway(jev, alex != null ? alex : jev.getTarget());
+        if (alex == null || !alex.isAlive()) {
+            return;
         }
 
-        if (alex == null || !alex.isAlive()
-                || isHookSessionActive(jev)
+        LivingEntity alexTarget = alex.getTarget();
+        if (alexTarget == null || !alexTarget.isAlive()) {
+            return;
+        }
+
+        syncAlexAndJevTarget(alex, jev);
+
+        if (jev.getPersistentData().getLong(KEY_JEV_RUN_AWAY_UNTIL) > serverLevel.getGameTime()) {
+            tryJevHookAway(jev, alex);
+        }
+
+        if (isHookSessionActive(jev)
                 || HookGunItem.hasActiveHook(jev.level(), jev)
                 || serverLevel.getGameTime() < jev.getPersistentData().getLong(KEY_JEV_COOLDOWN_UNTIL)) {
             return;
         }
 
-        LivingEntity target = jev.getTarget() != null && jev.getTarget().isAlive() ? jev.getTarget() : alex.getTarget();
+        LivingEntity target = jev.getTarget() != null && jev.getTarget().isAlive() ? jev.getTarget() : alexTarget;
         Random random = new Random();
 
         if (alex.isOnFire() && shootJevBurningSupportSnowball(jev, alex)) {
@@ -278,17 +287,18 @@ public final class AlexJevHookCombat {
             return;
         }
 
-        if (random.nextDouble() < 0.42D && shootJevSupportFood(jev, alex, random)) {
+        if (isMissingHealth(alex) && random.nextDouble() < 0.42D && shootJevSupportFood(jev, alex, random)) {
             setCooldown(jev, KEY_JEV_COOLDOWN_UNTIL, 18, 20);
             return;
         }
 
-        if (random.nextDouble() < 0.45D && shootJevSupportPotion(jev, alex, random)) {
+        if (isMissingHealth(alex) && random.nextDouble() < 0.45D && shootJevSupportPotion(jev, alex, random)) {
             setCooldown(jev, KEY_JEV_COOLDOWN_UNTIL, 24, 24);
             return;
         }
 
-        if ((alex.getHealth() <= alex.getMaxHealth() * 0.75F || random.nextDouble() < 0.18D)
+        if (isMissingHealth(alex)
+                && (alex.getHealth() <= alex.getMaxHealth() * 0.75F || random.nextDouble() < 0.18D)
                 && shootHookAtEntity(jev, InteractionHand.OFF_HAND, new ItemStack(Items.GOLDEN_APPLE), alex,
                 DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null)) {
             setCooldown(jev, KEY_JEV_COOLDOWN_UNTIL, 35, 35);
@@ -307,7 +317,7 @@ public final class AlexJevHookCombat {
             return;
         }
 
-        if (alex.getState() == 1 && random.nextDouble() < 0.22D
+        if (alex.getState() == 1 && isMissingHealth(alex) && random.nextDouble() < 0.22D
                 && shootHookAtEntity(jev, InteractionHand.OFF_HAND, createGoodBuffPotion(), alex,
                 DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null)) {
             setCooldown(jev, KEY_JEV_COOLDOWN_UNTIL, 55, 35);
@@ -319,7 +329,7 @@ public final class AlexJevHookCombat {
             return;
         }
 
-        if (random.nextDouble() < 0.55D && shootJevSupportFood(jev, alex, random)) {
+        if (isMissingHealth(alex) && random.nextDouble() < 0.55D && shootJevSupportFood(jev, alex, random)) {
             setCooldown(jev, KEY_JEV_COOLDOWN_UNTIL, 18, 20);
         }
     }
@@ -714,6 +724,10 @@ public final class AlexJevHookCombat {
                 && target != alex
                 && !target.isAlliedTo(jev)
                 && !target.isAlliedTo(alex);
+    }
+
+    private static boolean isMissingHealth(LivingEntity entity) {
+        return entity.getHealth() < entity.getMaxHealth() - 0.5F;
     }
 
     private static boolean isHoldingBowLike(LivingEntity entity) {
