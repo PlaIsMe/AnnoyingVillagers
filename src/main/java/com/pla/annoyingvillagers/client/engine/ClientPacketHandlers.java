@@ -229,6 +229,18 @@ public final class ClientPacketHandlers {
                 });
     }
 
+    public static void handleTeleportPortalFx(ClientboundTeleportPortalFx msg) {
+        Level level = Minecraft.getInstance().level;
+        if (level == null) return;
+
+        ClientVfxRouter.run(
+                VfxEffect.TELEPORT_PORTAL,
+                null,
+                () -> AAAParticlesUtil.sendTeleportPortal(level, msg.pos(), msg.normal()),
+                () -> {
+                });
+    }
+
     public static void handleWoopieSwordWind(ClientboundWoopieSwordWindFx msg) {
         Level level = Minecraft.getInstance().level;
         if (level == null) return;

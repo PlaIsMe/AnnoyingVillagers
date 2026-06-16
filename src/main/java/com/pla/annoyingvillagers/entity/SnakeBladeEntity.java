@@ -26,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
@@ -45,7 +46,13 @@ import java.util.*;
 public class SnakeBladeEntity extends Entity {
     private static final EntityDataAccessor<Optional<UUID>> CREATOR_ID =
             SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<Optional<UUID>> PORTAL_GROUP_ID =
+            SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Integer> FROM_ID =
+            SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> RENDER_FROM_ID =
+            SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> LAST_PORTAL_ORDER =
             SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> TARGET_COUNT =
             SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.INT);
@@ -65,9 +72,16 @@ public class SnakeBladeEntity extends Entity {
             SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.BOOLEAN);
 
     public static final float MAX_EXTEND_TIME = 5.0F;
+    private static final int MAX_PORTAL_CHAIN_TARGETS = 24;
+    private static final int MAX_NORMAL_CHAIN_TARGETS = 5;
+    private static final int MAX_GUARD_CHAIN_TARGETS = 5;
+    private static final int POST_HIT_CHAIN_DELAY_TICKS = 3;
+    private static final double PORTAL_CHAIN_SEARCH_RADIUS = 64.0D;
 
     private final List<Entity> previouslyTouched = new ArrayList<>();
     private boolean hasChained = false;
+    private boolean attemptedCurrentTargetHit = false;
+    private int postHitChainDelayTicks = 0;
 
     public float prevProgress = 0.0F;
 
@@ -89,7 +103,10 @@ public class SnakeBladeEntity extends Entity {
     @Override
     protected void defineSynchedData() {
         this.entityData.define(CREATOR_ID, Optional.empty());
+        this.entityData.define(PORTAL_GROUP_ID, Optional.empty());
         this.entityData.define(FROM_ID, -1);
+        this.entityData.define(RENDER_FROM_ID, -1);
+        this.entityData.define(LAST_PORTAL_ORDER, -1);
         this.entityData.define(TARGET_COUNT, 0);
         this.entityData.define(CURRENT_TARGET_ID, -1);
         this.entityData.define(PROGRESS, 0.0F);
@@ -282,7 +299,9 @@ public class SnakeBladeEntity extends Entity {
         Entity currentTarget = getToEntity();
         Vec3 targetPos = null;
 
-        if (currentTarget != null) {
+        if (currentTarget instanceof PortalEntity portalEntity) {
+            targetPos = portalEntity.getPortalCenter();
+        } else if (currentTarget != null) {
             targetPos = new Vec3(currentTarget.getX(), currentTarget.getY(0.4F), currentTarget.getZ());
         } else if (this.guardDirection != null) {
             targetPos = DemoniacVoltageReaverItem.guardTargetFor(livingCreator, this.guardDirection);
@@ -293,21 +312,25 @@ public class SnakeBladeEntity extends Entity {
             this.setDeltaMovement(delta.scale(0.5F));
         }
 
-        if (currentTarget != null && !this.level().isClientSide && this.getProgress() >= MAX_EXTEND_TIME) {
-            if (this.tickCount % 2 == 0) {
+        if (currentTarget != null
+                && !(currentTarget instanceof PortalEntity)
+                && !this.level().isClientSide
+                && this.getProgress() >= MAX_EXTEND_TIME) {
+            if (this.postHitChainDelayTicks <= 0 && (!this.attemptedCurrentTargetHit || this.tickCount % 2 == 0)) {
                 tryAttackTarget(livingCreator, currentTarget);
+                this.attemptedCurrentTargetHit = true;
             }
         }
     }
 
     private void tryAttackTarget(LivingEntity creator, Entity target) {
         if (target == creator) return;
+        if (target instanceof PortalEntity) return;
 
         if (target.hurt(this.level().damageSources().indirectMagic(this, creator), this.getBaseDamage())) {
             // Mark touched so child chains avoid bouncing back
-            if (!previouslyTouched.contains(target)) {
-                previouslyTouched.add(target);
-            }
+            markTouched(target);
+            this.postHitChainDelayTicks = Math.max(this.postHitChainDelayTicks, POST_HIT_CHAIN_DELAY_TICKS);
 
             increaseSkillPoint(creator, 5.0F);
 
@@ -340,7 +363,10 @@ public class SnakeBladeEntity extends Entity {
     private void handleChaining(Entity creator) {
         if (this.hasChained) return;
 
-        if (this.getTargetsHit() > 5) {
+        int maxChainTargets = this.guardDirection != null
+                ? MAX_GUARD_CHAIN_TARGETS
+                : (isPortalChainMode() ? MAX_PORTAL_CHAIN_TARGETS : MAX_NORMAL_CHAIN_TARGETS);
+        if (this.getTargetsHit() > maxChainTargets) {
             this.setRetracting(true);
             return;
         }
@@ -355,10 +381,46 @@ public class SnakeBladeEntity extends Entity {
             return;
         }
 
+        Entity currentTarget = this.getToEntity();
+        if (currentTarget != null && !(currentTarget instanceof PortalEntity) && this.postHitChainDelayTicks > 0) {
+            this.postHitChainDelayTicks--;
+            return;
+        }
+
+        if (currentTarget instanceof PortalEntity portalEntity) {
+            markTouched(portalEntity);
+            if (createChainThroughPortal(livingCreator, portalEntity)) {
+                this.hasChained = true;
+            } else {
+                this.setRetracting(true);
+            }
+            return;
+        }
+
+        PortalEntity orderedPortal = findNextOrderedPortal(
+                livingCreator,
+                this.position(),
+                PORTAL_CHAIN_SEARCH_RADIUS,
+                getActivePortalGroupUUID(),
+                getLastPortalOrder()
+        );
+        if (orderedPortal != null) {
+            createChainToPortal(orderedPortal);
+            this.hasChained = true;
+            return;
+        }
+
+        PortalEntity closestPortal = findClosestUsablePortal(livingCreator, this.position(), PORTAL_CHAIN_SEARCH_RADIUS, null);
+        if (closestPortal != null) {
+            createChainToPortal(closestPortal);
+            this.hasChained = true;
+            return;
+        }
+
         Entity closestValid = null;
         for (Entity candidate : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(12.0D))) {
             if (candidate.equals(creator)) continue;
-            if (previouslyTouched.contains(candidate)) continue;
+            if (hasTouched(candidate)) continue;
             if (!isValidTarget(livingCreator, candidate)) continue;
             if (!hasLineOfSightTo(candidate)) continue;
 
@@ -375,6 +437,111 @@ public class SnakeBladeEntity extends Entity {
         }
     }
 
+    private boolean createChainThroughPortal(LivingEntity livingCreator, PortalEntity entrancePortal) {
+        PortalEntity exitPortal = entrancePortal.getLinkedPortal();
+        if (exitPortal == null || exitPortal.isRemoved()) {
+            return false;
+        }
+
+        markTouched(entrancePortal);
+        markTouched(exitPortal);
+
+        Vec3 exitCenter = exitPortal.getPortalCenter();
+        Entity closestValid = findClosestValidTargetNear(livingCreator, exitCenter, 14.0D);
+        if (closestValid != null) {
+            createChainFromPortalExit(exitPortal, closestValid);
+            return true;
+        }
+
+        UUID portalGroup = exitPortal.getPortalGroupUUID();
+        if (portalGroup == null) {
+            portalGroup = entrancePortal.getPortalGroupUUID();
+        }
+        if (portalGroup == null) {
+            portalGroup = getActivePortalGroupUUID();
+        }
+
+        int lastPortalOrder = Math.max(entrancePortal.getPortalOrder(), exitPortal.getPortalOrder());
+        PortalEntity nextPortal = findNextOrderedPortal(livingCreator, exitCenter, PORTAL_CHAIN_SEARCH_RADIUS, portalGroup, lastPortalOrder);
+        if (nextPortal != null) {
+            createChainFromPortalExit(exitPortal, nextPortal);
+            return true;
+        }
+
+        nextPortal = findClosestUsablePortal(livingCreator, exitCenter, PORTAL_CHAIN_SEARCH_RADIUS, exitPortal);
+        if (nextPortal != null) {
+            createChainFromPortalExit(exitPortal, nextPortal);
+            return true;
+        }
+
+        return false;
+    }
+
+    private Entity findClosestValidTargetNear(LivingEntity livingCreator, Vec3 center, double radius) {
+        Entity closestValid = null;
+        AABB searchBox = new AABB(center, center).inflate(radius);
+
+        for (Entity candidate : this.level().getEntitiesOfClass(LivingEntity.class, searchBox)) {
+            if (candidate.equals(livingCreator)) continue;
+            if (hasTouched(candidate)) continue;
+            if (!isValidTarget(livingCreator, candidate)) continue;
+            if (!hasLineOfSightFrom(center, candidate)) continue;
+
+            if (closestValid == null || center.distanceTo(candidate.position()) < center.distanceTo(closestValid.position())) {
+                closestValid = candidate;
+            }
+        }
+
+        return closestValid;
+    }
+
+    private PortalEntity findNextOrderedPortal(LivingEntity livingCreator, Vec3 center, double radius, UUID portalGroup, int lastPortalOrder) {
+        if (portalGroup == null) {
+            return null;
+        }
+
+        PortalEntity bestPortal = null;
+        AABB searchBox = new AABB(center, center).inflate(radius);
+
+        for (PortalEntity portalEntity : this.level().getEntitiesOfClass(PortalEntity.class, searchBox)) {
+            if (hasTouched(portalEntity)) continue;
+            if (portalEntity.getLinkedPortal() == null) continue;
+            if (!portalGroup.equals(portalEntity.getPortalGroupUUID())) continue;
+            if (portalEntity.getPortalOrder() <= lastPortalOrder) continue;
+
+            UUID ownerUuid = portalEntity.getOwnerUUID();
+            if (ownerUuid != null && !ownerUuid.equals(livingCreator.getUUID())) continue;
+
+            if (bestPortal == null
+                    || portalEntity.getPortalOrder() < bestPortal.getPortalOrder()
+                    || (portalEntity.getPortalOrder() == bestPortal.getPortalOrder()
+                    && center.distanceTo(portalEntity.position()) < center.distanceTo(bestPortal.position()))) {
+                bestPortal = portalEntity;
+            }
+        }
+
+        return bestPortal;
+    }
+
+    private PortalEntity findClosestUsablePortal(LivingEntity livingCreator, Vec3 center, double radius, PortalEntity excludedPortal) {
+        PortalEntity closestPortal = null;
+        AABB searchBox = new AABB(center, center).inflate(radius);
+
+        for (PortalEntity portalEntity : this.level().getEntitiesOfClass(PortalEntity.class, searchBox)) {
+            if (portalEntity == excludedPortal) continue;
+            if (hasTouched(portalEntity)) continue;
+            if (portalEntity.getLinkedPortal() == null) continue;
+            UUID ownerUuid = portalEntity.getOwnerUUID();
+            if (ownerUuid != null && !ownerUuid.equals(livingCreator.getUUID())) continue;
+
+            if (closestPortal == null || center.distanceTo(portalEntity.position()) < center.distanceTo(closestPortal.position())) {
+                closestPortal = portalEntity;
+            }
+        }
+
+        return closestPortal;
+    }
+
     private void applyVelocity() {
         Vec3 vel = this.getDeltaMovement();
 
@@ -386,8 +553,68 @@ public class SnakeBladeEntity extends Entity {
         this.setPos(x, y, z);
     }
 
+    private boolean hasTouched(Entity entity) {
+        if (entity == null) {
+            return false;
+        }
+
+        UUID uuid = entity.getUUID();
+        for (Entity touched : this.previouslyTouched) {
+            if (touched != null && touched.getUUID().equals(uuid)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void markTouched(Entity entity) {
+        if (entity != null && !hasTouched(entity)) {
+            this.previouslyTouched.add(entity);
+        }
+    }
+
+    private UUID getActivePortalGroupUUID() {
+        return this.entityData.get(PORTAL_GROUP_ID).orElse(null);
+    }
+
+    private int getLastPortalOrder() {
+        return this.entityData.get(LAST_PORTAL_ORDER);
+    }
+
+    private void setPortalChainState(UUID portalGroupUuid, int lastPortalOrder) {
+        this.entityData.set(PORTAL_GROUP_ID, Optional.ofNullable(portalGroupUuid));
+        this.entityData.set(LAST_PORTAL_ORDER, lastPortalOrder);
+    }
+
+    private void copyPortalChainState(SnakeBladeEntity child) {
+        child.setPortalChainState(this.getActivePortalGroupUUID(), this.getLastPortalOrder());
+    }
+
+    private boolean isPortalChainMode() {
+        if (this.getActivePortalGroupUUID() != null || this.getToEntity() instanceof PortalEntity) {
+            return true;
+        }
+
+        for (Entity touched : this.previouslyTouched) {
+            if (touched instanceof PortalEntity) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private boolean isValidTarget(LivingEntity creator, Entity entity) {
-        if (!creator.isAlliedTo(entity) && !entity.isAlliedTo(creator) && entity instanceof Mob) {
+        if (!(entity instanceof LivingEntity) || entity.isSpectator()) {
+            return false;
+        }
+        if (entity instanceof Player player && player.isCreative()) {
+            return false;
+        }
+        if (!creator.isAlliedTo(entity)
+                && !entity.isAlliedTo(creator)
+                && (entity instanceof Mob || entity instanceof Player)) {
             return true;
         }
 
@@ -401,6 +628,16 @@ public class SnakeBladeEntity extends Entity {
         Vec3 from = new Vec3(this.getX(), this.getEyeY(), this.getZ());
         Vec3 to = new Vec3(target.getX(), target.getEyeY(), target.getZ());
 
+        if (to.distanceTo(from) > 128.0D) return false;
+
+        return this.level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this))
+                .getType() == HitResult.Type.MISS;
+    }
+
+    private boolean hasLineOfSightFrom(Vec3 from, Entity target) {
+        if (target.level() != this.level()) return false;
+
+        Vec3 to = new Vec3(target.getX(), target.getEyeY(), target.getZ());
         if (to.distanceTo(from) > 128.0D) return false;
 
         return this.level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this))
@@ -432,14 +669,79 @@ public class SnakeBladeEntity extends Entity {
         }
 
         child.previouslyTouched.addAll(this.previouslyTouched);
-        if (!child.previouslyTouched.contains(nextTarget)) {
-            child.previouslyTouched.add(nextTarget);
-        }
+        copyPortalChainState(child);
+        child.markTouched(nextTarget);
 
         child.setCreatorEntityUUID(this.getCreatorEntityUUID());
         child.setFromEntityID(this.getId());
         child.setToEntityID(nextTarget.getId());
         child.setPos(nextTarget.getX(), nextTarget.getY(0.4F), nextTarget.getZ());
+        child.setTargetsHit(this.getTargetsHit() + 1);
+
+        updateLastFragment(child);
+        this.level().addFreshEntity(child);
+    }
+
+    private void createChainToPortal(PortalEntity nextPortal) {
+        this.entityData.set(HAS_BLADE, false);
+
+        SnakeBladeEntity child = AnnoyingVillagersModEntities.SNAKE_BLADE.get().create(this.level());
+        if (child == null) return;
+
+        if (this.isEnchanted()) {
+            child.setEnchanted(true);
+        }
+
+        child.previouslyTouched.addAll(this.previouslyTouched);
+        copyPortalChainState(child);
+        if (child.getActivePortalGroupUUID() == null && nextPortal.getPortalGroupUUID() != null) {
+            child.setPortalChainState(nextPortal.getPortalGroupUUID(), nextPortal.getPortalOrder() - 1);
+        }
+        child.markTouched(nextPortal);
+
+        child.setCreatorEntityUUID(this.getCreatorEntityUUID());
+        child.setFromEntityID(this.getId());
+        child.setToEntityID(nextPortal.getId());
+        Vec3 portalCenter = nextPortal.getPortalCenter();
+        child.setPos(portalCenter.x, portalCenter.y, portalCenter.z);
+        child.setTargetsHit(this.getTargetsHit() + 1);
+
+        updateLastFragment(child);
+        this.level().addFreshEntity(child);
+    }
+
+    private void createChainFromPortalExit(PortalEntity exitPortal, Entity nextTarget) {
+        this.entityData.set(HAS_BLADE, false);
+
+        SnakeBladeEntity child = AnnoyingVillagersModEntities.SNAKE_BLADE.get().create(this.level());
+        if (child == null) return;
+
+        if (this.isEnchanted()) {
+            child.setEnchanted(true);
+        }
+
+        child.previouslyTouched.addAll(this.previouslyTouched);
+        UUID portalGroup = exitPortal.getPortalGroupUUID();
+        if (portalGroup == null) {
+            portalGroup = getActivePortalGroupUUID();
+        }
+        int portalOrder = exitPortal.getPortalOrder() >= 0 ? exitPortal.getPortalOrder() : getLastPortalOrder();
+        child.setPortalChainState(portalGroup, portalOrder);
+        child.markTouched(exitPortal);
+        child.markTouched(nextTarget);
+
+        child.setCreatorEntityUUID(this.getCreatorEntityUUID());
+        child.setFromEntityID(this.getId());
+        child.setRenderFromEntityID(exitPortal.getId());
+        child.setToEntityID(nextTarget.getId());
+
+        if (nextTarget instanceof PortalEntity portalEntity) {
+            Vec3 portalCenter = portalEntity.getPortalCenter();
+            child.setPos(portalCenter.x, portalCenter.y, portalCenter.z);
+        } else {
+            child.setPos(nextTarget.getX(), nextTarget.getY(0.4F), nextTarget.getZ());
+        }
+
         child.setTargetsHit(this.getTargetsHit() + 1);
 
         updateLastFragment(child);
@@ -457,6 +759,7 @@ public class SnakeBladeEntity extends Entity {
         }
 
         child.previouslyTouched.addAll(this.previouslyTouched);
+        copyPortalChainState(child);
         child.setCreatorEntityUUID(this.getCreatorEntityUUID());
         child.setFromEntityID(this.getId());
         child.setToEntityID(-1);
@@ -517,6 +820,19 @@ public class SnakeBladeEntity extends Entity {
     public Entity getFromEntity() {
         int id = getFromEntityID();
         return id == -1 ? null : this.level().getEntity(id);
+    }
+
+    public int getRenderFromEntityID() {
+        return this.entityData.get(RENDER_FROM_ID);
+    }
+
+    public void setRenderFromEntityID(int id) {
+        this.entityData.set(RENDER_FROM_ID, id);
+    }
+
+    public Entity getRenderFromEntity() {
+        int id = getRenderFromEntityID();
+        return id == -1 ? getFromEntity() : this.level().getEntity(id);
     }
 
     public int getToEntityID() {

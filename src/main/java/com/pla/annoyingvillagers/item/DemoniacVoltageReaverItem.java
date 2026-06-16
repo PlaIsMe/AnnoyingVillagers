@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import com.pla.annoyingvillagers.capabilities.SnakeBladeCapability;
+import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.entity.SnakeBladeEntity;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModCapabilities;
@@ -37,6 +38,8 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 public class DemoniacVoltageReaverItem extends SwordItem {
+    private static final double TARGET_SEARCH_RADIUS = 16.0D;
+    private static final double PORTAL_TARGET_SEARCH_RADIUS = 64.0D;
 
     public DemoniacVoltageReaverItem() {
         super(new Tier() {
@@ -79,7 +82,7 @@ public class DemoniacVoltageReaverItem extends SwordItem {
                 attacker
         ));
 
-        for (Entity entity : level.getEntitiesOfClass(LivingEntity.class, attacker.getBoundingBox().inflate(16.0D))) {
+        for (Entity entity : level.getEntitiesOfClass(LivingEntity.class, attacker.getBoundingBox().inflate(TARGET_SEARCH_RADIUS))) {
             if (!entity.equals(attacker)
                     && !attacker.isAlliedTo(entity)
                     && !entity.isAlliedTo(attacker)
@@ -92,12 +95,12 @@ public class DemoniacVoltageReaverItem extends SwordItem {
                 }
             }
         }
-        return closestValid != null;
+        return closestValid != null || findClosestPortalTarget(attacker) != null;
     }
 
     public static void process(ItemStack stack, LivingEntity attacker) {
         Level level = attacker.level();
-        Entity closestValid = null;
+        Entity closestValid = findClosestPortalTarget(attacker);
 
         Vec3 attackerEyes = attacker.getEyePosition(1.0F);
         level.clip(new ClipContext(
@@ -108,20 +111,68 @@ public class DemoniacVoltageReaverItem extends SwordItem {
                 attacker
         ));
 
-        for (Entity entity : level.getEntitiesOfClass(LivingEntity.class, attacker.getBoundingBox().inflate(16.0D))) {
-            if (!entity.equals(attacker)
-                    && !attacker.isAlliedTo(entity)
-                    && !entity.isAlliedTo(attacker)
-                    && !entity.isSpectator()
-                    && !(entity instanceof Player player && player.isCreative())
-                    && (entity instanceof Mob || entity instanceof Player)
-                    && attacker.hasLineOfSight(entity)) {
-                if (closestValid == null || attacker.distanceTo(entity) < attacker.distanceTo(closestValid)) {
-                    closestValid = entity;
+        if (closestValid == null) {
+            for (Entity entity : level.getEntitiesOfClass(LivingEntity.class, attacker.getBoundingBox().inflate(TARGET_SEARCH_RADIUS))) {
+                if (!entity.equals(attacker)
+                        && !attacker.isAlliedTo(entity)
+                        && !entity.isAlliedTo(attacker)
+                        && !entity.isSpectator()
+                        && !(entity instanceof Player player && player.isCreative())
+                        && (entity instanceof Mob || entity instanceof Player)
+                        && attacker.hasLineOfSight(entity)) {
+                    if (closestValid == null || attacker.distanceTo(entity) < attacker.distanceTo(closestValid)) {
+                        closestValid = entity;
+                    }
                 }
             }
         }
         launchSnakeBladeAt(attacker, closestValid, stack);
+    }
+
+    private static PortalEntity findClosestPortalTarget(LivingEntity attacker) {
+        Level level = attacker.level();
+        PortalEntity closestPortal = null;
+        UUID attackerUuid = attacker.getUUID();
+
+        for (PortalEntity portal : level.getEntitiesOfClass(PortalEntity.class, attacker.getBoundingBox().inflate(PORTAL_TARGET_SEARCH_RADIUS))) {
+            if (portal.getLinkedPortalUUID() == null || portal.isRemoved()) {
+                continue;
+            }
+
+            UUID ownerUuid = portal.getOwnerUUID();
+            if (ownerUuid != null && !ownerUuid.equals(attackerUuid)) {
+                continue;
+            }
+
+            if (closestPortal == null || isBetterInitialPortal(attacker, portal, closestPortal)) {
+                closestPortal = portal;
+            }
+        }
+
+        return closestPortal;
+    }
+
+    private static boolean isBetterInitialPortal(LivingEntity attacker, PortalEntity candidate, PortalEntity current) {
+        double candidateDistance = attacker.distanceTo(candidate);
+        double currentDistance = attacker.distanceTo(current);
+        if (candidateDistance < currentDistance) {
+            return true;
+        }
+        if (candidateDistance > currentDistance) {
+            return false;
+        }
+
+        if (candidate.isStarterPortal() != current.isStarterPortal()) {
+            return candidate.isStarterPortal();
+        }
+
+        int candidateOrder = candidate.getPortalOrder() < 0 ? Integer.MAX_VALUE : candidate.getPortalOrder();
+        int currentOrder = current.getPortalOrder() < 0 ? Integer.MAX_VALUE : current.getPortalOrder();
+        if (candidateOrder != currentOrder) {
+            return candidateOrder < currentOrder;
+        }
+
+        return false;
     }
 
     public static void processGuard(ItemStack stack, LivingEntity entityToGuard) {

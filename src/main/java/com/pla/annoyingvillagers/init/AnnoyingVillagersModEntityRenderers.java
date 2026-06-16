@@ -46,6 +46,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SHADOW_HEROBRINE.get(), ShadowHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.GLAIVE_HEROBRINE.get(), EliteHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.REAPER_HEROBRINE.get(), EliteHerobrineRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.PORTAL.get(), PortalEntityRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SNAKE_BLADE.get(), SnakeBladeRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SWORDSMAN_HEROBRINE.get(), EliteHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SLEDGEHAMMER_HEROBRINE.get(), EliteHerobrineRenderer::new);

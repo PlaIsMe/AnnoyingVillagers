@@ -57,6 +57,14 @@ public final class AnnoyingVillagersClientConfig {
         return ModList.get().isLoaded(PHOTON_MOD_ID);
     }
 
+    public static boolean shouldUseAaaParticles(VfxEffect effect) {
+        if (effect == null || !effect.supportsAaa() || !isAaaParticlesLoaded()) {
+            return false;
+        }
+
+        return getMode(effect) != VfxMode.VANILLA;
+    }
+
     public static boolean shouldUsePhotonWhenAvailable(VfxEffect effect) {
         if (!isPhotonModLoaded()) {
             return false;
@@ -117,6 +125,7 @@ public final class AnnoyingVillagersClientConfig {
         WOOPIE_SWORD_WIND("woopieSwordWind", "Woopie Sword wind", true),
         BLACK_FIRE("blackFire", "Black Fire", true),
         DIAMOND_ATTRACTOR("diamondAttractor", "Diamond Attractor", true),
+        TELEPORT_PORTAL("teleportPortal", "Teleport Portal", true),
         DRAGON_BEAM("dragonBeam", "Herobrine Dragon beam", true),
         DRAGON_BEAM_HIT("dragonBeamHit", "Herobrine Dragon beam hit", true),
         BLUE_DEMON_THUNDER_BEAM("blueDemonThunderBeam", "Blue Demon thunder beam", true);

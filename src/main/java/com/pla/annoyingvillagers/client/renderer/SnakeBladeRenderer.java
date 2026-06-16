@@ -69,7 +69,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
 
     @Override
     public boolean shouldRender(SnakeBladeEntity snakeBladeEntity, @NotNull Frustum frustum, double x, double y, double z) {
-        Entity fromEntity = snakeBladeEntity.getFromEntity();
+        Entity fromEntity = snakeBladeEntity.getRenderFromEntity();
         if (fromEntity != null && frustum.isVisible(snakeBladeEntity.getBoundingBox().minmax(fromEntity.getBoundingBox()))) {
             return true;
         }
@@ -89,7 +89,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
 
         poseStack.pushPose();
         try {
-            Entity fromEntity = snakeBladeEntity.getFromEntity();
+            Entity fromEntity = snakeBladeEntity.getRenderFromEntity();
             if (fromEntity == null) return;
 
             double x = Mth.lerp(partialTicks, snakeBladeEntity.xo, snakeBladeEntity.getX());
@@ -277,6 +277,10 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
     }
 
     private Vec3 getPositionOfPriorMob(SnakeBladeEntity snakeBladeEntity, Entity fromEntity, float partialTicks) {
+        if (fromEntity instanceof com.pla.annoyingvillagers.entity.PortalEntity portalEntity) {
+            return portalEntity.getPortalCenter();
+        }
+
         double x = Mth.lerp(partialTicks, fromEntity.xo, fromEntity.getX());
         double y = Mth.lerp(partialTicks, fromEntity.yo, fromEntity.getY());
         double z = Mth.lerp(partialTicks, fromEntity.zo, fromEntity.getZ());

@@ -172,6 +172,12 @@ public class AnnoyingVillagers {
                     ClientboundBlueDemonEffectFx::decode,
                     ClientboundBlueDemonEffectFx::handle
             );
+            AnnoyingVillagers.addNetworkMessage(
+                    ClientboundTeleportPortalFx.class,
+                    ClientboundTeleportPortalFx::encode,
+                    ClientboundTeleportPortalFx::decode,
+                    ClientboundTeleportPortalFx::handle
+            );
         }
     }
 

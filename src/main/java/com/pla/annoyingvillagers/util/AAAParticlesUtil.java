@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.compat.aaa_particles.emitterinfo.BlackFireParti
 import com.pla.annoyingvillagers.compat.aaa_particles.emitterinfo.BlueDemonThunderBeamParticleEmitterInfo;
 import com.pla.annoyingvillagers.compat.aaa_particles.emitterinfo.DragonBeamParticleEmitterInfo;
 import com.pla.annoyingvillagers.compat.aaa_particles.emitterinfo.EnderGlaiveExplosionParticleEmitterInfo;
+import com.pla.annoyingvillagers.compat.aaa_particles.emitterinfo.TeleportPortalParticleEmitterInfo;
 import com.pla.annoyingvillagers.entity.BlueDemonThunderBeamEntity;
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
 import mod.chloeprime.aaaparticles.api.common.AAALevel;
@@ -68,6 +69,19 @@ public class AAAParticlesUtil {
                 new ParticleEmitterInfo(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "woopie_sword_wind"))
                         .clone()
                         .position(x, y, z));
+    }
+
+    public static boolean sendTeleportPortal(Level level, Vec3 pos, Vec3 normal) {
+        if (level == null || pos == null || !level.isClientSide()) {
+            return false;
+        }
+
+        AnnoyingVillagers.LOGGER.info("[AV MOD DEBUG] sendTeleportPortal called from aaa particle");
+        new TeleportPortalParticleEmitterInfo(
+                ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "teleport_portal"))
+                .atPortal(pos, normal, TeleportPortalParticleEmitterInfo.ForwardAxis.PLUS_Z, 0.0F)
+                .spawnInWorld(level, Minecraft.getInstance().player);
+        return true;
     }
 
     public static void sendBlackFire(Level level, Entity entity) {
