@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.compat.EfKick;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -101,6 +102,11 @@ public class CombatCommon {
     private static final int NPC_LAVA_BUCKET_ACTION_DELAY = 6;
     private static final int NPC_LAVA_BUCKET_PICKUP_DELAY = 40;
     private static final int NPC_LAVA_BUCKET_RESTORE_DELAY = 4;
+    private static final int AVNPC_WATER_BUCKET_MIN_COOLDOWN = 60;
+    private static final int AVNPC_WATER_BUCKET_RANDOM_COOLDOWN = 60;
+    private static final int AVNPC_WATER_BUCKET_ACTION_DELAY = 4;
+    private static final int AVNPC_WATER_BUCKET_PICKUP_DELAY = 40;
+    private static final int AVNPC_WATER_BUCKET_RESTORE_DELAY = 4;
     private static final String KEY_NPC_COMBAT_FISHING_ROD_ACTIVE = "avNpcCombatFishingRodActive";
     private static final String KEY_NPC_COMBAT_FISHING_ROD_ORIGINAL_OFFHAND = "avNpcCombatFishingRodOriginalOffhand";
     private static final String KEY_NPC_COMBAT_FISHING_ROD_USE_COUNT = "avNpcCombatFishingRodUseCount";
@@ -108,6 +114,9 @@ public class CombatCommon {
     private static final String KEY_NPC_COMBAT_FISHING_ROD_STICKY_TARGET_ID = "avNpcCombatFishingRodStickyTargetId";
     private static final String KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND = "avNpcLavaBucketOriginalOffhand";
     private static final String KEY_NPC_LAVA_BUCKET_COOLDOWN_UNTIL = "avNpcLavaBucketCooldownUntil";
+    private static final String KEY_AVNPC_WATER_BUCKET_ACTIVE = "avNpcWaterBucketActive";
+    private static final String KEY_AVNPC_WATER_BUCKET_ORIGINAL_OFFHAND = "avNpcWaterBucketOriginalOffhand";
+    private static final String KEY_AVNPC_WATER_BUCKET_COOLDOWN_UNTIL = "avNpcWaterBucketCooldownUntil";
 
     public static boolean isHoldingWeapon(LivingEntity entity) {
         CapabilityItem capabilityItem = EpicFightCapabilities.getItemStackCapability(entity.getItemInHand(InteractionHand.MAIN_HAND));
@@ -485,6 +494,91 @@ public class CombatCommon {
         }
 
         return findLavaPlacement(serverLevel, target) != null;
+    }
+
+    public static boolean tryPerformAvNpcWaterBucketSelfExtinguish(AVNpc avNpc) {
+        if (!canUseAvNpcWaterBucketSelfExtinguish(avNpc) || !(avNpc.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+
+        LivingEntityPatch<?> entityPatch = avNpc.getLivingEntityPatch();
+        if (entityPatch != null) {
+            entityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+        }
+
+        avNpc.getPersistentData().putBoolean(KEY_AVNPC_WATER_BUCKET_ACTIVE, true);
+        setPersistentLong(avNpc, KEY_AVNPC_WATER_BUCKET_COOLDOWN_UNTIL,
+                avNpc.level().getGameTime() + AVNPC_WATER_BUCKET_MIN_COOLDOWN + new Random().nextInt(AVNPC_WATER_BUCKET_RANDOM_COOLDOWN + 1));
+        equipTemporaryOffhand(avNpc, new ItemStack(Items.WATER_BUCKET), KEY_AVNPC_WATER_BUCKET_ORIGINAL_OFFHAND);
+        avNpc.getNavigation().stop();
+        avNpc.swing(InteractionHand.OFF_HAND, true);
+
+        new DelayedTask(AVNPC_WATER_BUCKET_ACTION_DELAY) {
+            @Override
+            public void run() {
+                if (!avNpc.isAlive()) {
+                    avNpc.getPersistentData().remove(KEY_AVNPC_WATER_BUCKET_ACTIVE);
+                    return;
+                }
+
+                final BlockPos placement = findSelfWaterPlacement(serverLevel, avNpc);
+                if (placement == null) {
+                    finishAvNpcWaterBucketSelfExtinguish(avNpc);
+                    return;
+                }
+
+                avNpc.playSound(SoundEvents.BUCKET_EMPTY, 1.0F, 1.0F);
+                serverLevel.setBlockAndUpdate(placement, Blocks.WATER.defaultBlockState());
+                avNpc.clearFire();
+                avNpc.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.BUCKET));
+
+                new DelayedTask(AVNPC_WATER_BUCKET_PICKUP_DELAY) {
+                    @Override
+                    public void run() {
+                        if (!avNpc.isAlive()) {
+                            avNpc.getPersistentData().remove(KEY_AVNPC_WATER_BUCKET_ACTIVE);
+                            return;
+                        }
+
+                        avNpc.swing(InteractionHand.OFF_HAND, true);
+                        if (serverLevel.getBlockState(placement).is(Blocks.WATER)) {
+                            avNpc.playSound(SoundEvents.BUCKET_FILL, 1.0F, 1.0F);
+                            serverLevel.setBlockAndUpdate(placement, Blocks.AIR.defaultBlockState());
+                        }
+                        avNpc.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.WATER_BUCKET));
+
+                        new DelayedTask(AVNPC_WATER_BUCKET_RESTORE_DELAY) {
+                            @Override
+                            public void run() {
+                                if (avNpc.isAlive()) {
+                                    finishAvNpcWaterBucketSelfExtinguish(avNpc);
+                                } else {
+                                    avNpc.getPersistentData().remove(KEY_AVNPC_WATER_BUCKET_ACTIVE);
+                                }
+                            }
+                        };
+                    }
+                };
+            }
+        };
+
+        return true;
+    }
+
+    private static boolean canUseAvNpcWaterBucketSelfExtinguish(AVNpc avNpc) {
+        if (!avNpc.isAlive()
+                || !avNpc.isOnFire()
+                || avNpc.level().isClientSide
+                || avNpc.isPassenger()
+                || avNpc.isHealing()
+                || isNpcCombatFishingRodSessionActive(avNpc)
+                || avNpc.getPersistentData().getBoolean(KEY_AVNPC_WATER_BUCKET_ACTIVE)
+                || avNpc.level().getGameTime() < getPersistentLong(avNpc, KEY_AVNPC_WATER_BUCKET_COOLDOWN_UNTIL)) {
+            return false;
+        }
+
+        return avNpc.level() instanceof ServerLevel serverLevel
+                && findSelfWaterPlacement(serverLevel, avNpc) != null;
     }
 
     public static boolean canSwapToBow(MobPatch<?> mobpatch) {
@@ -1548,6 +1642,28 @@ public class CombatCommon {
 
     private static boolean canPlaceLavaAt(ServerLevel level, BlockPos pos) {
         return level.getBlockState(pos).canBeReplaced();
+    }
+
+    @Nullable
+    private static BlockPos findSelfWaterPlacement(ServerLevel level, AVNpc avNpc) {
+        BlockPos feet = avNpc.blockPosition();
+        if (canPlaceSelfWaterAt(level, feet)) {
+            return feet;
+        }
+        BlockPos above = feet.above();
+        if (canPlaceSelfWaterAt(level, above)) {
+            return above;
+        }
+        return null;
+    }
+
+    private static boolean canPlaceSelfWaterAt(ServerLevel level, BlockPos pos) {
+        return level.getBlockState(pos).canBeReplaced() && level.getFluidState(pos).isEmpty();
+    }
+
+    private static void finishAvNpcWaterBucketSelfExtinguish(AVNpc avNpc) {
+        restoreTemporaryOffhand(avNpc, KEY_AVNPC_WATER_BUCKET_ORIGINAL_OFFHAND);
+        avNpc.getPersistentData().remove(KEY_AVNPC_WATER_BUCKET_ACTIVE);
     }
 
     private static void equipTemporaryOffhand(Mob mob, ItemStack stack, String originalKey) {

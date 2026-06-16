@@ -88,6 +88,31 @@ public class MobTargetRedirectEvent {
         return null;
     }
 
+    private static boolean shouldBlockVillagerGeneralJevTarget(Mob mob, @Nullable LivingEntity target) {
+        return target instanceof JevEntity && isVillagerGeneral(mob);
+    }
+
+    @Nullable
+    private static LivingEntity getVillagerGeneralJevReplacementTarget(Mob mob, @Nullable LivingEntity target) {
+        if (!(target instanceof JevEntity jev)) {
+            return null;
+        }
+
+        AlexEntity alex = jev.getFollowTarget();
+        if (alex != null && alex.isAlive() && !alex.isSpectator() && !mob.isAlliedTo(alex)) {
+            return alex;
+        }
+
+        return null;
+    }
+
+    private static boolean isVillagerGeneral(Mob mob) {
+        return mob instanceof RedVillagerGeneralEntity
+                || mob instanceof BlueVillagerGeneralEntity
+                || mob instanceof GreenVillagerGeneralEntity
+                || mob instanceof PurpleVillagerGeneralEntity;
+    }
+
     private static LivingEntity normalizeRedirectTarget(LivingEntity redirectTarget) {
         if (redirectTarget instanceof LowHerobrineCloneEntity lowHerobrineCloneEntity
                 && lowHerobrineCloneEntity.isHealing()
@@ -154,6 +179,11 @@ public class MobTargetRedirectEvent {
             if (mob instanceof BlueDemonEntity || mob instanceof BbqEntity) return;
 
             LivingEntity currentTarget = mob.getTarget();
+            if (shouldBlockVillagerGeneralJevTarget(mob, currentTarget)) {
+                mob.setTarget(getVillagerGeneralJevReplacementTarget(mob, currentTarget));
+                return;
+            }
+
             LivingEntity redirectTarget = getRedirectTarget(mob, currentTarget);
             if (redirectTarget != null) {
                 mob.setTarget(redirectTarget);
@@ -179,6 +209,10 @@ public class MobTargetRedirectEvent {
         }
 
         LivingEntity newTarget = event.getNewTarget();
+        if (shouldBlockVillagerGeneralJevTarget(mob, newTarget)) {
+            event.setNewTarget(getVillagerGeneralJevReplacementTarget(mob, newTarget));
+            return;
+        }
 
         if (newTarget != null && ObedienceMobEffect.shouldBlockTarget(mob, newTarget)) {
             event.setNewTarget(null);

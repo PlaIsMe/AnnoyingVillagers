@@ -14,6 +14,8 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -28,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static final ResourceLocation BASE_MODEL =
             ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "item/hook_gun/body");
+    private static final ThreadLocal<RenderedHandContext> RENDERED_HAND_CONTEXT = new ThreadLocal<>();
 
     public static HookGunItemRenderer instance;
 
@@ -61,6 +64,19 @@ public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
         );
     }
 
+    public static void setRenderedHandContext(LivingEntity entity, InteractionHand hand) {
+        if (entity == null || hand == null) {
+            RENDERED_HAND_CONTEXT.remove();
+            return;
+        }
+
+        RENDERED_HAND_CONTEXT.set(new RenderedHandContext(entity, hand));
+    }
+
+    public static void clearRenderedHandContext() {
+        RENDERED_HAND_CONTEXT.remove();
+    }
+
     @Override
     public void renderByItem(
             ItemStack stack,
@@ -77,7 +93,7 @@ public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
         renderBakedModel(itemRenderer, baseModel, stack, poseStack, buffer, combinedLight, combinedOverlay);
 
         ItemStack boundItem = HookGunItem.getBoundItem(stack);
-        if (boundItem.isEmpty() || isHookingWithRenderedStack(minecraft, stack)) {
+        if (boundItem.isEmpty() || HookGunItem.isVisualHookOut(stack) || isHookingWithRenderedStack(minecraft, stack)) {
             return;
         }
 
@@ -102,6 +118,18 @@ public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
     }
 
     private static boolean isHookingWithRenderedStack(Minecraft minecraft, ItemStack stack) {
+        RenderedHandContext renderedHandContext = RENDERED_HAND_CONTEXT.get();
+        if (renderedHandContext != null && minecraft.level != null) {
+            ItemStack handStack = renderedHandContext.entity.getItemInHand(renderedHandContext.hand);
+            if (stack == handStack || ItemStack.matches(stack, handStack)) {
+                return HookGunItem.hasActiveHook(
+                        minecraft.level,
+                        renderedHandContext.entity,
+                        renderedHandContext.hand == InteractionHand.MAIN_HAND
+                );
+            }
+        }
+
         Player player = minecraft.player;
         if (player == null || minecraft.level == null) {
             return false;
@@ -129,6 +157,9 @@ public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
         }
 
         return false;
+    }
+
+    private record RenderedHandContext(LivingEntity entity, InteractionHand hand) {
     }
 
     private static void renderBakedModel(

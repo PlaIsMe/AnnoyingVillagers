@@ -110,8 +110,8 @@ public class AlexPatch extends CEHumanoidPatch implements CustomExecuteEntity {
         this.weaponAttackMotions
                 .put(WeaponCategories.SWORD,
                         ImmutableMap.of(
-                                Styles.ONE_HAND, AvNpcSword.AV_SWORD,
-                                Styles.TWO_HAND, AvNpcSword.AV_DUAL_SWORD
+                                Styles.ONE_HAND, AlexSword.THUNDER_DIAMOND_BLADE,
+                                Styles.TWO_HAND, AlexSword.DUAL_THUNDER_DIAMOND_BLADE
                         ));
         
         this.guardHitMotions.put(WeaponCategories.SWORD,
@@ -151,6 +151,7 @@ public class AlexPatch extends CEHumanoidPatch implements CustomExecuteEntity {
 
     public void tick(LivingTickEvent livingTickEvent) {
         super.tick(livingTickEvent);
+        AlexJevHookCombat.tickAlex(this);
     }
 
     public void onDeath(LivingDeathEvent livingDeathEvent) {

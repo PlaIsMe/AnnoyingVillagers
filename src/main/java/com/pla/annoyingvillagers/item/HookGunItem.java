@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -19,8 +20,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -44,6 +47,7 @@ import java.util.function.Consumer;
  */
 public class HookGunItem extends Item {
     private static final String TAG_BOUND_ITEM = "HookGunBoundItem";
+    private static final String TAG_VISUAL_HOOK_OUT = "HookGunVisualHookOut";
     private static final String TAG_LEFT_HOOK_ANIMATION = "HookGunLeftHookAnimation";
     private static final String TAG_RIGHT_HOOK_ANIMATION = "HookGunRightHookAnimation";
 
@@ -68,6 +72,23 @@ public class HookGunItem extends Item {
 
     public HookGunItem() {
         super(new Item.Properties().stacksTo(1).durability(384));
+    }
+
+    @Override
+    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+        if (level.isClientSide || !isVisualHookOut(stack) || !(entity instanceof LivingEntity owner)) {
+            return;
+        }
+
+        if (stack == owner.getMainHandItem() && hasActiveHook(level, owner, true)) {
+            return;
+        }
+        if (stack == owner.getOffhandItem() && hasActiveHook(level, owner, false)) {
+            return;
+        }
+
+        setVisualHookOut(stack, false);
     }
 
     @Override
@@ -120,7 +141,7 @@ public class HookGunItem extends Item {
             if (isHoldingHookGunInBothHands(owner)) {
                 swingBothHands(owner);
             }
-            detachHooks(activeHooks);
+            returnHooks(activeHooks, false);
             cancelHookHandAnimations(owner);
             playRetrieveSound(level, owner);
             return true;
@@ -220,6 +241,35 @@ public class HookGunItem extends Item {
                 .anyMatch(hook -> hook.isRightHand() == rightHand);
     }
 
+    public static boolean hasActiveGrappleHook(Level level, LivingEntity owner) {
+        return level != null
+                && owner != null
+                && getHooks(level, owner, false)
+                .stream()
+                .anyMatch(HookGunHookEntity::isGrappleHook);
+    }
+
+    public static boolean hasAttachedGrappleHook(Level level, LivingEntity owner) {
+        return level != null
+                && owner != null
+                && getHooks(level, owner, true)
+                .stream()
+                .anyMatch(HookGunHookEntity::isGrappleHook);
+    }
+
+    public static boolean returnActiveHooks(Level level, LivingEntity owner, boolean grappleOnly) {
+        if (level == null || owner == null) {
+            return false;
+        }
+
+        boolean returned = returnHooks(getHooks(level, owner, false), grappleOnly);
+        if (returned) {
+            cancelHookHandAnimations(owner);
+            playRetrieveSound(level, owner);
+        }
+        return returned;
+    }
+
     public static ItemStack getBoundItem(ItemStack hookGunStack) {
         if (hookGunStack.isEmpty() || !(hookGunStack.getItem() instanceof HookGunItem) || !hookGunStack.hasTag()) {
             return ItemStack.EMPTY;
@@ -248,6 +298,33 @@ public class HookGunItem extends Item {
         hookGunStack.getOrCreateTag().put(TAG_BOUND_ITEM, stored.save(new CompoundTag()));
     }
 
+    public static boolean isVisualHookOut(ItemStack hookGunStack) {
+        return !hookGunStack.isEmpty()
+                && hookGunStack.getItem() instanceof HookGunItem
+                && hookGunStack.hasTag()
+                && hookGunStack.getOrCreateTag().getBoolean(TAG_VISUAL_HOOK_OUT);
+    }
+
+    public static void setVisualHookOut(ItemStack hookGunStack, boolean visualHookOut) {
+        if (hookGunStack.isEmpty() || !(hookGunStack.getItem() instanceof HookGunItem)) {
+            return;
+        }
+
+        if (visualHookOut) {
+            hookGunStack.getOrCreateTag().putBoolean(TAG_VISUAL_HOOK_OUT, true);
+            return;
+        }
+
+        if (!hookGunStack.hasTag()) {
+            return;
+        }
+
+        CompoundTag tag = hookGunStack.getTag();
+        if (tag != null) {
+            tag.remove(TAG_VISUAL_HOOK_OUT);
+        }
+    }
+
     public static void clearBoundItem(ItemStack hookGunStack) {
         if (!hookGunStack.hasTag()) {
             return;
@@ -256,6 +333,7 @@ public class HookGunItem extends Item {
         CompoundTag tag = hookGunStack.getTag();
         if (tag != null) {
             tag.remove(TAG_BOUND_ITEM);
+            tag.remove(TAG_VISUAL_HOOK_OUT);
         }
     }
 
@@ -382,16 +460,55 @@ public class HookGunItem extends Item {
     }
 
     public static HookGunHookEntity launchHook(Level level, LivingEntity owner, double yawOffset, boolean doubleMode, boolean rightHand, ItemStack boundItem) {
-        Vec3 direction = Vec3.directionFromRotation(owner.getXRot(), owner.getYRot() + (float) yawOffset).normalize();
         Vec3 origin = getHookStartPosition(owner, rightHand);
+        Vec3 target = getHookAimTarget(level, owner, yawOffset);
+        Vec3 direction = target.subtract(origin);
+        if (direction.lengthSqr() <= 1.0E-7D) {
+            direction = getHookAimDirection(owner, yawOffset);
+        }
+        return launchHook(level, owner, origin, direction, doubleMode, rightHand, boundItem);
+    }
+
+    public static HookGunHookEntity launchHookAt(Level level, LivingEntity owner, Vec3 target, boolean doubleMode, boolean rightHand, ItemStack boundItem) {
+        Vec3 origin = getHookStartPosition(owner, rightHand);
+        Vec3 direction = target.subtract(origin);
+        if (direction.lengthSqr() <= 1.0E-7D) {
+            direction = owner.getLookAngle();
+        }
+        return launchHook(level, owner, origin, direction.normalize(), doubleMode, rightHand, boundItem);
+    }
+
+    private static HookGunHookEntity launchHook(Level level, LivingEntity owner, Vec3 origin, Vec3 direction, boolean doubleMode, boolean rightHand, ItemStack boundItem) {
         HookGunHookEntity hook = new HookGunHookEntity(level, owner, doubleMode, rightHand, boundItem);
-        hook.moveTo(origin.x, origin.y, origin.z, owner.getYRot(), owner.getXRot());
+        double horizontal = Math.sqrt(direction.x * direction.x + direction.z * direction.z);
+        float hookYaw = (float) (Mth.atan2(direction.x, direction.z) * Mth.RAD_TO_DEG);
+        float hookPitch = (float) (Mth.atan2(direction.y, horizontal) * Mth.RAD_TO_DEG);
+        hook.moveTo(origin.x, origin.y, origin.z, hookYaw, hookPitch);
 
         double extraVelocity = Math.max(0.0D, owner.getDeltaMovement().dot(direction));
         hook.shoot(direction.x, direction.y, direction.z, THROW_SPEED + (float) extraVelocity, 0.0F);
         level.addFreshEntity(hook);
+        setVisualHookOut(getHookGunStack(owner, rightHand), true);
         updateHookHandAnimation(owner, rightHand, hook);
         return hook;
+    }
+
+    public static Vec3 getHookAimDirection(LivingEntity owner, double yawOffset) {
+        return Vec3.directionFromRotation(owner.getXRot(), owner.getYRot() + (float) yawOffset).normalize();
+    }
+
+    private static Vec3 getHookAimTarget(Level level, LivingEntity owner, double yawOffset) {
+        Vec3 eye = owner.getEyePosition();
+        Vec3 direction = getHookAimDirection(owner, yawOffset);
+        Vec3 end = eye.add(direction.scale(HOOK_DESPAWN_DISTANCE));
+        HitResult hitResult = level.clip(new ClipContext(
+                eye,
+                end,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                owner
+        ));
+        return hitResult.getType() == HitResult.Type.MISS ? end : hitResult.getLocation();
     }
 
     public static Vec3 getHookStartPosition(LivingEntity owner, boolean rightHand) {
@@ -422,6 +539,15 @@ public class HookGunItem extends Item {
                 .add(look.scale(0.45D))
                 .add(side.scale(rightHand ? 0.35D : -0.35D))
                 .add(0.0D, -0.18D, 0.0D);
+    }
+
+    public static ItemStack getHookGunStack(LivingEntity owner, boolean rightHand) {
+        if (owner == null) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemStack stack = rightHand ? owner.getMainHandItem() : owner.getOffhandItem();
+        return stack.getItem() instanceof HookGunItem ? stack : ItemStack.EMPTY;
     }
 
     private static void tickMotor(LivingEntity owner) {
@@ -525,10 +651,16 @@ public class HookGunItem extends Item {
                 .toList();
     }
 
-    private static void detachHooks(List<HookGunHookEntity> hooks) {
+    private static boolean returnHooks(List<HookGunHookEntity> hooks, boolean grappleOnly) {
+        boolean returned = false;
         for (HookGunHookEntity hook : hooks) {
-            hook.discard();
+            if (grappleOnly && !hook.isGrappleHook()) {
+                continue;
+            }
+            hook.returnToOwner();
+            returned = true;
         }
+        return returned;
     }
 
     private static void damageLaunchedStacks(LivingEntity owner, boolean mainHand, boolean offHand) {
@@ -612,8 +744,8 @@ public class HookGunItem extends Item {
     }
 
     private static void updateHookHandAnimation(LivingEntity owner, boolean rightHand, HookGunHookEntity hook) {
-        if (!isHoldingHookGunInHand(owner, rightHand) || hook == null || hook.isRemoved()) {
-            setHookHandAnimationState(owner, rightHand, HOOK_ANIMATION_NONE);
+        if (!isHoldingHookGunInHand(owner, rightHand) || hook == null || hook.isRemoved() || hook.isReturning()) {
+            cancelHookHandAnimation(owner, rightHand);
             return;
         }
 
@@ -641,21 +773,18 @@ public class HookGunItem extends Item {
     }
 
     private static void setHookHandAnimationState(LivingEntity owner, boolean rightHand, byte nextState) {
+        if (nextState == HOOK_ANIMATION_NONE) {
+            cancelHookHandAnimation(owner, rightHand);
+            return;
+        }
+
         String tagName = getHookHandAnimationTag(rightHand);
         byte currentState = owner.getPersistentData().getByte(tagName);
         if (currentState == nextState) {
             return;
         }
 
-        AssetAccessor<? extends StaticAnimation> currentAnimation = getHookHandAnimation(rightHand, currentState);
-        if (currentAnimation != null) {
-            EpicfightUtil.stopAnimationSynchronized(owner, currentAnimation);
-        }
-
-        if (nextState == HOOK_ANIMATION_NONE) {
-            owner.getPersistentData().remove(tagName);
-            return;
-        }
+        stopHookHandAnimations(owner, rightHand);
 
         LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(owner, LivingEntityPatch.class);
         AssetAccessor<? extends StaticAnimation> nextAnimation = getHookHandAnimation(rightHand, nextState);
@@ -668,9 +797,19 @@ public class HookGunItem extends Item {
         livingEntityPatch.playAnimationSynchronized(nextAnimation, 0.0F);
     }
 
-    private static void cancelHookHandAnimations(LivingEntity owner) {
-        setHookHandAnimationState(owner, false, HOOK_ANIMATION_NONE);
-        setHookHandAnimationState(owner, true, HOOK_ANIMATION_NONE);
+    public static void cancelHookHandAnimations(LivingEntity owner) {
+        cancelHookHandAnimation(owner, false);
+        cancelHookHandAnimation(owner, true);
+    }
+
+    public static void cancelHookHandAnimation(LivingEntity owner, boolean rightHand) {
+        stopHookHandAnimations(owner, rightHand);
+        owner.getPersistentData().remove(getHookHandAnimationTag(rightHand));
+    }
+
+    private static void stopHookHandAnimations(LivingEntity owner, boolean rightHand) {
+        EpicfightUtil.stopAnimationSynchronized(owner, getHookHandAnimation(rightHand, HOOK_ANIMATION_NORMAL));
+        EpicfightUtil.stopAnimationSynchronized(owner, getHookHandAnimation(rightHand, HOOK_ANIMATION_TOP));
     }
 
     private static String getHookHandAnimationTag(boolean rightHand) {

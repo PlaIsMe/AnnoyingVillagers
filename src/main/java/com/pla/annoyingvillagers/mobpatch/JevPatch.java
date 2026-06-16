@@ -93,6 +93,7 @@ public class JevPatch extends CEHumanoidPatch implements CustomExecuteEntity {
 
     public void tick(LivingTickEvent livingTickEvent) {
         super.tick(livingTickEvent);
+        AlexJevHookCombat.tickJev(this);
     }
 
     public void onDeath(LivingDeathEvent livingDeathEvent) {

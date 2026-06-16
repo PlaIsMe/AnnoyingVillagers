@@ -858,6 +858,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             implementFirstTick((ServerLevel) this.level());
             this.initialSpawn = true;
         }
+        CombatCommon.tryPerformAvNpcWaterBucketSelfExtinguish(this);
 
         if (this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
             if (getLivingEntityPatch() != null) {

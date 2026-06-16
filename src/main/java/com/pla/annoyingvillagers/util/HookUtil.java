@@ -17,6 +17,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -136,7 +137,11 @@ public final class HookUtil {
             return pass(boundStack);
         }
 
-        if (owner != null && (target == owner || target.isAlliedTo(owner))) {
+        if (owner != null && target == owner) {
+            return handled(boundStack);
+        }
+
+        if (owner != null && target.isAlliedTo(owner) && !canUseBoundItemOnAlly(boundStack, target)) {
             return handled(boundStack);
         }
 
@@ -160,6 +165,17 @@ public final class HookUtil {
             if (bucketResult.handled()) {
                 return bucketResult;
             }
+        }
+
+        if (boundStack.is(Items.WATER_BUCKET) && target.isOnFire()) {
+            target.clearFire();
+            level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                    SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS, 0.8F, 1.0F);
+            return handled(new ItemStack(Items.BUCKET));
+        }
+
+        if (boundStack.is(Items.SNOWBALL)) {
+            return result(hitWithSnowball(level, boundStack, target), boundStack);
         }
 
         if (boundStack.getItem() instanceof ShieldItem) {
@@ -282,6 +298,23 @@ public final class HookUtil {
                 && (stack.getItem() instanceof ShearsItem
                 || stack.canPerformAction(ToolActions.SHEARS_DIG)
                 || stack.canPerformAction(ToolActions.SHEARS_HARVEST));
+    }
+
+    private static boolean canUseBoundItemOnAlly(ItemStack stack, LivingEntity target) {
+        return stack.getItem() instanceof ArmorItem
+                || stack.is(Items.WATER_BUCKET)
+                || stack.is(Items.SNOWBALL)
+                || isPotion(stack)
+                || stack.getFoodProperties(target) != null;
+    }
+
+    private static HitResult hitWithSnowball(Level level, ItemStack boundStack, LivingEntity target) {
+        target.clearFire();
+        target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1));
+        level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                SoundEvents.SNOWBALL_THROW, SoundSource.PLAYERS, 0.8F, 0.75F);
+        boundStack.shrink(1);
+        return HitResult.HANDLED;
     }
 
     private static HitResult shearEntity(Level level, ItemStack boundStack, @Nullable LivingEntity owner, LivingEntity target) {

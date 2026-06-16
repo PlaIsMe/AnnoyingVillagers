@@ -72,16 +72,24 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
     private static final String TAG_ANCHOR_Y = "AnchorY";
     private static final String TAG_ANCHOR_Z = "AnchorZ";
 
-    private static final double HOOK_GRAVITY = 0.10D;
+    private static final double HOOK_GRAVITY = 0.02D;
     private static final double AIR_DRAG = 0.99D;
     private static final double ENTITY_YANK_SCALE = 0.40D;
     private static final double RETURN_SPEED = 2.4D;
     private static final double RETURN_ARRIVE_DISTANCE = 0.55D;
     private static final int MAX_FLYING_LIFE = 80;
+    private static final int MAX_GRAPPLE_FLYING_LIFE = 60;
+    private static final int GRAPPLE_ATTACHED_RETURN_MIN_TICKS = 30;
+    private static final int GRAPPLE_ATTACHED_RETURN_RANDOM_TICKS = 20;
+
+    private static final String TAG_GRAPPLE_ATTACHED_AT = "GrappleAttachedAt";
+    private static final String TAG_GRAPPLE_RETURN_DELAY = "GrappleReturnDelay";
 
     private Vec3 anchor = Vec3.ZERO;
     @Nullable
     private UUID ownerUuid;
+    private long grappleAttachedAt = -1L;
+    private int grappleReturnDelayTicks = -1;
 
     public HookGunHookEntity(PlayMessages.SpawnEntity packet, Level level) {
         this(AnnoyingVillagersModEntities.HOOK_GUN_HOOK.get(), level);
@@ -129,12 +137,14 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         if (!this.level().isClientSide) {
             LivingEntity owner = this.getHookOwner();
             if (owner == null || !owner.isAlive() || !HookGunItem.isHoldingHookGun(owner)) {
+                this.clearOwnerVisualHookOut(owner);
                 this.discard();
                 return;
             }
             this.setOwnerId(owner.getId());
 
             if (!this.isReturning() && this.distanceToSqr(owner) > HookGunItem.HOOK_DESPAWN_DISTANCE_SQR) {
+                this.clearOwnerVisualHookOut(owner);
                 this.discard();
                 return;
             }
@@ -157,10 +167,13 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
             this.setNoGravity(true);
             this.noPhysics = true;
             this.setPos(this.anchor.x, this.anchor.y, this.anchor.z);
+            if (!this.level().isClientSide && this.isGrappleHook() && this.shouldReturnAttachedGrapple()) {
+                this.startReturning();
+            }
             return;
         }
 
-        if (!this.level().isClientSide && this.tickCount > MAX_FLYING_LIFE) {
+        if (!this.level().isClientSide && this.tickCount > this.getMaxFlyingLife()) {
             this.startReturning();
             return;
         }
@@ -291,6 +304,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
 
         this.setAnchor(hitResult.getLocation());
         this.entityData.set(DATA_ATTACHED, true);
+        this.startAttachedGrappleTimer();
         this.setDeltaMovement(Vec3.ZERO);
         this.setNoGravity(true);
         this.noPhysics = true;
@@ -371,12 +385,43 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         return HookUtil.isPickaxe(this.getBoundItem());
     }
 
+    public void returnToOwner() {
+        this.startReturning();
+    }
+
     private void startReturning() {
+        boolean wasReturning = this.isReturning();
         this.entityData.set(DATA_ATTACHED, false);
         this.entityData.set(DATA_RETURNING, true);
+        this.grappleAttachedAt = -1L;
+        this.grappleReturnDelayTicks = -1;
         this.noPhysics = true;
         this.setNoGravity(true);
         this.setDeltaMovement(Vec3.ZERO);
+        if (!wasReturning) {
+            LivingEntity owner = this.getHookOwner();
+            if (owner != null) {
+                HookGunItem.cancelHookHandAnimation(owner, this.isRightHand());
+            }
+        }
+    }
+
+    private int getMaxFlyingLife() {
+        return this.isGrappleHook() ? MAX_GRAPPLE_FLYING_LIFE : MAX_FLYING_LIFE;
+    }
+
+    private boolean shouldReturnAttachedGrapple() {
+        if (this.grappleAttachedAt < 0L || this.grappleReturnDelayTicks < 0) {
+            this.startAttachedGrappleTimer();
+        }
+
+        return this.level().getGameTime() - this.grappleAttachedAt >= this.grappleReturnDelayTicks;
+    }
+
+    private void startAttachedGrappleTimer() {
+        this.grappleAttachedAt = this.level().getGameTime();
+        this.grappleReturnDelayTicks = GRAPPLE_ATTACHED_RETURN_MIN_TICKS
+                + this.random.nextInt(GRAPPLE_ATTACHED_RETURN_RANDOM_TICKS + 1);
     }
 
     private void tickReturning(LivingEntity owner) {
@@ -393,6 +438,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
             this.setDeltaMovement(Vec3.ZERO);
             this.setPos(target.x, target.y, target.z);
             if (!this.level().isClientSide) {
+                this.clearOwnerVisualHookOut(owner);
                 this.discard();
             }
             return;
@@ -491,6 +537,8 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         tag.putDouble(TAG_ANCHOR_X, this.anchor.x);
         tag.putDouble(TAG_ANCHOR_Y, this.anchor.y);
         tag.putDouble(TAG_ANCHOR_Z, this.anchor.z);
+        tag.putLong(TAG_GRAPPLE_ATTACHED_AT, this.grappleAttachedAt);
+        tag.putInt(TAG_GRAPPLE_RETURN_DELAY, this.grappleReturnDelayTicks);
     }
 
     @Override
@@ -509,6 +557,8 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
             this.setBoundItem(ItemStack.EMPTY);
         }
         this.setAnchor(new Vec3(tag.getDouble(TAG_ANCHOR_X), tag.getDouble(TAG_ANCHOR_Y), tag.getDouble(TAG_ANCHOR_Z)));
+        this.grappleAttachedAt = tag.contains(TAG_GRAPPLE_ATTACHED_AT) ? tag.getLong(TAG_GRAPPLE_ATTACHED_AT) : -1L;
+        this.grappleReturnDelayTicks = tag.contains(TAG_GRAPPLE_RETURN_DELAY) ? tag.getInt(TAG_GRAPPLE_RETURN_DELAY) : -1;
         this.noPhysics = this.isAttached() || this.isReturning();
         this.setNoGravity(this.isAttached() || this.isReturning());
     }
@@ -548,7 +598,12 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
             return ItemStack.EMPTY;
         }
 
-        ItemStack stack = this.isRightHand() ? owner.getMainHandItem() : owner.getOffhandItem();
-        return stack.getItem() instanceof HookGunItem ? stack : ItemStack.EMPTY;
+        return HookGunItem.getHookGunStack(owner, this.isRightHand());
+    }
+
+    private void clearOwnerVisualHookOut(@Nullable LivingEntity owner) {
+        if (owner != null) {
+            HookGunItem.setVisualHookOut(HookGunItem.getHookGunStack(owner, this.isRightHand()), false);
+        }
     }
 }

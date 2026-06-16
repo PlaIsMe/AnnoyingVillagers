@@ -3,7 +3,10 @@ package com.pla.annoyingvillagers.entity;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.combatbehaviour.AlexJevHookCombat;
+import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.spawnhandler.AlexData;
 import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.clazz.AVNpc;
@@ -44,9 +47,17 @@ public class AlexEntity extends AVNpc {
     private UUID jevUUID;
     private boolean spawnJev = false;
     private int state = 0;
+    private ItemStack currentBoundHook = ItemStack.EMPTY;
+    private boolean canDualHookInSecondPhase = false;
+    private boolean carryingJevLoot = false;
+    private boolean lootTakenByJev = false;
 
     public void setProtectingJev(JevEntity jev) {
         this.jevToProtect = jev;
+    }
+
+    public JevEntity getProtectingJev() {
+        return jevToProtect;
     }
 
     public void setJevUUID(UUID jevUUID) {
@@ -59,6 +70,62 @@ public class AlexEntity extends AVNpc {
 
     public int getState() {
         return state;
+    }
+
+    public ItemStack getCurrentBoundHook() {
+        if (currentBoundHook.isEmpty()) {
+            currentBoundHook = AlexJevHookCombat.createAlexDefaultPickaxe();
+        }
+        return currentBoundHook.copy();
+    }
+
+    public void setCurrentBoundHook(ItemStack currentBoundHook) {
+        if (currentBoundHook.isEmpty()) {
+            this.currentBoundHook = ItemStack.EMPTY;
+        } else {
+            ItemStack stored = currentBoundHook.copy();
+            stored.setCount(1);
+            this.currentBoundHook = stored;
+        }
+        this.syncHookGunInventory();
+    }
+
+    public boolean canDualHookInSecondPhase() {
+        return canDualHookInSecondPhase && this.state == 1;
+    }
+
+    public void setCanDualHookInSecondPhase(boolean canDualHookInSecondPhase) {
+        this.canDualHookInSecondPhase = canDualHookInSecondPhase;
+    }
+
+    public boolean isCarryingJevLoot() {
+        return carryingJevLoot;
+    }
+
+    public void setCarryingJevLoot(boolean carryingJevLoot) {
+        this.carryingJevLoot = carryingJevLoot;
+    }
+
+    public boolean isLootTakenByJev() {
+        return lootTakenByJev;
+    }
+
+    public void setLootTakenByJev(boolean lootTakenByJev) {
+        this.lootTakenByJev = lootTakenByJev;
+    }
+
+    public void ensureHookGunInventory() {
+        if (this.level().isClientSide) {
+            return;
+        }
+
+        if (this.currentBoundHook.isEmpty()) {
+            this.currentBoundHook = AlexJevHookCombat.createAlexDefaultPickaxe();
+        }
+
+        if (!syncHookGunInventory()) {
+            addItemToInventory(AlexJevHookCombat.createBoundHookGun(this.currentBoundHook));
+        }
     }
 
     public AlexEntity(EntityType<AlexEntity> entitytype, Level level) {
@@ -101,6 +168,14 @@ public class AlexEntity extends AVNpc {
         }
         tag.putInt("State", this.state);
         tag.putBoolean("SpawnJev", spawnJev);
+        if (!this.currentBoundHook.isEmpty()) {
+            CompoundTag hookTag = new CompoundTag();
+            this.currentBoundHook.save(hookTag);
+            tag.put("CurrentBoundHook", hookTag);
+        }
+        tag.putBoolean("CanDualHookInSecondPhase", this.canDualHookInSecondPhase);
+        tag.putBoolean("CarryingJevLoot", this.carryingJevLoot);
+        tag.putBoolean("LootTakenByJev", this.lootTakenByJev);
     }
 
     @Override
@@ -111,6 +186,14 @@ public class AlexEntity extends AVNpc {
         }
         state = tag.getInt("State");
         spawnJev = tag.getBoolean("SpawnJev");
+        if (tag.contains("CurrentBoundHook", 10)) {
+            currentBoundHook = ItemStack.of(tag.getCompound("CurrentBoundHook"));
+        } else {
+            currentBoundHook = AlexJevHookCombat.createAlexDefaultPickaxe();
+        }
+        canDualHookInSecondPhase = tag.getBoolean("CanDualHookInSecondPhase");
+        carryingJevLoot = tag.getBoolean("CarryingJevLoot");
+        lootTakenByJev = tag.getBoolean("LootTakenByJev");
     }
 
     @Override
@@ -170,6 +253,10 @@ public class AlexEntity extends AVNpc {
 
     @Override
     protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
+        if (this.lootTakenByJev) {
+            return;
+        }
+
         super.dropCustomDeathLoot(source, looting, recentlyHit);
         if (this.level() instanceof ServerLevel serverLevel) {
             final double x = this.getX();
@@ -188,7 +275,7 @@ public class AlexEntity extends AVNpc {
 
             List<ItemStack> damagedStacks = new ArrayList<>();
 
-            ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
+            ItemStack sword = new ItemStack(AnnoyingVillagersModItems.THUNDER_DIAMOND_BLADE.get());
             sword.enchant(Enchantments.SHARPNESS, 5);
             sword.enchant(Enchantments.FIRE_ASPECT, 2);
             sword.enchant(Enchantments.KNOCKBACK, 2);
@@ -231,8 +318,20 @@ public class AlexEntity extends AVNpc {
             for (ItemStack stack : simpleDrops) {
                 dropStack.accept(stack);
             }
+            dropStack.accept(AlexJevHookCombat.createBoundHookGun(this.getCurrentBoundHook()));
+            dropStack.accept(this.getCurrentBoundHook());
+            if (this.carryingJevLoot) {
+                dropJevLoot(dropStack);
+            }
             dropArrows.accept(new Random().nextInt(10, 20));
         }
+    }
+
+    private static void dropJevLoot(Consumer<ItemStack> dropStack) {
+        dropStack.accept(new ItemStack(AnnoyingVillagersModItems.JEV_GLASSES.get()));
+        dropStack.accept(new ItemStack(AnnoyingVillagersModItems.JEV_PENCIL.get()));
+        dropStack.accept(new ItemStack(AnnoyingVillagersModItems.JEV_BOOK.get()));
+        dropStack.accept(AlexJevHookCombat.createBoundHookGun(AlexJevHookCombat.createJevPickaxe()));
     }
 
     private void spawnJev() {
@@ -263,7 +362,7 @@ public class AlexEntity extends AVNpc {
         SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata, compoundtag);
         TeamUtil.addOrJoinTeam(this, "alex");
 
-        ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
+        ItemStack sword = new ItemStack(AnnoyingVillagersModItems.THUNDER_DIAMOND_BLADE.get());
         sword.enchant(Enchantments.SHARPNESS, 5);
         sword.enchant(Enchantments.FIRE_ASPECT, 2);
         sword.enchant(Enchantments.KNOCKBACK, 2);
@@ -272,7 +371,17 @@ public class AlexEntity extends AVNpc {
         this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.ENDER_PEARL));
         this.setMainWeaponItem(sword);
         this.setOffWeaponItem(new ItemStack(Items.ENDER_PEARL));
+        this.setCurrentBoundHook(AlexJevHookCombat.createAlexDefaultPickaxe());
+        this.ensureHookGunInventory();
         return returnSpawnGroupData;
+    }
+
+    @Override
+    public void die(@NotNull DamageSource damageSource) {
+        if (!this.level().isClientSide && !this.lootTakenByJev) {
+            AlexJevHookCombat.onAlexDeath(this);
+        }
+        super.die(damageSource);
     }
 
     @Override
@@ -299,6 +408,32 @@ public class AlexEntity extends AVNpc {
                     && this.getHealth() <= 20
                     && !this.getItemInHand(InteractionHand.OFF_HAND).getItem().equals(Items.TOTEM_OF_UNDYING)) {
                 this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.TOTEM_OF_UNDYING));
+            }
+            this.ensureHookGunInventory();
+        }
+    }
+
+    private boolean syncHookGunInventory() {
+        for (int i = 0; i < this.getInventory().getContainerSize(); i++) {
+            ItemStack stack = this.getInventory().getItem(i);
+            if (stack.getItem() instanceof HookGunItem) {
+                HookGunItem.setBoundItem(stack, this.getCurrentBoundHook());
+                this.getInventory().setItem(i, stack);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void addItemToInventory(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < this.getInventory().getContainerSize(); i++) {
+            if (this.getInventory().getItem(i).isEmpty()) {
+                this.getInventory().setItem(i, stack.copy());
+                return;
             }
         }
     }

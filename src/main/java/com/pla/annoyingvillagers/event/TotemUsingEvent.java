@@ -91,7 +91,7 @@ public class TotemUsingEvent {
                     @Override
                     public void run() {
                         alexEntity.setHealth(alexEntity.getMaxHealth());
-                        ItemStack diamondSword = new ItemStack(Items.DIAMOND_SWORD);
+                        ItemStack diamondSword = new ItemStack(AnnoyingVillagersModItems.THUNDER_DIAMOND_BLADE.get());
                         diamondSword.enchant(Enchantments.SHARPNESS, 5);
                         diamondSword.enchant(Enchantments.FIRE_ASPECT, 2);
                         diamondSword.enchant(Enchantments.KNOCKBACK, 2);

@@ -3,11 +3,11 @@ package com.pla.annoyingvillagers.entity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.combatbehaviour.AlexJevHookCombat;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
@@ -24,8 +24,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraftforge.network.NetworkHooks;
@@ -39,13 +38,35 @@ import java.util.UUID;
 public class JevEntity extends AVNpc {
     private UUID followTargetUUID;
     private AlexEntity followTarget;
+    private boolean lootTakenByAlex = false;
+    private boolean carryingAlexLoot = false;
 
     public void setFollowTarget(AlexEntity followTarget) {
         this.followTarget = followTarget;
     }
 
+    public AlexEntity getFollowTarget() {
+        return followTarget;
+    }
+
     public void setFollowTargetUUID(UUID followTargetUUID) {
         this.followTargetUUID = followTargetUUID;
+    }
+
+    public boolean isLootTakenByAlex() {
+        return lootTakenByAlex;
+    }
+
+    public void setLootTakenByAlex(boolean lootTakenByAlex) {
+        this.lootTakenByAlex = lootTakenByAlex;
+    }
+
+    public boolean isCarryingAlexLoot() {
+        return carryingAlexLoot;
+    }
+
+    public void setCarryingAlexLoot(boolean carryingAlexLoot) {
+        this.carryingAlexLoot = carryingAlexLoot;
     }
 
     public JevEntity(SpawnEntity spawnEntity, Level level) {
@@ -117,7 +138,32 @@ public class JevEntity extends AVNpc {
 
     @Override
     public void die(@NotNull DamageSource pDamageSource) {
+        if (!this.level().isClientSide && !this.lootTakenByAlex) {
+            AlexJevHookCombat.onJevDeath(this);
+        }
         super.die(pDamageSource);
+    }
+
+    @Override
+    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
+        if (this.lootTakenByAlex) {
+            return;
+        }
+
+        super.dropCustomDeathLoot(source, looting, recentlyHit);
+        this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_GLASSES.get()));
+        this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_PENCIL.get()));
+        this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_BOOK.get()));
+        this.spawnAtLocation(AlexJevHookCombat.createBoundHookGun(AlexJevHookCombat.createJevPickaxe()));
+
+        if (this.carryingAlexLoot) {
+            this.spawnAtLocation(createAlexThunderBladeDrop());
+            this.spawnAtLocation(AlexJevHookCombat.createBoundHookGun(AlexJevHookCombat.createAlexDefaultPickaxe()));
+            this.spawnAtLocation(AlexJevHookCombat.createAlexDefaultPickaxe());
+            this.spawnAtLocation(new ItemStack(Items.GOLDEN_APPLE));
+            this.spawnAtLocation(new ItemStack(Items.ENCHANTED_GOLDEN_APPLE));
+            this.spawnAtLocation(new ItemStack(Items.DIAMOND));
+        }
     }
 
     @Override
@@ -125,7 +171,7 @@ public class JevEntity extends AVNpc {
         super.implementFirstTick(serverLevel);
         this.playSound(
                 AnnoyingVillagersModSounds.JEV_SAY_ON_SPAWN.get(),
-                1.0F, 1.0F
+                0.5F, 1.0F
         );
     }
 
@@ -169,6 +215,8 @@ public class JevEntity extends AVNpc {
         if (followTargetUUID != null) {
             tag.putUUID("FollowTarget", followTargetUUID);
         }
+        tag.putBoolean("LootTakenByAlex", this.lootTakenByAlex);
+        tag.putBoolean("CarryingAlexLoot", this.carryingAlexLoot);
     }
 
     @Override
@@ -177,6 +225,17 @@ public class JevEntity extends AVNpc {
         if (tag.hasUUID("FollowTarget")) {
             followTargetUUID = tag.getUUID("FollowTarget");
         }
+        lootTakenByAlex = tag.getBoolean("LootTakenByAlex");
+        carryingAlexLoot = tag.getBoolean("CarryingAlexLoot");
+    }
+
+    private static ItemStack createAlexThunderBladeDrop() {
+        ItemStack sword = new ItemStack(AnnoyingVillagersModItems.THUNDER_DIAMOND_BLADE.get());
+        sword.enchant(Enchantments.SHARPNESS, 5);
+        sword.enchant(Enchantments.FIRE_ASPECT, 2);
+        sword.enchant(Enchantments.KNOCKBACK, 2);
+        sword.enchant(Enchantments.UNBREAKING, 5);
+        return sword;
     }
 
     public boolean removeWhenFarAway(double d0) {
@@ -200,13 +259,16 @@ public class JevEntity extends AVNpc {
     }
 
     public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        if (this.getGapCooldown() == 0 && this.getHealth() <= ((float) 2/3 * this.getMaxHealth())) {
+        if (this.getGapCooldown() == 0
+                && !this.isHealing()
+                && this.getHealth() - f <= ((float) 2 / 3 * this.getMaxHealth())) {
+            boolean isEnchanted = this.random.nextDouble() <= Math.max(0.25D, this.getPlaceBlockToParryChance());
             if (!this.level().isClientSide) {
-                ItemStack stack = PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.STRONG_HEALING);
-                this.setItemInHand(InteractionHand.MAIN_HAND, stack);
+                this.setItemInHand(InteractionHand.MAIN_HAND,
+                        new ItemStack(isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE));
             }
-            CombatBehaviour.drinkingHealingPotion(this, this.level(), false, f);
             this.setGapCooldown();
+            CombatBehaviour.eatingGoldenApple(this, this.level(), 20.0D, isEnchanted);
         }
         return super.hurt(damageSource, f);
     }
