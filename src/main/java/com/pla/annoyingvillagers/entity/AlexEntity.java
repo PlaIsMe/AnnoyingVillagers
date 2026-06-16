@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import javax.annotation.Nullable;
 
+import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -22,6 +23,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -32,6 +34,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -42,15 +46,40 @@ import java.util.*;
 import java.util.function.Consumer;
 
 
-public class AlexEntity extends AVNpc {
+public class AlexEntity extends AVNpc implements BurstProtectEntity {
     private JevEntity jevToProtect;
     private UUID jevUUID;
     private boolean spawnJev = false;
     private int state = 0;
     private ItemStack currentBoundHook = ItemStack.EMPTY;
     private boolean canDualHookInSecondPhase = false;
-    private boolean carryingJevLoot = false;
-    private boolean lootTakenByJev = false;
+
+    protected float recentDamageTaken = 0.0F;
+    protected int recentHitCounter = 0;
+    @Override
+    public float getRecentDamageTaken() {
+        return recentDamageTaken;
+    }
+
+    @Override
+    public void setRecentDamageTaken(float value) {
+        recentDamageTaken = value;
+    }
+
+    @Override
+    public int getRecentHitCounter() {
+        return recentHitCounter;
+    }
+
+    @Override
+    public void setRecentHitCounter(int value) {
+        recentHitCounter = value;
+    }
+
+    @Override
+    public float getBurstProtectCapRatio() {
+        return 0.15F;
+    }
 
     public void setProtectingJev(JevEntity jev) {
         this.jevToProtect = jev;
@@ -98,22 +127,6 @@ public class AlexEntity extends AVNpc {
         this.canDualHookInSecondPhase = canDualHookInSecondPhase;
     }
 
-    public boolean isCarryingJevLoot() {
-        return carryingJevLoot;
-    }
-
-    public void setCarryingJevLoot(boolean carryingJevLoot) {
-        this.carryingJevLoot = carryingJevLoot;
-    }
-
-    public boolean isLootTakenByJev() {
-        return lootTakenByJev;
-    }
-
-    public void setLootTakenByJev(boolean lootTakenByJev) {
-        this.lootTakenByJev = lootTakenByJev;
-    }
-
     public void ensureHookGunInventory() {
         if (this.level().isClientSide) {
             return;
@@ -126,6 +139,8 @@ public class AlexEntity extends AVNpc {
         if (!syncHookGunInventory()) {
             addItemToInventory(AlexJevHookCombat.createBoundHookGun(this.currentBoundHook));
         }
+
+        updateDualHookUnlockFromInventory();
     }
 
     public AlexEntity(EntityType<AlexEntity> entitytype, Level level) {
@@ -174,8 +189,6 @@ public class AlexEntity extends AVNpc {
             tag.put("CurrentBoundHook", hookTag);
         }
         tag.putBoolean("CanDualHookInSecondPhase", this.canDualHookInSecondPhase);
-        tag.putBoolean("CarryingJevLoot", this.carryingJevLoot);
-        tag.putBoolean("LootTakenByJev", this.lootTakenByJev);
     }
 
     @Override
@@ -192,8 +205,6 @@ public class AlexEntity extends AVNpc {
             currentBoundHook = AlexJevHookCombat.createAlexDefaultPickaxe();
         }
         canDualHookInSecondPhase = tag.getBoolean("CanDualHookInSecondPhase");
-        carryingJevLoot = tag.getBoolean("CarryingJevLoot");
-        lootTakenByJev = tag.getBoolean("LootTakenByJev");
     }
 
     @Override
@@ -253,10 +264,6 @@ public class AlexEntity extends AVNpc {
 
     @Override
     protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        if (this.lootTakenByJev) {
-            return;
-        }
-
         super.dropCustomDeathLoot(source, looting, recentlyHit);
         if (this.level() instanceof ServerLevel serverLevel) {
             final double x = this.getX();
@@ -320,18 +327,8 @@ public class AlexEntity extends AVNpc {
             }
             dropStack.accept(AlexJevHookCombat.createBoundHookGun(this.getCurrentBoundHook()));
             dropStack.accept(this.getCurrentBoundHook());
-            if (this.carryingJevLoot) {
-                dropJevLoot(dropStack);
-            }
             dropArrows.accept(new Random().nextInt(10, 20));
         }
-    }
-
-    private static void dropJevLoot(Consumer<ItemStack> dropStack) {
-        dropStack.accept(new ItemStack(AnnoyingVillagersModItems.JEV_GLASSES.get()));
-        dropStack.accept(new ItemStack(AnnoyingVillagersModItems.JEV_PENCIL.get()));
-        dropStack.accept(new ItemStack(AnnoyingVillagersModItems.JEV_BOOK.get()));
-        dropStack.accept(AlexJevHookCombat.createBoundHookGun(AlexJevHookCombat.createJevPickaxe()));
     }
 
     private void spawnJev() {
@@ -346,6 +343,51 @@ public class AlexEntity extends AVNpc {
             this.setJevUUID(jevEntity.getUUID());
             this.setProtectingJev(jevEntity);
         }
+    }
+
+    @Override
+    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+        if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+            super.actuallyHurt(pDamageSource, pDamageAmount);
+            return;
+        }
+
+        if (this.isInvulnerableTo(pDamageSource)) {
+            return;
+        }
+
+        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
+        if (pDamageAmount <= 0.0F) {
+            return;
+        }
+
+        pDamageAmount = this.getDamageAfterArmorAbsorb(pDamageSource, pDamageAmount);
+        pDamageAmount = this.getDamageAfterMagicAbsorb(pDamageSource, pDamageAmount);
+
+        float finalDamage = Math.max(pDamageAmount - this.getAbsorptionAmount(), 0.0F);
+        float absorbed = pDamageAmount - finalDamage;
+        if (absorbed > 0.0F) {
+            this.setAbsorptionAmount(this.getAbsorptionAmount() - absorbed);
+            if (this.getAbsorptionAmount() < 0.0F) {
+                this.setAbsorptionAmount(0.0F);
+            }
+        }
+
+        finalDamage = ForgeHooks.onLivingDamage(this, pDamageSource, finalDamage);
+        finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
+
+        if (this.level() instanceof ServerLevel serverLevel
+                && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {
+            return;
+        }
+
+        if (finalDamage <= 0.0F) {
+            return;
+        }
+
+        this.getCombatTracker().recordDamage(pDamageSource, finalDamage);
+        this.setHealth(this.getHealth() - finalDamage);
+        this.gameEvent(GameEvent.ENTITY_DAMAGE);
     }
 
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
@@ -378,7 +420,7 @@ public class AlexEntity extends AVNpc {
 
     @Override
     public void die(@NotNull DamageSource damageSource) {
-        if (!this.level().isClientSide && !this.lootTakenByJev) {
+        if (!this.level().isClientSide) {
             AlexJevHookCombat.onAlexDeath(this);
         }
         super.die(damageSource);
@@ -413,6 +455,26 @@ public class AlexEntity extends AVNpc {
         }
     }
 
+    public boolean canStoreInInventory(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return true;
+        }
+
+        for (int i = 0; i < this.getInventory().getContainerSize(); i++) {
+            ItemStack slotStack = this.getInventory().getItem(i);
+            if (slotStack.isEmpty()) {
+                return true;
+            }
+
+            if (ItemStack.isSameItemSameTags(slotStack, stack)
+                    && slotStack.getCount() < slotStack.getMaxStackSize()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private boolean syncHookGunInventory() {
         for (int i = 0; i < this.getInventory().getContainerSize(); i++) {
             ItemStack stack = this.getInventory().getItem(i);
@@ -436,6 +498,23 @@ public class AlexEntity extends AVNpc {
                 return;
             }
         }
+    }
+
+    private void updateDualHookUnlockFromInventory() {
+        if (!this.canDualHookInSecondPhase && countHookGunsInInventory() >= 2) {
+            this.canDualHookInSecondPhase = true;
+        }
+    }
+
+    private int countHookGunsInInventory() {
+        int count = 0;
+        for (int i = 0; i < this.getInventory().getContainerSize(); i++) {
+            ItemStack stack = this.getInventory().getItem(i);
+            if (stack.getItem() instanceof HookGunItem) {
+                count += stack.getCount();
+            }
+        }
+        return count;
     }
 
     public static boolean canSpawn(EntityType<AlexEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {

@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -13,9 +14,11 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -24,9 +27,10 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -35,11 +39,35 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class JevEntity extends AVNpc {
+public class JevEntity extends AVNpc implements BurstProtectEntity {
     private UUID followTargetUUID;
     private AlexEntity followTarget;
-    private boolean lootTakenByAlex = false;
-    private boolean carryingAlexLoot = false;
+    protected float recentDamageTaken = 0.0F;
+    protected int recentHitCounter = 0;
+    @Override
+    public float getRecentDamageTaken() {
+        return recentDamageTaken;
+    }
+
+    @Override
+    public void setRecentDamageTaken(float value) {
+        recentDamageTaken = value;
+    }
+
+    @Override
+    public int getRecentHitCounter() {
+        return recentHitCounter;
+    }
+
+    @Override
+    public void setRecentHitCounter(int value) {
+        recentHitCounter = value;
+    }
+
+    @Override
+    public float getBurstProtectCapRatio() {
+        return 0.15F;
+    }
 
     public void setFollowTarget(AlexEntity followTarget) {
         this.followTarget = followTarget;
@@ -51,22 +79,6 @@ public class JevEntity extends AVNpc {
 
     public void setFollowTargetUUID(UUID followTargetUUID) {
         this.followTargetUUID = followTargetUUID;
-    }
-
-    public boolean isLootTakenByAlex() {
-        return lootTakenByAlex;
-    }
-
-    public void setLootTakenByAlex(boolean lootTakenByAlex) {
-        this.lootTakenByAlex = lootTakenByAlex;
-    }
-
-    public boolean isCarryingAlexLoot() {
-        return carryingAlexLoot;
-    }
-
-    public void setCarryingAlexLoot(boolean carryingAlexLoot) {
-        this.carryingAlexLoot = carryingAlexLoot;
     }
 
     public JevEntity(SpawnEntity spawnEntity, Level level) {
@@ -128,6 +140,51 @@ public class JevEntity extends AVNpc {
     }
 
     @Override
+    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+        if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+            super.actuallyHurt(pDamageSource, pDamageAmount);
+            return;
+        }
+
+        if (this.isInvulnerableTo(pDamageSource)) {
+            return;
+        }
+
+        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
+        if (pDamageAmount <= 0.0F) {
+            return;
+        }
+
+        pDamageAmount = this.getDamageAfterArmorAbsorb(pDamageSource, pDamageAmount);
+        pDamageAmount = this.getDamageAfterMagicAbsorb(pDamageSource, pDamageAmount);
+
+        float finalDamage = Math.max(pDamageAmount - this.getAbsorptionAmount(), 0.0F);
+        float absorbed = pDamageAmount - finalDamage;
+        if (absorbed > 0.0F) {
+            this.setAbsorptionAmount(this.getAbsorptionAmount() - absorbed);
+            if (this.getAbsorptionAmount() < 0.0F) {
+                this.setAbsorptionAmount(0.0F);
+            }
+        }
+
+        finalDamage = ForgeHooks.onLivingDamage(this, pDamageSource, finalDamage);
+        finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
+
+        if (this.level() instanceof ServerLevel serverLevel
+                && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {
+            return;
+        }
+
+        if (finalDamage <= 0.0F) {
+            return;
+        }
+
+        this.getCombatTracker().recordDamage(pDamageSource, finalDamage);
+        this.setHealth(this.getHealth() - finalDamage);
+        this.gameEvent(GameEvent.ENTITY_DAMAGE);
+    }
+
+    @Override
     public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
         SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
         TeamUtil.addOrJoinTeam(this, "alex");
@@ -138,7 +195,7 @@ public class JevEntity extends AVNpc {
 
     @Override
     public void die(@NotNull DamageSource pDamageSource) {
-        if (!this.level().isClientSide && !this.lootTakenByAlex) {
+        if (!this.level().isClientSide) {
             AlexJevHookCombat.onJevDeath(this);
         }
         super.die(pDamageSource);
@@ -146,24 +203,12 @@ public class JevEntity extends AVNpc {
 
     @Override
     protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        if (this.lootTakenByAlex) {
-            return;
-        }
-
         super.dropCustomDeathLoot(source, looting, recentlyHit);
         this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_GLASSES.get()));
         this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_PENCIL.get()));
         this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_BOOK.get()));
-        this.spawnAtLocation(AlexJevHookCombat.createBoundHookGun(AlexJevHookCombat.createJevPickaxe()));
-
-        if (this.carryingAlexLoot) {
-            this.spawnAtLocation(createAlexThunderBladeDrop());
-            this.spawnAtLocation(AlexJevHookCombat.createBoundHookGun(AlexJevHookCombat.createAlexDefaultPickaxe()));
-            this.spawnAtLocation(AlexJevHookCombat.createAlexDefaultPickaxe());
-            this.spawnAtLocation(new ItemStack(Items.GOLDEN_APPLE));
-            this.spawnAtLocation(new ItemStack(Items.ENCHANTED_GOLDEN_APPLE));
-            this.spawnAtLocation(new ItemStack(Items.DIAMOND));
-        }
+        this.dropHookGunForAlex();
+        this.dropRandomCombatSupplies();
     }
 
     @Override
@@ -215,8 +260,6 @@ public class JevEntity extends AVNpc {
         if (followTargetUUID != null) {
             tag.putUUID("FollowTarget", followTargetUUID);
         }
-        tag.putBoolean("LootTakenByAlex", this.lootTakenByAlex);
-        tag.putBoolean("CarryingAlexLoot", this.carryingAlexLoot);
     }
 
     @Override
@@ -225,17 +268,59 @@ public class JevEntity extends AVNpc {
         if (tag.hasUUID("FollowTarget")) {
             followTargetUUID = tag.getUUID("FollowTarget");
         }
-        lootTakenByAlex = tag.getBoolean("LootTakenByAlex");
-        carryingAlexLoot = tag.getBoolean("CarryingAlexLoot");
     }
 
-    private static ItemStack createAlexThunderBladeDrop() {
-        ItemStack sword = new ItemStack(AnnoyingVillagersModItems.THUNDER_DIAMOND_BLADE.get());
-        sword.enchant(Enchantments.SHARPNESS, 5);
-        sword.enchant(Enchantments.FIRE_ASPECT, 2);
-        sword.enchant(Enchantments.KNOCKBACK, 2);
-        sword.enchant(Enchantments.UNBREAKING, 5);
-        return sword;
+    private void dropHookGunForAlex() {
+        ItemStack hookGun = AlexJevHookCombat.createBoundHookGun(AlexJevHookCombat.createJevPickaxe());
+        AlexEntity alex = this.followTarget != null && this.followTarget.isAlive() ? this.followTarget : null;
+        if (alex != null && !alex.canStoreInInventory(hookGun)) {
+            alex.setCanDualHookInSecondPhase(true);
+            return;
+        }
+
+        this.spawnAtLocation(hookGun);
+    }
+
+    private void dropRandomCombatSupplies() {
+        RandomSource random = this.getRandom();
+
+        int blockRolls = 3 + random.nextInt(5);
+        for (int i = 0; i < blockRolls; i++) {
+            if (random.nextFloat() < 0.82F) {
+                this.spawnAtLocation(withRandomCount(AlexJevHookCombat.createRandomJevLootBlock(random), 2, 12, random));
+            }
+        }
+
+        int plantRolls = 3 + random.nextInt(5);
+        for (int i = 0; i < plantRolls; i++) {
+            if (random.nextFloat() < 0.86F) {
+                this.spawnAtLocation(withRandomCount(AlexJevHookCombat.createRandomJevPlantLoot(random), 1, 8, random));
+            }
+        }
+
+        int foodRolls = 2 + random.nextInt(5);
+        for (int i = 0; i < foodRolls; i++) {
+            if (random.nextFloat() < 0.84F) {
+                this.spawnAtLocation(withRandomCount(AlexJevHookCombat.createRandomJevLootFood(random), 1, 6, random));
+            }
+        }
+
+        int potionRolls = 2 + random.nextInt(4);
+        for (int i = 0; i < potionRolls; i++) {
+            if (random.nextFloat() < 0.78F) {
+                this.spawnAtLocation(AlexJevHookCombat.createRandomJevLootPotion(random));
+            }
+        }
+    }
+
+    private static ItemStack withRandomCount(ItemStack stack, int minCount, int randomCount, RandomSource random) {
+        if (stack.isEmpty()) {
+            return stack;
+        }
+
+        int count = minCount + random.nextInt(randomCount);
+        stack.setCount(Math.min(count, stack.getMaxStackSize()));
+        return stack;
     }
 
     public boolean removeWhenFarAway(double d0) {

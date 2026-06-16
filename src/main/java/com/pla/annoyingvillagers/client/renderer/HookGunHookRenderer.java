@@ -31,7 +31,7 @@ import org.joml.Matrix4f;
  */
 public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
     private static final ResourceLocation ROPE_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entity/hook_gun_rope.png");
+            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/hook_gun_rope.png");
     private static final RenderType ROPE_RENDER = RenderType.entitySolid(ROPE_TEXTURE);
 
     private final EntityRendererProvider.Context context;

@@ -64,13 +64,13 @@ public class CryingObsidianBlock extends HerobrineObsidianBlock implements Entit
     @Override
     public void customTickSound(ServerLevel serverLevel, BlockPos blockPos) {
         super.customTickSound(serverLevel, blockPos);
-        serverLevel.playSound(
-                null,
-                blockPos.getX(), blockPos.getY(), blockPos.getZ(),
-                SoundEvents.STONE_BREAK,
-                SoundSource.BLOCKS,
-                1.0F, 1.0F
-        );
+//        serverLevel.playSound(
+//                null,
+//                blockPos.getX(), blockPos.getY(), blockPos.getZ(),
+//                SoundEvents.STONE_BREAK,
+//                SoundSource.BLOCKS,
+//                1.0F, 1.0F
+//        );
     }
 
     @Override
@@ -90,18 +90,6 @@ public class CryingObsidianBlock extends HerobrineObsidianBlock implements Entit
                 SoundSource.BLOCKS,
                 0.5F, 1.0F
         );
-        new DelayedTask(new Random().nextInt(5, 15)) {
-            @Override
-            public void run() {
-                serverLevel.playSound(
-                        null,
-                        blockPos.getX(), blockPos.getY(), blockPos.getZ(),
-                        AnnoyingVillagersModSounds.POP.get(),
-                        SoundSource.BLOCKS,
-                        0.5F, 1.0F
-                );
-            }
-        };
     }
 
     @Override

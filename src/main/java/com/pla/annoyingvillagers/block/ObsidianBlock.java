@@ -5,7 +5,6 @@ import java.util.*;
 import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.skill.ObsidianWeaponSkill;
 import com.pla.annoyingvillagers.task.DelayedTask;
@@ -14,7 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -31,7 +29,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.util.ForgeSoundType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.skill.SkillContainer;
@@ -71,13 +68,13 @@ public class ObsidianBlock extends HerobrineObsidianBlock implements EntityBlock
     @Override
     public void customTickSound(ServerLevel serverLevel, BlockPos blockPos) {
         super.customTickSound(serverLevel, blockPos);
-        serverLevel.playSound(
-                null,
-                blockPos.getX(), blockPos.getY(), blockPos.getZ(),
-                SoundEvents.STONE_BREAK,
-                SoundSource.BLOCKS,
-                1.0F, 1.0F
-        );
+//        serverLevel.playSound(
+//                null,
+//                blockPos.getX(), blockPos.getY(), blockPos.getZ(),
+//                SoundEvents.STONE_BREAK,
+//                SoundSource.BLOCKS,
+//                1.0F, 1.0F
+//        );
     }
 
     @Override
@@ -97,18 +94,6 @@ public class ObsidianBlock extends HerobrineObsidianBlock implements EntityBlock
                 SoundSource.BLOCKS,
                 0.5F, 1.0F
         );
-        new DelayedTask(new Random().nextInt(5, 15)) {
-            @Override
-            public void run() {
-                serverLevel.playSound(
-                        null,
-                        blockPos.getX(), blockPos.getY(), blockPos.getZ(),
-                        AnnoyingVillagersModSounds.POP.get(),
-                        SoundSource.BLOCKS,
-                        1.0F, 1.0F
-                );
-            }
-        };
     }
 
     public void increaseSkillPoint(Entity entity, float value) {

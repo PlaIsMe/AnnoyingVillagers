@@ -12,6 +12,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
@@ -187,6 +189,15 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
             return;
         }
 
+        BlockHitResult boneMealSaplingHit = this.getBoneMealSaplingOutlineHit();
+        if (boneMealSaplingHit != null && !ForgeEventFactory.onProjectileImpact(this, boneMealSaplingHit)) {
+            this.onHit(boneMealSaplingHit);
+        }
+
+        if (this.isRemoved() || this.isAttached() || this.isReturning()) {
+            return;
+        }
+
         HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
         if (hitResult.getType() != HitResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, hitResult)) {
             this.onHit(hitResult);
@@ -230,6 +241,31 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         BlockPos nextPos = BlockPos.containing(end);
         if (this.isSourceFluid(nextPos)) {
             return new BlockHitResult(end, Direction.UP, nextPos, false);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private BlockHitResult getBoneMealSaplingOutlineHit() {
+        if (!(this.getBoundItem().getItem() instanceof BoneMealItem)) {
+            return null;
+        }
+
+        Vec3 start = this.position();
+        Vec3 end = start.add(this.getDeltaMovement());
+        HitResult hitResult = this.level().clip(new ClipContext(
+                start,
+                end,
+                ClipContext.Block.OUTLINE,
+                ClipContext.Fluid.NONE,
+                this
+        ));
+
+        if (hitResult instanceof BlockHitResult blockHitResult
+                && hitResult.getType() != HitResult.Type.MISS
+                && this.level().getBlockState(blockHitResult.getBlockPos()).is(BlockTags.SAPLINGS)) {
+            return blockHitResult;
         }
 
         return null;

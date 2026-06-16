@@ -102,8 +102,8 @@ public class CombatCommon {
     private static final int NPC_LAVA_BUCKET_ACTION_DELAY = 6;
     private static final int NPC_LAVA_BUCKET_PICKUP_DELAY = 40;
     private static final int NPC_LAVA_BUCKET_RESTORE_DELAY = 4;
-    private static final int AVNPC_WATER_BUCKET_MIN_COOLDOWN = 60;
-    private static final int AVNPC_WATER_BUCKET_RANDOM_COOLDOWN = 60;
+    private static final int AVNPC_WATER_BUCKET_MIN_COOLDOWN = 220;
+    private static final int AVNPC_WATER_BUCKET_RANDOM_COOLDOWN = 180;
     private static final int AVNPC_WATER_BUCKET_ACTION_DELAY = 4;
     private static final int AVNPC_WATER_BUCKET_PICKUP_DELAY = 40;
     private static final int AVNPC_WATER_BUCKET_RESTORE_DELAY = 4;

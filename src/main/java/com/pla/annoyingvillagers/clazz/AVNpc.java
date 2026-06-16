@@ -60,6 +60,9 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private static final float VILLAGER_WEAPON_DROP_CHANCE = 0.22F;
     private static final float VILLAGER_OFFHAND_EQUIPMENT_DROP_CHANCE = 0.14F;
     private static final float VILLAGER_EQUIPMENT_LOOTING_BONUS = 0.025F;
+    private static final float AVNPC_WATER_BUCKET_DROP_CHANCE = 0.20F;
+    private static final float VILLAGER_GENERAL_LAVA_BUCKET_DROP_CHANCE = 0.24F;
+    private static final float UTILITY_BUCKET_LOOTING_BONUS = 0.04F;
 
     private final SimpleContainer inventory = new SimpleContainer(27);
     private int gapCooldown;
@@ -393,6 +396,22 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
 
         this.dropVillagerCombatEquipment(looting);
+        this.dropUtilityBucketLoot(looting);
+    }
+
+    private void dropUtilityBucketLoot(int looting) {
+        if (this.rollUtilityBucketDrop(AVNPC_WATER_BUCKET_DROP_CHANCE, looting)) {
+            this.spawnAtLocation(new ItemStack(Items.WATER_BUCKET));
+        }
+
+        if (this.isVillagerGeneral() && this.rollUtilityBucketDrop(VILLAGER_GENERAL_LAVA_BUCKET_DROP_CHANCE, looting)) {
+            this.spawnAtLocation(new ItemStack(Items.LAVA_BUCKET));
+        }
+    }
+
+    private boolean rollUtilityBucketDrop(float baseChance, int looting) {
+        float chance = Math.min(0.75F, baseChance + looting * UTILITY_BUCKET_LOOTING_BONUS);
+        return this.random.nextFloat() <= chance;
     }
 
     private void dropVillagerCombatEquipment(int looting) {
@@ -410,11 +429,15 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     private boolean shouldDropVillagerCombatEquipment() {
+        return this.isVillagerGeneral()
+                || this instanceof VillagerScoutCaptainEntity;
+    }
+
+    private boolean isVillagerGeneral() {
         return this instanceof BlueVillagerGeneralEntity
                 || this instanceof GreenVillagerGeneralEntity
                 || this instanceof RedVillagerGeneralEntity
-                || this instanceof PurpleVillagerGeneralEntity
-                || this instanceof VillagerScoutCaptainEntity;
+                || this instanceof PurpleVillagerGeneralEntity;
     }
 
     private void tryDropVillagerEquipmentSlot(EquipmentSlot slot, float baseChance, int looting) {

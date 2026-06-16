@@ -272,6 +272,33 @@ public class AVAnimations {
     }
 
     static class ReuseableEvents {
+        private static boolean isShadowObsidianMob(LivingEntity livingEntity) {
+            return livingEntity instanceof ShadowHerobrineEntity
+                    || livingEntity instanceof ShadowHerobrineCloneEntity
+                    || livingEntity instanceof LowShadowHerobrineCloneEntity
+                    || livingEntity instanceof Herobrine7Entity
+                    || livingEntity instanceof ArmoredHerobrineEntity;
+        }
+
+        private static BlockState shadowObsidianBlock(LivingEntity livingEntity) {
+            return AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get()
+                    .defaultBlockState()
+                    .setValue(ShadowObsidianBlock.FROM_PLAYER, livingEntity instanceof Player);
+        }
+
+        private static BlockState shadowObsidianMiddlePillar(LivingEntity livingEntity) {
+            return AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get()
+                    .defaultBlockState()
+                    .setValue(ObsidianBlock.FROM_PLAYER, livingEntity instanceof Player)
+                    .setValue(BlockStateProperties.HORIZONTAL_FACING, livingEntity.getDirection());
+        }
+
+        private static BlockState obsidianBlock(LivingEntity livingEntity) {
+            return AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get()
+                    .defaultBlockState()
+                    .setValue(ObsidianBlock.FROM_PLAYER, livingEntity instanceof Player);
+        }
+
         public static final AnimationEvent.E0 FAST_SPINNING =
                 (livingentitypatch, staticAnimation, aobject) -> livingentitypatch.getOriginal().level().playSound((Player) livingentitypatch.getOriginal(), livingentitypatch.getOriginal(), EpicFightSounds.WHOOSH.get(), SoundSource.NEUTRAL, 0.5F, 1.1F - (new Random().nextFloat() - 0.5F) * 0.2F);
         public static final AnimationEvent.E0 TRIDENT_SPINNING =
@@ -832,10 +859,13 @@ public class AVAnimations {
                                     .defaultBlockState()
                                     .setValue(ObsidianBlock.FROM_PLAYER, livingEntity instanceof Player)
                                     .setValue(BlockStateProperties.HORIZONTAL_FACING, livingEntity.getDirection());
+                        } else if (weapon instanceof ShadowObsidianSwordItem
+                                || livingEntity.getOffhandItem().getItem() instanceof ShadowObsidianSwordItem) {
+                            obsidian = shadowObsidianMiddlePillar(livingEntity);
+                        } else if (isShadowObsidianMob(livingEntity)) {
+                            obsidian = shadowObsidianBlock(livingEntity);
                         } else {
-                            obsidian = AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get()
-                                    .defaultBlockState()
-                                    .setValue(ObsidianBlock.FROM_PLAYER, livingEntity instanceof Player);
+                            obsidian = obsidianBlock(livingEntity);
                         }
                         HerobrineUtil.summonObsidianSmallCross(serverLevel, livingEntity, obsidian);
                     }
@@ -855,10 +885,10 @@ public class AVAnimations {
                             obsidian = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get()
                                     .defaultBlockState()
                                     .setValue(ObsidianBlock.FROM_PLAYER, livingEntity instanceof Player);
+                        } else if (isShadowObsidianMob(livingEntity)) {
+                            obsidian = shadowObsidianBlock(livingEntity);
                         } else {
-                            obsidian = AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get()
-                                    .defaultBlockState()
-                                    .setValue(ObsidianBlock.FROM_PLAYER, livingEntity instanceof Player);
+                            obsidian = obsidianBlock(livingEntity);
                         }
                         LivingEntity attacker = livingEntityPatch.getOriginal();
                         Vec3 to = attacker.getEyePosition().add(attacker.getLookAngle().scale(16.0));
@@ -896,10 +926,10 @@ public class AVAnimations {
                             obsidian = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get()
                                     .defaultBlockState()
                                     .setValue(ObsidianBlock.FROM_PLAYER, livingEntity instanceof Player);
+                        } else if (isShadowObsidianMob(livingEntity)) {
+                            obsidian = shadowObsidianBlock(livingEntity);
                         } else {
-                            obsidian = AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get()
-                                    .defaultBlockState()
-                                    .setValue(ObsidianBlock.FROM_PLAYER, livingEntity instanceof Player);
+                            obsidian = obsidianBlock(livingEntity);
                         }
                         LivingEntity attacker = livingEntityPatch.getOriginal();
                         Vec3 to = attacker.getEyePosition().add(attacker.getLookAngle().scale(16.0));

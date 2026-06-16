@@ -101,13 +101,13 @@ public class ShadowObsidianMiddlePillarBlock extends HerobrineObsidianBlock impl
     @Override
     public void customTickSound(ServerLevel serverLevel, BlockPos blockPos) {
         super.customTickSound(serverLevel, blockPos);
-        serverLevel.playSound(
-                null,
-                blockPos.getX(), blockPos.getY(), blockPos.getZ(),
-                AnnoyingVillagersModSounds.OB_PLACE.get(),
-                SoundSource.BLOCKS,
-                0.5F, 1.0F
-        );
+//        serverLevel.playSound(
+//                null,
+//                blockPos.getX(), blockPos.getY(), blockPos.getZ(),
+//                AnnoyingVillagersModSounds.OB_PLACE.get(),
+//                SoundSource.BLOCKS,
+//                0.5F, 1.0F
+//        );
     }
 
     public void increaseSkillPoint(Entity entity, float value) {

@@ -98,7 +98,7 @@ All required upstream notices must be preserved.
 - com/pla/annoyingvillagers/client/renderer/HookGunCrosshairRenderer.java
 - assets/annoyingvillagers/models/item/hook_gun*.json
 - assets/annoyingvillagers/textures/item/hook_gun*.png
-- assets/annoyingvillagers/textures/entity/hook_gun_rope.png
+- assets/annoyingvillagers/textures/entities/hook_gun_rope.png
 
 ---
 

@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import javax.annotation.Nullable;
 
+import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -21,6 +22,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -33,6 +35,8 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -44,12 +48,39 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class SteveEntity extends AVNpc {
+public class SteveEntity extends AVNpc implements BurstProtectEntity {
     // 0: normal
     // 1: second
     private int state = 0;
     private int swapWeaponCooldown;
     private boolean sayLegendary = false;
+
+    protected float recentDamageTaken = 0.0F;
+    protected int recentHitCounter = 0;
+    @Override
+    public float getRecentDamageTaken() {
+        return recentDamageTaken;
+    }
+
+    @Override
+    public void setRecentDamageTaken(float value) {
+        recentDamageTaken = value;
+    }
+
+    @Override
+    public int getRecentHitCounter() {
+        return recentHitCounter;
+    }
+
+    @Override
+    public void setRecentHitCounter(int value) {
+        recentHitCounter = value;
+    }
+
+    @Override
+    public float getBurstProtectCapRatio() {
+        return 0.15F;
+    }
 
     public int getState() {
         return state;
@@ -166,7 +197,7 @@ public class SteveEntity extends AVNpc {
             } else {
                 this.playSound(
                         AnnoyingVillagersModSounds.STEVE_SAY_ON_DEATH.get(),
-                        1.0F, 1.0F
+                        0.5F, 1.0F
                 );
             }
         }
@@ -454,7 +485,7 @@ public class SteveEntity extends AVNpc {
         super.implementFirstTick(serverLevel);
         this.playSound(
                 AnnoyingVillagersModSounds.STEVE_SAY_ON_SPAWN.get(),
-                1.0F, 1.0F
+                0.5F, 1.0F
         );
     }
 
@@ -466,7 +497,7 @@ public class SteveEntity extends AVNpc {
                 rollItem();
                 this.playSound(
                         AnnoyingVillagersModSounds.STEVE_SAY_WHAT.get(),
-                        1.0F, 1.0F
+                        0.5F, 1.0F
                 );
             }
             if (this.getState() != 2 && this.getTarget() == null && !this.getMainHandItem().isEmpty()) {
@@ -486,6 +517,51 @@ public class SteveEntity extends AVNpc {
             }
             if (swapWeaponCooldown > 0) swapWeaponCooldown--;
         }
+    }
+
+    @Override
+    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+        if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+            super.actuallyHurt(pDamageSource, pDamageAmount);
+            return;
+        }
+
+        if (this.isInvulnerableTo(pDamageSource)) {
+            return;
+        }
+
+        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
+        if (pDamageAmount <= 0.0F) {
+            return;
+        }
+
+        pDamageAmount = this.getDamageAfterArmorAbsorb(pDamageSource, pDamageAmount);
+        pDamageAmount = this.getDamageAfterMagicAbsorb(pDamageSource, pDamageAmount);
+
+        float finalDamage = Math.max(pDamageAmount - this.getAbsorptionAmount(), 0.0F);
+        float absorbed = pDamageAmount - finalDamage;
+        if (absorbed > 0.0F) {
+            this.setAbsorptionAmount(this.getAbsorptionAmount() - absorbed);
+            if (this.getAbsorptionAmount() < 0.0F) {
+                this.setAbsorptionAmount(0.0F);
+            }
+        }
+
+        finalDamage = ForgeHooks.onLivingDamage(this, pDamageSource, finalDamage);
+        finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
+
+        if (this.level() instanceof ServerLevel serverLevel
+                && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {
+            return;
+        }
+
+        if (finalDamage <= 0.0F) {
+            return;
+        }
+
+        this.getCombatTracker().recordDamage(pDamageSource, finalDamage);
+        this.setHealth(this.getHealth() - finalDamage);
+        this.gameEvent(GameEvent.ENTITY_DAMAGE);
     }
 
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {

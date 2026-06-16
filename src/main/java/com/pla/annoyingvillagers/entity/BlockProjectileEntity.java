@@ -1,11 +1,9 @@
 package com.pla.annoyingvillagers.entity;
 
-import com.pla.annoyingvillagers.block.ObsidianBlock;
-import com.pla.annoyingvillagers.block.ShadowObsidianLongPillarBlock;
-import com.pla.annoyingvillagers.block.ShadowObsidianBlock;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianLongPillarBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
+import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -19,6 +17,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
@@ -26,6 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.NotNull;
@@ -168,13 +168,26 @@ public class BlockProjectileEntity extends ThrowableProjectile {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+
+        if (!level().isClientSide && !this.isRemoved() && !this.notReadyForShoot) {
+            BlockPos pos = this.blockPosition();
+            if (tryPlaceInLiquid(pos)) {
+                this.discard();
+            }
+        }
+    }
+
+    @Override
     protected void onHitBlock(@NotNull BlockHitResult result) {
         if (this.notReadyForShoot) return;
         BlockPos pos = result.getBlockPos();
         BlockState hitState = level().getBlockState(pos);
 
         if (!level().isClientSide) {
-            if (!hitState.getFluidState().isEmpty()) {
+            if (tryPlaceInLiquid(pos)) {
+                this.discard();
                 return;
             }
 
@@ -183,49 +196,93 @@ public class BlockProjectileEntity extends ThrowableProjectile {
             }
 
             BlockPos placePos = pos.relative(result.getDirection());
-            if (level().getBlockState(placePos).isAir() ||
-                    !level().getFluidState(placePos).isEmpty() ||
-                    level().getBlockState(placePos).canBeReplaced()) {
-                UUID owner = this.ownerUUID;
-
-                BlockState placeState;
-                if (getCarriedBlock().is(AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_SHORT_PILLAR.get())
-                        || getCarriedBlock().is(AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get())) {
-                    placeState = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState();
-                    if (owner != null && placeState.hasProperty(ShadowObsidianLongPillarBlock.FROM_PLAYER)) {
-                        placeState = placeState.setValue(ShadowObsidianLongPillarBlock.FROM_PLAYER, true);
-                    }
-                } else if (getCarriedBlock().is(AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get())) {
-                    placeState = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState();
-                    if (owner != null && placeState.hasProperty(ShadowObsidianBlock.FROM_PLAYER)) {
-                        placeState = placeState.setValue(ShadowObsidianBlock.FROM_PLAYER, true);
-                    }
-                } else if (getCarriedBlock().is(AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get())) {
-                    placeState = AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState();
-                    if (owner != null && placeState.hasProperty(ObsidianBlock.FROM_PLAYER)) {
-                        placeState = placeState.setValue(ObsidianBlock.FROM_PLAYER, true);
-                    }
-                } else {
-                    placeState = getCarriedBlock();
-                }
-
-                level().setBlockAndUpdate(placePos, placeState);
-                BlockEntity blockEntity = level().getBlockEntity(placePos);
-                if (owner != null) {
-                    if (blockEntity instanceof ObsidianBlockEntity obsidianBlockEntity) {
-                        obsidianBlockEntity.setOwner(owner);
-                        blockEntity.setChanged();
-                    } else if (blockEntity instanceof ShadowObsidianBlockEntity shadowObsidianBlockEntity) {
-                        shadowObsidianBlockEntity.setOwner(owner);
-                        blockEntity.setChanged();
-                    } else if (blockEntity instanceof ShadowObsidianLongPillarBlockEntity shadowObsidianLongPillarBlockEntity) {
-                        shadowObsidianLongPillarBlockEntity.setOwner(owner);
-                        blockEntity.setChanged();
-                    }
-                }
+            if (canPlaceAt(placePos)) {
+                placeCarriedBlock(placePos, getReplaceByLiquid(level().getFluidState(placePos)));
             }
             this.discard();
         }
+    }
+
+    private boolean tryPlaceInLiquid(BlockPos pos) {
+        FluidState fluidState = level().getFluidState(pos);
+        int replaceByLiquid = getReplaceByLiquid(fluidState);
+        if (replaceByLiquid == 0) {
+            return false;
+        }
+
+        if (!level().getBlockState(pos).canBeReplaced()) {
+            return false;
+        }
+
+        placeCarriedBlock(pos, replaceByLiquid);
+        return true;
+    }
+
+    private boolean canPlaceAt(BlockPos pos) {
+        BlockState state = level().getBlockState(pos);
+        FluidState fluidState = level().getFluidState(pos);
+        if (!fluidState.isEmpty()) {
+            return state.canBeReplaced() && getReplaceByLiquid(fluidState) != 0;
+        }
+        return state.isAir() || state.canBeReplaced();
+    }
+
+    private int getReplaceByLiquid(FluidState fluidState) {
+        if (fluidState.is(FluidTags.WATER)) {
+            return 1;
+        }
+        if (fluidState.is(FluidTags.LAVA)) {
+            return 2;
+        }
+        return 0;
+    }
+
+    private void placeCarriedBlock(BlockPos placePos, int replaceByLiquid) {
+        UUID owner = this.ownerUUID;
+        BlockState placeState = getPlacementState(owner, replaceByLiquid);
+
+        level().setBlockAndUpdate(placePos, placeState);
+
+        BlockEntity blockEntity = level().getBlockEntity(placePos);
+        if (owner != null && blockEntity != null) {
+            setBlockEntityOwner(blockEntity, owner);
+        }
+    }
+
+    private BlockState getPlacementState(UUID owner, int replaceByLiquid) {
+        BlockState placeState;
+        if (getCarriedBlock().is(AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_SHORT_PILLAR.get())
+                || getCarriedBlock().is(AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get())) {
+            placeState = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState();
+        } else if (getCarriedBlock().is(AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get())) {
+            placeState = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState();
+        } else if (getCarriedBlock().is(AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get())) {
+            placeState = AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState();
+        } else {
+            placeState = getCarriedBlock();
+        }
+
+        if (owner != null && placeState.hasProperty(HerobrineObsidianBlock.FROM_PLAYER)) {
+            placeState = placeState.setValue(HerobrineObsidianBlock.FROM_PLAYER, true);
+        }
+
+        if (replaceByLiquid != 0 && placeState.hasProperty(HerobrineObsidianBlock.REPLACE_BY_LIQUID)) {
+            placeState = placeState.setValue(HerobrineObsidianBlock.REPLACE_BY_LIQUID, replaceByLiquid);
+        }
+
+        return placeState;
+    }
+
+    private void setBlockEntityOwner(BlockEntity blockEntity, UUID owner) {
+        if (blockEntity instanceof ObsidianBlockEntity obsidianBlockEntity) {
+            obsidianBlockEntity.setOwner(owner);
+        } else if (blockEntity instanceof ShadowObsidianBlockEntity shadowObsidianBlockEntity) {
+            shadowObsidianBlockEntity.setOwner(owner);
+        } else if (blockEntity instanceof ShadowObsidianLongPillarBlockEntity shadowObsidianLongPillarBlockEntity) {
+            shadowObsidianLongPillarBlockEntity.setOwner(owner);
+        }
+
+        blockEntity.setChanged();
     }
 
     public BlockState getCarriedBlock() {

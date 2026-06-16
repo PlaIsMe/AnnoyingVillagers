@@ -5,10 +5,12 @@ import java.util.*;
 import com.pla.annoyingvillagers.blockentity.*;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -145,6 +147,13 @@ public class HerobrineObsidianBlock extends Block {
         };
 
         serverLevel.setBlock(blockPos, replacement, 3);
+        serverLevel.playSound(
+                null,
+                blockPos.getX(), blockPos.getY(), blockPos.getZ(),
+                AnnoyingVillagersModSounds.POP.get(),
+                SoundSource.BLOCKS,
+                0.5F, 1.0F
+        );
     }
 
     private void runEntityInsideLogic(@NotNull BlockState blockState, @NotNull ServerLevel serverLevel,

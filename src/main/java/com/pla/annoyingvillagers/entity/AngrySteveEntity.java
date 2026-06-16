@@ -337,7 +337,7 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         super.implementFirstTick(serverLevel);
         this.playSound(
                 AnnoyingVillagersModSounds.ANGRY_STEVE_SAY_ON_SPAWN.get(),
-                1.0F, 1.0F
+                0.5F, 1.0F
         );
         if (this.getLivingEntityPatch() != null) {
             this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
