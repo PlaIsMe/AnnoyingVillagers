@@ -135,7 +135,7 @@ public class DemoniacVoltageReaverItem extends SwordItem {
         UUID attackerUuid = attacker.getUUID();
 
         for (PortalEntity portal : level.getEntitiesOfClass(PortalEntity.class, attacker.getBoundingBox().inflate(PORTAL_TARGET_SEARCH_RADIUS))) {
-            if (portal.getLinkedPortalUUID() == null || portal.isRemoved()) {
+            if (portal.isRemoved()) {
                 continue;
             }
 

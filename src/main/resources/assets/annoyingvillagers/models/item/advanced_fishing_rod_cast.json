@@ -2,8 +2,8 @@
 	"gui_light": "front",
 	"texture_size": [32, 32],
 	"textures": {
-		"0": "annoyingvillagers:item/advanced_fishing_rod/rod",
-		"particle": "annoyingvillagers:item/advanced_fishing_rod/rod"
+		"0": "annoyingvillagers:item/advanced_fishing_rod",
+		"particle": "annoyingvillagers:item/advanced_fishing_rod"
 	},
 	"elements": [
 		{

@@ -62,6 +62,19 @@ public class SpecialAttackOnKeyPressedEvent {
         };
     }
 
+    private static void playTransporterFragmentAnimation(
+            LivingEntityPatch<?> livingEntityPatch,
+            TransporterFragmentItem.UseMode useMode
+    ) {
+        switch (useMode) {
+            case BOTH_HANDS -> livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            case OFF_HAND -> livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+            case MAIN_HAND -> livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
+            case NONE -> {
+            }
+        }
+    }
+
     public static void execute(LevelAccessor world, Entity entity) {
         if (entity == null) return;
 
@@ -78,6 +91,16 @@ public class SpecialAttackOnKeyPressedEvent {
                 && HookGunItem.tryBindFromSpecialAttack(player)) {
             playHookGunBindAnimationAfterHandRefresh(player);
             return;
+        }
+
+        if (entity instanceof Player player && !player.level().isClientSide()) {
+            TransporterFragmentItem.UseResult transporterUseResult = TransporterFragmentItem.tryUseSpecialAttack(player);
+            if (transporterUseResult.consumed()) {
+                if (transporterUseResult.activated()) {
+                    playTransporterFragmentAnimation(livingEntityPatch, transporterUseResult.mode());
+                }
+                return;
+            }
         }
 
         if (entity instanceof Player player) {

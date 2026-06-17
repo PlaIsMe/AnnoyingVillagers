@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static final ResourceLocation BASE_MODEL =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "item/hook_gun/body");
+            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "item/hook_gun_body");
     private static final ThreadLocal<RenderedHandContext> RENDERED_HAND_CONTEXT = new ThreadLocal<>();
 
     public static HookGunItemRenderer instance;

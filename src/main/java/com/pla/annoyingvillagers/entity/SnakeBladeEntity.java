@@ -299,10 +299,8 @@ public class SnakeBladeEntity extends Entity {
         Entity currentTarget = getToEntity();
         Vec3 targetPos = null;
 
-        if (currentTarget instanceof PortalEntity portalEntity) {
-            targetPos = portalEntity.getPortalCenter();
-        } else if (currentTarget != null) {
-            targetPos = new Vec3(currentTarget.getX(), currentTarget.getY(0.4F), currentTarget.getZ());
+        if (currentTarget != null) {
+            targetPos = targetCenter(currentTarget);
         } else if (this.guardDirection != null) {
             targetPos = DemoniacVoltageReaverItem.guardTargetFor(livingCreator, this.guardDirection);
         }
@@ -424,7 +422,7 @@ public class SnakeBladeEntity extends Entity {
             if (!isValidTarget(livingCreator, candidate)) continue;
             if (!hasLineOfSightTo(candidate)) continue;
 
-            if (closestValid == null || this.distanceTo(candidate) < this.distanceTo(closestValid)) {
+            if (closestValid == null || this.position().distanceTo(targetCenter(candidate)) < this.position().distanceTo(targetCenter(closestValid))) {
                 closestValid = candidate;
             }
         }
@@ -439,21 +437,22 @@ public class SnakeBladeEntity extends Entity {
 
     private boolean createChainThroughPortal(LivingEntity livingCreator, PortalEntity entrancePortal) {
         PortalEntity exitPortal = entrancePortal.getLinkedPortal();
-        if (exitPortal == null || exitPortal.isRemoved()) {
-            return false;
-        }
+        boolean hasExitPortal = exitPortal != null && !exitPortal.isRemoved();
+        PortalEntity chainOriginPortal = hasExitPortal ? exitPortal : entrancePortal;
 
         markTouched(entrancePortal);
-        markTouched(exitPortal);
+        if (hasExitPortal) {
+            markTouched(exitPortal);
+        }
 
-        Vec3 exitCenter = exitPortal.getPortalCenter();
-        Entity closestValid = findClosestValidTargetNear(livingCreator, exitCenter, 14.0D);
+        Vec3 chainOriginCenter = chainOriginPortal.getPortalCenter();
+        Entity closestValid = findClosestValidTargetNear(livingCreator, chainOriginCenter, 14.0D);
         if (closestValid != null) {
-            createChainFromPortalExit(exitPortal, closestValid);
+            createChainFromPortalExit(chainOriginPortal, closestValid);
             return true;
         }
 
-        UUID portalGroup = exitPortal.getPortalGroupUUID();
+        UUID portalGroup = chainOriginPortal.getPortalGroupUUID();
         if (portalGroup == null) {
             portalGroup = entrancePortal.getPortalGroupUUID();
         }
@@ -461,16 +460,18 @@ public class SnakeBladeEntity extends Entity {
             portalGroup = getActivePortalGroupUUID();
         }
 
-        int lastPortalOrder = Math.max(entrancePortal.getPortalOrder(), exitPortal.getPortalOrder());
-        PortalEntity nextPortal = findNextOrderedPortal(livingCreator, exitCenter, PORTAL_CHAIN_SEARCH_RADIUS, portalGroup, lastPortalOrder);
+        int lastPortalOrder = hasExitPortal
+                ? Math.max(entrancePortal.getPortalOrder(), exitPortal.getPortalOrder())
+                : entrancePortal.getPortalOrder();
+        PortalEntity nextPortal = findNextOrderedPortal(livingCreator, chainOriginCenter, PORTAL_CHAIN_SEARCH_RADIUS, portalGroup, lastPortalOrder);
         if (nextPortal != null) {
-            createChainFromPortalExit(exitPortal, nextPortal);
+            createChainFromPortalExit(chainOriginPortal, nextPortal);
             return true;
         }
 
-        nextPortal = findClosestUsablePortal(livingCreator, exitCenter, PORTAL_CHAIN_SEARCH_RADIUS, exitPortal);
+        nextPortal = findClosestUsablePortal(livingCreator, chainOriginCenter, PORTAL_CHAIN_SEARCH_RADIUS, chainOriginPortal);
         if (nextPortal != null) {
-            createChainFromPortalExit(exitPortal, nextPortal);
+            createChainFromPortalExit(chainOriginPortal, nextPortal);
             return true;
         }
 
@@ -487,7 +488,7 @@ public class SnakeBladeEntity extends Entity {
             if (!isValidTarget(livingCreator, candidate)) continue;
             if (!hasLineOfSightFrom(center, candidate)) continue;
 
-            if (closestValid == null || center.distanceTo(candidate.position()) < center.distanceTo(closestValid.position())) {
+            if (closestValid == null || center.distanceTo(targetCenter(candidate)) < center.distanceTo(targetCenter(closestValid))) {
                 closestValid = candidate;
             }
         }
@@ -505,7 +506,7 @@ public class SnakeBladeEntity extends Entity {
 
         for (PortalEntity portalEntity : this.level().getEntitiesOfClass(PortalEntity.class, searchBox)) {
             if (hasTouched(portalEntity)) continue;
-            if (portalEntity.getLinkedPortal() == null) continue;
+            if (portalEntity.isRemoved()) continue;
             if (!portalGroup.equals(portalEntity.getPortalGroupUUID())) continue;
             if (portalEntity.getPortalOrder() <= lastPortalOrder) continue;
 
@@ -530,7 +531,7 @@ public class SnakeBladeEntity extends Entity {
         for (PortalEntity portalEntity : this.level().getEntitiesOfClass(PortalEntity.class, searchBox)) {
             if (portalEntity == excludedPortal) continue;
             if (hasTouched(portalEntity)) continue;
-            if (portalEntity.getLinkedPortal() == null) continue;
+            if (portalEntity.isRemoved()) continue;
             UUID ownerUuid = portalEntity.getOwnerUUID();
             if (ownerUuid != null && !ownerUuid.equals(livingCreator.getUUID())) continue;
 
@@ -605,6 +606,14 @@ public class SnakeBladeEntity extends Entity {
         return false;
     }
 
+    private static Vec3 targetCenter(Entity entity) {
+        if (entity instanceof PortalEntity portalEntity) {
+            return portalEntity.getPortalCenter();
+        }
+
+        return new Vec3(entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ());
+    }
+
     private boolean isValidTarget(LivingEntity creator, Entity entity) {
         if (!(entity instanceof LivingEntity) || entity.isSpectator()) {
             return false;
@@ -626,7 +635,7 @@ public class SnakeBladeEntity extends Entity {
         if (target.level() != this.level()) return false;
 
         Vec3 from = new Vec3(this.getX(), this.getEyeY(), this.getZ());
-        Vec3 to = new Vec3(target.getX(), target.getEyeY(), target.getZ());
+        Vec3 to = targetCenter(target);
 
         if (to.distanceTo(from) > 128.0D) return false;
 
@@ -637,7 +646,7 @@ public class SnakeBladeEntity extends Entity {
     private boolean hasLineOfSightFrom(Vec3 from, Entity target) {
         if (target.level() != this.level()) return false;
 
-        Vec3 to = new Vec3(target.getX(), target.getEyeY(), target.getZ());
+        Vec3 to = targetCenter(target);
         if (to.distanceTo(from) > 128.0D) return false;
 
         return this.level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this))
@@ -675,7 +684,8 @@ public class SnakeBladeEntity extends Entity {
         child.setCreatorEntityUUID(this.getCreatorEntityUUID());
         child.setFromEntityID(this.getId());
         child.setToEntityID(nextTarget.getId());
-        child.setPos(nextTarget.getX(), nextTarget.getY(0.4F), nextTarget.getZ());
+        Vec3 nextTargetCenter = targetCenter(nextTarget);
+        child.setPos(nextTargetCenter.x, nextTargetCenter.y, nextTargetCenter.z);
         child.setTargetsHit(this.getTargetsHit() + 1);
 
         updateLastFragment(child);
@@ -735,12 +745,8 @@ public class SnakeBladeEntity extends Entity {
         child.setRenderFromEntityID(exitPortal.getId());
         child.setToEntityID(nextTarget.getId());
 
-        if (nextTarget instanceof PortalEntity portalEntity) {
-            Vec3 portalCenter = portalEntity.getPortalCenter();
-            child.setPos(portalCenter.x, portalCenter.y, portalCenter.z);
-        } else {
-            child.setPos(nextTarget.getX(), nextTarget.getY(0.4F), nextTarget.getZ());
-        }
+        Vec3 nextTargetCenter = targetCenter(nextTarget);
+        child.setPos(nextTargetCenter.x, nextTargetCenter.y, nextTargetCenter.z);
 
         child.setTargetsHit(this.getTargetsHit() + 1);
 

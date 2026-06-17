@@ -23,6 +23,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
+import yesman.epicfight.api.animation.property.AnimationProperty;
+import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
@@ -49,6 +51,10 @@ public class AnimsSculkSteve {
         HEROBRINE_STAGE_CHANGE = builder.nextAccessor("biped/sculk_steve/herobrine_stage_change",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
         PORTAL_SUMMON = builder.nextAccessor("biped/sculk_steve/portal_summon",
-                accessor -> new StaticAnimation(false, accessor, humanoidArmature));
+                accessor -> new StaticAnimation(false, accessor, humanoidArmature)
+                        .addState(EntityState.MOVEMENT_LOCKED, true)
+                        .addState(EntityState.CAN_BASIC_ATTACK, false)
+                        .addState(EntityState.CAN_SKILL_EXECUTION, false)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false));
     }
 }

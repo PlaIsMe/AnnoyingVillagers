@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.client.renderer.HookGunItemRenderer;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -44,6 +45,7 @@ public abstract class PatchedItemInHandLayerMixin {
         return entity instanceof LivingEntity livingEntity
                 && (FishingRodGrappleUtil.shouldForceOffhandFishingRodRender(livingEntity)
                 || HookGunItem.shouldForceOffhandHookGunRender(livingEntity)
+                || annoyingVillagers$shouldForceOffhandTransporterFragmentRender(livingEntity)
                 || annoyingVillagers$shouldForceOffhandBucketRender(livingEntity));
     }
 
@@ -90,5 +92,9 @@ public abstract class PatchedItemInHandLayerMixin {
                 || offhand.is(Items.BUCKET)
                 || itemPath.endsWith("_bucket")
                 || itemPath.equals("bucket");
+    }
+
+    private static boolean annoyingVillagers$shouldForceOffhandTransporterFragmentRender(LivingEntity livingEntity) {
+        return livingEntity.getOffhandItem().is(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get());
     }
 }
