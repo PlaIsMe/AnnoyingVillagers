@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.entity.HerobrineGregEntity;
 import com.pla.annoyingvillagers.entity.LowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.entity.LowShadowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.item.TransporterFragmentItem;
 import com.pla.annoyingvillagers.util.HerobrinePortalUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -33,10 +34,10 @@ public class RiseFromGroundEvent {
 
             double ny = entity.getY() + speed;
             if (ny >= targetY || ticks > max) {
-                entity.setPos(entity.getX(), targetY, entity.getZ());
+                HerobrinePortalUtil.moveTransitionEntity(entity, entity.getX(), targetY, entity.getZ());
                 finishRise(entity);
             } else {
-                entity.setPos(entity.getX(), ny, entity.getZ());
+                HerobrinePortalUtil.moveTransitionEntity(entity, entity.getX(), ny, entity.getZ());
                 tag.putInt(HerobrinePortalUtil.NBT_TICKS, ticks + 1);
             }
             return;
@@ -45,9 +46,15 @@ public class RiseFromGroundEvent {
         if (tag.getBoolean(HerobrinePortalUtil.NBT_SINKING)) {
             double speed = tag.getDouble(HerobrinePortalUtil.NBT_SINK_SPEED);
             int ticks = tag.getInt(HerobrinePortalUtil.NBT_SINK_TICKS);
+            int nextTicks = ticks + 1;
 
-            entity.setPos(entity.getX(), entity.getY() - speed, entity.getZ());
-            tag.putInt(HerobrinePortalUtil.NBT_SINK_TICKS, ticks + 1);
+            HerobrinePortalUtil.moveTransitionEntity(entity, entity.getX(), entity.getY() - speed, entity.getZ());
+            tag.putInt(HerobrinePortalUtil.NBT_SINK_TICKS, nextTicks);
+
+            if (tag.getBoolean(TransporterFragmentItem.NBT_SAVED_TELEPORT_PENDING)
+                    && nextTicks >= TransporterFragmentItem.SAVED_TELEPORT_SINK_TICKS) {
+                TransporterFragmentItem.finishPendingSavedTeleport(entity);
+            }
         }
     }
 

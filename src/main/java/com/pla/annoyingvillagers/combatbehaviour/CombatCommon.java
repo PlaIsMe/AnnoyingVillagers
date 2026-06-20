@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.combatbehaviour;
 
 import com.pla.annoyingvillagers.block.ShadowObsidianBlock;
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.compat.EfKick;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
@@ -483,7 +484,10 @@ public class CombatCommon {
         if (!isGeneral(mobpatch) || target == null || !target.isAlive()) {
             return false;
         }
-        if (!(mob.level() instanceof ServerLevel serverLevel) || mob.isPassenger() || isNpcCombatFishingRodSessionActive(mob)) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)
+                || !mob.onGround()
+                || mob.isPassenger()
+                || isNpcCombatFishingRodSessionActive(mob)) {
             return false;
         }
         if (mob.distanceToSqr(target) > 144.0D) {
@@ -520,6 +524,10 @@ public class CombatCommon {
                     avNpc.getPersistentData().remove(KEY_AVNPC_WATER_BUCKET_ACTIVE);
                     return;
                 }
+                if (!avNpc.onGround()) {
+                    finishAvNpcWaterBucketSelfExtinguish(avNpc);
+                    return;
+                }
 
                 final BlockPos placement = findSelfWaterPlacement(serverLevel, avNpc);
                 if (placement == null) {
@@ -541,9 +549,17 @@ public class CombatCommon {
                         }
 
                         avNpc.swing(InteractionHand.OFF_HAND, true);
-                        if (serverLevel.getBlockState(placement).is(Blocks.WATER)) {
+                        BlockState placementState = serverLevel.getBlockState(placement);
+                        if (placementState.is(Blocks.WATER)) {
                             avNpc.playSound(SoundEvents.BUCKET_FILL, 1.0F, 1.0F);
                             serverLevel.setBlockAndUpdate(placement, Blocks.AIR.defaultBlockState());
+                        } else if (placementState.getBlock() instanceof HerobrineObsidianBlock
+                                && placementState.hasProperty(HerobrineObsidianBlock.REPLACE_BY_LIQUID)) {
+                            serverLevel.setBlock(
+                                    placement,
+                                    placementState.setValue(HerobrineObsidianBlock.REPLACE_BY_LIQUID, 0),
+                                    3
+                            );
                         }
                         avNpc.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.WATER_BUCKET));
 
@@ -569,6 +585,7 @@ public class CombatCommon {
         if (!avNpc.isAlive()
                 || !avNpc.isOnFire()
                 || avNpc.level().isClientSide
+                || !avNpc.onGround()
                 || avNpc.isPassenger()
                 || avNpc.isHealing()
                 || isNpcCombatFishingRodSessionActive(avNpc)
@@ -863,6 +880,10 @@ public class CombatCommon {
                     restoreTemporaryOffhand(mob, KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND);
                     return;
                 }
+                if (!mob.onGround()) {
+                    restoreTemporaryOffhand(mob, KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND);
+                    return;
+                }
 
                 final BlockPos placement = findLavaPlacement(serverLevel, target);
                 if (placement != null) {
@@ -1065,6 +1086,14 @@ public class CombatCommon {
 
         mob.setDeltaMovement(mob.getDeltaMovement().add(impulse.x, 0.0D, impulse.z));
         mob.hasImpulse = true;
+        if (mob instanceof HerobrineMob herobrineMob
+                && target != null
+                && herobrineMob.getGregUUID() != null) {
+            Entity entity = ((ServerLevel) mob.level()).getEntity(herobrineMob.getGregUUID());
+            if (entity instanceof HerobrineGregEntity greg && greg.isAlive()) {
+                greg.requestRetreatPortalFor(herobrineMob, target);
+            }
+        }
 
         int pulses = 2 + r.nextInt(2);
         for (int i = 1; i <= pulses; i++) {

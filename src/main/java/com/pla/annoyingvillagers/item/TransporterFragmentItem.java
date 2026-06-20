@@ -1,18 +1,33 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
+import com.pla.annoyingvillagers.util.HerobrinePortalUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,6 +35,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,9 +44,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class TransporterFragmentItem extends Item {
+    public record PortalSpawnBatch(UUID portalGroup, int spawned) {
+    }
+
+    public static final int MAX_DURABILITY = 300;
+    public static final int SAVED_TELEPORT_DURABILITY_COST = 10;
+    public static final int SAVED_TELEPORT_SINK_TICKS = HerobrinePortalUtil.SHINK_TIME_START;
+    public static final String NBT_SAVED_TELEPORT_PENDING = "TransporterFragmentTeleportPending";
+
     private static final int PORTAL_COUNT = 6;
     private static final int MAX_ACTIVE_PORTALS_PER_OWNER = 6;
+    private static final int SINGLE_PORTAL_DURABILITY_COST = 1;
     private static final double LOOK_PORTAL_RANGE = 32.0D;
+    private static final double SAVED_TELEPORT_ENTITY_RADIUS = 5.0D;
+    private static final double SAVED_TELEPORT_SINK_SPEED = 0.06D;
+    private static final double SAVED_TELEPORT_RISE_SPEED = 0.06D;
     private static final int HORIZONTAL_SEARCH_RADIUS = 30;
     private static final int VERTICAL_SEARCH_RADIUS = 15;
     private static final int TARGET_PRIORITY_RADIUS = 16;
@@ -39,10 +67,33 @@ public class TransporterFragmentItem extends Item {
     private static final double TARGET_CLUSTER_DISTANCE = 8.0D;
     private static final double CASTER_PORTAL_MIN_DISTANCE = 3.0D;
     private static final double CASTER_PORTAL_MAX_DISTANCE = 5.0D;
+    private static final double DISTRIBUTED_PORTAL_NEAR_MIN_DISTANCE = 9.0D;
+    private static final double DISTRIBUTED_PORTAL_NEAR_MAX_DISTANCE = 14.0D;
+    private static final double DISTRIBUTED_PORTAL_MID_MIN_DISTANCE = 15.0D;
+    private static final double DISTRIBUTED_PORTAL_MID_MAX_DISTANCE = 22.0D;
+    private static final double DISTRIBUTED_PORTAL_FAR_MIN_DISTANCE = 22.0D;
+    private static final double DISTRIBUTED_PORTAL_FAR_MAX_DISTANCE = 29.0D;
     private static final int COOLDOWN_TICKS = 20;
+    private static final String TAG_SAVED_LOCATION = "TransporterSavedLocation";
+    private static final String TAG_DIMENSION = "Dimension";
+    private static final String TAG_X = "X";
+    private static final String TAG_Y = "Y";
+    private static final String TAG_Z = "Z";
+    private static final String TAG_TELEPORT_ORIGIN_X = "TransporterFragmentOriginX";
+    private static final String TAG_TELEPORT_ORIGIN_Y = "TransporterFragmentOriginY";
+    private static final String TAG_TELEPORT_ORIGIN_Z = "TransporterFragmentOriginZ";
+    private static final String TAG_TELEPORT_TARGET_X = "TransporterFragmentTargetX";
+    private static final String TAG_TELEPORT_TARGET_Y = "TransporterFragmentTargetY";
+    private static final String TAG_TELEPORT_TARGET_Z = "TransporterFragmentTargetZ";
+    private static final String TAG_TELEPORT_ENTITIES = "TransporterFragmentEntities";
+    private static final String TAG_ENTITY_COUNT = "Count";
+    private static final String TAG_ENTITY_UUID = "UUID";
+    private static final String TAG_ENTITY_DX = "DX";
+    private static final String TAG_ENTITY_DY = "DY";
+    private static final String TAG_ENTITY_DZ = "DZ";
 
     public TransporterFragmentItem() {
-        super(new Properties().stacksTo(1).fireResistant().rarity(Rarity.EPIC));
+        super(new Properties().stacksTo(1).durability(MAX_DURABILITY).fireResistant().rarity(Rarity.EPIC));
     }
 
     public static UseResult tryUseSpecialAttack(Player player) {
@@ -56,24 +107,144 @@ public class TransporterFragmentItem extends Item {
             return UseResult.consumed(mode, false);
         }
 
+        ItemStack stack = getStackForMode(player, mode);
+        int requestedPortals = isSixPortalMode(mode) ? PORTAL_COUNT : SINGLE_PORTAL_DURABILITY_COST;
+        if (!hasDurability(stack, requestedPortals)) {
+            return UseResult.consumed(mode, false);
+        }
+
         boolean activated = false;
         if (player.level() instanceof ServerLevel serverLevel) {
             List<PortalEntity> activePortals = findOwnedActivePortals(serverLevel, player);
-            int requestedPortals = mode == UseMode.BOTH_HANDS ? PORTAL_COUNT : 1;
             if (activePortals.size() + requestedPortals > MAX_ACTIVE_PORTALS_PER_OWNER) {
                 return UseResult.consumed(mode, false);
             }
 
-            int spawned = mode == UseMode.BOTH_HANDS
+            int spawned = isSixPortalMode(mode)
                     ? spawnPortalPairs(serverLevel, player)
                     : spawnLookPortal(serverLevel, player, activePortals);
             if (spawned > 0) {
+                damageStack(player, stack, mode == UseMode.OFF_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND, spawned);
                 player.getCooldowns().addCooldown(transporterFragment, COOLDOWN_TICKS);
                 activated = true;
             }
         }
 
         return UseResult.consumed(mode, activated);
+    }
+
+    public static UseResult tryUseHeldSpecialAttack(Player player) {
+        Item transporterFragment = AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get();
+        ItemStack stack = player.getMainHandItem();
+        if (!stack.is(transporterFragment)) {
+            return UseResult.missed();
+        }
+
+        UseMode mode = UseMode.MAIN_HAND;
+        if (player.getCooldowns().isOnCooldown(transporterFragment)
+                || player.getPersistentData().getBoolean(NBT_SAVED_TELEPORT_PENDING)
+                || player.getPersistentData().getBoolean(HerobrinePortalUtil.NBT_RISING)
+                || player.getPersistentData().getBoolean(HerobrinePortalUtil.NBT_SINKING)
+                || !hasSavedLocation(stack)
+                || !hasDurability(stack, SAVED_TELEPORT_DURABILITY_COST)) {
+            return UseResult.consumed(mode, false);
+        }
+
+        if (!(player.level() instanceof ServerLevel serverLevel)) {
+            return UseResult.consumed(mode, false);
+        }
+
+        CompoundTag savedLocation = stack.getTag().getCompound(TAG_SAVED_LOCATION);
+        String savedDimension = savedLocation.getString(TAG_DIMENSION);
+        if (!savedDimension.equals(serverLevel.dimension().location().toString())) {
+            return UseResult.consumed(mode, false);
+        }
+
+        Vec3 target = new Vec3(
+                savedLocation.getDouble(TAG_X),
+                savedLocation.getDouble(TAG_Y),
+                savedLocation.getDouble(TAG_Z)
+        );
+        if (!serverLevel.getWorldBorder().isWithinBounds(BlockPos.containing(target))) {
+            return UseResult.consumed(mode, false);
+        }
+
+        beginSavedTeleport(serverLevel, player, target);
+        damageStack(player, stack, InteractionHand.MAIN_HAND, SAVED_TELEPORT_DURABILITY_COST);
+        player.getCooldowns().addCooldown(transporterFragment, COOLDOWN_TICKS);
+        return UseResult.consumed(mode, true);
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
+        if (player == null || context.getHand() != InteractionHand.MAIN_HAND || !stack.is(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get())) {
+            return super.useOn(context);
+        }
+
+        if (!context.getLevel().isClientSide()) {
+            if (player.isShiftKeyDown()) {
+                clearSavedLocation(stack, player);
+            } else {
+                saveLocation(stack, context.getLevel(), Vec3.atBottomCenterOf(context.getClickedPos().relative(context.getClickedFace())), player);
+            }
+        }
+
+        return InteractionResult.sidedSuccess(context.getLevel().isClientSide());
+    }
+
+    @Override
+    public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
+        if (hand != InteractionHand.MAIN_HAND || !stack.is(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get())) {
+            return super.interactLivingEntity(stack, player, target, hand);
+        }
+
+        if (!player.level().isClientSide()) {
+            if (player.isShiftKeyDown()) {
+                clearSavedLocation(stack, player);
+            } else {
+                saveLocation(stack, player.level(), target.position(), player);
+            }
+        }
+
+        return InteractionResult.sidedSuccess(player.level().isClientSide());
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (hand != InteractionHand.MAIN_HAND || !stack.is(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get())) {
+            return super.use(level, player, hand);
+        }
+
+        if (!level.isClientSide()) {
+            if (player.isShiftKeyDown()) {
+                clearSavedLocation(stack, player);
+            } else if (level instanceof ServerLevel serverLevel) {
+                LookPortalTarget target = findLookPortalTarget(serverLevel, player);
+                saveLocation(stack, level, snapPortalPosition(target.portalPos), player);
+            }
+        }
+
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        if (!hasSavedLocation(stack)) {
+            tooltip.add(Component.literal("Saved Location: none").withStyle(ChatFormatting.DARK_GRAY));
+            return;
+        }
+
+        CompoundTag savedLocation = stack.getTag().getCompound(TAG_SAVED_LOCATION);
+        tooltip.add(Component.literal("Saved Location").withStyle(ChatFormatting.AQUA));
+        tooltip.add(Component.literal("Saved pos: "
+                + Mth.floor(savedLocation.getDouble(TAG_X)) + " "
+                + Mth.floor(savedLocation.getDouble(TAG_Y)) + " "
+                + Mth.floor(savedLocation.getDouble(TAG_Z))).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.literal(savedLocation.getString(TAG_DIMENSION)).withStyle(ChatFormatting.DARK_GRAY));
     }
 
     private static UseMode getUseMode(Player player, Item transporterFragment) {
@@ -92,15 +263,198 @@ public class TransporterFragmentItem extends Item {
         return UseMode.NONE;
     }
 
-    public static int spawnPortalPairs(Level level, LivingEntity caster) {
+    private static boolean isSixPortalMode(UseMode mode) {
+        return mode == UseMode.MAIN_HAND || mode == UseMode.BOTH_HANDS;
+    }
+
+    private static ItemStack getStackForMode(Player player, UseMode mode) {
+        return mode == UseMode.OFF_HAND ? player.getOffhandItem() : player.getMainHandItem();
+    }
+
+    private static boolean hasDurability(ItemStack stack, int cost) {
+        return !stack.isEmpty() && stack.getMaxDamage() - stack.getDamageValue() >= cost;
+    }
+
+    private static void damageStack(Player player, ItemStack stack, InteractionHand hand, int damage) {
+        if (damage <= 0) {
+            return;
+        }
+        stack.hurtAndBreak(damage, player, brokenPlayer -> brokenPlayer.broadcastBreakEvent(hand));
+    }
+
+    private static boolean hasSavedLocation(ItemStack stack) {
+        return stack.hasTag() && stack.getTag().contains(TAG_SAVED_LOCATION);
+    }
+
+    private static void saveLocation(ItemStack stack, Level level, Vec3 pos, Player player) {
+        CompoundTag savedLocation = new CompoundTag();
+        savedLocation.putDouble(TAG_X, pos.x);
+        savedLocation.putDouble(TAG_Y, pos.y);
+        savedLocation.putDouble(TAG_Z, pos.z);
+        savedLocation.putString(TAG_DIMENSION, level.dimension().location().toString());
+        stack.getOrCreateTag().put(TAG_SAVED_LOCATION, savedLocation);
+        player.displayClientMessage(Component.literal("Saved Location: "
+                + Mth.floor(pos.x) + " "
+                + Mth.floor(pos.y) + " "
+                + Mth.floor(pos.z)).withStyle(ChatFormatting.AQUA), true);
+    }
+
+    private static void clearSavedLocation(ItemStack stack, Player player) {
+        if (stack.hasTag()) {
+            stack.getTag().remove(TAG_SAVED_LOCATION);
+        }
+        player.displayClientMessage(Component.literal("Saved Location cleared").withStyle(ChatFormatting.GRAY), true);
+    }
+
+    private static void beginSavedTeleport(ServerLevel level, Player player, Vec3 target) {
+        Vec3 origin = player.position();
+        List<Entity> teleportEntities = collectTeleportEntities(level, player);
+        CompoundTag tag = player.getPersistentData();
+        tag.putBoolean(NBT_SAVED_TELEPORT_PENDING, true);
+        tag.putDouble(TAG_TELEPORT_ORIGIN_X, origin.x);
+        tag.putDouble(TAG_TELEPORT_ORIGIN_Y, origin.y);
+        tag.putDouble(TAG_TELEPORT_ORIGIN_Z, origin.z);
+        tag.putDouble(TAG_TELEPORT_TARGET_X, target.x);
+        tag.putDouble(TAG_TELEPORT_TARGET_Y, target.y);
+        tag.putDouble(TAG_TELEPORT_TARGET_Z, target.z);
+        tag.put(TAG_TELEPORT_ENTITIES, buildTeleportEntityTag(teleportEntities, origin));
+
+        sendGroundPortalFx(player, origin);
+        level.playSound(null, player.blockPosition(), AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+        for (Entity entity : teleportEntities) {
+            if (entity instanceof LivingEntity livingEntity) {
+                HerobrinePortalUtil.sinkIntoGround(level, livingEntity, SAVED_TELEPORT_SINK_SPEED);
+            }
+        }
+    }
+
+    private static List<Entity> collectTeleportEntities(ServerLevel level, Player player) {
+        List<Entity> entities = new ArrayList<>();
+        entities.add(player);
+        for (Entity entity : level.getEntities(player, player.getBoundingBox().inflate(SAVED_TELEPORT_ENTITY_RADIUS), entity ->
+                entity.isAlive() && !entity.isSpectator())) {
+            entities.add(entity);
+        }
+        return entities;
+    }
+
+    private static CompoundTag buildTeleportEntityTag(List<Entity> entities, Vec3 origin) {
+        CompoundTag entitiesTag = new CompoundTag();
+        int count = 0;
+        for (Entity entity : entities) {
+            count = addTeleportEntity(entitiesTag, count, entity, origin);
+        }
+        entitiesTag.putInt(TAG_ENTITY_COUNT, count);
+        return entitiesTag;
+    }
+
+    private static int addTeleportEntity(CompoundTag entitiesTag, int index, Entity entity, Vec3 origin) {
+        CompoundTag entityTag = new CompoundTag();
+        Vec3 offset = entity.position().subtract(origin);
+        entityTag.putUUID(TAG_ENTITY_UUID, entity.getUUID());
+        entityTag.putDouble(TAG_ENTITY_DX, offset.x);
+        entityTag.putDouble(TAG_ENTITY_DY, offset.y);
+        entityTag.putDouble(TAG_ENTITY_DZ, offset.z);
+        entitiesTag.put(String.valueOf(index), entityTag);
+        return index + 1;
+    }
+
+    public static void finishPendingSavedTeleport(LivingEntity caster) {
+        if (!(caster.level() instanceof ServerLevel level)) {
+            return;
+        }
+
+        CompoundTag tag = caster.getPersistentData();
+        if (!tag.getBoolean(NBT_SAVED_TELEPORT_PENDING)) {
+            return;
+        }
+
+        Vec3 target = new Vec3(
+                tag.getDouble(TAG_TELEPORT_TARGET_X),
+                tag.getDouble(TAG_TELEPORT_TARGET_Y),
+                tag.getDouble(TAG_TELEPORT_TARGET_Z)
+        );
+        CompoundTag entitiesTag = tag.getCompound(TAG_TELEPORT_ENTITIES);
+        int count = entitiesTag.getInt(TAG_ENTITY_COUNT);
+
+        sendGroundPortalFx(caster, target);
+        level.playSound(null, BlockPos.containing(target), AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+        for (int i = 0; i < count; i++) {
+            CompoundTag entityTag = entitiesTag.getCompound(String.valueOf(i));
+            if (!entityTag.hasUUID(TAG_ENTITY_UUID)) {
+                continue;
+            }
+
+            Entity entity = level.getEntity(entityTag.getUUID(TAG_ENTITY_UUID));
+            if (entity == null || entity.isRemoved()) {
+                continue;
+            }
+
+            Vec3 destination = target.add(
+                    entityTag.getDouble(TAG_ENTITY_DX),
+                    entityTag.getDouble(TAG_ENTITY_DY),
+                    entityTag.getDouble(TAG_ENTITY_DZ)
+            );
+            teleportEntityWithRise(level, entity, destination);
+        }
+
+        clearSavedTeleportState(tag);
+    }
+
+    private static void teleportEntityWithRise(ServerLevel level, Entity entity, Vec3 destination) {
+        entity.setDeltaMovement(Vec3.ZERO);
+        if (entity instanceof ServerPlayer serverPlayer) {
+            serverPlayer.teleportTo(destination.x, destination.y, destination.z);
+        } else {
+            entity.teleportTo(destination.x, destination.y, destination.z);
+        }
+
+        if (entity instanceof LivingEntity livingEntity) {
+            clearSinkState(livingEntity);
+            HerobrinePortalUtil.spawnRising(level, livingEntity, destination.x, destination.z, SAVED_TELEPORT_RISE_SPEED);
+        }
+    }
+
+    private static void clearSavedTeleportState(CompoundTag tag) {
+        tag.remove(NBT_SAVED_TELEPORT_PENDING);
+        tag.remove(TAG_TELEPORT_ORIGIN_X);
+        tag.remove(TAG_TELEPORT_ORIGIN_Y);
+        tag.remove(TAG_TELEPORT_ORIGIN_Z);
+        tag.remove(TAG_TELEPORT_TARGET_X);
+        tag.remove(TAG_TELEPORT_TARGET_Y);
+        tag.remove(TAG_TELEPORT_TARGET_Z);
+        tag.remove(TAG_TELEPORT_ENTITIES);
+    }
+
+    private static void clearSinkState(LivingEntity entity) {
+        CompoundTag tag = entity.getPersistentData();
+        tag.remove(HerobrinePortalUtil.NBT_SINKING);
+        tag.remove(HerobrinePortalUtil.NBT_SINK_TARGET_Y);
+        tag.remove(HerobrinePortalUtil.NBT_SINK_SPEED);
+        tag.remove(HerobrinePortalUtil.NBT_SINK_TICKS);
+        tag.remove(HerobrinePortalUtil.NBT_SINK_MAX_TICKS);
+    }
+
+    private static void sendGroundPortalFx(Entity trackedEntity, Vec3 pos) {
+        AnnoyingVillagers.PACKET_HANDLER.send(
+                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> trackedEntity),
+                new ClientboundHerobrinePortalFx(pos)
+        );
+    }
+
+    public static PortalSpawnBatch spawnPortalPairsBatch(Level level, LivingEntity caster) {
+        return spawnPortalPairsBatch(level, caster, caster);
+    }
+
+    public static PortalSpawnBatch spawnPortalPairsBatch(Level level, LivingEntity caster, LivingEntity placementAnchor) {
         if (level instanceof ServerLevel serverLevel
                 && findOwnedActivePortals(serverLevel, caster).size() + PORTAL_COUNT > MAX_ACTIVE_PORTALS_PER_OWNER) {
-            return 0;
+            return new PortalSpawnBatch(null, 0);
         }
 
         RandomSource random = level.getRandom();
-        List<LivingEntity> priorityTargets = clusterPriorityTargets(findPriorityTargets(level, caster));
-        List<Vec3> portalPositions = buildPortalPositions(level, caster, priorityTargets, PORTAL_COUNT, random);
+        List<LivingEntity> priorityTargets = clusterPriorityTargets(findPriorityTargets(level, placementAnchor));
+        List<Vec3> portalPositions = buildPortalPositions(level, caster, placementAnchor, priorityTargets, PORTAL_COUNT, random);
         UUID portalGroup = UUID.randomUUID();
         int spawned = 0;
 
@@ -114,7 +468,36 @@ public class TransporterFragmentItem extends Item {
             }
         }
 
-        return spawned;
+        return new PortalSpawnBatch(spawned > 0 ? portalGroup : null, spawned);
+    }
+
+    public static int spawnPortalPairs(Level level, LivingEntity caster) {
+        return spawnPortalPairsBatch(level, caster).spawned();
+    }
+
+    public static int spawnLinkedPortalPair(Level level, LivingEntity caster, Vec3 firstPreferredPos, Vec3 secondPreferredPos) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return 0;
+        }
+
+        List<PortalEntity> activePortals = findOwnedActivePortals(serverLevel, caster);
+        if (activePortals.size() + 2 > MAX_ACTIVE_PORTALS_PER_OWNER) {
+            return 0;
+        }
+
+        Vec3 firstPortalPos = findLookPortalPosition(level, firstPreferredPos);
+        Vec3 secondPortalPos = findLookPortalPosition(level, secondPreferredPos);
+        if (firstPortalPos == null || secondPortalPos == null) {
+            return 0;
+        }
+
+        UUID portalGroup = selectPortalGroup(activePortals, null);
+        int portalOrder = nextPortalOrder(activePortals);
+        return spawnPair(level, caster, portalGroup, portalOrder, firstPortalPos, secondPortalPos) ? 2 : 0;
+    }
+
+    public static boolean canSpawnOwnedPortals(ServerLevel level, LivingEntity caster, int portalCount) {
+        return findOwnedActivePortals(level, caster).size() + portalCount <= MAX_ACTIVE_PORTALS_PER_OWNER;
     }
 
     private static int spawnLookPortal(ServerLevel level, Player caster, List<PortalEntity> activePortals) {
@@ -274,13 +657,14 @@ public class TransporterFragmentItem extends Item {
 
     private static List<Vec3> buildPortalPositions(
             Level level,
-            LivingEntity caster,
+            LivingEntity owner,
+            LivingEntity placementAnchor,
             List<LivingEntity> priorityTargets,
             int portalCount,
             RandomSource random
     ) {
         List<Vec3> positions = new ArrayList<>();
-        Vec3 casterPortal = findCasterPortalPosition(level, caster, positions, random);
+        Vec3 casterPortal = findCasterPortalPosition(level, owner, placementAnchor, positions, random);
         if (casterPortal == null) {
             return positions;
         }
@@ -293,12 +677,12 @@ public class TransporterFragmentItem extends Item {
 
             boolean exitSlot = positions.size() % 2 == 1;
             if (exitSlot && targetIndex < priorityTargets.size()) {
-                candidate = findPortalNearTarget(level, caster, priorityTargets.get(targetIndex), positions, random);
+                candidate = findPortalNearTarget(level, owner, placementAnchor, priorityTargets.get(targetIndex), positions, random);
                 targetIndex++;
             }
 
             if (candidate == null) {
-                candidate = findRandomDistributedPortal(level, caster, positions, random, positions.size());
+                candidate = findRandomDistributedPortal(level, owner, placementAnchor, positions, random, positions.size());
             }
 
             if (candidate == null) {
@@ -311,37 +695,38 @@ public class TransporterFragmentItem extends Item {
         return positions;
     }
 
-    private static Vec3 findCasterPortalPosition(Level level, LivingEntity caster, List<Vec3> usedPositions, RandomSource random) {
+    private static Vec3 findCasterPortalPosition(Level level, LivingEntity owner, LivingEntity placementAnchor, List<Vec3> usedPositions, RandomSource random) {
         for (int attempt = 0; attempt < 80; attempt++) {
-            double angle = caster.getYRot() * Mth.DEG_TO_RAD + (attempt < 8
+            double angle = placementAnchor.getYRot() * Mth.DEG_TO_RAD + (attempt < 8
                     ? (Math.PI * 2.0D / 8.0D) * attempt
                     : random.nextDouble() * Math.PI * 2.0D);
             double distance = CASTER_PORTAL_MIN_DISTANCE + random.nextDouble() * (CASTER_PORTAL_MAX_DISTANCE - CASTER_PORTAL_MIN_DISTANCE);
-            double y = Math.floor(caster.getY()) + (attempt > 30 ? random.nextInt(VERTICAL_SEARCH_RADIUS + 1) : random.nextInt(4));
+            double y = Math.floor(placementAnchor.getY()) + (attempt > 30 ? random.nextInt(VERTICAL_SEARCH_RADIUS + 1) : random.nextInt(4));
             Vec3 candidate = new Vec3(
-                    caster.getX() - Math.sin(angle) * distance,
-                    Mth.clamp(y, Math.floor(caster.getY()), Math.floor(caster.getY()) + VERTICAL_SEARCH_RADIUS),
-                    caster.getZ() + Math.cos(angle) * distance
+                    placementAnchor.getX() - Math.sin(angle) * distance,
+                    Mth.clamp(y, Math.floor(placementAnchor.getY()), Math.floor(placementAnchor.getY()) + VERTICAL_SEARCH_RADIUS),
+                    placementAnchor.getZ() + Math.cos(angle) * distance
             );
 
-            if (isValidPortalPosition(level, caster, candidate, usedPositions)) {
+            if (isValidPortalPosition(level, placementAnchor, candidate, usedPositions)) {
                 return candidate;
             }
         }
 
-        return findRandomDistributedPortal(level, caster, usedPositions, random, 0);
+        return findRandomDistributedPortal(level, owner, placementAnchor, usedPositions, random, 0);
     }
 
     private static Vec3 findPortalNearTarget(
             Level level,
-            LivingEntity caster,
+            LivingEntity owner,
+            LivingEntity placementAnchor,
             LivingEntity target,
             List<Vec3> usedPositions,
             RandomSource random
     ) {
         for (int attempt = 0; attempt < 32; attempt++) {
-            Vec3 candidate = randomPositionNearEntity(caster, target, random);
-            if (isValidPortalPosition(level, caster, candidate, usedPositions)) {
+            Vec3 candidate = randomPositionNearEntity(placementAnchor, target, random);
+            if (isValidPortalPosition(level, placementAnchor, candidate, usedPositions)) {
                 return candidate;
             }
         }
@@ -351,21 +736,22 @@ public class TransporterFragmentItem extends Item {
 
     private static Vec3 findRandomDistributedPortal(
             Level level,
-            LivingEntity caster,
+            LivingEntity owner,
+            LivingEntity placementAnchor,
             List<Vec3> usedPositions,
             RandomSource random,
             int slotIndex
     ) {
         for (int attempt = 0; attempt < 140; attempt++) {
-            Vec3 candidate = randomDistributedPositionAroundCaster(caster, random, slotIndex, attempt);
-            if (isValidPortalPosition(level, caster, candidate, usedPositions)) {
+            Vec3 candidate = randomDistributedPositionAroundCaster(placementAnchor, usedPositions, random, slotIndex, attempt);
+            if (isValidPortalPosition(level, placementAnchor, candidate, usedPositions)) {
                 return candidate;
             }
         }
 
         for (int attempt = 0; attempt < 120; attempt++) {
-            Vec3 candidate = randomPositionAroundCaster(caster, random);
-            if (isValidPortalPosition(level, caster, candidate, usedPositions)) {
+            Vec3 candidate = randomPositionAroundCaster(placementAnchor, random);
+            if (isValidPortalPosition(level, placementAnchor, candidate, usedPositions)) {
                 return candidate;
             }
         }
@@ -373,20 +759,32 @@ public class TransporterFragmentItem extends Item {
         return null;
     }
 
-    private static Vec3 randomDistributedPositionAroundCaster(LivingEntity caster, RandomSource random, int slotIndex, int attempt) {
-        int distanceTier = (slotIndex + attempt) % 3;
+    private static Vec3 randomDistributedPositionAroundCaster(
+            LivingEntity caster,
+            List<Vec3> usedPositions,
+            RandomSource random,
+            int slotIndex,
+            int attempt
+    ) {
+        double angle = preferredSpreadAngle(caster, usedPositions, random, attempt);
+        double angleJitter = attempt < 60 ? 0.35D : 0.95D;
+        angle += (random.nextDouble() - 0.5D) * angleJitter;
+
+        int distanceTier = slotIndex <= 1 ? 0 : (slotIndex + attempt) % 3;
         double distance;
-        if (attempt > 90) {
-            distance = 4.0D + random.nextDouble() * 25.0D;
+        if (attempt > 95) {
+            distance = 8.0D + random.nextDouble() * 22.0D;
         } else if (distanceTier == 0) {
-            distance = 5.0D + random.nextDouble() * 6.0D;
+            distance = DISTRIBUTED_PORTAL_NEAR_MIN_DISTANCE
+                    + random.nextDouble() * (DISTRIBUTED_PORTAL_NEAR_MAX_DISTANCE - DISTRIBUTED_PORTAL_NEAR_MIN_DISTANCE);
         } else if (distanceTier == 1) {
-            distance = 12.0D + random.nextDouble() * 7.0D;
+            distance = DISTRIBUTED_PORTAL_MID_MIN_DISTANCE
+                    + random.nextDouble() * (DISTRIBUTED_PORTAL_MID_MAX_DISTANCE - DISTRIBUTED_PORTAL_MID_MIN_DISTANCE);
         } else {
-            distance = 20.0D + random.nextDouble() * 9.0D;
+            distance = DISTRIBUTED_PORTAL_FAR_MIN_DISTANCE
+                    + random.nextDouble() * (DISTRIBUTED_PORTAL_FAR_MAX_DISTANCE - DISTRIBUTED_PORTAL_FAR_MIN_DISTANCE);
         }
 
-        double angle = random.nextDouble() * Math.PI * 2.0D;
         double y = Math.floor(caster.getY()) + random.nextInt(VERTICAL_SEARCH_RADIUS + 1);
 
         return new Vec3(
@@ -394,6 +792,42 @@ public class TransporterFragmentItem extends Item {
                 Mth.clamp(y, Math.floor(caster.getY()), Math.floor(caster.getY()) + VERTICAL_SEARCH_RADIUS),
                 caster.getZ() + Math.sin(angle) * distance
         );
+    }
+
+    private static double preferredSpreadAngle(LivingEntity caster, List<Vec3> usedPositions, RandomSource random, int attempt) {
+        if (usedPositions.isEmpty()) {
+            return random.nextDouble() * Math.PI * 2.0D;
+        }
+
+        List<Double> angles = new ArrayList<>(usedPositions.size());
+        for (Vec3 used : usedPositions) {
+            double angle = Math.atan2(used.z - caster.getZ(), used.x - caster.getX());
+            if (angle < 0.0D) {
+                angle += Math.PI * 2.0D;
+            }
+            angles.add(angle);
+        }
+        angles.sort(Double::compareTo);
+
+        double bestStart = angles.get(0);
+        double bestGap = -1.0D;
+        for (int index = 0; index < angles.size(); index++) {
+            double start = angles.get(index);
+            double end = index == angles.size() - 1 ? angles.get(0) + Math.PI * 2.0D : angles.get(index + 1);
+            double gap = end - start;
+            if (gap > bestGap) {
+                bestGap = gap;
+                bestStart = start;
+            }
+        }
+
+        double midpoint = bestStart + bestGap * 0.5D;
+        if (attempt > 40) {
+            midpoint += (attempt % 6) * (Math.PI / 12.0D);
+        }
+
+        midpoint %= Math.PI * 2.0D;
+        return midpoint < 0.0D ? midpoint + Math.PI * 2.0D : midpoint;
     }
 
     private static Vec3 randomPositionNearEntity(LivingEntity caster, LivingEntity target, RandomSource random) {

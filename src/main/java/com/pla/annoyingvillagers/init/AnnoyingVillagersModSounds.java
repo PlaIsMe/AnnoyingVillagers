@@ -80,6 +80,11 @@ public class AnnoyingVillagersModSounds {
     public static final RegistryObject<SoundEvent> DRAGON_BREATH_FINALE = register("dragon_breath_finale");
     public static final RegistryObject<SoundEvent> PORTAL_SUMMON = register("portal_summon");
     public static final RegistryObject<SoundEvent> PORTAL_NATURAL = register("portal_natural");
+    public static final RegistryObject<SoundEvent> PORTAL_ENTER = register("portal_enter");
+    public static final RegistryObject<SoundEvent> PORTAL_EXIT = register("portal_exit");
+    public static final RegistryObject<SoundEvent> PORTAL_OPEN = register("portal_open");
+    public static final RegistryObject<SoundEvent> PORTAL_FIZZLE = register("portal_fizzle");
+    public static final RegistryObject<SoundEvent> PORTAL_AMBIENT = register("portal_ambient");
     public static final RegistryObject<SoundEvent> SELF_REQUESTING_ASSISTANCE = register("self_requesting_assistance");
     public static final RegistryObject<SoundEvent> GREG_REQUESTING_ASSISTANCE = register("greg_requesting_assistance");
     public static final RegistryObject<SoundEvent> HEROBRINE_UNDERSTOOD = register("herobrine_understood");

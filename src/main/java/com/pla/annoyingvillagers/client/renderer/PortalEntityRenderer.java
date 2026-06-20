@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.client.engine.PhotonClientFxUtil;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig;
 import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.util.AAAParticlesUtil;
@@ -28,6 +29,8 @@ import java.util.Map;
 public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
     private static final ResourceLocation TEXTURE =
             ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/portal.png");
+    private static final String PHOTON_PORTAL_EFFECT = "snakeportal";
+    private static final int PHOTON_PORTAL_LIFETIME_TICKS = 12;
     private static final int AAA_PORTAL_REFRESH_TICKS = 10;
     private static final Map<Integer, Long> LAST_AAA_PORTAL_PLAY_TICK = new HashMap<>();
 
@@ -44,6 +47,11 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
             @NotNull MultiBufferSource buffer,
             int packedLight
     ) {
+        if (shouldRenderWithPhoton() && playPhotonPortalVisual(portal)) {
+            super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
+            return;
+        }
+
         if (shouldRenderWithAaa() && playAaaPortalVisual(portal)) {
             super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
             return;
@@ -73,6 +81,25 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
 
         poseStack.popPose();
         super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
+    }
+
+    private static boolean shouldRenderWithPhoton() {
+        return AnnoyingVillagersClientConfig.shouldUsePhotonWhenAvailable(AnnoyingVillagersClientConfig.VfxEffect.TELEPORT_PORTAL);
+    }
+
+    private static boolean playPhotonPortalVisual(PortalEntity portal) {
+        if (!portal.level().isClientSide || portal.isRemoved()) {
+            return false;
+        }
+
+        return PhotonClientFxUtil.followPortal(
+                "teleport_portal:" + portal.getId(),
+                portal.level(),
+                PHOTON_PORTAL_EFFECT,
+                () -> portal.isRemoved() ? null : portal.getPortalCenter(),
+                () -> portal.isRemoved() ? null : portal.getNormal(),
+                PHOTON_PORTAL_LIFETIME_TICKS
+        );
     }
 
     private static boolean shouldRenderWithAaa() {

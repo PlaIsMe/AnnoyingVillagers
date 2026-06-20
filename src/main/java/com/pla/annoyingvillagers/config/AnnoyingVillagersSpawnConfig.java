@@ -40,6 +40,7 @@ public final class AnnoyingVillagersSpawnConfig {
             fixedGroupEntry("low_shadow_herobrine_clone", 1, "Netherite Herobrine"),
             fixedGroupEntry("herobrine_clone", 1, "Herobrine Clone"),
             fixedGroupEntry("shadow_herobrine_clone", 1, "Shadow Herobrine Clone"),
+            fixedGroupEntry("transporter_herobrine_clone", 1, "Transporter Herobrine Clone"),
             fixedGroupEntry("armored_herobrine", 1, "Armored Herobrine"),
             fixedGroupEntry("herobrine_7", 1, "Herobrine 7"),
             fixedGroupEntry("herobrine_chris", 1, "Herobrine Chris"),

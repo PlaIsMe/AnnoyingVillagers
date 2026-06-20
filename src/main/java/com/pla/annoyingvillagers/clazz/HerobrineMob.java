@@ -556,7 +556,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 Objects.requireNonNull(herobrineGregEntity.level().getServer()).getPlayerList().broadcastSystemMessage(
                         Component.literal("<" + Component.translatable("entity.annoyingvillagers.herobrine_greg").getString() + "> "
                                 + Component.translatable("subtitles.herobrine_request").getString()), false);
-                herobrineGregEntity.setNoAi(true);
+                HerobrinePortalCombatUtil.playGregTransformPortalSummon(herobrineGregEntity, this);
                 return;
             }
         }
@@ -764,7 +764,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             if (!this.level().getBlockState(lastFeetPos).is(block)) {
                 FluidState fluidState = this.level().getFluidState(lastFeetPos);
                 if (!fluidState.isEmpty()) {
-                    int replace = fluidState.is(FluidTags.WATER) ? 1 : (fluidState.is(FluidTags.LAVA) ? 2 : 0);
+                    int replace = fluidState.isSource()
+                            ? (fluidState.is(FluidTags.WATER) ? 1 : (fluidState.is(FluidTags.LAVA) ? 2 : 0))
+                            : 0;
                     BlockState state = block.defaultBlockState().setValue(HerobrineObsidianBlock.REPLACE_BY_LIQUID, replace);
                     this.level().setBlockAndUpdate(
                             lastFeetPos,
@@ -1141,24 +1143,10 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             }
             if (this.sacrificingAnimationCooldown == 50) {
                 this.sacrificing = true;
-                if (this.gregUUID != null) {
-                    Entity entity = serverLevel.getEntity(this.gregUUID);
-                    if (entity instanceof HerobrineGregEntity herobrineGregEntity && entity.isAlive()) {
-                        if (herobrineGregEntity.getLivingEntityPatch() != null) {
-                            herobrineGregEntity.getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
-                        }
-                    }
-                }
             }
             if (this.sacrificingAnimationCooldown == 10) {
                 this.sacrificing = true;
                 this.setNoAi(true);
-                if (this.gregUUID != null) {
-                    Entity entity = serverLevel.getEntity(this.gregUUID);
-                    if (entity instanceof HerobrineGregEntity herobrineGregEntity && entity.isAlive()) {
-                        herobrineGregEntity.setNoAi(false);
-                    }
-                }
                 if (this.firstPossessedHerobrine != null) {
                     ((Mob) firstPossessedHerobrine).addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 30, 3, false, false));
                     this.clearHandAndDropItem(firstPossessedHerobrine);

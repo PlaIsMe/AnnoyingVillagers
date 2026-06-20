@@ -73,6 +73,10 @@ public final class PhotonClientFxUtil {
         return spawnAt(level, effectPath, from, rotationFromTo(from, to, flip), new Vector3f(1.0F, 1.0F, 1.0F));
     }
 
+    public static boolean spawnPortal(Level level, String effectPath, Vec3 pos, Vec3 normal) {
+        return spawnAt(level, effectPath, pos, portalRotation(normal), unitScale());
+    }
+
     public static boolean spawnAt(Level level, String effectPath, Vec3 pos, Quaternionf rotation, Vector3f scale) {
         if (!canUse(level) || pos == null) {
             return false;
@@ -103,6 +107,49 @@ public final class PhotonClientFxUtil {
         }
     }
 
+    public static boolean followPortal(String key, Level level, String effectPath, Supplier<Vec3> positionSupplier,
+                                       Supplier<Vec3> normalSupplier, int lifetimeTicks) {
+        if (!canUse(level) || positionSupplier == null || normalSupplier == null) {
+            return false;
+        }
+
+        try {
+            Reflection r = reflection();
+            if (r == null) {
+                return false;
+            }
+
+            Vec3 pos = positionSupplier.get();
+            if (pos == null) {
+                return false;
+            }
+
+            Quaternionf rotation = portalRotation(normalSupplier.get());
+            Vector3f scale = unitScale();
+            long now = level.getGameTime();
+            String normalizedKey = normalizeKey(key, effectPath);
+            ActiveEffect active = ACTIVE_EFFECTS.get(normalizedKey);
+
+            if (active == null || active.level != level || !active.isAlive(r)) {
+                active = createRuntimeEffect(r, level, effectPath, pos, rotation, scale, now, lifetimeTicks);
+                if (active == null) {
+                    return false;
+                }
+
+                ACTIVE_EFFECTS.put(normalizedKey, active);
+            }
+
+            active.positionSupplier = positionSupplier;
+            active.rotationSupplier = () -> portalRotation(normalSupplier.get());
+            active.scaleSupplier = PhotonClientFxUtil::unitScale;
+            active.updateTransform(r, pos, rotation, scale, now, lifetimeTicks);
+            return true;
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            warnReflectionFailure(e);
+            return false;
+        }
+    }
+
     public static boolean followPosition(String key, Level level, String effectPath, Supplier<Vec3> positionSupplier, int lifetimeTicks) {
         if (!canUse(level) || positionSupplier == null) {
             return false;
@@ -124,7 +171,7 @@ public final class PhotonClientFxUtil {
             ActiveEffect active = ACTIVE_EFFECTS.get(normalizedKey);
 
             if (active == null || active.level != level || !active.isAlive(r)) {
-                active = createRuntimeEffect(r, level, effectPath, pos, now, lifetimeTicks);
+                active = createRuntimeEffect(r, level, effectPath, pos, new Quaternionf(), unitScale(), now, lifetimeTicks);
                 if (active == null) {
                     return false;
                 }
@@ -133,6 +180,8 @@ public final class PhotonClientFxUtil {
             }
 
             active.positionSupplier = positionSupplier;
+            active.rotationSupplier = null;
+            active.scaleSupplier = null;
             active.updatePosition(r, pos, now, lifetimeTicks);
             return true;
         } catch (ReflectiveOperationException | RuntimeException e) {
@@ -213,7 +262,15 @@ public final class PhotonClientFxUtil {
         }
     }
 
-    private static ActiveEffect createRuntimeEffect(Reflection r, Level level, String effectPath, Vec3 pos, long now, int lifetimeTicks)
+    private static ActiveEffect createRuntimeEffect(
+            Reflection r,
+            Level level,
+            String effectPath,
+            Vec3 pos,
+            Quaternionf rotation,
+            Vector3f scale,
+            long now,
+            int lifetimeTicks)
             throws ReflectiveOperationException {
         Object fx = r.getFx.invoke(null, photon(effectPath));
         if (fx == null) {
@@ -223,6 +280,8 @@ public final class PhotonClientFxUtil {
         BlockPos blockPos = BlockPos.containing(pos);
         Object effect = r.blockEffectConstructor.newInstance(fx, level, blockPos);
         r.setOffset.invoke(effect, offsetFromBlockCenter(pos, blockPos));
+        r.setRotation.invoke(effect, rotation);
+        r.setScale.invoke(effect, scale);
         r.setAllowMulti.invoke(effect, true);
         r.blockStart.invoke(effect);
 
@@ -271,10 +330,30 @@ public final class PhotonClientFxUtil {
             delta = delta.scale(-1.0D);
         }
 
+        return rotationToward(delta);
+    }
+
+    private static Quaternionf portalRotation(Vec3 normal) {
+        return rotationToward(normalizeOrDefault(normal));
+    }
+
+    private static Quaternionf rotationToward(Vec3 direction) {
+        Vec3 delta = normalizeOrDefault(direction);
         double xz = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
         float yaw = (float) Math.atan2(delta.x, delta.z);
         float pitch = (float) -Math.atan2(delta.y, xz);
         return new Quaternionf().rotateXYZ(pitch, yaw, 0.0F);
+    }
+
+    private static Vec3 normalizeOrDefault(Vec3 direction) {
+        if (direction == null || direction.lengthSqr() < 1.0E-7D) {
+            return new Vec3(0.0D, 0.0D, 1.0D);
+        }
+        return direction.normalize();
+    }
+
+    private static Vector3f unitScale() {
+        return new Vector3f(1.0F, 1.0F, 1.0F);
     }
 
     private static Reflection reflection() {
@@ -307,6 +386,7 @@ public final class PhotonClientFxUtil {
                     fxRuntimeClass.getMethod("isAlive"),
                     fxRuntimeClass.getMethod("destroy", boolean.class),
                     fxObjectClass.getMethod("updatePos", Vector3f.class),
+                    fxObjectClass.getMethod("updateRotation", Quaternionf.class),
                     fxObjectClass.getMethod("updateScale", Vector3f.class));
             return reflection;
         } catch (ReflectiveOperationException | LinkageError e) {
@@ -338,6 +418,7 @@ public final class PhotonClientFxUtil {
             Method isAlive,
             Method destroy,
             Method updatePos,
+            Method updateRotation,
             Method updateScale) {
     }
 
@@ -346,6 +427,8 @@ public final class PhotonClientFxUtil {
         private final Object runtime;
         private final Object root;
         private Supplier<Vec3> positionSupplier;
+        private Supplier<Quaternionf> rotationSupplier;
+        private Supplier<Vector3f> scaleSupplier;
         private long lastUpdateTick;
         private long expireTick;
 
@@ -358,8 +441,22 @@ public final class PhotonClientFxUtil {
         }
 
         private void updatePosition(Reflection r, Vec3 pos, long now, int lifetimeTicks) throws ReflectiveOperationException {
+            updateTransform(r, pos, null, unitScale(), now, lifetimeTicks);
+        }
+
+        private void updateTransform(
+                Reflection r,
+                Vec3 pos,
+                Quaternionf rotation,
+                Vector3f scale,
+                long now,
+                int lifetimeTicks
+        ) throws ReflectiveOperationException {
             r.updatePos.invoke(root, new Vector3f((float) pos.x, (float) pos.y, (float) pos.z));
-            r.updateScale.invoke(root, new Vector3f(1.0F, 1.0F, 1.0F));
+            if (rotation != null) {
+                r.updateRotation.invoke(root, rotation);
+            }
+            r.updateScale.invoke(root, scale == null ? unitScale() : scale);
             lastUpdateTick = now;
             expireTick = now + Math.max(lifetimeTicks, STALE_TICKS);
         }
@@ -371,9 +468,11 @@ public final class PhotonClientFxUtil {
                     return false;
                 }
 
-                r.updatePos.invoke(root, new Vector3f((float) pos.x, (float) pos.y, (float) pos.z));
-                r.updateScale.invoke(root, new Vector3f(1.0F, 1.0F, 1.0F));
-                lastUpdateTick = now;
+                Quaternionf rotation = rotationSupplier == null ? null : rotationSupplier.get();
+                Vector3f scale = scaleSupplier == null ? unitScale() : scaleSupplier.get();
+                long previousExpireTick = expireTick;
+                updateTransform(r, pos, rotation, scale, now, STALE_TICKS);
+                expireTick = previousExpireTick;
                 return true;
             } catch (ReflectiveOperationException | RuntimeException ignored) {
                 return false;

@@ -20,6 +20,7 @@ public class AnnoyingVillagersModCreativeTabs {
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(AnnoyingVillagersModItems.HEROBRINE_CLONE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.SHADOW_HEROBRINE_CLONE_SPAWN_EGG.get());
+                        pOutput.accept(AnnoyingVillagersModItems.TRANSPORTER_HEROBRINE_CLONE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.HEROBRINE_CHRIS_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.HEROBRINE_GREG_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.LOW_HEROBRINE_CLONE_SPAWN_EGG.get());

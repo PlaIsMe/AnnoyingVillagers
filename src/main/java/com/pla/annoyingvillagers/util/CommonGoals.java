@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.util;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.VillagerArmyEntity;
 import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.entity.goal.PortalApproachGoal;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
@@ -41,6 +42,7 @@ public class CommonGoals {
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, BlueVillagerGeneralEntity.class, true, false));
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, GreenVillagerGeneralEntity.class, true, false));
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, PurpleVillagerGeneralEntity.class, true, false));
+        monster.goalSelector.addGoal(0, new PortalApproachGoal(monster));
         monster.goalSelector.addGoal(2, new MeleeAttackGoal(monster, 1.2D, false));
         monster.goalSelector.addGoal(3, new RandomStrollGoal(monster, 1.0D));
         monster.goalSelector.addGoal(4, new RandomLookAroundGoal(monster));

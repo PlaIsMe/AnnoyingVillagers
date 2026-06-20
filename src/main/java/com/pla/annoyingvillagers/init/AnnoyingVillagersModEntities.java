@@ -51,6 +51,7 @@ public class AnnoyingVillagersModEntities {
 
     public static final RegistryObject<EntityType<HerobrineCloneEntity>> HEROBRINE_CLONE = register("herobrine_clone", Builder.<HerobrineCloneEntity>of(HerobrineCloneEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(HerobrineCloneEntity::new).fireImmune().sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<ShadowHerobrineCloneEntity>> SHADOW_HEROBRINE_CLONE = register("shadow_herobrine_clone", Builder.<ShadowHerobrineCloneEntity>of(ShadowHerobrineCloneEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(ShadowHerobrineCloneEntity::new).fireImmune().sized(0.6F, 1.8F));
+    public static final RegistryObject<EntityType<TransporterHerobrineCloneEntity>> TRANSPORTER_HEROBRINE_CLONE = register("transporter_herobrine_clone", Builder.<TransporterHerobrineCloneEntity>of(TransporterHerobrineCloneEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(TransporterHerobrineCloneEntity::new).fireImmune().sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<HerobrineChrisEntity>> HEROBRINE_CHRIS = register("herobrine_chris", Builder.<HerobrineChrisEntity>of(HerobrineChrisEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(HerobrineChrisEntity::new).fireImmune().sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<HerobrineGregEntity>> HEROBRINE_GREG = register("herobrine_greg", Builder.<HerobrineGregEntity>of(HerobrineGregEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(HerobrineGregEntity::new).fireImmune().sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<LowHerobrineCloneEntity>> LOW_HEROBRINE_CLONE = register("low_herobrine_clone", Builder.<LowHerobrineCloneEntity>of(LowHerobrineCloneEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(LowHerobrineCloneEntity::new).fireImmune().sized(0.6F, 1.8F));
@@ -114,6 +115,13 @@ public class AnnoyingVillagersModEntities {
                 SpawnPlacements.Type.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 ShadowHerobrineCloneEntity::canSpawn,
+                SpawnPlacementRegisterEvent.Operation.REPLACE
+        );
+        event.register(
+                AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                TransporterHerobrineCloneEntity::canSpawn,
                 SpawnPlacementRegisterEvent.Operation.REPLACE
         );
         event.register(
@@ -267,6 +275,7 @@ public class AnnoyingVillagersModEntities {
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.NULL.get(), (entity) -> NullPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_CLONE.get(), (entity) -> HerobrineClonePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE.get(), (entity) -> ShadowHerobrineClonePatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(), (entity) -> ShadowHerobrineClonePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_CHRIS.get(), (entity) -> HerobrineClonePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.ARMORED_HEROBRINE.get(), (entity) -> ArmoredHerobrinePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_7.get(), (entity) -> HerobrineClonePatch::new);
@@ -280,6 +289,7 @@ public class AnnoyingVillagersModEntities {
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.HEROBRINE_CLONE.get(), HerobrineCloneEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.BLUE_DEMON.get(), BlueDemonEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE.get(), ShadowHerobrineCloneEntity.createAttributes().build());
+        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(), TransporterHerobrineCloneEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.HEROBRINE_7.get(), Herobrine7Entity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(), VillagerScoutCaptainEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(), VillagerScoutEntity.createAttributes().build());

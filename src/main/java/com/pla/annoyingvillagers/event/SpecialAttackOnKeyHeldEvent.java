@@ -1,7 +1,9 @@
 package com.pla.annoyingvillagers.event;
 
+import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
+import com.pla.annoyingvillagers.item.TransporterFragmentItem;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -27,6 +29,16 @@ public class SpecialAttackOnKeyHeldEvent {
         AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
         if (EpicfightUtil.isLongHitAnimation(dynamicAnimation, livingEntityPatch)) {
             return;
+        }
+
+        if (entity instanceof Player player && !player.level().isClientSide()) {
+            TransporterFragmentItem.UseResult transporterUseResult = TransporterFragmentItem.tryUseHeldSpecialAttack(player);
+            if (transporterUseResult.consumed()) {
+                if (transporterUseResult.activated()) {
+                    livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+                }
+                return;
+            }
         }
 
         if (entity.level() instanceof ServerLevel) {

@@ -124,7 +124,7 @@ public class AngrySteveLegendarySword {
                     steveEntity.getX(), steveEntity.getY(), steveEntity.getZ(),
                     AnnoyingVillagersModSounds.STEVE_SAY_ON_ATTACK.get(),
                     SoundSource.NEUTRAL,
-                    1.0F, 1.0F
+                    0.5F, 1.0F
             );
             new DelayedTask(10) {
                 @Override
@@ -134,7 +134,7 @@ public class AngrySteveLegendarySword {
                             steveEntity.getX(), steveEntity.getY(), steveEntity.getZ(),
                             AnnoyingVillagersModSounds.HEAVY_ATTACK_START.get(),
                             SoundSource.NEUTRAL,
-                            1.0F, 1.0F
+                            0.5F, 1.0F
                     );
 
                     serverLevel.playSound(
@@ -142,7 +142,7 @@ public class AngrySteveLegendarySword {
                             steveEntity.getX(), steveEntity.getY(), steveEntity.getZ(),
                             AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(),
                             SoundSource.NEUTRAL,
-                            1.0F, 1.0F
+                            0.5F, 1.0F
                     );
 
                     serverLevel.playSound(
@@ -150,7 +150,7 @@ public class AngrySteveLegendarySword {
                             steveEntity.getX(), steveEntity.getY(), steveEntity.getZ(),
                             AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(),
                             SoundSource.NEUTRAL,
-                            1.0F, 1.0F
+                            0.5F, 1.0F
                     );
 
                     serverLevel.sendParticles(

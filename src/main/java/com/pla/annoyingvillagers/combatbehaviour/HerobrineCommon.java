@@ -3,12 +3,14 @@ package com.pla.annoyingvillagers.combatbehaviour;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.task.DelayedTask;
+import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,6 +28,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import reascer.wom.gameasset.animations.weapons.AnimsAgony;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import java.util.ArrayList;
@@ -115,12 +119,29 @@ public class HerobrineCommon {
         if (mobpatch.getOriginal() instanceof HerobrineMob herobrineMob) {
             ItemStack item = herobrineMob.getMainHandItem();
             if (herobrineMob instanceof SwordsmanHerobrineEntity
-                    && item.getTag() != null && item.getTag().contains("SnakeAnimation")) {
+                    && (item.getTag() != null && item.getTag().contains("SnakeAnimation")
+                    || HerobrinePortalCombatUtil.isGregSixPortalSnakeBladePending((SwordsmanHerobrineEntity) herobrineMob))) {
                 return false;
             }
             return herobrineMob.getState() != 0;
         }
         return false;
+    }
+
+    public static boolean canPlaySecondFormAnimationWithGregPortal(MobPatch<?> mobpatch) {
+        if (!(mobpatch.getOriginal() instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity)) {
+            return false;
+        }
+        return canPlaySecondFormAnimation(mobpatch)
+                && HerobrinePortalCombatUtil.canQueueGregSixPortalSnakeBlade(swordsmanHerobrineEntity);
+    }
+
+    public static boolean canPlaySecondFormGuardAnimation(MobPatch<?> mobpatch) {
+        if (mobpatch.getOriginal() instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity
+                && HerobrinePortalCombatUtil.isGregSixPortalSnakeBladePending(swordsmanHerobrineEntity)) {
+            return false;
+        }
+        return canPlaySecondFormAnimation(mobpatch);
     }
 
     public static boolean canCastMeteorite(MobPatch<?> mobpatch) {
@@ -299,6 +320,27 @@ public class HerobrineCommon {
         }
     }
 
+    public static void queueSecondFormAnimationWithGregPortal(MobPatch<?> mobpatch) {
+        if (mobpatch.getOriginal() instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity) {
+            HerobrinePortalCombatUtil.queueGregSixPortalSnakeBlade(swordsmanHerobrineEntity);
+        }
+    }
+
+    public static void playSecondFormAnimationWithGregPortal(MobPatch<?> mobpatch) {
+        queueSecondFormAnimationWithGregPortal(mobpatch);
+    }
+
+    public static boolean triggerQueuedSecondFormSnakeBlade(SwordsmanHerobrineEntity swordsmanHerobrineEntity) {
+        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(swordsmanHerobrineEntity, LivingEntityPatch.class);
+        if (!(patch instanceof MobPatch<?> mobPatch)) {
+            return false;
+        }
+
+        playSecondFormAnimation(mobPatch);
+        patch.playAnimationSynchronized(AVAnimations.SNAKE_BLADE, 0.0F);
+        return true;
+    }
+
     public static void playSecondFormSpecialAnimation(MobPatch<?> mobpatch) {
         if (mobpatch.getOriginal() instanceof HerobrineMob herobrineMob) {
             if (herobrineMob.getState() < 2) {
@@ -315,6 +357,10 @@ public class HerobrineCommon {
 
     public static void playSecondFormGuardAnimation(MobPatch<?> mobpatch) {
         if (mobpatch.getOriginal() instanceof HerobrineMob herobrineMob) {
+            if (herobrineMob instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity
+                    && HerobrinePortalCombatUtil.isGregSixPortalSnakeBladePending(swordsmanHerobrineEntity)) {
+                return;
+            }
             ItemStack item = herobrineMob.getMainHandItem();
             if (herobrineMob.getState() < 2) {
                 herobrineMob.setSecondFormHitLeft(herobrineMob.getSecondFormHitLeft() - 1);
@@ -353,6 +399,23 @@ public class HerobrineCommon {
         Entity entity = mobpatch.getOriginal();
         if (entity instanceof HerobrineMob herobrineMob) {
             herobrineMob.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 60, 1));
+        }
+    }
+
+    public static void giveSlowFallingAndRequestGregPortal(MobPatch<?> mobpatch) {
+        giveSlowFalling(mobpatch);
+        if (!(mobpatch.getOriginal() instanceof HerobrineMob herobrineMob)
+                || !(herobrineMob.level() instanceof ServerLevel serverLevel)
+                || herobrineMob.getTarget() == null
+                || !herobrineMob.getTarget().isAlive()
+                || herobrineMob.getGregUUID() == null
+                || !new Random().nextBoolean()) {
+            return;
+        }
+
+        Entity entity = serverLevel.getEntity(herobrineMob.getGregUUID());
+        if (entity instanceof HerobrineGregEntity herobrineGregEntity && herobrineGregEntity.isAlive()) {
+            herobrineGregEntity.requestApproachPortalFor(herobrineMob, herobrineMob.getTarget());
         }
     }
 

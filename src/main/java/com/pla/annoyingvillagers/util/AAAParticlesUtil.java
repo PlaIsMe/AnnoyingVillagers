@@ -76,7 +76,6 @@ public class AAAParticlesUtil {
             return false;
         }
 
-        AnnoyingVillagers.LOGGER.info("[AV MOD DEBUG] sendTeleportPortal called from aaa particle");
         new TeleportPortalParticleEmitterInfo(
                 ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "teleport_portal"))
                 .atPortal(pos, normal, TeleportPortalParticleEmitterInfo.ForwardAxis.PLUS_Z, 0.0F)

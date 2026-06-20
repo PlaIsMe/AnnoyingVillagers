@@ -7,10 +7,12 @@ import java.util.UUID;
 import com.pla.annoyingvillagers.capabilities.SnakeBladeCapability;
 import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.entity.SnakeBladeEntity;
+import com.pla.annoyingvillagers.entity.SwordsmanHerobrineEntity;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModCapabilities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -28,6 +30,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Armatures;
@@ -38,6 +41,8 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 public class DemoniacVoltageReaverItem extends SwordItem {
+    private static final String TAG_PREFERRED_PORTAL_GROUP = "PreferredPortalGroup";
+    private static final String TAG_PREFERRED_PORTAL_OWNER = "PreferredPortalOwner";
     private static final double TARGET_SEARCH_RADIUS = 16.0D;
     private static final double PORTAL_TARGET_SEARCH_RADIUS = 64.0D;
 
@@ -83,13 +88,7 @@ public class DemoniacVoltageReaverItem extends SwordItem {
         ));
 
         for (Entity entity : level.getEntitiesOfClass(LivingEntity.class, attacker.getBoundingBox().inflate(TARGET_SEARCH_RADIUS))) {
-            if (!entity.equals(attacker)
-                    && !attacker.isAlliedTo(entity)
-                    && !entity.isAlliedTo(attacker)
-                    && !entity.isSpectator()
-                    && !(entity instanceof Player player && player.isCreative())
-                    && (entity instanceof Mob || entity instanceof Player)
-                    && attacker.hasLineOfSight(entity)) {
+            if (isValidSnakeBladeTarget(attacker, entity)) {
                 if (closestValid == null || attacker.distanceTo(entity) < attacker.distanceTo(closestValid)) {
                     closestValid = entity;
                 }
@@ -98,9 +97,24 @@ public class DemoniacVoltageReaverItem extends SwordItem {
         return closestValid != null || findClosestPortalTarget(attacker) != null;
     }
 
-    public static void process(ItemStack stack, LivingEntity attacker) {
+    public static boolean hasSnakeAnimation(ItemStack stack) {
+        return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean("SnakeAnimation");
+    }
+
+    public static void clearSnakeAnimation(ItemStack stack) {
+        if (!stack.hasTag()) {
+            return;
+        }
+        stack.removeTagKey("SnakeAnimation");
+        clearPreferredPortalTarget(stack);
+    }
+
+    public static boolean process(ItemStack stack, LivingEntity attacker) {
         Level level = attacker.level();
-        Entity closestValid = findClosestPortalTarget(attacker);
+        Entity closestValid = findPreferredPortalTarget(stack, attacker);
+        if (closestValid == null) {
+            closestValid = findClosestPortalTarget(attacker);
+        }
 
         Vec3 attackerEyes = attacker.getEyePosition(1.0F);
         level.clip(new ClipContext(
@@ -113,20 +127,69 @@ public class DemoniacVoltageReaverItem extends SwordItem {
 
         if (closestValid == null) {
             for (Entity entity : level.getEntitiesOfClass(LivingEntity.class, attacker.getBoundingBox().inflate(TARGET_SEARCH_RADIUS))) {
-                if (!entity.equals(attacker)
-                        && !attacker.isAlliedTo(entity)
-                        && !entity.isAlliedTo(attacker)
-                        && !entity.isSpectator()
-                        && !(entity instanceof Player player && player.isCreative())
-                        && (entity instanceof Mob || entity instanceof Player)
-                        && attacker.hasLineOfSight(entity)) {
+                if (isValidSnakeBladeTarget(attacker, entity)) {
                     if (closestValid == null || attacker.distanceTo(entity) < attacker.distanceTo(closestValid)) {
                         closestValid = entity;
                     }
                 }
             }
         }
-        launchSnakeBladeAt(attacker, closestValid, stack);
+        return launchSnakeBladeAt(attacker, closestValid, stack);
+    }
+
+    public static void setPreferredPortalTarget(ItemStack stack, UUID portalGroupUuid, @Nullable UUID portalOwnerUuid) {
+        if (portalGroupUuid == null) {
+            clearPreferredPortalTarget(stack);
+            return;
+        }
+
+        stack.getOrCreateTag().putUUID(TAG_PREFERRED_PORTAL_GROUP, portalGroupUuid);
+        if (portalOwnerUuid != null) {
+            stack.getOrCreateTag().putUUID(TAG_PREFERRED_PORTAL_OWNER, portalOwnerUuid);
+        } else if (stack.hasTag()) {
+            stack.getTag().remove(TAG_PREFERRED_PORTAL_OWNER);
+        }
+    }
+
+    public static void clearPreferredPortalTarget(ItemStack stack) {
+        if (!stack.hasTag()) {
+            return;
+        }
+        stack.removeTagKey(TAG_PREFERRED_PORTAL_GROUP);
+        stack.removeTagKey(TAG_PREFERRED_PORTAL_OWNER);
+    }
+
+    private static PortalEntity findPreferredPortalTarget(ItemStack stack, LivingEntity attacker) {
+        if (!stack.hasTag() || !stack.getTag().hasUUID(TAG_PREFERRED_PORTAL_GROUP)) {
+            return null;
+        }
+
+        UUID preferredGroup = stack.getTag().getUUID(TAG_PREFERRED_PORTAL_GROUP);
+        UUID preferredOwner = stack.getTag().hasUUID(TAG_PREFERRED_PORTAL_OWNER)
+                ? stack.getTag().getUUID(TAG_PREFERRED_PORTAL_OWNER)
+                : null;
+        PortalEntity bestPortal = null;
+
+        for (PortalEntity portal : attacker.level().getEntitiesOfClass(PortalEntity.class, attacker.getBoundingBox().inflate(PORTAL_TARGET_SEARCH_RADIUS))) {
+            if (portal.isRemoved() || !preferredGroup.equals(portal.getPortalGroupUUID())) {
+                continue;
+            }
+            if (preferredOwner != null && !preferredOwner.equals(portal.getOwnerUUID())) {
+                continue;
+            }
+            if (!HerobrinePortalCombatUtil.canUsePortalOwnedBy(attacker, portal.getOwnerUUID())) {
+                continue;
+            }
+
+            if (bestPortal == null || isBetterPreferredPortal(attacker, portal, bestPortal)) {
+                bestPortal = portal;
+            }
+        }
+
+        if (bestPortal != null) {
+            clearPreferredPortalTarget(stack);
+        }
+        return bestPortal;
     }
 
     private static PortalEntity findClosestPortalTarget(LivingEntity attacker) {
@@ -140,7 +203,9 @@ public class DemoniacVoltageReaverItem extends SwordItem {
             }
 
             UUID ownerUuid = portal.getOwnerUUID();
-            if (ownerUuid != null && !ownerUuid.equals(attackerUuid)) {
+            if (ownerUuid != null
+                    && !ownerUuid.equals(attackerUuid)
+                    && !HerobrinePortalCombatUtil.canUsePortalOwnedBy(attacker, ownerUuid)) {
                 continue;
             }
 
@@ -175,7 +240,43 @@ public class DemoniacVoltageReaverItem extends SwordItem {
         return false;
     }
 
-    public static void processGuard(ItemStack stack, LivingEntity entityToGuard) {
+    private static boolean isBetterPreferredPortal(LivingEntity attacker, PortalEntity candidate, PortalEntity current) {
+        if (candidate.isStarterPortal() != current.isStarterPortal()) {
+            return candidate.isStarterPortal();
+        }
+
+        int candidateOrder = candidate.getPortalOrder() < 0 ? Integer.MAX_VALUE : candidate.getPortalOrder();
+        int currentOrder = current.getPortalOrder() < 0 ? Integer.MAX_VALUE : current.getPortalOrder();
+        if (candidateOrder != currentOrder) {
+            return candidateOrder < currentOrder;
+        }
+
+        return isBetterInitialPortal(attacker, candidate, current);
+    }
+
+    private static boolean isValidSnakeBladeTarget(LivingEntity attacker, Entity entity) {
+        if (entity.equals(attacker)
+                || entity.isSpectator()
+                || !(entity instanceof Mob || entity instanceof Player)
+                || (entity instanceof Player player && player.isCreative())
+                || !attacker.hasLineOfSight(entity)) {
+            return false;
+        }
+
+        if (HerobrinePortalCombatUtil.isHerobrineSide(attacker)
+                && HerobrinePortalCombatUtil.isHerobrineSide(entity)) {
+            return false;
+        }
+
+        return !attacker.isAlliedTo(entity) && !entity.isAlliedTo(attacker);
+    }
+
+    public static boolean processGuard(ItemStack stack, LivingEntity entityToGuard) {
+        if (entityToGuard instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity
+                && HerobrinePortalCombatUtil.isGregSixPortalSnakeBladePending(swordsmanHerobrineEntity)) {
+            return false;
+        }
+
         Level level = entityToGuard.level();
         SnakeBladeCapability.ISnakeBladeCapability snakeBladeCapability =
                 AnnoyingVillagersModCapabilities.getCapability(entityToGuard, AnnoyingVillagersModCapabilities.SNAKE_BLADE_CAPABILITY);
@@ -184,13 +285,14 @@ public class DemoniacVoltageReaverItem extends SwordItem {
             if (canLaunchSnakeBlades(level, entityToGuard)) {
                 retractFarFragments(level, entityToGuard);
                 if (!level.isClientSide) {
-                    launchSnakeBladeAt(entityToGuard, stack);
+                    return launchSnakeBladeAt(entityToGuard, stack);
                 }
             }
         }
+        return false;
     }
 
-    public static void launchSnakeBladeAt(LivingEntity attacker, Entity closestValid, ItemStack stack) {
+    public static boolean launchSnakeBladeAt(LivingEntity attacker, Entity closestValid, ItemStack stack) {
         Level level = attacker.level();
         SnakeBladeCapability.ISnakeBladeCapability snakeBladeCapability =
                 AnnoyingVillagersModCapabilities.getCapability(attacker, AnnoyingVillagersModCapabilities.SNAKE_BLADE_CAPABILITY);
@@ -213,11 +315,13 @@ public class DemoniacVoltageReaverItem extends SwordItem {
                             snakeBladeEntity.copyPosition(attacker);
                             snakeBladeEntity.setProgress(0.0F);
                             setLastFragment(attacker, snakeBladeEntity);
+                            return true;
                         }
                     }
                 }
             }
         }
+        return false;
     }
 
     public static boolean launchSnakeBladeAt(LivingEntity attacker, ItemStack stack) {
@@ -364,7 +468,7 @@ public class DemoniacVoltageReaverItem extends SwordItem {
                 }
             }
         }
-        if (!flag && itemstack.getTag().getBoolean("SnakeAnimation")) {
+        if (entity instanceof Player && !flag && itemstack.hasTag() && itemstack.getTag().getBoolean("SnakeAnimation")) {
             itemstack.getTag().remove("SnakeAnimation");
         }
     }

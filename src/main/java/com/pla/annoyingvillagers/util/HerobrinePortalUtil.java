@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -44,7 +45,7 @@ public class HerobrinePortalUtil {
     public static <T extends LivingEntity> void spawnRising(ServerLevel level, T entity, double x, double z, double speedPerTick) {
         double groundY = entity.getY();
         double startY = groundY - 2.0;
-        entity.moveTo(x, startY, z, entity.getYRot(), entity.getXRot());
+        moveTransitionEntity(entity, x, startY, z);
 
         entity.noPhysics = true;
         entity.setNoGravity(true);
@@ -81,5 +82,15 @@ public class HerobrinePortalUtil {
 
         level.playSound(null, entity.blockPosition(), SoundEvents.SOUL_ESCAPE, SoundSource.HOSTILE, 0.5f, 1.2f + level.random.nextFloat() * 0.2f);
 
+    }
+
+    public static void moveTransitionEntity(LivingEntity entity, double x, double y, double z) {
+        entity.setDeltaMovement(Vec3.ZERO);
+        entity.fallDistance = 0.0F;
+        if (entity instanceof ServerPlayer serverPlayer) {
+            serverPlayer.teleportTo(x, y, z);
+        } else {
+            entity.setPos(x, y, z);
+        }
     }
 }

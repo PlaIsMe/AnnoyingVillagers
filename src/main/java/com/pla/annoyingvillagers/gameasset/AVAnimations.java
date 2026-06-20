@@ -171,6 +171,10 @@ public class AVAnimations {
                         .addState(EntityState.CAN_BASIC_ATTACK, false)
                         .addEvents(
                                 AnimationEvent.InTimeEvent.create(0.0F, (livingEntityPatch, self, p) -> {
+                                    if (livingEntityPatch.getOriginal() instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity
+                                            && HerobrinePortalCombatUtil.isGregSixPortalSnakeBladePending(swordsmanHerobrineEntity)) {
+                                        return;
+                                    }
                                     DemoniacVoltageReaverItem.processGuard(livingEntityPatch.getOriginal().getMainHandItem(), livingEntityPatch.getOriginal());
                                     livingEntityPatch.getOriginal().getMainHandItem().getOrCreateTag().putBoolean("SnakeAnimation", true);
                                 }, Side.SERVER)
@@ -961,6 +965,10 @@ public class AVAnimations {
 
                         if (shooterEntity instanceof Mob mob && mob.getTarget() != null) {
                             aimPosition = mob.getTarget().getEyePosition(1.0F);
+                            Vec3 portalAimPosition = HerobrinePortalCombatUtil.getProjectilePortalAim(shooterEntity, mob.getTarget());
+                            if (portalAimPosition != null) {
+                                aimPosition = portalAimPosition;
+                            }
                         } else if (shooterEntity instanceof Player player) {
                             Vec3 playerEyePosition = player.getEyePosition(1.0F);
                             Vec3 playerLookDirection = player.getLookAngle();

@@ -228,6 +228,9 @@ public class BlockProjectileEntity extends ThrowableProjectile {
     }
 
     private int getReplaceByLiquid(FluidState fluidState) {
+        if (!fluidState.isSource()) {
+            return 0;
+        }
         if (fluidState.is(FluidTags.WATER)) {
             return 1;
         }

@@ -21,6 +21,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_CLONE.get(), HerobrineCloneRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLUE_DEMON.get(), BlueDemonRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE.get(), ShadowHerobrineRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(), ShadowHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(), VillagerScoutRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(), VillagerScoutCaptainRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLUE_VILLAGER_GENERAL.get(), BlueVillagerGeneralRenderer::new);
@@ -168,6 +169,9 @@ public class AnnoyingVillagersModEntityRenderers {
                 (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
                         .initLayerLast(add.getContext(), entitytype));
         add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE.get(),
+                (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
+                        .initLayerLast(add.getContext(), entitytype));
+        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(),
                 (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
                         .initLayerLast(add.getContext(), entitytype));
         add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_CHRIS.get(),

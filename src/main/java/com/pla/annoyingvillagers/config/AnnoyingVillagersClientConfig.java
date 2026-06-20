@@ -125,7 +125,7 @@ public final class AnnoyingVillagersClientConfig {
         WOOPIE_SWORD_WIND("woopieSwordWind", "Woopie Sword wind", true),
         BLACK_FIRE("blackFire", "Black Fire", true),
         DIAMOND_ATTRACTOR("diamondAttractor", "Diamond Attractor", true),
-        TELEPORT_PORTAL("teleportPortal", "Teleport Portal", true),
+        TELEPORT_PORTAL("teleportPortal", "Teleport Portal (Photon: snakeportal)", true),
         DRAGON_BEAM("dragonBeam", "Herobrine Dragon beam", true),
         DRAGON_BEAM_HIT("dragonBeamHit", "Herobrine Dragon beam hit", true),
         BLUE_DEMON_THUNDER_BEAM("blueDemonThunderBeam", "Blue Demon thunder beam", true);

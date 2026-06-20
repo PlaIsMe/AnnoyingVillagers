@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
+import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.skill.DemoniacVoltageReaverSkill;
 import net.minecraft.nbt.CompoundTag;
@@ -161,10 +162,12 @@ public class SnakeBladeEntity extends Entity {
 
     @Override
     public void tick() {
-        if (getCreatorEntity() != null
-                && getCreatorEntity() instanceof LivingEntity livingEntity
-                && !(livingEntity.getMainHandItem().getItem() instanceof DemoniacVoltageReaverItem)) {
-            this.discard();
+        Entity creator = getCreatorEntity();
+        if (creator instanceof LivingEntity livingEntity
+                && (!(livingEntity.getMainHandItem().getItem() instanceof DemoniacVoltageReaverItem)
+                || !livingEntity.isAlive()
+                || livingEntity.isRemoved())) {
+            cleanupAndDiscard(creator);
             return;
         }
         HerobrineUtil.spawnEliteEffect(this.level(), this.getX(), this.getY(), this.getZ(), this);
@@ -173,8 +176,6 @@ public class SnakeBladeEntity extends Entity {
         this.prevProgress = progressBefore;
 
         super.tick();
-
-        Entity creator = getCreatorEntity();
 
         if (!this.level().isClientSide() && this.isGuard() && this.tickCount % 5 == 0) {
             tickGuardAoe(creator);
@@ -285,12 +286,18 @@ public class SnakeBladeEntity extends Entity {
         if (creator instanceof Player player) {
             for (ItemStack stack : player.getInventory().items) {
                 if (stack.is(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get())) {
-                    stack.removeTagKey("SnakeAnimation");
+                    DemoniacVoltageReaverItem.clearSnakeAnimation(stack);
                 }
             }
         } else if (creator instanceof LivingEntity living) {
-            living.getMainHandItem().removeTagKey("SnakeAnimation");
+            DemoniacVoltageReaverItem.clearSnakeAnimation(living.getMainHandItem());
         }
+    }
+
+    private void cleanupAndDiscard(Entity creator) {
+        updateLastFragment(null);
+        clearSnakeAnimationTag(creator);
+        this.remove(RemovalReason.DISCARDED);
     }
 
     private void updateMovementAndAttack(Entity creator) {
@@ -511,7 +518,7 @@ public class SnakeBladeEntity extends Entity {
             if (portalEntity.getPortalOrder() <= lastPortalOrder) continue;
 
             UUID ownerUuid = portalEntity.getOwnerUUID();
-            if (ownerUuid != null && !ownerUuid.equals(livingCreator.getUUID())) continue;
+            if (!HerobrinePortalCombatUtil.canUsePortalOwnedBy(livingCreator, ownerUuid)) continue;
 
             if (bestPortal == null
                     || portalEntity.getPortalOrder() < bestPortal.getPortalOrder()
@@ -533,7 +540,7 @@ public class SnakeBladeEntity extends Entity {
             if (hasTouched(portalEntity)) continue;
             if (portalEntity.isRemoved()) continue;
             UUID ownerUuid = portalEntity.getOwnerUUID();
-            if (ownerUuid != null && !ownerUuid.equals(livingCreator.getUUID())) continue;
+            if (!HerobrinePortalCombatUtil.canUsePortalOwnedBy(livingCreator, ownerUuid)) continue;
 
             if (closestPortal == null || center.distanceTo(portalEntity.position()) < center.distanceTo(closestPortal.position())) {
                 closestPortal = portalEntity;
@@ -619,6 +626,10 @@ public class SnakeBladeEntity extends Entity {
             return false;
         }
         if (entity instanceof Player player && player.isCreative()) {
+            return false;
+        }
+        if (HerobrinePortalCombatUtil.isHerobrineSide(creator)
+                && HerobrinePortalCombatUtil.isHerobrineSide(entity)) {
             return false;
         }
         if (!creator.isAlliedTo(entity)

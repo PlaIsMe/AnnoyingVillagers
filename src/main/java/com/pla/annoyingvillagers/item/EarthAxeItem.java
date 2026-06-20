@@ -115,8 +115,6 @@ public class EarthAxeItem extends SwordItem {
     }
 
     private static boolean canLiftBlock(ServerLevel level, BlockPos pos, BlockState state) {
-        AnnoyingVillagers.LOGGER.info("[AV MOD DEBUG canLiftBlock called for {} at {}", state, pos);
-
         if (state.isAir()) {
             return false;
         }

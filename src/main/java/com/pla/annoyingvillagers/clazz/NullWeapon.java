@@ -10,6 +10,7 @@ import com.pla.annoyingvillagers.entity.NullEntity;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.entity.goal.PortalApproachGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.NullWeaponItem;
 import com.pla.annoyingvillagers.skill.NullWeaponSkill;
@@ -204,6 +205,7 @@ public class NullWeapon extends Monster {
                 && nullEntity.isAlive()
                 && target != null
                 && target.getLastHurtMob() == nullEntity));
+        this.goalSelector.addGoal(2, new PortalApproachGoal(this));
         this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.4D, 20) {
             protected Vec3 getPosition() {
                 Random random = new Random();

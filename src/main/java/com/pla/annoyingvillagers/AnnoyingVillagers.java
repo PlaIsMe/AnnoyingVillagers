@@ -219,6 +219,7 @@ public class AnnoyingVillagers {
         Armatures.registerEntityTypeArmature(AnnoyingVillagersModEntities.HEROBRINE_7.get(), Armatures.BIPED);
         Armatures.registerEntityTypeArmature(AnnoyingVillagersModEntities.SHADOW_HEROBRINE.get(), Armatures.BIPED);
         Armatures.registerEntityTypeArmature(AnnoyingVillagersModEntities.BLUE_DEMON.get(), Armatures.BIPED);
+        Armatures.registerEntityTypeArmature(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(), Armatures.BIPED);
     }
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

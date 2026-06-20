@@ -9,6 +9,7 @@ import com.pla.annoyingvillagers.item.ShadowObsidianPillarItem;
 import com.pla.annoyingvillagers.item.ShadowObsidianSwordItem;
 import com.pla.annoyingvillagers.item.ShadowObsidianWeaponItem;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
+import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -471,6 +472,13 @@ public class ShadowHerobrineEntity extends HerobrineMob {
 
         double eyeY = shooter.getEyeY();
         Vec3 look = shooter.getLookAngle().normalize();
+        LivingEntity target = this.getTarget();
+        if (target != null && target.isAlive()) {
+            Vec3 portalAimPosition = HerobrinePortalCombatUtil.getProjectilePortalAim(this, target);
+            if (portalAimPosition != null) {
+                look = portalAimPosition.subtract(this.getEyePosition()).normalize();
+            }
+        }
         RandomSource rand = level.getRandom();
 
         for (int i = 0; i < length; i++) {
@@ -525,6 +533,10 @@ public class ShadowHerobrineEntity extends HerobrineMob {
         LivingEntity target = shadowHerobrineEntity.getTarget();
         if (target != null && target.isAlive()) {
             to = target.getEyePosition(1.0F);
+            Vec3 portalAimPosition = HerobrinePortalCombatUtil.getProjectilePortalAim(shadowHerobrineEntity, target);
+            if (portalAimPosition != null) {
+                to = portalAimPosition;
+            }
         } else {
             to = shadowHerobrineEntity.getEyePosition().add(shadowHerobrineEntity.getLookAngle().scale(16.0));
         }

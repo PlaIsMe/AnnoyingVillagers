@@ -1023,5 +1023,55 @@
         "name": "annoyingvillagers:entity/elite_herobrine/reaper_fire"
       }
     ]
+  },
+  "portal_enter": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:entity/portal_entity/portal_enter_01"
+      },
+      {
+        "name": "annoyingvillagers:entity/portal_entity/portal_enter_02"
+      },
+      {
+        "name": "annoyingvillagers:entity/portal_entity/portal_enter_03"
+      }
+    ]
+  },
+  "portal_exit": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:entity/portal_entity/portal_exit_01"
+      },
+      {
+        "name": "annoyingvillagers:entity/portal_entity/portal_exit_02"
+      }
+    ]
+  },
+  "portal_open": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:entity/portal_entity/portal_open_01"
+      },
+      {
+        "name": "annoyingvillagers:entity/portal_entity/portal_open_02"
+      }
+    ]
+  },
+  "portal_fizzle": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:entity/portal_entity/portal_fizzle_01"
+      },
+      {
+        "name": "annoyingvillagers:entity/portal_entity/portal_fizzle_02"
+      }
+    ]
+  },
+  "portal_ambient": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:entity/portal_entity/wpn_portal_ambient_lp_01"
+      }
+    ]
   }
 }

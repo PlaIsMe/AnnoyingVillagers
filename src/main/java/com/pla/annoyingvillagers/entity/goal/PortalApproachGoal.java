@@ -1,0 +1,76 @@
+package com.pla.annoyingvillagers.entity.goal;
+
+import com.pla.annoyingvillagers.entity.PortalEntity;
+import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.EnumSet;
+
+public class PortalApproachGoal extends Goal {
+    private final Mob mob;
+    private HerobrinePortalCombatUtil.PortalRoute route;
+
+    public PortalApproachGoal(Mob mob) {
+        this.mob = mob;
+        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+    }
+
+    @Override
+    public boolean canUse() {
+        LivingEntity target = this.mob.getTarget();
+        if (target == null || !target.isAlive()) {
+            return false;
+        }
+
+        HerobrinePortalCombatUtil.PortalRoute foundRoute = HerobrinePortalCombatUtil.findRouteToTarget(this.mob, target);
+        if (foundRoute == null) {
+            return false;
+        }
+
+        PortalEntity entrance = foundRoute.entrance();
+        if (this.mob.distanceToSqr(entrance) < 3.0D) {
+            return false;
+        }
+
+        this.route = foundRoute;
+        return true;
+    }
+
+    @Override
+    public boolean canContinueToUse() {
+        LivingEntity target = this.mob.getTarget();
+        if (target == null || !target.isAlive()) {
+            return false;
+        }
+        if (this.route == null || this.route.entrance().isRemoved() || this.route.exit().isRemoved()) {
+            return false;
+        }
+
+        HerobrinePortalCombatUtil.PortalRoute foundRoute = HerobrinePortalCombatUtil.findRouteToTarget(this.mob, target);
+        if (foundRoute == null) {
+            return false;
+        }
+
+        this.route = foundRoute;
+        return this.mob.distanceToSqr(this.route.entrance()) > 1.6D;
+    }
+
+    @Override
+    public void tick() {
+        if (this.route == null) {
+            return;
+        }
+
+        Vec3 center = this.route.entrance().getPortalCenter();
+        this.mob.getNavigation().moveTo(center.x, this.route.entrance().getY(), center.z, 1.45D);
+        this.mob.getLookControl().setLookAt(center.x, center.y, center.z, 30.0F, 30.0F);
+    }
+
+    @Override
+    public void stop() {
+        this.route = null;
+    }
+}

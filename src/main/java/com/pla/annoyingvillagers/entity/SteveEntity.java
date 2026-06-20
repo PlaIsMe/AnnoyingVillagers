@@ -429,7 +429,7 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity {
                     if (!this.sayLegendary) {
                         this.playSound(
                                 AnnoyingVillagersModSounds.STEVE_SAY_I_NOT_BELIEVE.get(),
-                                1.0F, 1.0F
+                                0.5F, 1.0F
                         );
                         this.sayLegendary = true;
                     }

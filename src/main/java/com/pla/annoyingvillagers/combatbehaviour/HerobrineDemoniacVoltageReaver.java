@@ -46,8 +46,8 @@ public class HerobrineDemoniacVoltageReaver {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(7.0D, 48.0D)
-                                            .animationBehavior(AnimsWom.HEROBRINE_MOB_ENDERSTEP_OBSCURIS, 0.0F)
-                                            .addExBehavior(HerobrineCommon::giveSlowFalling)
+                            .animationBehavior(AnimsWom.HEROBRINE_MOB_ENDERSTEP_OBSCURIS, 0.0F)
+                            .addExBehavior(HerobrineCommon::giveSlowFallingAndRequestGregPortal)
                             )
             )
             .newBehaviorRoot(
@@ -107,7 +107,20 @@ public class HerobrineDemoniacVoltageReaver {
             .newBehaviorRoot(
                     BehaviorRoot.builder()
                             .priority(1.0D)
-                            .weight(25)
+                            .weight(12.5D)
+                            .maxCooldown(300)
+                            .addFirstBehavior(
+                                    Behavior.builder()
+                                            .custom(CombatCommon::canPerformNormalAttackLogic)
+                                            .withinDistance(0.0D, 8.0D)
+                                            .custom(HerobrineCommon::canPlaySecondFormAnimationWithGregPortal)
+                                            .customBehavior(HerobrineCommon::queueSecondFormAnimationWithGregPortal)
+                            )
+            )
+            .newBehaviorRoot(
+                    BehaviorRoot.builder()
+                            .priority(1.0D)
+                            .weight(12.5D)
                             .maxCooldown(300)
                             .addFirstBehavior(
                                     Behavior.builder()
@@ -127,7 +140,7 @@ public class HerobrineDemoniacVoltageReaver {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 8.0D)
-                                            .custom(HerobrineCommon::canPlaySecondFormAnimation)
+                                            .custom(HerobrineCommon::canPlaySecondFormGuardAnimation)
                                             .animationBehavior(AVAnimations.SNAKE_BLADE_GUARD, 0.0F)
                                             .addExBehavior(HerobrineCommon::playSecondFormGuardAnimation)
                             )

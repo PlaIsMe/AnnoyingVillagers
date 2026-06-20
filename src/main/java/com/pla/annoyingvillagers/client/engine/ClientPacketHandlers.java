@@ -235,7 +235,7 @@ public final class ClientPacketHandlers {
 
         ClientVfxRouter.run(
                 VfxEffect.TELEPORT_PORTAL,
-                null,
+                () -> PhotonClientFxUtil.spawnPortal(level, "snakeportal", msg.pos(), msg.normal()),
                 () -> AAAParticlesUtil.sendTeleportPortal(level, msg.pos(), msg.normal()),
                 () -> {
                 });

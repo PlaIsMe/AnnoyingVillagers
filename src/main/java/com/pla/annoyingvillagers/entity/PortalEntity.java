@@ -1,7 +1,10 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundTeleportPortalFx;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -10,7 +13,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -18,7 +21,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -34,9 +39,10 @@ public class PortalEntity extends Entity {
     public static final float WIDTH = 2.2F;
     public static final float HEIGHT = 3.0F;
     public static final int LIFETIME_TICKS = 20 * 10;
+    private static final int AMBIENT_SOUND_INTERVAL_TICKS = 80;
 
     private static final String PORTAL_COOLDOWN_TAG = "AnnoyingVillagersPortalCooldown";
-    private static final int TELEPORT_COOLDOWN_TICKS = 8;
+    private static final int LIVING_TELEPORT_COOLDOWN_TICKS = 30;
 
     private static final EntityDataAccessor<Optional<UUID>> LINKED_PORTAL_UUID =
             SynchedEntityData.defineId(PortalEntity.class, EntityDataSerializers.OPTIONAL_UUID);
@@ -76,7 +82,14 @@ public class PortalEntity extends Entity {
         this.setDeltaMovement(Vec3.ZERO);
 
         if (!this.level().isClientSide) {
+            if (this.tickCount == 1) {
+                this.playPortalSound(AnnoyingVillagersModSounds.PORTAL_OPEN.get());
+            }
+            if (this.tickCount > 1 && this.tickCount % AMBIENT_SOUND_INTERVAL_TICKS == 0) {
+                this.playPortalSound(AnnoyingVillagersModSounds.PORTAL_AMBIENT.get());
+            }
             if (this.tickCount >= LIFETIME_TICKS) {
+                this.playPortalSound(AnnoyingVillagersModSounds.PORTAL_FIZZLE.get());
                 this.discard();
                 return;
             }
@@ -99,16 +112,80 @@ public class PortalEntity extends Entity {
     }
 
     private boolean canTeleportEntity(Entity entity) {
-        if (entity instanceof PortalEntity || entity instanceof SnakeBladeEntity) {
+        if (entity instanceof PortalEntity || entity instanceof SnakeBladeEntity || entity instanceof HerobrineDragonEntity) {
             return false;
         }
         if (entity.isRemoved() || !entity.isAlive() || entity.isPassenger()) {
             return false;
         }
+        if (entity instanceof Projectile projectile && isGroundedProjectile(projectile)) {
+            return false;
+        }
         if (entity instanceof Player player && player.isSpectator()) {
             return false;
         }
-        return entity.getPersistentData().getLong(PORTAL_COOLDOWN_TAG) <= this.level().getGameTime();
+        if (entity.getPersistentData().getLong(PORTAL_COOLDOWN_TAG) > this.level().getGameTime()) {
+            return false;
+        }
+        return this.canTeleportByOwnerRule(entity);
+    }
+
+    private static boolean isGroundedProjectile(Projectile projectile) {
+        return projectile.onGround() || projectile.getDeltaMovement().lengthSqr() < 1.0E-4D;
+    }
+
+    private boolean canTeleportByOwnerRule(Entity entity) {
+        Entity owner = this.getOwnerEntity();
+        if (owner == null) {
+            return true;
+        }
+
+        if (isHerobrinePortalOwner(owner)) {
+            return canUseHerobrineOwnedPortal(entity, owner);
+        }
+        if (owner instanceof Player) {
+            return canUsePlayerOwnedPortal(entity);
+        }
+        return true;
+    }
+
+    private Entity getOwnerEntity() {
+        UUID ownerUuid = this.getOwnerUUID();
+        if (ownerUuid == null || !(this.level() instanceof ServerLevel serverLevel)) {
+            return null;
+        }
+        return serverLevel.getEntity(ownerUuid);
+    }
+
+    private static boolean canUseHerobrineOwnedPortal(Entity entity, Entity owner) {
+        return !isSupportPortalCaster(entity)
+                && entity.getUUID().equals(owner.getUUID())
+                || entity instanceof Projectile
+                || (isHerobrinePortalUser(entity) && !isSupportPortalCaster(entity));
+    }
+
+    private static boolean canUsePlayerOwnedPortal(Entity entity) {
+        if (entity instanceof Projectile) {
+            return true;
+        }
+        return !isHerobrinePortalUser(entity) && !(entity instanceof Monster);
+    }
+
+    private static boolean isHerobrinePortalOwner(Entity entity) {
+        return isHerobrinePortalUser(entity);
+    }
+
+    private static boolean isSupportPortalCaster(Entity entity) {
+        return entity instanceof HerobrineGregEntity
+                || entity instanceof TransporterHerobrineCloneEntity;
+    }
+
+    private static boolean isHerobrinePortalUser(Entity entity) {
+        return entity instanceof HerobrineMob
+                || entity instanceof HerobrineGregEntity
+                || entity instanceof LowHerobrineCloneEntity
+                || entity instanceof LowShadowHerobrineCloneEntity
+                || entity instanceof NullWeapon;
     }
 
     private boolean intersectsPortalPath(Entity entity, AABB portalBox) {
@@ -141,7 +218,9 @@ public class PortalEntity extends Entity {
         Vec3 exitPos = linkedPortal.findExitPosition(entity, exitSide, relativeY);
         Vec3 exitMotion = this.transformMotion(motion, linkedPortal, exitSide);
 
-        entity.getPersistentData().putLong(PORTAL_COOLDOWN_TAG, this.level().getGameTime() + TELEPORT_COOLDOWN_TICKS);
+        if (entity instanceof LivingEntity) {
+            entity.getPersistentData().putLong(PORTAL_COOLDOWN_TAG, this.level().getGameTime() + LIVING_TELEPORT_COOLDOWN_TICKS);
+        }
         entity.teleportTo(exitPos.x, exitPos.y, exitPos.z);
         entity.move(MoverType.SELF, Vec3.ZERO);
         entity.setDeltaMovement(exitMotion);
@@ -154,10 +233,14 @@ public class PortalEntity extends Entity {
             livingEntity.yBodyRot += yawDelta;
         }
 
-        this.level().playSound(null, this.getX(), this.getY() + 1.5D, this.getZ(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.45F, 1.25F);
-        linkedPortal.level().playSound(null, linkedPortal.getX(), linkedPortal.getY() + 1.5D, linkedPortal.getZ(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.45F, 1.25F);
+        this.playPortalSound(AnnoyingVillagersModSounds.PORTAL_ENTER.get());
+        linkedPortal.playPortalSound(AnnoyingVillagersModSounds.PORTAL_EXIT.get());
         this.sendTeleportPortalFx();
         linkedPortal.sendTeleportPortalFx();
+    }
+
+    private void playPortalSound(SoundEvent soundEvent) {
+        this.level().playSound(null, this.getX(), this.getY() + 1.5D, this.getZ(), soundEvent, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
     private void sendTeleportPortalFx() {

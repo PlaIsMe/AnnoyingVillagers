@@ -30,6 +30,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModKeyMappings;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
+import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -416,7 +417,12 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
 
         DragonMeteoriteEntity dragonMeteoriteEntity = new DragonMeteoriteEntity(AnnoyingVillagersModEntities.DRAGON_METEORITE.get(), serverLevel);
         dragonMeteoriteEntity.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, 0F, 0F);
-        dragonMeteoriteEntity.setPosToAim(new Vec3(target.getX(), target.getY(0.5D), target.getZ()));
+        Vec3 aimPosition = new Vec3(target.getX(), target.getY(0.5D), target.getZ());
+        Vec3 portalAimPosition = HerobrinePortalCombatUtil.getProjectilePortalAim(this, target);
+        if (portalAimPosition != null) {
+            aimPosition = portalAimPosition;
+        }
+        dragonMeteoriteEntity.setPosToAim(aimPosition);
         dragonMeteoriteEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
         dragonMeteoriteEntity.setOwner(this);
         serverLevel.addFreshEntity(dragonMeteoriteEntity);

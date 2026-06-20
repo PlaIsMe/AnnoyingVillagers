@@ -69,7 +69,7 @@ public class SpecialAttackOnKeyPressedEvent {
         switch (useMode) {
             case BOTH_HANDS -> livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
             case OFF_HAND -> livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
-            case MAIN_HAND -> livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
+            case MAIN_HAND -> livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
             case NONE -> {
             }
         }

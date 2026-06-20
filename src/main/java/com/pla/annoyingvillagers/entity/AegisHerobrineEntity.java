@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.EnderAegisItem;
+import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -25,6 +26,8 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public class AegisHerobrineEntity extends HerobrineMob {
+    private int portalSupportCooldown = 180;
+
     public AegisHerobrineEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.AEGIS_HEROBRINE.get(), level);
     }
@@ -70,6 +73,13 @@ public class AegisHerobrineEntity extends HerobrineMob {
                         itemStack.getTag().remove("SecondForm");
                     }
                 }
+            }
+            if (this.portalSupportCooldown > 0) {
+                this.portalSupportCooldown--;
+            }
+            if (this.portalSupportCooldown <= 0) {
+                this.portalSupportCooldown = 260 + this.getRandom().nextInt(180);
+                HerobrinePortalCombatUtil.tryAegisProtectPortal(this);
             }
         }
     }
