@@ -1025,6 +1025,8 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                         } else if (this instanceof AegisHerobrineEntity aegisHerobrineEntity) {
                             // For some reason the block animation can't be played inside finalize spawn
                             aegisHerobrineEntity.getPersistentData().putBoolean("init_animation", true);
+                        } else if (this instanceof TransporterHerobrineCloneEntity) {
+                            getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
                         } else if (!(this instanceof SledgehammerHerobrineEntity) && !(this instanceof SwordsmanHerobrineEntity)) {
                             getLivingEntityPatch().playAnimationSynchronized(AVAnimations.HEROBRINE_ANIMATE, 0.0F);
                         }
