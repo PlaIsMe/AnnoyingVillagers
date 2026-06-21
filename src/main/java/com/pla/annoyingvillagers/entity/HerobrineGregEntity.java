@@ -1101,10 +1101,10 @@ public class HerobrineGregEntity extends Monster {
         });
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, VillagerScoutEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, VillagerScoutCaptainEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
-        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, BlueVillagerGeneralEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
-        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, GreenVillagerGeneralEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
-        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, RedVillagerGeneralEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
-        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, PurpleVillagerGeneralEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
+        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, BlueVillagerKnightEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
+        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, GreenVillagerKnightEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
+        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, RedVillagerKnightEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
+        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, PurpleVillagerKnightEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
 
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, PlayerNpcEntity.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Player.class, 12.0F, AVOID_WALK_SPEED, AVOID_SPRINT_SPEED));

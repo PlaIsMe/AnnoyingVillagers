@@ -37,7 +37,7 @@ public final class AvNpcCombatBehaviorBuilder {
                 ))
                 .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot())
                 .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodRoot())
-                .newBehaviorRoot(CombatBehaviourTemplates.villagerGeneralLavaBucketRoot())
+                .newBehaviorRoot(CombatBehaviourTemplates.villagerKnightLavaBucketRoot())
                 .newBehaviorRoot(combatRoot(
                         CombatCommon::usesStepMoveset,
                         CombatCommon.stepAnimations(),
@@ -83,7 +83,7 @@ public final class AvNpcCombatBehaviorBuilder {
                 ))
                 .newBehaviorRoot(CombatBehaviourTemplates.enderPearlToTargetRoot(true))
                 .newBehaviorRoot(CombatBehaviourTemplates.combatFishingRodRoot())
-                .newBehaviorRoot(CombatBehaviourTemplates.villagerGeneralLavaBucketRoot())
+                .newBehaviorRoot(CombatBehaviourTemplates.villagerKnightLavaBucketRoot())
                 .newBehaviorRoot(combatRoot(
                         CombatCommon::usesStepMoveset,
                         CombatCommon.stepAnimations(),

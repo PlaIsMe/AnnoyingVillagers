@@ -88,12 +88,12 @@ public class MobTargetRedirectEvent {
         return null;
     }
 
-    private static boolean shouldBlockVillagerGeneralJevTarget(Mob mob, @Nullable LivingEntity target) {
-        return target instanceof JevEntity && isVillagerGeneral(mob);
+    private static boolean shouldBlockVillagerKnightJevTarget(Mob mob, @Nullable LivingEntity target) {
+        return target instanceof JevEntity && isVillagerKnight(mob);
     }
 
     @Nullable
-    private static LivingEntity getVillagerGeneralJevReplacementTarget(Mob mob, @Nullable LivingEntity target) {
+    private static LivingEntity getVillagerKnightJevReplacementTarget(Mob mob, @Nullable LivingEntity target) {
         if (!(target instanceof JevEntity jev)) {
             return null;
         }
@@ -106,11 +106,11 @@ public class MobTargetRedirectEvent {
         return null;
     }
 
-    private static boolean isVillagerGeneral(Mob mob) {
-        return mob instanceof RedVillagerGeneralEntity
-                || mob instanceof BlueVillagerGeneralEntity
-                || mob instanceof GreenVillagerGeneralEntity
-                || mob instanceof PurpleVillagerGeneralEntity;
+    private static boolean isVillagerKnight(Mob mob) {
+        return mob instanceof RedVillagerKnightEntity
+                || mob instanceof BlueVillagerKnightEntity
+                || mob instanceof GreenVillagerKnightEntity
+                || mob instanceof PurpleVillagerKnightEntity;
     }
 
     private static LivingEntity normalizeRedirectTarget(LivingEntity redirectTarget) {
@@ -179,8 +179,8 @@ public class MobTargetRedirectEvent {
             if (mob instanceof BlueDemonEntity || mob instanceof BbqEntity) return;
 
             LivingEntity currentTarget = mob.getTarget();
-            if (shouldBlockVillagerGeneralJevTarget(mob, currentTarget)) {
-                mob.setTarget(getVillagerGeneralJevReplacementTarget(mob, currentTarget));
+            if (shouldBlockVillagerKnightJevTarget(mob, currentTarget)) {
+                mob.setTarget(getVillagerKnightJevReplacementTarget(mob, currentTarget));
                 return;
             }
 
@@ -209,8 +209,8 @@ public class MobTargetRedirectEvent {
         }
 
         LivingEntity newTarget = event.getNewTarget();
-        if (shouldBlockVillagerGeneralJevTarget(mob, newTarget)) {
-            event.setNewTarget(getVillagerGeneralJevReplacementTarget(mob, newTarget));
+        if (shouldBlockVillagerKnightJevTarget(mob, newTarget)) {
+            event.setNewTarget(getVillagerKnightJevReplacementTarget(mob, newTarget));
             return;
         }
 

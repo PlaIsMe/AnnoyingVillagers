@@ -21,13 +21,13 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_CLONE.get(), HerobrineCloneRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLUE_DEMON.get(), BlueDemonRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE.get(), ShadowHerobrineRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(), ShadowHerobrineRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(), TransporterHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(), VillagerScoutRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(), VillagerScoutCaptainRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLUE_VILLAGER_GENERAL.get(), BlueVillagerGeneralRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.GREEN_VILLAGER_GENERAL.get(), PurpleVillagerGeneralRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.RED_VILLAGER_GENERAL.get(), RedVillagerGeneralRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.PURPLE_VILLAGER_GENERAL.get(), GreenVillagerGeneralRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLUE_VILLAGER_KNIGHT.get(), BlueVillagerKnightRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.GREEN_VILLAGER_KNIGHT.get(), GreenVillagerKnightRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT.get(), RedVillagerKnightRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.PURPLE_VILLAGER_KNIGHT.get(), PurpleVillagerKnightRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.ENCHANTED_ENDER_PEARL_PROJECTILE.get(), ThrownItemRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.THROWN_POISON_EGG.get(), ThrownItemRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.ENDER_AEGIS_PROJECTILE.get(), ThrownItemRenderer::new);
@@ -96,16 +96,16 @@ public class AnnoyingVillagersModEntityRenderers {
         add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(),
                 (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
                         .initLayerLast(add.getContext(), entitytype));
-        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.RED_VILLAGER_GENERAL.get(),
+        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT.get(),
                 (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
                         .initLayerLast(add.getContext(), entitytype));
-        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.BLUE_VILLAGER_GENERAL.get(),
+        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.BLUE_VILLAGER_KNIGHT.get(),
                 (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
                         .initLayerLast(add.getContext(), entitytype));
-        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.GREEN_VILLAGER_GENERAL.get(),
+        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.GREEN_VILLAGER_KNIGHT.get(),
                 (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
                         .initLayerLast(add.getContext(), entitytype));
-        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.PURPLE_VILLAGER_GENERAL.get(),
+        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.PURPLE_VILLAGER_KNIGHT.get(),
                 (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
                         .initLayerLast(add.getContext(), entitytype));
         add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.STEVE.get(),

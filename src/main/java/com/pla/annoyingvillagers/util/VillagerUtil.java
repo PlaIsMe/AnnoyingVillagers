@@ -377,13 +377,13 @@ public class VillagerUtil {
         double roll = new Random().nextDouble();
 
         if (roll < 0.20D) {
-            return AnnoyingVillagersModEntities.PURPLE_VILLAGER_GENERAL.get();
+            return AnnoyingVillagersModEntities.PURPLE_VILLAGER_KNIGHT.get();
         } else if (roll < 0.40D) {
-            return AnnoyingVillagersModEntities.RED_VILLAGER_GENERAL.get();
+            return AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT.get();
         } else if (roll < 0.60D) {
-            return AnnoyingVillagersModEntities.GREEN_VILLAGER_GENERAL.get();
+            return AnnoyingVillagersModEntities.GREEN_VILLAGER_KNIGHT.get();
         } else if (roll < 0.80D) {
-            return AnnoyingVillagersModEntities.BLUE_VILLAGER_GENERAL.get();
+            return AnnoyingVillagersModEntities.BLUE_VILLAGER_KNIGHT.get();
         } else {
             return AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get();
         }

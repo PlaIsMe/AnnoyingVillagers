@@ -2,10 +2,10 @@ package com.pla.annoyingvillagers.clazz;
 
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
-import com.pla.annoyingvillagers.entity.BlueVillagerGeneralEntity;
-import com.pla.annoyingvillagers.entity.GreenVillagerGeneralEntity;
-import com.pla.annoyingvillagers.entity.PurpleVillagerGeneralEntity;
-import com.pla.annoyingvillagers.entity.RedVillagerGeneralEntity;
+import com.pla.annoyingvillagers.entity.BlueVillagerKnightEntity;
+import com.pla.annoyingvillagers.entity.GreenVillagerKnightEntity;
+import com.pla.annoyingvillagers.entity.PurpleVillagerKnightEntity;
+import com.pla.annoyingvillagers.entity.RedVillagerKnightEntity;
 import com.pla.annoyingvillagers.entity.VillagerScoutCaptainEntity;
 import com.pla.annoyingvillagers.entity.goal.BowLineOfSightGoal;
 import com.pla.annoyingvillagers.entity.goal.BurnNearbyItemGoal;
@@ -61,7 +61,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private static final float VILLAGER_OFFHAND_EQUIPMENT_DROP_CHANCE = 0.14F;
     private static final float VILLAGER_EQUIPMENT_LOOTING_BONUS = 0.025F;
     private static final float AVNPC_WATER_BUCKET_DROP_CHANCE = 0.20F;
-    private static final float VILLAGER_GENERAL_LAVA_BUCKET_DROP_CHANCE = 0.24F;
+    private static final float VILLAGER_KNIGHT_LAVA_BUCKET_DROP_CHANCE = 0.24F;
     private static final float UTILITY_BUCKET_LOOTING_BONUS = 0.04F;
 
     private final SimpleContainer inventory = new SimpleContainer(27);
@@ -404,7 +404,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             this.spawnAtLocation(new ItemStack(Items.WATER_BUCKET));
         }
 
-        if (this.isVillagerGeneral() && this.rollUtilityBucketDrop(VILLAGER_GENERAL_LAVA_BUCKET_DROP_CHANCE, looting)) {
+        if (this.isVillagerKnight() && this.rollUtilityBucketDrop(VILLAGER_KNIGHT_LAVA_BUCKET_DROP_CHANCE, looting)) {
             this.spawnAtLocation(new ItemStack(Items.LAVA_BUCKET));
         }
     }
@@ -429,15 +429,15 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     private boolean shouldDropVillagerCombatEquipment() {
-        return this.isVillagerGeneral()
+        return this.isVillagerKnight()
                 || this instanceof VillagerScoutCaptainEntity;
     }
 
-    private boolean isVillagerGeneral() {
-        return this instanceof BlueVillagerGeneralEntity
-                || this instanceof GreenVillagerGeneralEntity
-                || this instanceof RedVillagerGeneralEntity
-                || this instanceof PurpleVillagerGeneralEntity;
+    private boolean isVillagerKnight() {
+        return this instanceof BlueVillagerKnightEntity
+                || this instanceof GreenVillagerKnightEntity
+                || this instanceof RedVillagerKnightEntity
+                || this instanceof PurpleVillagerKnightEntity;
     }
 
     private void tryDropVillagerEquipmentSlot(EquipmentSlot slot, float baseChance, int looting) {
@@ -517,14 +517,14 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
         if (equipped.is(AnnoyingVillagersModItems.VILLAGER_SCOUT_HELMET_FIX.get())) {
             replacement = AnnoyingVillagersModItems.VILLAGER_SCOUT_HELMET.get();
-        } else if (equipped.is(AnnoyingVillagersModItems.BLUE_VILLAGER_GENERAL_HELMET_FIX.get())) {
-            replacement = AnnoyingVillagersModItems.BLUE_VILLAGER_GENERAL_HELMET.get();
-        } else if (equipped.is(AnnoyingVillagersModItems.RED_VILLAGER_GENERAL_HELMET_FIX.get())) {
-            replacement = AnnoyingVillagersModItems.RED_VILLAGER_GENERAL_HELMET.get();
-        } else if (equipped.is(AnnoyingVillagersModItems.GREEN_VILLAGER_GENERAL_HELMET_FIX.get())) {
-            replacement = AnnoyingVillagersModItems.PURPLE_VILLAGER_GENERAL_HELMET.get();
-        } else if (equipped.is(AnnoyingVillagersModItems.PURPLE_VILLAGER_GENERAL_HELMET_FIX.get())) {
-            replacement = AnnoyingVillagersModItems.GREEN_VILLAGER_GENERAL_HELMET.get();
+        } else if (equipped.is(AnnoyingVillagersModItems.BLUE_VILLAGER_KNIGHT_HELMET_FIX.get())) {
+            replacement = AnnoyingVillagersModItems.BLUE_VILLAGER_KNIGHT_HELMET.get();
+        } else if (equipped.is(AnnoyingVillagersModItems.RED_VILLAGER_KNIGHT_HELMET_FIX.get())) {
+            replacement = AnnoyingVillagersModItems.RED_VILLAGER_KNIGHT_HELMET.get();
+        } else if (equipped.is(AnnoyingVillagersModItems.GREEN_VILLAGER_KNIGHT_HELMET_FIX.get())) {
+            replacement = AnnoyingVillagersModItems.GREEN_VILLAGER_KNIGHT_HELMET.get();
+        } else if (equipped.is(AnnoyingVillagersModItems.PURPLE_VILLAGER_KNIGHT_HELMET_FIX.get())) {
+            replacement = AnnoyingVillagersModItems.PURPLE_VILLAGER_KNIGHT_HELMET.get();
         }
 
         if (replacement == null) {
@@ -743,7 +743,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.throwEnderPearlLater(20, 0.3D, 90.0F);
     }
 
-    protected void doVillagerGeneralStyleEnderPearlCounter() {
+    protected void doVillagerKnightStyleEnderPearlCounter() {
         this.throwEnderPearlNow(new Random().nextFloat(90.0F, 180.0F));
         this.throwEnderPearlLater(40, 0.5D, 0.0F);
         this.throwEnderPearlLater(20, 0.2D, 180.0F);

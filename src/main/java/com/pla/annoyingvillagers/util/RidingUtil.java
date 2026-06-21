@@ -13,7 +13,7 @@ import java.util.Random;
 public class RidingUtil {
     public static void rideRandomAnimal(ServerLevel serverLevel, Entity entity) {
         List<EntityType<? extends LivingEntity>> pool = List.of(
-                EntityType.HORSE, EntityType.DONKEY, EntityType.MULE, EntityType.CAMEL, EntityType.LLAMA, EntityType.CHICKEN, EntityType.POLAR_BEAR, EntityType.COW, EntityType.FOX, EntityType.FROG
+                EntityType.HORSE, EntityType.DONKEY, EntityType.CAMEL, EntityType.POLAR_BEAR, EntityType.COW
         );
         Random rand = new Random();
         EntityType<? extends LivingEntity> type = pool.get(rand.nextInt(pool.size()));
@@ -30,8 +30,8 @@ public class RidingUtil {
                     null
             );
             if (entity instanceof VillagerScoutEntity || entity instanceof VillagerScoutCaptainEntity
-                    || entity instanceof RedVillagerGeneralEntity || entity instanceof BlueVillagerGeneralEntity
-                    || entity instanceof GreenVillagerGeneralEntity || entity instanceof PurpleVillagerGeneralEntity) {
+                    || entity instanceof RedVillagerKnightEntity || entity instanceof BlueVillagerKnightEntity
+                    || entity instanceof GreenVillagerKnightEntity || entity instanceof PurpleVillagerKnightEntity) {
                 TeamUtil.addOrJoinTeam(mount, "villagers");
             }
             serverLevel.addFreshEntity(mount);

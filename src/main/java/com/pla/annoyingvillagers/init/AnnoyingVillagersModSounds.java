@@ -46,8 +46,8 @@ public class AnnoyingVillagersModSounds {
     public static final RegistryObject<SoundEvent> STEVE_SAY_ON_ATTACK = register("steve_say_on_attack");
     public static final RegistryObject<SoundEvent> STEVE_SAY = register("steve_say");
     public static final RegistryObject<SoundEvent> ANGRY_STEVE_SAY = register("angry_steve_say");
-    public static final RegistryObject<SoundEvent> VILLAGER_GENERALS_SAY_ON_FIRE = register("villager_generals_say_on_fire");
-    public static final RegistryObject<SoundEvent> VILLAGER_GENERALS_SAY = register("villager_generals_say");
+    public static final RegistryObject<SoundEvent> VILLAGER_KNIGHTS_SAY_ON_FIRE = register("villager_knights_say_on_fire");
+    public static final RegistryObject<SoundEvent> VILLAGER_KNIGHTS_SAY = register("villager_knights_say");
     public static final RegistryObject<SoundEvent> VILLAGER_SCOUTS_SAY_ON_FIRE = register("villager_scouts_say_on_fire");
     public static final RegistryObject<SoundEvent> VILLAGER_SCOUTS_SAY = register("villager_scouts_say");
     public static final RegistryObject<SoundEvent> ZOMBIE_SAY = register("zombie_say");

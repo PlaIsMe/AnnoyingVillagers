@@ -1,0 +1,7 @@
+{
+  "parent": "annoyingvillagers:custom/villager_knight_helmet_fix",
+  "textures": {
+    "0": "annoyingvillagers:item/red_villager_knight_helmet_fix",
+    "particle": "annoyingvillagers:item/red_villager_knight_helmet_fix"
+  }
+}

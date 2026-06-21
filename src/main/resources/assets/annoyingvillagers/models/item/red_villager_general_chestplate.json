@@ -1,6 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "annoyingvillagers:item/red_villager_general_chestplate"
-  }
-}

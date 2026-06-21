@@ -130,10 +130,10 @@ public class AnnoyingVillagersConfig {
                                 "annoyingvillagers:low_shadow_herobrine_clone",
                                 "annoyingvillagers:villager_scout",
                                 "annoyingvillagers:villager_scout_captain",
-                                "annoyingvillagers:blue_villager_general",
-                                "annoyingvillagers:green_villager_general",
-                                "annoyingvillagers:red_villager_general",
-                                "annoyingvillagers:purple_villager_general"
+                                "annoyingvillagers:blue_villager_knight",
+                                "annoyingvillagers:green_villager_knight",
+                                "annoyingvillagers:red_villager_knight",
+                                "annoyingvillagers:purple_villager_knight"
                         ),
                         AnnoyingVillagersConfig::validResourceOrTagOrNamespace
                 );

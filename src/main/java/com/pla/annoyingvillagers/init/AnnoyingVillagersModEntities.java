@@ -27,10 +27,10 @@ public class AnnoyingVillagersModEntities {
 
     public static final RegistryObject<EntityType<VillagerScoutCaptainEntity>> VILLAGER_SCOUT_CAPTAIN = register("villager_scout_captain", Builder.<VillagerScoutCaptainEntity>of(VillagerScoutCaptainEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(VillagerScoutCaptainEntity::new).sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<VillagerScoutEntity>> VILLAGER_SCOUT = register("villager_scout", Builder.<VillagerScoutEntity>of(VillagerScoutEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(VillagerScoutEntity::new).sized(0.6F, 1.8F));
-    public static final RegistryObject<EntityType<BlueVillagerGeneralEntity>> BLUE_VILLAGER_GENERAL = register("blue_villager_general", Builder.<BlueVillagerGeneralEntity>of(BlueVillagerGeneralEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(BlueVillagerGeneralEntity::new).sized(0.6F, 1.8F));
-    public static final RegistryObject<EntityType<PurpleVillagerGeneralEntity>> GREEN_VILLAGER_GENERAL = register("green_villager_general", Builder.<PurpleVillagerGeneralEntity>of(PurpleVillagerGeneralEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(PurpleVillagerGeneralEntity::new).sized(0.6F, 1.8F));
-    public static final RegistryObject<EntityType<RedVillagerGeneralEntity>> RED_VILLAGER_GENERAL = register("red_villager_general", Builder.<RedVillagerGeneralEntity>of(RedVillagerGeneralEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(RedVillagerGeneralEntity::new).sized(0.6F, 1.8F));
-    public static final RegistryObject<EntityType<GreenVillagerGeneralEntity>> PURPLE_VILLAGER_GENERAL = register("purple_villager_general", Builder.<GreenVillagerGeneralEntity>of(GreenVillagerGeneralEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(GreenVillagerGeneralEntity::new).sized(0.6F, 1.8F));
+    public static final RegistryObject<EntityType<BlueVillagerKnightEntity>> BLUE_VILLAGER_KNIGHT = register("blue_villager_knight", Builder.<BlueVillagerKnightEntity>of(BlueVillagerKnightEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(BlueVillagerKnightEntity::new).sized(0.6F, 1.8F));
+    public static final RegistryObject<EntityType<GreenVillagerKnightEntity>> GREEN_VILLAGER_KNIGHT = register("green_villager_knight", Builder.<GreenVillagerKnightEntity>of(GreenVillagerKnightEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(GreenVillagerKnightEntity::new).sized(0.6F, 1.8F));
+    public static final RegistryObject<EntityType<RedVillagerKnightEntity>> RED_VILLAGER_KNIGHT = register("red_villager_knight", Builder.<RedVillagerKnightEntity>of(RedVillagerKnightEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(RedVillagerKnightEntity::new).sized(0.6F, 1.8F));
+    public static final RegistryObject<EntityType<PurpleVillagerKnightEntity>> PURPLE_VILLAGER_KNIGHT = register("purple_villager_knight", Builder.<PurpleVillagerKnightEntity>of(PurpleVillagerKnightEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(PurpleVillagerKnightEntity::new).sized(0.6F, 1.8F));
 
     public static final RegistryObject<EntityType<AlexEntity>> ALEX = register("alex", Builder.<AlexEntity>of(AlexEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(256).setUpdateInterval(3).setCustomClientFactory(AlexEntity::new).sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<JevEntity>> JEV = register("jev", Builder.<JevEntity>of(JevEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(256).setUpdateInterval(3).setCustomClientFactory(JevEntity::new).sized(0.6F, 1.8F));
@@ -216,31 +216,31 @@ public class AnnoyingVillagersModEntities {
                 SpawnPlacementRegisterEvent.Operation.REPLACE
         );
         event.register(
-                AnnoyingVillagersModEntities.RED_VILLAGER_GENERAL.get(),
+                AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT.get(),
                 SpawnPlacements.Type.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                RedVillagerGeneralEntity::canSpawn,
+                RedVillagerKnightEntity::canSpawn,
                 SpawnPlacementRegisterEvent.Operation.REPLACE
         );
         event.register(
-                AnnoyingVillagersModEntities.BLUE_VILLAGER_GENERAL.get(),
+                AnnoyingVillagersModEntities.BLUE_VILLAGER_KNIGHT.get(),
                 SpawnPlacements.Type.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                BlueVillagerGeneralEntity::canSpawn,
+                BlueVillagerKnightEntity::canSpawn,
                 SpawnPlacementRegisterEvent.Operation.REPLACE
         );
         event.register(
-                AnnoyingVillagersModEntities.PURPLE_VILLAGER_GENERAL.get(),
+                AnnoyingVillagersModEntities.PURPLE_VILLAGER_KNIGHT.get(),
                 SpawnPlacements.Type.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                GreenVillagerGeneralEntity::canSpawn,
+                PurpleVillagerKnightEntity::canSpawn,
                 SpawnPlacementRegisterEvent.Operation.REPLACE
         );
         event.register(
-                AnnoyingVillagersModEntities.GREEN_VILLAGER_GENERAL.get(),
+                AnnoyingVillagersModEntities.GREEN_VILLAGER_KNIGHT.get(),
                 SpawnPlacements.Type.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                PurpleVillagerGeneralEntity::canSpawn,
+                GreenVillagerKnightEntity::canSpawn,
                 SpawnPlacementRegisterEvent.Operation.REPLACE
         );
     }
@@ -250,10 +250,10 @@ public class AnnoyingVillagersModEntities {
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.PLAYER_NPC.get(), (entity) -> PlayerNpcPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(), (entity) -> VillagerScoutPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(), (entity) -> VillagerScoutCaptainPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.RED_VILLAGER_GENERAL.get(), (entity) -> VillagerGeneralPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.BLUE_VILLAGER_GENERAL.get(), (entity) -> VillagerGeneralPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.GREEN_VILLAGER_GENERAL.get(), (entity) -> VillagerGeneralPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.PURPLE_VILLAGER_GENERAL.get(), (entity) -> VillagerGeneralPatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT.get(), (entity) -> VillagerKnightPatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.BLUE_VILLAGER_KNIGHT.get(), (entity) -> VillagerKnightPatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.GREEN_VILLAGER_KNIGHT.get(), (entity) -> VillagerKnightPatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.PURPLE_VILLAGER_KNIGHT.get(), (entity) -> VillagerKnightPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.STEVE.get(), (entity) -> StevePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.ANGRY_STEVE.get(), (entity) -> AngryStevePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.ALEX.get(), (entity) -> AlexPatch::new);
@@ -293,10 +293,10 @@ public class AnnoyingVillagersModEntities {
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.HEROBRINE_7.get(), Herobrine7Entity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(), VillagerScoutCaptainEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(), VillagerScoutEntity.createAttributes().build());
-        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.BLUE_VILLAGER_GENERAL.get(), BlueVillagerGeneralEntity.createAttributes().build());
-        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.GREEN_VILLAGER_GENERAL.get(), PurpleVillagerGeneralEntity.createAttributes().build());
-        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.RED_VILLAGER_GENERAL.get(), RedVillagerGeneralEntity.createAttributes().build());
-        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.PURPLE_VILLAGER_GENERAL.get(), GreenVillagerGeneralEntity.createAttributes().build());
+        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.BLUE_VILLAGER_KNIGHT.get(), BlueVillagerKnightEntity.createAttributes().build());
+        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.GREEN_VILLAGER_KNIGHT.get(), GreenVillagerKnightEntity.createAttributes().build());
+        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT.get(), RedVillagerKnightEntity.createAttributes().build());
+        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.PURPLE_VILLAGER_KNIGHT.get(), PurpleVillagerKnightEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.ALEX.get(), AlexEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.JEV.get(), JevEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.BBQ.get(), BbqEntity.createAttributes().build());

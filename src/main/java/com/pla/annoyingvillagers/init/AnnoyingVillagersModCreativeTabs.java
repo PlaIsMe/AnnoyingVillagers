@@ -36,11 +36,11 @@ public class AnnoyingVillagersModCreativeTabs {
                         pOutput.accept(AnnoyingVillagersModItems.AEGIS_HEROBRINE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.BLUE_DEMON_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.VILLAGER_SCOUT_SPAWN_EGG.get());
-                        pOutput.accept(AnnoyingVillagersModItems.VILLAGER_SPAWN_EGG.get());
-                        pOutput.accept(AnnoyingVillagersModItems.BLUE_VILLAGER_GENERAL_SPAWN_EGG.get());
-                        pOutput.accept(AnnoyingVillagersModItems.GREEN_VILLAGER_GENERAL_SPAWN_EGG.get());
-                        pOutput.accept(AnnoyingVillagersModItems.RED_VILLAGER_GENERAL_SPAWN_EGG.get());
-                        pOutput.accept(AnnoyingVillagersModItems.PURPLE_VILLAGER_GENERAL_SPAWN_EGG.get());
+                        pOutput.accept(AnnoyingVillagersModItems.VILLAGER_SCOUT_CAPTAIN_SPAWN_EGG.get());
+                        pOutput.accept(AnnoyingVillagersModItems.BLUE_VILLAGER_KNIGHT_SPAWN_EGG.get());
+                        pOutput.accept(AnnoyingVillagersModItems.GREEN_VILLAGER_KNIGHT_SPAWN_EGG.get());
+                        pOutput.accept(AnnoyingVillagersModItems.RED_VILLAGER_KNIGHT_SPAWN_EGG.get());
+                        pOutput.accept(AnnoyingVillagersModItems.PURPLE_VILLAGER_KNIGHT_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.STEVE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.ANGRY_STEVE_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.ALEX_SPAWN_EGG.get());
@@ -189,16 +189,16 @@ public class AnnoyingVillagersModCreativeTabs {
                         pOutput.accept(AnnoyingVillagersModItems.UNLIGHT_DIAMOND_LEGGINGS.get());
                         pOutput.accept(AnnoyingVillagersModItems.UNLIGHT_DIAMOND_BOOTS.get());
                         pOutput.accept(AnnoyingVillagersModItems.VILLAGER_SCOUT_HELMET.get());
-                        pOutput.accept(AnnoyingVillagersModItems.RED_VILLAGER_GENERAL_HELMET.get());
-                        pOutput.accept(AnnoyingVillagersModItems.RED_VILLAGER_GENERAL_CHESTPLATE.get());
-                        pOutput.accept(AnnoyingVillagersModItems.BLUE_VILLAGER_GENERAL_HELMET.get());
-                        pOutput.accept(AnnoyingVillagersModItems.BLUE_VILLAGER_GENERAL_CHESTPLATE.get());
-                        pOutput.accept(AnnoyingVillagersModItems.GREEN_VILLAGER_GENERAL_HELMET.get());
-                        pOutput.accept(AnnoyingVillagersModItems.GREEN_VILLAGER_GENERAL_CHESTPLATE.get());
-                        pOutput.accept(AnnoyingVillagersModItems.PURPLE_VILLAGER_GENERAL_HELMET.get());
-                        pOutput.accept(AnnoyingVillagersModItems.PURPLE_VILLAGER_GENERAL_CHESTPLATE.get());
-                        pOutput.accept(AnnoyingVillagersModItems.VILLAGER_GENERAL_LEGGINGS.get());
-                        pOutput.accept(AnnoyingVillagersModItems.VILLAGER_GENERAL_BOOTS.get());
+                        pOutput.accept(AnnoyingVillagersModItems.RED_VILLAGER_KNIGHT_HELMET.get());
+                        pOutput.accept(AnnoyingVillagersModItems.RED_VILLAGER_KNIGHT_CHESTPLATE.get());
+                        pOutput.accept(AnnoyingVillagersModItems.BLUE_VILLAGER_KNIGHT_HELMET.get());
+                        pOutput.accept(AnnoyingVillagersModItems.BLUE_VILLAGER_KNIGHT_CHESTPLATE.get());
+                        pOutput.accept(AnnoyingVillagersModItems.GREEN_VILLAGER_KNIGHT_HELMET.get());
+                        pOutput.accept(AnnoyingVillagersModItems.GREEN_VILLAGER_KNIGHT_CHESTPLATE.get());
+                        pOutput.accept(AnnoyingVillagersModItems.PURPLE_VILLAGER_KNIGHT_HELMET.get());
+                        pOutput.accept(AnnoyingVillagersModItems.PURPLE_VILLAGER_KNIGHT_CHESTPLATE.get());
+                        pOutput.accept(AnnoyingVillagersModItems.VILLAGER_KNIGHT_LEGGINGS.get());
+                        pOutput.accept(AnnoyingVillagersModItems.VILLAGER_KNIGHT_BOOTS.get());
                     })
                     .build());
 

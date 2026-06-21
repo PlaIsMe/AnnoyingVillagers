@@ -211,9 +211,9 @@ public class VillagerScoutEntity extends VillagerArmyEntity {
         }
 
         this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(AnnoyingVillagersModItems.VILLAGER_SCOUT_HELMET_FIX.get()));
-        this.setItemSlot(EquipmentSlot.CHEST, new ItemStack(AnnoyingVillagersModItems.CLASSICGOLDENA_CHESTPLATE.get()));
-        this.setItemSlot(EquipmentSlot.LEGS, new ItemStack(AnnoyingVillagersModItems.CLASSICGOLDENA_LEGGINGS.get()));
-        this.setItemSlot(EquipmentSlot.FEET, new ItemStack(AnnoyingVillagersModItems.CLASSICGOLDENA_BOOTS.get()));
+        this.setItemSlot(EquipmentSlot.CHEST, new ItemStack(AnnoyingVillagersModItems.CLASSIC_GOLDEN_CHESTPLATE.get()));
+        this.setItemSlot(EquipmentSlot.LEGS, new ItemStack(AnnoyingVillagersModItems.CLASSIC_GOLDEN_LEGGINGS.get()));
+        this.setItemSlot(EquipmentSlot.FEET, new ItemStack(AnnoyingVillagersModItems.CLASSIC_GOLDEN_BOOTS.get()));
         this.setMainWeaponItem(this.getMainHandItem().copy());
         this.setOffWeaponItem(this.getOffWeaponItem().copy());
 

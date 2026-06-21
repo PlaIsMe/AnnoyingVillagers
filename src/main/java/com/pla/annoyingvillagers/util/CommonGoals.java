@@ -38,10 +38,10 @@ public class CommonGoals {
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, BlueDemonEntity.class, true, false));
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, VillagerScoutEntity.class, true, false));
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, VillagerScoutCaptainEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, RedVillagerGeneralEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, BlueVillagerGeneralEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, GreenVillagerGeneralEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, PurpleVillagerGeneralEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, RedVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, BlueVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
         monster.goalSelector.addGoal(0, new PortalApproachGoal(monster));
         monster.goalSelector.addGoal(2, new MeleeAttackGoal(monster, 1.2D, false));
         monster.goalSelector.addGoal(3, new RandomStrollGoal(monster, 1.0D));
@@ -62,10 +62,10 @@ public class CommonGoals {
         monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, Villager.class, true, false));
         monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, VillagerScoutEntity.class, true, false));
         monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, VillagerScoutCaptainEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, RedVillagerGeneralEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, BlueVillagerGeneralEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, GreenVillagerGeneralEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, PurpleVillagerGeneralEntity.class, true, false));
+        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, RedVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, BlueVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
         monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, AbstractIllager.class, true, false));
         monster.goalSelector.addGoal(3, new MeleeAttackGoal(monster, 1.2D, false));
         monster.goalSelector.addGoal(4, new RandomStrollGoal(monster, 1.0D));
@@ -164,17 +164,17 @@ public class CommonGoals {
         if (!(mob.getTarget() instanceof VillagerScoutCaptainEntity)) {
             mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, VillagerScoutCaptainEntity.class, 12.0F, 1.2D, 1.4D));
         }
-        if (!(mob.getTarget() instanceof BlueVillagerGeneralEntity)) {
-            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, BlueVillagerGeneralEntity.class, 12.0F, 1.2D, 1.4D));
+        if (!(mob.getTarget() instanceof BlueVillagerKnightEntity)) {
+            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, BlueVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
         }
-        if (!(mob.getTarget() instanceof GreenVillagerGeneralEntity)) {
-            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, GreenVillagerGeneralEntity.class, 12.0F, 1.2D, 1.4D));
+        if (!(mob.getTarget() instanceof GreenVillagerKnightEntity)) {
+            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, GreenVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
         }
-        if (!(mob.getTarget() instanceof RedVillagerGeneralEntity)) {
-            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, RedVillagerGeneralEntity.class, 12.0F, 1.2D, 1.4D));
+        if (!(mob.getTarget() instanceof RedVillagerKnightEntity)) {
+            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, RedVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
         }
-        if (!(mob.getTarget() instanceof PurpleVillagerGeneralEntity)) {
-            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, PurpleVillagerGeneralEntity.class, 12.0F, 1.2D, 1.4D));
+        if (!(mob.getTarget() instanceof PurpleVillagerKnightEntity)) {
+            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, PurpleVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
         }
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, Monster.class, false, (target) -> !(target instanceof PlayerMobEntity || target instanceof BlueDemonEntity)));
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AbstractIllager.class, true, false));
@@ -197,10 +197,10 @@ public class CommonGoals {
         mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, PlayerNpcEntity.class, true, false));
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, VillagerScoutEntity.class, false, false));
         mob.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(mob, VillagerScoutCaptainEntity.class, false, false));
-        mob.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(mob, RedVillagerGeneralEntity.class, false, false));
-        mob.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(mob, BlueVillagerGeneralEntity.class, false, false));
-        mob.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(mob, GreenVillagerGeneralEntity.class, false, false));
-        mob.targetSelector.addGoal(8, new NearestAttackableTargetGoal<>(mob, PurpleVillagerGeneralEntity.class, false, false));
+        mob.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(mob, RedVillagerKnightEntity.class, false, false));
+        mob.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(mob, BlueVillagerKnightEntity.class, false, false));
+        mob.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(mob, GreenVillagerKnightEntity.class, false, false));
+        mob.targetSelector.addGoal(8, new NearestAttackableTargetGoal<>(mob, PurpleVillagerKnightEntity.class, false, false));
         mob.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(mob, BlueDemonEntity.class, false, false));
         mob.targetSelector.addGoal(8, new NearestAttackableTargetGoal<>(mob, EliteHerobrineKnockedEntity.class, true, false));
         mob.targetSelector.addGoal(20, new NearestAttackableTargetGoal<>(mob, AlexEntity.class, false, false));
@@ -244,17 +244,17 @@ public class CommonGoals {
         if (!(playerMobEntity.getTarget() instanceof VillagerScoutCaptainEntity)) {
             playerMobEntity.goalSelector.addGoal(1, new AvoidEntityGoal<>(playerMobEntity, VillagerScoutCaptainEntity.class, 12.0F, 1.2D, 1.4D));
         }
-        if (!(playerMobEntity.getTarget() instanceof BlueVillagerGeneralEntity)) {
-            playerMobEntity.goalSelector.addGoal(1, new AvoidEntityGoal<>(playerMobEntity, BlueVillagerGeneralEntity.class, 12.0F, 1.2D, 1.4D));
+        if (!(playerMobEntity.getTarget() instanceof BlueVillagerKnightEntity)) {
+            playerMobEntity.goalSelector.addGoal(1, new AvoidEntityGoal<>(playerMobEntity, BlueVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
         }
-        if (!(playerMobEntity.getTarget() instanceof GreenVillagerGeneralEntity)) {
-            playerMobEntity.goalSelector.addGoal(1, new AvoidEntityGoal<>(playerMobEntity, GreenVillagerGeneralEntity.class, 12.0F, 1.2D, 1.4D));
+        if (!(playerMobEntity.getTarget() instanceof GreenVillagerKnightEntity)) {
+            playerMobEntity.goalSelector.addGoal(1, new AvoidEntityGoal<>(playerMobEntity, GreenVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
         }
-        if (!(playerMobEntity.getTarget() instanceof RedVillagerGeneralEntity)) {
-            playerMobEntity.goalSelector.addGoal(1, new AvoidEntityGoal<>(playerMobEntity, RedVillagerGeneralEntity.class, 12.0F, 1.2D, 1.4D));
+        if (!(playerMobEntity.getTarget() instanceof RedVillagerKnightEntity)) {
+            playerMobEntity.goalSelector.addGoal(1, new AvoidEntityGoal<>(playerMobEntity, RedVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
         }
-        if (!(playerMobEntity.getTarget() instanceof PurpleVillagerGeneralEntity)) {
-            playerMobEntity.goalSelector.addGoal(1, new AvoidEntityGoal<>(playerMobEntity, PurpleVillagerGeneralEntity.class, 12.0F, 1.2D, 1.4D));
+        if (!(playerMobEntity.getTarget() instanceof PurpleVillagerKnightEntity)) {
+            playerMobEntity.goalSelector.addGoal(1, new AvoidEntityGoal<>(playerMobEntity, PurpleVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
         }
     }
 
@@ -269,9 +269,9 @@ public class CommonGoals {
     public static void attackAllVillagerArmyGoal(Mob playerMobEntity) {
         playerMobEntity.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(playerMobEntity, VillagerScoutEntity.class, true));
         playerMobEntity.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(playerMobEntity, VillagerScoutCaptainEntity.class, true));
-        playerMobEntity.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(playerMobEntity, RedVillagerGeneralEntity.class, true));
-        playerMobEntity.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(playerMobEntity, BlueVillagerGeneralEntity.class, true));
-        playerMobEntity.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(playerMobEntity, GreenVillagerGeneralEntity.class, true));
-        playerMobEntity.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(playerMobEntity, PurpleVillagerGeneralEntity.class, true));
+        playerMobEntity.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(playerMobEntity, RedVillagerKnightEntity.class, true));
+        playerMobEntity.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(playerMobEntity, BlueVillagerKnightEntity.class, true));
+        playerMobEntity.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(playerMobEntity, GreenVillagerKnightEntity.class, true));
+        playerMobEntity.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(playerMobEntity, PurpleVillagerKnightEntity.class, true));
     }
 }

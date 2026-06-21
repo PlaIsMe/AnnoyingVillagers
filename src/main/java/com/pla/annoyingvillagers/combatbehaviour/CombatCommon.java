@@ -478,7 +478,7 @@ public class CombatCommon {
                 || mob.level().getGameTime() >= getPersistentLong(mob, KEY_NPC_COMBAT_FISHING_ROD_COOLDOWN_UNTIL);
     }
 
-    public static boolean canUseVillagerGeneralLavaBucket(MobPatch<?> mobpatch) {
+    public static boolean canUseVillagerKnightLavaBucket(MobPatch<?> mobpatch) {
         Mob mob = mobpatch.getOriginal();
         LivingEntity target = mob.getTarget();
         if (!isGeneral(mobpatch) || target == null || !target.isAlive()) {
@@ -854,8 +854,8 @@ public class CombatCommon {
         return true;
     }
 
-    public static void performVillagerGeneralLavaBucket(MobPatch<?> mobpatch) {
-        if (!canUseVillagerGeneralLavaBucket(mobpatch)) {
+    public static void performVillagerKnightLavaBucket(MobPatch<?> mobpatch) {
+        if (!canUseVillagerKnightLavaBucket(mobpatch)) {
             return;
         }
 
@@ -1245,17 +1245,17 @@ public class CombatCommon {
             bow.enchant(Enchantments.POWER_ARROWS, 1);
             bow.enchant(Enchantments.PUNCH_ARROWS, 1);
         }
-        if (entity instanceof RedVillagerGeneralEntity) {
+        if (entity instanceof RedVillagerKnightEntity) {
             bow.enchant(Enchantments.FLAMING_ARROWS, 2);
         }
-        if (entity instanceof BlueVillagerGeneralEntity) {
+        if (entity instanceof BlueVillagerKnightEntity) {
             bow.enchant(Enchantments.POWER_ARROWS, 2);
         }
-        if (entity instanceof GreenVillagerGeneralEntity) {
+        if (entity instanceof GreenVillagerKnightEntity) {
             bow.enchant(Enchantments.POWER_ARROWS, 1);
             bow.enchant(Enchantments.FLAMING_ARROWS, 1);
         }
-        if (entity instanceof PurpleVillagerGeneralEntity) {
+        if (entity instanceof PurpleVillagerKnightEntity) {
             bow.enchant(Enchantments.PUNCH_ARROWS, 2);
         }
         if ((entity instanceof SteveEntity steveEntity && steveEntity.getState() == 1)
@@ -1326,10 +1326,10 @@ public class CombatCommon {
     }
 
     private static boolean isGeneralMob(Mob mob) {
-        return mob instanceof RedVillagerGeneralEntity
-                || mob instanceof BlueVillagerGeneralEntity
-                || mob instanceof GreenVillagerGeneralEntity
-                || mob instanceof PurpleVillagerGeneralEntity;
+        return mob instanceof RedVillagerKnightEntity
+                || mob instanceof BlueVillagerKnightEntity
+                || mob instanceof GreenVillagerKnightEntity
+                || mob instanceof PurpleVillagerKnightEntity;
     }
 
     private static boolean isNpcCombatFishingRodSessionActive(Mob mob) {

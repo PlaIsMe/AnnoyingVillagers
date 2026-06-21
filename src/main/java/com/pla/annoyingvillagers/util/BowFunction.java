@@ -58,10 +58,10 @@ public class BowFunction {
                     EnchantmentHelper.getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, bowStack) > 0;
         } else {
             if ((shooter instanceof VillagerScoutEntity
-                    || shooter instanceof RedVillagerGeneralEntity
-                    || shooter instanceof BlueVillagerGeneralEntity
-                    || shooter instanceof GreenVillagerGeneralEntity
-                    || shooter instanceof PurpleVillagerGeneralEntity
+                    || shooter instanceof RedVillagerKnightEntity
+                    || shooter instanceof BlueVillagerKnightEntity
+                    || shooter instanceof GreenVillagerKnightEntity
+                    || shooter instanceof PurpleVillagerKnightEntity
                     || shooter instanceof VillagerScoutCaptainEntity) && ((AVNpc) shooter).getTarget() instanceof HerobrineMob){
                 arrowStack = new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get());
             } else {
@@ -162,11 +162,11 @@ public class BowFunction {
             shooter.playSound(AnnoyingVillagersModSounds.VILLAGER_SCOUTS_SAY_ON_FIRE.get(), 0.5F, 1.0F);
             ((AVNpc) shooter).resetVoiceCooldown((Mob) shooter);
         }
-        if ((shooter instanceof RedVillagerGeneralEntity
-                || shooter instanceof BlueVillagerGeneralEntity
-                || shooter instanceof GreenVillagerGeneralEntity
-                || shooter instanceof PurpleVillagerGeneralEntity) && ((AVNpc) shooter).getVoiceCooldown() == 0) {
-            shooter.playSound(AnnoyingVillagersModSounds.VILLAGER_GENERALS_SAY_ON_FIRE.get(), 0.5F, 1.0F);
+        if ((shooter instanceof RedVillagerKnightEntity
+                || shooter instanceof BlueVillagerKnightEntity
+                || shooter instanceof GreenVillagerKnightEntity
+                || shooter instanceof PurpleVillagerKnightEntity) && ((AVNpc) shooter).getVoiceCooldown() == 0) {
+            shooter.playSound(AnnoyingVillagersModSounds.VILLAGER_KNIGHTS_SAY_ON_FIRE.get(), 0.5F, 1.0F);
             ((AVNpc) shooter).resetVoiceCooldown((Mob) shooter);
         }
         level.playSound(

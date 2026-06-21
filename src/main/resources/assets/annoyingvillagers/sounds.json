@@ -908,44 +908,44 @@
       }
     ]
   },
-  "villager_generals_say_on_fire": {
+  "villager_knights_say_on_fire": {
     "sounds": [
       {
-        "name": "annoyingvillagers:entity/villager_generals/fire"
+        "name": "annoyingvillagers:entity/villager_knights/fire"
       },
       {
-        "name": "annoyingvillagers:entity/villager_generals/destroy_them_fire"
+        "name": "annoyingvillagers:entity/villager_knights/destroy_them_fire"
       }
     ]
   },
-  "villager_generals_say": {
+  "villager_knights_say": {
     "sounds": [
       {
-        "name": "annoyingvillagers:entity/villager_generals/breath_and_say_long"
+        "name": "annoyingvillagers:entity/villager_knights/breath_and_say_long"
       },
       {
-        "name": "annoyingvillagers:entity/villager_generals/breath_it_player"
+        "name": "annoyingvillagers:entity/villager_knights/breath_it_player"
       },
       {
-        "name": "annoyingvillagers:entity/villager_generals/breath_and_say_long"
+        "name": "annoyingvillagers:entity/villager_knights/breath_and_say_long"
       },
       {
-        "name": "annoyingvillagers:entity/villager_generals/destroy_that_player_make_him_suffer"
+        "name": "annoyingvillagers:entity/villager_knights/destroy_that_player_make_him_suffer"
       },
       {
-        "name": "annoyingvillagers:entity/villager_generals/i_i_want_to_know"
+        "name": "annoyingvillagers:entity/villager_knights/i_i_want_to_know"
       },
       {
-        "name": "annoyingvillagers:entity/villager_generals/i_want_to_fight_you"
+        "name": "annoyingvillagers:entity/villager_knights/i_want_to_fight_you"
       },
       {
-        "name": "annoyingvillagers:entity/villager_generals/i_want_to_know_how_strong_a_player"
+        "name": "annoyingvillagers:entity/villager_knights/i_want_to_know_how_strong_a_player"
       },
       {
-        "name": "annoyingvillagers:entity/villager_generals/it_simple_if_youre_player"
+        "name": "annoyingvillagers:entity/villager_knights/it_simple_if_youre_player"
       },
       {
-        "name": "annoyingvillagers:entity/villager_generals/you_you_player"
+        "name": "annoyingvillagers:entity/villager_knights/you_you_player"
       }
     ]
   },

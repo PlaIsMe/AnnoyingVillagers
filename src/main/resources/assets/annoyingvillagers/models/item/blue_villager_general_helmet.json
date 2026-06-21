@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/villager_general_helmet_fix",
-  "textures": {
-    "0": "annoyingvillagers:item/blue_villager_general_helmet_fix",
-    "particle": "annoyingvillager:item/blue_villager_general_helmet_fix"
-  }
-}

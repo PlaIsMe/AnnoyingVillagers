@@ -12,8 +12,8 @@ public class AnnoyingVillagersModModels {
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions registerlayerdefinitions) {
         registerlayerdefinitions.registerLayerDefinition(ModelVillagerScoutHelmet.LAYER_LOCATION, ModelVillagerScoutHelmet::createBodyLayer);
         registerlayerdefinitions.registerLayerDefinition(ModelBlueDemonTrident.LAYER_LOCATION, ModelBlueDemonTrident::createBodyLayer);
-        registerlayerdefinitions.registerLayerDefinition(ModelGreenVillagerGeneralArmor.LAYER_LOCATION, ModelGreenVillagerGeneralArmor::createBodyLayer);
-        registerlayerdefinitions.registerLayerDefinition(ModelVillagerGeneralArmor.LAYER_LOCATION, ModelVillagerGeneralArmor::createBodyLayer);
+        registerlayerdefinitions.registerLayerDefinition(ModelGreenVillagerKnightArmor.LAYER_LOCATION, ModelGreenVillagerKnightArmor::createBodyLayer);
+        registerlayerdefinitions.registerLayerDefinition(ModelVillagerKnightArmor.LAYER_LOCATION, ModelVillagerKnightArmor::createBodyLayer);
         registerlayerdefinitions.registerLayerDefinition(ModelHerobrineObsidianDiamondHelmet.LAYER_LOCATION, ModelHerobrineObsidianDiamondHelmet::createBodyLayer);
         registerlayerdefinitions.registerLayerDefinition(ModelHerobrineObsidianDiamondChestplate.LAYER_LOCATION, ModelHerobrineObsidianDiamondChestplate::createBodyLayer);
         registerlayerdefinitions.registerLayerDefinition(ModelSnakeBladeFragment.LAYER_LOCATION, ModelSnakeBladeFragment::createBodyLayer);
