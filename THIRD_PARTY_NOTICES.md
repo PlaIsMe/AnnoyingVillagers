@@ -297,6 +297,7 @@ All required upstream notices must be preserved.
 
 **Paths / Files**
 - assets/annoyingvillagers/animmodels/animations/biped/sculk_steve
+- assets/annoyingvillagers/textures/item/enhanced
 
 ### H2) Yonchi Chikito
 - Type: assets authorized by original author

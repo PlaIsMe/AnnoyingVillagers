@@ -43,6 +43,7 @@ public class PortalEntity extends Entity {
 
     private static final String PORTAL_COOLDOWN_TAG = "AnnoyingVillagersPortalCooldown";
     private static final int LIVING_TELEPORT_COOLDOWN_TICKS = 30;
+    private static final double SNAKE_BLADE_ANCHOR_Y_OFFSET = 1.0D;
 
     private static final EntityDataAccessor<Optional<UUID>> LINKED_PORTAL_UUID =
             SynchedEntityData.defineId(PortalEntity.class, EntityDataSerializers.OPTIONAL_UUID);
@@ -307,6 +308,10 @@ public class PortalEntity extends Entity {
 
     public Vec3 getPortalCenter() {
         return new Vec3(this.getX(), this.getY() + this.getBbHeight() * 0.5D, this.getZ());
+    }
+
+    public Vec3 getSnakeBladeAnchor() {
+        return this.getPortalCenter().subtract(0.0D, SNAKE_BLADE_ANCHOR_Y_OFFSET, 0.0D);
     }
 
     public Vec3 getNormal() {

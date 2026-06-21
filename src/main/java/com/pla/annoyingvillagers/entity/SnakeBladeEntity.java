@@ -452,7 +452,7 @@ public class SnakeBladeEntity extends Entity {
             markTouched(exitPortal);
         }
 
-        Vec3 chainOriginCenter = chainOriginPortal.getPortalCenter();
+        Vec3 chainOriginCenter = chainOriginPortal.getSnakeBladeAnchor();
         Entity closestValid = findClosestValidTargetNear(livingCreator, chainOriginCenter, 14.0D);
         if (closestValid != null) {
             createChainFromPortalExit(chainOriginPortal, closestValid);
@@ -615,7 +615,7 @@ public class SnakeBladeEntity extends Entity {
 
     private static Vec3 targetCenter(Entity entity) {
         if (entity instanceof PortalEntity portalEntity) {
-            return portalEntity.getPortalCenter();
+            return portalEntity.getSnakeBladeAnchor();
         }
 
         return new Vec3(entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ());
@@ -723,7 +723,7 @@ public class SnakeBladeEntity extends Entity {
         child.setCreatorEntityUUID(this.getCreatorEntityUUID());
         child.setFromEntityID(this.getId());
         child.setToEntityID(nextPortal.getId());
-        Vec3 portalCenter = nextPortal.getPortalCenter();
+        Vec3 portalCenter = nextPortal.getSnakeBladeAnchor();
         child.setPos(portalCenter.x, portalCenter.y, portalCenter.z);
         child.setTargetsHit(this.getTargetsHit() + 1);
 
