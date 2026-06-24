@@ -42,8 +42,10 @@ public class CommonGoals {
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, BlueVillagerKnightEntity.class, true, false));
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
-        monster.goalSelector.addGoal(0, new PortalApproachGoal(monster));
-        monster.goalSelector.addGoal(2, new MeleeAttackGoal(monster, 1.2D, false));
+        if (!(monster instanceof TransporterHerobrineCloneEntity)) {
+            monster.goalSelector.addGoal(0, new PortalApproachGoal(monster));
+            monster.goalSelector.addGoal(2, new MeleeAttackGoal(monster, 1.2D, false));
+        }
         monster.goalSelector.addGoal(3, new RandomStrollGoal(monster, 1.0D));
         monster.goalSelector.addGoal(4, new RandomLookAroundGoal(monster));
         monster.goalSelector.addGoal(5, new FloatGoal(monster));

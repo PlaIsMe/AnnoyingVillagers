@@ -84,7 +84,6 @@ public class InfectedTheMostMoistBurrit0Entity extends PathfinderMob {
             this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE.get(), 2, 0, false, false));
             this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 2, 0, false, false));
             this.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), 2, 0, false, false));
-            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LAYING_DEATH, 0.0F);
         }
     }
 
@@ -92,7 +91,6 @@ public class InfectedTheMostMoistBurrit0Entity extends PathfinderMob {
     protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
         super.dropCustomDeathLoot(source, looting, recentlyHit);
         HerobrineUtil.dropArmoredHerobrineLoot(this.level(), this.getX(), this.getY(), this.getZ());
-        this.discard();
     }
 
     @Override

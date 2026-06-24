@@ -31,9 +31,6 @@ import reascer.wom.gameasset.animations.weapons.AnimsMoonless;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.gameasset.EpicFightSounds;
-import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
@@ -105,7 +102,7 @@ public class HerobrineChrisEntity extends HerobrineMob {
                 this.playSound(AnnoyingVillagersModSounds.HEROBRINE_CLONE_SAY_ON_DEATH.get(), 0.5F, 1.0F);
             }
             serverLevel.getServer().getPlayerList().broadcastSystemMessage(Component.translatable("subtitles.herobrine_clone_die"), false);
-            InfectedChrisEntity corpse = new InfectedChrisEntity(AnnoyingVillagersModEntities.INJECTED_CHRIS.get(), serverLevel);
+            InfectedChrisEntity corpse = new InfectedChrisEntity(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(), serverLevel);
             corpse.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
             corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
                     MobSpawnType.MOB_SUMMONED, null, null);

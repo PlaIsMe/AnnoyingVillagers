@@ -4,7 +4,6 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
-import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import net.minecraft.server.level.ServerLevel;
@@ -67,15 +66,9 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
     public void tick() {
         super.tick();
         if (this.tickCount == 1) {
-            this.getMainHandItem().removeTagKey("SnakeAnimation");
+            DemoniacVoltageReaverItem.clearSnakeAnimation(this.getMainHandItem());
         }
         if (!this.level().isClientSide()) {
-            if (this.getState() <= 0
-                    || !this.getMainHandItem().is(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get())
-                    || this.getTarget() == null
-                    || !this.getTarget().isAlive()) {
-                HerobrinePortalCombatUtil.cancelGregSixPortalSnakeBlade(this);
-            }
             if (this.tickCount % 20 == 0) {
                 ItemStack itemStack = this.getMainHandItem();
                 if (this.getState() > 0) {

@@ -10,6 +10,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.EnumSet;
 
 public class PortalApproachGoal extends Goal {
+    private static final String PORTAL_APPROACH_COOLDOWN_TAG = "AnnoyingVillagersPortalApproachCooldown";
+    private static final int PORTAL_APPROACH_COOLDOWN_TICKS = 10 * 20;
     private final Mob mob;
     private HerobrinePortalCombatUtil.PortalRoute route;
 
@@ -22,6 +24,9 @@ public class PortalApproachGoal extends Goal {
     public boolean canUse() {
         LivingEntity target = this.mob.getTarget();
         if (target == null || !target.isAlive()) {
+            return false;
+        }
+        if (this.mob.getPersistentData().getLong(PORTAL_APPROACH_COOLDOWN_TAG) > this.mob.level().getGameTime()) {
             return false;
         }
 
@@ -37,6 +42,11 @@ public class PortalApproachGoal extends Goal {
 
         this.route = foundRoute;
         return true;
+    }
+
+    @Override
+    public void start() {
+        this.mob.getPersistentData().putLong(PORTAL_APPROACH_COOLDOWN_TAG, this.mob.level().getGameTime() + PORTAL_APPROACH_COOLDOWN_TICKS);
     }
 
     @Override

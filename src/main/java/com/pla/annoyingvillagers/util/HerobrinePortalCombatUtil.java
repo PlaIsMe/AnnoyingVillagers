@@ -1,6 +1,5 @@
 package com.pla.annoyingvillagers.util;
 
-import com.pla.annoyingvillagers.combatbehaviour.HerobrineCommon;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.entity.AegisHerobrineEntity;
@@ -9,14 +8,11 @@ import com.pla.annoyingvillagers.entity.HerobrineGregEntity;
 import com.pla.annoyingvillagers.entity.LowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.entity.LowShadowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.entity.PortalEntity;
-import com.pla.annoyingvillagers.entity.SwordsmanHerobrineEntity;
+import com.pla.annoyingvillagers.entity.TransporterHerobrineCloneEntity;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.item.TransporterFragmentItem;
-import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Mth;
@@ -31,11 +27,12 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public final class HerobrinePortalCombatUtil {
@@ -49,18 +46,8 @@ public final class HerobrinePortalCombatUtil {
     private static final double COUNTER_BOW_AIM_DOT_THRESHOLD = 0.9D;
     private static final double SUPPORT_HEROBRINE_RADIUS = 36.0D;
     private static final double SUPPORT_ENEMY_RADIUS = 64.0D;
-    private static final double GREG_ASSIST_SEARCH_RADIUS = 40.0D;
-    private static final double GREG_SUPPORT_READY_DISTANCE_SQR = 10.0D * 10.0D;
-    private static final double GREG_SIX_PORTAL_READY_DISTANCE_SQR = 4.0D * 4.0D;
     private static final double GREG_SUPPORT_PORTAL_ENEMY_DISTANCE_SQR = 10.0D * 10.0D;
     private static final double SUPPORT_GATHER_DISTANCE_SQR = 14.0D * 14.0D;
-    private static final int GREG_SIX_PORTAL_APPROACH_RETRY_TICKS = 10;
-    private static final int GREG_SIX_PORTAL_APPROACH_MAX_RETRIES = 12;
-    private static final int GREG_SIX_PORTAL_SNAKE_DELAY_MIN_TICKS = 20;
-    private static final int GREG_SIX_PORTAL_SNAKE_DELAY_MAX_TICKS = 40;
-    private static final int GREG_SIX_PORTAL_TRIGGER_RETRY_TICKS = 5;
-    private static final int GREG_SIX_PORTAL_TRIGGER_MAX_RETRIES = 8;
-    private static final String NBT_GREG_PORTAL_SNAKE_PENDING = "AvGregPortalSnakeBladePending";
 
     private HerobrinePortalCombatUtil() {
     }
@@ -204,6 +191,10 @@ public final class HerobrinePortalCombatUtil {
     }
 
     public static boolean tryTransporterPortalSupport(LivingEntity caster) {
+        if (!(caster.level() instanceof ServerLevel serverLevel)
+                || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, caster, 2)) {
+            return false;
+        }
         LivingEntity fallbackEnemy = findNearestEnemy(caster, SUPPORT_ENEMY_RADIUS);
         SupportPortalPlan plan = pickSupportPortalPlan(caster, findSupportHerobrines(caster, SUPPORT_HEROBRINE_RADIUS), fallbackEnemy, true);
         if (plan == null) {
@@ -212,8 +203,24 @@ public final class HerobrinePortalCombatUtil {
         return spawnSupportPortalPair(caster, plan.entrance(), plan.exit());
     }
 
+    public static boolean canTransporterPortalSupport(LivingEntity caster) {
+        if (!(caster.level() instanceof ServerLevel serverLevel)
+                || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, caster, 2)) {
+            return false;
+        }
+        LivingEntity fallbackEnemy = findNearestEnemy(caster, SUPPORT_ENEMY_RADIUS);
+        SupportPortalPlan plan = pickSupportPortalPlan(caster, findSupportHerobrines(caster, SUPPORT_HEROBRINE_RADIUS), fallbackEnemy, true);
+        return plan != null;
+    }
+
     public static boolean tryGregPortalSupport(HerobrineGregEntity greg) {
-        List<LivingEntity> supports = findSupportHerobrines(greg, SUPPORT_HEROBRINE_RADIUS);
+        if (!(greg.level() instanceof ServerLevel serverLevel)
+                || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, greg, 2)) {
+            return false;
+        }
+        List<LivingEntity> supports = findSupportHerobrines(greg, SUPPORT_HEROBRINE_RADIUS).stream()
+                .filter(HerobrinePortalCombatUtil::canUseGregGeneralSupport)
+                .toList();
         if (supports.isEmpty()) {
             return false;
         }
@@ -222,12 +229,30 @@ public final class HerobrinePortalCombatUtil {
         if (plan == null) {
             return false;
         }
-        if (greg.distanceToSqr(plan.entrance()) > GREG_SUPPORT_READY_DISTANCE_SQR) {
-            moveGregTowardSupport(greg, plan.entrance());
-            return false;
-        }
         greg.markSupportingHerobrine();
         return spawnSupportPortalPair(greg, plan.entrance(), plan.exit());
+    }
+
+    public static boolean canGregPortalSupport(HerobrineGregEntity greg) {
+        if (!(greg.level() instanceof ServerLevel serverLevel)
+                || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, greg, 2)) {
+            return false;
+        }
+        List<LivingEntity> supports = findSupportHerobrines(greg, SUPPORT_HEROBRINE_RADIUS).stream()
+                .filter(HerobrinePortalCombatUtil::canUseGregGeneralSupport)
+                .toList();
+        if (supports.isEmpty()) {
+            return false;
+        }
+
+        SupportPortalPlan plan = pickSupportPortalPlan(greg, supports, findNearestEnemy(greg, SUPPORT_ENEMY_RADIUS), false);
+        return plan != null;
+    }
+
+    private static boolean canUseGregGeneralSupport(LivingEntity support) {
+        return !(support instanceof TransporterHerobrineCloneEntity)
+                && !(support instanceof LowHerobrineCloneEntity)
+                && !(support instanceof LowShadowHerobrineCloneEntity);
     }
 
     public static boolean tryAegisProtectPortal(AegisHerobrineEntity aegis) {
@@ -264,6 +289,22 @@ public final class HerobrinePortalCombatUtil {
         return true;
     }
 
+    public static boolean canBowCounterPortalSupport(LivingEntity caster) {
+        if (!(caster.level() instanceof ServerLevel serverLevel)
+                || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, caster, 2)) {
+            return false;
+        }
+
+        BowCounterThreat threat = findBowCounterThreat(caster, COUNTER_BOW_THREAT_RADIUS);
+        if (threat == null) {
+            return false;
+        }
+
+        Vec3 entrancePreferred = buildBowCounterEntrance(threat.attacker(), threat.target());
+        Vec3 exitPreferred = buildBowCounterExit(threat.attacker(), threat.target());
+        return entrancePreferred != null && exitPreferred != null;
+    }
+
     public static boolean spawnSupportPortalPair(LivingEntity caster, LivingEntity entranceEntity, LivingEntity exitEntity) {
         if (!(caster.level() instanceof ServerLevel)) {
             return false;
@@ -283,8 +324,6 @@ public final class HerobrinePortalCombatUtil {
 
     public static void playSixPortalSummon(LivingEntity entity) {
         if (entity instanceof HerobrineGregEntity greg) {
-            greg.startSixPortalCast();
-            greg.beginPortalSummonAiLock();
             greg.markSupportingHerobrine();
         }
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
@@ -294,9 +333,6 @@ public final class HerobrinePortalCombatUtil {
     }
 
     public static void playPortalPairSummon(LivingEntity entity) {
-        if (entity instanceof HerobrineGregEntity greg) {
-            greg.startPortalPairCast();
-        }
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
         if (patch != null && !entity.level().isClientSide()) {
             patch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
@@ -308,8 +344,6 @@ public final class HerobrinePortalCombatUtil {
             entity.level().playSound(null, entity.blockPosition(), AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
         }
         if (entity instanceof HerobrineGregEntity greg) {
-            greg.startSixPortalCast();
-            greg.beginPortalSummonAiLock();
             greg.markSupportingHerobrine();
         }
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
@@ -318,86 +352,10 @@ public final class HerobrinePortalCombatUtil {
         }
     }
 
-    public static void playGregTransformPortalSummon(HerobrineGregEntity greg, @Nullable LivingEntity support) {
-        greg.startSixPortalCast();
-        greg.beginPortalSummonAiLock();
-        greg.markSupportingHerobrine();
-        if (support != null && support.isAlive()) {
-            greg.getLookControl().setLookAt(support, 30.0F, 30.0F);
-        }
-        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(greg, LivingEntityPatch.class);
-        if (patch != null && !greg.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
-        }
-    }
-
     @Nullable
     public static LivingEntity findSupportHerobrine(LivingEntity caster, double radius) {
         List<LivingEntity> candidates = findSupportHerobrines(caster, radius);
         return candidates.isEmpty() ? null : candidates.get(0);
-    }
-
-    public static boolean isGregSixPortalSnakeBladePending(SwordsmanHerobrineEntity swordsman) {
-        return swordsman.getPersistentData().getBoolean(NBT_GREG_PORTAL_SNAKE_PENDING);
-    }
-
-    public static void cancelGregSixPortalSnakeBlade(SwordsmanHerobrineEntity swordsman) {
-        setGregSixPortalSnakeBladePending(swordsman, false);
-    }
-
-    private static void setGregSixPortalSnakeBladePending(SwordsmanHerobrineEntity swordsman, boolean pending) {
-        if (pending) {
-            swordsman.getPersistentData().putBoolean(NBT_GREG_PORTAL_SNAKE_PENDING, true);
-        } else {
-            swordsman.getPersistentData().remove(NBT_GREG_PORTAL_SNAKE_PENDING);
-        }
-    }
-
-    public static boolean canQueueGregSixPortalSnakeBlade(SwordsmanHerobrineEntity swordsman) {
-        if (swordsman.getState() <= 0) {
-            return false;
-        }
-        if (!canTriggerSwordsmanSnakeBlade(swordsman)) {
-            return false;
-        }
-        if (isGregSixPortalSnakeBladePending(swordsman)) {
-            return false;
-        }
-
-        HerobrineGregEntity greg = findGregForSixPortalSupport(swordsman);
-        if (greg == null || greg.isSixPortalSupportReserved() || !greg.canAnswerSixPortalSupportRequest()) {
-            return false;
-        }
-        if (!(greg.level() instanceof ServerLevel serverLevel)
-                || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, greg, 6)) {
-            return false;
-        }
-        greg.markSupportingHerobrine();
-        return true;
-    }
-
-    public static boolean canRequestGregSixPortalSnakeBlade(SwordsmanHerobrineEntity swordsman) {
-        return canQueueGregSixPortalSnakeBlade(swordsman);
-    }
-
-    public static boolean queueGregSixPortalSnakeBlade(SwordsmanHerobrineEntity swordsman) {
-        if (!canQueueGregSixPortalSnakeBlade(swordsman)) {
-            return false;
-        }
-
-        HerobrineGregEntity greg = findGregForSixPortalSupport(swordsman);
-        if (greg == null) {
-            return false;
-        }
-
-        greg.reserveSixPortalSupport(swordsman);
-        setGregSixPortalSnakeBladePending(swordsman, true);
-        attemptGregSixPortalSnakeBladeQueue(swordsman, greg, GREG_SIX_PORTAL_APPROACH_MAX_RETRIES);
-        return true;
-    }
-
-    public static boolean tryRequestGregSixPortalSnakeBlade(SwordsmanHerobrineEntity swordsman) {
-        return queueGregSixPortalSnakeBlade(swordsman);
     }
 
     public static List<LivingEntity> findSupportHerobrines(LivingEntity caster, double radius) {
@@ -411,6 +369,34 @@ public final class HerobrinePortalCombatUtil {
 
         candidates.sort(Comparator.comparingDouble(caster::distanceToSqr));
         return candidates;
+    }
+
+    public static boolean hasNearbyPortalGroup(LivingEntity anchor, @Nullable UUID ownerUuid, int requiredCount, double radius) {
+        if (requiredCount <= 0) {
+            return true;
+        }
+
+        Map<UUID, Integer> portalGroupCounts = new HashMap<>();
+        for (PortalEntity portal : anchor.level().getEntitiesOfClass(PortalEntity.class, anchor.getBoundingBox().inflate(radius))) {
+            if (portal.isRemoved() || !portal.isAlive() || portal.tickCount >= PortalEntity.LIFETIME_TICKS) {
+                continue;
+            }
+
+            UUID portalGroupUuid = portal.getPortalGroupUUID();
+            if (portalGroupUuid == null) {
+                continue;
+            }
+            if (ownerUuid != null && !ownerUuid.equals(portal.getOwnerUUID())) {
+                continue;
+            }
+
+            int count = portalGroupCounts.merge(portalGroupUuid, 1, Integer::sum);
+            if (count >= requiredCount) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Nullable
@@ -540,184 +526,6 @@ public final class HerobrinePortalCombatUtil {
 
     private static boolean isRidingHerobrineDragon(Entity entity) {
         return entity.isPassenger() && entity.getVehicle() instanceof HerobrineDragonEntity;
-    }
-
-    private static boolean canTriggerSwordsmanSnakeBlade(SwordsmanHerobrineEntity swordsman) {
-        if (!swordsman.isAlive()
-                || swordsman.getTarget() == null
-                || !swordsman.getTarget().isAlive()
-                || swordsman.getState() <= 0
-                || !swordsman.getMainHandItem().is(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get())) {
-            return false;
-        }
-
-        if (swordsman.getMainHandItem().hasTag()
-                && swordsman.getMainHandItem().getTag() != null
-                && swordsman.getMainHandItem().getTag().getBoolean("SnakeAnimation")) {
-            return false;
-        }
-
-        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(swordsman, LivingEntityPatch.class);
-        if (patch instanceof MobPatch<?> mobPatch) {
-            return HerobrineCommon.canPlaySecondFormAnimation(mobPatch);
-        }
-
-        return true;
-    }
-
-    private static boolean canTriggerQueuedSwordsmanSnakeBlade(SwordsmanHerobrineEntity swordsman) {
-        if (!swordsman.isAlive()
-                || swordsman.getTarget() == null
-                || !swordsman.getTarget().isAlive()
-                || swordsman.getState() <= 0
-                || !swordsman.getMainHandItem().is(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get())) {
-            return false;
-        }
-
-        return !(swordsman.getMainHandItem().hasTag()
-                && swordsman.getMainHandItem().getTag() != null
-                && swordsman.getMainHandItem().getTag().getBoolean("SnakeAnimation"));
-    }
-
-    @Nullable
-    private static HerobrineGregEntity findGregForSixPortalSupport(SwordsmanHerobrineEntity swordsman) {
-        if (!(swordsman.level() instanceof ServerLevel serverLevel)) {
-            return null;
-        }
-
-        UUID linkedGregUuid = swordsman.getGregUUID();
-        if (linkedGregUuid != null) {
-            Entity linkedEntity = serverLevel.getEntity(linkedGregUuid);
-            if (linkedEntity instanceof HerobrineGregEntity linkedGreg
-                    && linkedGreg.isAlive()
-                    && linkedGreg.distanceToSqr(swordsman) <= GREG_ASSIST_SEARCH_RADIUS * GREG_ASSIST_SEARCH_RADIUS) {
-                return linkedGreg;
-            }
-        }
-
-        AABB searchBox = swordsman.getBoundingBox().inflate(GREG_ASSIST_SEARCH_RADIUS);
-        return serverLevel.getEntitiesOfClass(HerobrineGregEntity.class, searchBox, greg -> greg.isAlive())
-                .stream()
-                .min(Comparator.comparingDouble(swordsman::distanceToSqr))
-                .orElse(null);
-    }
-
-    private static void moveGregTowardSupport(HerobrineGregEntity greg, LivingEntity support) {
-        greg.markSupportingHerobrine();
-        if (greg.distanceToSqr(support) <= GREG_SUPPORT_READY_DISTANCE_SQR) {
-            greg.getNavigation().stop();
-            greg.getLookControl().setLookAt(support, 30.0F, 30.0F);
-            return;
-        }
-        greg.getNavigation().moveTo(support, 1.35D);
-        greg.getLookControl().setLookAt(support, 30.0F, 30.0F);
-    }
-
-    private static void moveGregNextToSupport(HerobrineGregEntity greg, LivingEntity support) {
-        greg.markSupportingHerobrine();
-        if (greg.distanceToSqr(support) <= GREG_SIX_PORTAL_READY_DISTANCE_SQR) {
-            greg.getNavigation().stop();
-            greg.getLookControl().setLookAt(support, 30.0F, 30.0F);
-            return;
-        }
-        greg.getNavigation().moveTo(support, 1.35D);
-        greg.getLookControl().setLookAt(support, 30.0F, 30.0F);
-    }
-
-    private static void attemptGregSixPortalSnakeBladeQueue(SwordsmanHerobrineEntity swordsman, HerobrineGregEntity greg, int retriesLeft) {
-        if (!isGregSixPortalSnakeBladePending(swordsman) || !canTriggerQueuedSwordsmanSnakeBlade(swordsman)) {
-            greg.clearSixPortalSupportReservation();
-            setGregSixPortalSnakeBladePending(swordsman, false);
-            return;
-        }
-        if (!greg.isAlive() || !swordsman.isAlive() || !(greg.level() instanceof ServerLevel serverLevel)
-                || !greg.canAnswerSixPortalSupportRequest()
-                || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, greg, 6)) {
-            greg.clearSixPortalSupportReservation();
-            setGregSixPortalSnakeBladePending(swordsman, false);
-            return;
-        }
-
-        if (greg.distanceToSqr(swordsman) > GREG_SIX_PORTAL_READY_DISTANCE_SQR) {
-            moveGregNextToSupport(greg, swordsman);
-            if (retriesLeft <= 0) {
-                greg.clearSixPortalSupportReservation();
-                setGregSixPortalSnakeBladePending(swordsman, false);
-                return;
-            }
-            new DelayedTask(GREG_SIX_PORTAL_APPROACH_RETRY_TICKS) {
-                @Override
-                public void run() {
-                    attemptGregSixPortalSnakeBladeQueue(swordsman, greg, retriesLeft - 1);
-                }
-            };
-            return;
-        }
-
-        greg.getNavigation().stop();
-        greg.getLookControl().setLookAt(swordsman, 30.0F, 30.0F);
-        if (!canTriggerQueuedSwordsmanSnakeBlade(swordsman)) {
-            greg.clearSixPortalSupportReservation();
-            setGregSixPortalSnakeBladePending(swordsman, false);
-            return;
-        }
-
-        TransporterFragmentItem.PortalSpawnBatch portalBatch = TransporterFragmentItem.spawnPortalPairsBatch(greg.level(), greg, swordsman);
-        if (portalBatch.spawned() <= 0) {
-            greg.clearSixPortalSupportReservation();
-            setGregSixPortalSnakeBladePending(swordsman, false);
-            return;
-        }
-
-        DemoniacVoltageReaverItem.setPreferredPortalTarget(
-                swordsman.getMainHandItem(),
-                portalBatch.portalGroup(),
-                greg.getUUID()
-        );
-        greg.markSupportingHerobrine();
-        playSixPortalSummon(greg);
-        greg.onSixPortalSupportUsed();
-
-        int delay = GREG_SIX_PORTAL_SNAKE_DELAY_MIN_TICKS
-                + swordsman.getRandom().nextInt(GREG_SIX_PORTAL_SNAKE_DELAY_MAX_TICKS - GREG_SIX_PORTAL_SNAKE_DELAY_MIN_TICKS + 1);
-        new DelayedTask(delay) {
-            @Override
-            public void run() {
-                attemptQueuedSwordsmanSnakeBladeTrigger(swordsman, greg, GREG_SIX_PORTAL_TRIGGER_MAX_RETRIES);
-            }
-        };
-    }
-
-    private static void attemptQueuedSwordsmanSnakeBladeTrigger(SwordsmanHerobrineEntity swordsman, HerobrineGregEntity greg, int retriesLeft) {
-        if (!isGregSixPortalSnakeBladePending(swordsman)) {
-            greg.clearSixPortalSupportReservation();
-            return;
-        }
-        if (!swordsman.isAlive()
-                || swordsman.getTarget() == null
-                || !swordsman.getTarget().isAlive()
-                || swordsman.getState() <= 0
-                || !swordsman.getMainHandItem().is(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get())) {
-            greg.clearSixPortalSupportReservation();
-            setGregSixPortalSnakeBladePending(swordsman, false);
-            return;
-        }
-        if (HerobrineCommon.triggerQueuedSecondFormSnakeBlade(swordsman)) {
-            greg.clearSixPortalSupportReservation();
-            setGregSixPortalSnakeBladePending(swordsman, false);
-            return;
-        }
-        if (retriesLeft <= 0) {
-            greg.clearSixPortalSupportReservation();
-            setGregSixPortalSnakeBladePending(swordsman, false);
-            return;
-        }
-        new DelayedTask(GREG_SIX_PORTAL_TRIGGER_RETRY_TICKS) {
-            @Override
-            public void run() {
-                attemptQueuedSwordsmanSnakeBladeTrigger(swordsman, greg, retriesLeft - 1);
-            }
-        };
     }
 
     @Nullable

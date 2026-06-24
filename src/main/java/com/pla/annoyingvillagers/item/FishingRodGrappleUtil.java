@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.entity.ItemProjectile;
+import com.pla.annoyingvillagers.entity.HerobrineGregEntity;
+import com.pla.annoyingvillagers.entity.TransporterHerobrineCloneEntity;
 import com.pla.annoyingvillagers.mixin.FishingHookAccessor;
 import java.util.Optional;
 import net.minecraft.sounds.SoundEvents;
@@ -32,6 +34,12 @@ import net.minecraftforge.common.ToolActions;
 import javax.annotation.Nullable;
 
 public final class FishingRodGrappleUtil {
+    private enum HerobrineEscapeHookResult {
+        NONE,
+        CANCELLED,
+        FAILED
+    }
+
     private static final String KEY_GRAPPLE_HOOK = "avGrappleFishingRod";
     private static final String KEY_RETURNING = "avReturningToRod";
     private static final String KEY_STICKY_TARGET_ID = "avStickyTargetId";
@@ -41,6 +49,7 @@ public final class FishingRodGrappleUtil {
     private static final String KEY_PENDING_RETURN_DAMAGE = "avPendingReturnDamage";
     private static final String KEY_LATCHED = "avLatched";
     private static final String KEY_TARGET_PLUNGED = "avTargetPlunged";
+    private static final String KEY_HEROBRINE_ESCAPE_HOOK_ATTEMPTED_TARGET_ID = "avHerobrineEscapeHookAttemptedTargetId";
     private static final String KEY_NPC_COMBAT_HOOK = "avNpcCombatFishingHook";
     private static final String KEY_NPC_HOOK_RETURNING = "avNpcHookReturning";
     private static final String KEY_NPC_HOOK_LIFE = "avNpcHookLife";
@@ -259,6 +268,8 @@ public final class FishingRodGrappleUtil {
         if (stickyProjectile != null && hook.getHookedIn() != null && hook.getHookedIn() != stickyProjectile) {
             setVanillaHookedEntity(hook, null);
         }
+
+        resolveHerobrineEscapeHookOnHit(hook);
 
         if (!hook.getPersistentData().getBoolean(KEY_RETURNING) && !hasTonyStickyPayload(hook)) {
             stopHookAtHitItemEntity(hook);
@@ -788,6 +799,15 @@ public final class FishingRodGrappleUtil {
             return false;
         }
 
+        HerobrineEscapeHookResult escapeHookResult = tryCancelHerobrineEscapeWithFishingHook(hook, target);
+        if (escapeHookResult == HerobrineEscapeHookResult.FAILED) {
+            hook.getPersistentData().putBoolean(KEY_TARGET_PLUNGED, true);
+            hook.getPersistentData().remove(KEY_STICKY_ITEM_PROJECTILE_ID);
+            hook.getPersistentData().putBoolean(KEY_COLLECT_RETURNING_ITEM, false);
+            setVanillaHookedEntity(hook, null);
+            return true;
+        }
+
         hook.getPersistentData().putBoolean(KEY_TARGET_PLUNGED, true);
         hook.getPersistentData().putInt(
                 KEY_PENDING_RETURN_DAMAGE,
@@ -1037,6 +1057,7 @@ public final class FishingRodGrappleUtil {
         hook.getPersistentData().remove(KEY_STICKY_ITEM_PROJECTILE_ID);
         hook.getPersistentData().putBoolean(KEY_COLLECT_RETURNING_ITEM, false);
         hook.getPersistentData().remove(KEY_PENDING_RETURN_DAMAGE);
+        hook.getPersistentData().remove(KEY_HEROBRINE_ESCAPE_HOOK_ATTEMPTED_TARGET_ID);
         setVanillaHookedEntity(hook, null);
     }
 
@@ -1179,9 +1200,66 @@ public final class FishingRodGrappleUtil {
             return false;
         }
 
+        HerobrineEscapeHookResult escapeHookResult = tryCancelHerobrineEscapeWithFishingHook(hook, target);
+        if (escapeHookResult == HerobrineEscapeHookResult.FAILED) {
+            hook.getPersistentData().putBoolean(KEY_TARGET_PLUNGED, true);
+            setVanillaHookedEntity(hook, null);
+            return true;
+        }
+
         plungeTargetTowardOwner(item, player, target);
         hook.getPersistentData().putBoolean(KEY_TARGET_PLUNGED, true);
         return true;
+    }
+
+    private static HerobrineEscapeHookResult tryCancelHerobrineEscapeWithFishingHook(FishingHook hook, Entity target) {
+        if (target instanceof HerobrineGregEntity greg && greg.canFishingHookCancelEscape()) {
+            if (greg.tryFishingHookCancelEscape()) {
+                setVanillaHookedEntity(hook, greg);
+                return HerobrineEscapeHookResult.CANCELLED;
+            }
+
+            setVanillaHookedEntity(hook, null);
+            return HerobrineEscapeHookResult.FAILED;
+        }
+
+        if (target instanceof TransporterHerobrineCloneEntity transporter && transporter.canFishingHookCancelEscape()) {
+            if (transporter.tryFishingHookCancelEscape()) {
+                setVanillaHookedEntity(hook, transporter);
+                return HerobrineEscapeHookResult.CANCELLED;
+            }
+
+            setVanillaHookedEntity(hook, null);
+            return HerobrineEscapeHookResult.FAILED;
+        }
+
+        return HerobrineEscapeHookResult.NONE;
+    }
+
+    private static void resolveHerobrineEscapeHookOnHit(FishingHook hook) {
+        if (!hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)) {
+            return;
+        }
+
+        Entity target = hook.getHookedIn();
+        if (target == null) {
+            return;
+        }
+
+        int targetId = target.getId();
+        if (hook.getPersistentData().getInt(KEY_HEROBRINE_ESCAPE_HOOK_ATTEMPTED_TARGET_ID) == targetId) {
+            return;
+        }
+
+        HerobrineEscapeHookResult result = tryCancelHerobrineEscapeWithFishingHook(hook, target);
+        if (result == HerobrineEscapeHookResult.NONE) {
+            return;
+        }
+
+        hook.getPersistentData().putInt(KEY_HEROBRINE_ESCAPE_HOOK_ATTEMPTED_TARGET_ID, targetId);
+        if (result == HerobrineEscapeHookResult.FAILED) {
+            hook.getPersistentData().putBoolean(KEY_TARGET_PLUNGED, true);
+        }
     }
 
     private static Entity getHookedTarget(LivingEntity owner, FishingHook hook) {

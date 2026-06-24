@@ -36,7 +36,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.JEV.get(), JevRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BBQ.get(), BbqRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.CHRIS.get(), ChrisRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.INJECTED_CHRIS.get(), InfectedChrisRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(), InfectedChrisRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_CHRIS.get(), HerobrineChrisRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_7.get(), ShadowHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.ARMORED_HEROBRINE.get(), ArmoredHerobrineRenderer::new);
@@ -187,6 +187,21 @@ public class AnnoyingVillagersModEntityRenderers {
                 (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
                         .initLayerLast(add.getContext(), entitytype));
         add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.BLUE_DEMON.get(),
+                (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
+                        .initLayerLast(add.getContext(), entitytype));
+        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_GREG.get(),
+                (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
+                        .initLayerLast(add.getContext(), entitytype));
+        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(),
+                (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
+                        .initLayerLast(add.getContext(), entitytype));
+        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.INFECTED_THEMOSTMOISTBURRIT0.get(),
+                (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
+                        .initLayerLast(add.getContext(), entitytype));
+        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(),
+                (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
+                        .initLayerLast(add.getContext(), entitytype));
+        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.ELITE_HEROBRINE_KNOCKED.get(),
                 (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
                         .initLayerLast(add.getContext(), entitytype));
     }

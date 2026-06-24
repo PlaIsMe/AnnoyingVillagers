@@ -42,7 +42,7 @@ public class AnnoyingVillagersModEntities {
 
     public static final RegistryObject<EntityType<InfectedTheMostMoistBurrit0Entity>> INFECTED_THEMOSTMOISTBURRIT0 = register("infected_the_most_moist_burrit0", Builder.<InfectedTheMostMoistBurrit0Entity>of(InfectedTheMostMoistBurrit0Entity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(InfectedTheMostMoistBurrit0Entity::new).sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<InfectedPlayerNpcEntity>> INFECTED_PLAYER_NPC = register("infected_player_npc", Builder.<InfectedPlayerNpcEntity>of(InfectedPlayerNpcEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(InfectedPlayerNpcEntity::new).sized(0.6F, 1.8F));
-    public static final RegistryObject<EntityType<InfectedChrisEntity>> INJECTED_CHRIS = register("infected_chris", Builder.<InfectedChrisEntity>of(InfectedChrisEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(InfectedChrisEntity::new).sized(0.6F, 1.8F));
+    public static final RegistryObject<EntityType<InfectedChrisEntity>> INFECTED_CHRIS = register("infected_chris", Builder.<InfectedChrisEntity>of(InfectedChrisEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(InfectedChrisEntity::new).sized(0.6F, 1.8F));
 
     public static final RegistryObject<EntityType<EnderAegisProjectile>> ENDER_AEGIS_PROJECTILE = register("ender_aegis_projectile", Builder.<EnderAegisProjectile>of(EnderAegisProjectile::new, MobCategory.MISC).setCustomClientFactory(EnderAegisProjectile::new).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.5F, 0.5F));
     public static final RegistryObject<EntityType<EnchantedEnderPearlEntity>> ENCHANTED_ENDER_PEARL_PROJECTILE = register("projectile_enchanted_ender_pearl", Builder.<EnchantedEnderPearlEntity>of(EnchantedEnderPearlEntity::new, MobCategory.MISC).setCustomClientFactory(EnchantedEnderPearlEntity::new).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).sized(0.5F, 0.5F));
@@ -259,6 +259,9 @@ public class AnnoyingVillagersModEntities {
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.ALEX.get(), (entity) -> AlexPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.JEV.get(), (entity) -> JevPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.CHRIS.get(), (entity) -> ChrisPatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(), (entity) -> InfectedChrisPatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), (entity) -> InfectedPlayerNpcPatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.INFECTED_THEMOSTMOISTBURRIT0.get(), (entity) -> InfectedTheMostMoistBurrit0Patch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(), (entity) -> LowHerobrineClonePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), (entity) -> LowHerobrineClonePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.AEGIS_HEROBRINE.get(), (entity) -> AegisHerobrinePatch::new);
@@ -275,11 +278,13 @@ public class AnnoyingVillagersModEntities {
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.NULL.get(), (entity) -> NullPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_CLONE.get(), (entity) -> HerobrineClonePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE.get(), (entity) -> ShadowHerobrineClonePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(), (entity) -> ShadowHerobrineClonePatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(), (entity) -> TransporterHerobrinePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_CHRIS.get(), (entity) -> HerobrineClonePatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_GREG.get(), (entity) -> HerobrineGregPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.ARMORED_HEROBRINE.get(), (entity) -> ArmoredHerobrinePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_7.get(), (entity) -> HerobrineClonePatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.SHADOW_HEROBRINE.get(), (entity) -> ShadowHerobrinePatch::new);
+        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.ELITE_HEROBRINE_KNOCKED.get(), (entity) -> EliteHerobrineKnockedPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.BLUE_DEMON.get(), (entity) -> BlueDemonPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.FLYING_SHOCKWAVE.get(), (entity) -> FlyingShockwavePatch::new);
     }
@@ -301,7 +306,7 @@ public class AnnoyingVillagersModEntities {
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.JEV.get(), JevEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.BBQ.get(), BbqEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.CHRIS.get(), ChrisEntity.createAttributes().build());
-        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.INJECTED_CHRIS.get(), InfectedChrisEntity.createAttributes().build());
+        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(), InfectedChrisEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.HEROBRINE_CHRIS.get(), HerobrineChrisEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.ARMORED_HEROBRINE.get(), ArmoredHerobrineEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.STEVE.get(), SteveEntity.createAttributes().build());

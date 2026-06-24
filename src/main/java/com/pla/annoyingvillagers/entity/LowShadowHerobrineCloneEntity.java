@@ -104,7 +104,18 @@ public class LowShadowHerobrineCloneEntity extends Monster {
     }
 
     public void setPossessedByEntity(HerobrineMob possessedByEntity) {
+        if (!isValidPossessedMaster(possessedByEntity)) {
+            this.possessedByEntity = null;
+            this.possessedByUuid = null;
+            return;
+        }
         this.possessedByEntity = possessedByEntity;
+    }
+
+    private static boolean isValidPossessedMaster(@Nullable Entity entity) {
+        return entity instanceof HerobrineMob
+                && !(entity instanceof TransporterHerobrineCloneEntity)
+                && !(entity instanceof HerobrineGregEntity);
     }
 
     public void setSacrificing(boolean sacrificing) {
@@ -393,10 +404,11 @@ public class LowShadowHerobrineCloneEntity extends Monster {
 
             if (possessedByEntity == null && possessedByUuid != null) {
                 Entity entity = ((ServerLevel) level()).getEntity(possessedByUuid);
-                if (entity instanceof HerobrineMob herobrineMob) {
+                if (isValidPossessedMaster(entity) && entity instanceof HerobrineMob herobrineMob) {
                     possessedByEntity = herobrineMob;
                 } else {
                     possessedByEntity = null;
+                    possessedByUuid = null;
                 }
             }
             if (!forEscaping && !bound && possessedByEntity != null

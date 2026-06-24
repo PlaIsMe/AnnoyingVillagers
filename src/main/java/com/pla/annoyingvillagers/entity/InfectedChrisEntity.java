@@ -32,7 +32,7 @@ public class InfectedChrisEntity extends PathfinderMob {
     final LivingEntityPatch<?> livingEntityPatch =  EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
 
     public InfectedChrisEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.INJECTED_CHRIS.get(), level);
+        this(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(), level);
     }
 
     public InfectedChrisEntity(EntityType<InfectedChrisEntity> entitytype, Level level) {
@@ -72,7 +72,6 @@ public class InfectedChrisEntity extends PathfinderMob {
     protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
         super.dropCustomDeathLoot(source, looting, recentlyHit);
         HerobrineUtil.dropHerobrineChrisLoot(this.level(), this.getX(), this.getY(), this.getZ());
-        this.discard();
     }
 
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
@@ -91,7 +90,6 @@ public class InfectedChrisEntity extends PathfinderMob {
             this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE.get(), 2, 0, false, false));
             this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 2, 0, false, false));
             this.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), 2, 0, false, false));
-            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LAYING_DEATH, 0.0F);
         }
     }
 

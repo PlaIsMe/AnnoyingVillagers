@@ -63,13 +63,15 @@ public class SpecialAttackOnKeyPressedEvent {
     }
 
     private static void playTransporterFragmentAnimation(
+            Player player,
             LivingEntityPatch<?> livingEntityPatch,
             TransporterFragmentItem.UseMode useMode
     ) {
         switch (useMode) {
-            case BOTH_HANDS -> livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            case BOTH_HANDS, MAIN_HAND -> {
+                livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            }
             case OFF_HAND -> livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
-            case MAIN_HAND -> livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
             case NONE -> {
             }
         }
@@ -97,7 +99,7 @@ public class SpecialAttackOnKeyPressedEvent {
             TransporterFragmentItem.UseResult transporterUseResult = TransporterFragmentItem.tryUseSpecialAttack(player);
             if (transporterUseResult.consumed()) {
                 if (transporterUseResult.activated()) {
-                    playTransporterFragmentAnimation(livingEntityPatch, transporterUseResult.mode());
+                    playTransporterFragmentAnimation(player, livingEntityPatch, transporterUseResult.mode());
                 }
                 return;
             }

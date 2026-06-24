@@ -36,6 +36,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -169,7 +170,7 @@ public class TransporterFragmentItem extends Item {
             return UseResult.consumed(mode, false);
         }
 
-        beginSavedTeleport(serverLevel, player, target);
+        beginSavedTeleport(serverLevel, player, target, null);
         damageStack(player, stack, InteractionHand.MAIN_HAND, SAVED_TELEPORT_DURABILITY_COST);
         player.getCooldowns().addCooldown(transporterFragment, COOLDOWN_TICKS);
         return UseResult.consumed(mode, true);
@@ -233,6 +234,7 @@ public class TransporterFragmentItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
+        tooltip.add(Component.translatable("tooltip.annoyingvillagers.transporter_fragment"));
         if (!hasSavedLocation(stack)) {
             tooltip.add(Component.literal("Saved Location: none").withStyle(ChatFormatting.DARK_GRAY));
             return;
@@ -306,7 +308,7 @@ public class TransporterFragmentItem extends Item {
         player.displayClientMessage(Component.literal("Saved Location cleared").withStyle(ChatFormatting.GRAY), true);
     }
 
-    private static void beginSavedTeleport(ServerLevel level, Player player, Vec3 target) {
+    private static void beginSavedTeleport(ServerLevel level, Player player, Vec3 target, LivingEntityPatch<?> livingEntityPatch) {
         Vec3 origin = player.position();
         List<Entity> teleportEntities = collectTeleportEntities(level, player);
         CompoundTag tag = player.getPersistentData();
@@ -320,6 +322,7 @@ public class TransporterFragmentItem extends Item {
         tag.put(TAG_TELEPORT_ENTITIES, buildTeleportEntityTag(teleportEntities, origin));
 
         sendGroundPortalFx(player, origin);
+
         level.playSound(null, player.blockPosition(), AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
         for (Entity entity : teleportEntities) {
             if (entity instanceof LivingEntity livingEntity) {

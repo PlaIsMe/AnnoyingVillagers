@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.capabilities.SnakeBladeCapability;
 import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.entity.SnakeBladeEntity;
 import com.pla.annoyingvillagers.entity.SwordsmanHerobrineEntity;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModCapabilities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
@@ -107,6 +108,52 @@ public class DemoniacVoltageReaverItem extends SwordItem {
         }
         stack.removeTagKey("SnakeAnimation");
         clearPreferredPortalTarget(stack);
+    }
+
+    public static boolean tryStartSnakeAnimation(ItemStack stack, LivingEntity livingEntity, boolean guard) {
+        boolean launched = guard ? processGuard(stack, livingEntity) : process(stack, livingEntity);
+        if (launched || getLastFragment(livingEntity) != null) {
+            stack.getOrCreateTag().putBoolean("SnakeAnimation", true);
+            return true;
+        }
+
+        clearSnakeAnimation(stack);
+        setLastFragment(livingEntity, null);
+        return false;
+    }
+
+    public static void clearInterruptedSnakeAnimation(LivingEntity livingEntity) {
+        ItemStack stack = livingEntity.getMainHandItem();
+        if (!(stack.getItem() instanceof DemoniacVoltageReaverItem) || !hasSnakeAnimation(stack)) {
+            return;
+        }
+
+        SnakeBladeEntity lastFragment = getLastFragment(livingEntity);
+        if (lastFragment != null && lastFragment.isAlive() && !lastFragment.isRemoved()) {
+            return;
+        }
+        if (isPlayingSnakeBladeAnimation(livingEntity)) {
+            return;
+        }
+
+        clearSnakeAnimation(stack);
+        setLastFragment(livingEntity, null);
+    }
+
+    private static boolean isPlayingSnakeBladeAnimation(LivingEntity livingEntity) {
+        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(livingEntity, LivingEntityPatch.class);
+        if (patch == null || patch.getAnimator() == null) {
+            return false;
+        }
+
+        var animationPlayer = patch.getAnimator().getPlayerFor(null);
+        if (animationPlayer == null) {
+            return false;
+        }
+
+        var dynamicAnimation = animationPlayer.getRealAnimation();
+        return dynamicAnimation == AVAnimations.SNAKE_BLADE
+                || dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD;
     }
 
     public static boolean process(ItemStack stack, LivingEntity attacker) {
@@ -273,7 +320,9 @@ public class DemoniacVoltageReaverItem extends SwordItem {
 
     public static boolean processGuard(ItemStack stack, LivingEntity entityToGuard) {
         if (entityToGuard instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity
-                && HerobrinePortalCombatUtil.isGregSixPortalSnakeBladePending(swordsmanHerobrineEntity)) {
+                && ((swordsmanHerobrineEntity.getGregUUID() != null
+                && HerobrinePortalCombatUtil.hasNearbyPortalGroup(swordsmanHerobrineEntity, swordsmanHerobrineEntity.getGregUUID(), 6, 48.0D))
+                || HerobrinePortalCombatUtil.hasNearbyPortalGroup(swordsmanHerobrineEntity, null, 6, 48.0D))) {
             return false;
         }
 
@@ -469,7 +518,7 @@ public class DemoniacVoltageReaverItem extends SwordItem {
             }
         }
         if (entity instanceof Player && !flag && itemstack.hasTag() && itemstack.getTag().getBoolean("SnakeAnimation")) {
-            itemstack.getTag().remove("SnakeAnimation");
+            clearSnakeAnimation(itemstack);
         }
     }
 

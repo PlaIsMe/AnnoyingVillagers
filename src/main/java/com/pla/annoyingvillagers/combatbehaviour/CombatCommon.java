@@ -1086,15 +1086,6 @@ public class CombatCommon {
 
         mob.setDeltaMovement(mob.getDeltaMovement().add(impulse.x, 0.0D, impulse.z));
         mob.hasImpulse = true;
-        if (mob instanceof HerobrineMob herobrineMob
-                && target != null
-                && herobrineMob.getGregUUID() != null) {
-            Entity entity = ((ServerLevel) mob.level()).getEntity(herobrineMob.getGregUUID());
-            if (entity instanceof HerobrineGregEntity greg && greg.isAlive()) {
-                greg.requestRetreatPortalFor(herobrineMob, target);
-            }
-        }
-
         int pulses = 2 + r.nextInt(2);
         for (int i = 1; i <= pulses; i++) {
             Vec3 tail = away.scale(0.16D + r.nextDouble() * 0.10D)

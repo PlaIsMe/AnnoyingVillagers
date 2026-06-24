@@ -24,6 +24,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.property.AnimationProperty;
+import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Armatures;
@@ -36,7 +37,7 @@ public class AnimsSculkSteve {
     public static AnimationManager.AnimationAccessor<StaticAnimation> HEROBRINE_SACRIFICING;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HEROBRINE_ASSISTANCE;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HEROBRINE_STAGE_CHANGE;
-    public static AnimationManager.AnimationAccessor<StaticAnimation> PORTAL_SUMMON;
+    public static AnimationManager.AnimationAccessor<ActionAnimation> PORTAL_SUMMON;
 
     public static void build(AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> humanoidArmature = Armatures.BIPED;
@@ -51,7 +52,7 @@ public class AnimsSculkSteve {
         HEROBRINE_STAGE_CHANGE = builder.nextAccessor("biped/sculk_steve/herobrine_stage_change",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
         PORTAL_SUMMON = builder.nextAccessor("biped/sculk_steve/portal_summon",
-                accessor -> new StaticAnimation(false, accessor, humanoidArmature)
+                accessor -> new ActionAnimation(0.05F, Float.MAX_VALUE, accessor, humanoidArmature)
                         .addState(EntityState.MOVEMENT_LOCKED, true)
                         .addState(EntityState.CAN_BASIC_ATTACK, false)
                         .addState(EntityState.CAN_SKILL_EXECUTION, false)

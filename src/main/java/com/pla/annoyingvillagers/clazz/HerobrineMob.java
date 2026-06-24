@@ -556,7 +556,6 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 Objects.requireNonNull(herobrineGregEntity.level().getServer()).getPlayerList().broadcastSystemMessage(
                         Component.literal("<" + Component.translatable("entity.annoyingvillagers.herobrine_greg").getString() + "> "
                                 + Component.translatable("subtitles.herobrine_request").getString()), false);
-                HerobrinePortalCombatUtil.playGregTransformPortalSummon(herobrineGregEntity, this);
                 return;
             }
         }
@@ -1141,13 +1140,12 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 if (this.level() instanceof ServerLevel) {
                     this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);;
                 }
+                if (this.level() instanceof ServerLevel supportServerLevel) {
+                    this.playSecondFormSupportCasterAnimations(supportServerLevel);
+                }
                 this.summonClonesForNextStage();
             }
-            if (this.sacrificingAnimationCooldown == 50) {
-                this.sacrificing = true;
-            }
             if (this.sacrificingAnimationCooldown == 10) {
-                this.sacrificing = true;
                 this.setNoAi(true);
                 if (this.firstPossessedHerobrine != null) {
                     ((Mob) firstPossessedHerobrine).addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 30, 3, false, false));
@@ -1203,6 +1201,24 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             if (this.secondFormHitLeft == 0 && this.state == 1) {
                 this.state = 0;
             }
+        }
+    }
+
+    private void playSecondFormSupportCasterAnimations(ServerLevel serverLevel) {
+        for (HerobrineGregEntity greg : serverLevel.getEntitiesOfClass(
+                HerobrineGregEntity.class,
+                this.getBoundingBox().inflate(48.0D),
+                greg -> greg.isAlive() && greg.isSupportingSecondFormCaster(this)
+        )) {
+            greg.playSecondFormSupportCast(this);
+        }
+
+        for (TransporterHerobrineCloneEntity transporter : serverLevel.getEntitiesOfClass(
+                TransporterHerobrineCloneEntity.class,
+                this.getBoundingBox().inflate(48.0D),
+                transporter -> transporter.isAlive() && transporter.isSupportingSecondFormCaster(this)
+        )) {
+            transporter.playSecondFormSupportCast(this);
         }
     }
 

@@ -42,7 +42,7 @@ public class PortalEntity extends Entity {
     private static final int AMBIENT_SOUND_INTERVAL_TICKS = 80;
 
     private static final String PORTAL_COOLDOWN_TAG = "AnnoyingVillagersPortalCooldown";
-    private static final int LIVING_TELEPORT_COOLDOWN_TICKS = 30;
+    private static final int TELEPORT_COOLDOWN_TICKS = 30;
     private static final double SNAKE_BLADE_ANCHOR_Y_OFFSET = 1.0D;
 
     private static final EntityDataAccessor<Optional<UUID>> LINKED_PORTAL_UUID =
@@ -119,9 +119,6 @@ public class PortalEntity extends Entity {
         if (entity.isRemoved() || !entity.isAlive() || entity.isPassenger()) {
             return false;
         }
-        if (entity instanceof Projectile projectile && isGroundedProjectile(projectile)) {
-            return false;
-        }
         if (entity instanceof Player player && player.isSpectator()) {
             return false;
         }
@@ -129,10 +126,6 @@ public class PortalEntity extends Entity {
             return false;
         }
         return this.canTeleportByOwnerRule(entity);
-    }
-
-    private static boolean isGroundedProjectile(Projectile projectile) {
-        return projectile.onGround() || projectile.getDeltaMovement().lengthSqr() < 1.0E-4D;
     }
 
     private boolean canTeleportByOwnerRule(Entity entity) {
@@ -219,9 +212,7 @@ public class PortalEntity extends Entity {
         Vec3 exitPos = linkedPortal.findExitPosition(entity, exitSide, relativeY);
         Vec3 exitMotion = this.transformMotion(motion, linkedPortal, exitSide);
 
-        if (entity instanceof LivingEntity) {
-            entity.getPersistentData().putLong(PORTAL_COOLDOWN_TAG, this.level().getGameTime() + LIVING_TELEPORT_COOLDOWN_TICKS);
-        }
+        entity.getPersistentData().putLong(PORTAL_COOLDOWN_TAG, this.level().getGameTime() + TELEPORT_COOLDOWN_TICKS);
         entity.teleportTo(exitPos.x, exitPos.y, exitPos.z);
         entity.move(MoverType.SELF, Vec3.ZERO);
         entity.setDeltaMovement(exitMotion);

@@ -162,8 +162,8 @@ public class AVAnimations {
                         .addState(EntityState.CAN_BASIC_ATTACK, false)
                         .addEvents(
                                 AnimationEvent.InTimeEvent.create(0.0F, (livingEntityPatch, self, p) -> {
-                                    DemoniacVoltageReaverItem.process(livingEntityPatch.getOriginal().getMainHandItem(), livingEntityPatch.getOriginal());
-                                    livingEntityPatch.getOriginal().getMainHandItem().getOrCreateTag().putBoolean("SnakeAnimation", true);
+                                    ItemStack stack = livingEntityPatch.getOriginal().getMainHandItem();
+                                    DemoniacVoltageReaverItem.tryStartSnakeAnimation(stack, livingEntityPatch.getOriginal(), false);
                                 }, Side.SERVER)
                         ));
         SNAKE_BLADE_GUARD = builder.nextAccessor("biped/pla/snake_blade_guard",
@@ -172,11 +172,13 @@ public class AVAnimations {
                         .addEvents(
                                 AnimationEvent.InTimeEvent.create(0.0F, (livingEntityPatch, self, p) -> {
                                     if (livingEntityPatch.getOriginal() instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity
-                                            && HerobrinePortalCombatUtil.isGregSixPortalSnakeBladePending(swordsmanHerobrineEntity)) {
+                                            && ((swordsmanHerobrineEntity.getGregUUID() != null
+                                            && HerobrinePortalCombatUtil.hasNearbyPortalGroup(swordsmanHerobrineEntity, swordsmanHerobrineEntity.getGregUUID(), 6, 48.0D))
+                                            || HerobrinePortalCombatUtil.hasNearbyPortalGroup(swordsmanHerobrineEntity, null, 6, 48.0D))) {
                                         return;
                                     }
-                                    DemoniacVoltageReaverItem.processGuard(livingEntityPatch.getOriginal().getMainHandItem(), livingEntityPatch.getOriginal());
-                                    livingEntityPatch.getOriginal().getMainHandItem().getOrCreateTag().putBoolean("SnakeAnimation", true);
+                                    ItemStack stack = livingEntityPatch.getOriginal().getMainHandItem();
+                                    DemoniacVoltageReaverItem.tryStartSnakeAnimation(stack, livingEntityPatch.getOriginal(), true);
                                 }, Side.SERVER)
                         ));
         IDLE_BREAK = builder.nextAccessor("biped/pla/idle_break",

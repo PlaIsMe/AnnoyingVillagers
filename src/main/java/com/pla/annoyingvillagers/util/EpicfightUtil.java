@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.FlyingShockwaveProjectile;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
+import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -104,6 +105,41 @@ public class EpicfightUtil {
         } else {
             livingEntityPatch.stopPlaying(animation);
         }
+    }
+
+    public static boolean isPlaying(LivingEntity entity, AssetAccessor<? extends StaticAnimation> animation) {
+        if (entity == null || animation == null) {
+            return false;
+        }
+
+        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+        if (livingEntityPatch == null || livingEntityPatch.getAnimator().getPlayerFor(null) == null) {
+            return false;
+        }
+
+        return livingEntityPatch.getAnimator().getPlayerFor(null).getRealAnimation() == animation;
+    }
+
+    public static void cancel(LivingEntity entity, AssetAccessor<? extends StaticAnimation> animation) {
+        if (isPlaying(entity, animation)) {
+            stopAnimationSynchronized(entity, animation);
+        }
+    }
+
+    public static void cancelLater(LivingEntity entity, AssetAccessor<? extends StaticAnimation> animation, int delayTicks) {
+        if (entity == null || animation == null) {
+            return;
+        }
+
+        new DelayedTask(delayTicks) {
+            @Override
+            public void run() {
+                if (entity.isRemoved() || !entity.isAlive()) {
+                    return;
+                }
+                EpicfightUtil.cancel(entity, animation);
+            }
+        };
     }
 
     public static void dealStaminaDamageByPercentage(DamageSource damageSource, LivingEntityPatch<?> livingEntityPatch, double percentage, boolean playStunAnimation) {

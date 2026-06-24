@@ -59,20 +59,8 @@ public class RiseFromGroundEvent {
     }
 
     private static void finishRise(LivingEntity entity) {
-        var tag = entity.getPersistentData();
-
-        entity.noPhysics = false;
-        entity.setNoGravity(false);
-        entity.setInvulnerable(false);
-        if (entity instanceof Mob mob) {
-            mob.setNoAi(false);
-        }
-
-        tag.remove(HerobrinePortalUtil.NBT_RISING);
-        tag.remove(HerobrinePortalUtil.NBT_TARGET_Y);
-        tag.remove(HerobrinePortalUtil.NBT_SPEED);
-        tag.remove(HerobrinePortalUtil.NBT_TICKS);
-        tag.remove(HerobrinePortalUtil.NBT_MAX_TICKS);
+        HerobrinePortalUtil.finishGroundTransition(entity);
+        HerobrinePortalUtil.clearRiseTransitionData(entity);
 
         if (entity instanceof HerobrineMob herobrineMob) {
             if (herobrineMob.getGregUUID() != null) {

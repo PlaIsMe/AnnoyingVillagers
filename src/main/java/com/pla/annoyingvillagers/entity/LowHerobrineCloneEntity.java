@@ -93,7 +93,18 @@ public class LowHerobrineCloneEntity extends PlayerMobEntity {
     }
 
     public void setPossessedByEntity(HerobrineMob possessedByEntity) {
+        if (!isValidPossessedMaster(possessedByEntity)) {
+            this.possessedByEntity = null;
+            this.possessedByUuid = null;
+            return;
+        }
         this.possessedByEntity = possessedByEntity;
+    }
+
+    private static boolean isValidPossessedMaster(@Nullable Entity entity) {
+        return entity instanceof HerobrineMob
+                && !(entity instanceof TransporterHerobrineCloneEntity)
+                && !(entity instanceof HerobrineGregEntity);
     }
 
     public void setHealing(boolean healing) {
@@ -370,10 +381,11 @@ public class LowHerobrineCloneEntity extends PlayerMobEntity {
 
             if (possessedByEntity == null && possessedByUuid != null) {
                 Entity entity = ((ServerLevel) level()).getEntity(possessedByUuid);
-                if (entity instanceof HerobrineMob herobrineMob) {
+                if (isValidPossessedMaster(entity) && entity instanceof HerobrineMob herobrineMob) {
                     possessedByEntity = herobrineMob;
                 } else {
                     possessedByEntity = null;
+                    possessedByUuid = null;
                 }
             }
             if (!bound && possessedByEntity != null

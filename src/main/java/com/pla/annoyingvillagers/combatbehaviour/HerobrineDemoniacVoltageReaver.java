@@ -47,7 +47,7 @@ public class HerobrineDemoniacVoltageReaver {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(7.0D, 48.0D)
                             .animationBehavior(AnimsWom.HEROBRINE_MOB_ENDERSTEP_OBSCURIS, 0.0F)
-                            .addExBehavior(HerobrineCommon::giveSlowFallingAndRequestGregPortal)
+                            .addExBehavior(HerobrineCommon::giveSlowFalling)
                             )
             )
             .newBehaviorRoot(
@@ -106,15 +106,17 @@ public class HerobrineDemoniacVoltageReaver {
             )
             .newBehaviorRoot(
                     BehaviorRoot.builder()
-                            .priority(1.0D)
+                            .priority(2.0D)
                             .weight(12.5D)
-                            .maxCooldown(300)
+                            .maxCooldown(120)
                             .addFirstBehavior(
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 8.0D)
-                                            .custom(HerobrineCommon::canPlaySecondFormAnimationWithGregPortal)
-                                            .customBehavior(HerobrineCommon::queueSecondFormAnimationWithGregPortal)
+                                            .custom(HerobrineCommon::canPlaySecondFormAnimation)
+                                            .custom(HerobrineCommon::hasNearbySixPortalSupport)
+                                            .animationBehavior(AVAnimations.SNAKE_BLADE, 0.0F)
+                                            .addExBehavior(HerobrineCommon::playSecondFormAnimation)
                             )
             )
             .newBehaviorRoot(

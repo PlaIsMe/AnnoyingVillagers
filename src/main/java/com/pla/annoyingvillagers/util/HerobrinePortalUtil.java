@@ -84,6 +84,38 @@ public class HerobrinePortalUtil {
 
     }
 
+    public static void finishGroundTransition(LivingEntity entity) {
+        entity.noPhysics = false;
+        entity.setNoGravity(false);
+        entity.setInvulnerable(false);
+        if (entity instanceof Mob mob) {
+            mob.setNoAi(false);
+        }
+    }
+
+    public static void clearRiseTransitionData(LivingEntity entity) {
+        var tag = entity.getPersistentData();
+        tag.remove(NBT_RISING);
+        tag.remove(NBT_TARGET_Y);
+        tag.remove(NBT_SPEED);
+        tag.remove(NBT_TICKS);
+        tag.remove(NBT_MAX_TICKS);
+    }
+
+    public static void clearSinkTransitionData(LivingEntity entity) {
+        var tag = entity.getPersistentData();
+        tag.remove(NBT_SINKING);
+        tag.remove(NBT_SINK_TARGET_Y);
+        tag.remove(NBT_SINK_SPEED);
+        tag.remove(NBT_SINK_TICKS);
+        tag.remove(NBT_SINK_MAX_TICKS);
+    }
+
+    public static void cancelSinkTransition(LivingEntity entity) {
+        finishGroundTransition(entity);
+        clearSinkTransitionData(entity);
+    }
+
     public static void moveTransitionEntity(LivingEntity entity, double x, double y, double z) {
         entity.setDeltaMovement(Vec3.ZERO);
         entity.fallDistance = 0.0F;

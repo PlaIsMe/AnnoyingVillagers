@@ -66,6 +66,7 @@ import java.util.Set;
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Bus.MOD)
 public class AnimsPugilistSteve {
     public static AnimationManager.AnimationAccessor<StaticAnimation> LAYING_DEATH;
+    public static AnimationManager.AnimationAccessor<LongHitAnimation> LAYING_DEATH_DEAD;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_STATE_TRANSFORM;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_STATE_TRANSFORM_END;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_DIE;
@@ -183,6 +184,7 @@ public class AnimsPugilistSteve {
                 (accessor) -> new StaticAnimation(true, accessor, humanoidArmature)
                         .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, true)
                         .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, true));
+        LAYING_DEATH_DEAD = builder.nextAccessor("biped/pugilist_steve/death_emote_dead", (accessor) -> new LongHitAnimation(0.16F, accessor, Armatures.BIPED));
         BLUE_DEMON_STATE_TRANSFORM = builder.nextAccessor("biped/pugilist_steve/blue_demon_state_transform",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
         BLUE_DEMON_STATE_TRANSFORM_END = builder.nextAccessor("biped/pugilist_steve/blue_demon_state_transform_end",

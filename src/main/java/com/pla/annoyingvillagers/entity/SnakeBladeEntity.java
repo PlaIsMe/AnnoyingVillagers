@@ -73,6 +73,7 @@ public class SnakeBladeEntity extends Entity {
             SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.BOOLEAN);
 
     public static final float MAX_EXTEND_TIME = 5.0F;
+    private static final double ENTITY_TARGET_Y_OFFSET = 1.0D;
     private static final int MAX_PORTAL_CHAIN_TARGETS = 24;
     private static final int MAX_NORMAL_CHAIN_TARGETS = 5;
     private static final int MAX_GUARD_CHAIN_TARGETS = 5;
@@ -618,7 +619,7 @@ public class SnakeBladeEntity extends Entity {
             return portalEntity.getSnakeBladeAnchor();
         }
 
-        return new Vec3(entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ());
+        return new Vec3(entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D - ENTITY_TARGET_Y_OFFSET, entity.getZ());
     }
 
     private boolean isValidTarget(LivingEntity creator, Entity entity) {

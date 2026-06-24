@@ -82,7 +82,6 @@ public class InfectedPlayerNpcEntity extends PlayerMobEntity {
             this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE.get(), 2, 0, false, false));
             this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 2, 0, false, false));
             this.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), 2, 0, false, false));
-            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LAYING_DEATH, 0.0F);
         }
     }
 
@@ -122,7 +121,6 @@ public class InfectedPlayerNpcEntity extends PlayerMobEntity {
             itementity.setPickUpDelay(10);
             serverLevel.addFreshEntity(itementity);
         }
-        this.discard();
     }
 
     @Override
