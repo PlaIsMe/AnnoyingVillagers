@@ -108,6 +108,56 @@ public class CombatBehaviour {
         }
     }
 
+    public static void throwEnderPearlAt(Entity entity, Vec3 target) {
+        facePosition(entity, target);
+
+        if (entity.level() instanceof ServerLevel serverLevel) {
+            new DelayedTask(5) {
+                @Override
+                public void run() {
+                    if (!entity.isAlive() || entity.isRemoved()) {
+                        return;
+                    }
+
+                    Vec3 handPos = getFrontLeftPos(entity);
+                    Vec3 delta = target.subtract(handPos);
+                    double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
+
+                    Projectile projectile = new ThrownEnderpearl(EntityType.ENDER_PEARL, serverLevel);
+                    projectile.setOwner(entity);
+                    projectile.setPos(handPos.x, handPos.y, handPos.z);
+                    projectile.shoot(delta.x, delta.y + horizontal * 0.08D, delta.z, 1.8F, 0.0F);
+                    serverLevel.addFreshEntity(projectile);
+                    entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.ENDER_PEARL_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (entity.level().getRandom().nextFloat() * 0.4F + 0.8F));
+                }
+            };
+        }
+    }
+
+    private static void facePosition(Entity entity, Vec3 target) {
+        Vec3 origin = entity instanceof LivingEntity livingEntity
+                ? livingEntity.getEyePosition(1.0F)
+                : entity.position().add(0.0D, entity.getBbHeight() * 0.85D, 0.0D);
+        double dx = target.x - origin.x;
+        double dy = target.y - origin.y;
+        double dz = target.z - origin.z;
+        double horizontal = Math.sqrt(dx * dx + dz * dz);
+        float yaw = (float) (Mth.atan2(dz, dx) * (180.0F / (float) Math.PI)) - 90.0F;
+        float pitch = (float) (-(Mth.atan2(dy, horizontal) * (180.0F / (float) Math.PI)));
+
+        entity.setYRot(yaw);
+        entity.setXRot(pitch);
+        entity.setYBodyRot(yaw);
+        entity.setYHeadRot(yaw);
+        entity.yRotO = yaw;
+        entity.xRotO = pitch;
+
+        if (entity instanceof LivingEntity livingEntity) {
+            livingEntity.yBodyRotO = yaw;
+            livingEntity.yHeadRotO = yaw;
+        }
+    }
+
     private static void recoverItemDueToFailure(Entity entity) {
         if (entity instanceof PlayerNpcEntity playerNpcEntity) {
             playerNpcEntity.setItemInHand(InteractionHand.MAIN_HAND, playerNpcEntity.getMainWeaponItem().copy());

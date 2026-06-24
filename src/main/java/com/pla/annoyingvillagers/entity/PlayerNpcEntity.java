@@ -10,6 +10,7 @@ import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
 import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
 import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
+import com.pla.annoyingvillagers.entity.goal.WaterEnderPearlEscapeGoal;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.task.DelayedTask;
@@ -420,6 +421,7 @@ public class PlayerNpcEntity extends PlayerMobEntity implements RangedAttackMob 
     }
 
     protected void registerGoals() {
+        this.goalSelector.addGoal(-3, new WaterEnderPearlEscapeGoal(this));
         this.goalSelector.addGoal(-2, new RecoverWeaponInCombatGoal(this, 1.2D, 10.0D));
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));

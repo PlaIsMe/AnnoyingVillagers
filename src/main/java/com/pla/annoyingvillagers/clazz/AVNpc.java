@@ -13,6 +13,7 @@ import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
 import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
 import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
+import com.pla.annoyingvillagers.entity.goal.WaterEnderPearlEscapeGoal;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.task.DelayedTask;
@@ -542,6 +543,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     protected void registerGoals() {
         super.registerGoals();
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
+        this.goalSelector.addGoal(-3, new WaterEnderPearlEscapeGoal(this));
         this.goalSelector.addGoal(-2, new RecoverWeaponInCombatGoal(this, 1.2D, 10.0D));
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(4, new BowLineOfSightGoal(this, 1.15D, 7.0D, 14.0D));
