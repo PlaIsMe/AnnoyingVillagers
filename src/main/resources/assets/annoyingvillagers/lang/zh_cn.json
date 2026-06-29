@@ -303,7 +303,7 @@
   "tooltip.annoyingvillagers.enchanted_ender_pearl": "這是一顆可以忽略掉落傷害的魔法末影珍珠。",
   "tooltip.annoyingvillagers.poison_egg": "從§5BBQ酱§r拋出。",
   "tooltip.annoyingvillagers.jev_glasses": "右鍵點選即可裝備。",
-  "tooltip.annoyingvillagers.villager_head": "偽裝成村民的工具。右鍵點選即可裝備。潛行+右鍵可在偽裝和攻擊模式之間切換。",
+  "tooltip.annoyingvillagers.villager_head": "偽裝成村民的工具。",
   "tooltip.annoyingvillagers.enchanted_bed": "右鍵點選附魔床一次即可設定重生點。死亡後，物品不會掉落。每次使用後必須再次右鍵點擊才能重新啟動效果。此效果與不死圖騰衝突。",
   "tooltip.annoyingvillagers.transporter_fragment": "副手武器时：使用“特殊攻击”召唤一个传送门。传送门连接顺序为 1 <-> 2、3 <-> 4、5 <-> 6。\n主手武器时：使用“特殊攻击”在你周围召唤 6 个传送门。\n主手武器时：按住“特殊攻击”召唤一个传送传送门，将你和附近的实体传送到已保存的传送点。\n主手武器时：右键单击保存传送点。按住 Shift 键并右键单击清除传送点。",
   "tooltip.annoyingvillagers.hook_gun": "右键点击发射或回收钩爪。\n一手拿着钩爪枪，一手拿着要绑定的物品，然后使用“特殊攻击”。\n可以绑定工具、武器、方块、食物、药水、水桶、骨头、燧石和钢等等。",

@@ -16,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -25,6 +26,26 @@ public class EnchantedEnderPearlItem extends Item {
 
     public EnchantedEnderPearlItem() {
         super((new Properties()).stacksTo(1).durability(100));
+    }
+
+    @Override
+    public boolean isEnchantable(@NotNull ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean canApplyAtEnchantingTable(@NotNull ItemStack stack, @NotNull Enchantment enchantment) {
+        return false;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return false;
+    }
+
+    @Override
+    public int getEnchantmentValue() {
+        return 0;
     }
 
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand interactionhand) {

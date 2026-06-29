@@ -50,6 +50,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -615,7 +616,7 @@ public class PlayerNpcEntity extends PlayerMobEntity implements RangedAttackMob 
         super.tick();
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
 
-        if (this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
+        if (ModList.get().isLoaded("efkick") && this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
             if (getLivingEntityPatch() != null) {
                 AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
                 if (EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && this.isAlive()) {

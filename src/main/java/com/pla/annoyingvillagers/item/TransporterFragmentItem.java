@@ -28,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -95,6 +96,26 @@ public class TransporterFragmentItem extends Item {
 
     public TransporterFragmentItem() {
         super(new Properties().stacksTo(1).durability(MAX_DURABILITY).fireResistant().rarity(Rarity.EPIC));
+    }
+
+    @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+        return false;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return false;
+    }
+
+    @Override
+    public int getEnchantmentValue() {
+        return 0;
     }
 
     public static UseResult tryUseSpecialAttack(Player player) {

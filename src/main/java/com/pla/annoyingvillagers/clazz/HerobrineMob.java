@@ -64,6 +64,7 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -943,7 +944,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
             }
 
-            if (this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
+            if (ModList.get().isLoaded("efkick") && this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
                 if (getLivingEntityPatch() != null) {
                     AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
                     if (EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && this.isAlive()) {

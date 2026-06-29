@@ -83,11 +83,11 @@ public class AnnoyingVillagersConfig {
                 .define("tridentFestivalCanBreakBlock", true);
 
         MOB_GUARD_BREAK_WAKE_UP_MIN_CHANCE = BUILDER.comment(
-                        "Min chance for mob can wake up automatically on guard break")
+                        "[ONLY WORK WHEN EpicFight: KickSkill is installed] Min chance for mob can wake up automatically on guard break")
                 .defineInRange("mobGuardBreakWakeUpMinChance", 0.05D, 0.0D, 1.0D);
 
         MOB_GUARD_BREAK_WAKE_UP_MAX_CHANCE = BUILDER.comment(
-                        "Max chance for mob can wake up automatically on guard break")
+                        "[ONLY WORK WHEN EpicFight: KickSkill is installed] Max chance for mob can wake up automatically on guard break")
                 .defineInRange("mobGuardBreakWakeUpMaxChance", 0.4D, 0.0D, 1.0D);
 
         TURN_ON_NPC_CHAT = BUILDER.comment(

@@ -118,7 +118,7 @@ public class EnchantBedBlock extends Block {
 
         if (player instanceof ServerPlayer serverPlayer) {
             if (player.experienceLevel >= 2) {
-                player.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT.get(),  Integer.MAX_VALUE, 0, false, false));
+                player.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT.get(), MobEffectInstance.INFINITE_DURATION, 0, false, false));
                 player.displayClientMessage(Component.literal("You used the Enchant Bed once. Experience level -1."), true);
                 player.displayClientMessage(Component.literal("Respawn point has been reset."), false);
                 player.giveExperienceLevels(-1);

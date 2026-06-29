@@ -141,16 +141,6 @@ public class LowHerobrineCloneEntity extends PlayerMobEntity {
                     return super.hurt(damageSource, f / 2.0F);
                 }
             }
-        } else {
-            if (Math.random() <= 0.5D
-                    && !damageSource.is(DamageTypes.IN_WALL)
-                    && !damageSource.is(DamageTypes.IN_FIRE)
-                    && !damageSource.is(DamageTypes.ON_FIRE)) {
-                if (this.level() instanceof ServerLevel serverLevel) {
-                    serverLevel.playSound(null, this.blockPosition(), AnnoyingVillagersModSounds.OBSIDIAN_PLACE.get(), SoundSource.NEUTRAL, 0.5F, 1.0F);
-                    HerobrineUtil.spawnObsidianEyeLineStaggered(serverLevel, this, AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState(), 1);
-                }
-            }
         }
         if (damageSource.is(DamageTypes.FALL)) return false;
         if (damageSource.is(DamageTypes.CACTUS)) return false;

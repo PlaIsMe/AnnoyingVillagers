@@ -41,6 +41,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -885,7 +886,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
         CombatCommon.tryPerformAvNpcWaterBucketSelfExtinguish(this);
 
-        if (this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
+        if (ModList.get().isLoaded("efkick") && this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
             if (getLivingEntityPatch() != null) {
                 AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
                 if (EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && this.isAlive()) {

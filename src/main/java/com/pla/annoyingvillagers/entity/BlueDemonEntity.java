@@ -63,6 +63,7 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -1491,7 +1492,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
                 efnGuardHitState = 0;
             }
 
-            if (this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
+            if (ModList.get().isLoaded("efkick") && this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
                 if (getLivingEntityPatch() != null) {
                     AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
                     if (EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && this.isAlive()) {
