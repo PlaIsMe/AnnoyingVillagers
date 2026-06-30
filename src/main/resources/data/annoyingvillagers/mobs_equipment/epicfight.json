@@ -1,37 +1,42 @@
 {
   "MAINHAND": [
-    "diamond_dagger",
-    "diamond_greatsword",
-    "diamond_longsword",
-    "diamond_spear",
-    "diamond_tachi",
-    "glove",
-    "golden_dagger",
-    "golden_greatsword",
-    "golden_longsword",
-    "golden_spear",
-    "golden_tachi",
-    "iron_dagger",
-    "iron_greatsword",
-    "iron_longsword",
-    "iron_spear",
-    "iron_tachi",
-    "stone_greatsword",
-    "stone_spear",
-    "bokken",
-    "uchigatana"
+    { "id": "bokken", "min_difficulty": "EASY" },
+    { "id": "glove", "min_difficulty": "EASY" },
+    { "id": "stone_greatsword", "min_difficulty": "EASY" },
+    { "id": "stone_spear", "min_difficulty": "EASY" },
+    { "id": "golden_dagger", "min_difficulty": "MEDIUM" },
+    { "id": "golden_greatsword", "min_difficulty": "MEDIUM" },
+    { "id": "golden_longsword", "min_difficulty": "MEDIUM" },
+    { "id": "golden_spear", "min_difficulty": "MEDIUM" },
+    { "id": "golden_tachi", "min_difficulty": "MEDIUM" },
+    { "id": "iron_dagger", "min_difficulty": "MEDIUM" },
+    { "id": "iron_greatsword", "min_difficulty": "MEDIUM" },
+    { "id": "iron_longsword", "min_difficulty": "MEDIUM" },
+    { "id": "iron_spear", "min_difficulty": "MEDIUM" },
+    { "id": "iron_tachi", "min_difficulty": "MEDIUM" },
+    { "id": "uchigatana", "min_difficulty": "MEDIUM" },
+    { "id": "diamond_dagger", "min_difficulty": "HARD" },
+    { "id": "diamond_greatsword", "min_difficulty": "HARD" },
+    { "id": "diamond_longsword", "min_difficulty": "HARD" },
+    { "id": "diamond_spear", "min_difficulty": "HARD" },
+    { "id": "diamond_tachi", "min_difficulty": "HARD" },
+    { "id": "netherite_dagger", "min_difficulty": "HARD" },
+    { "id": "netherite_greatsword", "min_difficulty": "HARD" },
+    { "id": "netherite_longsword", "min_difficulty": "HARD" },
+    { "id": "netherite_spear", "min_difficulty": "HARD" },
+    { "id": "netherite_tachi", "min_difficulty": "HARD" }
   ],
   "OFFHAND": [
   ],
   "FEET": [
   ],
   "LEGS": [
-    "stray_pants"
+    { "id": "stray_pants", "min_difficulty": "EASY" }
   ],
   "CHEST": [
-    "stray_robe"
+    { "id": "stray_robe", "min_difficulty": "EASY" }
   ],
   "HEAD": [
-    "stray_hat"
+    { "id": "stray_hat", "min_difficulty": "EASY" }
   ]
 }

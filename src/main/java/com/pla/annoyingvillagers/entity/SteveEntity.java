@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.entity;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
+import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -170,7 +171,7 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity {
     @Override
     public void die(@NotNull DamageSource pDamageSource) {
         if (this.level() instanceof ServerLevel serverLevel) {
-            if (new Random().nextFloat() <= AnnoyingVillagersConfig.ANGRY_STEVE_CHANCE.get()) {
+            if (ProgressionUtil.isAtLeastDifficulty(Difficulty.HARD) && new Random().nextFloat() <= AnnoyingVillagersConfig.ANGRY_STEVE_CHANCE.get()) {
                 LivingEntity target = null;
                 if (pDamageSource.getEntity() instanceof LivingEntity living && living.isAlive()) {
                     target = living;

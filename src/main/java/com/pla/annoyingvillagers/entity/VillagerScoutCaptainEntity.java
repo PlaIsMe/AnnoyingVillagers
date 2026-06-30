@@ -1,14 +1,12 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.VillagerArmyEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.task.DelayedTask;
-import com.pla.annoyingvillagers.util.CommonGoals;
-import com.pla.annoyingvillagers.util.RidingUtil;
-import com.pla.annoyingvillagers.util.TeamUtil;
-import com.pla.annoyingvillagers.util.VillagerUtil;
+import com.pla.annoyingvillagers.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -259,7 +257,7 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
     }
 
     public static boolean canSpawn(EntityType<VillagerScoutCaptainEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
-        return PathfinderMob.checkMobSpawnRules(entityType, level, spawnType, position, random);
+        return ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM) && PathfinderMob.checkMobSpawnRules(entityType, level, spawnType, position, random);
     }
 
     public static Builder createAttributes() {

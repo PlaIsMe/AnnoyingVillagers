@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.blockentity.CryingObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
+import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
@@ -15,13 +16,9 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.TransporterFragmentItem;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
-import com.pla.annoyingvillagers.util.EpicfightUtil;
-import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
-import com.pla.annoyingvillagers.util.HerobrinePortalUtil;
+import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.spawnhandler.GregData;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
-import com.pla.annoyingvillagers.util.ChatUtil;
-import com.pla.annoyingvillagers.util.EscapeUtil;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -2134,14 +2131,10 @@ public class HerobrineGregEntity extends Monster {
 
     public static boolean canSpawn(EntityType<HerobrineGregEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
-        int passesDay = (int) (serverLevel.getGameTime() / 24000);
-        if (passesDay % 5 != 0) {
-            return false;
-        }
         if (GregData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
         }
-        return Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);
+        return ProgressionUtil.isAtLeastDifficulty(Difficulty.HARD) && Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);
     }
 
     @Override

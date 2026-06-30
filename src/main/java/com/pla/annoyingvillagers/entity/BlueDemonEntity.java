@@ -2,10 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import javax.annotation.Nullable;
 
-import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
-import com.pla.annoyingvillagers.clazz.CombatVoiceLineEntity;
-import com.pla.annoyingvillagers.clazz.HerobrineMob;
-import com.pla.annoyingvillagers.clazz.SauceType;
+import com.pla.annoyingvillagers.clazz.*;
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
@@ -19,11 +16,7 @@ import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.spawnhandler.BluedemonData;
 import com.pla.annoyingvillagers.task.DelayedTask;
-import com.pla.annoyingvillagers.util.CombatBehaviour;
-import com.pla.annoyingvillagers.util.BlueDemonUtil;
-import com.pla.annoyingvillagers.util.CommonGoals;
-import com.pla.annoyingvillagers.util.EpicfightUtil;
-import com.pla.annoyingvillagers.util.TeamUtil;
+import com.pla.annoyingvillagers.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -1683,7 +1676,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         if (BluedemonData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
         }
-        return Monster.checkAnyLightMonsterSpawnRules(entityType, level, spawnType, position, random);
+        return ProgressionUtil.isAtLeastDifficulty(Difficulty.HARD) && Monster.checkAnyLightMonsterSpawnRules(entityType, level, spawnType, position, random);
     }
 
     @Override

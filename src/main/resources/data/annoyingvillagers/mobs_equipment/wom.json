@@ -1,13 +1,15 @@
 {
   "MAINHAND": [
-    "diamond_greataxe",
-    "diamond_staff",
-    "golden_greataxe",
-    "golden_staff",
-    "iron_greataxe",
-    "iron_staff",
-    "stone_staff",
-    "wooden_staff"
+    { "id": "stone_staff", "min_difficulty": "EASY" },
+    { "id": "wooden_staff", "min_difficulty": "EASY" },
+    { "id": "golden_greataxe", "min_difficulty": "MEDIUM" },
+    { "id": "golden_staff", "min_difficulty": "MEDIUM" },
+    { "id": "iron_greataxe", "min_difficulty": "MEDIUM" },
+    { "id": "iron_staff", "min_difficulty": "MEDIUM" },
+    { "id": "diamond_greataxe", "min_difficulty": "HARD" },
+    { "id": "diamond_staff", "min_difficulty": "HARD" },
+    { "id": "netherite_greataxe", "min_difficulty": "HARD" },
+    { "id": "netherite_staff", "min_difficulty": "HARD" }
   ],
   "OFFHAND": [
   ],

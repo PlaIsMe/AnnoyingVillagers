@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.combatbehaviour.HerobrineCommon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
@@ -8,6 +9,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
+import com.pla.annoyingvillagers.util.ProgressionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -114,17 +116,13 @@ public class HerobrineChrisEntity extends HerobrineMob {
 
     public static boolean canSpawn(EntityType<HerobrineChrisEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
-        int passesDay = (int) (serverLevel.getGameTime() / 24000);
-        if (passesDay != 0 && passesDay % 3 != 0) {
-            return false;
-        }
         if (HerobrineMobData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
         }
         if (!serverLevel.isNight()) {
             return false;
         }
-        return Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);
+        return ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM) && Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);
     }
 
     public static Builder createAttributes() {

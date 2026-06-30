@@ -1,7 +1,9 @@
 package com.pla.annoyingvillagers.util;
 
 import com.google.gson.*;
+import com.pla.annoyingvillagers.clazz.Difficulty;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
@@ -10,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,10 +25,18 @@ import java.util.*;
 public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new Gson();
     private static final Random RANDOM = new Random();
-    private static final Map<String, List<String>> EQUIP_ITEMS = new HashMap<>();
+    private static final Map<String, List<EquipmentEntry>> EQUIP_ITEMS = new HashMap<>();
     private static final Logger LOGGER = LogManager.getLogger();
     private static final float MIN_ARMOR_SET_MATCH_CHANCE = 0.30F;
     private static final float MAX_ARMOR_SET_MATCH_CHANCE = 0.50F;
+    private static final float EASY_MAINHAND_EQUIP_CHANCE = 0.15F;
+    private static final float MEDIUM_MAINHAND_EQUIP_CHANCE = 0.65F;
+    private static final float HARD_MAINHAND_EQUIP_CHANCE = 0.95F;
+    private static final float EASY_OFFHAND_EQUIP_CHANCE = 0.03F;
+    private static final float MEDIUM_OFFHAND_EQUIP_CHANCE = 0.35F;
+    private static final float HARD_OFFHAND_EQUIP_CHANCE = 1.0F;
+    private static final float EASY_ARMOR_EQUIP_CHANCE = 0.08F;
+    private static final float MEDIUM_ARMOR_EQUIP_CHANCE = 0.45F;
     private static final String ANNOYING_VILLAGERS = "annoyingvillagers";
     private static final String EPIC_FIGHT = "epicfight";
     private static final String MINECRAFT = "minecraft";
@@ -175,14 +186,46 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
                 if (!root.has(slot)) continue;
 
                 JsonArray array = root.getAsJsonArray(slot);
-                List<String> items = EQUIP_ITEMS.computeIfAbsent(slot, k -> new ArrayList<>());
+                List<EquipmentEntry> items = EQUIP_ITEMS.computeIfAbsent(slot, k -> new ArrayList<>());
 
                 for (JsonElement el : array) {
-                    String itemName = el.getAsString();
-                    items.add(modId + ":" + itemName);
+                    parseEquipmentEntry(modId, slot, el).ifPresent(items::add);
                 }
             }
         }
+    }
+
+    private static Optional<EquipmentEntry> parseEquipmentEntry(String modId, String slot, JsonElement element) {
+        if (element.isJsonPrimitive()) {
+            return Optional.of(new EquipmentEntry(qualifyItemId(modId, element.getAsString()), Difficulty.EASY));
+        }
+
+        if (!element.isJsonObject()) {
+            LOGGER.warn("Skipping invalid equipment entry in {}: {}", slot, element);
+            return Optional.empty();
+        }
+
+        JsonObject object = element.getAsJsonObject();
+        if (!object.has("id")) {
+            LOGGER.warn("Skipping equipment entry without id in {}: {}", slot, object);
+            return Optional.empty();
+        }
+
+        String itemId = qualifyItemId(modId, GsonHelper.getAsString(object, "id"));
+        String difficultyName = object.has("min_difficulty")
+                ? GsonHelper.getAsString(object, "min_difficulty")
+                : Difficulty.EASY.name();
+        Difficulty minDifficulty = Difficulty.findByName(difficultyName);
+        if (minDifficulty == null) {
+            LOGGER.warn("Unknown min_difficulty '{}' for {}; using EASY", difficultyName, itemId);
+            minDifficulty = Difficulty.EASY;
+        }
+
+        return Optional.of(new EquipmentEntry(itemId, minDifficulty));
+    }
+
+    private static String qualifyItemId(String modId, String itemName) {
+        return itemName.contains(":") ? itemName : modId + ":" + itemName;
     }
 
     private static boolean addMoreDualCap(ItemStack stack, WeaponCapability weaponCapability) {
@@ -247,6 +290,14 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
         return Optional.of(validItems.get(RANDOM.nextInt(validItems.size())));
     }
 
+    private static List<String> getAvailableItemIds(String slot, Difficulty difficulty) {
+        return EQUIP_ITEMS.getOrDefault(slot, List.of()).stream()
+                .filter(entry -> entry.canUse(difficulty))
+                .map(EquipmentEntry::itemId)
+                .filter(EquipmentDataLoader::itemExists)
+                .toList();
+    }
+
     private static boolean isArmorSlot(String slot) {
         return ARMOR_SLOT_SUFFIXES.containsKey(slot);
     }
@@ -306,13 +357,13 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
                 .or(() -> getRandomExistingItem(pool));
     }
 
-    private static Optional<String> getBoundOffhandWeapon(ItemStack mainHandStack) {
+    private static Optional<String> getBoundOffhandWeapon(ItemStack mainHandStack, Difficulty difficulty) {
         List<String> offhandItems = BOUND_OFFHAND_WEAPONS.get(getItemId(mainHandStack));
         if (offhandItems == null || offhandItems.isEmpty()) {
             return Optional.empty();
         }
 
-        return getRandomExistingItem(offhandItems);
+        return getRandomExistingItem(filterGeneratedPool(offhandItems, difficulty));
     }
 
     private static boolean isRandomOffhandWeaponBlacklisted(ItemStack stack) {
@@ -365,7 +416,7 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
         return false;
     }
 
-    private static Optional<String> getLegacyRandomOffhandWeapon(ItemStack mainHandStack) {
+    private static Optional<String> getLegacyRandomOffhandWeapon(ItemStack mainHandStack, Difficulty difficulty) {
         if (isRandomOffhandWeaponBlacklisted(mainHandStack)) {
             return Optional.empty();
         }
@@ -373,26 +424,26 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
         CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(mainHandStack);
         if (cap instanceof WeaponCapability weaponCapability) {
             if (weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.SWORD) {
-                return getRandomExistingItem(SWORD_OFFHAND_POOL);
+                return getRandomExistingItem(filterGeneratedPool(SWORD_OFFHAND_POOL, difficulty));
             }
 
             if (weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.DAGGER) {
-                return getRandomExistingItem(DAGGER_OFFHAND_POOL);
+                return getRandomExistingItem(filterGeneratedPool(DAGGER_OFFHAND_POOL, difficulty));
             }
         }
 
         return Optional.empty();
     }
 
-    private static String getRandomOffhandOrMainHand(String mainHandItemId, List<String> itemIds) {
+    private static String getRandomOffhandOrMainHand(String mainHandItemId, List<String> itemIds, Difficulty difficulty) {
         if (RANDOM.nextBoolean()) {
             return mainHandItemId;
         }
 
-        return getRandomExistingItem(itemIds).orElse(mainHandItemId);
+        return getRandomExistingItem(filterGeneratedPool(itemIds, difficulty)).orElse(mainHandItemId);
     }
 
-    private static Optional<String> getDualModOffhandWeapon(String mainHandItemId, ItemStack mainHandStack) {
+    private static Optional<String> getDualModOffhandWeapon(String mainHandItemId, ItemStack mainHandStack, Difficulty difficulty) {
         CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(mainHandStack);
         if (!(cap instanceof WeaponCapability weaponCapability) || isAnnoyingVillagersItem(mainHandStack)) {
             return Optional.empty();
@@ -400,32 +451,32 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
 
         if (ModList.get().isLoaded("dualaxes")
                 && weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.AXE) {
-            return Optional.of(getRandomOffhandOrMainHand(mainHandItemId, DUAL_AXE_OFFHAND_POOL));
+            return Optional.of(getRandomOffhandOrMainHand(mainHandItemId, DUAL_AXE_OFFHAND_POOL, difficulty));
         }
 
         if (ModList.get().isLoaded("dualgreatswords")
                 && weaponCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.GREATSWORD) {
-            return Optional.of(getRandomOffhandOrMainHand(mainHandItemId, DUAL_GREATSWORD_OFFHAND_POOL));
+            return Optional.of(getRandomOffhandOrMainHand(mainHandItemId, DUAL_GREATSWORD_OFFHAND_POOL, difficulty));
         }
 
         return Optional.empty();
     }
 
-    private static String getTwoHandOffhandWeapon(String mainHandItemId, ItemStack mainHandStack) {
-        return getLegacyRandomOffhandWeapon(mainHandStack)
-                .or(() -> getDualModOffhandWeapon(mainHandItemId, mainHandStack))
+    private static String getTwoHandOffhandWeapon(String mainHandItemId, ItemStack mainHandStack, Difficulty difficulty) {
+        return getLegacyRandomOffhandWeapon(mainHandStack, difficulty)
+                .or(() -> getDualModOffhandWeapon(mainHandItemId, mainHandStack, difficulty))
                 .orElse(mainHandItemId);
     }
 
-    private static Optional<String> getGeneratedOffhandItem(String mainHandItemId, ItemStack mainHandStack) {
-        Optional<String> boundOffhandWeapon = getBoundOffhandWeapon(mainHandStack);
+    private static Optional<String> getGeneratedOffhandItem(String mainHandItemId, ItemStack mainHandStack, Difficulty difficulty) {
+        Optional<String> boundOffhandWeapon = getBoundOffhandWeapon(mainHandStack, difficulty);
         if (boundOffhandWeapon.isPresent()) {
             return boundOffhandWeapon;
         }
 
         if (RANDOM.nextBoolean()) {
             if (canTwoHand(mainHandStack)) {
-                return Optional.of(getTwoHandOffhandWeapon(mainHandItemId, mainHandStack));
+                return Optional.of(getTwoHandOffhandWeapon(mainHandItemId, mainHandStack, difficulty));
             } else if (canUseShield(mainHandStack)) {
                 return Optional.of(SHIELD_ITEM_ID);
             }
@@ -433,7 +484,7 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
             if (canUseShield(mainHandStack)) {
                 return Optional.of(SHIELD_ITEM_ID);
             } else if (canTwoHand(mainHandStack)) {
-                return Optional.of(getTwoHandOffhandWeapon(mainHandItemId, mainHandStack));
+                return Optional.of(getTwoHandOffhandWeapon(mainHandItemId, mainHandStack, difficulty));
             }
         }
 
@@ -448,17 +499,100 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
         return damage;
     }
 
+    private static Difficulty getCurrentDifficulty(Entity entity) {
+        MinecraftServer server = entity != null ? entity.getServer() : ServerLifecycleHooks.getCurrentServer();
+        return server != null ? ProgressionUtil.getDifficulty(server) : Difficulty.EASY;
+    }
+
+    private static float getMainhandEquipChance(Difficulty difficulty) {
+        return switch (difficulty) {
+            case EASY -> EASY_MAINHAND_EQUIP_CHANCE;
+            case MEDIUM -> MEDIUM_MAINHAND_EQUIP_CHANCE;
+            case HARD -> HARD_MAINHAND_EQUIP_CHANCE;
+        };
+    }
+
+    private static float getOffhandEquipChance(Difficulty difficulty) {
+        return switch (difficulty) {
+            case EASY -> EASY_OFFHAND_EQUIP_CHANCE;
+            case MEDIUM -> MEDIUM_OFFHAND_EQUIP_CHANCE;
+            case HARD -> HARD_OFFHAND_EQUIP_CHANCE;
+        };
+    }
+
+    private static float getArmorEquipChance(Difficulty difficulty, float baseChance) {
+        return switch (difficulty) {
+            case EASY -> Math.min(baseChance, EASY_ARMOR_EQUIP_CHANCE);
+            case MEDIUM -> Math.min(baseChance, MEDIUM_ARMOR_EQUIP_CHANCE);
+            case HARD -> baseChance;
+        };
+    }
+
+    private static boolean shouldEquipMainhand(Difficulty difficulty) {
+        return RANDOM.nextFloat() < getMainhandEquipChance(difficulty);
+    }
+
+    private static boolean shouldEquipOffhand(Difficulty difficulty) {
+        return RANDOM.nextFloat() < getOffhandEquipChance(difficulty);
+    }
+
+    private static boolean shouldEquipArmor(Difficulty difficulty, float baseChance) {
+        return RANDOM.nextFloat() < getArmorEquipChance(difficulty, baseChance);
+    }
+
+    private static List<String> filterGeneratedPool(List<String> itemIds, Difficulty difficulty) {
+        return itemIds.stream()
+                .filter(itemId -> inferMinimumDifficulty(itemId).ordinal() <= difficulty.ordinal())
+                .toList();
+    }
+
+    private static Difficulty inferMinimumDifficulty(String itemId) {
+        String path = itemId.contains(":") ? itemId.substring(itemId.indexOf(':') + 1) : itemId;
+        if (path.contains("netherite")
+                || path.contains("diamond")
+                || path.contains("unlight")
+                || path.contains("ruby")
+                || path.contains("exterminator")
+                || path.contains("blackscratcher")
+                || path.contains("laevateinn")
+                || path.contains("moon_blade")
+                || path.contains("armblade")) {
+            return Difficulty.HARD;
+        }
+
+        if (path.contains("iron")
+                || path.contains("gold")
+                || path.contains("chainmail")
+                || path.contains("turtle")
+                || path.contains("jade")
+                || path.contains("red_axe")) {
+            return Difficulty.MEDIUM;
+        }
+
+        return Difficulty.EASY;
+    }
+
     public static List<String> getEquipCommands(float equipChanceArmor, Entity entity) {
         List<String> cmds = new ArrayList<>();
         String generatedOffhandItem = null;
         String previousArmorItemId = null;
+        Difficulty difficulty = getCurrentDifficulty(entity);
 
         for (String slot : EQUIPMENT_SLOTS) {
-            List<String> pool = EQUIP_ITEMS.getOrDefault(slot, List.of());
+            List<String> pool = getAvailableItemIds(slot, difficulty);
             if (pool.isEmpty()) continue;
 
-            boolean alwaysEquip = slot.equals("MAINHAND") || slot.equals("OFFHAND");
-            if (!alwaysEquip && RANDOM.nextFloat() > equipChanceArmor) continue;
+            if (slot.equals("MAINHAND") && !shouldEquipMainhand(difficulty)) {
+                continue;
+            }
+
+            if (slot.equals("OFFHAND") && !shouldEquipOffhand(difficulty)) {
+                continue;
+            }
+
+            if (isArmorSlot(slot) && !shouldEquipArmor(difficulty, equipChanceArmor)) {
+                continue;
+            }
 
             String itemId;
             if (isArmorSlot(slot)) {
@@ -488,7 +622,7 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
 
             ItemStack itemStack = new ItemStack(item);
             if (slot.equals("MAINHAND")) {
-                generatedOffhandItem = getGeneratedOffhandItem(itemId, itemStack).orElse(null);
+                generatedOffhandItem = getGeneratedOffhandItem(itemId, itemStack, difficulty).orElse(null);
             }
             if (isArmorSlot(slot)) {
                 previousArmorItemId = itemId;
@@ -499,7 +633,7 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
     }
 
     public static Optional<String> getRandomSpecificSlot(String slot) {
-        List<String> pool = EQUIP_ITEMS.getOrDefault(slot, List.of());
+        List<String> pool = getAvailableItemIds(slot, getCurrentDifficulty(null));
         if (pool.isEmpty()) return Optional.empty();
 
         String itemId = pool.get(RANDOM.nextInt(pool.size()));
@@ -519,6 +653,12 @@ public class EquipmentDataLoader extends SimpleJsonResourceReloadListener {
 
         String command = String.format("item replace entity @s %s with %s{Damage:%d}", mapSlot(slot), itemId, damage);
         return Optional.of(command);
+    }
+
+    private record EquipmentEntry(String itemId, Difficulty minDifficulty) {
+        private boolean canUse(Difficulty difficulty) {
+            return difficulty.ordinal() >= this.minDifficulty.ordinal();
+        }
     }
 
     private static String mapSlot(String slot) {

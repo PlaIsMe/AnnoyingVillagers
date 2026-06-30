@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import javax.annotation.Nullable;
 
+import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.VillagerArmyEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -233,7 +234,7 @@ public class RedVillagerKnightEntity extends VillagerArmyEntity {
     }
 
     public static boolean canSpawn(EntityType<RedVillagerKnightEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
-        return PathfinderMob.checkMobSpawnRules(entityType, level, spawnType, position, random);
+        return ProgressionUtil.isAtLeastDifficulty(Difficulty.HARD) && PathfinderMob.checkMobSpawnRules(entityType, level, spawnType, position, random);
     }
 
     public static Builder createAttributes() {
