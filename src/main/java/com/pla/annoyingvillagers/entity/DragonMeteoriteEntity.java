@@ -20,8 +20,10 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.init.*;
+import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.ScreenShakeUtil;
+import com.pla.annoyingvillagers.util.WeaponEnchantmentDamageUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
@@ -78,6 +80,11 @@ public class DragonMeteoriteEntity extends PathfinderMob {
 
     public void setOwner(HerobrineDragonEntity owner) {
         this.owner = owner;
+    }
+
+    private float getExplosionDamage() {
+        LivingEntity summoner = this.owner != null ? this.owner.getSummoner() : null;
+        return WeaponEnchantmentDamageUtil.addSharpnessBonus(12.0F, summoner, EnderSlayerScytheItem.class);
     }
 
     public DragonMeteoriteEntity(SpawnEntity spawnEntity, Level level) {
@@ -232,12 +239,14 @@ public class DragonMeteoriteEntity extends PathfinderMob {
 
                 var damageTypeReg = serverLevel.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE);
                 DamageSource damageSource = new DamageSource(damageTypeReg.getHolderOrThrow(DamageTypes.EXPLOSION), this);
+                LivingEntity summoner = this.owner != null ? this.owner.getSummoner() : null;
+                float damage = this.getExplosionDamage();
 
                 for (LivingEntity entity : serverLevel.getEntitiesOfClass(LivingEntity.class, box,
                         livingEntity -> livingEntity.isAlive()
                                 && !(livingEntity instanceof DragonMeteoriteEntity)
                                 && !(livingEntity instanceof HerobrineDragonEntity)
-                                && livingEntity != this.getOwner().getSummoner())) {
+                                && livingEntity != summoner)) {
 
                     Vec3 dir = entity.position().subtract(center);
                     double dist = Math.max(0.001D, dir.length());
@@ -248,10 +257,10 @@ public class DragonMeteoriteEntity extends PathfinderMob {
                             .add(0.0D, 0.35D * falloff, 0.0D);
 
                     entity.setDeltaMovement(entity.getDeltaMovement().add(push));
-                    if (this.owner != null && this.owner.getSummoner() != null) {
-                        entity.hurt(damageSources().indirectMagic(this, this.owner.getSummoner()), 12.0F);
+                    if (summoner != null) {
+                        entity.hurt(damageSources().indirectMagic(this, summoner), damage);
                     } else {
-                        entity.hurt(damageSource, 12.0F);
+                        entity.hurt(damageSource, damage);
                     }
                     entity.hasImpulse = true;
                 }

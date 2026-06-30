@@ -6,9 +6,11 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
 import com.pla.annoyingvillagers.util.AAAParticlesUtil;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.ScreenShakeUtil;
+import com.pla.annoyingvillagers.util.WeaponEnchantmentDamageUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -232,6 +234,11 @@ public class DragonBeamEntity extends Entity {
 
     public void setPower(int power) {
         this.power = power;
+    }
+
+    private float getDamage() {
+        LivingEntity summoner = this.caster != null ? this.caster.getSummoner() : null;
+        return WeaponEnchantmentDamageUtil.addSharpnessBonus((float) this.power, summoner, EnderSlayerScytheItem.class);
     }
 
     private static float yawTowards(Vec3 from, Vec3 to) {
@@ -605,8 +612,9 @@ public class DragonBeamEntity extends Entity {
             }
             List<LivingEntity> hit = this.raytraceEntities(this.level(), new Vec3(this.getX(), this.getY(), this.getZ()), new Vec3(this.endPosX, this.endPosY, this.endPosZ), true).entities;
             if (!this.level().isClientSide) {
+                float damage = this.getDamage();
                 for (LivingEntity target : hit) {
-                    target.hurt(damageSources().indirectMagic(this, this.caster.getSummoner()), (float) this.power);
+                    target.hurt(damageSources().indirectMagic(this, this.caster.getSummoner()), damage);
                     LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
                     EpicfightUtil.dealStaminaDamage(damageSources().indirectMagic(this, this.caster.getSummoner()), 0.1F, livingEntityPatch, false);
                     target.hurtMarked = true;

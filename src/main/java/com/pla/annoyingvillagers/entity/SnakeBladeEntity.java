@@ -9,6 +9,7 @@ import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
+import com.pla.annoyingvillagers.util.WeaponEnchantmentDamageUtil;
 import com.pla.annoyingvillagers.skill.DemoniacVoltageReaverSkill;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -131,6 +132,10 @@ public class SnakeBladeEntity extends Entity {
         return this.entityData.get(DAMAGE);
     }
 
+    private float getDamage(LivingEntity creator) {
+        return WeaponEnchantmentDamageUtil.addSharpnessBonus(this.getBaseDamage(), creator, DemoniacVoltageReaverItem.class);
+    }
+
     public void setGuard(boolean guard) {
         this.entityData.set(GUARD, guard);
     }
@@ -231,7 +236,7 @@ public class SnakeBladeEntity extends Entity {
             DamageSource src = (owner != null)
                     ? this.level().damageSources().indirectMagic(this, owner)
                     : this.level().damageSources().generic();
-            target.hurt(src, this.getBaseDamage() / 2);
+            target.hurt(src, this.getDamage(owner) / 2);
             EpicfightUtil.dealStaminaDamage(src, 1.0F, targetPatch, false);
 
             if (creator != null) {
@@ -333,7 +338,7 @@ public class SnakeBladeEntity extends Entity {
         if (target == creator) return;
         if (target instanceof PortalEntity) return;
 
-        if (target.hurt(this.level().damageSources().indirectMagic(this, creator), this.getBaseDamage())) {
+        if (target.hurt(this.level().damageSources().indirectMagic(this, creator), this.getDamage(creator))) {
             // Mark touched so child chains avoid bouncing back
             markTouched(target);
             this.postHitChainDelayTicks = Math.max(this.postHitChainDelayTicks, POST_HIT_CHAIN_DELAY_TICKS);
