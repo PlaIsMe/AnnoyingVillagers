@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
+import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
@@ -24,7 +25,6 @@ import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import se.gory_moon.player_mobs.utils.NameManager;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public class ShadowHerobrineCloneEntity extends HerobrineMob {
@@ -85,7 +85,7 @@ public class ShadowHerobrineCloneEntity extends HerobrineMob {
             String killedName = this.getPersistentData().getString("killed_name");
             corpse.getPersistentData().putString("possessed_by", "shadow_herobrine_clone");
             if (killedName.isEmpty()) {
-                killedName = String.valueOf(NameManager.INSTANCE.getRandomName());
+                killedName = FakePlayer.getRandomHardcodedName(this.getRandom());
             }
             corpse.setUsername(killedName);
             corpse.setCustomName(Component.literal(killedName));

@@ -13,6 +13,7 @@ import com.pla.annoyingvillagers.util.MobPatchCommon;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
@@ -38,7 +39,7 @@ import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.Set;
 
-public class ShadowHerobrinePatch extends CEHumanoidPatch implements CustomExecuteEntity {
+public class ShadowHerobrinePatch extends CEHumanoidPatch<PathfinderMob> implements CustomExecuteEntity {
     public ShadowHerobrinePatch() {
         super(Factions.NEUTRAL);
     }

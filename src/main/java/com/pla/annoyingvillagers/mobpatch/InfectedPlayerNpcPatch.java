@@ -1,13 +1,14 @@
 package com.pla.annoyingvillagers.mobpatch;
 
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import net.minecraft.world.entity.PathfinderMob;
 import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 
-public class InfectedPlayerNpcPatch extends CEHumanoidPatch {
+public class InfectedPlayerNpcPatch extends CEHumanoidPatch<PathfinderMob> {
     public InfectedPlayerNpcPatch() {
         super(Factions.VILLAGER);
     }

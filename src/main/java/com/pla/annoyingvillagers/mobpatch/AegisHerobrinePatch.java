@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
@@ -46,7 +47,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
-public class AegisHerobrinePatch extends CEHumanoidPatch implements CustomExecuteEntity {
+public class AegisHerobrinePatch extends CEHumanoidPatch<PathfinderMob> implements CustomExecuteEntity {
     public AegisHerobrinePatch() {
         super(Factions.UNDEAD);
     }

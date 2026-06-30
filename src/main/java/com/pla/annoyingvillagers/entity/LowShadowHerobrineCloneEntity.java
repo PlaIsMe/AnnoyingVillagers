@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.init.*;
@@ -42,7 +43,6 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import se.gory_moon.player_mobs.utils.NameManager;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -287,7 +287,7 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                 String killedName = this.getPersistentData().getString("killed_name");
                 corpse.getPersistentData().putString("possessed_by", "low_shadow_herobrine_clone");
                 if (killedName.isEmpty()) {
-                    killedName = String.valueOf(NameManager.INSTANCE.getRandomName());
+                    killedName = FakePlayer.getRandomHardcodedName(this.getRandom());
                 }
                 corpse.setUsername(killedName);
                 corpse.setCustomName(Component.literal(killedName));

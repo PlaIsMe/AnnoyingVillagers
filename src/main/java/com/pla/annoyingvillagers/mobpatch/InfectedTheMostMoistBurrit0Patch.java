@@ -4,6 +4,7 @@ import com.pla.annoyingvillagers.clazz.IdleAnimation;
 import com.pla.annoyingvillagers.compat.EfDancing;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import net.minecraftforge.fml.ModList;
+import net.minecraft.world.entity.PathfinderMob;
 import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -12,7 +13,7 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 
-public class InfectedTheMostMoistBurrit0Patch extends CEHumanoidPatch {
+public class InfectedTheMostMoistBurrit0Patch extends CEHumanoidPatch<PathfinderMob> {
     public InfectedTheMostMoistBurrit0Patch() {
         super(Factions.VILLAGER);
     }

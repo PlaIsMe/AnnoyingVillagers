@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraftforge.fml.ModList;
@@ -44,7 +45,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
-public class ReaperHerobrinePatch extends CEHumanoidPatch implements CustomExecuteEntity {
+public class ReaperHerobrinePatch extends CEHumanoidPatch<PathfinderMob> implements CustomExecuteEntity {
     public ReaperHerobrinePatch() {
         super(Factions.UNDEAD);
     }

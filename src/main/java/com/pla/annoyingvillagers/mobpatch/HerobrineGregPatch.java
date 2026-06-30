@@ -7,9 +7,13 @@ import com.pla.annoyingvillagers.entity.HerobrineGregEntity;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
+import net.minecraft.world.entity.PathfinderMob;
 import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
+import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
+import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
@@ -17,7 +21,7 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 
 import java.util.Set;
 
-public class HerobrineGregPatch extends CEHumanoidPatch {
+public class HerobrineGregPatch extends CEHumanoidPatch<PathfinderMob> {
     private boolean hookedLivingAnimations;
 
     public HerobrineGregPatch() {
@@ -68,7 +72,7 @@ public class HerobrineGregPatch extends CEHumanoidPatch {
 
     @Override
     protected void setWeaponMotions() {
-        var fistLivingMotions = Set.of(
+        Set<Pair<LivingMotion, AnimationAccessor<? extends StaticAnimation>>> fistLivingMotions = Set.of(
                 Pair.of(LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD),
                 Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
                 Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),

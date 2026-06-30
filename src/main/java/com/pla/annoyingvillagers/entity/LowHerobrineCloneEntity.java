@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.init.*;
@@ -36,7 +37,6 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import se.gory_moon.player_mobs.entity.PlayerMobEntity;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -51,7 +51,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
-public class LowHerobrineCloneEntity extends PlayerMobEntity {
+public class LowHerobrineCloneEntity extends FakePlayer {
     private boolean summoned = false;
     private boolean initialSpawn = true;
     private boolean autoKill = false;

@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import java.util.*;
 
+import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
@@ -34,7 +35,6 @@ import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import se.gory_moon.player_mobs.utils.NameManager;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -484,7 +484,7 @@ public class NullEntity extends HerobrineMob {
             String killedName = this.getPersistentData().getString("killed_name");
             corpse.getPersistentData().putString("possessed_by", "null");
             if (killedName.isEmpty()) {
-                killedName = String.valueOf(NameManager.INSTANCE.getRandomName());
+                killedName = FakePlayer.getRandomHardcodedName(this.getRandom());
             }
             corpse.setUsername(killedName);
             corpse.setCustomName(Component.literal(killedName));

@@ -4,6 +4,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.item.ShadowObsidianPillarItem;
 import com.pla.annoyingvillagers.item.ShadowObsidianSwordItem;
@@ -31,7 +32,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
-import se.gory_moon.player_mobs.utils.NameManager;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
@@ -185,7 +185,7 @@ public class ShadowHerobrineEntity extends HerobrineMob {
             String killedName = this.getPersistentData().getString("killed_name");
             corpse.getPersistentData().putString("possessed_by", "shadow_herobrine");
             if (killedName.isEmpty()) {
-                killedName = String.valueOf(NameManager.INSTANCE.getRandomName());
+                killedName = FakePlayer.getRandomHardcodedName(this.getRandom());
             }
             corpse.setUsername(killedName);
             corpse.setCustomName(Component.literal(killedName));

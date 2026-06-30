@@ -79,7 +79,6 @@ dependencies {
     implementation fg.deobf("curse.maven:epicfight-kick-skills-1521559:7966307")
     implementation fg.deobf("curse.maven:weapons-of-miracles-epicfight-918614:7517612")
 
-    implementation fg.deobf("curse.maven:player-mobs-430513:5780869")
     implementation fg.deobf("curse.maven:aaa-particles-979809:8082320")
     implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
 

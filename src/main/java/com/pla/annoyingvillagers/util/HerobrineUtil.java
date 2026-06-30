@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.blockentity.*;
+import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.clazz.ProjectileBreakableBlocks;
@@ -48,7 +49,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
-import se.gory_moon.player_mobs.entity.PlayerMobEntity;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.utils.math.Vec3f;
 
@@ -333,8 +333,8 @@ public class HerobrineUtil {
             possessed.setItemSlot(EquipmentSlot.OFFHAND, victim.getItemBySlot(EquipmentSlot.OFFHAND).copy());
             Mob mob = (Mob) possessed;
             if (mob instanceof LowHerobrineCloneEntity lowHerobrineCloneEntity) {
-                lowHerobrineCloneEntity.setUsername(((PlayerMobEntity) entity).getUsername());
-                lowHerobrineCloneEntity.setProfile(((PlayerMobEntity) entity).getProfile());
+                lowHerobrineCloneEntity.setUsername(((FakePlayer) entity).getUsername());
+                lowHerobrineCloneEntity.setProfile(((FakePlayer) entity).getProfile());
                 if (herobrineEntity instanceof HerobrineMob herobrineMob) {
                     lowHerobrineCloneEntity.setPossessedByEntity(herobrineMob);
                     lowHerobrineCloneEntity.setPossessedByUuid(herobrineMob.getUUID());

@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraftforge.fml.ModList;
@@ -46,7 +47,7 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.StunType;
 
-public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEntity {
+public class PlayerNpcPatch extends CEHumanoidPatch<PathfinderMob> implements CustomExecuteEntity {
     public PlayerNpcPatch() {
         super(Factions.NEUTRAL);
     }
@@ -429,7 +430,8 @@ public class PlayerNpcPatch extends CEHumanoidPatch implements CustomExecuteEnti
     @Override
     protected CECombatBehaviors.Builder<MobPatch<?>> getCustomWeaponMotionBuilder() {
         CapabilityItem mainHandCap = this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
-        CECombatBehaviors.Builder<MobPatch<?>> customOverride = MobPatchCommon.overideCustomWeaponMotionBuilderForAvNpc(mainHandCap, mainHandCap.getStyle(this));
+        CapabilityItem offHandCap = this.getHoldingItemCapability(InteractionHand.OFF_HAND);
+        CECombatBehaviors.Builder<MobPatch<?>> customOverride = MobPatchCommon.overideCustomWeaponMotionBuilderForAvNpc(mainHandCap, offHandCap, mainHandCap.getStyle(this));
         if (customOverride == null) customOverride = MobPatchCommon.overideBowMotionBuilderForPlayerNpc(mainHandCap, mainHandCap.getStyle(this));
         return customOverride != null ? customOverride : super.getCustomWeaponMotionBuilder();
     }

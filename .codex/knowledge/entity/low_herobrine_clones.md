@@ -8,7 +8,7 @@
 
 ## LowHerobrineCloneEntity
 
-`LowHerobrineCloneEntity` extends `PlayerMobEntity`.
+`LowHerobrineCloneEntity` extends `FakePlayer`.
 
 It registers hostile common goals through `CommonGoals.registerGoalForHostileNpc(this)`, so it now receives `PortalApproachGoal`.
 

@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.IdleAnimation;
 import com.pla.annoyingvillagers.clazz.PlayerNpcTarget;
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
@@ -39,7 +40,6 @@ import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
@@ -48,14 +48,12 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import se.gory_moon.player_mobs.entity.PlayerMobEntity;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
@@ -68,7 +66,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-public class PlayerNpcEntity extends PlayerMobEntity implements RangedAttackMob {
+public class PlayerNpcEntity extends FakePlayer implements RangedAttackMob {
     private final SimpleContainer inventory = new SimpleContainer(27);
     private int gapCooldown = 0;
     private int enderPearlCooldown = 0;
@@ -372,15 +370,15 @@ public class PlayerNpcEntity extends PlayerMobEntity implements RangedAttackMob 
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
-    private void hostileHunterPlayerMob() {
+    private void hostileHunterPlayerNpc() {
         this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.2D, false));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, true));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerMobEntity.class, true));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, FakePlayer.class, true));
         CommonGoals.attackAllMonstersGoals(this);
         CommonGoals.attackAllNpcGoals(this);
     }
 
-    private void villagerHunterPlayerMob() {
+    private void villagerHunterPlayerNpc() {
         CommonGoals.runAwayFromHerobrineGoals(this, 20.0F);
         if (!(this.getTarget() instanceof PlayerNpcEntity)) {
             this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, PlayerNpcEntity.class, 12.0F, 1.2D, 1.4D));
@@ -395,12 +393,12 @@ public class PlayerNpcEntity extends PlayerMobEntity implements RangedAttackMob 
         this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.2D, false));
     }
 
-    private void monsterHunterPlayerMob() {
+    private void monsterHunterPlayerNpc() {
         CommonGoals.attackAllMonstersGoals(this);
         CommonGoals.runAwayFromVillagerArmyGoals(this);
     }
 
-    private void playerHunterPlayerMob() {
+    private void playerHunterPlayerNpc() {
         CommonGoals.runAwayFromHerobrineGoals(this, 20.0F);
         CommonGoals.runAwayFromVillagerArmyGoals(this);
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
@@ -408,7 +406,7 @@ public class PlayerNpcEntity extends PlayerMobEntity implements RangedAttackMob 
         CommonGoals.attackAllNpcGoals(this);
     }
 
-    private void animalHunterPlayerMob() {
+    private void animalHunterPlayerNpc() {
         CommonGoals.runAwayFromHerobrineGoals(this, 20.0F);
         CommonGoals.runAwayFromVillagerArmyGoals(this);
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Animal.class, true));
@@ -659,32 +657,23 @@ public class PlayerNpcEntity extends PlayerMobEntity implements RangedAttackMob 
 
         ServerLevel serverLevel = serverLevelAccessor.getLevel();
 
-        if ((mobSpawnType == MobSpawnType.CHUNK_GENERATION || mobSpawnType == MobSpawnType.NATURAL) && serverLevel.isDay() && Math.random() <= 0.8D) {
-            BlockPos blockPos = this.getOnPos();
-            int surfaceY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, blockPos).getY();
-            BlockPos spawnPos = new BlockPos(blockPos.getX(), surfaceY, blockPos.getZ());
-            if (serverLevel.getFluidState(spawnPos).isEmpty()) {
-                this.moveTo(spawnPos, this.getYRot(), this.getXRot());
-            }
-        }
-
         this.target = PlayerNpcTarget.randomByWeight(this.getRandom());
         if (this.target != null) {
             switch (this.target) {
                 case HOSTILE_HUNTER -> {
-                    hostileHunterPlayerMob();
+                    hostileHunterPlayerNpc();
                 }
                 case VILLAGER_HUNTER -> {
-                    villagerHunterPlayerMob();
+                    villagerHunterPlayerNpc();
                 }
                 case MONSTER_HUNTER -> {
-                    monsterHunterPlayerMob();
+                    monsterHunterPlayerNpc();
                 }
                 case PLAYER_HUNTER -> {
-                    playerHunterPlayerMob();
+                    playerHunterPlayerNpc();
                 }
                 case ANIMAL_HUNTER -> {
-                    animalHunterPlayerMob();
+                    animalHunterPlayerNpc();
                 }
                 default -> {
                     CommonGoals.runAwayFromHerobrineGoals(this, 20.0F);
@@ -756,7 +745,7 @@ public class PlayerNpcEntity extends PlayerMobEntity implements RangedAttackMob 
             // Nerf Player NPC spawn at night
             return false;
         }
-        return Monster.checkAnyLightMonsterSpawnRules(entityType, level, spawnType, position, random);
+        return PathfinderMob.checkMobSpawnRules(entityType, level, spawnType, position, random);
     }
 
     public static AttributeSupplier.Builder createAttributes() {

@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.util;
 
 import com.p1nero.epicfightbow.item.EFBowItems;
 import com.pla.annoyingvillagers.combatbehaviour.*;
+import com.pla.annoyingvillagers.compat.dualgreatsword.AvNpcDualGreatsword;
 import com.pla.annoyingvillagers.compat.p1nero_bow.NpcP1neroBow;
 import com.pla.annoyingvillagers.compat.p1nero_bow.NpcP1neroMortisBow;
 import com.pla.annoyingvillagers.compat.p1nero_bow.PlayerNpcP1neroBow;
@@ -20,6 +21,17 @@ import yesman.epicfight.world.capabilities.item.Style;
 
 public class MobPatchCommon {
     public static CECombatBehaviors.Builder<MobPatch<?>> overideCustomWeaponMotionBuilderForAvNpc(CapabilityItem mainHandCap, Style style) {
+        return overideCustomWeaponMotionBuilderForAvNpc(mainHandCap, null, style);
+    }
+
+    public static CECombatBehaviors.Builder<MobPatch<?>> overideCustomWeaponMotionBuilderForAvNpc(CapabilityItem mainHandCap, CapabilityItem offHandCap, Style style) {
+        if (ModList.get().isLoaded("dualgreatswords")
+                && mainHandCap.getWeaponCategory() == CapabilityItem.WeaponCategories.GREATSWORD
+                && offHandCap != null
+                && offHandCap.getWeaponCategory() == CapabilityItem.WeaponCategories.GREATSWORD) {
+            return AvNpcDualGreatsword.DUAL_GREATSWORD;
+        }
+
         CECombatBehaviors.Builder<MobPatch<?>> avNpcWeaponOverride = overideRequestedAvNpcWeaponMotionBuilder(mainHandCap, style);
         if (avNpcWeaponOverride != null) {
             return avNpcWeaponOverride;

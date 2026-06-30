@@ -15,7 +15,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.AbstractIllager;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombieVillager;
@@ -38,7 +37,7 @@ public class HumanoidMobEpicFightOverlayLayer<E extends LivingEntity, AM extends
         if (e instanceof LowHerobrineCloneEntity) {
             String name = e.hasCustomName() ? e.getCustomName().getString() : e.getName().getString();
             return HerobrineEyesUtil.getHerobrineEyesTexture(name);
-        } else if (EntityType.getKey(e.getType()).equals(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "infected_player_mob"))) {
+        } else if (EntityType.getKey(e.getType()).equals(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "infected_player_npc"))) {
             return BLOOD_TEXTURE;
         } else if (e instanceof HerobrineMob || e instanceof LowShadowHerobrineCloneEntity
                 || (e instanceof HerobrineGregEntity herobrineGregEntity && herobrineGregEntity.isWhiteEye())) {

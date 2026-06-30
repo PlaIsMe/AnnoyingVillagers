@@ -5,8 +5,6 @@
   "refmap": "annoyingvillagers.mixins.refmap.json",
   "plugin": "com.pla.annoyingvillagers.mixin.plugin.CompatMixinPlugin",
   "mixins": [
-    "PlayerMobMixin",
-    "PlayerMobMixin2",
     "MobMixin",
     "SkeletonMixin",
     "ZombieMixin",

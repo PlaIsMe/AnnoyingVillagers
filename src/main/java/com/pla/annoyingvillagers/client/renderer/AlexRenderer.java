@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.entity.layers.ArrowLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-import se.gory_moon.player_mobs.entity.PlayerMobEntity;
 
 public class AlexRenderer extends HumanoidMobRenderer<AlexEntity, PlayerModel<AlexEntity>> {
 

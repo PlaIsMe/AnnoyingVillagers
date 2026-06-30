@@ -7,7 +7,6 @@ import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import se.gory_moon.player_mobs.client.render.PlayerMobRenderer;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.client.renderer.patched.entity.PHumanoidRenderer;
@@ -42,7 +41,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.ARMORED_HEROBRINE.get(), ArmoredHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.STEVE.get(), SteveRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.ANGRY_STEVE.get(), AngrySteveRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), PlayerMobRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), FakePlayerRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.INFECTED_THEMOSTMOISTBURRIT0.get(), InfectedTheMostMoistBurrit0Renderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SHADOW_HEROBRINE.get(), ShadowHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.GLAIVE_HEROBRINE.get(), EliteHerobrineRenderer::new);
@@ -54,7 +53,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.AEGIS_HEROBRINE.get(), EliteHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.DRAGON_BEAM.get(), DragonBeamRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.ELITE_HEROBRINE_KNOCKED.get(), EliteHerobrineKnockedRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(), PlayerMobRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(), FakePlayerRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), LowShadowHerobrineCloneRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.NULL.get(), NullRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.NULL_SWORD.get(), NullWeaponRenderer::new);
@@ -64,7 +63,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.NULL_HOE.get(), NullWeaponRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLOCK_PROJECTILE.get(), BlockProjectileRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_GREG.get(), HerobrineGregRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.PLAYER_NPC.get(), PlayerMobRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.PLAYER_NPC.get(), FakePlayerRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_WARDEN.get(), HerobrineWardenRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get(), HerobrineDragonRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.DRAGON_METEORITE.get(), DragonMeteoriteRenderer::new);

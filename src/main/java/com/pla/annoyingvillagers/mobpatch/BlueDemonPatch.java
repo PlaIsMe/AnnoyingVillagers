@@ -12,6 +12,7 @@ import com.pla.annoyingvillagers.util.EscapeUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraftforge.fml.ModList;
@@ -36,7 +37,7 @@ import yesman.epicfight.world.damagesource.StunType;
 import java.util.List;
 import java.util.Set;
 
-public class BlueDemonPatch extends CEHumanoidPatch implements CustomExecuteEntity {
+public class BlueDemonPatch extends CEHumanoidPatch<PathfinderMob> implements CustomExecuteEntity {
     public BlueDemonPatch() {
         super(Factions.NEUTRAL);
     }
