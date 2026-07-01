@@ -81,6 +81,8 @@ public class HerobrineGregEntity extends Monster {
     private static final int MAX_COMBAT_LOW_CLONE_SUPPORT = 5;
     private static final float FISHING_HOOK_ESCAPE_CANCEL_CHANCE = 0.8F;
     private static final double SECOND_FORM_SUPPORT_SEARCH_RADIUS_SQR = 48.0D * 48.0D;
+    private static final double FOLLOW_SUPPORT_SEARCH_RADIUS = 96.0D;
+    private static final double FOLLOW_SUPPORT_LEASH_RADIUS_SQR = 128.0D * 128.0D;
 
     private static final EntityDataAccessor<Boolean> WHITE_EYE =
             SynchedEntityData.defineId(HerobrineGregEntity.class, EntityDataSerializers.BOOLEAN);
@@ -368,14 +370,15 @@ public class HerobrineGregEntity extends Monster {
     }
 
     private static boolean isGregFollowSupportTarget(LivingEntity entity) {
-        return !(entity instanceof TransporterHerobrineCloneEntity)
+        return entity instanceof HerobrineMob
+                && !(entity instanceof TransporterHerobrineCloneEntity)
                 && !(entity instanceof LowHerobrineCloneEntity)
                 && !(entity instanceof LowShadowHerobrineCloneEntity);
     }
 
     @Nullable
     public LivingEntity findGregFollowSupportHerobrine() {
-        for (LivingEntity support : HerobrinePortalCombatUtil.findSupportHerobrines(this, 40.0D)) {
+        for (LivingEntity support : HerobrinePortalCombatUtil.findSupportHerobrines(this, FOLLOW_SUPPORT_SEARCH_RADIUS)) {
             if (support.isAlive()
                     && isGregFollowSupportTarget(support)
                     && !(support.isPassenger() && support.getVehicle() instanceof HerobrineDragonEntity)) {
@@ -527,7 +530,7 @@ public class HerobrineGregEntity extends Monster {
             public boolean canContinueToUse() {
                 return canMoveForSupport()
                         && isValidSupport(this.support)
-                        && distanceToSqr(this.support) <= 40.0D * 40.0D;
+                        && distanceToSqr(this.support) <= FOLLOW_SUPPORT_LEASH_RADIUS_SQR;
             }
 
             @Override
@@ -1085,6 +1088,7 @@ public class HerobrineGregEntity extends Monster {
         if (!this.level().isClientSide) {
             placeObsidianBlockWhenInWater(AnnoyingVillagersModBlocks.CRYING_OBSIDIAN_BLOCK.get());
             tickSupportingHerobrineVisuals();
+            tickActiveSupportReposition();
             if (!isDay(this.level())) {
                 if (!this.isWhiteEye()) {
                     setWhiteEye(true);
