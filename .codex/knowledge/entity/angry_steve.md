@@ -11,6 +11,8 @@ Session facts in this file come from the current workspace code and the edits di
 - `src/main/java/com/pla/annoyingvillagers/combatbehaviour/CombatCommon.java`
 - `src/main/java/com/pla/annoyingvillagers/combatbehaviour/CombatBehaviourTemplates.java`
 - `src/main/java/com/pla/annoyingvillagers/combatbehaviour/AvNpcCombatBehaviorBuilder.java`
+- `src/main/java/com/pla/annoyingvillagers/util/InventoryUtils.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/FillWaterBucketGoal.java`
 - `src/main/java/com/pla/annoyingvillagers/item/TonyTheFishingRod.java`
 - `src/main/java/com/pla/annoyingvillagers/item/FishingRodGrappleUtil.java`
 
@@ -70,6 +72,22 @@ The same stack is stored as `mainWeaponItem`.
 
 `leaveTicks` is initialized from config min/max minutes, converted to ticks.
 
+## Inventory Backed Supplies
+
+Angry Steve inherits the `AVNpc` 27 slot `SimpleContainer` inventory.
+
+On first tick, `AVNpc.implementFirstTick` calls `AVNpc.seedInventory()`. The default AVNpc seed logic lives directly in `AVNpc.seedInventory()`: it only runs when the container is empty, then rolls golden apples, foods, arrows, pearls, buckets, blocks, and carried materials such as coal, iron, gold, redstone, lapis, emeralds, or diamonds. If Angry Steve was created from Steve's transformation, Steve's remaining inventory is transferred before finalize spawn, so the empty-inventory guard preserves the transferred supplies.
+
+Combat supply actions are inventory-backed:
+
+- bow shots require and consume arrows,
+- ender pearl counters require and consume pearls,
+- eating consumes the selected food only after eating completes,
+- regular food heals without absorption,
+- water bucket self-extinguish consumes a water bucket and returns either water bucket or empty bucket based on source recovery,
+- empty buckets can refill from nearby source water through `FillWaterBucketGoal`,
+- block placement consumes one block item per placed block.
+
 ## Burst Protection And Effects
 
 Angry Steve has burst protection with `getBurstProtectCapRatio() == 0.05F`.
@@ -99,7 +117,7 @@ When `leaveTicks` reaches around 40 ticks, Angry Steve stops moving with no AI a
 
 ## Death Loot
 
-Angry Steve death loot includes damaged combat stacks and simple drops.
+Angry Steve death loot includes remaining inventory contents from `AVNpc.dropCustomDeathLoot` plus damaged combat stacks.
 
 Damaged combat drops include:
 
@@ -109,7 +127,7 @@ Damaged combat drops include:
 
 The damaged stacks are passed through the same random-damage drop path used by other AVNpc combat gear.
 
-Simple drops include normal supplies and also include vanilla fishing rod among the drop list.
+Generated normal resource drops were removed. Food, pearls, arrows, buckets, blocks, and carried materials drop only if they remain in Angry Steve's inventory at death.
 
 ## Epic Fight Patch
 
@@ -161,4 +179,3 @@ The flow:
 After each hook, restore chance is `min(0.6, useCount * 0.2)`, so the practical session restore chances are 20 percent, 40 percent, then 60 percent.
 
 When restore succeeds, Angry Steve starts the shared NPC rod cooldown of `120 + random(0..120)` ticks.
-

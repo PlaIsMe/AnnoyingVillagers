@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
+import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -12,6 +13,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -90,18 +92,23 @@ public class WaterEnderPearlEscapeGoal extends Goal {
         this.mob.getNavigation().stop();
         this.mob.getLookControl().setLookAt(this.pearlTarget.x, this.pearlTarget.y, this.pearlTarget.z, 60.0F, 60.0F);
 //        this.mob.swing(InteractionHand.OFF_HAND, true);
-        CombatBehaviour.throwEnderPearlAt(this.mob, this.pearlTarget);
-        this.setPearlCooldown();
+        if (CombatBehaviour.throwEnderPearlAt(this.mob, this.pearlTarget)) {
+            this.setPearlCooldown();
+        }
         this.pearlTarget = null;
     }
 
     private boolean canUsePearl() {
         if (this.mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return !playerNpcEntity.isHealing() && playerNpcEntity.getEnderPearlCooldown() == 0;
+            return !playerNpcEntity.isHealing()
+                    && playerNpcEntity.getEnderPearlCooldown() == 0
+                    && InventoryUtils.hasItem(playerNpcEntity, Items.ENDER_PEARL);
         }
 
         if (this.mob instanceof AVNpc avNpc) {
-            return !avNpc.isHealing() && avNpc.getEnderPearlCooldown() == 0;
+            return !avNpc.isHealing()
+                    && avNpc.getEnderPearlCooldown() == 0
+                    && InventoryUtils.hasItem(avNpc, Items.ENDER_PEARL);
         }
 
         return false;

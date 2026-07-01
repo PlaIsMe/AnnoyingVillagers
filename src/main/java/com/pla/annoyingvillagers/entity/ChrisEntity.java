@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import javax.annotation.Nullable;
 
+import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.spawnhandler.ChrisData;
@@ -19,6 +20,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -28,6 +30,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -40,8 +44,34 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 
-public class ChrisEntity extends AVNpc {
+public class ChrisEntity extends AVNpc implements BurstProtectEntity {
     private int state = 0;
+    protected float recentDamageTaken = 0.0F;
+    protected int recentHitCounter = 0;
+    @Override
+    public float getRecentDamageTaken() {
+        return recentDamageTaken;
+    }
+
+    @Override
+    public void setRecentDamageTaken(float value) {
+        recentDamageTaken = value;
+    }
+
+    @Override
+    public int getRecentHitCounter() {
+        return recentHitCounter;
+    }
+
+    @Override
+    public void setRecentHitCounter(int value) {
+        recentHitCounter = value;
+    }
+
+    @Override
+    public float getBurstProtectCapRatio() {
+        return 0.15F;
+    }
 
     public ChrisEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.CHRIS.get(), level);
@@ -131,6 +161,51 @@ public class ChrisEntity extends AVNpc {
     }
 
     @Override
+    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+        if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+            super.actuallyHurt(pDamageSource, pDamageAmount);
+            return;
+        }
+
+        if (this.isInvulnerableTo(pDamageSource)) {
+            return;
+        }
+
+        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
+        if (pDamageAmount <= 0.0F) {
+            return;
+        }
+
+        pDamageAmount = this.getDamageAfterArmorAbsorb(pDamageSource, pDamageAmount);
+        pDamageAmount = this.getDamageAfterMagicAbsorb(pDamageSource, pDamageAmount);
+
+        float finalDamage = Math.max(pDamageAmount - this.getAbsorptionAmount(), 0.0F);
+        float absorbed = pDamageAmount - finalDamage;
+        if (absorbed > 0.0F) {
+            this.setAbsorptionAmount(this.getAbsorptionAmount() - absorbed);
+            if (this.getAbsorptionAmount() < 0.0F) {
+                this.setAbsorptionAmount(0.0F);
+            }
+        }
+
+        finalDamage = ForgeHooks.onLivingDamage(this, pDamageSource, finalDamage);
+        finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
+
+        if (this.level() instanceof ServerLevel serverLevel
+                && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {
+            return;
+        }
+
+        if (finalDamage <= 0.0F) {
+            return;
+        }
+
+        this.getCombatTracker().recordDamage(pDamageSource, finalDamage);
+        this.setHealth(this.getHealth() - finalDamage);
+        this.gameEvent(GameEvent.ENTITY_DAMAGE);
+    }
+
+    @Override
     protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
         super.dropCustomDeathLoot(source, looting, recentlyHit);
         if (this.level() instanceof ServerLevel serverLevel) {
@@ -139,13 +214,12 @@ public class ChrisEntity extends AVNpc {
             final double z = this.getZ();
 
             Consumer<ItemStack> dropStack = (stack) -> {
+                if (InventoryUtils.isInventoryBackedSupplyDrop(stack)) {
+                    return;
+                }
                 ItemEntity drop = new ItemEntity(serverLevel, x, y, z, stack);
                 drop.setPickUpDelay(10);
                 serverLevel.addFreshEntity(drop);
-            };
-
-            Consumer<Integer> dropArrows = (count) -> {
-                for (int i = 0; i < count; i++) dropStack.accept(new ItemStack(Items.ARROW));
             };
 
             List<ItemStack> damagedStacks = new ArrayList<>();
@@ -189,63 +263,6 @@ public class ChrisEntity extends AVNpc {
                 stack.setDamageValue(EquipmentDataLoader.getRandomDamage(stack));
                 dropStack.accept(stack);
             }
-
-            ItemStack[] simpleDrops = new ItemStack[] {
-                    new ItemStack(Items.TOTEM_OF_UNDYING),
-                    new ItemStack(Items.SHIELD),
-                    new ItemStack(Items.SPYGLASS),
-
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-
-                    new ItemStack(Items.OAK_BOAT),
-
-                    new ItemStack(Items.IRON_INGOT),
-                    new ItemStack(Items.IRON_INGOT),
-                    new ItemStack(Items.IRON_INGOT),
-                    new ItemStack(Items.IRON_INGOT),
-
-                    new ItemStack(Items.CRAFTING_TABLE),
-                    new ItemStack(Items.CRAFTING_TABLE),
-
-                    new ItemStack(Items.DIAMOND),
-                    new ItemStack(Items.DIAMOND),
-                    new ItemStack(Items.DIAMOND),
-                    new ItemStack(Items.DIAMOND),
-
-                    new ItemStack(Items.GOLD_INGOT),
-                    new ItemStack(Items.GOLD_INGOT),
-                    new ItemStack(Items.GOLD_INGOT),
-
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD),
-
-                    new ItemStack(Items.GOLDEN_APPLE),
-                    new ItemStack(Items.GOLDEN_APPLE),
-                    new ItemStack(Items.GOLDEN_APPLE),
-                    new ItemStack(Items.GOLDEN_APPLE),
-                    new ItemStack(Items.GOLDEN_APPLE),
-                    new ItemStack(Items.GOLDEN_APPLE),
-
-                    new ItemStack(Items.WHITE_BED)
-            };
-
-            for (ItemStack stack : simpleDrops) {
-                dropStack.accept(stack);
-            }
-
-            dropArrows.accept(new Random().nextInt(10, 20));
         }
     }
 

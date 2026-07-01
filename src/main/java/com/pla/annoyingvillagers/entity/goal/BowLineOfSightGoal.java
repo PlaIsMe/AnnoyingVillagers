@@ -1,7 +1,10 @@
 package com.pla.annoyingvillagers.entity.goal;
 
+import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
 import com.pla.annoyingvillagers.util.BowFunction;
+import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -83,6 +86,8 @@ public class BowLineOfSightGoal extends Goal {
                 && !this.mob.isNoAi()
                 && !this.mob.isPassenger()
                 && this.mob.getMainHandItem().getItem() instanceof BowItem
+                && (!(this.mob instanceof PlayerNpcEntity || this.mob instanceof AVNpc)
+                || InventoryUtils.hasArrowAmmo(this.mob))
                 && target != null
                 && target.isAlive()
                 && needsBetterBowPosition(target);

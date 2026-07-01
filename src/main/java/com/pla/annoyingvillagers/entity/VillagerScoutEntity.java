@@ -149,46 +149,13 @@ public class VillagerScoutEntity extends VillagerArmyEntity {
             final double z = this.getZ();
 
             Consumer<ItemStack> dropStack = (stack) -> {
+                if (InventoryUtils.isInventoryBackedSupplyDrop(stack)) {
+                    return;
+                }
                 ItemEntity drop = new ItemEntity(serverLevel, x, y, z, stack);
                 drop.setPickUpDelay(10);
                 serverLevel.addFreshEntity(drop);
             };
-
-            ItemStack[] drops = new ItemStack[] {
-                    new ItemStack(Items.APPLE),
-                    new ItemStack(Items.APPLE),
-                    new ItemStack(Items.BREAD),
-                    new ItemStack(Items.EMERALD),
-
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-
-                    new ItemStack(Items.IRON_SWORD),
-
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-
-                    new ItemStack(Items.GOLD_INGOT),
-                    new ItemStack(Items.GOLD_INGOT),
-                    new ItemStack(Items.GOLD_INGOT),
-
-                    new ItemStack(Blocks.OAK_PLANKS)
-            };
-
-            for (ItemStack stack : drops) {
-                dropStack.accept(stack);
-            }
 
             if (new Random().nextDouble() <= 0.2D) {
                 dropStack.accept(VillagerUtil.createBlackCreeperSignalFirework());

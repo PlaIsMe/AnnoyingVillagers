@@ -32,6 +32,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -52,7 +53,6 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
     private boolean spawnJev = false;
     private int state = 0;
     private ItemStack currentBoundHook = ItemStack.EMPTY;
-    private boolean canDualHookInSecondPhase = false;
 
     protected float recentDamageTaken = 0.0F;
     protected int recentHitCounter = 0;
@@ -116,31 +116,10 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
             stored.setCount(1);
             this.currentBoundHook = stored;
         }
-        this.syncHookGunInventory();
     }
 
     public boolean canDualHookInSecondPhase() {
-        return canDualHookInSecondPhase && this.state == 1;
-    }
-
-    public void setCanDualHookInSecondPhase(boolean canDualHookInSecondPhase) {
-        this.canDualHookInSecondPhase = canDualHookInSecondPhase;
-    }
-
-    public void ensureHookGunInventory() {
-        if (this.level().isClientSide) {
-            return;
-        }
-
-        if (this.currentBoundHook.isEmpty()) {
-            this.currentBoundHook = AlexJevHookCombat.createAlexDefaultPickaxe();
-        }
-
-        if (!syncHookGunInventory()) {
-            addItemToInventory(AlexJevHookCombat.createBoundHookGun(this.currentBoundHook));
-        }
-
-        updateDualHookUnlockFromInventory();
+        return this.state == 1 && this.hasHookGunInInventory();
     }
 
     public AlexEntity(EntityType<AlexEntity> entitytype, Level level) {
@@ -188,7 +167,6 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
             this.currentBoundHook.save(hookTag);
             tag.put("CurrentBoundHook", hookTag);
         }
-        tag.putBoolean("CanDualHookInSecondPhase", this.canDualHookInSecondPhase);
     }
 
     @Override
@@ -204,7 +182,6 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
         } else {
             currentBoundHook = AlexJevHookCombat.createAlexDefaultPickaxe();
         }
-        canDualHookInSecondPhase = tag.getBoolean("CanDualHookInSecondPhase");
     }
 
     @Override
@@ -271,13 +248,12 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
             final double z = this.getZ();
 
             Consumer<ItemStack> dropStack = (stack) -> {
+                if (InventoryUtils.isInventoryBackedSupplyDrop(stack)) {
+                    return;
+                }
                 ItemEntity drop = new ItemEntity(serverLevel, x, y, z, stack);
                 drop.setPickUpDelay(10);
                 serverLevel.addFreshEntity(drop);
-            };
-
-            Consumer<Integer> dropArrows = (count) -> {
-                for (int i = 0; i < count; i++) dropStack.accept(new ItemStack(Items.ARROW));
             };
 
             List<ItemStack> damagedStacks = new ArrayList<>();
@@ -300,34 +276,8 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
                 dropStack.accept(stack);
             }
 
-            ItemStack[] simpleDrops = new ItemStack[] {
-                    new ItemStack(Items.BREAD),
-                    new ItemStack(Items.GOLDEN_APPLE),
-                    new ItemStack(Items.WHEAT),
-                    new ItemStack(Items.POISONOUS_POTATO),
-                    new ItemStack(Items.GOLD_INGOT),
-
-                    new ItemStack(Items.IRON_INGOT),
-                    new ItemStack(Items.DIAMOND),
-                    new ItemStack(Items.DIAMOND),
-
-                    new ItemStack(Items.IRON_INGOT),
-                    new ItemStack(Items.IRON_INGOT),
-                    new ItemStack(Items.IRON_INGOT),
-                    new ItemStack(Items.IRON_INGOT),
-                    new ItemStack(Items.IRON_INGOT),
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-                    new ItemStack(Items.GOLDEN_APPLE),
-                    new ItemStack(Items.WHITE_BED),
-                    new ItemStack(Items.CAKE)
-            };
-
-            for (ItemStack stack : simpleDrops) {
-                dropStack.accept(stack);
-            }
             dropStack.accept(AlexJevHookCombat.createBoundHookGun(this.getCurrentBoundHook()));
             dropStack.accept(this.getCurrentBoundHook());
-            dropArrows.accept(new Random().nextInt(10, 20));
         }
     }
 
@@ -414,8 +364,44 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
         this.setMainWeaponItem(sword);
         this.setOffWeaponItem(new ItemStack(Items.ENDER_PEARL));
         this.setCurrentBoundHook(AlexJevHookCombat.createAlexDefaultPickaxe());
-        this.ensureHookGunInventory();
         return returnSpawnGroupData;
+    }
+
+    @Override
+    protected boolean seedInventory() {
+        if (super.seedInventory()) {
+            Random random = new Random();
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.GOLDEN_APPLE, random.nextInt(16, 32)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, random.nextInt(16, 32)));
+
+            List<ItemLike> foods = new ArrayList<>(REGULAR_FOODS);
+            for (int i = 0; i < 2 && !foods.isEmpty(); i++) {
+                ItemLike food = foods.remove(random.nextInt(foods.size()));
+                InventoryUtils.addItem(this.inventory, new ItemStack(food, random.nextInt(16, 32)));
+            }
+
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ARROW, random.nextInt(32, 64)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ENDER_PEARL, random.nextInt(16, 32)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.WATER_BUCKET));
+            if (this.isVillagerKnight() && random.nextFloat() < 0.45F) {
+                InventoryUtils.addItem(this.inventory, new ItemStack(Items.LAVA_BUCKET));
+            }
+
+            List<ItemLike> blocks = new ArrayList<>(PLACEABLE_BLOCKS);
+            int blockStacks = random.nextInt(1, 2);
+            for (int i = 0; i < blockStacks && !blocks.isEmpty(); i++) {
+                ItemLike block = blocks.remove(random.nextInt(blocks.size()));
+                InventoryUtils.addItem(this.inventory, new ItemStack(block, random.nextInt(64, 128)));
+            }
+
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.COAL, random.nextInt(0, 8)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.IRON_INGOT, random.nextInt(0, 12)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.GOLD_INGOT, random.nextInt(0, 12)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.DIAMOND, random.nextInt(0, 8)));
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -451,7 +437,6 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
                     && !this.getItemInHand(InteractionHand.OFF_HAND).getItem().equals(Items.TOTEM_OF_UNDYING)) {
                 this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.TOTEM_OF_UNDYING));
             }
-            this.ensureHookGunInventory();
         }
     }
 
@@ -475,46 +460,14 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
         return false;
     }
 
-    private boolean syncHookGunInventory() {
+    private boolean hasHookGunInInventory() {
         for (int i = 0; i < this.getInventory().getContainerSize(); i++) {
             ItemStack stack = this.getInventory().getItem(i);
             if (stack.getItem() instanceof HookGunItem) {
-                HookGunItem.setBoundItem(stack, this.getCurrentBoundHook());
-                this.getInventory().setItem(i, stack);
                 return true;
             }
         }
         return false;
-    }
-
-    private void addItemToInventory(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return;
-        }
-
-        for (int i = 0; i < this.getInventory().getContainerSize(); i++) {
-            if (this.getInventory().getItem(i).isEmpty()) {
-                this.getInventory().setItem(i, stack.copy());
-                return;
-            }
-        }
-    }
-
-    private void updateDualHookUnlockFromInventory() {
-        if (!this.canDualHookInSecondPhase && countHookGunsInInventory() >= 2) {
-            this.canDualHookInSecondPhase = true;
-        }
-    }
-
-    private int countHookGunsInInventory() {
-        int count = 0;
-        for (int i = 0; i < this.getInventory().getContainerSize(); i++) {
-            ItemStack stack = this.getInventory().getItem(i);
-            if (stack.getItem() instanceof HookGunItem) {
-                count += stack.getCount();
-            }
-        }
-        return count;
     }
 
     public static boolean canSpawn(EntityType<AlexEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {

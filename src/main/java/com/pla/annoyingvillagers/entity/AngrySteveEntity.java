@@ -33,10 +33,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.network.NetworkHooks;
@@ -209,10 +207,6 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
             serverLevel.addFreshEntity(drop);
         };
 
-        Consumer<Integer> dropArrows = (count) -> {
-            for (int i = 0; i < count; i++) dropStack.accept(new ItemStack(Items.ARROW));
-        };
-
         List<ItemStack> damagedStacks = new ArrayList<>();
 
         ItemStack compressedDiamondHelmet = new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND_HELMET.get());
@@ -287,49 +281,6 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
             stack.setDamageValue(EquipmentDataLoader.getRandomDamage(stack));
             dropStack.accept(stack);
         }
-
-        ItemLike[] simpleDrops = new ItemLike[] {
-                Items.GOLDEN_APPLE, Items.GOLDEN_APPLE, Items.GOLDEN_APPLE, Items.GOLDEN_APPLE,
-                Items.GOLDEN_APPLE, Items.GOLDEN_APPLE, Items.GOLDEN_APPLE, Items.GOLDEN_APPLE,
-                Items.ENCHANTED_GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE,
-
-                Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL,
-                Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL,
-
-                Blocks.DIRT, Blocks.DIRT, Blocks.DIRT, Blocks.DIRT, Blocks.DIRT, Blocks.DIRT, Blocks.DIRT, Blocks.DIRT,
-
-                Blocks.TNT, Blocks.TNT,
-                Blocks.DIAMOND_BLOCK,
-                Blocks.DRAGON_EGG,
-
-                Items.WHITE_BED,
-                Items.CAKE,
-                Items.WATER_BUCKET,
-                Items.COOKED_BEEF, Items.COOKED_BEEF, Items.COOKED_BEEF,
-                Items.FISHING_ROD,
-                Items.LIGHT_GRAY_DYE,
-                Items.CARROT, Items.CARROT,
-                Items.BAKED_POTATO, Items.BAKED_POTATO,
-
-                Items.STICK, Items.STICK, Items.STICK, Items.STICK, Items.STICK,
-                Items.IRON_INGOT, Items.IRON_INGOT, Items.IRON_INGOT, Items.IRON_INGOT,
-                Items.DIAMOND, Items.DIAMOND, Items.DIAMOND, Items.DIAMOND, Items.DIAMOND, Items.DIAMOND, Items.DIAMOND, Items.DIAMOND,
-
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-        };
-
-        for (ItemLike itemLike : simpleDrops) {
-            dropStack.accept(new ItemStack(itemLike));
-        }
-        dropArrows.accept(new Random().nextInt(10, 30));
     }
 
     @Override

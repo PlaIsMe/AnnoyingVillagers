@@ -24,6 +24,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -78,7 +79,11 @@ public class CombatBehaviour {
         return base.add(forwardH.scale(0.35)).add(left.scale(0.25));
     }
 
-    public static void throwEnderPearl(Entity entity, float xRot) {
+    public static boolean throwEnderPearl(Entity entity, float xRot) {
+        if (!consumeTrackedEnderPearl(entity)) {
+            return false;
+        }
+
         if (xRot != 0.0F) {
             entity.setYRot(0.0F);
             entity.setXRot(xRot);
@@ -95,6 +100,10 @@ public class CombatBehaviour {
             new DelayedTask(5) {
                 @Override
                 public void run() {
+                    if (!entity.isAlive() || entity.isRemoved()) {
+                        return;
+                    }
+
                     Vec3 handPos = getFrontLeftPos(entity);
                     Projectile projectile = new ThrownEnderpearl(EntityType.ENDER_PEARL, serverLevel);
                     projectile.setOwner(entity);
@@ -106,9 +115,15 @@ public class CombatBehaviour {
             };
 
         }
+
+        return true;
     }
 
-    public static void throwEnderPearlAt(Entity entity, Vec3 target) {
+    public static boolean throwEnderPearlAt(Entity entity, Vec3 target) {
+        if (!consumeTrackedEnderPearl(entity)) {
+            return false;
+        }
+
         facePosition(entity, target);
 
         if (entity.level() instanceof ServerLevel serverLevel) {
@@ -132,6 +147,15 @@ public class CombatBehaviour {
                 }
             };
         }
+
+        return true;
+    }
+
+    private static boolean consumeTrackedEnderPearl(Entity entity) {
+        if (!(entity instanceof PlayerNpcEntity || entity instanceof AVNpc)) {
+            return true;
+        }
+        return InventoryUtils.consumeItem(entity, Items.ENDER_PEARL, 1).isPresent();
     }
 
     private static void facePosition(Entity entity, Vec3 target) {
@@ -189,14 +213,14 @@ public class CombatBehaviour {
                 && livingEntity.getMainHandItem().getItem().equals(expectedItem);
     }
 
-    private static void performEatingGoldenAppleActionMainHand(Entity entity,
-                                                                LevelAccessor levelaccessor,
-                                                                LivingEntityPatch<?> livingEntityPatch,
-                                                                boolean isEnchanted) {
+    private static void performEatingFoodActionMainHand(Entity entity,
+                                                        LevelAccessor levelaccessor,
+                                                        LivingEntityPatch<?> livingEntityPatch,
+                                                        ItemStack foodStack) {
         if (isTrackedHealingCancelled(entity)) {
             return;
         }
-        if (!trackedNpcHoldsMainHandItem(entity, isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE)) {
+        if (!trackedNpcHoldsMainHandItem(entity, foodStack.getItem())) {
             recoverItemDueToFailure(entity);
             return;
         }
@@ -231,7 +255,7 @@ public class CombatBehaviour {
                     .add(forward.scale(0.5D));
 
             serverLevel.sendParticles(
-                    new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.GOLDEN_APPLE)),
+                    new ItemParticleOption(ParticleTypes.ITEM, foodStack.copy()),
                     spawnPos.x, spawnPos.y, spawnPos.z,
                     10,
                     0.0D, 0.0D, 0.0D,
@@ -273,6 +297,16 @@ public class CombatBehaviour {
     }
 
     public static void eatingGoldenApple(Entity entity, LevelAccessor levelaccessor, double amount, boolean isEnchanted) {
+        eatingInventoryFood(entity, levelaccessor, amount, new ItemStack(isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE));
+    }
+
+    public static void eatingInventoryFood(Entity entity, LevelAccessor levelaccessor, double amount, ItemStack foodStack) {
+        if (foodStack.isEmpty()) {
+            return;
+        }
+
+        ItemStack heldFood = foodStack.copy();
+        heldFood.setCount(1);
         LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
         if (livingEntityPatch != null && entity instanceof LivingEntity livingEntity) {
@@ -304,7 +338,7 @@ public class CombatBehaviour {
                 public void run() {
                     if (!entity.isAlive()) return;
                     if (isTrackedHealingCancelled(entity)) return;
-                    if (!trackedNpcHoldsMainHandItem(entity, isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE)) {
+                    if (!trackedNpcHoldsMainHandItem(entity, heldFood.getItem())) {
                         recoverItemDueToFailure(entity);
                         return;
                     }
@@ -321,7 +355,7 @@ public class CombatBehaviour {
                         recoverItemDueToFailure(entity);
                         return;
                     }
-                    Runnable bite = () -> performEatingGoldenAppleActionMainHand(entity, levelaccessor, patch, isEnchanted);
+                    Runnable bite = () -> performEatingFoodActionMainHand(entity, levelaccessor, patch, heldFood);
                     int biteDelay = 4;
                     int totalBites = 7;
 
@@ -342,7 +376,7 @@ public class CombatBehaviour {
                         public void run() {
                             if (!entity.isAlive()) return;
                             if (isTrackedHealingCancelled(entity)) return;
-                            if (!trackedNpcHoldsMainHandItem(entity, isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE)) {
+                            if (!trackedNpcHoldsMainHandItem(entity, heldFood.getItem())) {
                                 recoverItemDueToFailure(entity);
                                 return;
                             }
@@ -360,7 +394,12 @@ public class CombatBehaviour {
                         public void run() {
                             if (!entity.isAlive()) return;
                             if (isTrackedHealingCancelled(entity)) return;
-                            if (!trackedNpcHoldsMainHandItem(entity, isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE)) {
+                            if (!trackedNpcHoldsMainHandItem(entity, heldFood.getItem())) {
+                                recoverItemDueToFailure(entity);
+                                return;
+                            }
+                            if ((entity instanceof PlayerNpcEntity || entity instanceof AVNpc)
+                                    && !InventoryUtils.consumeHealingFood(entity, heldFood)) {
                                 recoverItemDueToFailure(entity);
                                 return;
                             }
@@ -382,14 +421,19 @@ public class CombatBehaviour {
                             }
 
                             if (!livingEntity.level().isClientSide()) {
-                                if (isEnchanted) {
+                                if (heldFood.is(Items.ENCHANTED_GOLDEN_APPLE)) {
                                     livingEntity.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 2400, 3));
                                     livingEntity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400, 1));
                                     livingEntity.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 6000, 0));
                                     livingEntity.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 6000, 0));
-                                } else {
+                                } else if (heldFood.is(Items.GOLDEN_APPLE)) {
                                     livingEntity.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 2400, 0));
                                     livingEntity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 100, 1));
+                                } else {
+                                    FoodProperties foodProperties = heldFood.getFoodProperties(livingEntity);
+                                    float healAmount = foodProperties != null ? Math.max(2.0F, foodProperties.getNutrition()) : 4.0F;
+                                    livingEntity.heal(healAmount);
+                                    livingEntity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 60, 0));
                                 }
                             }
 

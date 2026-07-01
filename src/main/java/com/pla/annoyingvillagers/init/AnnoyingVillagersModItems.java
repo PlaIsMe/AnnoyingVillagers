@@ -55,6 +55,7 @@ public class AnnoyingVillagersModItems {
     public static final RegistryObject<Item> TONY_THE_FISHING_ROD = AnnoyingVillagersModItems.REGISTRY.register("tony_the_fishing_rod", TonyTheFishingRod::new);
     public static final RegistryObject<Item> HOOK_GUN = AnnoyingVillagersModItems.REGISTRY.register("hook_gun", HookGunItem::new);
     public static final RegistryObject<Item> TRANSPORTER_FRAGMENT = AnnoyingVillagersModItems.REGISTRY.register("transporter_fragment", TransporterFragmentItem::new);
+    public static final RegistryObject<Item> INVENTORY_VIEWER = AnnoyingVillagersModItems.REGISTRY.register("inventory_viewer", InventoryViewerItem::new);
     public static final RegistryObject<Item> VILLAGER_HEAD = AnnoyingVillagersModItems.REGISTRY.register("villager_head", VillagerHeadItem::new);
     public static final RegistryObject<Item> JEV_GLASSES = AnnoyingVillagersModItems.REGISTRY.register("jev_glasses", JevGlassesItem::new);
     public static final RegistryObject<Item> ENCHANTED_ENDER_PEARL = AnnoyingVillagersModItems.REGISTRY.register("enchanted_ender_pearl", EnchantedEnderPearlItem::new);

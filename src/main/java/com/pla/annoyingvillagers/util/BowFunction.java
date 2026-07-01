@@ -36,7 +36,8 @@ public class BowFunction {
             return;
         }
 
-        if (shooter instanceof Player && !BowFunction.hasArrowOrInfinity(shooter, bowStack)) {
+        if ((shooter instanceof Player || shooter instanceof PlayerNpcEntity || shooter instanceof AVNpc)
+                && !BowFunction.hasArrowOrInfinity(shooter, bowStack)) {
             return;
         }
 
@@ -56,6 +57,9 @@ public class BowFunction {
             arrowStack = player.getProjectile(bowStack);
             creativeOrInfinity = player.getAbilities().instabuild ||
                     EnchantmentHelper.getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, bowStack) > 0;
+        } else if (shooter instanceof PlayerNpcEntity || shooter instanceof AVNpc) {
+            arrowStack = InventoryUtils.consumeArrowAmmo(shooter).orElse(ItemStack.EMPTY);
+            creativeOrInfinity = false;
         } else {
             if ((shooter instanceof VillagerScoutEntity
                     || shooter instanceof RedVillagerKnightEntity
@@ -196,6 +200,10 @@ public class BowFunction {
     }
 
     public static boolean hasArrowOrInfinity(LivingEntity entity, ItemStack bowStack) {
+        if (entity instanceof PlayerNpcEntity || entity instanceof AVNpc) {
+            return InventoryUtils.hasArrowAmmo(entity);
+        }
+
         if (!(entity instanceof Player player)) {
             return true;
         } else if (player.getAbilities().instabuild) {

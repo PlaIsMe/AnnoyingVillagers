@@ -35,7 +35,6 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.network.NetworkHooks;
@@ -207,6 +206,44 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity {
     }
 
     @Override
+    protected boolean seedInventory() {
+        if (super.seedInventory()) {
+            Random random = new Random();
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.GOLDEN_APPLE, random.nextInt(16, 32)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, random.nextInt(16, 32)));
+
+            List<ItemLike> foods = new ArrayList<>(REGULAR_FOODS);
+            for (int i = 0; i < 2 && !foods.isEmpty(); i++) {
+                ItemLike food = foods.remove(random.nextInt(foods.size()));
+                InventoryUtils.addItem(this.inventory, new ItemStack(food, random.nextInt(16, 32)));
+            }
+
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ARROW, random.nextInt(64, 128)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ENDER_PEARL, random.nextInt(16, 32)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.WATER_BUCKET));
+            if (this.isVillagerKnight() && random.nextFloat() < 0.45F) {
+                InventoryUtils.addItem(this.inventory, new ItemStack(Items.LAVA_BUCKET));
+            }
+
+            List<ItemLike> blocks = new ArrayList<>(PLACEABLE_BLOCKS);
+            int blockStacks = random.nextInt(1, 2);
+            for (int i = 0; i < blockStacks && !blocks.isEmpty(); i++) {
+                ItemLike block = blocks.remove(random.nextInt(blocks.size()));
+                InventoryUtils.addItem(this.inventory, new ItemStack(block, random.nextInt(64, 128)));
+            }
+
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.REDSTONE, random.nextInt(0, 12)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.LAPIS_LAZULI, random.nextInt(0, 12)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.EMERALD, random.nextInt(0, 12)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.DIAMOND, random.nextInt(0, 8)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(), random.nextInt(0, 8)));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
         super.dropCustomDeathLoot(source, looting, recentlyHit);
         if (!(this.level() instanceof ServerLevel serverLevel)) {
@@ -220,10 +257,6 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity {
             ItemEntity drop = new ItemEntity(serverLevel, x, y, z, stack);
             drop.setPickUpDelay(10);
             serverLevel.addFreshEntity(drop);
-        };
-
-        Consumer<Integer> dropArrows = (count) -> {
-            for (int i = 0; i < count; i++) dropStack.accept(new ItemStack(Items.ARROW));
         };
 
         List<ItemStack> damagedStacks = new ArrayList<>();
@@ -316,48 +349,6 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity {
             stack.setDamageValue(EquipmentDataLoader.getRandomDamage(stack));
             dropStack.accept(stack);
         }
-
-        ItemLike[] simpleDrops = new ItemLike[] {
-                Items.GOLDEN_APPLE, Items.GOLDEN_APPLE, Items.GOLDEN_APPLE, Items.GOLDEN_APPLE,
-                Items.GOLDEN_APPLE, Items.GOLDEN_APPLE, Items.GOLDEN_APPLE, Items.GOLDEN_APPLE,
-                Items.ENCHANTED_GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE,
-
-                Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL,
-                Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL, Items.ENDER_PEARL,
-
-                Blocks.DIRT, Blocks.DIRT, Blocks.DIRT, Blocks.DIRT, Blocks.DIRT, Blocks.DIRT, Blocks.DIRT, Blocks.DIRT,
-
-                Blocks.TNT, Blocks.TNT,
-                Blocks.DIAMOND_BLOCK,
-                Blocks.DRAGON_EGG,
-
-                Items.WHITE_BED,
-                Items.CAKE,
-                Items.WATER_BUCKET,
-                Items.COOKED_BEEF, Items.COOKED_BEEF, Items.COOKED_BEEF,
-                Items.LIGHT_GRAY_DYE,
-                Items.CARROT, Items.CARROT,
-                Items.BAKED_POTATO, Items.BAKED_POTATO,
-
-                Items.STICK, Items.STICK, Items.STICK, Items.STICK, Items.STICK,
-                Items.IRON_INGOT, Items.IRON_INGOT, Items.IRON_INGOT, Items.IRON_INGOT,
-                Items.DIAMOND, Items.DIAMOND, Items.DIAMOND, Items.DIAMOND, Items.DIAMOND, Items.DIAMOND, Items.DIAMOND, Items.DIAMOND,
-
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-                AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(),
-        };
-
-        for (ItemLike itemLike : simpleDrops) {
-            dropStack.accept(new ItemStack(itemLike));
-        }
-        dropArrows.accept(new Random().nextInt(10, 30));
     }
 
     @Override

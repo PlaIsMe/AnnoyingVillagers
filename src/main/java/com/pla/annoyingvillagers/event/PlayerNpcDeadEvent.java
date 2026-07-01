@@ -198,6 +198,11 @@ public class PlayerNpcDeadEvent {
                 new DelayedTask(5) {
                     @Override
                     public void run() {
+                        // PlayerNpc death loot is inventory-backed in PlayerNpcEntity.dropCustomDeathLoot.
+                        if (entity instanceof PlayerNpcEntity) {
+                            return;
+                        }
+
                         LevelAccessor levelaccessor1;
                         Level level;
                         ItemEntity itementity;

@@ -12,6 +12,8 @@ Session facts in this file come from the current workspace code and the edits di
 - `src/main/java/com/pla/annoyingvillagers/combatbehaviour/CombatCommon.java`
 - `src/main/java/com/pla/annoyingvillagers/combatbehaviour/CombatBehaviourTemplates.java`
 - `src/main/java/com/pla/annoyingvillagers/combatbehaviour/AvNpcCombatBehaviorBuilder.java`
+- `src/main/java/com/pla/annoyingvillagers/util/InventoryUtils.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/FillWaterBucketGoal.java`
 - `src/main/java/com/pla/annoyingvillagers/item/TonyTheFishingRod.java`
 - `src/main/java/com/pla/annoyingvillagers/item/FishingRodGrappleUtil.java`
 
@@ -28,6 +30,22 @@ Important saved state:
 - `SayLegendary`
 
 Steve is persistent, has custom-name visibility enabled, has `maxUpStep = 3.0F`, has `xpReward = 8`, and has a place-block-parry chance of `0.8`.
+
+## Inventory Backed Supplies
+
+Steve inherits the `AVNpc` 27 slot `SimpleContainer` inventory.
+
+On first tick, `AVNpc.implementFirstTick` calls `AVNpc.seedInventory()`. The default AVNpc seed logic lives directly in `AVNpc.seedInventory()`: it only runs when the container is empty, then rolls golden apples, two regular food stacks, arrows, ender pearls, water bucket, possible empty bucket, random placeable blocks, possible lava bucket for villager knight-style AVNpc entities, and possible carried materials such as coal, iron, gold, redstone, lapis, emeralds, or diamonds.
+
+Combat supply actions are inventory-backed:
+
+- bow shots require and consume arrows,
+- ender pearl counters require and consume pearls,
+- eating consumes the selected food only after eating completes,
+- regular food heals without absorption,
+- water bucket self-extinguish consumes a water bucket and returns either water bucket or empty bucket based on source recovery,
+- empty buckets can refill from nearby source water through `FillWaterBucketGoal`,
+- block placement consumes one block item per placed block.
 
 ## First Phase Survival And Totem
 
@@ -89,17 +107,19 @@ On server-side death, Steve can transform into `AngrySteveEntity` instead of com
 If a random roll is within config `ANGRY_STEVE_CHANCE`:
 
 - an Angry Steve is created at Steve's position,
-- Steve's inventory is transferred,
+- Steve's remaining inventory is transferred to Angry Steve before Angry Steve finalizes spawn,
 - Steve is discarded,
 - `SteveData` claim is moved to Angry Steve,
 - Angry Steve finalizes spawn and is added to the world,
 - killer/target context is transferred where possible.
 
+Because `AVNpc.seedInventory()` only seeds an empty inventory, the transferred inventory is preserved and Angry Steve does not reroll utility supplies after transformation.
+
 If the transform does not happen, Steve plays his death voice and then runs normal death handling.
 
 ## Death Loot
 
-Steve death loot includes damaged combat stacks and normal resource stacks.
+Steve death loot includes remaining inventory contents from `AVNpc.dropCustomDeathLoot` plus damaged combat stacks.
 
 Damaged combat drops include:
 
@@ -117,7 +137,7 @@ Damaged combat drops include:
 
 Every stack in the damaged drop list is passed through `EquipmentDataLoader.getRandomDamage(stack)` before dropping.
 
-Normal drops include gapples, ender pearls, dirt, TNT, diamond block, dragon egg, white bed, cake, water bucket, food, dye, carrots, potatoes, sticks, ingots, diamonds, compressed diamonds, and 10 to 29 arrows.
+Generated normal resource drops were removed. Food, pearls, arrows, buckets, blocks, and carried materials drop only if they remain in Steve's inventory at death.
 
 ## Epic Fight Patch
 
@@ -205,4 +225,3 @@ The restore chance after each hook is based on session use count:
 - third and later next-hook checks: capped at 60 percent.
 
 When restore succeeds, the original offhand or empty hand is restored and a cooldown of `120 + random(0..120)` ticks starts.
-

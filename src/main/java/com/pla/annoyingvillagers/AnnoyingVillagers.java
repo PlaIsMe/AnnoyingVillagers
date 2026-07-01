@@ -5,6 +5,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.mojang.serialization.Codec;
+import com.pla.annoyingvillagers.client.gui.InventoryViewerScreen;
 import com.pla.annoyingvillagers.client.engine.CameraEngine;
 import com.pla.annoyingvillagers.client.engine.SpriteArrowsCommonEntrypoint;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig;
@@ -18,6 +19,7 @@ import com.pla.annoyingvillagers.network.*;
 import com.pla.annoyingvillagers.event.NpcGearLoadEvent;
 import com.pla.annoyingvillagers.world.AVMobSpawnBiomeModifier;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -62,6 +64,7 @@ public class AnnoyingVillagers {
         AnnoyingVillagersModBlocks.REGISTRY.register(modEventBus);
         AnnoyingVillagersModBlockEntities.REGISTRY.register(modEventBus);
         AnnoyingVillagersModItems.REGISTRY.register(modEventBus);
+        AnnoyingVillagersModMenus.REGISTRY.register(modEventBus);
         modEventBus.addListener(AVWeaponCapabilityPresets::register);
         AnnoyingVillagersModEntities.REGISTRY.register(modEventBus);
         AnnoyingVillagersModMobEffects.REGISTRY.register(modEventBus);
@@ -99,6 +102,7 @@ public class AnnoyingVillagers {
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
+        event.enqueueWork(() -> MenuScreens.register(AnnoyingVillagersModMenus.INVENTORY_VIEWER.get(), InventoryViewerScreen::new));
         new CameraEngine();
     }
 

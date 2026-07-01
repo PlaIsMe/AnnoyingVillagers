@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.entity.DragonMeteoriteEntity;
 import com.pla.annoyingvillagers.entity.ObsidianSledgehammerProjectileEntity;
 import com.pla.annoyingvillagers.task.DelayedTask;
+import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,11 +18,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
@@ -123,6 +122,9 @@ public final class MobPlaceBlockEvent {
         if (!holdingValidWeapon) {
             return false;
         }
+        if (!InventoryUtils.hasPlaceableBlock(avNpc)) {
+            return false;
+        }
 
         if (projectileDamage) {
             return avNpc.getBlockDamage() == null
@@ -172,7 +174,6 @@ public final class MobPlaceBlockEvent {
         BiFunction<Integer, Integer, int[]> toWorld = getIntegerIntegerBiFunction(avNpc, rot);
         int lastPlacementDelay = 0;
 
-        BlockState placeState = getPlaceState(avNpc);
         BlockPos baseXZ;
         int topY;
         ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(blockDamage.getType());
@@ -225,14 +226,14 @@ public final class MobPlaceBlockEvent {
                         return;
                     }
 
-                    if (!placeIfReplaceable(serverLevel, layerCenter, placeState, avNpc)) {
+                    if (!placeIfReplaceable(serverLevel, layerCenter, avNpc)) {
                         return;
                     }
 
                     for (int[] ab : extrasLocal) {
                         int[] dzdx = toWorld.apply(ab[0], ab[1]);
                         BlockPos p = layerCenter.offset(dzdx[0], 0, dzdx[1]);
-                        placeIfReplaceable(serverLevel, p, placeState, avNpc);
+                        placeIfReplaceable(serverLevel, p, avNpc);
                     }
                 }
             };
@@ -241,20 +242,18 @@ public final class MobPlaceBlockEvent {
         return lastPlacementDelay;
     }
 
-    private static BlockState getPlaceState(AVNpc avNpc) {
-        ItemStack handStack = avNpc.getItemInHand(InteractionHand.MAIN_HAND);
-        if (handStack.getItem() instanceof BlockItem blockItem) {
-            return blockItem.getBlock().defaultBlockState();
-        }
-
-        return Blocks.COBBLESTONE.defaultBlockState();
-    }
-
     private static boolean placeIfReplaceable(ServerLevel serverLevel,
                                               BlockPos pos,
-                                              BlockState placeState,
                                               AVNpc avNpc) {
         if (!serverLevel.getBlockState(pos).canBeReplaced()) {
+            return false;
+        }
+        ItemStack blockStack = InventoryUtils.consumePlaceableBlock(avNpc).orElse(ItemStack.EMPTY);
+        if (blockStack.isEmpty()) {
+            return false;
+        }
+        BlockState placeState = InventoryUtils.getBlockState(blockStack);
+        if (placeState == null) {
             return false;
         }
 

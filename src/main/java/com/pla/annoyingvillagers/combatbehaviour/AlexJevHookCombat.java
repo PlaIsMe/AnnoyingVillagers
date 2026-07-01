@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.HookUtil;
+import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -16,10 +17,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -31,7 +30,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ThrowablePotionItem;
 import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -46,9 +44,12 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public final class AlexJevHookCombat {
@@ -113,7 +114,6 @@ public final class AlexJevHookCombat {
             return;
         }
 
-        alex.ensureHookGunInventory();
         syncAlexAndJevTarget(alex, alex.getProtectingJev());
         cleanupFinishedSession(alex);
 
@@ -236,8 +236,7 @@ public final class AlexJevHookCombat {
         }
 
         if (alex.getHealth() <= alex.getMaxHealth() * 0.55F
-                && shootHookAtEntity(jev, InteractionHand.OFF_HAND, createStrongHealingPotion(), alex,
-                DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null)) {
+                && shootJevSupportPotion(jev, alex, random)) {
             setCooldown(jev, KEY_JEV_COOLDOWN_UNTIL, 30, 25);
             return;
         }
@@ -299,8 +298,7 @@ public final class AlexJevHookCombat {
 
         if (isMissingHealth(alex)
                 && (alex.getHealth() <= alex.getMaxHealth() * 0.75F || random.nextDouble() < 0.18D)
-                && shootHookAtEntity(jev, InteractionHand.OFF_HAND, new ItemStack(Items.GOLDEN_APPLE), alex,
-                DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null)) {
+                && shootJevSupportFood(jev, alex, random)) {
             setCooldown(jev, KEY_JEV_COOLDOWN_UNTIL, 35, 35);
             return;
         }
@@ -318,8 +316,7 @@ public final class AlexJevHookCombat {
         }
 
         if (alex.getState() == 1 && isMissingHealth(alex) && random.nextDouble() < 0.22D
-                && shootHookAtEntity(jev, InteractionHand.OFF_HAND, createGoodBuffPotion(), alex,
-                DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null)) {
+                && shootJevSupportPotion(jev, alex, random)) {
             setCooldown(jev, KEY_JEV_COOLDOWN_UNTIL, 55, 35);
             return;
         }
@@ -387,43 +384,7 @@ public final class AlexJevHookCombat {
         return helmet;
     }
 
-    public static ItemStack createRandomJevLootBlock(RandomSource random) {
-        return random.nextBoolean() ? randomCoverBlock(random) : randomDistractionBlock(random);
-    }
-
-    public static ItemStack createRandomJevLootFood(RandomSource random) {
-        return switch (random.nextInt(9)) {
-            case 0 -> new ItemStack(Items.BREAD);
-            case 1 -> new ItemStack(Items.POTATO);
-            case 2 -> new ItemStack(Items.COOKED_BEEF);
-            case 3 -> new ItemStack(Items.COOKED_CHICKEN);
-            case 4 -> new ItemStack(Items.CARROT);
-            case 5 -> new ItemStack(Items.GOLDEN_APPLE);
-            case 6 -> new ItemStack(Items.ENCHANTED_GOLDEN_APPLE);
-            case 7 -> new ItemStack(Items.POISONOUS_POTATO);
-            default -> new ItemStack(Items.PUFFERFISH);
-        };
-    }
-
-    public static ItemStack createRandomJevLootPotion(RandomSource random) {
-        return switch (random.nextInt(13)) {
-            case 0 -> createStrongHealingPotion();
-            case 1 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_STRENGTH);
-            case 2 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SWIFTNESS);
-            case 3 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_LEAPING);
-            case 4 -> createHastePotion();
-            case 5 -> createGoodBuffPotion();
-            case 6 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION);
-            case 7 -> createPoisonPotion();
-            case 8 -> createWeaknessPotion();
-            case 9 -> createSlownessPotion();
-            case 10 -> createNauseaPotion();
-            case 11 -> createBlindnessPotion();
-            default -> createStrongHarmingPotion();
-        };
-    }
-
-    public static ItemStack createRandomJevPlantLoot(RandomSource random) {
+    public static ItemStack createRandomJevPlantLoot(Random random) {
         return switch (random.nextInt(14)) {
             case 0, 1, 2 -> new ItemStack(Items.BONE_MEAL);
             case 3 -> new ItemStack(Blocks.POPPY);
@@ -591,8 +552,14 @@ public final class AlexJevHookCombat {
     }
 
     private static boolean shootJevBurningSupportSnowball(JevEntity jev, AlexEntity alex) {
-        return shootHookAtEntity(jev, InteractionHand.OFF_HAND, new ItemStack(Items.SNOWBALL), alex,
+        ItemStack snowball = new ItemStack(Items.SNOWBALL);
+        boolean fired = InventoryUtils.hasItem(jev, Items.SNOWBALL)
+                && shootHookAtEntity(jev, InteractionHand.OFF_HAND, snowball, alex,
                 DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null);
+        if (fired) {
+            InventoryUtils.consumeItem(jev, Items.SNOWBALL, 1);
+        }
+        return fired;
     }
 
     private static boolean shootPickaxeHookAtEntity(
@@ -674,17 +641,27 @@ public final class AlexJevHookCombat {
     }
 
     private static boolean shootJevBlockAtArea(JevEntity jev, BlockPos center, int radius, boolean coverBlock) {
-        for (int attempt = 0; attempt < 8; attempt++) {
-            ItemStack block = coverBlock ? randomCoverBlock(jev.getRandom()) : randomDistractionBlock(jev.getRandom());
+        SimpleContainer inventory = jev.getInventory();
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack inventoryStack = inventory.getItem(slot);
+            if (inventoryStack.isEmpty() || !(inventoryStack.getItem() instanceof BlockItem)) {
+                continue;
+            }
+
+            ItemStack block = oneOf(inventoryStack);
             BlockPos support = findSupportBlockAround(jev.level(), center, radius, block);
             if (support == null) {
                 continue;
             }
 
             BlockPos selectedSupport = support;
-            return shootHook(jev, InteractionHand.OFF_HAND, block,
+            boolean fired = shootHook(jev, InteractionHand.OFF_HAND, block,
                     () -> getGroundHookAnchorAimPosition(selectedSupport),
                     DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null);
+            if (fired) {
+                InventoryUtils.consumeItem(inventory, stack -> ItemStack.isSameItemSameTags(stack, block), 1);
+            }
+            return fired;
         }
 
         return false;
@@ -697,23 +674,58 @@ public final class AlexJevHookCombat {
         }
 
         Vec3 aim = Vec3.atCenterOf(sapling);
-        return shootHook(jev, InteractionHand.OFF_HAND, new ItemStack(Items.BONE_MEAL),
+        ItemStack boneMeal = new ItemStack(Items.BONE_MEAL);
+        boolean fired = InventoryUtils.hasItem(jev, Items.BONE_MEAL)
+                && shootHook(jev, InteractionHand.OFF_HAND, boneMeal,
                 () -> aim, DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null);
+        if (fired) {
+            InventoryUtils.consumeItem(jev, Items.BONE_MEAL, 1);
+        }
+        return fired;
     }
 
     private static boolean shootJevSupportFood(JevEntity jev, AlexEntity alex, Random random) {
-        return shootHookAtEntity(jev, InteractionHand.OFF_HAND, randomFood(random), alex,
-                DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null);
+        return selectInventoryItem(jev, stack -> isPositiveFoodStack(stack, alex), random)
+                .map(stack -> shootInventoryItemAtEntity(jev, stack, alex))
+                .orElse(false);
     }
 
     private static boolean shootJevSupportPotion(JevEntity jev, AlexEntity alex, Random random) {
-        return shootHookAtEntity(jev, InteractionHand.OFF_HAND, randomPositivePotion(random), alex,
-                DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null);
+        return selectInventoryItem(jev, AlexJevHookCombat::isPositivePotionStack, random)
+                .map(stack -> shootInventoryItemAtEntity(jev, stack, alex))
+                .orElse(false);
     }
 
     private static boolean shootJevEnemyHarassment(JevEntity jev, LivingEntity target, Random random) {
-        return shootHookAtEntity(jev, InteractionHand.OFF_HAND, randomEnemyHarassItem(random), target,
+        return selectInventoryItem(jev, AlexJevHookCombat::isEnemyHarassmentStack, random)
+                .map(stack -> shootInventoryItemAtEntity(jev, stack, target))
+                .orElse(false);
+    }
+
+    private static boolean shootInventoryItemAtEntity(JevEntity jev, ItemStack stack, LivingEntity target) {
+        ItemStack shot = oneOf(stack);
+        boolean fired = shootHookAtEntity(jev, InteractionHand.OFF_HAND, shot, target,
                 DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null);
+        if (fired) {
+            InventoryUtils.consumeItem(jev.getInventory(), candidate -> ItemStack.isSameItemSameTags(candidate, shot), 1);
+        }
+        return fired;
+    }
+
+    private static Optional<ItemStack> selectInventoryItem(JevEntity jev, Predicate<ItemStack> matcher, Random random) {
+        List<ItemStack> candidates = new ArrayList<>();
+        SimpleContainer inventory = jev.getInventory();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (!stack.isEmpty() && matcher.test(stack)) {
+                candidates.add(oneOf(stack));
+            }
+        }
+
+        if (candidates.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(candidates.get(random.nextInt(candidates.size())));
     }
 
     private static boolean isValidJevEnemyTarget(JevEntity jev, AlexEntity alex, @Nullable LivingEntity target) {
@@ -1469,6 +1481,38 @@ public final class AlexJevHookCombat {
                 && blockItem.getBlock().defaultBlockState().canSurvive(level, place);
     }
 
+    private static ItemStack oneOf(ItemStack stack) {
+        ItemStack copy = stack.copy();
+        copy.setCount(1);
+        return copy;
+    }
+
+    private static boolean isPositiveFoodStack(ItemStack stack, LivingEntity eater) {
+        return !stack.isEmpty()
+                && stack.getFoodProperties(eater) != null
+                && !stack.is(Items.POISONOUS_POTATO)
+                && !stack.is(Items.PUFFERFISH);
+    }
+
+    private static boolean isPositivePotionStack(ItemStack stack) {
+        return stack.getItem() instanceof ThrowablePotionItem
+                && !PotionUtils.getMobEffects(stack).isEmpty()
+                && PotionUtils.getMobEffects(stack).stream().allMatch(effect -> effect.getEffect().isBeneficial());
+    }
+
+    private static boolean isNegativePotionStack(ItemStack stack) {
+        return stack.getItem() instanceof ThrowablePotionItem
+                && PotionUtils.getMobEffects(stack).stream().anyMatch(effect -> !effect.getEffect().isBeneficial());
+    }
+
+    private static boolean isEnemyHarassmentStack(ItemStack stack) {
+        return isNegativePotionStack(stack)
+                || stack.is(Items.POISONOUS_POTATO)
+                || stack.is(Items.PUFFERFISH)
+                || stack.is(Items.FLINT_AND_STEEL)
+                || stack.is(Items.FIRE_CHARGE);
+    }
+
     private static BlockPos getAlexCoverBlockCenter(AlexEntity alex, LivingEntity enemy) {
         Vec3 toEnemy = enemy.position().subtract(alex.position());
         Vec3 horizontal = new Vec3(toEnemy.x, 0.0D, toEnemy.z);
@@ -1484,129 +1528,4 @@ public final class AlexJevHookCombat {
         );
     }
 
-    private static ItemStack randomCoverBlock(RandomSource random) {
-        return switch (random.nextInt(11)) {
-            case 0 -> new ItemStack(Blocks.OAK_DOOR);
-            case 1 -> new ItemStack(Blocks.OAK_TRAPDOOR);
-            case 2 -> new ItemStack(Blocks.OAK_FENCE);
-            case 3 -> new ItemStack(Blocks.OAK_FENCE_GATE);
-            case 4 -> new ItemStack(Blocks.GLASS);
-            case 5 -> new ItemStack(Blocks.GLASS_PANE);
-            case 6 -> new ItemStack(Blocks.OAK_LEAVES);
-            case 7 -> new ItemStack(Blocks.HAY_BLOCK);
-            case 8 -> new ItemStack(Blocks.SPRUCE_PLANKS);
-            default -> new ItemStack(Blocks.OAK_PLANKS);
-        };
-    }
-
-    private static ItemStack randomDistractionBlock(RandomSource random) {
-        return switch (random.nextInt(22)) {
-            case 0 -> new ItemStack(Blocks.OAK_PLANKS);
-            case 1 -> new ItemStack(Blocks.SPRUCE_PLANKS);
-            case 2 -> new ItemStack(Blocks.GLASS);
-            case 3 -> new ItemStack(Blocks.GLASS_PANE);
-            case 4 -> new ItemStack(Blocks.OAK_FENCE);
-            case 5 -> new ItemStack(Blocks.OAK_FENCE_GATE);
-            case 6 -> new ItemStack(Blocks.OAK_DOOR);
-            case 7 -> new ItemStack(Blocks.OAK_TRAPDOOR);
-            case 8 -> new ItemStack(Blocks.OAK_LEAVES);
-            case 9 -> new ItemStack(Blocks.HAY_BLOCK);
-            case 10 -> new ItemStack(Blocks.BARREL);
-            case 11 -> new ItemStack(Blocks.CRAFTING_TABLE);
-            case 12 -> new ItemStack(Blocks.PUMPKIN);
-            case 13 -> new ItemStack(Blocks.JACK_O_LANTERN);
-            case 14 -> new ItemStack(Blocks.LANTERN);
-            case 15 -> new ItemStack(Blocks.FLOWER_POT);
-            case 16 -> new ItemStack(Blocks.POPPY);
-            case 17 -> new ItemStack(Blocks.DANDELION);
-            case 18 -> new ItemStack(Blocks.OAK_SAPLING);
-            case 19 -> new ItemStack(Blocks.AZALEA);
-            case 20 -> new ItemStack(Blocks.CACTUS);
-            default -> new ItemStack(Blocks.DEAD_BUSH);
-        };
-    }
-
-    private static ItemStack randomFood(Random random) {
-        return switch (random.nextInt(5)) {
-            case 0 -> new ItemStack(Items.BREAD);
-            case 1 -> new ItemStack(Items.POTATO);
-            case 2 -> new ItemStack(Items.COOKED_BEEF);
-            case 3 -> new ItemStack(Items.COOKED_CHICKEN);
-            default -> new ItemStack(Items.CARROT);
-        };
-    }
-
-    private static ItemStack randomPositivePotion(Random random) {
-        return switch (random.nextInt(7)) {
-            case 0 -> createStrongHealingPotion();
-            case 1 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_STRENGTH);
-            case 2 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SWIFTNESS);
-            case 3 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_LEAPING);
-            case 4 -> createHastePotion();
-            case 5 -> createGoodBuffPotion();
-            default -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION);
-        };
-    }
-
-    private static ItemStack randomEnemyHarassItem(Random random) {
-        return switch (random.nextInt(11)) {
-            case 0 -> createPoisonPotion();
-            case 1 -> createWeaknessPotion();
-            case 2 -> createSlownessPotion();
-            case 3 -> createNauseaPotion();
-            case 4 -> createBlindnessPotion();
-            case 5 -> createWitherPotion();
-            case 6 -> createStrongHarmingPotion();
-            case 7 -> new ItemStack(Items.POISONOUS_POTATO);
-            case 8 -> new ItemStack(Items.PUFFERFISH);
-            case 9 -> new ItemStack(Items.FLINT_AND_STEEL);
-            default -> new ItemStack(Items.FIRE_CHARGE);
-        };
-    }
-
-    private static ItemStack createStrongHealingPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_HEALING);
-    }
-
-    private static ItemStack createPoisonPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_POISON);
-    }
-
-    private static ItemStack createGoodBuffPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION);
-    }
-
-    private static ItemStack createWeaknessPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.WEAKNESS);
-    }
-
-    private static ItemStack createSlownessPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SLOWNESS);
-    }
-
-    private static ItemStack createStrongHarmingPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_HARMING);
-    }
-
-    private static ItemStack createNauseaPotion() {
-        return customSplashPotion(new MobEffectInstance(MobEffects.CONFUSION, 220, 0));
-    }
-
-    private static ItemStack createBlindnessPotion() {
-        return customSplashPotion(new MobEffectInstance(MobEffects.BLINDNESS, 180, 0));
-    }
-
-    private static ItemStack createWitherPotion() {
-        return customSplashPotion(new MobEffectInstance(MobEffects.WITHER, 160, 0));
-    }
-
-    private static ItemStack createHastePotion() {
-        return customSplashPotion(new MobEffectInstance(MobEffects.DIG_SPEED, 360, 1));
-    }
-
-    private static ItemStack customSplashPotion(MobEffectInstance effect) {
-        ItemStack potion = PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.WATER);
-        PotionUtils.setCustomEffects(potion, List.of(effect));
-        return potion;
-    }
 }

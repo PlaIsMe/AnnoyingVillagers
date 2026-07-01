@@ -1,14 +1,10 @@
 package com.pla.annoyingvillagers.clazz;
 
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
-import com.pla.annoyingvillagers.entity.AngrySteveEntity;
-import com.pla.annoyingvillagers.entity.BlueVillagerKnightEntity;
-import com.pla.annoyingvillagers.entity.GreenVillagerKnightEntity;
-import com.pla.annoyingvillagers.entity.PurpleVillagerKnightEntity;
-import com.pla.annoyingvillagers.entity.RedVillagerKnightEntity;
-import com.pla.annoyingvillagers.entity.VillagerScoutCaptainEntity;
+import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.BowLineOfSightGoal;
 import com.pla.annoyingvillagers.entity.goal.BurnNearbyItemGoal;
+import com.pla.annoyingvillagers.entity.goal.FillWaterBucketGoal;
 import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
 import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
 import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
@@ -21,6 +17,7 @@ import com.pla.annoyingvillagers.util.BowFunction;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.EquipmentDataLoader;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
+import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
@@ -37,6 +34,7 @@ import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
@@ -52,21 +50,45 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
+import java.util.function.Predicate;
 
 public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoiceLineEntity {
     private static final int PLACE_BLOCK_PARRY_COOLDOWN_TICKS = 60;
-    private static final float VILLAGER_ARMOR_DROP_CHANCE = 0.18F;
-    private static final float VILLAGER_WEAPON_DROP_CHANCE = 0.22F;
-    private static final float VILLAGER_OFFHAND_EQUIPMENT_DROP_CHANCE = 0.14F;
-    private static final float VILLAGER_EQUIPMENT_LOOTING_BONUS = 0.025F;
-    private static final float AVNPC_WATER_BUCKET_DROP_CHANCE = 0.20F;
-    private static final float VILLAGER_KNIGHT_LAVA_BUCKET_DROP_CHANCE = 0.24F;
-    private static final float UTILITY_BUCKET_LOOTING_BONUS = 0.04F;
+    private static final float VILLAGER_ARMOR_DROP_CHANCE = 0.12F;
+    private static final float VILLAGER_WEAPON_DROP_CHANCE = 0.16F;
+    private static final float VILLAGER_OFFHAND_EQUIPMENT_DROP_CHANCE = 0.10F;
+    private static final float VILLAGER_EQUIPMENT_LOOTING_BONUS = 0.015F;
+    protected static final List<ItemLike> REGULAR_FOODS = List.of(
+            Items.COOKED_BEEF,
+            Items.BREAD,
+            Items.COOKED_PORKCHOP,
+            Items.COOKED_CHICKEN,
+            Items.COOKED_MUTTON,
+            Items.COOKED_COD,
+            Items.COOKED_SALMON,
+            Items.BAKED_POTATO,
+            Items.CARROT,
+            Items.APPLE
+    );
+    protected static final List<ItemLike> PLACEABLE_BLOCKS = List.of(
+            Items.COBBLESTONE,
+            Items.MOSSY_COBBLESTONE,
+            Items.DIRT,
+            Items.OAK_PLANKS,
+            Items.DARK_OAK_PLANKS,
+            Items.STONE,
+            Items.COBBLED_DEEPSLATE,
+            Items.DEEPSLATE,
+            Items.GRAVEL,
+            Items.SAND
+    );
 
-    private final SimpleContainer inventory = new SimpleContainer(27);
+    protected final SimpleContainer inventory = new SimpleContainer(27);
     private int gapCooldown;
     private int enderPearlCooldown;
     private int swapToBowCooldown = 0;
@@ -293,6 +315,22 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         return inventory;
     }
 
+    public boolean hasInventoryItem(Predicate<ItemStack> matcher) {
+        return InventoryUtils.hasItem(this.inventory, matcher);
+    }
+
+    public boolean hasInventoryItem(ItemLike itemLike) {
+        return InventoryUtils.hasItem(this.inventory, itemLike);
+    }
+
+    public Optional<ItemStack> consumeInventoryItem(Predicate<ItemStack> matcher, int count) {
+        return InventoryUtils.consumeItem(this.inventory, matcher, count);
+    }
+
+    public Optional<ItemStack> consumeInventoryItem(ItemLike itemLike, int count) {
+        return InventoryUtils.consumeItem(this.inventory, itemLike, count);
+    }
+
     public void setUseBow(boolean useBow) {
         this.useBow = useBow;
     }
@@ -362,7 +400,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.contains("Inventory", Tag.TAG_COMPOUND)) {
+        if (tag.contains("Inventory", Tag.TAG_LIST)) {
             this.inventory.fromTag(tag.getList("Inventory", Tag.TAG_COMPOUND));
         }
         this.gapCooldown = tag.getInt("GapCooldown");
@@ -398,22 +436,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
 
         this.dropVillagerCombatEquipment(looting);
-        this.dropUtilityBucketLoot(looting);
-    }
-
-    private void dropUtilityBucketLoot(int looting) {
-        if (this.rollUtilityBucketDrop(AVNPC_WATER_BUCKET_DROP_CHANCE, looting)) {
-            this.spawnAtLocation(new ItemStack(Items.WATER_BUCKET));
-        }
-
-        if (this.isVillagerKnight() && this.rollUtilityBucketDrop(VILLAGER_KNIGHT_LAVA_BUCKET_DROP_CHANCE, looting)) {
-            this.spawnAtLocation(new ItemStack(Items.LAVA_BUCKET));
-        }
-    }
-
-    private boolean rollUtilityBucketDrop(float baseChance, int looting) {
-        float chance = Math.min(0.75F, baseChance + looting * UTILITY_BUCKET_LOOTING_BONUS);
-        return this.random.nextFloat() <= chance;
     }
 
     private void dropVillagerCombatEquipment(int looting) {
@@ -435,7 +457,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
                 || this instanceof VillagerScoutCaptainEntity;
     }
 
-    private boolean isVillagerKnight() {
+    protected boolean isVillagerKnight() {
         return this instanceof BlueVillagerKnightEntity
                 || this instanceof GreenVillagerKnightEntity
                 || this instanceof RedVillagerKnightEntity
@@ -551,6 +573,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.goalSelector.addGoal(5, new BurnNearbyItemGoal(this, 1.0D, 10.0D));
         this.goalSelector.addGoal(6, new PlayIdleAnimationGoal(this, new Random().nextInt(3000, 6000)));
         this.goalSelector.addGoal(7, new LockedRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(8, new FillWaterBucketGoal(this, 1.0D));
     }
 
     @Override
@@ -572,7 +595,11 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
 
         ItemStack weaponStack = this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, this::canFireProjectileWeapon));
-        ItemStack itemstack = this.getProjectile(weaponStack);
+        ItemStack itemstack = InventoryUtils.consumeArrowAmmo(this).orElse(ItemStack.EMPTY);
+        if (itemstack.isEmpty()) {
+            return;
+        }
+
         AbstractArrow mobArrow = ProjectileUtil.getMobArrow(this, itemstack, pVelocity);
         if (this.getMainHandItem().getItem() instanceof BowItem) {
             mobArrow = ((BowItem)this.getMainHandItem().getItem()).customArrow(mobArrow);
@@ -649,7 +676,16 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
     }
 
-    protected void implementFirstTick(ServerLevel serverLevel) {}
+    protected void implementFirstTick(ServerLevel serverLevel) {
+        this.seedInventory();
+    }
+
+    protected boolean seedInventory() {
+        if (!InventoryUtils.isEmpty(this.inventory)) {
+            return false;
+        }
+        return true;
+    }
 
     public void jump() {
         this.jumpFromGround();
@@ -713,8 +749,8 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
     }
 
-    protected void throwEnderPearlNow(float angle) {
-        CombatBehaviour.throwEnderPearl(this, angle);
+    protected boolean throwEnderPearlNow(float angle) {
+        return CombatBehaviour.throwEnderPearl(this, angle);
     }
 
     protected void throwEnderPearlLater(int delayTicks, float angle) {
@@ -792,6 +828,10 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
 
         if (!CombatCommon.canPerformNormalAttackLogic(mobPatch)) {
+            return;
+        }
+
+        if (!InventoryUtils.hasItem(this, Items.ENDER_PEARL)) {
             return;
         }
 

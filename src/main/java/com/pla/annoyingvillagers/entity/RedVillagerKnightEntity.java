@@ -114,88 +114,16 @@ public class RedVillagerKnightEntity extends VillagerArmyEntity {
             final double z = this.getZ();
 
             Consumer<ItemStack> dropStack = (stack) -> {
+                if (InventoryUtils.isInventoryBackedSupplyDrop(stack)) {
+                    return;
+                }
                 ItemEntity drop = new ItemEntity(serverLevel, x, y, z, stack);
                 drop.setPickUpDelay(10);
                 serverLevel.addFreshEntity(drop);
             };
 
-            ItemStack[] drops = new ItemStack[] {
-                    new ItemStack(AnnoyingVillagersModItems.HOOKED_DIAMOND_SWORD.get()),
-
-                    new ItemStack(Items.DIAMOND),
-                    new ItemStack(Items.DIAMOND),
-                    new ItemStack(Items.DIAMOND),
-                    new ItemStack(Items.DIAMOND),
-
-                    new ItemStack(Items.BREAD),
-                    new ItemStack(Items.BREAD),
-
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-
-                    new ItemStack(Items.WHEAT),
-                    new ItemStack(Items.WHEAT),
-
-                    new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get()),
-
-                    new ItemStack(Blocks.OAK_PLANKS),
-                    new ItemStack(Blocks.OAK_PLANKS),
-
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-
-                    this.createDamagedDropStack(AnnoyingVillagersModItems.ADVANCED_FISHING_ROD.get()),
-
-                    new ItemStack(Items.IRON_PICKAXE),
-
-                    new ItemStack(Items.APPLE),
-                    new ItemStack(Items.APPLE),
-
-                    new ItemStack(Items.GOLD_INGOT),
-                    new ItemStack(Items.GOLD_INGOT),
-                    new ItemStack(Items.GOLD_INGOT),
-
-                    new ItemStack(Items.STICK),
-                    new ItemStack(Items.STICK),
-
-                    new ItemStack(Items.FIREWORK_ROCKET),
-                    new ItemStack(Items.FIREWORK_ROCKET),
-
-                    new ItemStack(Items.POISONOUS_POTATO),
-
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD)
-            };
-
-            for (ItemStack stack : drops) {
-                dropStack.accept(stack);
-            }
+            dropStack.accept(new ItemStack(AnnoyingVillagersModItems.HOOKED_DIAMOND_SWORD.get()));
+            dropStack.accept(this.createDamagedDropStack(AnnoyingVillagersModItems.ADVANCED_FISHING_ROD.get()));
         }
     }
 

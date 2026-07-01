@@ -1,9 +1,11 @@
 {
   "MAINHAND": [
-    { "id": "golden_axe", "min_difficulty": "EASY" },
-    { "id": "golden_sword", "min_difficulty": "EASY" },
+    { "id": "wooden_axe", "min_difficulty": "EASY" },
+    { "id": "wooden_sword", "min_difficulty": "EASY" },
     { "id": "stone_axe", "min_difficulty": "EASY" },
     { "id": "stone_sword", "min_difficulty": "EASY" },
+    { "id": "golden_axe", "min_difficulty": "MEDIUM" },
+    { "id": "golden_sword", "min_difficulty": "MEDIUM" },
     { "id": "iron_axe", "min_difficulty": "MEDIUM" },
     { "id": "iron_sword", "min_difficulty": "MEDIUM" },
     { "id": "diamond_axe", "min_difficulty": "HARD" },
@@ -16,32 +18,32 @@
     { "id": "lantern", "min_difficulty": "EASY" }
   ],
   "FEET": [
-    { "id": "golden_boots", "min_difficulty": "EASY" },
     { "id": "leather_boots", "min_difficulty": "EASY" },
+    { "id": "golden_boots", "min_difficulty": "MEDIUM" },
     { "id": "chainmail_boots", "min_difficulty": "MEDIUM" },
     { "id": "iron_boots", "min_difficulty": "MEDIUM" },
     { "id": "diamond_boots", "min_difficulty": "HARD" },
     { "id": "netherite_boots", "min_difficulty": "HARD" }
   ],
   "LEGS": [
-    { "id": "golden_leggings", "min_difficulty": "EASY" },
     { "id": "leather_leggings", "min_difficulty": "EASY" },
+    { "id": "golden_leggings", "min_difficulty": "MEDIUM" },
     { "id": "chainmail_leggings", "min_difficulty": "MEDIUM" },
     { "id": "iron_leggings", "min_difficulty": "MEDIUM" },
     { "id": "diamond_leggings", "min_difficulty": "HARD" },
     { "id": "netherite_leggings", "min_difficulty": "HARD" }
   ],
   "CHEST": [
-    { "id": "golden_chestplate", "min_difficulty": "EASY" },
     { "id": "leather_chestplate", "min_difficulty": "EASY" },
+    { "id": "golden_chestplate", "min_difficulty": "MEDIUM" },
     { "id": "chainmail_chestplate", "min_difficulty": "MEDIUM" },
     { "id": "iron_chestplate", "min_difficulty": "MEDIUM" },
     { "id": "diamond_chestplate", "min_difficulty": "HARD" },
     { "id": "netherite_chestplate", "min_difficulty": "HARD" }
   ],
   "HEAD": [
-    { "id": "golden_helmet", "min_difficulty": "EASY" },
     { "id": "leather_helmet", "min_difficulty": "EASY" },
+    { "id": "golden_helmet", "min_difficulty": "MEDIUM" },
     { "id": "chainmail_helmet", "min_difficulty": "MEDIUM" },
     { "id": "iron_helmet", "min_difficulty": "MEDIUM" },
     { "id": "turtle_helmet", "min_difficulty": "MEDIUM" },

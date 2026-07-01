@@ -16,6 +16,8 @@ Session facts in this file come from the current workspace code and the edits di
 - `src/main/java/com/pla/annoyingvillagers/combatbehaviour/AvNpcCombatBehaviorBuilder.java`
 - `src/main/java/com/pla/annoyingvillagers/combatbehaviour/CombatBehaviourTemplates.java`
 - `src/main/java/com/pla/annoyingvillagers/combatbehaviour/CombatCommon.java`
+- `src/main/java/com/pla/annoyingvillagers/util/InventoryUtils.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/FillWaterBucketGoal.java`
 - `src/main/java/com/pla/annoyingvillagers/item/AdvancedFishingRod.java`
 - `src/main/java/com/pla/annoyingvillagers/item/FishingRodGrappleUtil.java`
 
@@ -71,7 +73,7 @@ Blue Villager General:
 - `xpReward = 10`
 - mob type is undead
 - offhand is Ender Pearl
-- drops vanilla fishing rod and Advanced Fishing Rod as damaged combat drops
+- drops Advanced Fishing Rod as damaged combat drop
 
 Green Villager General:
 
@@ -103,14 +105,28 @@ Red overrides the restore offhand stack to Ender Pearl. Other generals use the i
 
 ## Death Loot And Utility Drops
 
-All Villager Generals use custom death loot with supplies and combat gear.
+All Villager Generals inherit the `AVNpc` 27 slot `SimpleContainer` inventory.
+
+`AVNpc.implementFirstTick` calls the overridable `seedInventory()` method.
+
+`VillagerArmyEntity` overrides `seedInventory()` and owns the spawn inventory seed directly. It first checks that the 27 slot container is empty, then rolls the hardcoded food, arrows, pearls, water bucket, empty bucket chance, possible lava bucket for villager knight-style mobs, block stacks, and villager army material loot inside `VillagerArmyEntity` itself. `InventoryUtils` is only used for low-level inventory operations such as adding, checking, consuming, and dropping items.
+
+The seeded utility inventory includes golden apples, two regular food stacks, arrows, ender pearls, water bucket, possible empty bucket, random placeable blocks, and possible lava bucket for villager knight-style AVNpc entities.
+
+For `VillagerArmyEntity` mobs, the class-owned `seedInventory()` path adds random carried material loot: iron ingots, possible gold ingots, and possible emeralds. These are inventory contents, so combat can consume applicable supplies and death only drops what remains.
+
+AVNpc exposes inventory APIs:
+
+- `hasInventoryItem(...)`
+- `consumeInventoryItem(...)`
+
+Both have predicate and exact-item overloads and delegate to `InventoryUtils`.
+
+Death loot drops remaining inventory contents for combat supplies and carried materials. Generated food, arrows, ender pearls, buckets, block items, and material arrays were removed from the villager scout/knight subclass death-loot methods.
+
+Villager combat equipment and non-supply special drops can still drop through their existing reduced or subclass-specific paths.
 
 Advanced Fishing Rod is included as a damaged drop for all four generals.
-
-`AVNpc.dropUtilityBucketLoot` also applies:
-
-- all AVNpc have a water bucket drop chance,
-- Villager Generals have an additional lava bucket drop chance.
 
 ## Combat Behavior Builder
 
@@ -224,21 +240,35 @@ The lava bucket behavior requires:
 - no active fishing rod session,
 - target within 12 blocks squared check range,
 - lava bucket cooldown expired,
+- one lava bucket in inventory,
 - a valid lava placement position near the target.
 
 When executed:
 
-1. Save original offhand.
-2. Equip lava bucket in off hand.
-3. Set cooldown to `160 + random(0..140)` ticks.
-4. Swing offhand and look at target.
-5. After 6 ticks, place lava at the target foot/above/side if the target position is replaceable.
-6. Set offhand to bucket.
-7. After 40 ticks, swing and pick the lava back up if it is still there.
-8. Set offhand to lava bucket.
-9. After 4 more ticks, restore original offhand.
+1. Consume one lava bucket from inventory.
+2. Save original offhand.
+3. Equip lava bucket in off hand.
+4. Set cooldown to `160 + random(0..140)` ticks.
+5. Swing offhand and look at target.
+6. After 6 ticks, place lava at the target foot/above/side if the target position is replaceable.
+7. Set offhand to bucket.
+8. After 40 ticks, swing and pick the lava back up if it is still there.
+9. Return a lava bucket to inventory if the source is recovered, otherwise return an empty bucket.
+10. After 4 more ticks, restore original offhand.
 
 The 40 tick delay is 2 seconds.
+
+## Inventory Backed Combat Supplies
+
+AVNpc bow use requires arrows in inventory. Each bow shot consumes one arrow-like item.
+
+Ender pearl actions require and consume ender pearls. This includes combat-template pearl movement, water escape pearls, and AVNpc ender pearl counters.
+
+Eating requires inventory food. Regular food heals and gives short regeneration without absorption. Golden apples retain their special effects.
+
+Water bucket self-extinguish consumes one water bucket. If the placed water source is recovered, a water bucket is returned to inventory; otherwise an empty bucket is returned. `FillWaterBucketGoal` can refill empty buckets from nearby source water when the mob has no active target.
+
+Block placement requires placeable block items in inventory. `MobPlaceBlockEvent` parries and `CombatCommon.placeRandomFrontWall` consume one block item per successfully placed block and use that consumed block's default state.
 
 ## Bow And Weapon Patch Notes
 
@@ -252,4 +282,3 @@ Villager General bow swaps can add color-specific enchantments:
 - Purple: Punch 2.
 
 Green has an EFN special guard hit handling path.
-

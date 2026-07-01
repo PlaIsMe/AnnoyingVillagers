@@ -108,66 +108,15 @@ public class GreenVillagerKnightEntity extends VillagerArmyEntity {
             final double z = this.getZ();
 
             Consumer<ItemStack> dropStack = (stack) -> {
+                if (InventoryUtils.isInventoryBackedSupplyDrop(stack)) {
+                    return;
+                }
                 ItemEntity drop = new ItemEntity(serverLevel, x, y, z, stack);
                 drop.setPickUpDelay(10);
                 serverLevel.addFreshEntity(drop);
             };
 
-            ItemStack[] drops = new ItemStack[] {
-                    new ItemStack(Items.APPLE),
-                    new ItemStack(Items.APPLE),
-
-                    new ItemStack(Items.BREAD),
-
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD),
-
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-
-                    new ItemStack(Items.DIAMOND_SWORD),
-
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-
-                    this.createDamagedDropStack(AnnoyingVillagersModItems.ADVANCED_FISHING_ROD.get()),
-
-                    new ItemStack(Items.GOLD_INGOT),
-                    new ItemStack(Items.GOLD_INGOT),
-                    new ItemStack(Items.GOLD_INGOT),
-
-                    new ItemStack(Blocks.OAK_PLANKS),
-
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD)
-            };
-
-            for (ItemStack stack : drops) {
-                dropStack.accept(stack);
-            }
+            dropStack.accept(this.createDamagedDropStack(AnnoyingVillagersModItems.ADVANCED_FISHING_ROD.get()));
         }
     }
 

@@ -12,6 +12,8 @@ Session facts in this file come from the current workspace code and the edits di
 - `src/main/java/com/pla/annoyingvillagers/item/HookGunItem.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/HookGunHookEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/util/HookUtil.java`
+- `src/main/java/com/pla/annoyingvillagers/util/InventoryUtils.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/FillWaterBucketGoal.java`
 
 ## Identity And Relationship To Alex
 
@@ -35,6 +37,16 @@ Jev starts with:
 Jev stores pencil and book as his main and off weapon items on spawn.
 
 Jev has zero attack damage by attribute and is intended as a support NPC rather than a melee fighter.
+
+Because Jev extends `AVNpc`, he also has the shared 27 slot utility inventory. Jev overrides the shared seed and owns his own 27-slot starting inventory layout.
+
+Shared AVNpc combat supplies are inventory-backed: bow shots consume arrows, ender pearl counters consume pearls, eating consumes food after completion, water bucket use returns full or empty bucket based on source recovery, and block placement consumes one block per placed block.
+
+Jev overrides `seedInventory()` and does not call `super.seedInventory()`. It seeds only if Jev's inventory is empty, then directly fills Jev-specific hook supplies inside `JevEntity.seedInventory()`.
+
+The Jev-specific seed adds golden apples, enchanted golden apples, two regular food stacks, poisonous potatoes, pufferfish, 2-4 stacks from `JEV_HOOKABLE_BLOCKS`, one water bucket, one flint and steel, bone meal, and eight full splash potion stacks. The potion seed always gives four good potion types and four bad potion types, each with count 16.
+
+The item factory methods for Jev random blocks, food, and potions now live in `JevEntity`; `AlexJevHookCombat` consumes whatever remains in Jev's inventory instead of generating those items during combat.
 
 Jev goals include:
 
@@ -105,7 +117,7 @@ It returns unless:
 Decision order:
 
 1. If Alex is burning, shoot snowball into Alex.
-2. If Alex health is at or below 55 percent, shoot strong healing potion into Alex.
+2. If Alex health is at or below 55 percent, shoot an available positive potion from Jev's inventory into Alex.
 3. If Alex's enemy is bow-like, shoot a cover block near Alex.
 4. If enemy is within 8 blocks of Jev, hook away with pickaxe.
 5. Pull Alex to Jev if Jev is safe and Alex is far enough.
@@ -115,18 +127,22 @@ Decision order:
 9. Shoot bone meal at a visible sapling only.
 10. If Alex is missing health, shoot food into Alex.
 11. If Alex is missing health, shoot positive potion into Alex.
-12. If Alex is missing health, possibly shoot golden apple into Alex.
+12. If Alex is missing health, possibly shoot another available support food into Alex.
 13. In Alex state 1, if Alex has no helmet, possibly shoot enchanted diamond helmet into Alex.
 14. Randomly hook away with pickaxe.
 15. In Alex state 1 and if Alex is missing health, possibly shoot regeneration buff potion into Alex.
 16. Shoot support block around Alex.
 17. If Alex is missing health, fallback chance to shoot support food.
 
-Food, support potions, golden apples, and regeneration buff potion are health gated and stop when Alex is full or nearly full health. The helper treats Alex as missing health only when `health < maxHealth - 0.5`.
+Snowballs, food, support potions, harassment items, bone meal, and hook-shot blocks are selected from Jev's inventory. A stack is consumed only after the hook action successfully starts. Pickaxe hooks and Alex's emergency helmet are still created as special support tools.
+
+Food and support potions are health gated and stop when Alex is full or nearly full health. The helper treats Alex as missing health only when `health < maxHealth - 0.5`.
 
 ## Jev Burning Support
 
 When Alex is on fire, Jev shoots a hook gun bound with `SNOWBALL` at Alex.
+
+This requires a snowball in Jev's inventory and consumes one snowball when the hook action starts.
 
 HookUtil snowball behavior:
 
@@ -139,9 +155,9 @@ This replaced earlier water bucket support to avoid flooding the arena.
 
 ## Jev Healing And Buff Support
 
-Strong healing potion uses `Potions.STRONG_HEALING`.
+One possible positive potion is strong healing, which uses `Potions.STRONG_HEALING`.
 
-Support food pool:
+Jev's support food inventory seed can include:
 
 - bread
 - potato
@@ -149,7 +165,7 @@ Support food pool:
 - cooked chicken
 - carrot
 
-Positive potion pool:
+Jev's positive potion inventory seed randomly picks four full 16-count stacks from:
 
 - strong healing
 - strong strength
@@ -182,20 +198,9 @@ The hook gun item behavior is supplied by `HookUtil`: weapons deal item damage, 
 
 When Alex's enemy holds a bow or crossbow, Jev tries to shoot a cover block near Alex, two blocks toward the enemy.
 
-Cover block pool:
+Jev block hooks scan his inventory for any block item that can be placed on a valid support near the target area. This means picked-up blocks can be used too. Jev's starting block inventory comes from `JEV_HOOKABLE_BLOCKS` in `JevEntity`, not from `AlexJevHookCombat`.
 
-- oak door
-- oak trapdoor
-- oak fence
-- oak fence gate
-- glass
-- glass pane
-- oak leaves
-- hay block
-- spruce planks
-- oak planks
-
-Distraction block pool:
+`JEV_HOOKABLE_BLOCKS`:
 
 - oak planks
 - spruce planks
@@ -259,44 +264,21 @@ Jev always drops:
 - `JEV_GLASSES`
 - `JEV_PENCIL`
 - `JEV_BOOK`
-- a hook gun bound with Jev's non-enchanted iron pickaxe, unless Alex exists and cannot store it
+- a hook gun bound with Jev's non-enchanted iron pickaxe
 
-If Alex exists and cannot store Jev's hook gun, the drop is skipped and Alex's `canDualHookInSecondPhase` is forced true.
+Alex must pick up Jev's dropped hook gun into her custom inventory to unlock her second-phase dual hook behavior. Jev no longer force-unlocks Alex if her inventory is full.
 
-Jev also drops random combat supplies.
+Jev no longer generates random combat supply drops in `dropCustomDeathLoot`.
 
-Block drops:
-
-- 3 to 7 rolls
-- 82 percent chance per roll
-- each stack count 2 to 13
-- selected from cover or distraction block pools
-
-Plant drops:
-
-- 3 to 7 rolls
-- 86 percent chance per roll
-- each stack count 1 to 8
-- selected from bone meal, poppy, dandelion, blue orchid, allium, oak sapling, spruce sapling, birch sapling, jungle sapling, acacia sapling, dark oak sapling, or cherry sapling
-
-Food drops:
-
-- 2 to 6 rolls
-- 84 percent chance per roll
-- each stack count 1 to 6
-- selected from bread, potato, cooked beef, cooked chicken, carrot, golden apple, enchanted golden apple, poisonous potato, or pufferfish
-
-Potion drops:
-
-- 2 to 5 rolls
-- 78 percent chance per roll
-- selected from healing, buff, or debuff potion pools
+Blocks, plants, food, potions, snowballs, fire charges, flint and steel, arrows, pearls, buckets, and materials drop only if they remain in Jev's AVNpc inventory at death.
 
 ## Jev Self Healing
 
 Jev overrides `hurt`. If his golden apple cooldown is 0, he is not already healing, and incoming damage would put him at or below two thirds of max health, he puts a golden apple or enchanted golden apple in the main hand and calls `CombatBehaviour.eatingGoldenApple`.
 
 The enchanted golden apple chance is `random <= max(0.25, placeBlockToParryChance)`. Jev's place block to parry chance is set to 0, so his minimum enchanted chance is 25 percent.
+
+The shared eating behavior consumes the apple from AVNpc inventory only after the eating animation completes. If the required apple is no longer available, the heal is canceled and Jev restores his weapon.
 
 ## Burst Protection
 
@@ -320,4 +302,3 @@ The flow:
 - restore the saved hand item
 
 Jev only plays hook gun animation when the bound item differs from the last remembered hook item for that hand, or when the item is food or potion-like.
-

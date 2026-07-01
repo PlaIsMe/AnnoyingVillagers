@@ -182,75 +182,13 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
             final double z = this.getZ();
 
             Consumer<ItemStack> dropStack = (stack) -> {
+                if (InventoryUtils.isInventoryBackedSupplyDrop(stack)) {
+                    return;
+                }
                 ItemEntity drop = new ItemEntity(serverLevel, x, y, z, stack);
                 drop.setPickUpDelay(10);
                 serverLevel.addFreshEntity(drop);
             };
-
-            ItemStack[] drops = new ItemStack[] {
-                    new ItemStack(Blocks.OAK_PLANKS),
-
-                    new ItemStack(Blocks.DIRT),
-                    new ItemStack(Blocks.DIRT),
-
-                    new ItemStack(Items.BREAD),
-                    new ItemStack(Items.BREAD),
-                    new ItemStack(Items.BREAD),
-
-                    new ItemStack(Items.GOLD_INGOT),
-                    new ItemStack(Items.GOLD_INGOT),
-                    new ItemStack(Items.GOLD_INGOT),
-
-                    new ItemStack(Items.IRON_INGOT),
-
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD),
-                    new ItemStack(Items.EMERALD),
-
-                    new ItemStack(Blocks.WHEAT),
-                    new ItemStack(Blocks.WHEAT),
-
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-                    new ItemStack(Items.ENDER_PEARL),
-
-                    new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-
-                    new ItemStack(Items.ENDER_PEARL),
-
-                    new ItemStack(Items.GOLDEN_APPLE),
-                    new ItemStack(Items.GOLDEN_APPLE),
-
-                    new ItemStack(Items.IRON_PICKAXE),
-                    new ItemStack(Items.IRON_INGOT),
-
-                    new ItemStack(Items.ARROW),
-
-                    new ItemStack(Items.APPLE),
-                    new ItemStack(Items.APPLE),
-
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-                    new ItemStack(Items.ARROW),
-
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-                    new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get()),
-
-                    new ItemStack(Items.APPLE),
-                    new ItemStack(Items.APPLE)
-            };
-
-            for (ItemStack stack : drops) {
-                dropStack.accept(stack);
-            }
 
             dropStack.accept(VillagerUtil.createBlackCreeperSignalFirework());
         }

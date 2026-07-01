@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.combatbehaviour.AlexJevHookCombat;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.util.InventoryUtils;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -14,11 +15,13 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.RandomSource;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -27,8 +30,13 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ThrowablePotionItem;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.network.NetworkHooks;
@@ -37,9 +45,39 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class JevEntity extends AVNpc implements BurstProtectEntity {
+    private static final int JEV_POTION_STACK_SIZE = 16;
+    private static final List<ItemLike> JEV_HOOKABLE_BLOCKS = List.of(
+            Blocks.OAK_PLANKS,
+            Blocks.SPRUCE_PLANKS,
+            Blocks.GLASS,
+            Blocks.GLASS_PANE,
+            Blocks.OAK_FENCE,
+            Blocks.OAK_FENCE_GATE,
+            Blocks.OAK_DOOR,
+            Blocks.OAK_TRAPDOOR,
+            Blocks.OAK_LEAVES,
+            Blocks.HAY_BLOCK,
+            Blocks.BARREL,
+            Blocks.CRAFTING_TABLE,
+            Blocks.PUMPKIN,
+            Blocks.JACK_O_LANTERN,
+            Blocks.LANTERN,
+            Blocks.FLOWER_POT,
+            Blocks.POPPY,
+            Blocks.DANDELION,
+            Blocks.OAK_SAPLING,
+            Blocks.AZALEA,
+            Blocks.CACTUS,
+            Blocks.DEAD_BUSH
+    );
+
     private UUID followTargetUUID;
     private AlexEntity followTarget;
     protected float recentDamageTaken = 0.0F;
@@ -208,7 +246,209 @@ public class JevEntity extends AVNpc implements BurstProtectEntity {
         this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_PENCIL.get()));
         this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_BOOK.get()));
         this.dropHookGunForAlex();
-        this.dropRandomCombatSupplies();
+    }
+
+    @Override
+    protected boolean seedInventory() {
+        if (!InventoryUtils.isEmpty(this.getInventory())) {
+            return false;
+        }
+
+        Random random = new Random();
+        addJevSeedItem(new ItemStack(Items.GOLDEN_APPLE, random.nextInt(16, 32)));
+        addJevSeedItem(new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, random.nextInt(16, 32)));
+
+        List<ItemLike> foods = new ArrayList<>(REGULAR_FOODS);
+        for (int i = 0; i < 2 && !foods.isEmpty(); i++) {
+            ItemLike food = foods.remove(random.nextInt(foods.size()));
+            addJevSeedItem(new ItemStack(food, random.nextInt(16, 32)));
+        }
+
+        addJevSeedItem(withRandomCount(new ItemStack(Items.POISONOUS_POTATO), 16, 32, random));
+        addJevSeedItem(withRandomCount(new ItemStack(Items.PUFFERFISH), 16, 32, random));
+
+        List<ItemLike> blocks = new ArrayList<>(JEV_HOOKABLE_BLOCKS);
+        int blockStacks = random.nextInt(5, 8);
+        for (int i = 0; i < blockStacks && !blocks.isEmpty(); i++) {
+            ItemLike block = blocks.remove(random.nextInt(blocks.size()));
+            addJevSeedItem(new ItemStack(block, random.nextInt(12, 24)));
+        }
+
+        addJevSeedPotionStacks(random);
+        addJevSeedItem(new ItemStack(Items.WATER_BUCKET));
+        addJevSeedItem(new ItemStack(Items.FLINT_AND_STEEL));
+        addJevSeedItem(new ItemStack(Items.BONE_MEAL, random.nextInt(16, 32)));
+
+        return true;
+    }
+
+    private static ItemStack withRandomCount(ItemStack stack, int minCount, int randomCount, Random random) {
+        if (stack.isEmpty()) {
+            return stack;
+        }
+
+        stack.setCount(random.nextInt(minCount, randomCount));
+        return stack;
+    }
+
+    private void addJevSeedPotionStacks(Random random) {
+        List<ItemStack> goodPotions = new ArrayList<>(List.of(
+                createStrongHealingPotion(),
+                PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_STRENGTH),
+                PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SWIFTNESS),
+                PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_LEAPING),
+                createHastePotion(),
+                createGoodBuffPotion(),
+                PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION)
+        ));
+        List<ItemStack> badPotions = new ArrayList<>(List.of(
+                createPoisonPotion(),
+                createWeaknessPotion(),
+                createSlownessPotion(),
+                createNauseaPotion(),
+                createBlindnessPotion(),
+                createStrongHarmingPotion(),
+                createWitherPotion()
+        ));
+
+        Collections.shuffle(goodPotions, random);
+        Collections.shuffle(badPotions, random);
+        for (int i = 0; i < 4; i++) {
+            addJevSeedItem(fullPotionStack(goodPotions.get(i)));
+            addJevSeedItem(fullPotionStack(badPotions.get(i)));
+        }
+    }
+
+    private boolean addJevSeedItem(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return true;
+        }
+
+        SimpleContainer inventory = this.getInventory();
+        ItemStack remaining = stack.copy();
+        for (int slot = 0; slot < inventory.getContainerSize() && !remaining.isEmpty(); slot++) {
+            ItemStack slotStack = inventory.getItem(slot);
+            if (slotStack.isEmpty() || !ItemStack.isSameItemSameTags(slotStack, remaining)) {
+                continue;
+            }
+
+            int stackLimit = getJevSeedStackLimit(slotStack);
+            int transferable = Math.min(remaining.getCount(), stackLimit - slotStack.getCount());
+            if (transferable <= 0) {
+                continue;
+            }
+
+            slotStack.grow(transferable);
+            remaining.shrink(transferable);
+        }
+
+        for (int slot = 0; slot < inventory.getContainerSize() && !remaining.isEmpty(); slot++) {
+            if (!inventory.getItem(slot).isEmpty()) {
+                continue;
+            }
+
+            ItemStack inserted = remaining.copy();
+            inserted.setCount(Math.min(remaining.getCount(), getJevSeedStackLimit(inserted)));
+            inventory.setItem(slot, inserted);
+            remaining.shrink(inserted.getCount());
+        }
+
+        return remaining.isEmpty();
+    }
+
+    private static int getJevSeedStackLimit(ItemStack stack) {
+        if (stack.getItem() instanceof ThrowablePotionItem) {
+            return JEV_POTION_STACK_SIZE;
+        }
+        return stack.getMaxStackSize();
+    }
+
+    private static ItemStack fullPotionStack(ItemStack stack) {
+        stack.setCount(JEV_POTION_STACK_SIZE);
+        return stack;
+    }
+
+    public static ItemStack createRandomJevLootBlock(Random random) {
+        ItemLike block = JEV_HOOKABLE_BLOCKS.get(random.nextInt(JEV_HOOKABLE_BLOCKS.size()));
+        return new ItemStack(block);
+    }
+
+    public static ItemStack createRandomJevLootFood(Random random) {
+        return switch (random.nextInt(9)) {
+            case 0 -> new ItemStack(Items.BREAD);
+            case 1 -> new ItemStack(Items.POTATO);
+            case 2 -> new ItemStack(Items.COOKED_BEEF);
+            case 3 -> new ItemStack(Items.COOKED_CHICKEN);
+            case 4 -> new ItemStack(Items.CARROT);
+            case 5 -> new ItemStack(Items.GOLDEN_APPLE);
+            case 6 -> new ItemStack(Items.ENCHANTED_GOLDEN_APPLE);
+            case 7 -> new ItemStack(Items.POISONOUS_POTATO);
+            default -> new ItemStack(Items.PUFFERFISH);
+        };
+    }
+
+    public static ItemStack createRandomJevLootPotion(Random random) {
+        return switch (random.nextInt(13)) {
+            case 0 -> createStrongHealingPotion();
+            case 1 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_STRENGTH);
+            case 2 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SWIFTNESS);
+            case 3 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_LEAPING);
+            case 4 -> createHastePotion();
+            case 5 -> createGoodBuffPotion();
+            case 6 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION);
+            case 7 -> createPoisonPotion();
+            case 8 -> createWeaknessPotion();
+            case 9 -> createSlownessPotion();
+            case 10 -> createNauseaPotion();
+            case 11 -> createBlindnessPotion();
+            default -> createStrongHarmingPotion();
+        };
+    }
+
+    private static ItemStack createStrongHealingPotion() {
+        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_HEALING);
+    }
+
+    private static ItemStack createPoisonPotion() {
+        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_POISON);
+    }
+
+    private static ItemStack createGoodBuffPotion() {
+        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION);
+    }
+
+    private static ItemStack createWeaknessPotion() {
+        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.WEAKNESS);
+    }
+
+    private static ItemStack createSlownessPotion() {
+        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SLOWNESS);
+    }
+
+    private static ItemStack createStrongHarmingPotion() {
+        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_HARMING);
+    }
+
+    private static ItemStack createNauseaPotion() {
+        return customSplashPotion(new MobEffectInstance(MobEffects.CONFUSION, 220, 0));
+    }
+
+    private static ItemStack createBlindnessPotion() {
+        return customSplashPotion(new MobEffectInstance(MobEffects.BLINDNESS, 180, 0));
+    }
+
+    private static ItemStack createWitherPotion() {
+        return customSplashPotion(new MobEffectInstance(MobEffects.WITHER, 160, 0));
+    }
+
+    private static ItemStack createHastePotion() {
+        return customSplashPotion(new MobEffectInstance(MobEffects.DIG_SPEED, 360, 1));
+    }
+
+    private static ItemStack customSplashPotion(MobEffectInstance effect) {
+        ItemStack potion = PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.WATER);
+        PotionUtils.setCustomEffects(potion, List.of(effect));
+        return potion;
     }
 
     @Override
@@ -272,55 +512,7 @@ public class JevEntity extends AVNpc implements BurstProtectEntity {
 
     private void dropHookGunForAlex() {
         ItemStack hookGun = AlexJevHookCombat.createBoundHookGun(AlexJevHookCombat.createJevPickaxe());
-        AlexEntity alex = this.followTarget != null && this.followTarget.isAlive() ? this.followTarget : null;
-        if (alex != null && !alex.canStoreInInventory(hookGun)) {
-            alex.setCanDualHookInSecondPhase(true);
-            return;
-        }
-
         this.spawnAtLocation(hookGun);
-    }
-
-    private void dropRandomCombatSupplies() {
-        RandomSource random = this.getRandom();
-
-        int blockRolls = 3 + random.nextInt(5);
-        for (int i = 0; i < blockRolls; i++) {
-            if (random.nextFloat() < 0.82F) {
-                this.spawnAtLocation(withRandomCount(AlexJevHookCombat.createRandomJevLootBlock(random), 2, 12, random));
-            }
-        }
-
-        int plantRolls = 3 + random.nextInt(5);
-        for (int i = 0; i < plantRolls; i++) {
-            if (random.nextFloat() < 0.86F) {
-                this.spawnAtLocation(withRandomCount(AlexJevHookCombat.createRandomJevPlantLoot(random), 1, 8, random));
-            }
-        }
-
-        int foodRolls = 2 + random.nextInt(5);
-        for (int i = 0; i < foodRolls; i++) {
-            if (random.nextFloat() < 0.84F) {
-                this.spawnAtLocation(withRandomCount(AlexJevHookCombat.createRandomJevLootFood(random), 1, 6, random));
-            }
-        }
-
-        int potionRolls = 2 + random.nextInt(4);
-        for (int i = 0; i < potionRolls; i++) {
-            if (random.nextFloat() < 0.78F) {
-                this.spawnAtLocation(AlexJevHookCombat.createRandomJevLootPotion(random));
-            }
-        }
-    }
-
-    private static ItemStack withRandomCount(ItemStack stack, int minCount, int randomCount, RandomSource random) {
-        if (stack.isEmpty()) {
-            return stack;
-        }
-
-        int count = minCount + random.nextInt(randomCount);
-        stack.setCount(Math.min(count, stack.getMaxStackSize()));
-        return stack;
     }
 
     public boolean removeWhenFarAway(double d0) {

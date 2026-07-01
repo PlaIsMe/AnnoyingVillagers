@@ -12,6 +12,8 @@ Session facts in this file come from the current workspace code and the edits di
 - `src/main/java/com/pla/annoyingvillagers/item/HookGunItem.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/HookGunHookEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/util/HookUtil.java`
+- `src/main/java/com/pla/annoyingvillagers/util/InventoryUtils.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/FillWaterBucketGoal.java`
 
 ## Identity And Relationship To Jev
 
@@ -22,7 +24,6 @@ Session facts in this file come from the current workspace code and the edits di
 - `spawnJev`
 - `state`
 - `currentBoundHook`
-- `canDualHookInSecondPhase`
 
 Alex and Jev are both added to team `"alex"` on spawn. Alex spawns Jev once in `tick()` when `spawnJev` is false. The spawned Jev receives Alex as `followTarget`, stores Alex's UUID, finalizes spawn, and is stored back into Alex as `jevToProtect`.
 
@@ -37,7 +38,11 @@ On spawn, Alex equips an enchanted `THUNDER_DIAMOND_BLADE` in the main hand:
 - Knockback 2
 - Unbreaking 5
 
-Alex starts with an `ENDER_PEARL` in the off hand, stores the sword as main weapon, stores the ender pearl as off weapon, sets `currentBoundHook` to the default enchanted iron pickaxe, and calls `ensureHookGunInventory()`.
+Alex starts with an `ENDER_PEARL` in the off hand, stores the sword as main weapon, stores the ender pearl as off weapon, and sets `currentBoundHook` to the default enchanted iron pickaxe. Alex does not seed or sync a hook gun into her inventory on spawn.
+
+Because Alex extends `AVNpc`, she also has the shared 27 slot utility inventory. Empty AVNpc inventories are seeded on first tick with golden apples, two regular food stacks, arrows, ender pearls, water bucket, possible empty bucket, random placeable blocks, and possible carried materials such as coal, iron, gold, redstone, lapis, emeralds, or diamonds.
+
+Shared AVNpc combat supplies are inventory-backed: bow shots consume arrows, ender pearl counters consume pearls, eating consumes food after completion, water bucket use returns full or empty bucket based on source recovery, and block placement consumes one block per placed block.
 
 Alex saves and loads:
 
@@ -45,7 +50,6 @@ Alex saves and loads:
 - `State`
 - `SpawnJev`
 - `CurrentBoundHook`
-- `CanDualHookInSecondPhase`
 
 If no `CurrentBoundHook` exists on load, it defaults to `AlexJevHookCombat.createAlexDefaultPickaxe()`.
 
@@ -53,13 +57,13 @@ If no `CurrentBoundHook` exists on load, it defaults to `AlexJevHookCombat.creat
 
 `getCurrentBoundHook()` returns a copy of `currentBoundHook`. If it is empty, it first initializes it to the default enchanted iron pickaxe.
 
-`setCurrentBoundHook(ItemStack)` stores one copy of the item and calls `syncHookGunInventory()`.
+`setCurrentBoundHook(ItemStack)` stores one copy of the item. It does not write to hook guns in Alex's inventory.
 
-`ensureHookGunInventory()` is server-only. It ensures `currentBoundHook` exists, syncs the first hook gun in Alex's inventory to that bound item, and if none exists, inserts a hook gun bound with `currentBoundHook`. It then calls `updateDualHookUnlockFromInventory()`.
+Alex no longer has `ensureHookGunInventory()`. Her inventory gets no hook gun from spawn logic or combat tick logic.
 
-`updateDualHookUnlockFromInventory()` sets `canDualHookInSecondPhase` true when Alex has at least two hook guns in her inventory. `canDualHookInSecondPhase()` returns true only when the flag is true and `state == 1`.
+`canDualHookInSecondPhase()` returns true only when Alex is in state 1 and has at least one actual hook gun item in her custom inventory.
 
-If Alex cannot store Jev's dropped hook gun, Jev's death drop logic forces Alex's `canDualHookInSecondPhase` true instead of dropping that hook gun.
+Jev's death drops the hook gun bound with Jev's pickaxe. Alex must pick up that hook gun into her inventory to unlock dual hook.
 
 ## Goals And Passive Behavior
 
@@ -99,11 +103,10 @@ Alex custom death loot includes:
 
 - damaged enchanted `THUNDER_DIAMOND_BLADE`
 - damaged bow with Punch 3, Power 3, Flame 2
-- bread, golden apple, wheat, poisonous potato, gold ingot
-- iron ingots, diamonds, enchanted golden apple, white bed, cake
 - hook gun bound with Alex's current bound hook
 - Alex's current bound hook item
-- random arrows from 10 to 19
+
+Food, block items, arrows, ender pearls, buckets, and carried materials drop only if they remain in Alex's AVNpc inventory.
 
 ## Shared Combat Constants
 
@@ -141,7 +144,7 @@ It returns unless:
 - `CombatCommon.canPerformNormalAttackLogic(mobPatch)` allows it
 - Alex's hook cooldown has expired
 
-Before combat decisions, Alex ensures hook gun inventory, syncs target with Jev, and cleans up stale hook sessions.
+Before combat decisions, Alex syncs target with Jev and cleans up stale hook sessions. Combat no longer creates or syncs a hook gun in Alex's inventory.
 
 Decision order:
 
@@ -255,4 +258,3 @@ The hook gun animation only plays when the bound item differs from the last reme
 `syncAlexAndJevTarget` makes Alex and Jev share targets. If Alex has an alive non-allied target and Jev has no alive target, Jev receives Alex's target. If Jev has an alive non-allied target and Alex has none, Alex receives Jev's target.
 
 For current Jev hook logic, Jev only starts hook support actions when Alex has an alive target. Outside Alex combat mode, Jev follows and moves around Alex instead of shooting hooks.
-

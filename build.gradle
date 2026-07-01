@@ -100,7 +100,6 @@ dependencies {
     implementation fg.deobf("curse.maven:epicfight-dancing-1521730:7967290")
 
     implementation fg.deobf("curse.maven:combat-evolution-x-more-execution-animations-1521545:8167727")
-    implementation fg.deobf("curse.maven:free-cam-557076:4643128")
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
 

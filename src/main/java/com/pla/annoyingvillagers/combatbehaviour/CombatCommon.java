@@ -19,6 +19,7 @@ import com.pla.annoyingvillagers.util.BowFunction;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.EscapeUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
+import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -309,6 +310,9 @@ public class CombatCommon {
     public static boolean hasClearBowShot(MobPatch<?> mobpatch) {
         Mob mob = mobpatch.getOriginal();
         LivingEntity target = mob.getTarget();
+        if ((mob instanceof PlayerNpcEntity || mob instanceof AVNpc) && !InventoryUtils.hasArrowAmmo(mob)) {
+            return false;
+        }
         return target != null && target.isAlive() && BowFunction.hasClearShot(mob, target);
     }
 
@@ -345,9 +349,11 @@ public class CombatCommon {
             if (entity instanceof HerobrineMob || entity instanceof BlueDemonEntity) {
                 return true;
             } else if (entity instanceof AVNpc avNpc
+                    && InventoryUtils.hasPlaceableBlock(avNpc)
                     && avNpc.rollsPlaceBlockToParryChance()) {
                 return true;
             } else return entity instanceof PlayerNpcEntity playerNpcEntity
+                    && InventoryUtils.hasPlaceableBlock(playerNpcEntity)
                     && new Random().nextDouble() <= playerNpcEntity.getPlaceBlockToParryChance();
         }
         return false;
@@ -379,13 +385,13 @@ public class CombatCommon {
             if (playerNpcEntity.getGapCooldown() > 0) {
                 return false;
             }
-            return !playerNpcEntity.isHealing();
+            return !playerNpcEntity.isHealing() && InventoryUtils.hasHealingFood(playerNpcEntity);
         }
         if (mobpatch.getOriginal() instanceof AVNpc AVNpc) {
             if (AVNpc.getGapCooldown() > 0) {
                 return false;
             }
-            return !AVNpc.isHealing();
+            return !AVNpc.isHealing() && InventoryUtils.hasHealingFood(AVNpc);
         }
         return false;
     }
@@ -423,13 +429,13 @@ public class CombatCommon {
             if (playerNpcEntity.isHealing()) {
                 return false;
             }
-            return playerNpcEntity.getEnderPearlCooldown() == 0;
+            return playerNpcEntity.getEnderPearlCooldown() == 0 && InventoryUtils.hasItem(playerNpcEntity, Items.ENDER_PEARL);
         }
         if (mobpatch.getOriginal() instanceof AVNpc AVNpc) {
             if (AVNpc.isHealing()) {
                 return false;
             }
-            return AVNpc.getEnderPearlCooldown() == 0;
+            return AVNpc.getEnderPearlCooldown() == 0 && InventoryUtils.hasItem(AVNpc, Items.ENDER_PEARL);
         }
         return false;
     }
@@ -496,16 +502,22 @@ public class CombatCommon {
         if (mob.level().getGameTime() < getPersistentLong(mob, KEY_NPC_LAVA_BUCKET_COOLDOWN_UNTIL)) {
             return false;
         }
+        if (!InventoryUtils.hasItem(mob, Items.LAVA_BUCKET)) {
+            return false;
+        }
 
         return findLavaPlacement(serverLevel, target) != null;
     }
 
-    public static boolean tryPerformAvNpcWaterBucketSelfExtinguish(AVNpc avNpc) {
+    public static boolean tryPerformAvNpcWaterBucketSelfExtinguish(Mob avNpc) {
         if (!canUseAvNpcWaterBucketSelfExtinguish(avNpc) || !(avNpc.level() instanceof ServerLevel serverLevel)) {
             return false;
         }
+        if (InventoryUtils.consumeItem(avNpc, Items.WATER_BUCKET, 1).isEmpty()) {
+            return false;
+        }
 
-        LivingEntityPatch<?> entityPatch = avNpc.getLivingEntityPatch();
+        LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(avNpc, LivingEntityPatch.class);
         if (entityPatch != null) {
             entityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
         }
@@ -525,12 +537,14 @@ public class CombatCommon {
                     return;
                 }
                 if (!avNpc.onGround()) {
+                    InventoryUtils.addItem(avNpc, new ItemStack(Items.WATER_BUCKET));
                     finishAvNpcWaterBucketSelfExtinguish(avNpc);
                     return;
                 }
 
                 final BlockPos placement = findSelfWaterPlacement(serverLevel, avNpc);
                 if (placement == null) {
+                    InventoryUtils.addItem(avNpc, new ItemStack(Items.WATER_BUCKET));
                     finishAvNpcWaterBucketSelfExtinguish(avNpc);
                     return;
                 }
@@ -550,9 +564,11 @@ public class CombatCommon {
 
                         avNpc.swing(InteractionHand.OFF_HAND, true);
                         BlockState placementState = serverLevel.getBlockState(placement);
+                        boolean recoveredSource = false;
                         if (placementState.is(Blocks.WATER)) {
                             avNpc.playSound(SoundEvents.BUCKET_FILL, 1.0F, 1.0F);
                             serverLevel.setBlockAndUpdate(placement, Blocks.AIR.defaultBlockState());
+                            recoveredSource = true;
                         } else if (placementState.getBlock() instanceof HerobrineObsidianBlock
                                 && placementState.hasProperty(HerobrineObsidianBlock.REPLACE_BY_LIQUID)) {
                             serverLevel.setBlock(
@@ -561,7 +577,9 @@ public class CombatCommon {
                                     3
                             );
                         }
-                        avNpc.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.WATER_BUCKET));
+                        ItemStack bucketResult = new ItemStack(recoveredSource ? Items.WATER_BUCKET : Items.BUCKET);
+                        InventoryUtils.addItem(avNpc, bucketResult.copy());
+                        avNpc.setItemInHand(InteractionHand.OFF_HAND, bucketResult);
 
                         new DelayedTask(AVNPC_WATER_BUCKET_RESTORE_DELAY) {
                             @Override
@@ -581,16 +599,17 @@ public class CombatCommon {
         return true;
     }
 
-    private static boolean canUseAvNpcWaterBucketSelfExtinguish(AVNpc avNpc) {
+    private static boolean canUseAvNpcWaterBucketSelfExtinguish(Mob avNpc) {
         if (!avNpc.isAlive()
                 || !avNpc.isOnFire()
                 || avNpc.level().isClientSide
                 || !avNpc.onGround()
                 || avNpc.isPassenger()
-                || avNpc.isHealing()
+                || isTrackedNpcHealing(avNpc)
                 || isNpcCombatFishingRodSessionActive(avNpc)
                 || avNpc.getPersistentData().getBoolean(KEY_AVNPC_WATER_BUCKET_ACTIVE)
-                || avNpc.level().getGameTime() < getPersistentLong(avNpc, KEY_AVNPC_WATER_BUCKET_COOLDOWN_UNTIL)) {
+                || avNpc.level().getGameTime() < getPersistentLong(avNpc, KEY_AVNPC_WATER_BUCKET_COOLDOWN_UNTIL)
+                || !InventoryUtils.hasItem(avNpc, Items.WATER_BUCKET)) {
             return false;
         }
 
@@ -605,7 +624,8 @@ public class CombatCommon {
         }
 
         if (mobpatch.getOriginal() instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.isUseBow() && playerNpcEntity.getSwapToBowCooldown() == 0;
+            return playerNpcEntity.getSwapToBowCooldown() == 0
+                    && InventoryUtils.hasArrowAmmo(playerNpcEntity);
         }
 
         if (mobpatch.getOriginal() instanceof AVNpc AVNpc) {
@@ -629,7 +649,8 @@ public class CombatCommon {
                 }
             }
 
-            return AVNpc.isUseBow() && AVNpc.getSwapToBowCooldown() == 0;
+            return AVNpc.getSwapToBowCooldown() == 0
+                    && InventoryUtils.hasArrowAmmo(AVNpc);
         }
 
         return false;
@@ -677,15 +698,15 @@ public class CombatCommon {
         entity.yBodyRotO = yaw;
         entity.yHeadRotO = yaw;
 
-        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setEnderPearlCooldown();
-        }
+        if (CombatBehaviour.throwEnderPearl(entity, 0.0F)) {
+            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
+                playerNpcEntity.setEnderPearlCooldown();
+            }
 
-        if (entity instanceof AVNpc AVNpc) {
-            AVNpc.setEnderPearlCooldown();
+            if (entity instanceof AVNpc AVNpc) {
+                AVNpc.setEnderPearlCooldown();
+            }
         }
-
-        CombatBehaviour.throwEnderPearl(entity, 0.0F);
     }
 
     public static void performEnderPearlAway(MobPatch<?> mobpatch) {
@@ -718,13 +739,14 @@ public class CombatCommon {
         entity.yBodyRotO = yaw;
         entity.yHeadRotO = yaw;
 
-        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setEnderPearlCooldown();
+        if (CombatBehaviour.throwEnderPearl(entity, 0.0F)) {
+            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
+                playerNpcEntity.setEnderPearlCooldown();
+            }
+            if (entity instanceof AVNpc AVNpc) {
+                AVNpc.setEnderPearlCooldown();
+            }
         }
-        if (entity instanceof AVNpc AVNpc) {
-            AVNpc.setEnderPearlCooldown();
-        }
-        CombatBehaviour.throwEnderPearl(entity, 0.0F);
     }
 
     public static void performNpcCombatFishingRod(MobPatch<?> mobpatch) {
@@ -864,6 +886,9 @@ public class CombatCommon {
         if (!(mob.level() instanceof ServerLevel serverLevel) || target == null) {
             return;
         }
+        if (InventoryUtils.consumeItem(mob, Items.LAVA_BUCKET, 1).isEmpty()) {
+            return;
+        }
 
         cancelCombatEvolutionGuard(mobpatch);
         equipTemporaryOffhand(mob, new ItemStack(Items.LAVA_BUCKET), KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND);
@@ -877,10 +902,12 @@ public class CombatCommon {
             public void run() {
                 if (!mob.isAlive()) return;
                 if (!target.isAlive()) {
+                    InventoryUtils.addItem(mob, new ItemStack(Items.LAVA_BUCKET));
                     restoreTemporaryOffhand(mob, KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND);
                     return;
                 }
                 if (!mob.onGround()) {
+                    InventoryUtils.addItem(mob, new ItemStack(Items.LAVA_BUCKET));
                     restoreTemporaryOffhand(mob, KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND);
                     return;
                 }
@@ -898,11 +925,15 @@ public class CombatCommon {
                             if (!mob.isAlive()) return;
 
                             mob.swing(InteractionHand.OFF_HAND, true);
+                            boolean recoveredSource = false;
                             if (serverLevel.getBlockState(placement).is(Blocks.LAVA)) {
                                 mob.playSound(SoundEvents.BUCKET_FILL_LAVA, 1.0F, 1.0F);
                                 serverLevel.setBlockAndUpdate(placement, Blocks.AIR.defaultBlockState());
+                                recoveredSource = true;
                             }
-                            mob.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.LAVA_BUCKET));
+                            ItemStack bucketResult = new ItemStack(recoveredSource ? Items.LAVA_BUCKET : Items.BUCKET);
+                            InventoryUtils.addItem(mob, bucketResult.copy());
+                            mob.setItemInHand(InteractionHand.OFF_HAND, bucketResult);
 
                             new DelayedTask(NPC_LAVA_BUCKET_RESTORE_DELAY) {
                                 @Override
@@ -915,6 +946,7 @@ public class CombatCommon {
                         }
                     };
                 } else {
+                    InventoryUtils.addItem(mob, new ItemStack(Items.LAVA_BUCKET));
                     restoreTemporaryOffhand(mob, KEY_NPC_LAVA_BUCKET_ORIGINAL_OFFHAND);
                 }
             }
@@ -925,6 +957,9 @@ public class CombatCommon {
         final Mob mob = mobpatch.getOriginal();
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
         if (!isGroundWithin(mob, MAX_PLACE_BLOCK_GROUND_GAP)) return;
+        if ((mob instanceof PlayerNpcEntity || mob instanceof AVNpc) && !InventoryUtils.hasPlaceableBlock(mob)) {
+            return;
+        }
 
         final LivingEntity target = mob.getTarget();
         final Direction dir = (target != null)
@@ -1052,6 +1087,17 @@ public class CombatCommon {
             HerobrineUtil.placeIfReplaceable(level, pos, state, mob);
         } else {
             if (!level.getBlockState(pos).canBeReplaced()) return;
+            if (mob instanceof PlayerNpcEntity || mob instanceof AVNpc) {
+                ItemStack consumedBlock = InventoryUtils.consumePlaceableBlock(mob).orElse(ItemStack.EMPTY);
+                if (consumedBlock.isEmpty()) {
+                    return;
+                }
+                BlockState inventoryState = InventoryUtils.getBlockState(consumedBlock);
+                if (inventoryState == null) {
+                    return;
+                }
+                state = inventoryState;
+            }
             mob.swing(InteractionHand.MAIN_HAND, true);
             mob.playSound(SoundEvents.STONE_PLACE, 2.0F, 1.0F);
             level.setBlockAndUpdate(pos, state);
@@ -1117,7 +1163,7 @@ public class CombatCommon {
             }
         };
 
-        if (mob instanceof SteveEntity || mob instanceof AngrySteveEntity
+        if (InventoryUtils.hasPlaceableBlock(mob)
                 || mob instanceof HerobrineCloneEntity || mob instanceof HerobrineChrisEntity
                 || mob instanceof ShadowHerobrineCloneEntity || mob instanceof Herobrine7Entity
                 || mob instanceof ArmoredHerobrineEntity || mob instanceof ShadowHerobrineEntity) {
@@ -1171,18 +1217,15 @@ public class CombatCommon {
 
     public static void performEatingAnimation(MobPatch<?> mobpatch) {
         LivingEntity entity = mobpatch.getOriginal();
-        boolean isEnchanted;
 
-        if (entity instanceof AVNpc AVNpc
-                && new Random().nextDouble() <= AVNpc.getPlaceBlockToParryChance()) {
-            entity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.ENCHANTED_GOLDEN_APPLE));
-            isEnchanted = true;
-        } else {
-            entity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.GOLDEN_APPLE));
-            isEnchanted = false;
+        ItemStack foodStack = InventoryUtils.selectHealingFood(entity, entity.getRandom()).orElse(ItemStack.EMPTY);
+        if (foodStack.isEmpty()) {
+            return;
         }
-        if (new Random().nextBoolean()) {
-            CombatBehaviour.throwEnderPearl(entity, new Random().nextFloat(0.0F, 180.0F));
+
+        entity.setItemInHand(InteractionHand.MAIN_HAND, foodStack.copy());
+        if (new Random().nextBoolean() && InventoryUtils.hasItem(entity, Items.ENDER_PEARL)
+                && CombatBehaviour.throwEnderPearl(entity, new Random().nextFloat(0.0F, 180.0F))) {
             if (entity instanceof PlayerNpcEntity playerNpcEntity) {
                 playerNpcEntity.setEnderPearlCooldown();
             }
@@ -1200,12 +1243,7 @@ public class CombatCommon {
             AVNpc.setGapCooldown();
         }
 
-        CombatBehaviour.eatingGoldenApple(
-                entity,
-                entity.level(),
-                20.0D,
-                isEnchanted
-        );
+        CombatBehaviour.eatingInventoryFood(entity, entity.level(), 20.0D, foodStack);
     }
 
     public static void performDrinkingAnimation(MobPatch<?> mobpatch) {
@@ -1665,7 +1703,7 @@ public class CombatCommon {
     }
 
     @Nullable
-    private static BlockPos findSelfWaterPlacement(ServerLevel level, AVNpc avNpc) {
+    private static BlockPos findSelfWaterPlacement(ServerLevel level, Mob avNpc) {
         BlockPos feet = avNpc.blockPosition();
         if (canPlaceSelfWaterAt(level, feet)) {
             return feet;
@@ -1681,9 +1719,19 @@ public class CombatCommon {
         return level.getBlockState(pos).canBeReplaced() && level.getFluidState(pos).isEmpty();
     }
 
-    private static void finishAvNpcWaterBucketSelfExtinguish(AVNpc avNpc) {
+    private static void finishAvNpcWaterBucketSelfExtinguish(Mob avNpc) {
         restoreTemporaryOffhand(avNpc, KEY_AVNPC_WATER_BUCKET_ORIGINAL_OFFHAND);
         avNpc.getPersistentData().remove(KEY_AVNPC_WATER_BUCKET_ACTIVE);
+    }
+
+    private static boolean isTrackedNpcHealing(Mob mob) {
+        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
+            return playerNpcEntity.isHealing();
+        }
+        if (mob instanceof AVNpc avNpc) {
+            return avNpc.isHealing();
+        }
+        return false;
     }
 
     private static void equipTemporaryOffhand(Mob mob, ItemStack stack, String originalKey) {
@@ -1750,6 +1798,18 @@ public class CombatCommon {
         Entity entity = mobpatch.getOriginal();
         if (entity instanceof LivingEntity livingEntity) {
             cancelCombatEvolutionGuard(mobpatch);
+            if (livingEntity instanceof PlayerNpcEntity || livingEntity instanceof AVNpc) {
+                ItemStack blockStack = InventoryUtils.peekPlaceableBlock(livingEntity).orElse(ItemStack.EMPTY);
+                if (blockStack.isEmpty()) {
+                    return;
+                }
+                livingEntity.setItemInHand(InteractionHand.MAIN_HAND, blockStack);
+                if (livingEntity instanceof AVNpc avNpc) {
+                    avNpc.setPlaceBlockParryCooldown();
+                }
+                return;
+            }
+
             double chance = new Random().nextDouble(0.0, 1.0);
             if (chance <= 0.2) {
                 livingEntity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.COBBLESTONE));
@@ -1772,18 +1832,11 @@ public class CombatCommon {
         LivingEntity entity = mobpatch.getOriginal();
         if (entity instanceof PlayerNpcEntity || entity instanceof AVNpc) {
             cancelCombatEvolutionGuard(mobpatch);
-            double chance = new Random().nextDouble(0.0, 1.0);
-            if (chance <= 0.2) {
-                entity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.COBBLESTONE));
-            } else if (chance <= 0.4) {
-                entity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.MOSSY_COBBLESTONE));
-            } else if (chance <= 0.6) {
-                entity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DIRT));
-            } else if (chance <= 0.8) {
-                entity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DARK_OAK_PLANKS));
-            } else {
-                entity.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.OAK_PLANKS));
+            ItemStack blockStack = InventoryUtils.peekPlaceableBlock(entity).orElse(ItemStack.EMPTY);
+            if (blockStack.isEmpty()) {
+                return;
             }
+            entity.setItemInHand(InteractionHand.MAIN_HAND, blockStack);
             if (entity instanceof AVNpc avNpc) {
                 avNpc.setPlaceBlockParryCooldown();
             }

@@ -1,12 +1,14 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.IdleAnimation;
 import com.pla.annoyingvillagers.clazz.PlayerNpcTarget;
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.entity.goal.BowLineOfSightGoal;
 import com.pla.annoyingvillagers.entity.goal.BurnNearbyItemGoal;
+import com.pla.annoyingvillagers.entity.goal.FillWaterBucketGoal;
 import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
 import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
 import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
@@ -46,6 +48,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
@@ -62,11 +65,39 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
+import java.util.function.Predicate;
 
 public class PlayerNpcEntity extends FakePlayer implements RangedAttackMob {
+    private static final List<ItemLike> REGULAR_FOODS = List.of(
+            Items.COOKED_BEEF,
+            Items.BREAD,
+            Items.COOKED_PORKCHOP,
+            Items.COOKED_CHICKEN,
+            Items.COOKED_MUTTON,
+            Items.COOKED_COD,
+            Items.COOKED_SALMON,
+            Items.BAKED_POTATO,
+            Items.CARROT,
+            Items.APPLE
+    );
+    private static final List<ItemLike> PLACEABLE_BLOCKS = List.of(
+            Items.COBBLESTONE,
+            Items.MOSSY_COBBLESTONE,
+            Items.DIRT,
+            Items.OAK_PLANKS,
+            Items.DARK_OAK_PLANKS,
+            Items.STONE,
+            Items.COBBLED_DEEPSLATE,
+            Items.DEEPSLATE,
+            Items.GRAVEL,
+            Items.SAND
+    );
+
     private final SimpleContainer inventory = new SimpleContainer(27);
     private int gapCooldown = 0;
     private int enderPearlCooldown = 0;
@@ -215,6 +246,22 @@ public class PlayerNpcEntity extends FakePlayer implements RangedAttackMob {
         return inventory;
     }
 
+    public boolean hasInventoryItem(Predicate<ItemStack> matcher) {
+        return InventoryUtils.hasItem(this.inventory, matcher);
+    }
+
+    public boolean hasInventoryItem(ItemLike itemLike) {
+        return InventoryUtils.hasItem(this.inventory, itemLike);
+    }
+
+    public Optional<ItemStack> consumeInventoryItem(Predicate<ItemStack> matcher, int count) {
+        return InventoryUtils.consumeItem(this.inventory, matcher, count);
+    }
+
+    public Optional<ItemStack> consumeInventoryItem(ItemLike itemLike, int count) {
+        return InventoryUtils.consumeItem(this.inventory, itemLike, count);
+    }
+
     public PlayerNpcEntity(PlayMessages.SpawnEntity spawnentity, Level level) {
         this(AnnoyingVillagersModEntities.PLAYER_NPC.get(), level);
     }
@@ -284,7 +331,7 @@ public class PlayerNpcEntity extends FakePlayer implements RangedAttackMob {
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.contains("Inventory", Tag.TAG_COMPOUND)) {
+        if (tag.contains("Inventory", Tag.TAG_LIST)) {
             this.inventory.fromTag(tag.getList("Inventory", Tag.TAG_COMPOUND));
         }
         this.gapCooldown = tag.getInt("GapCooldown");
@@ -430,6 +477,7 @@ public class PlayerNpcEntity extends FakePlayer implements RangedAttackMob {
         this.goalSelector.addGoal(7, new LockedRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(5, new OpenDoorGoal(this, true));
         this.goalSelector.addGoal(4, new BowLineOfSightGoal(this, 1.15D, 7.0D, 14.0D));
+        this.goalSelector.addGoal(8, new FillWaterBucketGoal(this, 1.0D));
         ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
     }
 
@@ -481,24 +529,26 @@ public class PlayerNpcEntity extends FakePlayer implements RangedAttackMob {
         if (damageSource.getEntity() != null && this.getEnderPearlCooldown() == 0
                 && !EpicfightUtil.isLongHitAnimation(dynamicAnimation, getLivingEntityPatch())
                 && (this.level() instanceof ServerLevel && dynamicAnimation == Animations.EMPTY_ANIMATION)
-                && CombatCommon.canPerformNormalAttackLogic((MobPatch<?>) getLivingEntityPatch())) {
+                && CombatCommon.canPerformNormalAttackLogic((MobPatch<?>) getLivingEntityPatch())
+                && InventoryUtils.hasItem(this, Items.ENDER_PEARL)) {
             getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
-            CombatBehaviour.throwEnderPearl(this, 180.0F);
-            Entity entity = this;
+            if (CombatBehaviour.throwEnderPearl(this, 180.0F)) {
+                Entity entity = this;
 
-            if (Math.random() <= 0.5D) {
-                new DelayedTask(20) {
-                    @Override
-                    public void run() {
-                        if (entity.isAlive()) {
-                            getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
-                            CombatBehaviour.throwEnderPearl(entity, 90.0F);
+                if (Math.random() <= 0.5D) {
+                    new DelayedTask(20) {
+                        @Override
+                        public void run() {
+                            if (entity.isAlive()) {
+                                getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
+                                CombatBehaviour.throwEnderPearl(entity, 90.0F);
+                            }
                         }
-                    }
-                };
-            }
+                    };
+                }
 
-            this.setEnderPearlCooldown();
+                this.setEnderPearlCooldown();
+            }
         }
         return super.hurt(damageSource, f);
     }
@@ -522,7 +572,11 @@ public class PlayerNpcEntity extends FakePlayer implements RangedAttackMob {
         }
 
         ItemStack weaponStack = this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, this::canFireProjectileWeapon));
-        ItemStack itemstack = this.getProjectile(weaponStack);
+        ItemStack itemstack = InventoryUtils.consumeArrowAmmo(this).orElse(ItemStack.EMPTY);
+        if (itemstack.isEmpty()) {
+            return;
+        }
+
         AbstractArrow mobArrow = ProjectileUtil.getMobArrow(this, itemstack, pVelocity);
         if (this.getMainHandItem().getItem() instanceof BowItem) {
             mobArrow = ((BowItem)this.getMainHandItem().getItem()).customArrow(mobArrow);
@@ -643,6 +697,8 @@ public class PlayerNpcEntity extends FakePlayer implements RangedAttackMob {
         if (stunEscapeCooldown > 0) stunEscapeCooldown--;
         if (playingIdleCooldown > 0) playingIdleCooldown--;
 
+        CombatCommon.tryPerformAvNpcWaterBucketSelfExtinguish(this);
+
         if ((tickCount + getId()) % 20 != 0) {
             return;
         }
@@ -698,6 +754,7 @@ public class PlayerNpcEntity extends FakePlayer implements RangedAttackMob {
 
         this.mainWeaponItem = this.getMainHandItem().copy();
         this.offWeaponItem = this.getOffWeaponItem().copy();
+        this.seedInventory();
 
         ChatUtil.joinGame(this);
 
@@ -705,11 +762,124 @@ public class PlayerNpcEntity extends FakePlayer implements RangedAttackMob {
             TeamUtil.addOrJoinTeam(this, "player");
         }
 
-        if (new Random().nextBoolean()) {
-            this.setUseBow(false);
+        return returnSpawnGroupData;
+    }
+
+    protected boolean seedInventory() {
+        if (!InventoryUtils.isEmpty(this.inventory)) {
+            return false;
         }
 
-        return returnSpawnGroupData;
+        Random random = new Random();
+        boolean isHard = ProgressionUtil.isAtLeastDifficulty(Difficulty.HARD);
+        boolean isMedium = ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM);
+
+        int goldenAppleCount = isHard ? random.nextInt(8, 16)
+                : isMedium ? random.nextInt(4, 8)
+                : random.nextInt(0, 2);
+        if (goldenAppleCount > 0) {
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.GOLDEN_APPLE, goldenAppleCount));
+        }
+        if (isHard) {
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, random.nextInt(0, 4)));
+        }
+
+        List<ItemLike> foods = new ArrayList<>(REGULAR_FOODS);
+        for (int i = 0; i < 2 && !foods.isEmpty(); i++) {
+            ItemLike food = foods.remove(random.nextInt(foods.size()));
+            int foodCount = isHard ? random.nextInt(24, 32)
+                    : isMedium ? random.nextInt(12, 24)
+                    : random.nextInt(8, 12);
+            InventoryUtils.addItem(this.inventory, new ItemStack(food, foodCount));
+        }
+
+        int arrowCount = isHard ? random.nextInt(48, 97)
+                : isMedium ? random.nextInt(12, 33)
+                : 0;
+        if (arrowCount > 0) {
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ARROW, arrowCount));
+        }
+
+        int enderPearlCount = isHard ? random.nextInt(16, 33)
+                : isMedium ? random.nextInt(0, 13)
+                : 0;
+        if (enderPearlCount > 0) {
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ENDER_PEARL, enderPearlCount));
+        }
+
+        if (isMedium) {
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.WATER_BUCKET));
+        }
+
+        List<ItemLike> blocks = new ArrayList<>(PLACEABLE_BLOCKS);
+        int blockStacks = random.nextInt(1, 2);
+        for (int i = 0; i < blockStacks && !blocks.isEmpty(); i++) {
+            ItemLike block = blocks.remove(random.nextInt(blocks.size()));
+            int blockCount = isHard ? random.nextInt(8, 32)
+                    : isMedium ? random.nextInt(8, 12)
+                    : random.nextInt(0, 8);
+            InventoryUtils.addItem(this.inventory, new ItemStack(block, blockCount));
+        }
+
+        List<ItemStack> materials = new ArrayList<>();
+        if (isHard) {
+            int coalCount = random.nextInt(0, 25);
+            if (coalCount > 0) {
+                materials.add(new ItemStack(Items.COAL, coalCount));
+            }
+            int ironCount = random.nextInt(0, 25);
+            if (ironCount > 0) {
+                materials.add(new ItemStack(Items.IRON_INGOT, ironCount));
+            }
+            int goldCount = random.nextInt(0, 15);
+            if (goldCount > 0) {
+                materials.add(new ItemStack(Items.GOLD_INGOT, goldCount));
+            }
+            int redstoneCount = random.nextInt(0, 25);
+            if (redstoneCount > 0) {
+                materials.add(new ItemStack(Items.REDSTONE, redstoneCount));
+            }
+            int lapisCount = random.nextInt(0, 17);
+            if (lapisCount > 0) {
+                materials.add(new ItemStack(Items.LAPIS_LAZULI, lapisCount));
+            }
+            if (random.nextFloat() < 0.82F) {
+                materials.add(new ItemStack(Items.DIAMOND, random.nextInt(1, 7)));
+            }
+            if (random.nextFloat() < 0.78F) {
+                materials.add(new ItemStack(Items.EMERALD, random.nextInt(2, 11)));
+            }
+        } else if (isMedium) {
+            int coalCount = random.nextInt(0, 13);
+            if (coalCount > 0) {
+                materials.add(new ItemStack(Items.COAL, coalCount));
+            }
+            int ironCount = random.nextInt(0, 13);
+            if (ironCount > 0) {
+                materials.add(new ItemStack(Items.IRON_INGOT, ironCount));
+            }
+            if (random.nextFloat() < 0.72F) {
+                materials.add(new ItemStack(Items.GOLD_INGOT, random.nextInt(1, 7)));
+            }
+            if (random.nextFloat() < 0.70F) {
+                materials.add(new ItemStack(Items.REDSTONE, random.nextInt(2, 13)));
+            }
+        } else if (random.nextFloat() >= 0.55F) {
+            if (random.nextFloat() < 0.70F) {
+                materials.add(new ItemStack(Items.COAL, random.nextInt(1, 7)));
+            }
+            if (random.nextFloat() < 0.55F) {
+                materials.add(new ItemStack(Items.IRON_INGOT, random.nextInt(1, 5)));
+            }
+        }
+
+        int materialTypes = random.nextInt(0, Math.min(2, materials.size()) + 1);
+        for (int i = 0; i < materialTypes; i++) {
+            ItemStack material = materials.remove(random.nextInt(materials.size()));
+            InventoryUtils.addItem(this.inventory, material);
+        }
+
+        return true;
     }
 
     public void awardKillScore(@NotNull Entity entity, int i, @NotNull DamageSource damageSource) {
