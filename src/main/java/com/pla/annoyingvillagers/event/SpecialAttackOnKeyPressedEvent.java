@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
 import reascer.wom.gameasset.WOMAnimations;
 import reascer.wom.gameasset.animations.weapons.*;
@@ -78,6 +79,10 @@ public class SpecialAttackOnKeyPressedEvent {
     }
 
     public static void execute(LevelAccessor world, Entity entity) {
+        execute(world, entity, null);
+    }
+
+    public static void execute(LevelAccessor world, Entity entity, Vec3 crosshairTarget) {
         if (entity == null) return;
 
         PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(entity, PlayerPatch.class);
@@ -96,7 +101,7 @@ public class SpecialAttackOnKeyPressedEvent {
         }
 
         if (entity instanceof Player player && !player.level().isClientSide()) {
-            TransporterFragmentItem.UseResult transporterUseResult = TransporterFragmentItem.tryUseSpecialAttack(player);
+            TransporterFragmentItem.UseResult transporterUseResult = TransporterFragmentItem.tryUseSpecialAttack(player, crosshairTarget);
             if (transporterUseResult.consumed()) {
                 if (transporterUseResult.activated()) {
                     playTransporterFragmentAnimation(player, livingEntityPatch, transporterUseResult.mode());

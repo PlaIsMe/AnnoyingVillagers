@@ -3,8 +3,11 @@ package com.pla.annoyingvillagers.init;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.network.SpecialAttackMessage;
 import com.pla.annoyingvillagers.network.ThrowingEnderPearlMessage;
+import net.minecraft.client.Camera;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -12,10 +15,13 @@ import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 @EventBusSubscriber(bus = Bus.MOD, value = Dist.CLIENT)
 public class AnnoyingVillagersModKeyMappings {
+    private static final double SPECIAL_ATTACK_CROSSHAIR_RANGE = 32.0D;
+
     public static final KeyMapping SPECIAL_ATTACK = new KeyMapping(
             "key.annoyingvillagers.special_attack",
             GLFW.GLFW_KEY_C,
@@ -45,7 +51,7 @@ public class AnnoyingVillagersModKeyMappings {
                         : 0;
 
                 int type = heldTicks >= HOLD_THRESHOLD_TICKS ? 1 : 0;
-                AnnoyingVillagers.PACKET_HANDLER.sendToServer(new SpecialAttackMessage(type, heldTicks));
+                AnnoyingVillagers.PACKET_HANDLER.sendToServer(createSpecialAttackMessage(type, heldTicks));
                 this.pressedAtTick = -1;
             }
 
@@ -82,6 +88,33 @@ public class AnnoyingVillagersModKeyMappings {
         event.register(SPECIAL_ATTACK);
         event.register(THROW_ENDER_PEARL);
         event.register(DRAGON_FLIGHT_DESCENT_KEY);
+    }
+
+    private static SpecialAttackMessage createSpecialAttackMessage(int type, int heldTicks) {
+        Vec3 crosshairTarget = findSpecialAttackCrosshairTarget(Minecraft.getInstance());
+        return crosshairTarget == null
+                ? new SpecialAttackMessage(type, heldTicks)
+                : new SpecialAttackMessage(type, heldTicks, crosshairTarget);
+    }
+
+    private static Vec3 findSpecialAttackCrosshairTarget(Minecraft minecraft) {
+        if (minecraft.hitResult != null && minecraft.hitResult.getType() != HitResult.Type.MISS) {
+            return minecraft.hitResult.getLocation();
+        }
+
+        Camera camera = minecraft.gameRenderer.getMainCamera();
+        if (camera.isInitialized()) {
+            Vector3f look = camera.getLookVector();
+            return camera.getPosition().add(
+                    look.x() * SPECIAL_ATTACK_CROSSHAIR_RANGE,
+                    look.y() * SPECIAL_ATTACK_CROSSHAIR_RANGE,
+                    look.z() * SPECIAL_ATTACK_CROSSHAIR_RANGE
+            );
+        }
+
+        return minecraft.player == null
+                ? null
+                : minecraft.player.getEyePosition(1.0F).add(minecraft.player.getViewVector(1.0F).scale(SPECIAL_ATTACK_CROSSHAIR_RANGE));
     }
 
     @EventBusSubscriber(value = Dist.CLIENT)
