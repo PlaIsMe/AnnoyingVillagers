@@ -119,6 +119,10 @@ public class TransporterFragmentItem extends Item {
     }
 
     public static UseResult tryUseSpecialAttack(Player player) {
+        return tryUseSpecialAttack(player, null);
+    }
+
+    public static UseResult tryUseSpecialAttack(Player player, Vec3 crosshairTarget) {
         Item transporterFragment = AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get();
         UseMode mode = getUseMode(player, transporterFragment);
         if (mode == UseMode.NONE) {
@@ -144,7 +148,7 @@ public class TransporterFragmentItem extends Item {
 
             int spawned = isSixPortalMode(mode)
                     ? spawnPortalPairs(serverLevel, player)
-                    : spawnLookPortal(serverLevel, player, activePortals);
+                    : spawnLookPortal(serverLevel, player, activePortals, crosshairTarget);
             if (spawned > 0) {
                 damageStack(player, stack, mode == UseMode.OFF_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND, spawned);
                 player.getCooldowns().addCooldown(transporterFragment, COOLDOWN_TICKS);
@@ -525,7 +529,11 @@ public class TransporterFragmentItem extends Item {
     }
 
     private static int spawnLookPortal(ServerLevel level, Player caster, List<PortalEntity> activePortals) {
-        LookPortalTarget target = findLookPortalTarget(level, caster);
+        return spawnLookPortal(level, caster, activePortals, null);
+    }
+
+    private static int spawnLookPortal(ServerLevel level, Player caster, List<PortalEntity> activePortals, Vec3 crosshairTarget) {
+        LookPortalTarget target = findLookPortalTarget(level, caster, crosshairTarget);
         Vec3 portalPos = findLookPortalPosition(level, target.portalPos);
         if (portalPos == null) {
             return 0;
@@ -548,9 +556,12 @@ public class TransporterFragmentItem extends Item {
     }
 
     private static LookPortalTarget findLookPortalTarget(ServerLevel level, Player caster) {
+        return findLookPortalTarget(level, caster, null);
+    }
+
+    private static LookPortalTarget findLookPortalTarget(ServerLevel level, Player caster, Vec3 crosshairTarget) {
         Vec3 eyePos = caster.getEyePosition(1.0F);
-        Vec3 look = caster.getLookAngle();
-        Vec3 maxPos = eyePos.add(look.scale(LOOK_PORTAL_RANGE));
+        Vec3 maxPos = resolveLookEnd(eyePos, caster, crosshairTarget);
         BlockHitResult blockHit = level.clip(new ClipContext(
                 eyePos,
                 maxPos,
@@ -574,6 +585,20 @@ public class TransporterFragmentItem extends Item {
         }
 
         return new LookPortalTarget(maxPos, eyePos);
+    }
+
+    private static Vec3 resolveLookEnd(Vec3 eyePos, Player caster, Vec3 crosshairTarget) {
+        if (crosshairTarget != null) {
+            Vec3 offset = crosshairTarget.subtract(eyePos);
+            double distanceSqr = offset.lengthSqr();
+            if (distanceSqr > 1.0E-6D) {
+                double distance = Math.sqrt(distanceSqr);
+                double clampedDistance = Math.min(distance, LOOK_PORTAL_RANGE);
+                return eyePos.add(offset.scale(clampedDistance / distance));
+            }
+        }
+
+        return eyePos.add(caster.getLookAngle().scale(LOOK_PORTAL_RANGE));
     }
 
     private static LookEntityHit findLookEntity(ServerLevel level, Player caster, Vec3 start, Vec3 end) {
