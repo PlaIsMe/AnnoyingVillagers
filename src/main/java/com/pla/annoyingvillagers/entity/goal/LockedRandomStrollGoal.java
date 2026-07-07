@@ -1,14 +1,12 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.Objects;
@@ -19,13 +17,11 @@ public class LockedRandomStrollGoal extends WaterAvoidingRandomStrollGoal {
     }
 
     private boolean isPlayingIdle() {
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) return playerNpcEntity.isPlayingIdle();
         if (mob instanceof AVNpc avNpc) return avNpc.isPlayingIdle();
         return false;
     }
 
     private void setStrolling(boolean strolling) {
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) playerNpcEntity.setStrolling(strolling);
         if (mob instanceof AVNpc avNpc) avNpc.setStrolling(strolling);
     }
 
@@ -34,9 +30,6 @@ public class LockedRandomStrollGoal extends WaterAvoidingRandomStrollGoal {
         if (mob.getTarget() != null) return false;
         if (isPlayingIdle()) return false;
         LivingEntityPatch<?> patch = null;
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            patch = playerNpcEntity.getLivingEntityPatch();
-        }
         if (mob instanceof AVNpc avNpc) {
             patch = avNpc.getLivingEntityPatch();
         }
@@ -51,9 +44,6 @@ public class LockedRandomStrollGoal extends WaterAvoidingRandomStrollGoal {
         if (mob.getTarget() != null) return false;
         if (isPlayingIdle()) return false;
         LivingEntityPatch<?> patch = null;
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            patch = playerNpcEntity.getLivingEntityPatch();
-        }
         if (mob instanceof AVNpc avNpc) {
             patch = avNpc.getLivingEntityPatch();
         }
@@ -67,9 +57,6 @@ public class LockedRandomStrollGoal extends WaterAvoidingRandomStrollGoal {
     public void start() {
         setStrolling(true);
         LivingEntityPatch<?> patch = null;
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            patch = playerNpcEntity.getLivingEntityPatch();
-        }
         if (mob instanceof AVNpc avNpc) {
             patch = avNpc.getLivingEntityPatch();
         }

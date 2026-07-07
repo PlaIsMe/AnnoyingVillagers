@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -188,11 +187,6 @@ public class RecoverWeaponInCombatGoal extends Goal {
 
         equipStack.setCount(1);
         mob.setItemSlot(EquipmentSlot.MAINHAND, equipStack.copy());
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setMainWeaponItem(equipStack.copy());
-            playerNpcEntity.setMainWeaponDisarmed(false);
-        }
-
         if (mob instanceof AVNpc avNpc) {
             avNpc.setMainWeaponItem(equipStack.copy());
             avNpc.setMainWeaponDisarmed(false);
@@ -220,11 +214,6 @@ public class RecoverWeaponInCombatGoal extends Goal {
 
         mob.setItemSlot(EquipmentSlot.MAINHAND, weapon.copy());
 
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setMainWeaponItem(weapon.copy());
-            playerNpcEntity.setMainWeaponDisarmed(false);
-        }
-
         if (mob instanceof AVNpc avNpc) {
             avNpc.setMainWeaponItem(weapon.copy());
             avNpc.setMainWeaponDisarmed(false);
@@ -234,10 +223,6 @@ public class RecoverWeaponInCombatGoal extends Goal {
     }
 
     private SimpleContainer getNpcInventory() {
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.getInventory();
-        }
-
         if (mob instanceof AVNpc avNpc) {
             return avNpc.getInventory();
         }
@@ -354,10 +339,6 @@ public class RecoverWeaponInCombatGoal extends Goal {
     }
 
     private ItemStack getCachedMainWeapon() {
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.getMainWeaponItem();
-        }
-
         if (mob instanceof AVNpc avNpc) {
             return avNpc.getMainWeaponItem();
         }

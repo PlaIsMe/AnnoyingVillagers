@@ -1,12 +1,10 @@
 package com.pla.annoyingvillagers.util;
 
-import com.p1nero.epicfightbow.item.EFBowItems;
 import com.pla.annoyingvillagers.combatbehaviour.*;
+import com.pla.annoyingvillagers.compat.cdmoveset.EpicFightResurrection;
 import com.pla.annoyingvillagers.compat.dualgreatsword.AvNpcDualGreatsword;
-import com.pla.annoyingvillagers.compat.p1nero_bow.NpcP1neroBow;
-import com.pla.annoyingvillagers.compat.p1nero_bow.NpcP1neroMortisBow;
-import com.pla.annoyingvillagers.compat.p1nero_bow.PlayerNpcP1neroBow;
-import com.pla.annoyingvillagers.compat.p1nero_bow.PlayerNpcP1neroMortisBow;
+import com.pla.annoyingvillagers.compat.p1nero_bow.*;
+import com.pla.annoyingvillagers.compat.refm.EpicFightRapierMoveset;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -20,10 +18,6 @@ import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.Style;
 
 public class MobPatchCommon {
-    public static CECombatBehaviors.Builder<MobPatch<?>> overideCustomWeaponMotionBuilderForAvNpc(CapabilityItem mainHandCap, Style style) {
-        return overideCustomWeaponMotionBuilderForAvNpc(mainHandCap, null, style);
-    }
-
     public static CECombatBehaviors.Builder<MobPatch<?>> overideCustomWeaponMotionBuilderForAvNpc(CapabilityItem mainHandCap, CapabilityItem offHandCap, Style style) {
         if (ModList.get().isLoaded("dualgreatswords")
                 && mainHandCap.getWeaponCategory() == CapabilityItem.WeaponCategories.GREATSWORD
@@ -336,6 +330,14 @@ public class MobPatchCommon {
             }
         }
 
+        if (ModList.get().isLoaded("refm")) {
+            return EpicFightRapierMoveset.overideRapierMovesetWeapon(mainHandCap, offHandCap, style);
+        }
+
+        if (ModList.get().isLoaded("cdmoveset")) {
+            return EpicFightResurrection.overideCdMovesetWeapon(mainHandCap, offHandCap, style);
+        }
+
         return null;
     }
     private static CECombatBehaviors.Builder<MobPatch<?>> overideRequestedAvNpcWeaponMotionBuilder(CapabilityItem mainHandCap, Style style) {
@@ -574,7 +576,7 @@ public class MobPatchCommon {
 
     public static CECombatBehaviors.Builder<MobPatch<?>> overideBowMotionBuilderForNpc(CapabilityItem mainHandCap, Style style) {
         if (ModList.get().isLoaded("p1nero_bow")) {
-            if (mainHandCap == EpicFightCapabilities.getItemStackCapability(EFBowItems.MORTIS.get().getDefaultInstance())) {
+            if (EpicFightBow.isMortisBow(mainHandCap)) {
                 return NpcP1neroMortisBow.MORTIS_BOW;
             }
             if (mainHandCap == EpicFightCapabilities.getItemStackCapability(Items.BOW.getDefaultInstance())) {
@@ -586,22 +588,6 @@ public class MobPatchCommon {
             }
         }
 
-        return null;
-    }
-
-    public static CECombatBehaviors.Builder<MobPatch<?>> overideBowMotionBuilderForPlayerNpc(CapabilityItem mainHandCap, Style style) {
-        if (ModList.get().isLoaded("p1nero_bow")) {
-            if (mainHandCap == EpicFightCapabilities.getItemStackCapability(EFBowItems.MORTIS.get().getDefaultInstance())) {
-                return PlayerNpcP1neroMortisBow.MORTIS_BOW;
-            }
-            if (mainHandCap == EpicFightCapabilities.getItemStackCapability(Items.BOW.getDefaultInstance())) {
-                return PlayerNpcP1neroBow.BOW;
-            }
-        } else {
-            if (mainHandCap == EpicFightCapabilities.getItemStackCapability(Items.BOW.getDefaultInstance())) {
-                return PlayerNpcBow.BOW;
-            }
-        }
         return null;
     }
 }

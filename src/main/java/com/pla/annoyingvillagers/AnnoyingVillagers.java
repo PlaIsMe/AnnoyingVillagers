@@ -16,7 +16,6 @@ import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.network.*;
-import com.pla.annoyingvillagers.event.NpcGearLoadEvent;
 import com.pla.annoyingvillagers.world.AVMobSpawnBiomeModifier;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -74,7 +73,6 @@ public class AnnoyingVillagers {
         AnnoyingVillagersModCreativeTabs.register(modEventBus);
         AnnoyingVillagersModSounds.register(modEventBus);
         AVSounds.SOUNDS.register(modEventBus);
-        MinecraftForge.EVENT_BUS.register(new NpcGearLoadEvent());
         context.registerConfig(ModConfig.Type.COMMON, AnnoyingVillagersConfig.SPEC, "annoyingvillagers-server.toml");
         DeferredRegister<Codec<? extends BiomeModifier>> biomeModifiers =
                 DeferredRegister.create(ForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, MODID);
@@ -190,7 +188,6 @@ public class AnnoyingVillagers {
     }
 
     public static void registerArmatures() {
-        Armatures.registerEntityTypeArmature(AnnoyingVillagersModEntities.PLAYER_NPC.get(), Armatures.BIPED);
         Armatures.registerEntityTypeArmature(AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(), Armatures.BIPED);
         Armatures.registerEntityTypeArmature(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(), Armatures.BIPED);
         Armatures.registerEntityTypeArmature(AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT.get(), Armatures.BIPED);

@@ -272,7 +272,7 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
             damagedStacks.add(bow);
 
             for (ItemStack stack : damagedStacks) {
-                stack.setDamageValue(EquipmentDataLoader.getRandomDamage(stack));
+                stack.setDamageValue(CommonUtil.getRandomDamage(stack));
                 dropStack.accept(stack);
             }
 

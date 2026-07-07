@@ -11,7 +11,10 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 public final class CompatMixinPlugin implements IMixinConfigPlugin {
     private static final String EFN_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.efn.";
     private static final String DUAL_AXES_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.dualaxes.";
+    private static final String CDMOVESET_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.cdmoveset.";
+    private static final String REFM_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.refm.";
     private static final String DUAL_GREATSWORDS_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.dualgreatswords.";
+    private static final String SMART_NPC_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.smartnpc.";
     private static final String CLASH_BLADE_MIXIN = "com.pla.annoyingvillagers.mixin.ClashBladeMixin";
     private static final String MOB_CLASH_BLADE_MIXIN = "com.pla.annoyingvillagers.mixin.MobClashBladeMixin";
 
@@ -39,6 +42,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
         }
         if (mixinClassName.startsWith(DUAL_GREATSWORDS_COMPAT_PREFIX)) {
             return isModLoadedEarly("dualgreatswords");
+        }
+        if (mixinClassName.startsWith(SMART_NPC_COMPAT_PREFIX)) {
+            return isModLoadedEarly("smart_npc");
         }
         if (mixinClassName.equals(CLASH_BLADE_MIXIN) || mixinClassName.equals(MOB_CLASH_BLADE_MIXIN)) {
             return isModLoadedEarly("efclash_blade");

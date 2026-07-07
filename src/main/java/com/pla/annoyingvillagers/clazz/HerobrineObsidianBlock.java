@@ -3,8 +3,8 @@ package com.pla.annoyingvillagers.clazz;
 import java.util.*;
 
 import com.pla.annoyingvillagers.blockentity.*;
+import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.core.BlockPos;
@@ -32,6 +32,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 
 public class HerobrineObsidianBlock extends Block {
@@ -223,11 +224,8 @@ public class HerobrineObsidianBlock extends Block {
             }
         }
 
-        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-            int currentValue = playerNpcEntity.getStunEscapeCooldown();
-            if (currentValue < 100) {
-                playerNpcEntity.setStunEscapeCooldown(currentValue + 20);
-            }
+        if (ModList.get().isLoaded("smart_npc")) {
+            SmartNpc.increaseStunEscapeCooldown(entity);
         }
 
         if (entity instanceof HerobrineMob herobrineMob) {

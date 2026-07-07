@@ -278,7 +278,7 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         damagedStacks.add(new ItemStack(AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get()));
 
         for (ItemStack stack : damagedStacks) {
-            stack.setDamageValue(EquipmentDataLoader.getRandomDamage(stack));
+            stack.setDamageValue(CommonUtil.getRandomDamage(stack));
             dropStack.accept(stack);
         }
     }

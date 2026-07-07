@@ -46,7 +46,6 @@ public class AnnoyingVillagersModCreativeTabs {
                         pOutput.accept(AnnoyingVillagersModItems.ALEX_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.CHRIS_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.JEV_SPAWN_EGG.get());
-                        pOutput.accept(AnnoyingVillagersModItems.PLAYER_NPC_SPAWN_EGG.get());
                         pOutput.accept(AnnoyingVillagersModItems.INVENTORY_VIEWER.get());
                         pOutput.accept(AnnoyingVillagersModItems.ENCHANT_BED_ITEM.get());
                         pOutput.accept(AnnoyingVillagersModItems.ENCHANTED_ARROW.get());

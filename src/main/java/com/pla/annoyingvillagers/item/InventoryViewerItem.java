@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.inventory.InventoryViewerMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -68,9 +67,6 @@ public class InventoryViewerItem extends Item {
     }
 
     private static SimpleContainer getNpcInventory(LivingEntity target) {
-        if (target instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.getInventory();
-        }
         if (target instanceof AVNpc avNpc) {
             return avNpc.getInventory();
         }

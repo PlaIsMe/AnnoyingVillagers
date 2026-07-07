@@ -13,11 +13,7 @@ import com.pla.annoyingvillagers.entity.goal.WaterEnderPearlEscapeGoal;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.task.DelayedTask;
-import com.pla.annoyingvillagers.util.BowFunction;
-import com.pla.annoyingvillagers.util.CombatBehaviour;
-import com.pla.annoyingvillagers.util.EquipmentDataLoader;
-import com.pla.annoyingvillagers.util.EpicfightUtil;
-import com.pla.annoyingvillagers.util.InventoryUtils;
+import com.pla.annoyingvillagers.util.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
@@ -50,7 +46,6 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -531,7 +526,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     protected ItemStack createDamagedDropStack(Item item) {
         ItemStack stack = new ItemStack(item);
         if (stack.isDamageableItem()) {
-            stack.setDamageValue(EquipmentDataLoader.getRandomDamage(stack));
+            stack.setDamageValue(CommonUtil.getRandomDamage(stack));
         }
         return stack;
     }

@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.clazz.ProjectileBreakableBlocks;
+import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.*;
@@ -47,6 +48,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import yesman.epicfight.api.animation.Joint;
@@ -305,7 +307,7 @@ public class HerobrineUtil {
             return;
         }
 
-        if (entity instanceof PlayerNpcEntity victim) {
+        if (ModList.get().isLoaded("smart_npc") && SmartNpc.isSmartNpc(entity)) {
             if (!(world instanceof ServerLevel serverLevel)) return;
             entity.getPersistentData().putBoolean("die_by_possess", true);
             Entity possessed;
@@ -320,6 +322,7 @@ public class HerobrineUtil {
                 possessed = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), serverLevel);
             }
             possessed.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
+            LivingEntity victim = (LivingEntity) entity;
             victim.getCustomName();
             possessed.getPersistentData().putString("killed_name", victim.getCustomName().getString());
 

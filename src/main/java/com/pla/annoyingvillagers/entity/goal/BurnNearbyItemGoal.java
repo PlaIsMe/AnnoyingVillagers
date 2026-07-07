@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -16,18 +16,23 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
 public class BurnNearbyItemGoal extends Goal {
+    private static final int BURN_COOLDOWN_TICKS = 80;
+
     private final Mob mob;
     private final double speed;
     private final double searchRadius;
     private ItemEntity targetItem;
     private ItemStack burnToolRestoreItem = ItemStack.EMPTY;
     private boolean equippedBurnTool;
+    private long nextBurnTick;
 
     private static List<String> keys(String prefix, int count) {
         List<String> list = new ArrayList<>(count);
@@ -48,19 +53,18 @@ public class BurnNearbyItemGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        if (mob.level().isClientSide) return false;
+        if (!(mob.level() instanceof ServerLevel serverLevel)) return false;
         if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return false;
         if (mob.isPassenger()) return false;
         if (mob.getTarget() != null) return false;
         if (mob.isNoAi()) return false;
         if (!AnnoyingVillagersConfig.AV_MOB_CAN_BURN_ITEM.get()) return false;
-        if (mob instanceof PlayerNpcEntity playerNpcEntity && playerNpcEntity.isHealing()) {
-            return false;
-        }
         if (mob instanceof AVNpc avNpc && avNpc.isHealing()) {
             return false;
         }
-        targetItem = findTargetItem();
+        if (serverLevel.getGameTime() < nextBurnTick) return false;
+
+        targetItem = findTargetItem(serverLevel);
         return targetItem != null;
     }
 
@@ -73,7 +77,10 @@ public class BurnNearbyItemGoal extends Goal {
         if (mob.isNoAi()) return false;
         if (!AnnoyingVillagersConfig.AV_MOB_CAN_BURN_ITEM.get()) return false;
 
-        return targetItem != null && targetItem.isAlive() && !targetItem.getItem().isEmpty();
+        return targetItem != null
+                && targetItem.isAlive()
+                && !targetItem.getItem().isEmpty()
+                && isGroundItem(targetItem);
     }
 
     @Override
@@ -139,26 +146,32 @@ public class BurnNearbyItemGoal extends Goal {
             equipFlintAndSteel();
 
             ItemStack burnedStack = targetItem.getItem().copy();
+            BlockPos firePos = targetItem.blockPosition();
 
-            mob.swing(InteractionHand.MAIN_HAND);
-            targetItem.kill();
+            if (tryPlaceFireAtItem(serverLevel, targetItem)) {
+                mob.swing(InteractionHand.MAIN_HAND);
 
-            serverLevel.sendParticles(
-                    ParticleTypes.FLAME,
-                    targetItem.getX(), targetItem.getY(), targetItem.getZ(),
-                    8, 0.2, 0.2, 0.2, 0.01
-            );
+                serverLevel.sendParticles(
+                        ParticleTypes.FLAME,
+                        firePos.getX() + 0.5D, firePos.getY() + 0.5D, firePos.getZ() + 0.5D,
+                        8, 0.2, 0.2, 0.2, 0.01
+                );
 
-            mob.level().playSound(
-                    null,
-                    mob.blockPosition(),
-                    SoundEvents.FLINTANDSTEEL_USE,
-                    SoundSource.HOSTILE,
-                    1.0f,
-                    1.0f
-            );
+                mob.level().playSound(
+                        null,
+                        firePos,
+                        SoundEvents.FLINTANDSTEEL_USE,
+                        SoundSource.HOSTILE,
+                        1.0f,
+                        1.0f
+                );
 
-            tryBroadcastBurnMessage(serverLevel, burnedStack);
+                tryBroadcastBurnMessage(serverLevel, burnedStack);
+                nextBurnTick = serverLevel.getGameTime() + BURN_COOLDOWN_TICKS;
+            }
+
+            targetItem = null;
+            mob.getNavigation().stop();
         }
     }
 
@@ -179,7 +192,6 @@ public class BurnNearbyItemGoal extends Goal {
 
     private void tryBroadcastBurnMessage(ServerLevel serverLevel, ItemStack burnedStack) {
         if (!AnnoyingVillagersConfig.TURN_ON_NPC_CHAT.get()) return;
-        if (!(mob instanceof PlayerNpcEntity)) return;
         if (mob.getRandom().nextFloat() >= 0.05F) return;
 
         String key = burnMessageKeys.get(mob.getRandom().nextInt(burnMessageKeys.size()));
@@ -196,12 +208,6 @@ public class BurnNearbyItemGoal extends Goal {
 
     private void restoreMainWeapon(boolean addIdleCooldown) {
         ItemStack weapon = getCachedMainWeapon();
-
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            if (addIdleCooldown) {
-                playerNpcEntity.setPlayingIdleCooldown(playerNpcEntity.getPlayingIdleCooldown() + 40);
-            }
-        }
 
         if (mob instanceof AVNpc avNpc) {
             if (addIdleCooldown) {
@@ -221,11 +227,14 @@ public class BurnNearbyItemGoal extends Goal {
         }
     }
 
-    private ItemEntity findTargetItem() {
+    private ItemEntity findTargetItem(ServerLevel serverLevel) {
         List<ItemEntity> items = mob.level().getEntitiesOfClass(
                 ItemEntity.class,
                 mob.getBoundingBox().inflate(searchRadius),
-                e -> e.isAlive() && !e.getItem().isEmpty()
+                e -> e.isAlive()
+                        && !e.getItem().isEmpty()
+                        && isGroundItem(e)
+                        && (shouldPickupOrEquipInsteadOfBurn(e.getItem()) || canPlaceFireAtItem(serverLevel, e))
         );
 
         if (items.isEmpty()) return null;
@@ -239,6 +248,29 @@ public class BurnNearbyItemGoal extends Goal {
             }
         }
         return best;
+    }
+
+    private boolean isGroundItem(ItemEntity itemEntity) {
+        return itemEntity != null && itemEntity.onGround();
+    }
+
+    private boolean canPlaceFireAtItem(ServerLevel serverLevel, ItemEntity itemEntity) {
+        if (!isGroundItem(itemEntity)) {
+            return false;
+        }
+
+        return BaseFireBlock.canBePlacedAt(serverLevel, itemEntity.blockPosition(), mob.getDirection());
+    }
+
+    private boolean tryPlaceFireAtItem(ServerLevel serverLevel, ItemEntity itemEntity) {
+        if (!canPlaceFireAtItem(serverLevel, itemEntity)) {
+            return false;
+        }
+
+        BlockPos firePos = itemEntity.blockPosition();
+        serverLevel.setBlockAndUpdate(firePos, BaseFireBlock.getState(serverLevel, firePos));
+        serverLevel.gameEvent(mob, GameEvent.BLOCK_PLACE, firePos);
+        return true;
     }
 
     private void equipFlintAndSteel() {
@@ -297,10 +329,6 @@ public class BurnNearbyItemGoal extends Goal {
         equipStack.setCount(1);
 
         mob.setItemSlot(EquipmentSlot.MAINHAND, equipStack.copy());
-
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setMainWeaponItem(equipStack.copy());
-        }
 
         if (mob instanceof AVNpc avNpc) {
             avNpc.setMainWeaponItem(equipStack.copy());
@@ -458,10 +486,6 @@ public class BurnNearbyItemGoal extends Goal {
     }
 
     private SimpleContainer getNpcInventory() {
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.getInventory();
-        }
-
         if (mob instanceof AVNpc avNpc) {
             return avNpc.getInventory();
         }
@@ -470,10 +494,6 @@ public class BurnNearbyItemGoal extends Goal {
     }
 
     private ItemStack getCachedMainWeapon() {
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.getMainWeaponItem();
-        }
-
         if (mob instanceof AVNpc avNpc) {
             return avNpc.getMainWeaponItem();
         }
@@ -484,10 +504,6 @@ public class BurnNearbyItemGoal extends Goal {
     private void cacheMainWeapon(ItemStack weapon) {
         if (weapon == null || weapon.isEmpty()) {
             return;
-        }
-
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setMainWeaponItem(weapon.copy());
         }
 
         if (mob instanceof AVNpc avNpc) {

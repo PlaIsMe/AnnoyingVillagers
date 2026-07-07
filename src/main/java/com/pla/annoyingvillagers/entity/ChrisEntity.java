@@ -260,7 +260,7 @@ public class ChrisEntity extends AVNpc implements BurstProtectEntity {
             damagedStacks.add(ironAxe);
 
             for (ItemStack stack : damagedStacks) {
-                stack.setDamageValue(EquipmentDataLoader.getRandomDamage(stack));
+                stack.setDamageValue(CommonUtil.getRandomDamage(stack));
                 dropStack.accept(stack);
             }
         }

@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -157,9 +156,6 @@ public class FillWaterBucketGoal extends Goal {
     }
 
     private boolean isHealing() {
-        if (this.mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.isHealing();
-        }
         if (this.mob instanceof AVNpc avNpc) {
             return avNpc.isHealing();
         }

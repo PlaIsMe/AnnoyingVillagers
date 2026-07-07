@@ -36,7 +36,7 @@ public class BowFunction {
             return;
         }
 
-        if ((shooter instanceof Player || shooter instanceof PlayerNpcEntity || shooter instanceof AVNpc)
+        if ((shooter instanceof Player || shooter instanceof AVNpc)
                 && !BowFunction.hasArrowOrInfinity(shooter, bowStack)) {
             return;
         }
@@ -57,7 +57,7 @@ public class BowFunction {
             arrowStack = player.getProjectile(bowStack);
             creativeOrInfinity = player.getAbilities().instabuild ||
                     EnchantmentHelper.getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, bowStack) > 0;
-        } else if (shooter instanceof PlayerNpcEntity || shooter instanceof AVNpc) {
+        } else if (shooter instanceof AVNpc) {
             arrowStack = InventoryUtils.consumeArrowAmmo(shooter).orElse(ItemStack.EMPTY);
             creativeOrInfinity = false;
         } else {
@@ -200,7 +200,7 @@ public class BowFunction {
     }
 
     public static boolean hasArrowOrInfinity(LivingEntity entity, ItemStack bowStack) {
-        if (entity instanceof PlayerNpcEntity || entity instanceof AVNpc) {
+        if (entity instanceof AVNpc) {
             return InventoryUtils.hasArrowAmmo(entity);
         }
 

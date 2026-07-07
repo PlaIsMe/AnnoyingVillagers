@@ -52,6 +52,7 @@
     "compat.efn.CrescentMoonItemMixin",
     "compat.efn.ExcaliburItemMixin",
     "compat.efn.StopEffectMixin",
+    "compat.smartnpc.PlayerNpcEntityMixin",
     "ExecutionTaskMixin",
     "PlayerMixin",
     "MixinPIllagerRenderer",

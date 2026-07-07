@@ -30,7 +30,6 @@ The supported entity's tracked 27 slot Annoying Villagers inventory is shown bel
 
 Supported targets:
 
-- `PlayerNpcEntity`
 - any `AVNpc` subclass
 
 Unsupported targets show a gray action-bar message.

@@ -73,6 +73,8 @@ mixin {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    implementation fg.deobf("libs:SmartNpc-1.20.1:1.0")
+
     implementation fg.deobf("curse.maven:epic-fight-mod-405076:8049910")
     implementation fg.deobf("curse.maven:combat-evolution-1377795:8051212")
     implementation fg.deobf("curse.maven:epicfight-clash-blade-1408812:7973024")
@@ -82,6 +84,7 @@ dependencies {
     implementation fg.deobf("curse.maven:aaa-particles-979809:8082320")
     implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
 
+    implementation fg.deobf("curse.maven:epic-fight-mod-rapier-moveset-addon-1036425:8078907")
     implementation fg.deobf("curse.maven:epicfight-nightfall-1307848:8082392")
     implementation fg.deobf("curse.maven:epic-fight-avalon-1268823:7619938")
     implementation fg.deobf("curse.maven:epic-fight-invincible-1184379:7679941")

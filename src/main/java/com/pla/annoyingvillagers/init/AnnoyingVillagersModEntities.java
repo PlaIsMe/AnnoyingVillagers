@@ -38,7 +38,6 @@ public class AnnoyingVillagersModEntities {
     public static final RegistryObject<EntityType<ChrisEntity>> CHRIS = register("chris", Builder.<ChrisEntity>of(ChrisEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(ChrisEntity::new).sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<SteveEntity>> STEVE = register("steve", Builder.<SteveEntity>of(SteveEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(256).setUpdateInterval(3).setCustomClientFactory(SteveEntity::new).sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<AngrySteveEntity>> ANGRY_STEVE = register("angry_steve", Builder.<AngrySteveEntity>of(AngrySteveEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(256).setUpdateInterval(3).setCustomClientFactory(AngrySteveEntity::new).sized(0.6F, 1.8F));
-    public static final RegistryObject<EntityType<PlayerNpcEntity>> PLAYER_NPC = register("player_npc", Builder.<PlayerNpcEntity>of(PlayerNpcEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(256).setUpdateInterval(3).setCustomClientFactory(PlayerNpcEntity::new).sized(0.6F, 1.8F));
 
     public static final RegistryObject<EntityType<InfectedTheMostMoistBurrit0Entity>> INFECTED_THEMOSTMOISTBURRIT0 = register("infected_the_most_moist_burrit0", Builder.<InfectedTheMostMoistBurrit0Entity>of(InfectedTheMostMoistBurrit0Entity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(InfectedTheMostMoistBurrit0Entity::new).sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<InfectedPlayerNpcEntity>> INFECTED_PLAYER_NPC = register("infected_player_npc", Builder.<InfectedPlayerNpcEntity>of(InfectedPlayerNpcEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(3).setCustomClientFactory(InfectedPlayerNpcEntity::new).sized(0.6F, 1.8F));
@@ -195,13 +194,6 @@ public class AnnoyingVillagersModEntities {
                 SpawnPlacementRegisterEvent.Operation.REPLACE
         );
         event.register(
-                AnnoyingVillagersModEntities.PLAYER_NPC.get(),
-                SpawnPlacements.Type.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                PlayerNpcEntity::canSpawn,
-                SpawnPlacementRegisterEvent.Operation.REPLACE
-        );
-        event.register(
                 AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(),
                 SpawnPlacements.Type.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
@@ -247,7 +239,6 @@ public class AnnoyingVillagersModEntities {
 
     @SubscribeEvent
     public static void setPatch(EntityPatchRegistryEvent entityPatchRegistryEvent) {
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.PLAYER_NPC.get(), (entity) -> PlayerNpcPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(), (entity) -> VillagerScoutPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(), (entity) -> VillagerScoutCaptainPatch::new);
         entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT.get(), (entity) -> VillagerKnightPatch::new);
@@ -329,7 +320,6 @@ public class AnnoyingVillagersModEntities {
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.NULL_SHOVEL.get(), NullShovelEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.NULL_HOE.get(), NullHoeEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.HEROBRINE_GREG.get(), HerobrineGregEntity.createAttributes().build());
-        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.PLAYER_NPC.get(), PlayerNpcEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.HEROBRINE_WARDEN.get(), HerobrineWardenEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get(), HerobrineDragonEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.DRAGON_METEORITE.get(), DragonMeteoriteEntity.createAttributes().build());

@@ -25,7 +25,6 @@ public abstract class BoatMixin {
         return entity instanceof BlueDemonEntity
                 || entity instanceof HerobrineMob
                 || entity instanceof AVNpc
-                || entity instanceof PlayerNpcEntity
                 || entity instanceof LowHerobrineCloneEntity
                 || entity instanceof LowShadowHerobrineCloneEntity
                 || entity instanceof BbqEntity

@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
@@ -10,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.Items;
@@ -99,12 +97,6 @@ public class WaterEnderPearlEscapeGoal extends Goal {
     }
 
     private boolean canUsePearl() {
-        if (this.mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return !playerNpcEntity.isHealing()
-                    && playerNpcEntity.getEnderPearlCooldown() == 0
-                    && InventoryUtils.hasItem(playerNpcEntity, Items.ENDER_PEARL);
-        }
-
         if (this.mob instanceof AVNpc avNpc) {
             return !avNpc.isHealing()
                     && avNpc.getEnderPearlCooldown() == 0
@@ -115,10 +107,6 @@ public class WaterEnderPearlEscapeGoal extends Goal {
     }
 
     private void setPearlCooldown() {
-        if (this.mob instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setEnderPearlCooldown();
-        }
-
         if (this.mob instanceof AVNpc avNpc) {
             avNpc.setEnderPearlCooldown();
         }

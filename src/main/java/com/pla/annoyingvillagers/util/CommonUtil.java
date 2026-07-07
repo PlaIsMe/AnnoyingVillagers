@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.util;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.HookDisarmLaunch;
+import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -34,6 +36,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class CommonUtil {
     public static boolean isAvDamageableEfnWeaponsMob(Entity livingEntity) {
@@ -456,6 +459,13 @@ public class CommonUtil {
         spawnDisarmedItem(serverLevel, livingEntity, target, droppedStack, launch);
     }
 
+    public static int getRandomDamage(ItemStack itemStack) {
+        int maxDamage = itemStack.getMaxDamage();
+        int min = maxDamage / 3;
+        int max = maxDamage * 3 / 4;
+        return new Random().nextInt(max - min + 1) + min;
+    }
+
     private static void tryMoveOffhandWeaponToMainhand(LivingEntity target) {
         ItemStack offhandStack = target.getOffhandItem();
         if (offhandStack.isEmpty()) {
@@ -472,12 +482,9 @@ public class CommonUtil {
             avNpc.setMainWeaponItem(movedStack.copy());
             avNpc.setMainWeaponDisarmed(false);
         }
-        if (target instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setOffWeaponItem(ItemStack.EMPTY);
-            playerNpcEntity.setMainWeaponItem(movedStack.copy());
-            playerNpcEntity.setMainWeaponDisarmed(false);
+        if (ModList.get().isLoaded("smart_npc")) {
+            SmartNpc.disarmMainWeapon(target, movedStack);
         }
-
     }
 
     private static void clearCachedNpcWeapon(LivingEntity target, InteractionHand hand) {
@@ -490,13 +497,8 @@ public class CommonUtil {
             }
         }
 
-        if (target instanceof PlayerNpcEntity playerNpcEntity) {
-            if (hand == InteractionHand.MAIN_HAND) {
-                playerNpcEntity.setMainWeaponItem(ItemStack.EMPTY);
-                playerNpcEntity.setMainWeaponDisarmed(true);
-            } else {
-                playerNpcEntity.setOffWeaponItem(ItemStack.EMPTY);
-            }
+        if (ModList.get().isLoaded("smart_npc")) {
+            SmartNpc.clearCachedWeapon(target, hand);
         }
     }
 

@@ -44,7 +44,6 @@ public class AnnoyingVillagersModItems {
     public static final RegistryObject<Item> ALEX_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("alex_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.ALEX, -3342439, -1  , (new Properties())));
     public static final RegistryObject<Item> JEV_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("jev_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.JEV, 0x996C18, -1, (new Properties())));
     public static final RegistryObject<Item> CHRIS_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("chris_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.CHRIS, -16737997, -6711040, (new Properties())));
-    public static final RegistryObject<Item> PLAYER_NPC_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("player_npc_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.PLAYER_NPC, 0xFFF144, 0x69DFDA, (new Properties())));
 
     // ------------------------------
 

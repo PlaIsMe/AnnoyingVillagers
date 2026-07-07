@@ -1,8 +1,8 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.ItemProjectile;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
@@ -15,6 +15,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -160,12 +161,8 @@ public class DiamondAttractorSwordItem extends SwordItem {
                     }
                 }
 
-                if (target instanceof PlayerNpcEntity playerNpcEntity) {
-                    if (chosenHand == InteractionHand.MAIN_HAND) {
-                        playerNpcEntity.setMainWeaponItem(ItemStack.EMPTY);
-                    } else {
-                        playerNpcEntity.setOffWeaponItem(ItemStack.EMPTY);
-                    }
+                if (ModList.get().isLoaded("smart_npc")) {
+                    SmartNpc.clearPlayerNpcItems(target, chosenHand);
                 }
                 Vec3 spawnPos = getHeldWeaponSpawnPos(target);
                 spawnPulledWeapon(level, owner, pulledStack, spawnPos);

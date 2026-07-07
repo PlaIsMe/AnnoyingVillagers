@@ -24,7 +24,6 @@ public final class AnnoyingVillagersSpawnConfig {
     private static final int COUNT_MAX  = 64;
 
     public static final List<Entry> ENTRIES = List.of(
-            configurableGroupEntry("player_npc", 6, 2, 4, "Player NPC"),
             configurableGroupEntry("villager_scout", 4, 1, 4, "Villager Scout"),
             configurableGroupEntry("villager_scout_captain", 3, 1, 2, "Villager Scout Captain"),
             configurableGroupEntry("purple_villager_knight", 3, 1, 2, "Purple Villager Knight"),

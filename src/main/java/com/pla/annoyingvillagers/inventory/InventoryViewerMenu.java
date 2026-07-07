@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.inventory;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMenus;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
@@ -139,9 +138,6 @@ public class InventoryViewerMenu extends AbstractContainerMenu {
     }
 
     private static SimpleContainer getNpcInventoryOrEmpty(LivingEntity target) {
-        if (target instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.getInventory();
-        }
         if (target instanceof AVNpc avNpc) {
             return avNpc.getInventory();
         }

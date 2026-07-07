@@ -125,7 +125,7 @@ public class AnnoyingVillagersConfig {
                                 "minecraft:player",
                                 "minecraft:zombie",
                                 "minecraft:skeleton",
-                                "annoyingvillagers:player_npc",
+                                "smart_npc:player_npc",
                                 "annoyingvillagers:low_herobrine_clone",
                                 "annoyingvillagers:low_shadow_herobrine_clone",
                                 "annoyingvillagers:villager_scout",

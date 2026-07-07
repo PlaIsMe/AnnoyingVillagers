@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.event;
 
+import com.pla.annoyingvillagers.compat.cdmoveset.EpicFightResurrection;
+import com.pla.annoyingvillagers.compat.refm.EpicFightRapierMoveset;
 import com.pla.annoyingvillagers.entity.BlackFireEntity;
 import com.pla.annoyingvillagers.entity.ElectricPhaseEntity;
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
@@ -44,9 +46,6 @@ import yesman.epicfight.world.effect.EpicFightMobEffects;
 import java.util.Objects;
 
 public class SpecialAttackOnKeyPressedEvent {
-    private static void registerMoreSpecialAttackCategories(PlayerPatch<?> playerpatch, Entity entity, LivingEntityPatch<?> livingEntityPatch) {
-    }
-
     private static void playHookGunBindAnimationAfterHandRefresh(Player player) {
         new DelayedTask(2) {
             @Override
@@ -665,7 +664,17 @@ public class SpecialAttackOnKeyPressedEvent {
                 }
             }
 
-            registerMoreSpecialAttackCategories(playerpatch, entity, livingEntityPatch);
+            if (ModList.get().isLoaded("refm")) {
+                if (EpicFightRapierMoveset.addRefmSpecialAttack(playerpatch, entity, livingEntityPatch)) {
+                    return;
+                }
+            }
+
+            if (ModList.get().isLoaded("cdmoveset")) {
+                if (EpicFightResurrection.addMoreSpecialAttack(playerpatch, entity, livingEntityPatch)) {
+                    return;
+                }
+            }
         }
     }
 }

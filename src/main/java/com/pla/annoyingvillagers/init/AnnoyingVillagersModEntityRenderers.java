@@ -63,7 +63,6 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.NULL_HOE.get(), NullWeaponRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLOCK_PROJECTILE.get(), BlockProjectileRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_GREG.get(), HerobrineGregRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.PLAYER_NPC.get(), FakePlayerRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_WARDEN.get(), HerobrineWardenRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get(), HerobrineDragonRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.DRAGON_METEORITE.get(), DragonMeteoriteRenderer::new);
@@ -86,9 +85,6 @@ public class AnnoyingVillagersModEntityRenderers {
 
     @SubscribeEvent
     public static void onPatchedRenderer(PatchedRenderersEvent.Add add) {
-        add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.PLAYER_NPC.get(),
-                (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
-                        .initLayerLast(add.getContext(), entitytype));
         add.addPatchedEntityRenderer(AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(),
                 (entitytype) -> (new PHumanoidRenderer<>(Meshes.BIPED, add.getContext(), entitytype))
                         .initLayerLast(add.getContext(), entitytype));

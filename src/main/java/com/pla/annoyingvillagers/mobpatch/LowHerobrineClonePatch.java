@@ -431,7 +431,7 @@ public class LowHerobrineClonePatch extends CEHumanoidPatch<PathfinderMob> imple
         CapabilityItem mainHandCap = this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
         CapabilityItem offHandCap = this.getHoldingItemCapability(InteractionHand.OFF_HAND);
         CECombatBehaviors.Builder<MobPatch<?>> customOverride = MobPatchCommon.overideCustomWeaponMotionBuilderForAvNpc(mainHandCap, offHandCap, mainHandCap.getStyle(this));
-        if (customOverride == null) customOverride = MobPatchCommon.overideBowMotionBuilderForPlayerNpc(mainHandCap, mainHandCap.getStyle(this));
+        if (customOverride == null) customOverride = MobPatchCommon.overideBowMotionBuilderForNpc(mainHandCap, mainHandCap.getStyle(this));
         return customOverride != null ? customOverride : super.getCustomWeaponMotionBuilder();
     }
 

@@ -4,8 +4,6 @@ import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -29,9 +27,6 @@ public class KeepPositionGoal extends Goal {
         if (mob instanceof HerobrineMob herobrineMob) {
             return CombatCommon.canEscape((MobPatch<?>) herobrineMob.getLivingEntityPatch());
         }
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return CombatCommon.canEscape((MobPatch<?>) playerNpcEntity.getLivingEntityPatch());
-        }
         if (mob instanceof AVNpc avNpc) {
             return CombatCommon.canEscape((MobPatch<?>) avNpc.getLivingEntityPatch());
         }
@@ -45,9 +40,6 @@ public class KeepPositionGoal extends Goal {
     public boolean canContinueToUse() {
         if (mob instanceof HerobrineMob herobrineMob) {
             return CombatCommon.canEscape((MobPatch<?>) herobrineMob.getLivingEntityPatch());
-        }
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return CombatCommon.canEscape((MobPatch<?>) playerNpcEntity.getLivingEntityPatch());
         }
         if (mob instanceof AVNpc avNpc) {
             return CombatCommon.canEscape((MobPatch<?>) avNpc.getLivingEntityPatch());

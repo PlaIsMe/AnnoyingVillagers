@@ -232,7 +232,7 @@ public class CombatCommon {
 
         LivingEntityPatch<?> victimEntityPatch = EpicFightCapabilities.getEntityPatch(victim, LivingEntityPatch.class);
         if (victimEntityPatch != null
-                && (attacker instanceof PlayerNpcEntity || attacker instanceof AVNpc || attacker instanceof HerobrineMob || attacker instanceof NullSkeletonEntity || attacker instanceof BlueDemonEntity)) {
+                && (attacker instanceof AVNpc || attacker instanceof HerobrineMob || attacker instanceof NullSkeletonEntity || attacker instanceof BlueDemonEntity)) {
             AssetAccessor<? extends StaticAnimation> currentAnimation =
                     Objects.requireNonNull(victimEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
 
@@ -261,9 +261,6 @@ public class CombatCommon {
         LivingEntity attacker = mobpatch.getOriginal();
         LivingEntity victim = mobpatch.getOriginal().getTarget();
         if (!mobpatch.getEntityState().canBasicAttack()) {
-            return false;
-        }
-        if (attacker instanceof PlayerNpcEntity playerNpcEntity && playerNpcEntity.isHealing()) {
             return false;
         }
         if (attacker instanceof AVNpc AVNpc && AVNpc.isHealing()) {
@@ -310,7 +307,7 @@ public class CombatCommon {
     public static boolean hasClearBowShot(MobPatch<?> mobpatch) {
         Mob mob = mobpatch.getOriginal();
         LivingEntity target = mob.getTarget();
-        if ((mob instanceof PlayerNpcEntity || mob instanceof AVNpc) && !InventoryUtils.hasArrowAmmo(mob)) {
+        if ((mob instanceof AVNpc) && !InventoryUtils.hasArrowAmmo(mob)) {
             return false;
         }
         return target != null && target.isAlive() && BowFunction.hasClearShot(mob, target);
@@ -321,15 +318,11 @@ public class CombatCommon {
     }
 
     public static boolean usesRollMoveset(MobPatch<?> mobpatch) {
-        return mobpatch.getOriginal() instanceof PlayerNpcEntity
-                || mobpatch.getOriginal() instanceof LowHerobrineCloneEntity
+        return mobpatch.getOriginal() instanceof LowHerobrineCloneEntity
                 || mobpatch.getOriginal() instanceof LowShadowHerobrineCloneEntity;
     }
 
     public static boolean canAttackWhileNotHealing(MobPatch<?> mobpatch) {
-        if (mobpatch.getOriginal() instanceof PlayerNpcEntity playerNpcEntity) {
-            return !playerNpcEntity.isHealing();
-        }
         if (mobpatch.getOriginal() instanceof AVNpc AVNpc) {
             return !AVNpc.isHealing();
         }
@@ -348,13 +341,9 @@ public class CombatCommon {
         if (EscapeUtil.checkEscape(entity)) {
             if (entity instanceof HerobrineMob || entity instanceof BlueDemonEntity) {
                 return true;
-            } else if (entity instanceof AVNpc avNpc
+            } else return entity instanceof AVNpc avNpc
                     && InventoryUtils.hasPlaceableBlock(avNpc)
-                    && avNpc.rollsPlaceBlockToParryChance()) {
-                return true;
-            } else return entity instanceof PlayerNpcEntity playerNpcEntity
-                    && InventoryUtils.hasPlaceableBlock(playerNpcEntity)
-                    && new Random().nextDouble() <= playerNpcEntity.getPlaceBlockToParryChance();
+                    && avNpc.rollsPlaceBlockToParryChance();
         }
         return false;
     }
@@ -381,12 +370,6 @@ public class CombatCommon {
     public static boolean canPerformEating(MobPatch<?> mobpatch) {
         if (canExecute(mobpatch)) return false;
         if (!mobpatch.getEntityState().canBasicAttack()) return false;
-        if (mobpatch.getOriginal() instanceof PlayerNpcEntity playerNpcEntity) {
-            if (playerNpcEntity.getGapCooldown() > 0) {
-                return false;
-            }
-            return !playerNpcEntity.isHealing() && InventoryUtils.hasHealingFood(playerNpcEntity);
-        }
         if (mobpatch.getOriginal() instanceof AVNpc AVNpc) {
             if (AVNpc.getGapCooldown() > 0) {
                 return false;
@@ -399,9 +382,6 @@ public class CombatCommon {
     public static boolean canPerformGuarding(MobPatch<?> mobpatch) {
         if (canEscape(mobpatch)) return false;
         if (!mobpatch.getEntityState().canBasicAttack()) return false;
-        if (mobpatch.getOriginal() instanceof PlayerNpcEntity playerNpcEntity) {
-            return !playerNpcEntity.isHealing();
-        }
         if (mobpatch.getOriginal() instanceof AVNpc AVNpc) {
             return !AVNpc.isHealing();
         }
@@ -425,12 +405,6 @@ public class CombatCommon {
             return false;
         }
 
-        if (mobpatch.getOriginal() instanceof PlayerNpcEntity playerNpcEntity) {
-            if (playerNpcEntity.isHealing()) {
-                return false;
-            }
-            return playerNpcEntity.getEnderPearlCooldown() == 0 && InventoryUtils.hasItem(playerNpcEntity, Items.ENDER_PEARL);
-        }
         if (mobpatch.getOriginal() instanceof AVNpc AVNpc) {
             if (AVNpc.isHealing()) {
                 return false;
@@ -623,11 +597,6 @@ public class CombatCommon {
             return false;
         }
 
-        if (mobpatch.getOriginal() instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.getSwapToBowCooldown() == 0
-                    && InventoryUtils.hasArrowAmmo(playerNpcEntity);
-        }
-
         if (mobpatch.getOriginal() instanceof AVNpc AVNpc) {
             if ((AVNpc instanceof SteveEntity || AVNpc instanceof AngrySteveEntity
                     || AVNpc instanceof AlexEntity || AVNpc instanceof ChrisEntity)) {
@@ -699,10 +668,6 @@ public class CombatCommon {
         entity.yHeadRotO = yaw;
 
         if (CombatBehaviour.throwEnderPearl(entity, 0.0F)) {
-            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                playerNpcEntity.setEnderPearlCooldown();
-            }
-
             if (entity instanceof AVNpc AVNpc) {
                 AVNpc.setEnderPearlCooldown();
             }
@@ -740,9 +705,6 @@ public class CombatCommon {
         entity.yHeadRotO = yaw;
 
         if (CombatBehaviour.throwEnderPearl(entity, 0.0F)) {
-            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                playerNpcEntity.setEnderPearlCooldown();
-            }
             if (entity instanceof AVNpc AVNpc) {
                 AVNpc.setEnderPearlCooldown();
             }
@@ -957,7 +919,7 @@ public class CombatCommon {
         final Mob mob = mobpatch.getOriginal();
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
         if (!isGroundWithin(mob, MAX_PLACE_BLOCK_GROUND_GAP)) return;
-        if ((mob instanceof PlayerNpcEntity || mob instanceof AVNpc) && !InventoryUtils.hasPlaceableBlock(mob)) {
+        if ((mob instanceof AVNpc) && !InventoryUtils.hasPlaceableBlock(mob)) {
             return;
         }
 
@@ -1087,7 +1049,7 @@ public class CombatCommon {
             HerobrineUtil.placeIfReplaceable(level, pos, state, mob);
         } else {
             if (!level.getBlockState(pos).canBeReplaced()) return;
-            if (mob instanceof PlayerNpcEntity || mob instanceof AVNpc) {
+            if (mob instanceof AVNpc) {
                 ItemStack consumedBlock = InventoryUtils.consumePlaceableBlock(mob).orElse(ItemStack.EMPTY);
                 if (consumedBlock.isEmpty()) {
                     return;
@@ -1156,9 +1118,6 @@ public class CombatCommon {
                 if (mob instanceof AVNpc AVNpc) {
                     AVNpc.shortPillarJump();
                 }
-                if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-                    playerNpcEntity.shortPillarJump();
-                }
                 mobpatch.playAnimationSynchronized(Animations.BIPED_JUMP, 0.0F);
             }
         };
@@ -1226,18 +1185,11 @@ public class CombatCommon {
         entity.setItemInHand(InteractionHand.MAIN_HAND, foodStack.copy());
         if (new Random().nextBoolean() && InventoryUtils.hasItem(entity, Items.ENDER_PEARL)
                 && CombatBehaviour.throwEnderPearl(entity, new Random().nextFloat(0.0F, 180.0F))) {
-            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                playerNpcEntity.setEnderPearlCooldown();
-            }
             if (entity instanceof AVNpc AVNpc) {
                 AVNpc.setEnderPearlCooldown();
             }
         } else {
             performEscapeRunAway(mobpatch);
-        }
-
-        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setGapCooldown();
         }
         if (entity instanceof AVNpc AVNpc) {
             AVNpc.setGapCooldown();
@@ -1323,14 +1275,6 @@ public class CombatCommon {
     }
 
     public static void swapToMelee(MobPatch<?> mobpatch) {
-        if (mobpatch.getOriginal() instanceof PlayerNpcEntity playerNpcEntity) {
-            ItemStack mainWeaponItem = playerNpcEntity.getMainWeaponItem();
-            ItemStack offWeaponItem = playerNpcEntity.getOffWeaponItem();
-            playerNpcEntity.setItemInHand(InteractionHand.MAIN_HAND, mainWeaponItem.copy());
-            playerNpcEntity.setItemInHand(InteractionHand.OFF_HAND, offWeaponItem.copy());
-            playerNpcEntity.setSwapToBowCooldown();
-        }
-
         if (mobpatch.getOriginal() instanceof AVNpc AVNpc) {
             ItemStack mainWeaponItem = AVNpc.getMainWeaponItem();
             ItemStack offWeaponItem = AVNpc.getOffWeaponItem();
@@ -1725,9 +1669,6 @@ public class CombatCommon {
     }
 
     private static boolean isTrackedNpcHealing(Mob mob) {
-        if (mob instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.isHealing();
-        }
         if (mob instanceof AVNpc avNpc) {
             return avNpc.isHealing();
         }
@@ -1776,9 +1717,6 @@ public class CombatCommon {
 
     public static void jump(MobPatch<?> mobpatch) {
         Entity entity = mobpatch.getOriginal();
-        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.jump();
-        }
         if (entity instanceof AVNpc AVNpc) {
             AVNpc.jump();
         }
@@ -1786,9 +1724,6 @@ public class CombatCommon {
 
     public static void shortPillarJump(MobPatch<?> mobpatch) {
         Entity entity = mobpatch.getOriginal();
-        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.shortPillarJump();
-        }
         if (entity instanceof AVNpc AVNpc) {
             AVNpc.shortPillarJump();
         }
@@ -1798,7 +1733,7 @@ public class CombatCommon {
         Entity entity = mobpatch.getOriginal();
         if (entity instanceof LivingEntity livingEntity) {
             cancelCombatEvolutionGuard(mobpatch);
-            if (livingEntity instanceof PlayerNpcEntity || livingEntity instanceof AVNpc) {
+            if (livingEntity instanceof AVNpc) {
                 ItemStack blockStack = InventoryUtils.peekPlaceableBlock(livingEntity).orElse(ItemStack.EMPTY);
                 if (blockStack.isEmpty()) {
                     return;
@@ -1830,7 +1765,7 @@ public class CombatCommon {
 
     public static void swapToBlock(MobPatch<?> mobpatch) {
         LivingEntity entity = mobpatch.getOriginal();
-        if (entity instanceof PlayerNpcEntity || entity instanceof AVNpc) {
+        if (entity instanceof AVNpc) {
             cancelCombatEvolutionGuard(mobpatch);
             ItemStack blockStack = InventoryUtils.peekPlaceableBlock(entity).orElse(ItemStack.EMPTY);
             if (blockStack.isEmpty()) {

@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
@@ -298,9 +297,6 @@ public class InventoryUtils {
     }
 
     private static SimpleContainer getTrackedInventory(Entity entity) {
-        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-            return playerNpcEntity.getInventory();
-        }
         if (entity instanceof AVNpc avNpc) {
             return avNpc.getInventory();
         }

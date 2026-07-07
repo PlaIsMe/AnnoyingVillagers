@@ -1,11 +1,8 @@
 package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.entity.AngrySteveEntity;
-import com.pla.annoyingvillagers.entity.PlayerNpcEntity;
 import com.pla.annoyingvillagers.entity.SteveEntity;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.task.DelayedTask;
@@ -152,7 +149,7 @@ public class CombatBehaviour {
     }
 
     private static boolean consumeTrackedEnderPearl(Entity entity) {
-        if (!(entity instanceof PlayerNpcEntity || entity instanceof AVNpc)) {
+        if (!(entity instanceof AVNpc)) {
             return true;
         }
         return InventoryUtils.consumeItem(entity, Items.ENDER_PEARL, 1).isPresent();
@@ -183,11 +180,6 @@ public class CombatBehaviour {
     }
 
     private static void recoverItemDueToFailure(Entity entity) {
-        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-            playerNpcEntity.setItemInHand(InteractionHand.MAIN_HAND, playerNpcEntity.getMainWeaponItem().copy());
-            playerNpcEntity.setHealing(false);
-            playerNpcEntity.resetGapCooldown();
-        }
         if (entity instanceof AVNpc AVNpc) {
             AVNpc.setItemInHand(InteractionHand.MAIN_HAND, AVNpc.getMainWeaponItem().copy());
             AVNpc.setHealing(false);
@@ -196,9 +188,6 @@ public class CombatBehaviour {
     }
 
     private static boolean isTrackedHealingCancelled(Entity entity) {
-        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-            return !playerNpcEntity.isHealing();
-        }
         if (entity instanceof AVNpc AVNpc) {
             return !AVNpc.isHealing();
         }
@@ -206,7 +195,7 @@ public class CombatBehaviour {
     }
 
     private static boolean trackedNpcHoldsMainHandItem(Entity entity, Item expectedItem) {
-        if (!(entity instanceof PlayerNpcEntity || entity instanceof AVNpc)) {
+        if (!(entity instanceof AVNpc)) {
             return true;
         }
         return entity instanceof LivingEntity livingEntity
@@ -310,22 +299,12 @@ public class CombatBehaviour {
         LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
         if (livingEntityPatch != null && entity instanceof LivingEntity livingEntity) {
-            if (entity instanceof PlayerNpcEntity playerNpcEntity && playerNpcEntity.isHealing()) {
-                return;
-            }
             if (entity instanceof AVNpc AVNpc && AVNpc.isHealing()) {
                 return;
             }
             livingEntity.addEffect(
                     new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, (int) (amount * 2.0D), 2, false, false)
             );
-            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                if (playerNpcEntity.isHealing()) {
-                    return;
-                } else {
-                    playerNpcEntity.setHealing(true);
-                }
-            }
             if (entity instanceof AVNpc AVNpc) {
                 if (AVNpc.isHealing()) {
                     return;
@@ -398,7 +377,7 @@ public class CombatBehaviour {
                                 recoverItemDueToFailure(entity);
                                 return;
                             }
-                            if ((entity instanceof PlayerNpcEntity || entity instanceof AVNpc)
+                            if ((entity instanceof AVNpc)
                                     && !InventoryUtils.consumeHealingFood(entity, heldFood)) {
                                 recoverItemDueToFailure(entity);
                                 return;
@@ -407,10 +386,6 @@ public class CombatBehaviour {
                             LivingEntityPatch<?> livingEntityPatch1 = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
                             if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch1 != null) {
                                 livingEntityPatch1.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
-                            }
-
-                            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                                livingEntity.setItemInHand(InteractionHand.MAIN_HAND, playerNpcEntity.getMainWeaponItem().copy());
                             }
                             if (entity instanceof AVNpc AVNpc) {
                                 if (livingEntityPatch1 != null && AVNpc instanceof SteveEntity && CombatCommon.canSwitchWeapon((MobPatch<?>) livingEntityPatch1)) {
@@ -436,10 +411,6 @@ public class CombatBehaviour {
                                     livingEntity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 60, 0));
                                 }
                             }
-
-                            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                                playerNpcEntity.setHealing(false);
-                            }
                             if (entity instanceof AVNpc AVNpc) {
                                 AVNpc.setHealing(false);
                             }
@@ -454,22 +425,12 @@ public class CombatBehaviour {
         LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 
         if (livingEntityPatch != null && entity instanceof LivingEntity livingEntity) {
-            if (entity instanceof PlayerNpcEntity playerNpcEntity && playerNpcEntity.isHealing()) {
-                return;
-            }
             if (entity instanceof AVNpc AVNpc && AVNpc.isHealing()) {
                 return;
             }
             livingEntity.addEffect(
                     new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, (int) (amount * 2.0D), 2, false, false)
             );
-            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                if (playerNpcEntity.isHealing()) {
-                    return;
-                } else {
-                    playerNpcEntity.setHealing(true);
-                }
-            }
             if (entity instanceof AVNpc AVNpc) {
                 if (AVNpc.isHealing()) {
                     return;
@@ -548,9 +509,6 @@ public class CombatBehaviour {
                                 livingEntityPatch1.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
                             }
 
-                            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                                livingEntity.setItemInHand(InteractionHand.MAIN_HAND, playerNpcEntity.getMainWeaponItem().copy());
-                            }
                             if (entity instanceof AVNpc AVNpc) {
                                 if (livingEntityPatch1 != null && AVNpc instanceof SteveEntity && CombatCommon.canSwitchWeapon((MobPatch<?>) livingEntityPatch1)) {
                                     CombatCommon.switchWeapon((MobPatch<?>) livingEntityPatch1);
@@ -567,9 +525,6 @@ public class CombatBehaviour {
                                 }
                             }
 
-                            if (entity instanceof PlayerNpcEntity playerNpcEntity) {
-                                playerNpcEntity.setHealing(false);
-                            }
                             if (entity instanceof AVNpc AVNpc) {
                                 AVNpc.setHealing(false);
                             }

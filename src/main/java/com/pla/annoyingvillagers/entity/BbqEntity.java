@@ -1,14 +1,13 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.clazz.*;
+import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.goal.EscapeAvoidGoal;
 import com.pla.annoyingvillagers.entity.goal.FollowEscapeLeaderGoal;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -38,6 +37,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -248,7 +248,9 @@ public class BbqEntity extends Chicken implements BurstProtectEntity, CombatVoic
         this.goalSelector.addGoal(1, new EscapeAvoidGoal<>(this, Player.class, 12.0F, 2.0D, 2.0D));
         this.goalSelector.addGoal(1, new EscapeAvoidGoal<>(this, HerobrineMob.class, 12.0F, 2.0D, 2.0D));
         this.goalSelector.addGoal(1, new EscapeAvoidGoal<>(this, Monster.class, 12.0F, 2.0D, 2.0D));
-        this.goalSelector.addGoal(1, new EscapeAvoidGoal<>(this, PlayerNpcEntity.class, 12.0F, 2.0D, 2.0D));
+        if (ModList.get().isLoaded("smart_npc")) {
+            SmartNpc.bbqEscapeAvoid(this);
+        }
         this.goalSelector.addGoal(1, new EscapeAvoidGoal<>(this, AVNpc.class, 12.0F, 2.0D, 2.0D));
 
         this.goalSelector.addGoal(2, new FollowEscapeLeaderGoal(this));

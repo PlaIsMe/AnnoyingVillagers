@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
 import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
+import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
@@ -64,6 +65,7 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
@@ -904,8 +906,9 @@ public class HerobrineGregEntity extends Monster {
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, GreenVillagerKnightEntity.class, 12.0F, 1.0D, 1.35D));
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, RedVillagerKnightEntity.class, 12.0F, 1.0D, 1.35D));
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, PurpleVillagerKnightEntity.class, 12.0F, 1.0D, 1.35D));
-
-        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, PlayerNpcEntity.class, 12.0F, 1.0D, 1.35D));
+        if (ModList.get().isLoaded("smart_npc")) {
+            SmartNpc.gregAvoid(this);
+        }
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Player.class, 12.0F, 1.0D, 1.35D));
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, SteveEntity.class, 24.0F, 1.0D, 1.35D));
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, AlexEntity.class, 12.0F, 1.0D, 1.35D));

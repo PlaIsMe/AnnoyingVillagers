@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
-import com.pla.annoyingvillagers.compat.EpicFightResurrection;
+import com.pla.annoyingvillagers.compat.cdmoveset.EpicFightResurrection;
 import com.pla.annoyingvillagers.compat.EpicFightSwordSoaring;
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;

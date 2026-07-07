@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.compat.dualaxes;
 
 import M6FGR.dualaxes.gameassets.DualAxesAnimations;
-import com.asanginxst.epicfightx.gameassets.animations.AnimationsX;
 import com.pla.annoyingvillagers.combatbehaviour.AvNpcCombatBehaviorBuilder;
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
@@ -24,7 +23,7 @@ public class AvNpcDualAxe {
             CombatCommon.animations(
                     Animations.BIPED_MOB_TACHI,
                     Animations.AXE_AIRSLASH,
-                    AnimationsX.THE_GUILLOTINE
+                    Animations.THE_GUILLOTINE
             )
     );
 
