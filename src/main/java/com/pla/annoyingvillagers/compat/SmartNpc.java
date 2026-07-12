@@ -90,7 +90,8 @@ public class SmartNpc {
         return target instanceof HerobrineMob
                 || target instanceof HerobrineGregEntity
                 || target instanceof LowHerobrineCloneEntity
-                || target instanceof LowShadowHerobrineCloneEntity;
+                || target instanceof LowShadowHerobrineCloneEntity
+                || target instanceof VillagerArmyEntity;
     }
 
     public static void increaseStunEscapeCooldown(Entity entity) {
