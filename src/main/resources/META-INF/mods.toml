@@ -6,7 +6,7 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="${mod_authors}"
-credits="Photon VFX by Sidtheplayer"
+credits="See NOTICE.md for the full credit list."
 description='''${mod_description}'''
 [[dependencies.annoyingvillagers]]
     modId="forge"
