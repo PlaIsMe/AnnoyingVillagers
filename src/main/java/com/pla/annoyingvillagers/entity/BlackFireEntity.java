@@ -5,7 +5,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlackFireSwordItem;
 import com.pla.annoyingvillagers.network.ClientboundBlackFireFx;
-import com.pla.annoyingvillagers.util.EpicfightUtil;
+import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -26,8 +26,6 @@ import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.gameasset.Armatures;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -251,25 +249,23 @@ public class BlackFireEntity extends Entity implements IEntityAdditionalSpawnDat
     }
 
     private static Vec3 getOwnerSwordPosition(LivingEntity owner) {
-        try {
-            Vec3 pos = EpicfightUtil.getJointWithTranslation(
-                    owner,
-                    new Vec3f(0.0F, 0.0F, 0.0F),
-                    Armatures.BIPED.get().toolR,
-                    (float) 1.0,
-                    0.0F
-            );
-
-            if (pos != null) {
-                return pos;
-            }
-        } catch (Exception ignored) {
-        }
-
-        Vec3 look = owner.getLookAngle();
-        return owner.position()
-                .add(0.0D, owner.getBbHeight() * 0.65D, 0.0D)
-                .add(look.scale(0.75D));
+//      ADD THIS CODE IN AV_EFM
+//        try {
+//            Vec3 pos = EpicfightUtil.getJointWithTranslation(
+//                    owner,
+//                    new Vec3f(0.0F, 0.0F, 0.0F),
+//                    Armatures.BIPED.get().toolR,
+//                    (float) 1.0,
+//                    0.0F
+//            );
+//
+//            if (pos != null) {
+//                return pos;
+//            }
+//        } catch (Exception ignored) {
+//        }
+//
+        return CommonUtil.getVanillaSwordOrBodyPosition(owner);
     }
 
     private void damageEntitiesInZone() {

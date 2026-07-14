@@ -74,35 +74,15 @@ mixin {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     implementation fg.deobf("libs:SmartNpc-1.20.1:1.0")
-
-    implementation fg.deobf("curse.maven:epic-fight-mod-405076:8049910")
-    implementation fg.deobf("curse.maven:combat-evolution-1377795:8051212")
-    implementation fg.deobf("curse.maven:epicfight-clash-blade-1408812:7973024")
-    implementation fg.deobf("curse.maven:epicfight-kick-skills-1521559:7966307")
-    implementation fg.deobf("curse.maven:weapons-of-miracles-epicfight-918614:7517612")
+//    implementation fg.deobf("curse.maven:epic-fight-mod-405076:8049910")
 
     implementation fg.deobf("curse.maven:aaa-particles-979809:8082320")
     implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
-
-    implementation fg.deobf("curse.maven:epic-fight-mod-rapier-moveset-addon-1036425:8078907")
-    implementation fg.deobf("curse.maven:epicfight-nightfall-1307848:8082392")
-    implementation fg.deobf("curse.maven:epic-fight-avalon-1268823:7619938")
-    implementation fg.deobf("curse.maven:epic-fight-invincible-1184379:7679941")
-    implementation fg.deobf("curse.maven:sword-soaring-1011068:7627333")
-    implementation fg.deobf("curse.maven:epic-fight-dual-axes-1174112:7647115")
-    implementation fg.deobf("curse.maven:epic-fight-dual-greatswords-updated-1224015:7647220")
-    implementation fg.deobf("curse.maven:epicfight-extra-1434276:7961244")
 
     implementation fg.deobf("curse.maven:mmmmmmmmmmmm-225738:6860192")
     implementation fg.deobf("curse.maven:selene-499980:7541536")
     implementation fg.deobf("curse.maven:photon-871522:7501597")
     implementation fg.deobf("curse.maven:ldlib-626676:7809449")
-
-    implementation fg.deobf("curse.maven:epicfight-resurrection-1151542:6931390")
-    implementation fg.deobf("curse.maven:p1neros-epic-bow-1338443:7144823")
-    implementation fg.deobf("curse.maven:epicfight-dancing-1521730:7967290")
-
-    implementation fg.deobf("curse.maven:combat-evolution-x-more-execution-animations-1521545:8167727")
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
 

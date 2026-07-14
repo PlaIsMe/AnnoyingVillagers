@@ -51,8 +51,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
-import yesman.epicfight.api.animation.Joint;
-import yesman.epicfight.api.utils.math.Vec3f;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -555,11 +553,30 @@ public class HerobrineUtil {
         }
     }
 
+    private static Vec3 getJointOrVanillaActionPosition(Entity entity, Object joint, float partialTick) {
+//        Add this is AV_EFM
+//        if (joint != null) {
+//            try {
+//                Vec3 jointVec = EpicfightUtil.getJointWithTranslation(
+//                        entity, new Vec3f(0, 0, 0),
+//                        (Joint) joint, partialTick, 0.0F
+//                );
+//                if (jointVec != null) {
+//                    return jointVec;
+//                }
+//            } catch (Exception ignored) {
+//            }
+//        }
+
+        float fallbackPartialTick = entity.level().isClientSide ? partialTick : 1.0F;
+        return CommonUtil.getVanillaSwordOrBodyPosition(entity, fallbackPartialTick);
+    }
+
     public static void summonObsidianBlocksInfrontOf(ServerLevel level,
                                                      LivingEntity caster,
                                                      BlockState obsidianState,
                                                      int amount,
-                                                     Joint joint) {
+                                                     Object joint) {
         if (level == null || caster == null) return;
 
         final Vec3[] lockedEye = { null };
@@ -582,10 +599,7 @@ public class HerobrineUtil {
                     Vec3 placeVec;
 
                     if (forwardBlock == 2) {
-                        Vec3 jointVec = EpicfightUtil.getJointWithTranslation(
-                                caster, new Vec3f(0, 0, 0),
-                                joint, 0.0F, 0.0F
-                        );
+                        Vec3 jointVec = getJointOrVanillaActionPosition(caster, joint, 0.0F);
                         if (jointVec == null) return;
 
                         placeVec = jointVec.add(lockedDir[0].scale(1.0D));
@@ -771,7 +785,7 @@ public class HerobrineUtil {
         }
     }
 
-    public static void summonShadowObsidianShortPillarShootToward(ServerLevel level, Entity ownerEntity, int maxDistance, Joint joint) {
+    public static void summonShadowObsidianShortPillarShootToward(ServerLevel level, Entity ownerEntity, int maxDistance, Object joint) {
         if (level == null || ownerEntity == null) return;
 
         BlockState baseState = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_SHORT_PILLAR.get()
@@ -782,7 +796,7 @@ public class HerobrineUtil {
         summonPillarsTowardJoint(level, ownerEntity, baseState, Math.max(2, maxDistance), joint);
     }
 
-    public static void summonShadowObsidianMiddlePillarShootToward(ServerLevel level, Entity ownerEntity, int maxDistance, Joint joint) {
+    public static void summonShadowObsidianMiddlePillarShootToward(ServerLevel level, Entity ownerEntity, int maxDistance, Object joint) {
         if (level == null || ownerEntity == null) return;
 
         BlockState baseState = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get()
@@ -796,7 +810,7 @@ public class HerobrineUtil {
                                                  Entity ownerEntity,
                                                  BlockState blockState,
                                                  int maxDistance,
-                                                 Joint joint) {
+                                                 Object joint) {
         final Vec3[] lockedDir = { null };
         final Vec3[] lockedJoint = { null };
         final Direction[] lockedFacing = { null };
@@ -813,10 +827,7 @@ public class HerobrineUtil {
                         lockedDir[0] = ownerEntity.getLookAngle().normalize();
                         lockedFacing[0] = ownerEntity.getDirection();
 
-                        lockedJoint[0] = EpicfightUtil.getJointWithTranslation(
-                                ownerEntity, new Vec3f(0, 0, 0),
-                                joint, 0.0F, 0.0F
-                        );
+                        lockedJoint[0] = getJointOrVanillaActionPosition(ownerEntity, joint, 0.0F);
                         if (lockedJoint[0] == null) return;
                     }
 

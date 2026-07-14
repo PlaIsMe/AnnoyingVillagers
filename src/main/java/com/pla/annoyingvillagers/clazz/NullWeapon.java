@@ -7,13 +7,9 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.entity.NullEntity;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AVSkills;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.entity.goal.PortalApproachGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.NullWeaponItem;
-import com.pla.annoyingvillagers.skill.NullWeaponSkill;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.core.BlockPos;
@@ -52,14 +48,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import reascer.wom.world.entity.mob.EnderHand;
-import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
-import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 public class NullWeapon extends Monster {
     protected UUID nullUUID;
@@ -104,16 +92,20 @@ public class NullWeapon extends Monster {
     }
 
     public void spinfor5seconds() {
-        final LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
-        if (livingEntityPatch != null) {
-            livingEntityPatch.playAnimationSynchronized(AnimsWom.GLOWING_AGONY_GUARD, 0.0F);
-            new DelayedTask(100) {
-                @Override
-                public void run() {
-                    livingEntityPatch.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
-                }
-            };
-        }
+//      ADD THIS CODE IN AV_EFM
+
+//        final LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
+//        if (livingEntityPatch != null) {
+//            livingEntityPatch.playAnimationSynchronized(AnimsWom.GLOWING_AGONY_GUARD, 0.0F);
+//            new DelayedTask(100) {
+//                @Override
+//                public void run() {
+//                    livingEntityPatch.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
+//                }
+//            };
+//        }
+
+//        Create VANILLA_ANIMATION
     }
 
     public void setWeapon(String weapon) {
@@ -340,19 +332,21 @@ public class NullWeapon extends Monster {
     public void increaseSkillPoint(Entity entity, float value) {
         if (!(entity instanceof Player pEntity)) return;
 
-        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(pEntity, PlayerPatch.class);
-        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
+//      ADD THIS CODE IN AV_EFM
 
-        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.NULL_WEAPON);
-        if (skillContainer == null) return;
-
-        NullWeaponSkill skill = (NullWeaponSkill) skillContainer.getSkill();
-
-        float currentResource = skillContainer.getResource();
-        float neededResource = skillContainer.getNeededResource();
-        float addResource = Math.min(value, neededResource);
-
-        skill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
+//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(pEntity, PlayerPatch.class);
+//        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
+//
+//        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.NULL_WEAPON);
+//        if (skillContainer == null) return;
+//
+//        NullWeaponSkill skill = (NullWeaponSkill) skillContainer.getSkill();
+//
+//        float currentResource = skillContainer.getResource();
+//        float neededResource = skillContainer.getNeededResource();
+//        float addResource = Math.min(value, neededResource);
+//
+//        skill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
     }
 
     @Override
@@ -419,17 +413,21 @@ public class NullWeapon extends Monster {
     }
 
     private static boolean isAllowedHeldCategory(Player p) {
-        ItemStack main = p.getMainHandItem();
+//      ADD THIS CODE IN AV_EFM
 
-        if (main.getItem() instanceof NullWeaponItem) return true;
+//        ItemStack main = p.getMainHandItem();
+//
+//        if (main.getItem() instanceof NullWeaponItem) return true;
+//
+//        CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(main);
+//        if (!(cap instanceof WeaponCapability weaponCap)) return true;
+//
+//        var cat = weaponCap.getWeaponCategory();
+//        return cat == CapabilityItem.WeaponCategories.BOW
+//                || cat == CapabilityItem.WeaponCategories.CROSSBOW
+//                || cat == CapabilityItem.WeaponCategories.NOT_WEAPON;
 
-        CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(main);
-        if (!(cap instanceof WeaponCapability weaponCap)) return true;
-
-        var cat = weaponCap.getWeaponCategory();
-        return cat == CapabilityItem.WeaponCategories.BOW
-                || cat == CapabilityItem.WeaponCategories.CROSSBOW
-                || cat == CapabilityItem.WeaponCategories.NOT_WEAPON;
+        return true;
     }
 
     private static boolean hasNullSword(Player p) {
@@ -541,7 +539,6 @@ public class NullWeapon extends Monster {
                 level.getEntitiesOfClass(LivingEntity.class, searchBox,
                         e -> e != sourceEntity
                                 && !(e instanceof NullWeapon)
-                                && !(e instanceof EnderHand)
                                 && !e.isAlliedTo(sourceEntity)
                                 && e.isAlive()),
                 TargetingConditions.DEFAULT,

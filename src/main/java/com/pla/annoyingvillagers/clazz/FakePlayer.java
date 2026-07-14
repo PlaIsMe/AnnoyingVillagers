@@ -70,6 +70,7 @@ public class FakePlayer extends PathfinderMob {
             new FakePlayerName("Gen_Deathrow"),
             new FakePlayerName("Sevadus")
     );
+
     private static final Queue<FakePlayerName> NAME_POOL = new ArrayDeque<>();
     private static final Queue<FakePlayer> PROFILE_QUEUE = new ConcurrentLinkedQueue<>();
     private static final Object PROFILE_LOCK = new Object();

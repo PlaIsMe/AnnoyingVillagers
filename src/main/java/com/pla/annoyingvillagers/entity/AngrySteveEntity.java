@@ -2,10 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
-import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -28,7 +25,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -40,11 +36,7 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.shelmarow.combat_evolution.effect.CEMobEffects;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
-import yesman.epicfight.world.effect.EpicFightMobEffects;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -112,7 +104,6 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
 
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new KeepPositionGoal(this));
         CommonGoals.registerGoalForCrazyNpc(this);
     }
 
@@ -283,6 +274,22 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         }
     }
 
+    public static void playGuardBreakAttackAnimation() {
+//      ADD THIS CODE IN AV_EFM
+//        if (this.getLivingEntityPatch() != null) {
+//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+//        }
+
+//        Create VANILLA_ANIMATION
+    }
+
+    public static void playTriedAnimation() {
+//      ADD THIS CODE IN AV_EFM
+//        Objects.requireNonNull(this.getLivingEntityPatch()).playAnimationSynchronized(AnimsPugilistSteve.TRIED, 0.0F);
+
+//        Create VANILLA_ANIMATION
+    }
+
     @Override
     protected void implementFirstTick(ServerLevel serverLevel) {
         super.implementFirstTick(serverLevel);
@@ -290,9 +297,7 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
                 AnnoyingVillagersModSounds.ANGRY_STEVE_SAY_ON_SPAWN.get(),
                 0.5F, 1.0F
         );
-        if (this.getLivingEntityPatch() != null) {
-            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
-        }
+        playGuardBreakAttackAnimation();
     }
 
     @Override
@@ -300,26 +305,14 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         super.tick();
         if (this.level() instanceof ServerLevel) {
             this.tickBurstProtectionDecay(this);
-            if (this.getLivingEntityPatch() != null && CombatCommon.canEscape((MobPatch<?>) this.getLivingEntityPatch())) {
-                this.goalSelector.disableControlFlag(Goal.Flag.MOVE);
-                this.getNavigation().stop();
-
-                LivingEntity target = this.getTarget();
-                if (target != null) {
-                    this.getLookControl().setLookAt(target, 30.0F, 30.0F);
-                }
-            } else {
-                this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
-            }
-            this.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), 3, 3));
-            this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 3, 3));
+            CommonUtil.stunImmunity(this, 3, 3);
             if (!neverLeave) {
                 this.leaveTicks = this.leaveTicks - 1;
                 int remaining = this.leaveTicks;
 
                 if (remaining == 40) {
                     this.setNoAi(true);
-                    Objects.requireNonNull(this.getLivingEntityPatch()).playAnimationSynchronized(AnimsPugilistSteve.TRIED, 0.0F);
+                    playTriedAnimation();
                 }
                 if (remaining <= 0) {
                     Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(Component.literal("<Steve> " + Component.translatable("subtitles.angry_steve_retreat")), false);
@@ -400,20 +393,27 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         }
     }
 
+    public static Builder addEpicFightAttributes(Builder builder) {
+//      ADD THIS CODE IN AV_EFM
+//        return builder.add(EpicFightAttributes.IMPACT.get(), 4.0D)
+//                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
+//                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
+//                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
+//                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
+//                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
+
+        return builder;
+    }
+
     public static Builder createAttributes() {
-        return Mob.createMobAttributes()
+        Builder builder = Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 250.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
-                .add(EpicFightAttributes.IMPACT.get(), 4.0D)
-                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
-                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
-                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
-                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
-                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
+        return addEpicFightAttributes(builder);
     }
 }

@@ -1,8 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
-import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -26,10 +24,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -184,17 +178,23 @@ public class ShockWaveBlockEntity extends Entity {
         return this.level().damageSources().generic();
     }
 
+    public static void playTriedAnimation(Entity target) {
+//      ADD THIS CODE IN AV_EFM
+//        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+//        if (targetPatch != null) {
+//            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(targetPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
+//            if (dynamicAnimation != null && !EpicfightUtil.isLongHitAnimation(dynamicAnimation, targetPatch)) {
+//                targetPatch.playAnimationSynchronized(AnimsPugilistSteve.TRIED, 0.0F);
+//            }
+//        }
+//        Create VANILLA_ANIMATION
+    }
+
     private void onHitLivingEntity(LivingEntity target) {
         DamageSource source = getShockwaveDamageSource();
 
         target.hurt(source, DAMAGE);
-        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-        if (targetPatch != null) {
-            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(targetPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-            if (dynamicAnimation != null && !EpicfightUtil.isLongHitAnimation(dynamicAnimation, targetPatch)) {
-                targetPatch.playAnimationSynchronized(AnimsPugilistSteve.TRIED, 0.0F);
-            }
-        }
+        playTriedAnimation(target);
         Vec3 dir = target.position().subtract(this.position());
         Vec3 horizontal = new Vec3(dir.x, 0.0D, dir.z);
 

@@ -57,6 +57,7 @@ public class AnnoyingVillagersModSounds {
     public static final RegistryObject<SoundEvent> OB_PLACE = register("ob_place");
     public static final RegistryObject<SoundEvent> METAL_HIT = register("metal_hit");
     public static final RegistryObject<SoundEvent> TARGET_BLOCK_HIT = register("target_block_hit");
+    public static final RegistryObject<SoundEvent> CLASH = register("clash");
     public static final RegistryObject<SoundEvent> HEAVY_ATTACK_LEGENDARY_SWORD = register("heavy_attack_legendary_sword");
     public static final RegistryObject<SoundEvent> HEAVY_ATTACK_LEGENDARY_SWORD_2 = register("heavy_attack_legendary_sword_2");
     public static final RegistryObject<SoundEvent> HEAVY_ATTACK_START = register("heavy_attack_start");

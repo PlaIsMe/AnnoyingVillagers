@@ -1,21 +1,3 @@
-/*
- * AnnoyingVillagers - Third-Party Derived File Notice
- *
- * SPDX-License-Identifier: CC-BY-NC-SA-3.0
- *
- * Upstream: Quark - Vazkii and contributors
- * Source: https://github.com/VazkiiMods/Quark
- *
- * This file contains code adapted from the upstream project (colored enchantment rendering).
- * Required upstream notices must be preserved.
- *
- * License texts:
- *   - third_party/licenses/CC-BY-NC-SA-3.0.md
- *
- * Modifications and integration:
- *   Copyright (c) 2025 pla_is_me
- */
-
 package com.pla.annoyingvillagers.mixin;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;

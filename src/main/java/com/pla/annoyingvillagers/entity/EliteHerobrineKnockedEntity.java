@@ -1,10 +1,10 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +22,6 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -43,9 +42,6 @@ import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.effect.EpicFightMobEffects;
 
 import java.util.*;
 
@@ -53,7 +49,6 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob {
     private int wardenCallingCooldown;
     private int eatCount = 0;
     private boolean initialSpawn = false;
-    final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
     private final List<Item> listWeapons = new ArrayList<>(Arrays.asList(
             Items.DIAMOND_SWORD,
             Items.DIAMOND_AXE,
@@ -195,6 +190,23 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob {
         }
     }
 
+    private void playBeingEatenAnimation() {
+//      ADD THIS CODE IN AV_EFM
+//        if (livingentitypatch != null) {
+//            if (eatCount == 1 || eatCount == 2) {
+//                livingentitypatch.playAnimationSynchronized(AVAnimations.EATING_ELITE_1, 0.0F);
+//            } else if (eatCount == 3 || eatCount == 4) {
+//                livingentitypatch.playAnimationSynchronized(AVAnimations.EATING_ELITE_2, 0.0F);
+//            } else if (eatCount == 5 || eatCount == 6) {
+//                livingentitypatch.playAnimationSynchronized(AVAnimations.EATING_ELITE_3, 0.0F);
+//            } else if (eatCount > 6) {
+//                livingentitypatch.playAnimationSynchronized(AVAnimations.EATING_ELITE_4, 0.0F);
+//            }
+//        }
+
+//        Create VANILLA_ANIMATION
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -209,18 +221,8 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob {
             if (this.wardenCallingCooldown >= 0) {
                 this.wardenCallingCooldown = this.wardenCallingCooldown - 1;
             }
-            if (livingentitypatch != null) {
-                if (eatCount == 1 || eatCount == 2) {
-                    livingentitypatch.playAnimationSynchronized(AVAnimations.EATING_ELITE_1, 0.0F);
-                } else if (eatCount == 3 || eatCount == 4) {
-                    livingentitypatch.playAnimationSynchronized(AVAnimations.EATING_ELITE_2, 0.0F);
-                } else if (eatCount == 5 || eatCount == 6) {
-                    livingentitypatch.playAnimationSynchronized(AVAnimations.EATING_ELITE_3, 0.0F);
-                } else if (eatCount > 6) {
-                    livingentitypatch.playAnimationSynchronized(AVAnimations.EATING_ELITE_4, 0.0F);
-                }
-            }
-            this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 1, 3, false, false));
+
+            CommonUtil.stunImmunity(this, 3, 3);
             if (this.wardenCallingCooldown == 0) {
                 ServerLevel level = (ServerLevel) this.level();
                 HerobrineWardenEntity warden =

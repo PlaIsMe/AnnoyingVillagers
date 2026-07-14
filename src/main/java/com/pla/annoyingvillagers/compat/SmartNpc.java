@@ -16,11 +16,13 @@ import com.pla.annoyingvillagers.entity.SteveEntity;
 import com.pla.annoyingvillagers.entity.goal.EscapeAvoidGoal;
 import com.pla.smart_npc.entity.PlayerNpcEntity;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 
 public class SmartNpc {
@@ -63,6 +65,67 @@ public class SmartNpc {
 
     public static boolean isSmartNpc(Entity mob) {
         return mob instanceof PlayerNpcEntity;
+    }
+
+    public static SimpleContainer getInventory(Entity entity) {
+        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
+            return playerNpcEntity.getInventory();
+        }
+        return null;
+    }
+
+    public static boolean isHealing(Entity entity) {
+        return entity instanceof PlayerNpcEntity playerNpcEntity && playerNpcEntity.isHealing();
+    }
+
+    public static void setHealing(Entity entity, boolean healing) {
+        if (entity instanceof PlayerNpcEntity playerNpcEntity) {
+            playerNpcEntity.setHealing(healing);
+        }
+    }
+
+    public static void swapToBow(Entity entity) {
+        if (!(entity instanceof PlayerNpcEntity playerNpcEntity)) {
+            return;
+        }
+
+        if (playerNpcEntity.getMainHandItem().getItem() instanceof BowItem) {
+            playerNpcEntity.setUseBow(true);
+            return;
+        }
+
+        ItemStack bow = playerNpcEntity.consumeInventoryItem(
+                stack -> stack.getItem() instanceof BowItem,
+                1
+        ).orElse(ItemStack.EMPTY);
+        if (bow.isEmpty()) {
+            return;
+        }
+
+        stashCurrentMainHand(playerNpcEntity);
+        playerNpcEntity.setUseBow(true);
+        playerNpcEntity.setMainHandItemForAi(bow.copy());
+    }
+
+    private static void stashCurrentMainHand(PlayerNpcEntity playerNpcEntity) {
+        ItemStack currentMainHand = playerNpcEntity.getMainHandItem();
+        if (currentMainHand.isEmpty() || currentMainHand.getItem() instanceof BowItem) {
+            return;
+        }
+
+        if (ItemStack.isSameItemSameTags(currentMainHand, playerNpcEntity.getMainWeaponItem())
+                || ItemStack.isSameItemSameTags(currentMainHand, playerNpcEntity.getOffWeaponItem())) {
+            return;
+        }
+
+        ItemStack stashedStack = currentMainHand.copy();
+        if (playerNpcEntity.promoteMainWeaponItem(stashedStack)) {
+            return;
+        }
+
+        if (!com.pla.smart_npc.util.InventoryUtils.addItem(playerNpcEntity, stashedStack)) {
+            playerNpcEntity.spawnAtLocation(stashedStack);
+        }
     }
 
     public static boolean isPlayerLikeTarget(LivingEntity target) {

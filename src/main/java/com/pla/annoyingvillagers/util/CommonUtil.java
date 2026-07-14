@@ -6,39 +6,466 @@ import com.pla.annoyingvillagers.clazz.HookDisarmLaunch;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.FlankerHookedSwordItem;
 import com.pla.annoyingvillagers.item.HookedDiamondSwordItem;
 import com.pla.annoyingvillagers.item.HookedGoldenSwordItem;
 import com.pla.annoyingvillagers.item.HookedIronSwordItem;
+import com.pla.annoyingvillagers.client.particle.HitParticleType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
-import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 
 public class CommonUtil {
+    public static void damageBlocked(DamageSource damagesource, Entity livingentity, ServerLevel level) {
+        if (livingentity == null) return;
+        if (!damagesource.is(DamageTypes.IN_WALL) && !damagesource.is(DamageTypes.IN_FIRE) && !damagesource.is(DamageTypes.ON_FIRE)) {
+            livingentity.playSound(AnnoyingVillagersModSounds.CLASH.get(), 1.0F, 1.0F);
+        }
+        AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(level, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, livingentity, damagesource.getEntity());
+        if (damagesource.getEntity() instanceof Player player) {
+            ScreenShakeUtil.applyScreenShake(level, player.getOnPos().getCenter(), 1.0, 20, 4);
+        }
+    }
+
+    public static void damageBlockedForce(Entity defender, Entity attacker, ServerLevel level) {
+        defender.playSound(AnnoyingVillagersModSounds.CLASH.get(), 1.0F, 1.0F);
+        AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(level, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, defender, attacker);
+        if (attacker instanceof Player player) {
+            ScreenShakeUtil.applyScreenShake(level, player.getOnPos().getCenter(), 1.0, 20, 4);
+        }
+    }
+
+    public static void stunImmunity(Mob mob, int duration, int pAmplifier) {
+//      ADD THIS CODE IN AV_EFM
+//        mob.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), duration, pAmplifier));
+//        mob.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), duration, pAmplifier));
+    }
+
+    public static void dangerousReactionAi(Mob mob) {
+//      ADD THIS CODE IN AV_EFM
+
+//        if (this.getLivingEntityPatch() != null && CombatCommon.canEscape((MobPatch<?>) this.getLivingEntityPatch())) {
+//            mob.goalSelector.disableControlFlag(Goal.Flag.MOVE);
+//            mob.getNavigation().stop();
+//
+//            LivingEntity target = mob.getTarget();
+//            if (target != null) {
+//                mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
+//            }
+//        } else {
+//            mob.goalSelector.enableControlFlag(Goal.Flag.MOVE);
+//        }
+    }
+
+    public static void stunEscapeAi(Mob mob) {
+//      ADD THIS CODE IN AV_EFM
+
+//        if (ModList.get().isLoaded("efkick") && this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
+//            if (getLivingEntityPatch() != null) {
+//                AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
+//                if (EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && mob.isAlive()) {
+//                    if (new Random().nextFloat() < CombatBehaviour.calculateGuardBreakWakeUpChance(mob)) {
+//                        if (mob instanceof HerobrineMob herobrineMob) {
+//                            herobrineMob.setStunEscapeCooldown(60);
+//                        } else if (mob instanceof AVNpc avnpc) {
+//                            avnpc.setStunEscapeCooldown(60);
+//                        } else if (mob instanceof BlueDemonEntity blueDemonEntity) {
+//                            blueDemonEntity.setStunEscapeCooldown(60);
+//                        }
+//                        new DelayedTask(new Random().nextInt(5, 10)) {
+//                            @Override
+//                            public void run() {
+//                                if (getLivingEntityPatch() != null && EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && mob.isAlive()) {
+//                                    CombatBehaviour.postGuardBreakWakeUp(mob, getLivingEntityPatch(), serverLevel);
+//                                } else {
+//                                    if (mob instanceof HerobrineMob herobrineMob) {
+//                                        herobrineMob.setStunEscapeCooldown(-1);
+//                                    } else if (mob instanceof AVNpc avnpc) {
+//                                        avnpc.setStunEscapeCooldown(-1);
+//                                    } else if (mob instanceof BlueDemonEntity avnpc) {
+//                                        blueDemonEntity.setStunEscapeCooldown(60);
+//                                    }
+//                                }
+//                            }
+//                        };
+//                    }
+//                }
+//            }
+//        }
+    }
+
+    public static Vec3 getVanillaSwordOrBodyPosition(Entity entity) {
+        return getVanillaSwordOrBodyPosition(entity, 1.0F);
+    }
+
+    public static Vec3 getVanillaSwordOrBodyPosition(Entity entity, float partialTick) {
+        if (entity instanceof LivingEntity living) {
+            int armSign = living.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+            float bodyYaw = Mth.lerp(partialTick, living.yBodyRotO, living.yBodyRot) * Mth.DEG_TO_RAD;
+            double sinYaw = Mth.sin(bodyYaw);
+            double cosYaw = Mth.cos(bodyYaw);
+            double armOffset = (double) armSign * 0.35D;
+            double crouchOffset = living.isCrouching() ? -0.1875D : 0.0D;
+            double x = Mth.lerp((double) partialTick, living.xo, living.getX());
+            double y = Mth.lerp((double) partialTick, living.yo, living.getY());
+            double z = Mth.lerp((double) partialTick, living.zo, living.getZ());
+
+            return new Vec3(
+                    x - cosYaw * armOffset - sinYaw * 0.8D,
+                    y + living.getEyeHeight() - 0.45D + crouchOffset,
+                    z - sinYaw * armOffset + cosYaw * 0.8D
+            );
+        }
+
+        return new Vec3(
+                Mth.lerp((double) partialTick, entity.xo, entity.getX()),
+                Mth.lerp((double) partialTick, entity.yo, entity.getY()) + entity.getBbHeight() * 0.65D,
+                Mth.lerp((double) partialTick, entity.zo, entity.getZ())
+        );
+    }
+
+    public static boolean circleSlamFracture(@Nullable LivingEntity caster, Level level, Vec3 center, double radius) {
+        return circleSlamFracture(caster, level, center, radius, false, false, true);
+    }
+
+    public static boolean circleSlamFracture(@Nullable LivingEntity caster, Level level, Vec3 center, double radius, boolean hurtEntities) {
+        return circleSlamFracture(caster, level, center, radius, false, false, hurtEntities);
+    }
+
+    public static boolean circleSlamFracture(@Nullable LivingEntity caster, Level level, Vec3 center, double radius, boolean noSound, boolean noParticle) {
+        return circleSlamFracture(caster, level, center, radius, noSound, noParticle, true);
+    }
+
+    public static boolean circleSlamFracture(@Nullable LivingEntity caster, Level level, Vec3 center, double radius, boolean noSound, boolean noParticle, boolean hurtEntities) {
+        if (level == null || center == null) {
+            return false;
+        }
+
+        center = snapSlamCenter(center);
+        radius = Math.max(0.5D, radius);
+
+        BlockPos origin = findSlamSurface(level, Mth.floor(center.x), Mth.floor(center.y), Mth.floor(center.z));
+        if (origin == null) {
+            return false;
+        }
+
+        BlockState originState = level.getBlockState(origin);
+        if (!canTransferShockWave(level, origin, originState)) {
+            return false;
+        }
+
+        List<BlockPos> affectedBlocks = collectSlamBlocks(level, origin, center, radius);
+        if (affectedBlocks.isEmpty()) {
+            return false;
+        }
+
+        if (!noSound) {
+            playCircleSlamSound(level, center, radius);
+        }
+
+        if (!noParticle) {
+            spawnCircleSlamParticles(level, center, radius, affectedBlocks);
+        }
+
+        if (!level.isClientSide && hurtEntities) {
+            damageCircleSlamEntities(caster, level, center, radius);
+        }
+
+        return true;
+    }
+
+    public static boolean canTransferShockWave(Level level, BlockPos blockPos, BlockState blockState) {
+        return !blockState.isAir()
+                && Block.isFaceFull(blockState.getCollisionShape(level, blockPos, CollisionContext.empty()), Direction.DOWN);
+    }
+
+    private static Vec3 snapSlamCenter(Vec3 center) {
+        Vec3 closestEdge = new Vec3(Math.round(center.x), Math.floor(center.y), Math.round(center.z));
+        Vec3 centerOfBlock = new Vec3(Math.floor(center.x) + 0.5D, Math.floor(center.y), Math.floor(center.z) + 0.5D);
+        return closestEdge.distanceToSqr(center) < centerOfBlock.distanceToSqr(center) ? closestEdge : centerOfBlock;
+    }
+
+    @Nullable
+    private static BlockPos findSlamSurface(Level level, int x, int y, int z) {
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+
+        for (int dy = 2; dy >= -3; dy--) {
+            mutable.set(x, y + dy, z);
+            BlockState state = level.getBlockState(mutable);
+
+            if (!canTransferShockWave(level, mutable, state)) {
+                continue;
+            }
+
+            BlockPos above = mutable.above();
+            BlockState aboveState = level.getBlockState(above);
+
+            if (!canTransferShockWave(level, above, aboveState)) {
+                return mutable.immutable();
+            }
+        }
+
+        return null;
+    }
+
+    private static List<BlockPos> collectSlamBlocks(Level level, BlockPos origin, Vec3 center, double radius) {
+        List<BlockPos> affectedBlocks = new ArrayList<>();
+        int xFrom = Mth.floor(center.x - radius);
+        int xTo = Mth.ceil(center.x + radius);
+        int zFrom = Mth.floor(center.z - radius);
+        int zTo = Mth.ceil(center.z + radius);
+        double radiusSqr = radius * radius;
+
+        for (int x = xFrom; x <= xTo; x++) {
+            for (int z = zFrom; z <= zTo; z++) {
+                double dx = x + 0.5D - center.x;
+                double dz = z + 0.5D - center.z;
+
+                if (dx * dx + dz * dz > radiusSqr) {
+                    continue;
+                }
+
+                BlockPos surface = findSlamSurface(level, x, origin.getY(), z);
+                if (surface != null) {
+                    affectedBlocks.add(surface);
+                }
+            }
+        }
+
+        return affectedBlocks;
+    }
+
+    private static void spawnCircleSlamParticles(Level level, Vec3 center, double radius, List<BlockPos> affectedBlocks) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        serverLevel.sendParticles(
+                AnnoyingVillagersModParticleTypes.GROUND_SLAM.get(),
+                center.x,
+                center.y,
+                center.z,
+                0,
+                1.0D,
+                radius * 10.0D,
+                0.5D,
+                1.0D
+        );
+    }
+
+    private static void playCircleSlamSound(Level level, Vec3 center, double radius) {
+        BlockPos pos = BlockPos.containing(center);
+        boolean smallSlam = radius < 1.5D;
+
+        level.playSound(
+                null,
+                pos,
+                smallSlam ? SoundEvents.PLAYER_ATTACK_KNOCKBACK : SoundEvents.GENERIC_EXPLODE,
+                SoundSource.BLOCKS,
+                smallSlam ? 0.8F : 1.4F,
+                smallSlam ? 1.1F : 0.75F + level.random.nextFloat() * 0.1F
+        );
+        level.playSound(
+                null,
+                pos,
+                SoundEvents.STONE_BREAK,
+                SoundSource.BLOCKS,
+                0.9F,
+                0.75F + level.random.nextFloat() * 0.2F
+        );
+    }
+
+    private static void damageCircleSlamEntities(@Nullable LivingEntity caster, Level level, Vec3 center, double radius) {
+        AABB hitBox = new AABB(
+                center.x - radius,
+                center.y - radius,
+                center.z - radius,
+                center.x + radius,
+                center.y + radius + 1.5D,
+                center.z + radius
+        );
+        Set<UUID> hitEntities = new HashSet<>();
+        DamageSource source = getCircleSlamDamageSource(caster, level);
+
+        for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, hitBox)) {
+            if (!canCircleSlamHit(caster, target) || !hitEntities.add(target.getUUID())) {
+                continue;
+            }
+
+            double distance = target.position().distanceTo(center);
+            if (distance > radius + target.getBbWidth() * 0.5D) {
+                continue;
+            }
+
+            double damageScale = 1.0D - ((distance - radius * 0.5D) / radius);
+            float damage = (float) (radius * 2.0D * Mth.clamp(damageScale, 0.0D, 1.0D));
+
+            if (damage <= 0.0F) {
+                continue;
+            }
+
+            if (target.hurt(source, damage)) {
+                Vec3 away = target.position().subtract(center);
+                Vec3 horizontal = new Vec3(away.x, 0.0D, away.z);
+
+                if (horizontal.lengthSqr() < 1.0E-6D) {
+                    horizontal = new Vec3(level.random.nextDouble() - 0.5D, 0.0D, level.random.nextDouble() - 0.5D);
+                }
+
+                Vec3 push = horizontal.normalize().scale(0.65D);
+                target.push(push.x, 0.32D, push.z);
+                target.hurtMarked = true;
+            }
+        }
+    }
+
+    private static DamageSource getCircleSlamDamageSource(@Nullable LivingEntity caster, Level level) {
+        if (caster instanceof Player player) {
+            return level.damageSources().playerAttack(player);
+        }
+
+        if (caster != null) {
+            return level.damageSources().mobAttack(caster);
+        }
+
+        return level.damageSources().generic();
+    }
+
+    private static boolean canCircleSlamHit(@Nullable LivingEntity caster, LivingEntity target) {
+        if (target == null || !target.isAlive() || target.isSpectator()) {
+            return false;
+        }
+
+        if (caster == null) {
+            return true;
+        }
+
+        return target != caster && !caster.isAlliedTo(target) && !target.isAlliedTo(caster);
+    }
+
+    public static boolean isGroundWithin(Entity e, double maxGap) {
+        Level level = e.level();
+        AABB bb = e.getBoundingBox();
+        double feetY = bb.minY;
+
+        int x = Mth.floor(e.getX());
+        int z = Mth.floor(e.getZ());
+        int startY = Mth.floor(feetY - 1.0e-4);
+
+        int maxSteps = Mth.ceil(maxGap) + 2;
+
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, startY, z);
+
+        for (int i = 0; i <= maxSteps; i++) {
+            pos.setY(startY - i);
+
+            BlockState state = level.getBlockState(pos);
+            if (state.isAir()) continue;
+            VoxelShape shape = state.getCollisionShape(level, pos);
+            if (shape.isEmpty()) continue;
+
+            double topY = pos.getY() + shape.max(Direction.Axis.Y);
+            double gap = feetY - topY;
+
+            if (gap >= -1.0e-3 && gap <= maxGap + 1.0e-3) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static void swapToBlock(LivingEntity livingEntity) {
+        if (livingEntity instanceof AVNpc avNpc) {
+            ItemStack blockStack = InventoryUtils.peekPlaceableBlock(livingEntity).orElse(ItemStack.EMPTY);
+            if (blockStack.isEmpty()) {
+                return;
+            }
+            livingEntity.setItemInHand(InteractionHand.MAIN_HAND, blockStack);
+            avNpc.setPlaceBlockParryCooldown();
+        }
+    }
+
+    public static void swapToBow(LivingEntity livingEntity) {
+        if (ModList.get().isLoaded("smart_npc") && SmartNpc.isSmartNpc(livingEntity)) {
+            SmartNpc.swapToBow(livingEntity);
+            return;
+        }
+
+        ItemStack bow = new ItemStack(Items.BOW);
+        if (livingEntity instanceof AVNpc avNpc) bow = avNpc.getBowItem();
+
+        if (livingEntity instanceof VillagerScoutCaptainEntity) {
+            bow.enchant(Enchantments.POWER_ARROWS, 1);
+            bow.enchant(Enchantments.PUNCH_ARROWS, 1);
+        }
+        if (livingEntity instanceof RedVillagerKnightEntity) {
+            bow.enchant(Enchantments.FLAMING_ARROWS, 2);
+        }
+        if (livingEntity instanceof BlueVillagerKnightEntity) {
+            bow.enchant(Enchantments.POWER_ARROWS, 2);
+        }
+        if (livingEntity instanceof GreenVillagerKnightEntity) {
+            bow.enchant(Enchantments.POWER_ARROWS, 1);
+            bow.enchant(Enchantments.FLAMING_ARROWS, 1);
+        }
+        if (livingEntity instanceof PurpleVillagerKnightEntity) {
+            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+        }
+        if ((livingEntity instanceof SteveEntity steveEntity && steveEntity.getState() == 1)
+                || livingEntity instanceof AngrySteveEntity) {
+            bow.enchant(Enchantments.POWER_ARROWS, 2);
+            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+            if (livingEntity instanceof AngrySteveEntity) {
+                bow.enchant(Enchantments.FLAMING_ARROWS, 2);
+            }
+        }
+        if (livingEntity instanceof AlexEntity alexEntity && alexEntity.getState() == 1) {
+            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+            bow.enchant(Enchantments.POWER_ARROWS, 2);
+            bow.enchant(Enchantments.FLAMING_ARROWS, 1);
+        }
+        if (livingEntity instanceof ChrisEntity chrisEntity && chrisEntity.getState() == 1) {
+            bow.enchant(Enchantments.POWER_ARROWS, 2);
+            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+        }
+
+        livingEntity.setItemInHand(InteractionHand.MAIN_HAND, bow.copy());
+        livingEntity.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+    }
+
     public static boolean isAvDamageableEfnWeaponsMob(Entity livingEntity) {
         return livingEntity instanceof BlueDemonEntity
                 || livingEntity instanceof AngrySteveEntity
@@ -328,77 +755,6 @@ public class CommonUtil {
         return false;
     }
 
-    public static boolean isHookSword(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return false;
-        }
-
-        Item item = stack.getItem();
-        return item instanceof HookedIronSwordItem
-                || item instanceof HookedGoldenSwordItem
-                || item instanceof HookedDiamondSwordItem
-                || item instanceof FlankerHookedSwordItem;
-    }
-
-    public static boolean isHookSwordClashAnimation(AssetAccessor<? extends StaticAnimation> dynamicAnimation) {
-        return dynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO1
-                || dynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO2
-                || dynamicAnimation == AnimsEpicFight.HOOK_DANCING_EDGE
-                || dynamicAnimation == AnimsWom.HOOK_HERRSCHER_UP;
-    }
-
-    public static void applyHookClashDisarmLogic(
-            LivingEntity livingEntity,
-            LivingEntity attackerLivingEntity,
-            ServerLevel serverLevel,
-            AssetAccessor<? extends StaticAnimation> knockdownAnimation,
-            HookDisarmLaunch launch
-    ) {
-        if (attackerLivingEntity == null || !attackerLivingEntity.isAlive()) {
-            return;
-        }
-
-        CommonUtil.forceRotate(attackerLivingEntity, livingEntity);
-        playForcedKnockdown(attackerLivingEntity, knockdownAnimation);
-        tryDisarmAndLaunchWeapon(serverLevel, livingEntity, attackerLivingEntity, launch);
-    }
-
-    public static void applyHookClashDisarmLogic(
-            LivingEntity livingEntity,
-            DamageSource damageSource,
-            ServerLevel serverLevel,
-            AssetAccessor<? extends StaticAnimation> knockdownAnimation,
-            HookDisarmLaunch launch
-    ) {
-        LivingEntity target = getClashLivingTarget(damageSource, livingEntity);
-        applyHookClashDisarmLogic(livingEntity, target, serverLevel, knockdownAnimation, launch);
-    }
-
-    private static LivingEntity getClashLivingTarget(DamageSource damageSource, LivingEntity player) {
-        Entity entity = damageSource.getEntity();
-
-        if (entity == player || !(entity instanceof LivingEntity)) {
-            entity = damageSource.getDirectEntity();
-        }
-
-        if (entity instanceof LivingEntity livingEntity && livingEntity != player) {
-            return livingEntity;
-        }
-
-        return null;
-    }
-
-    private static void playForcedKnockdown(
-            LivingEntity target,
-            AssetAccessor<? extends StaticAnimation> knockdownAnimation
-    ) {
-        LivingEntityPatch<?> targetPatch =
-                EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-        if (targetPatch != null) {
-            targetPatch.playAnimationSynchronized(knockdownAnimation, 0.0F);
-        }
-    }
-
     public static void fallBackOnBlackListWeapon(
             LivingEntity owner,
             Entity source,
@@ -513,10 +869,7 @@ public class CommonUtil {
             return;
         }
 
-        Vec3 spawnPos;
-        spawnPos = EpicfightUtil.getJointWithTranslation(
-                target, new Vec3f(0,0,0), Armatures.BIPED.get().handR, 0.0F, 0.0F
-        );
+        Vec3 spawnPos = getVanillaSwordOrBodyPosition(target);
         if (spawnPos == null) {
             spawnPos = target.getEyePosition().subtract(0.0D, 0.35D, 0.0D);
         }

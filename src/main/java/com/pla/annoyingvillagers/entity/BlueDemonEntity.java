@@ -3,19 +3,12 @@ package com.pla.annoyingvillagers.entity;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.clazz.*;
-import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.spawnhandler.BluedemonData;
-import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -41,7 +34,6 @@ import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -56,7 +48,6 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -65,14 +56,6 @@ import java.util.*;
 
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.particle.HitParticleType;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public class BlueDemonEntity extends Monster implements BurstProtectEntity, CombatVoiceLineEntity {
     private static final float WATER_SWIM_ACCELERATION = 0.08F;
@@ -611,11 +594,6 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         return best;
     }
 
-    @Nullable
-    public LivingEntityPatch<?> getLivingEntityPatch() {
-        return EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
-    }
-
     public BlueDemonEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.BLUE_DEMON.get(), level);
     }
@@ -712,7 +690,6 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new KeepPositionGoal(this));
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
         CommonGoals.registerGoalForBlueDemonNpc(this);
     }
@@ -745,6 +722,32 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         return this.dieTick > 0;
     }
 
+    private void playFinalDeathAnimation() {
+//      ADD THIS CODE IN AV_EFM
+//        if (this.getLivingEntityPatch() != null) {
+//            if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
+//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_DIE, 0.0F);
+//            } else {
+//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFight.BLUE_DEMON_DIE_LEGENDARY_SWORD_START, 0.0F);
+//            }
+//        }
+
+//        Add VANILLA_ANIMATION
+    }
+
+    private void playDeathAnimation() {
+//      ADD THIS CODE IN AV_EFM
+//        if (this.getLivingEntityPatch() != null && (this.dieTick <= 180 && this.dieTick % 10 == 0)) {
+//            if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
+//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
+//            } else {
+//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFight.BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK, 0.0F);
+//            }
+//        }
+
+//        Add VANILLA_ANIMATION
+    }
+
     private void startFinalDeathSequence(ServerLevel serverLevel, DamageSource damageSource) {
         if (this.dieTick > 0) {
             return;
@@ -762,13 +765,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             this.savedKillerUUID = null;
         }
 
-        if (this.getLivingEntityPatch() != null) {
-            if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_DIE, 0.0F);
-            } else {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFight.BLUE_DEMON_DIE_LEGENDARY_SWORD_START, 0.0F);
-            }
-        }
+        playFinalDeathAnimation();
 
         this.startSauceDeathWatch(serverLevel);
     }
@@ -798,13 +795,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         this.setTarget(null);
         this.setDeltaMovement(0.0D, 0.0D, 0.0D);
 
-        if (this.getLivingEntityPatch() != null && (this.dieTick <= 180 && this.dieTick % 10 == 0)) {
-            if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
-            } else {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFight.BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK, 0.0F);
-            }
-        }
+        playDeathAnimation();
 
         if (this.dieTick % 5 == 0 && new Random().nextBoolean()) {
             this.strikeDeathLightning(serverLevel);
@@ -1000,40 +991,44 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             return result;
         }
         if (this.level() instanceof ServerLevel serverLevel && (this.getState() == 2 || this.getState() == 1)) {
-            EpicfightUtil.damageBlocked(damagesource, this, serverLevel);
+            CommonUtil.damageBlocked(damagesource, this, serverLevel);
             return false;
         }
 
         if (this.dieTick > 0) {
             if (this.level() instanceof ServerLevel serverLevel) {
-                EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(
-                        serverLevel,
-                        HitParticleType.FRONT_OF_EYES,
-                        HitParticleType.ZERO,
-                        this,
-                        damagesource.getEntity()
-                );
+                CommonUtil.damageBlocked(damagesource, this, serverLevel);
             }
             return false;
         }
-        if (this.level() instanceof ServerLevel serverLevel && this.getLivingEntityPatch() != null && this.dieTick <= 0) {
-            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(this.getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
-            if (dynamicAnimation == AnimsWom.CUT_ANTITHEUS_ASCENSION
-                    || dynamicAnimation == AVAnimations.TRIDENT_ATTACK
-                    || dynamicAnimation == AnimsWom.ELECTRIC_FIELD
-                    || dynamicAnimation == AnimsPugilistSteve.TRIDENT_FESTIVAL
-                    || dynamicAnimation == AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM
-                    || dynamicAnimation == AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END) {
-                EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(serverLevel, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO,
-                        this, damagesource.getEntity());
-                return false;
+        if (ignoreDamageForSomeEpicFightAnimation()) {
+            boolean result = super.hurt(damagesource, f);
+            if (result) {
+                this.sayHurtSound(this, damagesource);
             }
+            return result;
+        } else {
+            return false;
         }
-        boolean result = super.hurt(damagesource, f);
-        if (result) {
-            this.sayHurtSound(this, damagesource);
-        }
-        return result;
+    }
+
+    private boolean ignoreDamageForSomeEpicFightAnimation() {
+//      ADD THIS CODE IN AV_EFM
+//        if (this.level() instanceof ServerLevel serverLevel && this.getLivingEntityPatch() != null && this.dieTick <= 0) {
+//            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(this.getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
+//            if (dynamicAnimation == AnimsWom.CUT_ANTITHEUS_ASCENSION
+//                    || dynamicAnimation == AVAnimations.TRIDENT_ATTACK
+//                    || dynamicAnimation == AnimsWom.ELECTRIC_FIELD
+//                    || dynamicAnimation == AnimsPugilistSteve.TRIDENT_FESTIVAL
+//                    || dynamicAnimation == AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM
+//                    || dynamicAnimation == AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END) {
+//                EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(serverLevel, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO,
+//                        this, damagesource.getEntity());
+//                return false;
+//            }
+//        }
+
+        return true;
     }
 
     @Nullable
@@ -1327,12 +1322,24 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             }
         }
 
-        if (this.tickCount % 2 == 0 && this.getLivingEntityPatch() != null) {
-            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
-            if (dynamicAnimation != AVAnimations.TRIDENT_ATTACK && dynamicAnimation != AnimsPugilistSteve.TRIDENT_FESTIVAL) {
+        if (this.tickCount % 2 == 0) {
+            if (conditionToAbsorbNearbyGroundedTridents()) {
                 this.absorbNearbyGroundedOwnerTridents(serverLevel);
             }
         }
+    }
+
+    private boolean conditionToAbsorbNearbyGroundedTridents() {
+//      ADD THIS CODE IN AV_EFM
+//        if (this.getLivingEntityPatch() != null) {
+//            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
+//            if (dynamicAnimation != AVAnimations.TRIDENT_ATTACK && dynamicAnimation != AnimsPugilistSteve.TRIDENT_FESTIVAL) {
+//                return true;
+//            }
+//        }
+
+//        ADD VANILLA_ANIMATION & CUSTOM LOGIC TO CHECK THIS ANIMATION
+        return false;
     }
 
     private void absorbNearbyGroundedOwnerTridents(ServerLevel serverLevel) {
@@ -1383,6 +1390,24 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         }
     }
 
+    private void playStateTransformAnimation() {
+//        ADD THIS CODE IN AV_EFM
+//        if (this.getLivingEntityPatch() != null) {
+//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
+//        }
+
+//        CREATE VANILLA_ANIMATION
+    }
+
+    private void playStateTransformEndAnimation() {
+//        ADD THIS CODE IN AV_EFM
+//        if (this.getLivingEntityPatch() != null) {
+//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END, 0.0F);
+//        }
+
+//        CREATE VANILLA_ANIMATION
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -1404,24 +1429,22 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             if (efnGuardHitCooldown > 0) efnGuardHitCooldown--;
             if (healingCooldown > 0) healingCooldown--;
             if (stateTransformCooldown > 0) {
-                if (this.getLivingEntityPatch() != null) {
-                    if (stateTransformCooldown > 20) {
-                        this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
-                    } else if (stateTransformCooldown == 20) {
-                        if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
-                            this.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_PHASE_2_RELEASE.get(), 0.5F, 1.0F);
-                        }
-                        this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END, 0.0F);
-                    } else if (stateTransformCooldown == 10) {
-                        ItemStack legendaryStack = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
-                        legendaryStack.enchant(Enchantments.SHARPNESS, 5);
-                        legendaryStack.enchant(Enchantments.SMITE, 5);
-                        legendaryStack.enchant(Enchantments.SWEEPING_EDGE, 5);
-
-                        this.setItemInHand(InteractionHand.MAIN_HAND, legendaryStack);
-                        this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
-                        this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 4, 300));
+                if (stateTransformCooldown > 20) {
+                    playStateTransformAnimation();
+                } else if (stateTransformCooldown == 20) {
+                    if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
+                        this.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_PHASE_2_RELEASE.get(), 0.5F, 1.0F);
                     }
+                    playStateTransformEndAnimation();
+                } else if (stateTransformCooldown == 10) {
+                    ItemStack legendaryStack = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
+                    legendaryStack.enchant(Enchantments.SHARPNESS, 5);
+                    legendaryStack.enchant(Enchantments.SMITE, 5);
+                    legendaryStack.enchant(Enchantments.SWEEPING_EDGE, 5);
+
+                    this.setItemInHand(InteractionHand.MAIN_HAND, legendaryStack);
+                    this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+                    this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 4, 300));
                 }
                 if (stateTransformCooldown % 2 == 0) {
                     this.heal(1.0F);
@@ -1485,39 +1508,8 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
                 efnGuardHitState = 0;
             }
 
-            if (ModList.get().isLoaded("efkick") && this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
-                if (getLivingEntityPatch() != null) {
-                    AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
-                    if (EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && this.isAlive()) {
-                        if (this.getRandom().nextFloat() < CombatBehaviour.calculateGuardBreakWakeUpChance(this)) {
-                            this.stunEscapeCooldown = 60;
-                            BlueDemonEntity entity = this;
-                            new DelayedTask(new Random().nextInt(5, 10)) {
-                                @Override
-                                public void run() {
-                                    if (getLivingEntityPatch() != null && EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && entity.isAlive()) {
-                                        CombatBehaviour.postGuardBreakWakeUp(entity, getLivingEntityPatch(), serverLevel);
-                                    } else {
-                                        entity.stunEscapeCooldown = 1;
-                                    }
-                                }
-                            };
-                        }
-                    }
-                }
-            }
-
-            if (this.getLivingEntityPatch() != null && CombatCommon.canEscape((MobPatch<?>) this.getLivingEntityPatch())) {
-                this.goalSelector.disableControlFlag(Goal.Flag.MOVE);
-                this.getNavigation().stop();
-
-                LivingEntity target = this.getTarget();
-                if (target != null) {
-                    this.getLookControl().setLookAt(target, 30.0F, 30.0F);
-                }
-            } else {
-                this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
-            }
+            CommonUtil.dangerousReactionAi(this);
+            CommonUtil.stunEscapeAi(this);
 
             if (this.getState() == 3) {
                 this.tickShockSauceOrders(this.getSauce(SauceType.HONEY_MUSTARD_SAUCE));
@@ -1711,9 +1703,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             this.setHealth(1.0F);
             BlueDemonTridentItem.addStormEnergy(this.getMainHandItem(), 100);
             BlueDemonTridentItem.addStormEnergy(this.getOffhandItem(), 100);
-            if (this.getLivingEntityPatch() != null) {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_FESTIVAL, 0.0F);
-            }
+            playTridentFestivalAnimation();
             return;
         }
         if (this.level() instanceof ServerLevel serverLevel
@@ -1730,6 +1720,15 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         this.gameEvent(GameEvent.ENTITY_DAMAGE);
     }
 
+    private void playTridentFestivalAnimation() {
+//        ADD THIS CODE IN AV_EFM
+//        if (this.getLivingEntityPatch() != null) {
+//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_FESTIVAL, 0.0F);
+//        }
+
+//        CREATE VANILLA_ANIMATION
+    }
+
     @Override
     public void remove(@NotNull RemovalReason reason) {
         super.remove(reason);
@@ -1739,20 +1738,27 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         }
     }
 
+    public static Builder addEpicFightAttributes(Builder builder) {
+//      ADD THIS CODE IN AV_EFM
+//        return builder.add(EpicFightAttributes.IMPACT.get(), 4.0D)
+//                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
+//                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
+//                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
+//                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
+//                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
+
+        return builder;
+    }
+
     public static Builder createAttributes() {
-        return Mob.createMobAttributes()
+        Builder builder = Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 300.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
-                .add(EpicFightAttributes.IMPACT.get(), 4.0D)
-                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
-                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
-                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
-                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
-                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
+        return addEpicFightAttributes(builder);
     }
 }

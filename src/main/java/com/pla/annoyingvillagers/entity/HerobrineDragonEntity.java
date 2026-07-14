@@ -1,21 +1,3 @@
-/*
- * AnnoyingVillagers - Third-Party Derived File Notice
- *
- * SPDX-License-Identifier: GPL-3.0-or-later
- *
- * Upstream: Dragon Mounts: Legacy - Nico Bergemann (BarracudaATA), Kay9, contributors
- * Source: https://github.com/MWall541/Dragon-Mounts-Legacy
- *
- * This file contains code adapted from the upstream project.
- * Required upstream notices must be preserved.
- *
- * License texts:
- *   - third_party/licenses/GPL-3.0.md
- *
- * Modifications:
- *   Copyright (c) 2026 pla_is_me
- */
-
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.client.animation.DragonAnimator;
@@ -64,17 +46,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
-import reascer.wom.world.entity.mob.EnderHand;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -289,6 +266,12 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
     }
 
+    private static boolean isEnderHand(LivingEntity entity) {
+//      ADD THIS CODE IN AV_EFM
+//        return entity instanceof EnderHand;
+        return false;
+    }
+
     public static LivingEntity getNearestLivingEntity(Level level, Entity sourceEntity, double range) {
         AABB searchBox = sourceEntity.getBoundingBox().inflate(range);
 
@@ -296,7 +279,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
                 level.getEntitiesOfClass(LivingEntity.class, searchBox,
                         e -> e != sourceEntity
                                 && !(e instanceof HerobrineDragonEntity)
-                                && !(e instanceof EnderHand)
+                                && !(isEnderHand(e))
                                 && !e.isAlliedTo(sourceEntity)
                                 && e.isAlive()),
                 TargetingConditions.DEFAULT,
@@ -453,18 +436,26 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         return false;
     }
 
+    private static boolean isAllowedEpicFightHeldCategory(Player p) {
+        ItemStack main = p.getMainHandItem();
+//      ADD THIS CODE IN AV_EFM
+//        CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(main);
+//        if (!(cap instanceof WeaponCapability weaponCap)) return true;
+//
+//        var cat = weaponCap.getWeaponCategory();
+//        return cat == CapabilityItem.WeaponCategories.BOW
+//                || cat == CapabilityItem.WeaponCategories.CROSSBOW
+//                || cat == CapabilityItem.WeaponCategories.NOT_WEAPON;
+
+        return false;
+    }
+
+
     private static boolean isAllowedHeldCategory(Player p) {
         ItemStack main = p.getMainHandItem();
 
         if (main.getItem() instanceof EnderSlayerScytheItem) return true;
-
-        CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(main);
-        if (!(cap instanceof WeaponCapability weaponCap)) return true;
-
-        var cat = weaponCap.getWeaponCategory();
-        return cat == CapabilityItem.WeaponCategories.BOW
-                || cat == CapabilityItem.WeaponCategories.CROSSBOW
-                || cat == CapabilityItem.WeaponCategories.NOT_WEAPON;
+        return isAllowedEpicFightHeldCategory(p);
     }
 
     private void checkCrystals() {

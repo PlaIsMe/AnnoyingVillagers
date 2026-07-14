@@ -82,6 +82,46 @@ public class HerobrineObsidianBlock extends Block {
     public void customPlaceSound(ServerLevel serverLevel, BlockPos blockPos) {
     }
 
+    protected void applyEpicFightShortStun(Entity entity) {
+//      ADD THIS CODE IN AV_EFM
+//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+//        if (livingEntityPatch != null && !livingEntityPatch.isStunned()) {
+//            livingEntityPatch.applyStun(StunType.SHORT, 1.0F);
+//        }
+    }
+
+    protected void applyEpicFightRandomStun(Entity entity) {
+//      ADD THIS CODE IN AV_EFM
+
+//        if (Math.random() <= 0.5D) {
+//            new DelayedTask(1) {
+//                @Override
+//                public void run() {
+//                    if (entity.level() instanceof ServerLevel && entity instanceof Mob mob) {
+//                        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+//                        if (livingEntityPatch != null && !livingEntityPatch.isStunned()) {
+//                            livingEntityPatch.applyStun(StunType.LONG, 10.0F);
+//                        }
+//                    }
+//                }
+//            };
+//
+//            if (Math.random() <= 0.3D) {
+//                new DelayedTask(1) {
+//                    @Override
+//                    public void run() {
+//                        if (entity.level() instanceof ServerLevel && entity instanceof Mob mob) {
+//                            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+//                            if (livingEntityPatch != null && !livingEntityPatch.isStunned()) {
+//                                livingEntityPatch.applyStun(StunType.KNOCKDOWN, 10.0F);
+//                            }
+//                        }
+//                    }
+//                };
+//            }
+//        }
+    }
+
     @Override
     public void onPlace(@NotNull BlockState blockstate, @NotNull Level level, @NotNull BlockPos blockPos,
                         @NotNull BlockState oldState, boolean flag) {

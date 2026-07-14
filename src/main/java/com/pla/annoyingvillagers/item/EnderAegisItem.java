@@ -2,11 +2,8 @@ package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.EnderAegisProjectile;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundEnderAegisSparkFx;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
@@ -22,11 +19,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.List;
 
@@ -127,10 +119,28 @@ public class EnderAegisItem extends SwordItem {
         level.playSound(null, entity.blockPosition(), AnnoyingVillagersModSounds.ENDER_SHOT.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
         level.playSound(null, entity.blockPosition(), AnnoyingVillagersModSounds.BLOOM.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
 
-        LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-        if (livingentitypatch != null) {
-            livingentitypatch.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
-        }
+//        Add this mixin to AV_EFM
+//        LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+//        if (livingentitypatch != null) {
+//            livingentitypatch.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
+//        }
+    }
+
+    private void secondFormNbtTag(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity) {
+//        Add this code in AV_EFM
+//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+//        if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
+//            SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_AEGIS);
+//            if (skillContainer != null && itemstack.getTag() != null) {
+//                if (!skillContainer.isActivated() && itemstack.getTag().getBoolean("SecondForm")) {
+//                    itemstack.getTag().putBoolean("SecondForm", false);
+//                }
+//                if (skillContainer.isActivated() && !itemstack.getTag().getBoolean("SecondForm")) {
+//                    itemstack.getTag().putBoolean("SecondForm", true);
+//                }
+//            }
+//        }
+//        Handle vanilla code
     }
 
     public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
@@ -141,18 +151,7 @@ public class EnderAegisItem extends SwordItem {
             }
         }
         if (entity instanceof Player player) {
-            PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-            if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_AEGIS);
-                if (skillContainer != null && itemstack.getTag() != null) {
-                    if (!skillContainer.isActivated() && itemstack.getTag().getBoolean("SecondForm")) {
-                        itemstack.getTag().putBoolean("SecondForm", false);
-                    }
-                    if (skillContainer.isActivated() && !itemstack.getTag().getBoolean("SecondForm")) {
-                        itemstack.getTag().putBoolean("SecondForm", true);
-                    }
-                }
-            }
+            secondFormNbtTag(itemstack, level, player);
         }
     }
 

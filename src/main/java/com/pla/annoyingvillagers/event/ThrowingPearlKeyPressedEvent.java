@@ -1,10 +1,8 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.entity.EnchantedEnderPearlEntity;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
-import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -18,13 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.gameasset.Animations;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-
-import java.util.Objects;
 
 public class ThrowingPearlKeyPressedEvent {
     private static Vec3 getFrontLeftPos(Entity entity) {
@@ -52,26 +43,40 @@ public class ThrowingPearlKeyPressedEvent {
         return base.add(forwardH.scale(0.35)).add(left.scale(0.25));
     }
 
+    private static boolean efmConditionToExecute(Entity entity) {
+//        Add this code in AV_EFM
+
+//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+//        if (livingEntityPatch == null) return false;
+//        AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
+//        if (EpicfightUtil.isLongHitAnimation(dynamicAnimation, livingEntityPatch)) {
+//            return false;
+//        }
+//        if (dynamicAnimation != Animations.EMPTY_ANIMATION) {
+//            return false;
+//        }
+        return true;
+    }
+
+    private static void playThrowingPearlAnimation(Entity entity) {
+//        Add Animation in AV_EFM
+
+//        livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+//        Create VANILLA_ANIMATION
+    }
+
     public static void execute(final Entity entity) {
         if (entity != null) {
             if (!(entity.level() instanceof ServerLevel)) return;
-
-            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-            if (livingEntityPatch == null) return;
-            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-            if (EpicfightUtil.isLongHitAnimation(dynamicAnimation, livingEntityPatch)) {
+            if (!efmConditionToExecute(entity)) {
                 return;
             }
-            if (dynamicAnimation != Animations.EMPTY_ANIMATION) {
-                return;
-            }
-
             if (entity instanceof Player player) {
                 boolean used = player.getInventory().items.stream()
                         .filter(s -> !s.isEmpty() && s.is(AnnoyingVillagersModItems.ENCHANTED_ENDER_PEARL.get()))
                         .findFirst()
                         .map(stack -> {
-                            livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+                            playThrowingPearlAnimation(entity);
                             Level level = entity.level();
                             var projectile = new EnchantedEnderPearlEntity(
                                     AnnoyingVillagersModEntities.ENCHANTED_ENDER_PEARL_PROJECTILE.get(), level);
@@ -98,7 +103,7 @@ public class ThrowingPearlKeyPressedEvent {
             if (entity instanceof Player player) {
 
                 if (player.getInventory().contains(new ItemStack(Items.ENDER_PEARL))) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+                    playThrowingPearlAnimation(entity);
                     level = entity.level();
                     projectile = new ThrownEnderpearl(EntityType.ENDER_PEARL, level);
                     projectile.setOwner(entity);

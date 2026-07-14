@@ -2,7 +2,6 @@ package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.*;
-import com.pla.annoyingvillagers.mobpatch.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityType.Builder;
@@ -17,7 +16,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import yesman.epicfight.api.forgeevent.EntityPatchRegistryEvent;
 
 @EventBusSubscriber(bus = Bus.MOD)
 public class AnnoyingVillagersModEntities {
@@ -235,49 +233,6 @@ public class AnnoyingVillagersModEntities {
                 GreenVillagerKnightEntity::canSpawn,
                 SpawnPlacementRegisterEvent.Operation.REPLACE
         );
-    }
-
-    @SubscribeEvent
-    public static void setPatch(EntityPatchRegistryEvent entityPatchRegistryEvent) {
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.VILLAGER_SCOUT.get(), (entity) -> VillagerScoutPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(), (entity) -> VillagerScoutCaptainPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT.get(), (entity) -> VillagerKnightPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.BLUE_VILLAGER_KNIGHT.get(), (entity) -> VillagerKnightPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.GREEN_VILLAGER_KNIGHT.get(), (entity) -> VillagerKnightPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.PURPLE_VILLAGER_KNIGHT.get(), (entity) -> VillagerKnightPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.STEVE.get(), (entity) -> StevePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.ANGRY_STEVE.get(), (entity) -> AngryStevePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.ALEX.get(), (entity) -> AlexPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.JEV.get(), (entity) -> JevPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.CHRIS.get(), (entity) -> ChrisPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(), (entity) -> InfectedChrisPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), (entity) -> InfectedPlayerNpcPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.INFECTED_THEMOSTMOISTBURRIT0.get(), (entity) -> InfectedTheMostMoistBurrit0Patch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(), (entity) -> LowHerobrineClonePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), (entity) -> LowHerobrineClonePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.AEGIS_HEROBRINE.get(), (entity) -> AegisHerobrinePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.SWORDSMAN_HEROBRINE.get(), (entity) -> SwordsmanHerobrinePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.GLAIVE_HEROBRINE.get(), (entity) -> GlaiveHerobrinePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.SLEDGEHAMMER_HEROBRINE.get(), (entity) -> SledgehammerHerobrinePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.REAPER_HEROBRINE.get(), (entity) -> ReaperHerobrinePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.NULL_SWORD.get(), (entity) -> NullWeaponPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.NULL_AXE.get(), (entity) -> NullWeaponPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.NULL_PICKAXE.get(), (entity) -> NullWeaponPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.NULL_SHOVEL.get(), (entity) -> NullWeaponPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.NULL_HOE.get(), (entity) -> NullWeaponPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.NULL_SKELETON.get(), (entity) -> NullSkeletonPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.NULL.get(), (entity) -> NullPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_CLONE.get(), (entity) -> HerobrineClonePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE.get(), (entity) -> ShadowHerobrineClonePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(), (entity) -> TransporterHerobrinePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_CHRIS.get(), (entity) -> HerobrineClonePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_GREG.get(), (entity) -> HerobrineGregPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.ARMORED_HEROBRINE.get(), (entity) -> ArmoredHerobrinePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.HEROBRINE_7.get(), (entity) -> HerobrineClonePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.SHADOW_HEROBRINE.get(), (entity) -> ShadowHerobrinePatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.ELITE_HEROBRINE_KNOCKED.get(), (entity) -> EliteHerobrineKnockedPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.BLUE_DEMON.get(), (entity) -> BlueDemonPatch::new);
-        entityPatchRegistryEvent.getTypeEntry().put(AnnoyingVillagersModEntities.FLYING_SHOCKWAVE.get(), (entity) -> FlyingShockwavePatch::new);
     }
 
     @SubscribeEvent

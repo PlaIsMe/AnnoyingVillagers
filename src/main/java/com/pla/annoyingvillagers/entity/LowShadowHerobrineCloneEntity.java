@@ -3,8 +3,6 @@ package com.pla.annoyingvillagers.entity;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
@@ -19,7 +17,6 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
@@ -44,13 +41,6 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.animation.Joint;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.effect.EpicFightMobEffects;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -70,7 +60,6 @@ public class LowShadowHerobrineCloneEntity extends Monster {
     private boolean sacrificing = false;
     private boolean healing = false;
     private boolean forEscaping = false;
-    private final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
 
     public boolean isHealing() {
         return healing;
@@ -243,7 +232,7 @@ public class LowShadowHerobrineCloneEntity extends Monster {
         if (sacrificing || healing) {
             if (new Random().nextBoolean()
                     && this.level() instanceof ServerLevel serverLevel) {
-                EpicfightUtil.damageBlocked(damageSource, this, serverLevel);
+                CommonUtil.damageBlocked(damageSource, this, serverLevel);
                 return false;
             } else {
                 float health = this.getHealth();
@@ -342,6 +331,28 @@ public class LowShadowHerobrineCloneEntity extends Monster {
         return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, compoundTag);
     }
 
+    private void playHerobrinePossessionAnimation() {
+//      ADD THIS CODE IN AV_EFM
+//        final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
+//        if (livingentitypatch != null && !this.level().isClientSide()) {
+//            livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.PLAYER_HEROBRINE_POSSESSION, 0.0F);
+//        }
+
+//        Create VANILLA_ANIMATION
+    }
+
+    private void playAssistanceOrSacrifyingAnimation() {
+//      ADD THIS CODE IN AV_EFM
+//        if (this.livingentitypatch != null && !this.isDeadOrDying() && this.isAlive()) {
+//            if (this.sacrificing) {
+//                this.livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_ASSISTANCE, 0.0F);
+//            } else if (this.healing) {
+//                this.livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_SACRIFICING, 0.0F);
+//            }
+//        }
+//        Create VANILLA_ANIMATION
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -358,10 +369,7 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                     if (this.summoned) {
                         this.setNoAi(true);
                     }
-                    final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
-                    if (livingentitypatch != null && !this.level().isClientSide()) {
-                        livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.PLAYER_HEROBRINE_POSSESSION, 0.0F);
-                    }
+                    playHerobrinePossessionAnimation();
                     this.initialSpawn = false;
                 }
                 if (this.forEscaping && this.level() instanceof ServerLevel serverLevel) {
@@ -441,14 +449,8 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                     autoKill = true;
                     this.kill();
                 }
-                this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 1, 3, false, false));
-                if (this.livingentitypatch != null && !this.isDeadOrDying() && this.isAlive()) {
-                    if (this.sacrificing) {
-                        this.livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_ASSISTANCE, 0.0F);
-                    } else if (this.healing) {
-                        this.livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_SACRIFICING, 0.0F);
-                    }
-                }
+                CommonUtil.stunImmunity(this, 3, 3);
+                playAssistanceOrSacrifyingAnimation();
                 if (this.tickCount % 140 == 0 && this.possessedByEntity.getHealth() < this.possessedByEntity.getMaxHealth() * 0.8) {
                     this.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
                 }
@@ -476,9 +478,9 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                     ServerLevel server = (ServerLevel)this.level();
                     Vec3 from = null;
                     if (this.sacrificing) {
-                        from = getSacrificingArmPosition(this, new Vec3f(0, 0, 0), Armatures.BIPED.get().toolR);
+                        from = getSacrificingArmPosition(this, Vec3.ZERO, HumanoidArm.RIGHT);
                     } else if (this.healing) {
-                        from = getHealingArmPosition(this, new Vec3f(0,0,0), Armatures.BIPED.get().toolR);
+                        from = getHealingArmPosition(this, Vec3.ZERO, HumanoidArm.RIGHT);
                     }
                     if (from == null) {
                         return;
@@ -540,71 +542,117 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                     this.kill();
                 }
 
-                this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 1, 3, false, false));
-                if (this.livingentitypatch != null) {
-                    this.livingentitypatch.playAnimationSynchronized(AVAnimations.LOW_CLONE_ESCAPE, 0.0F);
-                }
+                CommonUtil.stunImmunity(this, 3 , 3);
+                playHerobrinePossessionAnimation();
             }
         }
     }
 
-    private static Vec3 getSacrificingArmPosition(Entity entity, Vec3f translation, Joint joint) {
-        float handToTip = 0.6F;
-        float yOffset = 0.6F;
-        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-        if (livingEntityPatch == null) return null;
+    private static void playLowCloneEscapeAnimation() {
+//      ADD THIS CODE IN AV_EFM
+//        if (this.livingentitypatch != null) {
+//            this.livingentitypatch.playAnimationSynchronized(AVAnimations.LOW_CLONE_ESCAPE, 0.0F);
+//        }
 
-        float interpolation = 0.0F;
-        OpenMatrix4f m = livingEntityPatch.getArmature()
-                .getBoundTransformFor(livingEntityPatch.getAnimator().getPose(interpolation), joint);
-
-        if (translation != null) {
-            OpenMatrix4f tLocal = new OpenMatrix4f().translate(translation);
-            OpenMatrix4f.mul(m, tLocal, m);
-        }
-
-        OpenMatrix4f tipOffset = new OpenMatrix4f().translate(new Vec3f(0.0F, 0.0F, -handToTip));
-        OpenMatrix4f.mul(m, tipOffset, m);
-
-        float yawRad = (float) -Math.toRadians(livingEntityPatch.getOriginal().yBodyRotO + 180.0F);
-        OpenMatrix4f worldYaw = new OpenMatrix4f().rotate(yawRad, new Vec3f(0.0F, 1.0F, 0.0F));
-        OpenMatrix4f.mul(worldYaw, m, m);
-
-        LivingEntity base = livingEntityPatch.getOriginal();
-        return new Vec3(
-                m.m30 + base.getX(),
-                m.m31 + (base.getY() + (entity.getBbHeight() / 1.8) - 1.0) + yOffset,
-                m.m32 + base.getZ()
-        );
+//        ADD VANILLA_ANIMATION
     }
 
-    private static Vec3 getHealingArmPosition(Entity entity, Vec3f translation, Joint joint) {
-        float handToTip = 1.2F;
-        float yOffset = 0.0F;
-        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-        if (livingEntityPatch == null) return null;
+    private static Vec3 getSacrificingArmPosition(Entity entity, @Nullable Vec3 translation, HumanoidArm arm) {
+//      ADD THIS CODE IN AV_EFM
+//        float handToTip = 0.6F;
+//        float yOffset = 0.6F;
+//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+//        if (livingEntityPatch == null) return null;
+//
+//        float interpolation = 0.0F;
+//        OpenMatrix4f m = livingEntityPatch.getArmature()
+//                .getBoundTransformFor(livingEntityPatch.getAnimator().getPose(interpolation), joint);
+//
+//        if (translation != null) {
+//            OpenMatrix4f tLocal = new OpenMatrix4f().translate(translation);
+//            OpenMatrix4f.mul(m, tLocal, m);
+//        }
+//
+//        OpenMatrix4f tipOffset = new OpenMatrix4f().translate(new Vec3f(0.0F, 0.0F, -handToTip));
+//        OpenMatrix4f.mul(m, tipOffset, m);
+//
+//        float yawRad = (float) -Math.toRadians(livingEntityPatch.getOriginal().yBodyRotO + 180.0F);
+//        OpenMatrix4f worldYaw = new OpenMatrix4f().rotate(yawRad, new Vec3f(0.0F, 1.0F, 0.0F));
+//        OpenMatrix4f.mul(worldYaw, m, m);
+//
+//        LivingEntity base = livingEntityPatch.getOriginal();
+//        return new Vec3(
+//                m.m30 + base.getX(),
+//                m.m31 + (base.getY() + (entity.getBbHeight() / 1.8) - 1.0) + yOffset,
+//                m.m32 + base.getZ()
+//        );
 
-        float interpolation = 0.0F;
-        OpenMatrix4f m = livingEntityPatch.getArmature()
-                .getBoundTransformFor(livingEntityPatch.getAnimator().getPose(interpolation), joint);
+        return getVanillaArmPosition(entity, translation, arm, 0.55D, 0.05D);
+    }
 
-        if (translation != null) {
-            OpenMatrix4f tLocal = new OpenMatrix4f().translate(translation);
-            OpenMatrix4f.mul(m, tLocal, m);
+    private static Vec3 getHealingArmPosition(Entity entity, @Nullable Vec3 translation, HumanoidArm arm) {
+//      ADD THIS CODE IN AV_EFM
+//        float handToTip = 1.2F;
+//        float yOffset = 0.0F;
+//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+//        if (livingEntityPatch == null) return null;
+//
+//        float interpolation = 0.0F;
+//        OpenMatrix4f m = livingEntityPatch.getArmature()
+//                .getBoundTransformFor(livingEntityPatch.getAnimator().getPose(interpolation), joint);
+//
+//        if (translation != null) {
+//            OpenMatrix4f tLocal = new OpenMatrix4f().translate(translation);
+//            OpenMatrix4f.mul(m, tLocal, m);
+//        }
+//
+//        OpenMatrix4f tipOffset = new OpenMatrix4f().translate(new Vec3f(0.0F, 0.0F, -handToTip));
+//        OpenMatrix4f.mul(m, tipOffset, m);
+//
+//        float yawRad = (float) -Math.toRadians(livingEntityPatch.getOriginal().yBodyRotO + 180.0F);
+//        OpenMatrix4f worldYaw = new OpenMatrix4f().rotate(yawRad, new Vec3f(0.0F, 1.0F, 0.0F));
+//        OpenMatrix4f.mul(worldYaw, m, m);
+//
+//        LivingEntity base = livingEntityPatch.getOriginal();
+//        return new Vec3(
+//                m.m30 + base.getX(),
+//                m.m31 + (base.getY() + (entity.getBbHeight() / 1.8) - 1.0) + yOffset,
+//                m.m32 + base.getZ()
+//        );
+
+        return getVanillaArmPosition(entity, translation, arm, 0.65D, -0.55D);
+    }
+
+    private static Vec3 getVanillaArmPosition(Entity entity, @Nullable Vec3 translation, HumanoidArm arm, double forward, double eyeYOffset) {
+        if (!(entity instanceof LivingEntity living)) {
+            Vec3 fallback = CommonUtil.getVanillaSwordOrBodyPosition(entity);
+            return translation == null ? fallback : fallback.add(translation);
         }
 
-        OpenMatrix4f tipOffset = new OpenMatrix4f().translate(new Vec3f(0.0F, 0.0F, -handToTip));
-        OpenMatrix4f.mul(m, tipOffset, m);
+        float partialTick = 1.0F;
+        float bodyYaw = Mth.lerp(partialTick, living.yBodyRotO, living.yBodyRot) * Mth.DEG_TO_RAD;
+        double sinYaw = Mth.sin(bodyYaw);
+        double cosYaw = Mth.cos(bodyYaw);
+        double armSide = (arm == HumanoidArm.RIGHT ? 1.0D : -1.0D) * 0.35D;
+        double crouchOffset = living.isCrouching() ? -0.1875D : 0.0D;
+        double x = Mth.lerp((double) partialTick, living.xo, living.getX());
+        double y = Mth.lerp((double) partialTick, living.yo, living.getY());
+        double z = Mth.lerp((double) partialTick, living.zo, living.getZ());
 
-        float yawRad = (float) -Math.toRadians(livingEntityPatch.getOriginal().yBodyRotO + 180.0F);
-        OpenMatrix4f worldYaw = new OpenMatrix4f().rotate(yawRad, new Vec3f(0.0F, 1.0F, 0.0F));
-        OpenMatrix4f.mul(worldYaw, m, m);
+        Vec3 armPosition = new Vec3(
+                x - cosYaw * armSide - sinYaw * forward,
+                y + living.getEyeHeight() + eyeYOffset + crouchOffset,
+                z - sinYaw * armSide + cosYaw * forward
+        );
 
-        LivingEntity base = livingEntityPatch.getOriginal();
-        return new Vec3(
-                m.m30 + base.getX(),
-                m.m31 + (base.getY() + (entity.getBbHeight() / 1.8) - 1.0) + yOffset,
-                m.m32 + base.getZ()
+        if (translation == null) {
+            return armPosition;
+        }
+
+        return armPosition.add(
+                cosYaw * translation.x - sinYaw * translation.z,
+                translation.y,
+                sinYaw * translation.x + cosYaw * translation.z
         );
     }
 

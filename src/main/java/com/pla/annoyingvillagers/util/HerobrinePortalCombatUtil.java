@@ -2,21 +2,18 @@ package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
-import com.pla.annoyingvillagers.entity.AegisHerobrineEntity;
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
 import com.pla.annoyingvillagers.entity.HerobrineGregEntity;
 import com.pla.annoyingvillagers.entity.LowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.entity.LowShadowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.entity.TransporterHerobrineCloneEntity;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
-import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.TransporterFragmentItem;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.Mth;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -25,8 +22,6 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -48,6 +43,8 @@ public final class HerobrinePortalCombatUtil {
     private static final double SUPPORT_ENEMY_RADIUS = 64.0D;
     private static final double GREG_SUPPORT_PORTAL_ENEMY_DISTANCE_SQR = 10.0D * 10.0D;
     private static final double SUPPORT_GATHER_DISTANCE_SQR = 14.0D * 14.0D;
+    private static final double VANILLA_ESCAPE_CLOSE_THREAT_SQR = 5.5D * 5.5D;
+    private static final double VANILLA_ESCAPE_LOW_HEALTH_RATIO = 0.45D;
 
     private HerobrinePortalCombatUtil() {
     }
@@ -105,6 +102,20 @@ public final class HerobrinePortalCombatUtil {
 
         Entity owner = serverLevel.getEntity(ownerUuid);
         return owner != null && isHerobrineSide(user) && isHerobrineSide(owner);
+    }
+
+    public static boolean isVanillaEscapePressure(Mob mob) {
+        LivingEntity target = mob.getTarget();
+        if (target == null || !target.isAlive() || !isEnemyOf(mob, target)) {
+            return false;
+        }
+        if (mob.getHealth() <= mob.getMaxHealth() * VANILLA_ESCAPE_LOW_HEALTH_RATIO) {
+            return true;
+        }
+        if (mob.distanceToSqr(target) <= VANILLA_ESCAPE_CLOSE_THREAT_SQR) {
+            return true;
+        }
+        return mob.getLastHurtByMob() == target || target.getLastHurtMob() == mob;
     }
 
     @Nullable
@@ -255,14 +266,6 @@ public final class HerobrinePortalCombatUtil {
                 && !(support instanceof LowShadowHerobrineCloneEntity);
     }
 
-    public static boolean tryAegisProtectPortal(AegisHerobrineEntity aegis) {
-        LivingEntity support = findSupportHerobrine(aegis, SUPPORT_HEROBRINE_RADIUS);
-        if (support == null || isRidingHerobrineDragon(support)) {
-            return false;
-        }
-        return spawnSupportPortalPair(aegis, aegis, support);
-    }
-
     public static boolean tryBowCounterPortalSupport(LivingEntity caster) {
         if (!(caster.level() instanceof ServerLevel serverLevel)
                 || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, caster, 2)) {
@@ -326,29 +329,16 @@ public final class HerobrinePortalCombatUtil {
         if (entity instanceof HerobrineGregEntity greg) {
             greg.markSupportingHerobrine();
         }
-        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-        if (patch != null && !entity.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+        if (!entity.level().isClientSide()) {
+            entity.level().playSound(null, entity.blockPosition(), AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
+            entity.swing(InteractionHand.MAIN_HAND, true);
         }
     }
 
     public static void playPortalPairSummon(LivingEntity entity) {
-        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-        if (patch != null && !entity.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
-        }
-    }
-
-    public static void playClonePortalSummon(LivingEntity entity) {
         if (!entity.level().isClientSide()) {
             entity.level().playSound(null, entity.blockPosition(), AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
-        }
-        if (entity instanceof HerobrineGregEntity greg) {
-            greg.markSupportingHerobrine();
-        }
-        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-        if (patch != null && !entity.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            entity.swing(InteractionHand.MAIN_HAND, true);
         }
     }
 

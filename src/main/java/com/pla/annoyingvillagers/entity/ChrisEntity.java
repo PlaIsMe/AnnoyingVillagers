@@ -10,7 +10,6 @@ import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
@@ -36,11 +35,9 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Consumer;
 
 
@@ -349,21 +346,28 @@ public class ChrisEntity extends AVNpc implements BurstProtectEntity {
         }
     }
 
+    public static Builder addEpicFightAttributes(Builder builder) {
+//      ADD THIS CODE IN AV_EFM
+//        return builder.add(EpicFightAttributes.IMPACT.get(), 2.0D)
+//                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 5.0D)
+//                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
+//                .add(EpicFightAttributes.MAX_STRIKES.get(), 50.0D)
+//                .add(EpicFightAttributes.MAX_STAMINA.get(), 30.0D)
+//                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
+
+        return builder;
+    }
+
     public static Builder createAttributes() {
-        return Mob.createMobAttributes()
+        Builder builder = Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 50.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.35D)
                 .add(Attributes.ATTACK_DAMAGE, 0.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
-                .add(EpicFightAttributes.IMPACT.get(), 2.0D)
-                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 5.0D)
-                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
-                .add(EpicFightAttributes.MAX_STRIKES.get(), 50.0D)
-                .add(EpicFightAttributes.MAX_STAMINA.get(), 30.0D)
-                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
+        return addEpicFightAttributes(builder);
     }
 }
 

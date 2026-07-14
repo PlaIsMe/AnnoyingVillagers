@@ -1,6 +1,5 @@
 package com.pla.annoyingvillagers.potion;
 
-import com.pla.annoyingvillagers.gameasset.AnimsTacticalImbuements;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import net.minecraft.core.BlockPos;
@@ -10,15 +9,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import net.shelmarow.combat_evolution.execution.ExecutionHandler;
-import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimation;
-import net.shelmarow.combat_evolution.gameassets.animation.ExecutionHitAnimation;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.animation.AnimationPlayer;
-import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class ElectrifyMobEffect extends MobEffect {
 
@@ -30,6 +21,30 @@ public class ElectrifyMobEffect extends MobEffect {
         return "effect.annoyingvillagers.electrify";
     }
 
+    private void customEffectTick(LivingEntity livingEntity, int pAmplifier) {
+//        Add this in av efm
+
+//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(pLivingEntity, LivingEntityPatch.class);
+//
+//        if (livingEntityPatch != null) {
+//            AnimationPlayer animationPlayer = livingEntityPatch.getAnimator().getPlayerFor(null);
+//            if (animationPlayer != null) {
+//                AssetAccessor<? extends StaticAnimation> dynamicAnimation = animationPlayer.getRealAnimation();
+//                StaticAnimation currentAnimation = dynamicAnimation != null ? dynamicAnimation.get() : null;
+//                if (dynamicAnimation != null
+//                        && currentAnimation != null
+//                        && !livingEntityPatch.isStunned()
+//                        && !ExecutionHandler.isTargetGuardBreak(dynamicAnimation, livingEntityPatch)
+//                        && !(currentAnimation instanceof ExecutionAttackAnimation)
+//                        && !(currentAnimation instanceof ExecutionHitAnimation)) {
+//                    playElectrifyAnimation(livingEntityPatch, pAmplifier > 1
+//                            ? AnimsTacticalImbuements.ZAP_LONG
+//                            : AnimsTacticalImbuements.ZAP);
+//                }
+//            }
+//        }
+    }
+
     @Override
     public void applyEffectTick(@NotNull LivingEntity pLivingEntity, int pAmplifier) {
         super.applyEffectTick(pLivingEntity, pAmplifier);
@@ -38,25 +53,7 @@ public class ElectrifyMobEffect extends MobEffect {
         double d2 = pLivingEntity.getZ();
 
         if (pLivingEntity.tickCount % 20 == 0) {
-            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(pLivingEntity, LivingEntityPatch.class);
-
-            if (livingEntityPatch != null) {
-                AnimationPlayer animationPlayer = livingEntityPatch.getAnimator().getPlayerFor(null);
-                if (animationPlayer != null) {
-                    AssetAccessor<? extends StaticAnimation> dynamicAnimation = animationPlayer.getRealAnimation();
-                    StaticAnimation currentAnimation = dynamicAnimation != null ? dynamicAnimation.get() : null;
-                    if (dynamicAnimation != null
-                            && currentAnimation != null
-                            && !livingEntityPatch.isStunned()
-                            && !ExecutionHandler.isTargetGuardBreak(dynamicAnimation, livingEntityPatch)
-                            && !(currentAnimation instanceof ExecutionAttackAnimation)
-                            && !(currentAnimation instanceof ExecutionHitAnimation)) {
-                        playElectrifyAnimation(livingEntityPatch, pAmplifier > 1
-                                ? AnimsTacticalImbuements.ZAP_LONG
-                                : AnimsTacticalImbuements.ZAP);
-                    }
-                }
-            }
+            customEffectTick(pLivingEntity, pAmplifier);
         }
 
         if (Math.random() <= 0.1D) {
@@ -88,10 +85,11 @@ public class ElectrifyMobEffect extends MobEffect {
         return true;
     }
 
-    private static void playElectrifyAnimation(LivingEntityPatch<?> livingEntityPatch,
-                                               AssetAccessor<? extends StaticAnimation> animation) {
-        if (animation != null && animation.get() != null) {
-            livingEntityPatch.playAnimationSynchronized(animation, 0.0F);
-        }
-    }
+//    Add this function in AV_EFM
+//    private static void playElectrifyAnimation(LivingEntityPatch<?> livingEntityPatch,
+//                                               AssetAccessor<? extends StaticAnimation> animation) {
+//        if (animation != null && animation.get() != null) {
+//            livingEntityPatch.playAnimationSynchronized(animation, 0.0F);
+//        }
+//    }
 }

@@ -1,25 +1,3 @@
-/*
- * AnnoyingVillagers - Third-Party Derived File Notice
- *
- * SPDX-License-Identifier: GPL-3.0-only
- *
- * Upstream: Explosive Enhancement: Reforged - Xylonity
- * Source: https://github.com/Xylonity/Explosive-Enhancement-Reforged
- *
- * This file contains code/assets adapted from the upstream project.
- * Required upstream notices must be preserved.
- *
- * License texts:
- *   - third_party/licenses/GPL-3.0.txt
- *
- * Notes:
- * - Portions of this file include/derive from particle implementation(s) originating in
- *   Explosive Enhancement: Reforged.
- *
- * Modifications and integration:
- *   Copyright (c) 2026 pla_is_me
- */
-
 package com.pla.annoyingvillagers.client.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;

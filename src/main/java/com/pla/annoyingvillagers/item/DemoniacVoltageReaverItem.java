@@ -8,11 +8,10 @@ import com.pla.annoyingvillagers.capabilities.SnakeBladeCapability;
 import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.entity.SnakeBladeEntity;
 import com.pla.annoyingvillagers.entity.SwordsmanHerobrineEntity;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModCapabilities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.network.chat.Component;
@@ -32,14 +31,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 public class DemoniacVoltageReaverItem extends SwordItem {
     private static final String TAG_PREFERRED_PORTAL_GROUP = "PreferredPortalGroup";
@@ -141,19 +132,23 @@ public class DemoniacVoltageReaverItem extends SwordItem {
     }
 
     private static boolean isPlayingSnakeBladeAnimation(LivingEntity livingEntity) {
-        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(livingEntity, LivingEntityPatch.class);
-        if (patch == null || patch.getAnimator() == null) {
-            return false;
-        }
+//        Add this code in AV_EFM
 
-        var animationPlayer = patch.getAnimator().getPlayerFor(null);
-        if (animationPlayer == null) {
-            return false;
-        }
+//        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(livingEntity, LivingEntityPatch.class);
+//        if (patch == null || patch.getAnimator() == null) {
+//            return false;
+//        }
+//
+//        var animationPlayer = patch.getAnimator().getPlayerFor(null);
+//        if (animationPlayer == null) {
+//            return false;
+//        }
+//
+//        var dynamicAnimation = animationPlayer.getRealAnimation();
+//        return dynamicAnimation == AVAnimations.SNAKE_BLADE
+//                || dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD;
 
-        var dynamicAnimation = animationPlayer.getRealAnimation();
-        return dynamicAnimation == AVAnimations.SNAKE_BLADE
-                || dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD;
+        return false;
     }
 
     public static boolean process(ItemStack stack, LivingEntity attacker) {
@@ -474,24 +469,28 @@ public class DemoniacVoltageReaverItem extends SwordItem {
     }
 
     public static Vec3 getToolTipPos(Entity ent, float partialTicks, float handToTip) {
-        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(ent, LivingEntityPatch.class);
-        if (patch == null) return null;
+//        Add this code in AV_EFM
+//        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(ent, LivingEntityPatch.class);
+//        if (patch == null) return null;
+//
+//        OpenMatrix4f joint = patch.getArmature()
+//                .getBoundTransformFor(patch.getAnimator().getPose(partialTicks), Armatures.BIPED.get().toolR);
+//
+//        OpenMatrix4f localOffset = new OpenMatrix4f().translate(new Vec3f(0.0F, 0.0F, -handToTip));
+//        OpenMatrix4f.mul(joint, localOffset, joint);
+//
+//        float yawRad = (float) -Math.toRadians(((LivingEntity) ent).yBodyRotO + 180.0F);
+//        OpenMatrix4f worldYaw = new OpenMatrix4f().rotate(yawRad, new Vec3f(0.0F, 1.0F, 0.0F));
+//        OpenMatrix4f.mul(worldYaw, joint, joint);
+//
+//        return new Vec3(
+//                joint.m30 + ent.getX(),
+//                joint.m31 + (ent.getY() + (ent.getBbHeight() / 1.8F) - 1.0F),
+//                joint.m32 + ent.getZ()
+//        );
 
-        OpenMatrix4f joint = patch.getArmature()
-                .getBoundTransformFor(patch.getAnimator().getPose(partialTicks), Armatures.BIPED.get().toolR);
-
-        OpenMatrix4f localOffset = new OpenMatrix4f().translate(new Vec3f(0.0F, 0.0F, -handToTip));
-        OpenMatrix4f.mul(joint, localOffset, joint);
-
-        float yawRad = (float) -Math.toRadians(((LivingEntity) ent).yBodyRotO + 180.0F);
-        OpenMatrix4f worldYaw = new OpenMatrix4f().rotate(yawRad, new Vec3f(0.0F, 1.0F, 0.0F));
-        OpenMatrix4f.mul(worldYaw, joint, joint);
-
-        return new Vec3(
-                joint.m30 + ent.getX(),
-                joint.m31 + (ent.getY() + (ent.getBbHeight() / 1.8F) - 1.0F),
-                joint.m32 + ent.getZ()
-        );
+//        Add a fallback for vanilla weapon vec position
+        return CommonUtil.getVanillaSwordOrBodyPosition(ent, partialTicks);
     }
 
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
@@ -499,23 +498,29 @@ public class DemoniacVoltageReaverItem extends SwordItem {
         list.add(Component.literal(Component.translatable("tooltip.annoyingvillagers.demoniac_voltage_reaver").getString()));
     }
 
+    private void secondFormNbtTag(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity) {
+//        Add this code in AV_EFM
+//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+//        if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
+//            SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.DEMONIAC_VOLTAGE_REAVER);
+//            if (skillContainer != null) {
+//                if (skillContainer.getStack() >= 1) {
+//                    HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
+//                    if (itemstack.getTag() != null && !itemstack.getTag().getBoolean("SecondForm")) {
+//                        itemstack.getTag().putBoolean("SecondForm", true);
+//                    }
+//                } else if (skillContainer.getStack() < 1 && itemstack.getTag() != null && itemstack.getTag().getBoolean("SecondForm")) {
+//                    itemstack.getTag().remove("SecondForm");
+//                }
+//            }
+//        }
+//        Handle vanilla code
+    }
+
     public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
         super.inventoryTick(itemstack, level, entity, i, flag);
         if (flag && entity instanceof Player player) {
-            PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-            if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.DEMONIAC_VOLTAGE_REAVER);
-                if (skillContainer != null) {
-                    if (skillContainer.getStack() >= 1) {
-                        HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
-                        if (itemstack.getTag() != null && !itemstack.getTag().getBoolean("SecondForm")) {
-                            itemstack.getTag().putBoolean("SecondForm", true);
-                        }
-                    } else if (skillContainer.getStack() < 1 && itemstack.getTag() != null && itemstack.getTag().getBoolean("SecondForm")) {
-                        itemstack.getTag().remove("SecondForm");
-                    }
-                }
-            }
+            secondFormNbtTag(itemstack, level, player);
         }
         if (entity instanceof Player && !flag && itemstack.hasTag() && itemstack.getTag().getBoolean("SnakeAnimation")) {
             clearSnakeAnimation(itemstack);

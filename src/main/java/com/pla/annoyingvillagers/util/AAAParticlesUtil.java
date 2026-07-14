@@ -17,8 +17,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.gameasset.Armatures;
 
 public class AAAParticlesUtil {
     public static void sendEnderGlaiveExplosion(Vec3 from, Vec3 to, Level level) {
@@ -108,23 +106,7 @@ public class AAAParticlesUtil {
             return;
         }
 
-        Vec3 pos;
-
-        try {
-            pos = EpicfightUtil.getJointWithTranslation(
-                    entity,
-                    new Vec3f(0.0F, 0.0F, 0.0F),
-                    Armatures.BIPED.get().toolR,
-                    Minecraft.getInstance().getFrameTime(),
-                    0.0F
-            );
-        } catch (Exception ignored) {
-            pos = null;
-        }
-
-        if (pos == null) {
-            pos = entity.position().add(0.0D, entity.getBbHeight() * 0.6D, 0.0D);
-        }
+        Vec3 pos = CommonUtil.getVanillaSwordOrBodyPosition(entity, Minecraft.getInstance().getFrameTime());
 
         new ParticleEmitterInfo(
                 ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_attractor"))

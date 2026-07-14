@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
-import com.pla.annoyingvillagers.util.EpicfightUtil;
+import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -280,7 +280,7 @@ public class HerobrineWardenEntity extends Warden {
             return super.hurt(pSource, pAmount);
         }
         if (this.level() instanceof ServerLevel serverLevel) {
-            EpicfightUtil.damageBlocked(pSource, this, serverLevel);
+            CommonUtil.damageBlocked(pSource, this, serverLevel);
         }
         return false;
     }

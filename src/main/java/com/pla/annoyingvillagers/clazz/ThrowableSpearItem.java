@@ -23,8 +23,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class ThrowableSpearItem extends SwordItem {
     private static final int THROW_THRESHOLD_TIME = 10;
@@ -117,10 +115,14 @@ public class ThrowableSpearItem extends SwordItem {
     }
 
     private static void playEpicFightShotAnimation(Player player) {
-        LivingEntityPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
-        if (playerPatch != null) {
-            playerPatch.playShootingAnimation();
-        }
+//        ADD THIS CODE IN AV_EFM
+
+//        LivingEntityPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
+//        if (playerPatch != null) {
+//            playerPatch.playShootingAnimation();
+//        }
+
+//         Create VANILLA_ANIMATION
     }
 
     private static void launchRiptide(Player player, Level level, int riptide) {

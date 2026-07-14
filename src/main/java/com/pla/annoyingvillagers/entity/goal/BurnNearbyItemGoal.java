@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
+import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -15,9 +16,22 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.DiggerItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.TridentItem;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -25,13 +39,28 @@ import java.util.List;
 
 public class BurnNearbyItemGoal extends Goal {
     private static final int BURN_COOLDOWN_TICKS = 80;
+    private static final int BURN_TICKS = 24;
+    private static final int BURN_ITEM_TICK = 10;
+    private static final int REPATH_INTERVAL_TICKS = 10;
+    private static final int MAX_FAILED_PATH_TICKS = 100;
+    private static final int FAILED_BURN_COOLDOWN_TICKS = 300;
+    private static final double BURN_DISTANCE = 1.5D;
+    private static final double BURN_ITEM_SEARCH_RADIUS = 0.75D;
 
     private final Mob mob;
     private final double speed;
     private final double searchRadius;
     private ItemEntity targetItem;
     private ItemStack burnToolRestoreItem = ItemStack.EMPTY;
+    private ItemStack activeBurnToolStack = ItemStack.EMPTY;
+    private ItemStack burningStack = ItemStack.EMPTY;
+    private BlockPos firePos;
+    private BurnTool burnTool;
     private boolean equippedBurnTool;
+    private int burnTicks;
+    private int repathTicks;
+    private int failedPathTicks;
+    private int giveUpCooldownTicks;
     private long nextBurnTick;
 
     private static List<String> keys(String prefix, int count) {
@@ -53,6 +82,10 @@ public class BurnNearbyItemGoal extends Goal {
 
     @Override
     public boolean canUse() {
+        if (giveUpCooldownTicks > 0) {
+            giveUpCooldownTicks--;
+            return false;
+        }
         if (!(mob.level() instanceof ServerLevel serverLevel)) return false;
         if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return false;
         if (mob.isPassenger()) return false;
@@ -78,15 +111,23 @@ public class BurnNearbyItemGoal extends Goal {
         if (!AnnoyingVillagersConfig.AV_MOB_CAN_BURN_ITEM.get()) return false;
 
         return targetItem != null
-                && targetItem.isAlive()
+                && (burnTicks > 0
+                || (targetItem.isAlive()
                 && !targetItem.getItem().isEmpty()
-                && isGroundItem(targetItem);
+                && isGroundItem(targetItem)));
     }
 
     @Override
     public void start() {
         burnToolRestoreItem = ItemStack.EMPTY;
+        activeBurnToolStack = ItemStack.EMPTY;
+        burningStack = ItemStack.EMPTY;
+        firePos = null;
+        burnTool = null;
         equippedBurnTool = false;
+        burnTicks = 0;
+        repathTicks = 0;
+        failedPathTicks = 0;
 
         if (targetItem == null) {
             return;
@@ -94,35 +135,42 @@ public class BurnNearbyItemGoal extends Goal {
 
         if (shouldPickupOrEquipInsteadOfBurn(targetItem.getItem())) {
             restoreMainWeapon(false);
-        } else {
-            equipFlintAndSteel();
         }
 
-        mob.getNavigation().moveTo(targetItem, speed);
+        moveToTargetItem();
     }
 
     @Override
     public void tick() {
         if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return;
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+        if (burnTicks > 0) {
+            tickBurningGround(serverLevel);
+            return;
+        }
+
         if (targetItem == null || !targetItem.isAlive() || targetItem.getItem().isEmpty()) {
             return;
         }
 
         if (shouldPickupOrEquipInsteadOfBurn(targetItem.getItem())) {
             restoreMainWeapon(false);
-        } else {
-            equipFlintAndSteel();
         }
 
-        if (mob.getNavigation().isDone()) {
-            var path = mob.getNavigation().createPath(targetItem, 0);
-
-            if (path == null) {
+        double dist = mob.distanceTo(targetItem);
+        if (dist > BURN_DISTANCE
+                && (repathTicks-- <= 0 || mob.getNavigation().isDone() || mob.getNavigation().isStuck())) {
+            repathTicks = REPATH_INTERVAL_TICKS;
+            if (moveToTargetItem()) {
+                failedPathTicks = 0;
+            } else {
+                failedPathTicks += REPATH_INTERVAL_TICKS;
+                if (failedPathTicks >= MAX_FAILED_PATH_TICKS) {
+                    abandonTarget();
+                }
                 return;
             }
-
-            mob.getNavigation().moveTo(targetItem, speed);
         }
 
         mob.getLookControl().setLookAt(
@@ -132,9 +180,7 @@ public class BurnNearbyItemGoal extends Goal {
                 30.0F, 30.0F
         );
 
-        double dist = mob.distanceTo(targetItem);
-
-        if (dist <= 1.5D) {
+        if (dist <= BURN_DISTANCE) {
             if (shouldPickupOrEquipInsteadOfBurn(targetItem.getItem())) {
                 if (tryHandleItemWithoutBurning(targetItem)) {
                     targetItem = null;
@@ -143,42 +189,21 @@ public class BurnNearbyItemGoal extends Goal {
                 }
             }
 
-            equipFlintAndSteel();
-
-            ItemStack burnedStack = targetItem.getItem().copy();
-            BlockPos firePos = targetItem.blockPosition();
-
-            if (tryPlaceFireAtItem(serverLevel, targetItem)) {
-                mob.swing(InteractionHand.MAIN_HAND);
-
-                serverLevel.sendParticles(
-                        ParticleTypes.FLAME,
-                        firePos.getX() + 0.5D, firePos.getY() + 0.5D, firePos.getZ() + 0.5D,
-                        8, 0.2, 0.2, 0.2, 0.01
-                );
-
-                mob.level().playSound(
-                        null,
-                        firePos,
-                        SoundEvents.FLINTANDSTEEL_USE,
-                        SoundSource.HOSTILE,
-                        1.0f,
-                        1.0f
-                );
-
-                tryBroadcastBurnMessage(serverLevel, burnedStack);
-                nextBurnTick = serverLevel.getGameTime() + BURN_COOLDOWN_TICKS;
+            if (shouldReserveInsteadOfBurn(targetItem.getItem())) {
+                targetItem = null;
+                mob.getNavigation().stop();
+                return;
             }
 
-            targetItem = null;
-            mob.getNavigation().stop();
+            igniteGroundAtItem(serverLevel);
         }
     }
 
     @Override
     public void stop() {
-        boolean shouldRestoreBurnTool = equippedBurnTool || isFlintAndSteel(mob.getMainHandItem());
+        boolean shouldRestoreBurnTool = equippedBurnTool || isBurnTool(mob.getMainHandItem());
 
+        clearTemporaryFire();
         targetItem = null;
         mob.getNavigation().stop();
 
@@ -186,8 +211,84 @@ public class BurnNearbyItemGoal extends Goal {
             restoreMainWeapon(true);
         }
 
+        returnActiveBurnToolIfNeeded();
+
         burnToolRestoreItem = ItemStack.EMPTY;
+        activeBurnToolStack = ItemStack.EMPTY;
+        burningStack = ItemStack.EMPTY;
+        firePos = null;
+        burnTool = null;
         equippedBurnTool = false;
+        burnTicks = 0;
+        repathTicks = 0;
+        failedPathTicks = 0;
+    }
+
+    private boolean moveToTargetItem() {
+        if (targetItem == null || !targetItem.isAlive()) {
+            return false;
+        }
+
+        Path itemPath = mob.getNavigation().createPath(targetItem, 0);
+        if (itemPath != null && itemPath.canReach() && mob.getNavigation().moveTo(itemPath, speed)) {
+            return true;
+        }
+
+        BlockPos stand = findStandNearItem(targetItem);
+        Path standPath = stand == null ? null : mob.getNavigation().createPath(stand, 0);
+        if (standPath != null && standPath.canReach() && mob.getNavigation().moveTo(standPath, speed)) {
+            return true;
+        }
+
+        return mob.getNavigation().moveTo(targetItem, speed);
+    }
+
+    private void abandonTarget() {
+        giveUpCooldownTicks = FAILED_BURN_COOLDOWN_TICKS;
+        targetItem = null;
+        mob.getNavigation().stop();
+    }
+
+    private BlockPos findStandNearItem(ItemEntity item) {
+        Level level = mob.level();
+        if (item == null || !(level instanceof ServerLevel serverLevel)) {
+            return null;
+        }
+
+        BlockPos itemPos = item.blockPosition();
+        BlockPos bestStand = null;
+        double bestDistance = Double.MAX_VALUE;
+
+        for (BlockPos pos : BlockPos.betweenClosed(itemPos.offset(-2, -2, -2), itemPos.offset(2, 2, 2))) {
+            BlockPos stand = pos.immutable();
+            if (!canStandAt(serverLevel, stand)) {
+                continue;
+            }
+
+            double distance = mob.distanceToSqr(stand.getX() + 0.5D, stand.getY(), stand.getZ() + 0.5D);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestStand = stand;
+            }
+        }
+
+        return bestStand;
+    }
+
+    private boolean canStandAt(ServerLevel serverLevel, BlockPos pos) {
+        if (!serverLevel.isInWorldBounds(pos) || !serverLevel.getWorldBorder().isWithinBounds(pos)) {
+            return false;
+        }
+
+        BlockState feet = serverLevel.getBlockState(pos);
+        BlockState head = serverLevel.getBlockState(pos.above());
+        BlockPos floorPos = pos.below();
+
+        return feet.getCollisionShape(serverLevel, pos).isEmpty()
+                && head.getCollisionShape(serverLevel, pos.above()).isEmpty()
+                && feet.getFluidState().isEmpty()
+                && head.getFluidState().isEmpty()
+                && serverLevel.getBlockState(floorPos).isSolidRender(serverLevel, floorPos);
     }
 
     private void tryBroadcastBurnMessage(ServerLevel serverLevel, ItemStack burnedStack) {
@@ -222,7 +323,7 @@ public class BurnNearbyItemGoal extends Goal {
         if (weapon != null && !weapon.isEmpty()) {
             mob.setItemSlot(EquipmentSlot.MAINHAND, weapon.copy());
             cacheMainWeapon(weapon);
-        } else if (isFlintAndSteel(mob.getMainHandItem())) {
+        } else if (isBurnTool(mob.getMainHandItem())) {
             mob.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
         }
     }
@@ -232,9 +333,10 @@ public class BurnNearbyItemGoal extends Goal {
                 ItemEntity.class,
                 mob.getBoundingBox().inflate(searchRadius),
                 e -> e.isAlive()
+                        && !e.hasPickUpDelay()
                         && !e.getItem().isEmpty()
                         && isGroundItem(e)
-                        && (shouldPickupOrEquipInsteadOfBurn(e.getItem()) || canPlaceFireAtItem(serverLevel, e))
+                        && (shouldPickupOrEquipInsteadOfBurn(e.getItem()) || canBurnItem(serverLevel, e))
         );
 
         if (items.isEmpty()) return null;
@@ -254,31 +356,202 @@ public class BurnNearbyItemGoal extends Goal {
         return itemEntity != null && itemEntity.onGround();
     }
 
-    private boolean canPlaceFireAtItem(ServerLevel serverLevel, ItemEntity itemEntity) {
-        if (!isGroundItem(itemEntity)) {
-            return false;
-        }
-
-        return BaseFireBlock.canBePlacedAt(serverLevel, itemEntity.blockPosition(), mob.getDirection());
+    private boolean canBurnItem(ServerLevel serverLevel, ItemEntity itemEntity) {
+        return itemEntity != null
+                && !shouldReserveInsteadOfBurn(itemEntity.getItem())
+                && selectBurnTarget(serverLevel, itemEntity.blockPosition()) != null;
     }
 
-    private boolean tryPlaceFireAtItem(ServerLevel serverLevel, ItemEntity itemEntity) {
-        if (!canPlaceFireAtItem(serverLevel, itemEntity)) {
+    private void igniteGroundAtItem(ServerLevel serverLevel) {
+        if (targetItem == null || !targetItem.isAlive() || targetItem.getItem().isEmpty()) {
+            return;
+        }
+
+        BurnTarget burnTarget = selectBurnTarget(serverLevel, targetItem.blockPosition());
+        if (burnTarget == null || !equipBurnTool(burnTarget.tool())) {
+            targetItem = null;
+            return;
+        }
+
+        burningStack = targetItem.getItem().copy();
+        burningStack.setCount(Math.min(burningStack.getCount(), 1));
+        firePos = burnTarget.pos();
+        burnTicks = BURN_TICKS;
+
+        mob.getNavigation().stop();
+        mob.getLookControl().setLookAt(
+                firePos.getX() + 0.5D,
+                firePos.getY() + 0.5D,
+                firePos.getZ() + 0.5D,
+                40.0F, 40.0F
+        );
+        mob.swing(InteractionHand.MAIN_HAND, true);
+
+        if (burnTarget.tool() == BurnTool.LAVA_BUCKET) {
+            serverLevel.setBlockAndUpdate(firePos, Blocks.LAVA.defaultBlockState());
+            convertActiveLavaBucketToEmptyBucket();
+            serverLevel.playSound(null, firePos, SoundEvents.BUCKET_EMPTY_LAVA, SoundSource.HOSTILE, 1.0F, 1.0F);
+        } else {
+            serverLevel.setBlockAndUpdate(firePos, BaseFireBlock.getState(serverLevel, firePos));
+            serverLevel.sendParticles(
+                    ParticleTypes.FLAME,
+                    firePos.getX() + 0.5D, firePos.getY() + 0.2D, firePos.getZ() + 0.5D,
+                    8, 0.25D, 0.1D, 0.25D, 0.01D
+            );
+            serverLevel.playSound(null, firePos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.HOSTILE, 1.0F, 1.0F);
+        }
+
+        serverLevel.gameEvent(mob, GameEvent.BLOCK_PLACE, firePos);
+    }
+
+    private void tickBurningGround(ServerLevel serverLevel) {
+        burnTicks--;
+
+        if (firePos != null && burnTicks == BURN_ITEM_TICK) {
+            burnItemsOnFire(serverLevel);
+        }
+
+        if (burnTicks > 0) {
+            return;
+        }
+
+        clearTemporaryFire();
+        if (!burningStack.isEmpty()) {
+            tryBroadcastBurnMessage(serverLevel, burningStack);
+            nextBurnTick = serverLevel.getGameTime() + BURN_COOLDOWN_TICKS;
+        }
+
+        burningStack = ItemStack.EMPTY;
+        targetItem = null;
+    }
+
+    private void burnItemsOnFire(ServerLevel serverLevel) {
+        if (firePos == null) {
+            return;
+        }
+
+        AABB burnBox = new AABB(firePos).inflate(BURN_ITEM_SEARCH_RADIUS);
+        List<ItemEntity> burningItems = serverLevel.getEntitiesOfClass(
+                ItemEntity.class,
+                burnBox,
+                item -> item.isAlive() && !item.getItem().isEmpty()
+        );
+
+        if (burningItems.isEmpty()) {
+            return;
+        }
+
+        ItemEntity itemToBurn = burningItems.get(0);
+        if (targetItem != null && targetItem.isAlive() && targetItem.getBoundingBox().intersects(burnBox)) {
+            itemToBurn = targetItem;
+        }
+
+        burningStack = itemToBurn.getItem().copy();
+        burningStack.setCount(Math.min(burningStack.getCount(), 1));
+        itemToBurn.discard();
+        mob.swing(InteractionHand.MAIN_HAND, true);
+    }
+
+    private void clearTemporaryFire() {
+        if (firePos == null || !(mob.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        BlockState state = serverLevel.getBlockState(firePos);
+        if (state.getBlock() instanceof BaseFireBlock || state.is(Blocks.LAVA)) {
+            mob.swing(InteractionHand.MAIN_HAND, true);
+            serverLevel.removeBlock(firePos, false);
+        }
+    }
+
+    private BurnTarget selectBurnTarget(ServerLevel serverLevel, BlockPos itemPos) {
+        BlockPos fire = findFirePos(serverLevel, itemPos);
+        if (InventoryUtils.hasItem(mob, Items.FLINT_AND_STEEL) && fire != null) {
+            return new BurnTarget(BurnTool.FLINT_AND_STEEL, fire);
+        }
+
+        BlockPos lava = findLavaPos(serverLevel, itemPos);
+        if (InventoryUtils.hasItem(mob, Items.LAVA_BUCKET) && lava != null) {
+            return new BurnTarget(BurnTool.LAVA_BUCKET, lava);
+        }
+
+        return null;
+    }
+
+    private BlockPos findFirePos(ServerLevel serverLevel, BlockPos itemPos) {
+        BlockPos[] candidates = {
+                itemPos,
+                itemPos.above()
+        };
+
+        for (BlockPos candidate : candidates) {
+            if (serverLevel.isInWorldBounds(candidate)
+                    && serverLevel.getWorldBorder().isWithinBounds(candidate)
+                    && serverLevel.getBlockState(candidate).isAir()
+                    && BaseFireBlock.canBePlacedAt(serverLevel, candidate, mob.getDirection())) {
+                return candidate.immutable();
+            }
+        }
+
+        return null;
+    }
+
+    private BlockPos findLavaPos(ServerLevel serverLevel, BlockPos itemPos) {
+        BlockPos[] candidates = {
+                itemPos,
+                itemPos.above()
+        };
+
+        for (BlockPos candidate : candidates) {
+            if (serverLevel.isInWorldBounds(candidate)
+                    && serverLevel.getWorldBorder().isWithinBounds(candidate)
+                    && serverLevel.getBlockState(candidate).isAir()) {
+                return candidate.immutable();
+            }
+        }
+
+        return null;
+    }
+
+    private boolean equipBurnTool(BurnTool tool) {
+        if (equippedBurnTool && burnTool == tool) {
+            return true;
+        }
+
+        Item item = tool == BurnTool.LAVA_BUCKET ? Items.LAVA_BUCKET : Items.FLINT_AND_STEEL;
+        ItemStack consumed = InventoryUtils.consumeItem(mob, item, 1).orElse(ItemStack.EMPTY);
+        if (consumed.isEmpty()) {
             return false;
         }
 
-        BlockPos firePos = itemEntity.blockPosition();
-        serverLevel.setBlockAndUpdate(firePos, BaseFireBlock.getState(serverLevel, firePos));
-        serverLevel.gameEvent(mob, GameEvent.BLOCK_PLACE, firePos);
+        rememberRestoreItemBeforeBurnTool();
+        equippedBurnTool = true;
+        burnTool = tool;
+        activeBurnToolStack = consumed.copy();
+        activeBurnToolStack.setCount(1);
+        mob.setItemSlot(EquipmentSlot.MAINHAND, activeBurnToolStack.copy());
         return true;
     }
 
-    private void equipFlintAndSteel() {
-        rememberRestoreItemBeforeBurnTool();
-        equippedBurnTool = true;
+    private void convertActiveLavaBucketToEmptyBucket() {
+        if (burnTool == BurnTool.LAVA_BUCKET && !activeBurnToolStack.isEmpty()) {
+            activeBurnToolStack = ItemStack.EMPTY;
+            giveOrDrop(new ItemStack(Items.BUCKET));
+        }
+    }
 
-        if (!isFlintAndSteel(mob.getMainHandItem())) {
-            mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.FLINT_AND_STEEL));
+    private void returnActiveBurnToolIfNeeded() {
+        if (activeBurnToolStack.isEmpty()) {
+            return;
+        }
+
+        giveOrDrop(activeBurnToolStack);
+        activeBurnToolStack = ItemStack.EMPTY;
+    }
+
+    private void giveOrDrop(ItemStack stack) {
+        if (!InventoryUtils.addItem(mob, stack)) {
+            mob.spawnAtLocation(stack);
         }
     }
 
@@ -296,6 +569,10 @@ public class BurnNearbyItemGoal extends Goal {
         }
 
         return emptyArmorSlotCanUse(stack);
+    }
+
+    private boolean shouldReserveInsteadOfBurn(ItemStack stack) {
+        return InventoryUtils.isInventoryBackedSupplyDrop(stack);
     }
 
     private boolean tryHandleItemWithoutBurning(ItemEntity itemEntity) {
@@ -332,6 +609,7 @@ public class BurnNearbyItemGoal extends Goal {
 
         if (mob instanceof AVNpc avNpc) {
             avNpc.setMainWeaponItem(equipStack.copy());
+            avNpc.setMainWeaponDisarmed(false);
         }
 
         groundStack.shrink(1);
@@ -413,18 +691,8 @@ public class BurnNearbyItemGoal extends Goal {
         for (int i = 0; i < inventory.getContainerSize() && !remaining.isEmpty(); i++) {
             ItemStack slotStack = inventory.getItem(i);
 
-            if (slotStack.isEmpty()) {
-                int transferable = Math.min(
-                        remaining.getCount(),
-                        Math.min(remaining.getMaxStackSize(), inventory.getMaxStackSize())
-                );
-
-                ItemStack inserted = remaining.copy();
-                inserted.setCount(transferable);
-
-                inventory.setItem(i, inserted);
-                remaining.shrink(transferable);
-            } else if (ItemStack.isSameItemSameTags(slotStack, remaining)
+            if (!slotStack.isEmpty()
+                    && ItemStack.isSameItemSameTags(slotStack, remaining)
                     && slotStack.getCount() < slotStack.getMaxStackSize()) {
                 int transferable = Math.min(
                         remaining.getCount(),
@@ -434,6 +702,25 @@ public class BurnNearbyItemGoal extends Goal {
                 slotStack.grow(transferable);
                 remaining.shrink(transferable);
             }
+        }
+
+        for (int i = 0; i < inventory.getContainerSize() && !remaining.isEmpty(); i++) {
+            ItemStack slotStack = inventory.getItem(i);
+
+            if (!slotStack.isEmpty()) {
+                continue;
+            }
+
+            int transferable = Math.min(
+                    remaining.getCount(),
+                    Math.min(remaining.getMaxStackSize(), inventory.getMaxStackSize())
+            );
+
+            ItemStack inserted = remaining.copy();
+            inserted.setCount(transferable);
+
+            inventory.setItem(i, inserted);
+            remaining.shrink(transferable);
         }
 
         if (remaining.getCount() == originalCount) {
@@ -523,7 +810,7 @@ public class BurnNearbyItemGoal extends Goal {
         }
 
         ItemStack currentMainHand = mob.getMainHandItem();
-        if (!currentMainHand.isEmpty() && !isFlintAndSteel(currentMainHand) && isUsefulWeapon(currentMainHand)) {
+        if (!currentMainHand.isEmpty() && !isBurnTool(currentMainHand) && isUsefulWeapon(currentMainHand)) {
             burnToolRestoreItem = currentMainHand.copy();
             cacheMainWeapon(currentMainHand);
         }
@@ -535,11 +822,19 @@ public class BurnNearbyItemGoal extends Goal {
         }
 
         return mob.getMainHandItem().isEmpty()
-                || isFlintAndSteel(mob.getMainHandItem());
+                || isBurnTool(mob.getMainHandItem());
     }
 
     private boolean isFlintAndSteel(ItemStack stack) {
         return !stack.isEmpty() && stack.getItem() == Items.FLINT_AND_STEEL;
+    }
+
+    private boolean isLavaBucket(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem() == Items.LAVA_BUCKET;
+    }
+
+    private boolean isBurnTool(ItemStack stack) {
+        return isFlintAndSteel(stack) || isLavaBucket(stack);
     }
 
     private boolean isUsefulWeapon(ItemStack stack) {
@@ -567,5 +862,13 @@ public class BurnNearbyItemGoal extends Goal {
         }
 
         return mob.getItemBySlot(slot).isEmpty();
+    }
+
+    private enum BurnTool {
+        FLINT_AND_STEEL,
+        LAVA_BUCKET
+    }
+
+    private record BurnTarget(BurnTool tool, BlockPos pos) {
     }
 }

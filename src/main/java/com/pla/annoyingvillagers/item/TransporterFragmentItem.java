@@ -37,7 +37,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -195,7 +194,7 @@ public class TransporterFragmentItem extends Item {
             return UseResult.consumed(mode, false);
         }
 
-        beginSavedTeleport(serverLevel, player, target, null);
+        beginSavedTeleport(serverLevel, player, target);
         damageStack(player, stack, InteractionHand.MAIN_HAND, SAVED_TELEPORT_DURABILITY_COST);
         player.getCooldowns().addCooldown(transporterFragment, COOLDOWN_TICKS);
         return UseResult.consumed(mode, true);
@@ -333,7 +332,7 @@ public class TransporterFragmentItem extends Item {
         player.displayClientMessage(Component.literal("Saved Location cleared").withStyle(ChatFormatting.GRAY), true);
     }
 
-    private static void beginSavedTeleport(ServerLevel level, Player player, Vec3 target, LivingEntityPatch<?> livingEntityPatch) {
+    private static void beginSavedTeleport(ServerLevel level, Player player, Vec3 target) {
         Vec3 origin = player.position();
         List<Entity> teleportEntities = collectTeleportEntities(level, player);
         CompoundTag tag = player.getPersistentData();

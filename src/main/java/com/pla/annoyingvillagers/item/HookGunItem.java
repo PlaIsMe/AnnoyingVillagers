@@ -3,9 +3,6 @@ package com.pla.annoyingvillagers.item;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.renderer.HookGunItemRenderer;
 import com.pla.annoyingvillagers.entity.HookGunHookEntity;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.util.EpicfightUtil;
-import com.pla.annoyingvillagers.util.HookUtil;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.CompoundTag;
@@ -33,12 +30,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
-import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.Comparator;
 import java.util.List;
@@ -541,20 +532,21 @@ public class HookGunItem extends Item {
     }
 
     public static Vec3 getHookStartPosition(LivingEntity owner, boolean rightHand) {
-        try {
-            Vec3 pos = EpicfightUtil.getJointWithTranslation(
-                    owner,
-                    new Vec3f(0.0F, -0.3F, 0.0F),
-                    rightHand ? Armatures.BIPED.get().toolR : Armatures.BIPED.get().toolL,
-                    0.0F,
-                    0.0D
-            );
-
-            if (pos != null) {
-                return pos;
-            }
-        } catch (Exception ignored) {
-        }
+//        Add this is AV_EFM
+//        try {
+//            Vec3 pos = EpicfightUtil.getJointWithTranslation(
+//                    owner,
+//                    new Vec3f(0.0F, -0.3F, 0.0F),
+//                    rightHand ? Armatures.BIPED.get().toolR : Armatures.BIPED.get().toolL,
+//                    0.0F,
+//                    0.0D
+//            );
+//
+//            if (pos != null) {
+//                return pos;
+//            }
+//        } catch (Exception ignored) {
+//        }
 
         Vec3 look = owner.getLookAngle();
         Vec3 side = new Vec3(-look.z, 0.0D, look.x);
@@ -815,15 +807,16 @@ public class HookGunItem extends Item {
 
         stopHookHandAnimations(owner, rightHand);
 
-        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(owner, LivingEntityPatch.class);
-        AssetAccessor<? extends StaticAnimation> nextAnimation = getHookHandAnimation(rightHand, nextState);
-        if (livingEntityPatch == null || nextAnimation == null) {
-            owner.getPersistentData().remove(tagName);
-            return;
-        }
-
-        owner.getPersistentData().putByte(tagName, nextState);
-        livingEntityPatch.playAnimationSynchronized(nextAnimation, 0.0F);
+//        AV_EFM code
+//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(owner, LivingEntityPatch.class);
+//        AssetAccessor<? extends StaticAnimation> nextAnimation = getHookHandAnimation(rightHand, nextState);
+//        if (livingEntityPatch == null || nextAnimation == null) {
+//            owner.getPersistentData().remove(tagName);
+//            return;
+//        }
+//
+//        owner.getPersistentData().putByte(tagName, nextState);
+//        livingEntityPatch.playAnimationSynchronized(nextAnimation, 0.0F);
     }
 
     public static void cancelHookHandAnimations(LivingEntity owner) {
@@ -837,23 +830,25 @@ public class HookGunItem extends Item {
     }
 
     private static void stopHookHandAnimations(LivingEntity owner, boolean rightHand) {
-        EpicfightUtil.stopAnimationSynchronized(owner, getHookHandAnimation(rightHand, HOOK_ANIMATION_NORMAL));
-        EpicfightUtil.stopAnimationSynchronized(owner, getHookHandAnimation(rightHand, HOOK_ANIMATION_TOP));
+//        Add this in AV_EFM
+//        EpicfightUtil.stopAnimationSynchronized(owner, getHookHandAnimation(rightHand, HOOK_ANIMATION_NORMAL));
+//        EpicfightUtil.stopAnimationSynchronized(owner, getHookHandAnimation(rightHand, HOOK_ANIMATION_TOP));
     }
 
     private static String getHookHandAnimationTag(boolean rightHand) {
         return rightHand ? TAG_RIGHT_HOOK_ANIMATION : TAG_LEFT_HOOK_ANIMATION;
     }
 
-    private static AssetAccessor<? extends StaticAnimation> getHookHandAnimation(boolean rightHand, byte state) {
-        if (state == HOOK_ANIMATION_NORMAL) {
-            return rightHand ? AVAnimations.HOOK_HAND_RIGHT : AVAnimations.HOOK_HAND_LEFT;
-        }
-        if (state == HOOK_ANIMATION_TOP) {
-            return rightHand ? AVAnimations.HOOK_HAND_RIGHT_TOP : AVAnimations.HOOK_HAND_LEFT_TOP;
-        }
-        return null;
-    }
+//    AV_EFM
+//    private static AssetAccessor<? extends StaticAnimation> getHookHandAnimation(boolean rightHand, byte state) {
+//        if (state == HOOK_ANIMATION_NORMAL) {
+//            return rightHand ? AVAnimations.HOOK_HAND_RIGHT : AVAnimations.HOOK_HAND_LEFT;
+//        }
+//        if (state == HOOK_ANIMATION_TOP) {
+//            return rightHand ? AVAnimations.HOOK_HAND_RIGHT_TOP : AVAnimations.HOOK_HAND_LEFT_TOP;
+//        }
+//        return null;
+//    }
 
     @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class Events {

@@ -2,13 +2,13 @@ package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
-import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
+import com.pla.annoyingvillagers.entity.goal.HerobrinePortalCombatGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
-import com.pla.annoyingvillagers.util.EpicfightUtil;
+import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -18,6 +18,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
@@ -40,21 +41,26 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.effect.EpicFightMobEffects;
-import net.minecraft.world.effect.MobEffectInstance;
 
 import java.util.EnumSet;
 import java.util.UUID;
-
-import static com.pla.annoyingvillagers.combatbehaviour.TransporterHerobrineCombatValues.*;
 
 public class TransporterHerobrineCloneEntity extends HerobrineMob {
     private static final int MAX_COMBAT_LOW_CLONE_SUPPORT = 3;
     private static final float TRANSPORTER_FRAGMENT_DROP_CHANCE = 0.1F;
     private static final float FISHING_HOOK_ESCAPE_CANCEL_CHANCE = 0.3F;
     private static final double SECOND_FORM_SUPPORT_SEARCH_RADIUS_SQR = 48.0D * 48.0D;
+    public static final int TICKS_PER_SECOND = 20;
+    public static final int ESCAPE_DURATION_TICKS = 70;
+    public static final int ESCAPE_RETRY_COOLDOWN_TICKS = 80;
+    public static final double LOW_HEALTH_ESCAPE_RATIO = 0.1D;
+    public static final double SUPPORT_AVOID_SEARCH_RADIUS = 32.0D;
+    public static final double SUPPORT_AVOID_TRIGGER_DISTANCE_SQR = 18.0D * 18.0D;
+    public static final double SUPPORT_AVOID_SAFE_DISTANCE_SQR = 14.0D * 14.0D;
+    public static final double SUPPORT_AVOID_MIN_DISTANCE = 12.0D;
+    public static final double SUPPORT_AVOID_MAX_DISTANCE = 20.0D;
+    public static final int SUPPORT_AVOID_REPATH_TICKS = 15;
+    public static final double SUPPORT_AVOID_MOVE_SPEED = 1.15D;
     private static final EntityDataAccessor<Boolean> HOOKED =
             SynchedEntityData.defineId(TransporterHerobrineCloneEntity.class, EntityDataSerializers.BOOLEAN);
 
@@ -233,6 +239,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
+        this.goalSelector.addGoal(-1, new HerobrinePortalCombatGoal(this));
         this.goalSelector.addGoal(2, new SafeCombatPositionGoal());
     }
 
@@ -263,7 +270,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
         }
         this.tickEscape();
         if (this.escapeTiming >= 0) {
-            this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 1, 3, false, false));
+            CommonUtil.stunImmunity(this, 3, 3);
             return;
         }
     }
@@ -301,7 +308,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
         if (support != null && support.isAlive()) {
             this.getLookControl().setLookAt(support, 30.0F, 30.0F);
         }
-        this.playSecondFormSupportCastAnimation();
+        this.playPortalSummonAnimation();
     }
 
     public boolean canFishingHookCancelEscape() {
@@ -323,10 +330,14 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
         this.hookedLeftGround = !this.onGround();
         this.setHooked(true);
         HerobrinePortalUtil.cancelSinkTransition(this);
-        EpicfightUtil.cancel(this, AnimsSculkSteve.PORTAL_SUMMON);
+        cancelPortalSummonAnimation();
         this.releaseHookedPhysicsUntilGround();
         this.getNavigation().stop();
         return true;
+    }
+
+    private void cancelPortalSummonAnimation() {
+        // Vanilla portal feedback is instant, so there is no long-running animation state to cancel.
     }
 
     public void triggerRangedCounterRetreat(@Nullable LivingEntity threat) {
@@ -478,10 +489,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
 
     private void playEscapeEffect() {
         this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);
-        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
-        if (patch != null) {
-            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
-        }
+        playPortalSummonAnimation();
         if (this.level() instanceof ServerLevel) {
             AnnoyingVillagers.PACKET_HANDLER.send(
                     PacketDistributor.TRACKING_ENTITY.with(() -> this),
@@ -570,10 +578,10 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
                 || (this.isHooked() && !this.hookedWaitingForGround);
     }
 
-    private void playSecondFormSupportCastAnimation() {
-        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
-        if (patch != null && !this.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+    private void playPortalSummonAnimation() {
+        if (!this.level().isClientSide()) {
+            this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);
+            this.swing(InteractionHand.MAIN_HAND, true);
         }
     }
 
