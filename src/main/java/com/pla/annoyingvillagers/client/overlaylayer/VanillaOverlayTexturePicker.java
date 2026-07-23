@@ -19,14 +19,14 @@ import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import org.jetbrains.annotations.Nullable;
 
 final class VanillaOverlayTexturePicker {
-    private static final ResourceLocation DEFAULT_HEROBRINE_EYES = new ResourceLocation(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/default/default.png");
-    private static final ResourceLocation INFECTED_PLAYER_NPC = new ResourceLocation(AnnoyingVillagers.MODID, "infected_player_npc");
-    private static final ResourceLocation INFECTED_PLAYER_BLOOD = new ResourceLocation(AnnoyingVillagers.MODID, "textures/entities/player_mob_blood.png");
-    private static final ResourceLocation ZOMBIE_VILLAGER_EYES = new ResourceLocation(AnnoyingVillagers.MODID, "textures/entities/obedience/zombie_villager.png");
-    private static final ResourceLocation ZOMBIE_EYES = new ResourceLocation(AnnoyingVillagers.MODID, "textures/entities/obedience/zombie.png");
-    private static final ResourceLocation SKELETON_EYES = new ResourceLocation(AnnoyingVillagers.MODID, "textures/entities/obedience/skeleton.png");
-    private static final ResourceLocation PIGLIN_EYES = new ResourceLocation(AnnoyingVillagers.MODID, "textures/entities/obedience/piglin.png");
-    private static final ResourceLocation ILLAGER_EYES = new ResourceLocation(AnnoyingVillagers.MODID, "textures/entities/obedience/illager.png");
+    private static final ResourceLocation DEFAULT_HEROBRINE_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/default/default.png");
+    private static final ResourceLocation INFECTED_PLAYER_NPC = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "infected_player_npc");
+    private static final ResourceLocation INFECTED_PLAYER_BLOOD = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/player_mob_blood.png");
+    private static final ResourceLocation ZOMBIE_VILLAGER_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/zombie_villager.png");
+    private static final ResourceLocation ZOMBIE_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/zombie.png");
+    private static final ResourceLocation SKELETON_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/skeleton.png");
+    private static final ResourceLocation PIGLIN_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/piglin.png");
+    private static final ResourceLocation ILLAGER_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/illager.png");
 
     private VanillaOverlayTexturePicker() {
     }

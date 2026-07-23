@@ -2,8 +2,6 @@ package com.pla.annoyingvillagers.entity;
 
 import com.mojang.logging.LogUtils;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import net.mehvahdjukaar.dummmmmmy.Dummmmmmy;
-import net.mehvahdjukaar.dummmmmmy.common.TargetDummyEntity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -119,7 +117,7 @@ public class FlyingShockwaveProjectile extends Projectile
             if (entity1 instanceof LivingEntity livingEntity)
             {
                 LogUtils.getLogger().debug("Check passed");
-                if (!(entity instanceof Enemy || (ModList.get().isLoaded(Dummmmmmy.MOD_ID) && (entity instanceof TargetDummyEntity)))) {
+                if (!(entity instanceof Enemy)) {
                     if (entity instanceof TamableAnimal pet) {
                         if (Objects.requireNonNull(pet.getOwner()).is(entity1) || pet.getOwner().getTeam() == entity1.getTeam() || (pet.getOwner().getTeam() != null && pet.getOwner().getTeam().isAlliedTo(entity1.getTeam()))) {
                             LogUtils.getLogger().debug("Pet");

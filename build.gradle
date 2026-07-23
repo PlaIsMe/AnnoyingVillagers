@@ -79,8 +79,6 @@ dependencies {
     implementation fg.deobf("curse.maven:aaa-particles-979809:8082320")
     implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
 
-    implementation fg.deobf("curse.maven:mmmmmmmmmmmm-225738:6860192")
-    implementation fg.deobf("curse.maven:selene-499980:7541536")
     implementation fg.deobf("curse.maven:photon-871522:7501597")
     implementation fg.deobf("curse.maven:ldlib-626676:7809449")
 
