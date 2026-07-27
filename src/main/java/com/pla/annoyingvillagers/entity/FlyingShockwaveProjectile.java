@@ -1,18 +1,15 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.mojang.logging.LogUtils;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.mehvahdjukaar.dummmmmmy.Dummmmmmy;
 import net.mehvahdjukaar.dummmmmmy.common.TargetDummyEntity;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
@@ -22,6 +19,13 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
+import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.Objects;
 
@@ -30,7 +34,7 @@ public class FlyingShockwaveProjectile extends Projectile
     protected int lifetime = 40;
     protected Vec3 deceleration = null;
     protected double decelerationConstant = 0.2;
-    protected float damage = 6.0F;
+    protected float damage = 1;
     protected int maxStrikes = 1;
 
     public FlyingShockwaveProjectile(EntityType<? extends Projectile> pEntityType, Level pLevel)
@@ -116,7 +120,8 @@ public class FlyingShockwaveProjectile extends Projectile
         if (!this.level().isClientSide()) {
             Entity entity = hitResult.getEntity();
             Entity entity1 = this.getOwner();
-            if (entity1 instanceof LivingEntity livingEntity)
+            PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(this.getOwner(), PlayerPatch.class);
+            if (entity1 instanceof LivingEntity livingEntity && playerpatch != null)
             {
                 LogUtils.getLogger().debug("Check passed");
                 if (!(entity instanceof Enemy || (ModList.get().isLoaded(Dummmmmmy.MOD_ID) && (entity instanceof TargetDummyEntity)))) {
@@ -131,41 +136,20 @@ public class FlyingShockwaveProjectile extends Projectile
                         return;
                     }
                 }
+                EpicFightDamageSource damage = playerpatch.getDamageSource(AnimsWom.WARBLADE_SATSUJIN_TSUKUYOMI, InteractionHand.MAIN_HAND);
+                damage.setStunType(StunType.HOLD);
+                damage.setBaseImpact(0.5F);
+                damage.addRuntimeTag(EpicFightDamageTypeTags.WEAPON_INNATE);
                 entity.invulnerableTime = 0;
-                entity.hurt(this.getVanillaDamageSource(entity1), this.damage);
-                entity.playSound(AnnoyingVillagersModSounds.HEAVY_HIT.get(), 1.0F, 0.9F + this.random.nextFloat() * 0.2F);
-                this.spawnShockwaveHitParticles(entity);
+                playerpatch.attack(damage, entity, InteractionHand.MAIN_HAND);
+                entity.playSound(EpicFightSounds.BLADE_HIT.get(), 1.0f, 1.0f);
+                entity.level().addParticle(EpicFightParticles.HIT_BLADE.get(), entity.getX(), entity.getY(), entity.getZ(), 0.0D, 0.0D, 0.0D);
                 this.discard();
             } else {
-                entity.hurt(this.damageSources().magic(), this.damage);
+                entity.hurt(this.damageSources().magic(), 6.0F);
             }
         }
     }
-
-    private DamageSource getVanillaDamageSource(Entity owner) {
-        if (owner instanceof Player player) {
-            return this.damageSources().playerAttack(player);
-        }
-
-        if (owner instanceof LivingEntity livingEntity) {
-            return this.damageSources().mobAttack(livingEntity);
-        }
-
-        return this.damageSources().magic();
-    }
-
-    private void spawnShockwaveHitParticles(Entity entity) {
-        if (!(entity.level() instanceof ServerLevel serverLevel)) {
-            return;
-        }
-
-        double x = entity.getX();
-        double y = entity.getY() + entity.getBbHeight() * 0.5D;
-        double z = entity.getZ();
-        serverLevel.sendParticles(ParticleTypes.SONIC_BOOM, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
-        serverLevel.sendParticles(ParticleTypes.POOF, x, y, z, 12, 0.35D, 0.25D, 0.35D, 0.04D);
-    }
-
     @Override
     protected void defineSynchedData()
     {

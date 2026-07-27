@@ -2,10 +2,10 @@ package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.entity.DragonMeteoriteEntity;
 import com.pla.annoyingvillagers.entity.ObsidianSledgehammerProjectileEntity;
 import com.pla.annoyingvillagers.task.DelayedTask;
-import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,6 +28,10 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import java.util.Random;
 import java.util.function.BiFunction;
@@ -54,7 +58,7 @@ public final class MobPlaceBlockEvent {
 
         if (!(avNpc.level() instanceof ServerLevel serverLevel)
                 || !avNpc.onGround()
-                || !CommonUtil.isGroundWithin(avNpc, MAX_PLACE_BLOCK_GROUND_GAP)
+                || !CombatCommon.isGroundWithin(avNpc, MAX_PLACE_BLOCK_GROUND_GAP)
                 || avNpc.isPassenger()) {
             return;
         }
@@ -67,11 +71,16 @@ public final class MobPlaceBlockEvent {
             return;
         }
 
+        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(avNpc, LivingEntityPatch.class);
+        if (!(patch instanceof MobPatch<?> mobPatch)) {
+            return;
+        }
+
         if (!projectileDamage) {
             avNpc.setPlaceBlockParryCooldown();
         }
         avNpc.setBlockDamage(blockDamage);
-        CommonUtil.swapToBlock(avNpc);
+        CombatCommon.swapToBlock(mobPatch);
         int placementDelay = placeBlockWall(serverLevel, avNpc, blockDamage);
         livingAttackEvent.setCanceled(true);
         finishPlaceBlockParryLater(avNpc, placementDelay);
@@ -213,7 +222,7 @@ public final class MobPlaceBlockEvent {
             new DelayedTask(layerDelay) {
                 @Override
                 public void run() {
-                    if (!avNpc.isAlive() || !CommonUtil.isGroundWithin(avNpc, MAX_PLACE_BLOCK_GROUND_GAP)) {
+                    if (!avNpc.isAlive() || !CombatCommon.isGroundWithin(avNpc, MAX_PLACE_BLOCK_GROUND_GAP)) {
                         return;
                     }
 
@@ -262,50 +271,51 @@ public final class MobPlaceBlockEvent {
                 if (!avNpc.isAlive()) {
                     return;
                 }
-                rollAndSwapAfterPlaceBlock(avNpc);
+
+                LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(avNpc, LivingEntityPatch.class);
+                if (!(patch instanceof MobPatch<?> mobPatch)) {
+                    return;
+                }
+
+                rollAndSwapAfterPlaceBlock(mobPatch);
             }
         };
     }
 
-    private static void rollAndSwapAfterPlaceBlock(AVNpc avNpc) {
-//        Add this code in AV_EFM
-
-//        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(avNpc, LivingEntityPatch.class);
-//        if (patch instanceof MobPatch<?> mobPatch) {
-//            double chance = new Random().nextDouble();
-//            if (CombatCommon.canSwapToBow(mobPatch)) {
-//                if (chance <= 0.25D) {
-//                    mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_RIGHT, 0.0F);
-//                    CombatCommon.swapToBow(mobPatch);
-//                } else if (chance <= 0.5D) {
-//                    mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_LEFT, 0.0F);
-//                    CombatCommon.swapToBow(mobPatch);
-//                } else if (chance <= 0.7D) {
-//                    mobPatch.playAnimationSynchronized(Animations.BIPED_ROLL_BACKWARD, 0.0F);
-//                    CombatCommon.swapToBow(mobPatch);
-//                } else if (chance <= 0.8D) {
-//                    mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_RIGHT, 0.0F);
-//                    CombatCommon.swapToMelee(mobPatch);
-//                } else if (chance <= 0.9D) {
-//                    mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_LEFT, 0.0F);
-//                    CombatCommon.swapToMelee(mobPatch);
-//                } else {
-//                    mobPatch.playAnimationSynchronized(Animations.BIPED_ROLL_BACKWARD, 0.0F);
-//                    CombatCommon.swapToMelee(mobPatch);
-//                }
-//            } else {
-//                if (chance <= 0.4D) {
-//                    mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_RIGHT, 0.0F);
-//                    CombatCommon.swapToMelee(mobPatch);
-//                } else if (chance <= 0.5D) {
-//                    mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_LEFT, 0.0F);
-//                    CombatCommon.swapToMelee(mobPatch);
-//                } else {
-//                    mobPatch.playAnimationSynchronized(Animations.BIPED_ROLL_BACKWARD, 0.0F);
-//                    CombatCommon.swapToMelee(mobPatch);
-//                }
-//            }
-//        }
+    private static void rollAndSwapAfterPlaceBlock(MobPatch<?> mobPatch) {
+        double chance = new Random().nextDouble();
+        if (CombatCommon.canSwapToBow(mobPatch)) {
+            if (chance <= 0.25D) {
+                mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_RIGHT, 0.0F);
+                CombatCommon.swapToBow(mobPatch);
+            } else if (chance <= 0.5D) {
+                mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_LEFT, 0.0F);
+                CombatCommon.swapToBow(mobPatch);
+            } else if (chance <= 0.7D) {
+                mobPatch.playAnimationSynchronized(Animations.BIPED_ROLL_BACKWARD, 0.0F);
+                CombatCommon.swapToBow(mobPatch);
+            } else if (chance <= 0.8D) {
+                mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_RIGHT, 0.0F);
+                CombatCommon.swapToMelee(mobPatch);
+            } else if (chance <= 0.9D) {
+                mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_LEFT, 0.0F);
+                CombatCommon.swapToMelee(mobPatch);
+            } else {
+                mobPatch.playAnimationSynchronized(Animations.BIPED_ROLL_BACKWARD, 0.0F);
+                CombatCommon.swapToMelee(mobPatch);
+            }
+        } else {
+            if (chance <= 0.4D) {
+                mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_RIGHT, 0.0F);
+                CombatCommon.swapToMelee(mobPatch);
+            } else if (chance <= 0.5D) {
+                mobPatch.playAnimationSynchronized(Animations.BIPED_KNOCKDOWN_WAKEUP_LEFT, 0.0F);
+                CombatCommon.swapToMelee(mobPatch);
+            } else {
+                mobPatch.playAnimationSynchronized(Animations.BIPED_ROLL_BACKWARD, 0.0F);
+                CombatCommon.swapToMelee(mobPatch);
+            }
+        }
     }
 
     private static BiFunction<Integer, Integer, int[]> getIntegerIntegerBiFunction(Entity anchor, int rot) {

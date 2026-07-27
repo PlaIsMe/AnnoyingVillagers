@@ -20,3 +20,45 @@ description='''${mod_description}'''
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
+[[dependencies.annoyingvillagers]]
+    modId="epicfight"
+    mandatory=true
+    versionRange="[20.13, )"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.annoyingvillagers]]
+    modId="wom"
+    mandatory=true
+    versionRange="[2.0, )"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.annoyingvillagers]]
+    modId="combat_evolution"
+    mandatory=true
+    versionRange="[1.1.7, )"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.annoyingvillagers]]
+    modId="efn"
+    mandatory=false
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.annoyingvillagers]]
+    modId="epicfightx"
+    mandatory=false
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.annoyingvillagers]]
+    modId="dualaxes"
+    mandatory=false
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.annoyingvillagers]]
+    modId="dualgreatswords"
+    mandatory=false
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"

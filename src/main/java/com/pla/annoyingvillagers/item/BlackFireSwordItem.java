@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.BlackFireEntity;
-import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
@@ -20,6 +20,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.gameasset.Armatures;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -63,24 +65,22 @@ public class BlackFireSwordItem extends SwordItem {
     }
 
     public static Vec3 getSwordOrBodyPosition(Entity entity) {
-//        Add this in AV_EFM
+        try {
+            Vec3 pos = EpicfightUtil.getJointWithTranslation(
+                    entity,
+                    new Vec3f(0.0F, 0.0F, 0.0F),
+                    Armatures.BIPED.get().toolR,
+                    1.0F,
+                    0.0F
+            );
 
-//        try {
-//            Vec3 pos = EpicfightUtil.getJointWithTranslation(
-//                    entity,
-//                    new Vec3f(0.0F, 0.0F, 0.0F),
-//                    Armatures.BIPED.get().toolR,
-//                    1.0F,
-//                    0.0F
-//            );
-//
-//            if (pos != null) {
-//                return pos;
-//            }
-//        } catch (Exception ignored) {
-//        }
+            if (pos != null) {
+                return pos;
+            }
+        } catch (Exception ignored) {
+        }
 
-        return CommonUtil.getVanillaSwordOrBodyPosition(entity);
+        return entity.position().add(0.0D, entity.getBbHeight() * 0.65D, 0.0D);
     }
 
     public static Vec3 getBlackFireFallbackPosition(Entity entity) {

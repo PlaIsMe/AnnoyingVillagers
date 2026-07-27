@@ -1,8 +1,6 @@
 package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.compat.SmartNpc;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
@@ -14,7 +12,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ThrowablePotionItem;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -154,23 +151,8 @@ public class InventoryUtils {
         return hasItem(entity, InventoryUtils::isArrowStack);
     }
 
-    public static boolean hasArrowAmmo(Entity entity, boolean allowEnchantedArrow) {
-        return hasItem(entity, stack -> isUsableArrowStack(stack, allowEnchantedArrow));
-    }
-
     public static Optional<ItemStack> consumeArrowAmmo(Entity entity) {
         return consumeItem(entity, InventoryUtils::isArrowStack, 1);
-    }
-
-    public static Optional<ItemStack> consumeArrowAmmo(Entity entity, boolean preferEnchantedArrow) {
-        if (preferEnchantedArrow) {
-            Optional<ItemStack> enchantedArrow = consumeItem(entity, InventoryUtils::isEnchantedArrowStack, 1);
-            if (enchantedArrow.isPresent()) {
-                return enchantedArrow;
-            }
-        }
-
-        return consumeItem(entity, InventoryUtils::isRegularArrowStack, 1);
     }
 
     public static boolean hasPlaceableBlock(Entity entity) {
@@ -279,18 +261,6 @@ public class InventoryUtils {
         return stack.getItem() instanceof ArrowItem;
     }
 
-    private static boolean isUsableArrowStack(ItemStack stack, boolean allowEnchantedArrow) {
-        return isArrowStack(stack) && (allowEnchantedArrow || !isEnchantedArrowStack(stack));
-    }
-
-    private static boolean isRegularArrowStack(ItemStack stack) {
-        return isArrowStack(stack) && !isEnchantedArrowStack(stack);
-    }
-
-    private static boolean isEnchantedArrowStack(ItemStack stack) {
-        return stack.is(AnnoyingVillagersModItems.ENCHANTED_ARROW.get());
-    }
-
     private static boolean isPlaceableBlockStack(ItemStack stack) {
         return stack.getItem() instanceof BlockItem;
     }
@@ -329,9 +299,6 @@ public class InventoryUtils {
     private static SimpleContainer getTrackedInventory(Entity entity) {
         if (entity instanceof AVNpc avNpc) {
             return avNpc.getInventory();
-        }
-        if (ModList.get().isLoaded("smart_npc")) {
-            return SmartNpc.getInventory(entity);
         }
         return null;
     }

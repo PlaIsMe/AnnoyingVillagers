@@ -4,8 +4,9 @@ import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.combatbehaviour.AlexJevHookCombat;
+import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.util.HookGunCombatUtil;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -232,7 +234,7 @@ public class JevEntity extends AVNpc implements BurstProtectEntity {
     @Override
     public void die(@NotNull DamageSource pDamageSource) {
         if (!this.level().isClientSide) {
-            HookGunCombatUtil.onJevDeath(this);
+            AlexJevHookCombat.onJevDeath(this);
         }
         super.die(pDamageSource);
     }
@@ -509,7 +511,7 @@ public class JevEntity extends AVNpc implements BurstProtectEntity {
     }
 
     private void dropHookGunForAlex() {
-        ItemStack hookGun = HookGunCombatUtil.createBoundHookGun(HookGunCombatUtil.createJevPickaxe());
+        ItemStack hookGun = AlexJevHookCombat.createBoundHookGun(AlexJevHookCombat.createJevPickaxe());
         this.spawnAtLocation(hookGun);
     }
 
@@ -534,6 +536,17 @@ public class JevEntity extends AVNpc implements BurstProtectEntity {
     }
 
     public boolean hurt(@NotNull DamageSource damageSource, float f) {
+        if (this.getGapCooldown() == 0
+                && !this.isHealing()
+                && this.getHealth() - f <= ((float) 2 / 3 * this.getMaxHealth())) {
+            boolean isEnchanted = this.random.nextDouble() <= Math.max(0.25D, this.getPlaceBlockToParryChance());
+            if (!this.level().isClientSide) {
+                this.setItemInHand(InteractionHand.MAIN_HAND,
+                        new ItemStack(isEnchanted ? Items.ENCHANTED_GOLDEN_APPLE : Items.GOLDEN_APPLE));
+            }
+            this.setGapCooldown();
+            CombatBehaviour.eatingGoldenApple(this, this.level(), 20.0D, isEnchanted);
+        }
         return super.hurt(damageSource, f);
     }
 

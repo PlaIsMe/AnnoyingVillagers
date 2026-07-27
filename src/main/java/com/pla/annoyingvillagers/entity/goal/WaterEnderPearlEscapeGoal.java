@@ -1,13 +1,14 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.Items;
@@ -18,6 +19,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -52,7 +57,7 @@ public class WaterEnderPearlEscapeGoal extends Goal {
                 || this.mob.isPassenger()
                 || !this.mob.isInWater()
                 || !this.canUsePearl()
-                || this.isEpicFightLongHitAnimation()) {
+                || this.isLongHitAnimationActive()) {
             return false;
         }
 
@@ -71,21 +76,17 @@ public class WaterEnderPearlEscapeGoal extends Goal {
         return false;
     }
 
-    private void playBucketAnimation() {
-//        ADD THIS CODE IN AV_EFM
-//        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
-//        }
-        this.mob.swing(InteractionHand.OFF_HAND, true);
-    }
-
     @Override
     public void start() {
         if (this.pearlTarget == null) {
             return;
         }
 
-        playBucketAnimation();
+        LivingEntityPatch<?> patch = this.getLivingEntityPatch();
+        if (patch != null) {
+            patch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+        }
+
         this.mob.getNavigation().stop();
         this.mob.getLookControl().setLookAt(this.pearlTarget.x, this.pearlTarget.y, this.pearlTarget.z, 60.0F, 60.0F);
 //        this.mob.swing(InteractionHand.OFF_HAND, true);
@@ -111,10 +112,23 @@ public class WaterEnderPearlEscapeGoal extends Goal {
         }
     }
 
-    private boolean isEpicFightLongHitAnimation() {
-//        ADD THIS CODE IN AV_EFM
-//         Call epicfight util
-        return false;
+    private boolean isLongHitAnimationActive() {
+        LivingEntityPatch<?> patch = this.getLivingEntityPatch();
+        if (patch == null) {
+            return false;
+        }
+
+        var player = patch.getAnimator().getPlayerFor(null);
+        if (player == null) {
+            return false;
+        }
+
+        AssetAccessor<? extends StaticAnimation> animation = player.getRealAnimation();
+        return animation != null && EpicfightUtil.isLongHitAnimation(animation, patch);
+    }
+
+    private LivingEntityPatch<?> getLivingEntityPatch() {
+        return EpicFightCapabilities.getEntityPatch(this.mob, LivingEntityPatch.class);
     }
 
     private Vec3 findVisibleEscapeTarget(ServerLevel level) {

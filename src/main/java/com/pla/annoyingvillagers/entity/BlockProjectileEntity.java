@@ -6,9 +6,7 @@ import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.client.particle.HitParticleType;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -31,6 +29,11 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.UUID;
 
@@ -118,14 +121,6 @@ public class BlockProjectileEntity extends ThrowableProjectile {
         this.entityData.set(DATA_BLOCK, state);
     }
 
-    private void applyLongStun(Entity entity) {
-//      ADD THIS CODE IN AV_EFM
-//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-//        if (livingEntityPatch != null) {
-//            livingEntityPatch.applyStun(StunType.LONG, 20.0F);
-//        }
-    }
-
     @Override
     protected void onHitEntity(@NotNull EntityHitResult result) {
         super.onHitEntity(result);
@@ -142,7 +137,7 @@ public class BlockProjectileEntity extends ThrowableProjectile {
         if (blockDamage) return;
 
         if (target.level() instanceof ServerLevel serverLevel) {
-            AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(serverLevel, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, this, target);
+            EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(serverLevel, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, this, target);
             serverLevel.playSound(
                     null,
                     this.getX(), this.getY(), this.getZ(),
@@ -157,7 +152,11 @@ public class BlockProjectileEntity extends ThrowableProjectile {
             } else {
                 target.hurt(target.level().damageSources().indirectMagic(this, this.getOwner()), damage);
             }
-            applyLongStun(target);
+
+            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+            if (livingEntityPatch != null) {
+                livingEntityPatch.applyStun(StunType.LONG, 20.0F);
+            }
 
             if (target instanceof LivingEntity livingEntity) {
                 float strength = 1.0F;

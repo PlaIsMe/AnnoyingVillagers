@@ -1,13 +1,14 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.client.engine.ClientVfxRouter;
-import com.pla.annoyingvillagers.compat.photon.PhotonClientFxUtil;
+import com.pla.annoyingvillagers.client.engine.PhotonClientFxUtil;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
 import com.pla.annoyingvillagers.util.AAAParticlesUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.ScreenShakeUtil;
 import com.pla.annoyingvillagers.util.WeaponEnchantmentDamageUtil;
 import net.minecraft.core.BlockPos;
@@ -38,6 +39,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -611,7 +615,8 @@ public class DragonBeamEntity extends Entity {
                 float damage = this.getDamage();
                 for (LivingEntity target : hit) {
                     target.hurt(damageSources().indirectMagic(this, this.caster.getSummoner()), damage);
-                    dealEpicFightStaminaDamage(target);
+                    LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+                    EpicfightUtil.dealStaminaDamage(damageSources().indirectMagic(this, this.caster.getSummoner()), 0.1F, livingEntityPatch, false);
                     target.hurtMarked = true;
                     target.setDeltaMovement(0.0, 0.0, 0.0);
                     target.lerpMotion(0.0, 0.0, 0.0);
@@ -623,12 +628,6 @@ public class DragonBeamEntity extends Entity {
             this.on = false;
         }
 
-    }
-
-    private void dealEpicFightStaminaDamage(Entity target) {
-//      ADD THIS CODE IN AV_EFM
-//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-//        EpicfightUtil.dealStaminaDamage(damageSources().indirectMagic(this, this.caster.getSummoner()), 0.1F, livingEntityPatch, false);
     }
 
     static {

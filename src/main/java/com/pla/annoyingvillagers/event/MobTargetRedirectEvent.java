@@ -3,10 +3,10 @@ package com.pla.annoyingvillagers.event;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.potion.ObedienceMobEffect;
-import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
@@ -14,6 +14,9 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import javax.annotation.Nullable;
 
@@ -186,10 +189,12 @@ public class MobTargetRedirectEvent {
             LivingEntity redirectTarget = getRedirectTarget(mob, currentTarget);
             if (redirectTarget != null) {
                 mob.setTarget(redirectTarget);
+                LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(mob, LivingEntityPatch.class);
                 if (currentTarget instanceof ReaperHerobrineEntity
                         && redirectTarget instanceof HerobrineDragonEntity
+                        && livingEntityPatch != null
                         && (mob instanceof AVNpc || (ModList.get().isLoaded("smart_npc") && SmartNpc.isSmartNpc(mob)))) {
-                    CommonUtil.swapToBow(mob);
+                    CombatCommon.swapToBow((MobPatch<?>) livingEntityPatch);
                 }
             }
         }

@@ -4,7 +4,7 @@ import com.google.common.collect.Multimap;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.HookUtil;
 
 import net.minecraft.nbt.CompoundTag;
@@ -35,6 +35,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -427,28 +432,28 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     }
 
     private Vec3 getTargetHandPosition(LivingEntity owner) {
-//      ADD THIS CODE IN AV_EFM
-//        Vec3 jointPos = null;
-//
-//        try {
-//            jointPos = EpicfightUtil.getJointWithTranslation(
-//                    owner,
-//                    new Vec3f(0.0F, 0.0F, 0.0F),
-//                    Armatures.BIPED.get().toolR,
-//                    0.0F,
-//                    0.0D
-//            );
-//        } catch (Exception ignored) {
-//        }
-//
-//        if (jointPos != null) {
-//            return jointPos;
-//        }
-//        return owner.getEyePosition()
-//                .add(owner.getLookAngle().scale(0.45D))
-//                .subtract(0.0D, 0.25D, 0.0D);
+        Vec3 jointPos = null;
 
-        return CommonUtil.getVanillaSwordOrBodyPosition(owner);
+        try {
+            jointPos = EpicfightUtil.getJointWithTranslation(
+                    owner,
+                    new Vec3f(0.0F, 0.0F, 0.0F),
+                    Armatures.BIPED.get().toolR,
+                    0.0F,
+                    0.0D
+            );
+        } catch (Exception ignored) {
+            // Fallback below.
+        }
+
+        if (jointPos != null) {
+            return jointPos;
+        }
+
+        // Fallback if Epic Fight patch/armature is not available.
+        return owner.getEyePosition()
+                .add(owner.getLookAngle().scale(0.45D))
+                .subtract(0.0D, 0.25D, 0.0D);
     }
 
     private void damageEntitiesAlongPath(Vec3 from, Vec3 to, Entity owner) {
@@ -509,18 +514,13 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         return this.calculateWeaponDamage(target);
     }
 
-    private void applyLongStun(Entity target) {
-//      ADD THIS CODE IN AV_EFM
-//        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-//        if (targetPatch != null && !targetPatch.isStunned()) {
-//            targetPatch.applyStun(StunType.LONG, 0.0F);
-//        }
-    }
-
     protected void afterHookAttachedItemHit(LivingEntity target, Entity owner) {
         ItemStack stack = this.getWeaponStack();
         if (stack.getItem() instanceof ShieldItem) {
-            applyLongStun(target);
+            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+            if (targetPatch != null && !targetPatch.isStunned()) {
+                targetPatch.applyStun(StunType.LONG, 0.0F);
+            }
         }
     }
 

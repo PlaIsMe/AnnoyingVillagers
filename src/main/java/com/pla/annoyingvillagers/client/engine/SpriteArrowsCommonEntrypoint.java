@@ -1,3 +1,21 @@
+/*
+ * AnnoyingVillagers - Third-Party Derived File Notice
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ * Upstream: Sprite Arrows - iliandev
+ * Source: https://github.com/justliliandev/arrow-sprites
+ *
+ * This file contains code adapted from the upstream project.
+ * Required upstream notices must be preserved.
+ *
+ * License texts:
+ *   - third_party/licenses/MIT.md
+ *
+ * Modifications:
+ *   Copyright (c) 2026 pla_is_me
+ */
+
 package com.pla.annoyingvillagers.client.engine;
 
 import com.pla.annoyingvillagers.client.renderer.SpriteArrowRenderer;

@@ -1,9 +1,14 @@
 package com.pla.annoyingvillagers.clazz;
 
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public interface BurstProtectEntity {
     float getRecentDamageTaken();
@@ -35,22 +40,18 @@ public interface BurstProtectEntity {
     }
 
     default boolean shouldIgnoreBurstProtection(LivingEntity self, DamageSource source) {
-//        ADD THIS CODE IN AV_EFM
+        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(self, LivingEntityPatch.class);
+        if (patch == null) {
+            return false;
+        }
 
-//        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(self, LivingEntityPatch.class);
-//        if (patch == null) {
-//            return false;
-//        }
-//
-//        var player = patch.getAnimator().getPlayerFor(null);
-//        if (player == null) {
-//            return false;
-//        }
-//
-//        AssetAccessor<? extends StaticAnimation> anim = player.getRealAnimation();
-//        return EpicfightUtil.isDamagableHitAnimation(anim, patch);
+        var player = patch.getAnimator().getPlayerFor(null);
+        if (player == null) {
+            return false;
+        }
 
-        return false;
+        AssetAccessor<? extends StaticAnimation> anim = player.getRealAnimation();
+        return EpicfightUtil.isDamagableHitAnimation(anim, patch);
     }
 
     default float applyBurstProtection(LivingEntity self, DamageSource source, float damage) {

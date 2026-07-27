@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.compat.aaa_particles.emitterinfo;
 
-import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
+import mod.chloeprime.aaaparticles.api.client.EffectDefinition;
+import mod.chloeprime.aaaparticles.api.client.EffectHolder;
 import mod.chloeprime.aaaparticles.api.client.EffectRegistry;
 import mod.chloeprime.aaaparticles.api.client.effekseer.ParticleEmitter;
 import mod.chloeprime.aaaparticles.api.common.DynamicParameter;
@@ -12,8 +14,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.gameasset.Armatures;
 
 import java.lang.ref.WeakReference;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public class DiamondAttractorParticleEmitterInfo extends ParticleEmitterInfo {
@@ -29,7 +35,7 @@ public class DiamondAttractorParticleEmitterInfo extends ParticleEmitterInfo {
     private int durationTicks = 0;
 
     private double smoothing = 1.0D;
-    private Vec3 swordLocalOffset = Vec3.ZERO;
+    private Vec3f swordLocalOffset = new Vec3f(0.0F, 0.0F, 0.0F);
 
     public DiamondAttractorParticleEmitterInfo(ResourceLocation effek) {
         super(effek);
@@ -57,14 +63,16 @@ public class DiamondAttractorParticleEmitterInfo extends ParticleEmitterInfo {
         return this;
     }
 
-    public DiamondAttractorParticleEmitterInfo followSword(Entity entity, int durationTicks, Vec3 swordLocalOffset) {
+    public DiamondAttractorParticleEmitterInfo followSword(Entity entity, int durationTicks, Vec3f swordLocalOffset) {
         this.followEnabled = true;
         this.followEntityRef = new WeakReference<>(entity);
         this.followPositionSupplier = null;
         this.durationTicks = durationTicks;
         this.offset = Vec3.ZERO;
         this.useEyePosition = false;
-        this.swordLocalOffset = swordLocalOffset == null ? Vec3.ZERO : swordLocalOffset;
+        this.swordLocalOffset = swordLocalOffset == null
+                ? new Vec3f(0.0F, 0.0F, 0.0F)
+                : swordLocalOffset;
         return this;
     }
 
@@ -93,20 +101,17 @@ public class DiamondAttractorParticleEmitterInfo extends ParticleEmitterInfo {
     }
 
     private Vec3 getSwordPosition(Entity entity, float partialTick) {
-//        Add this is AV_EFM
-//        try {
-//            return EpicfightUtil.getJointWithTranslation(
-//                    entity,
-//                    new Vec3f((float) this.swordLocalOffset.x, (float) this.swordLocalOffset.y, (float) this.swordLocalOffset.z),
-//                    Armatures.BIPED.get().toolR,
-//                    partialTick,
-//                    0.0F
-//            );
-//        } catch (Exception ignored) {
-//            return null;
-//        }
-
-        return CommonUtil.getVanillaSwordOrBodyPosition(entity, partialTick).add(this.swordLocalOffset);
+        try {
+            return EpicfightUtil.getJointWithTranslation(
+                    entity,
+                    this.swordLocalOffset,
+                    Armatures.BIPED.get().toolR,
+                    partialTick,
+                    0.0F
+            );
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     private Vec3 getCurrentFollowPosition(float partialTick) {

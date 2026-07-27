@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.item;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
 import com.pla.annoyingvillagers.entity.ElectricAreaEntity;
+import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.BlueDemonUtil;
@@ -24,6 +25,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -573,40 +578,36 @@ public class BlueDemonTridentItem extends SwordItem {
 
     public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
         super.inventoryTick(itemstack, level, entity, i, flag);
-//        Add this in AV_EFM
+        if (flag && entity instanceof Player player && entity.level() instanceof ServerLevel serverLevel) {
+            PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+            if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
+                SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.TRIDENT_FESTIVAL);
+                if (skillContainer != null) {
+                    if (skillContainer.getStack() >= 1) {
+                        double d0 = entity.getX();
+                        double d1 = entity.getY();
+                        double d2 = entity.getZ();
+                        if (Math.random() <= 0.1D) {
+                            BlueDemonUtil.spawnBlueDemonEffect(serverLevel, entity);
 
-//        if (flag && entity instanceof Player player && entity.level() instanceof ServerLevel serverLevel) {
-//            PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-//            if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-//                SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.TRIDENT_FESTIVAL);
-//                if (skillContainer != null) {
-//                    if (skillContainer.getStack() >= 1) {
-//                        double d0 = entity.getX();
-//                        double d1 = entity.getY();
-//                        double d2 = entity.getZ();
-//                        if (Math.random() <= 0.1D) {
-//                            BlueDemonUtil.spawnBlueDemonEffect(serverLevel, entity);
-//
-//                            if (serverLevel.random.nextDouble() <= 0.8D) {
-//                                float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
-//                                float pitch = (float) Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
-//
-//                                serverLevel.playSound(
-//                                        null,
-//                                        BlockPos.containing(d0, d1, d2),
-//                                        AnnoyingVillagersModSounds.ELECTRIFY.get(),
-//                                        SoundSource.NEUTRAL,
-//                                        volume,
-//                                        pitch
-//                                );
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
+                            if (serverLevel.random.nextDouble() <= 0.8D) {
+                                float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
+                                float pitch = (float) Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
 
-//        Add VANILLA_ANIMATION cover this effect when trident is activated
+                                serverLevel.playSound(
+                                        null,
+                                        BlockPos.containing(d0, d1, d2),
+                                        AnnoyingVillagersModSounds.ELECTRIFY.get(),
+                                        SoundSource.NEUTRAL,
+                                        volume,
+                                        pitch
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override

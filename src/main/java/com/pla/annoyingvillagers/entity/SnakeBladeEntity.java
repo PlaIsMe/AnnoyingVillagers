@@ -1,11 +1,16 @@
 package com.pla.annoyingvillagers.entity;
 
-import com.pla.annoyingvillagers.init.*;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AVSkills;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
-import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.WeaponEnchantmentDamageUtil;
+import com.pla.annoyingvillagers.skill.DemoniacVoltageReaverSkill;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -29,6 +34,14 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.*;
 
@@ -137,21 +150,20 @@ public class SnakeBladeEntity extends Entity {
     }
 
     public void increaseSkillPoint(Entity entity, float value) {
-//      ADD THIS CODE IN AV_EFM
-//        if (!(entity instanceof Player player)) return;
-//
-//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-//        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
-//
-//        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.DEMONIAC_VOLTAGE_REAVER);
-//        if (skillContainer == null) return;
-//
-//        DemoniacVoltageReaverSkill skill = (DemoniacVoltageReaverSkill) skillContainer.getSkill();
-//        float current = skillContainer.getResource();
-//        float needed = skillContainer.getNeededResource();
-//        float add = Math.min(value, needed);
-//
-//        skill.setConsumptionSynchronize(skillContainer, current + add);
+        if (!(entity instanceof Player player)) return;
+
+        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
+
+        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.DEMONIAC_VOLTAGE_REAVER);
+        if (skillContainer == null) return;
+
+        DemoniacVoltageReaverSkill skill = (DemoniacVoltageReaverSkill) skillContainer.getSkill();
+        float current = skillContainer.getResource();
+        float needed = skillContainer.getNeededResource();
+        float add = Math.min(value, needed);
+
+        skill.setConsumptionSynchronize(skillContainer, current + add);
     }
 
     @Override
@@ -190,6 +202,7 @@ public class SnakeBladeEntity extends Entity {
     private void tickGuardAoe(Entity creator) {
         final double size = 2.0D;
         final double radiusSqr = size * size;
+        final float knockBackStrength = 1.0F;
 
         LivingEntity owner = (creator instanceof LivingEntity living) ? living : null;
 
@@ -208,7 +221,7 @@ public class SnakeBladeEntity extends Entity {
 
             if (this.level() instanceof ServerLevel serverLevel) {
                 serverLevel.sendParticles(
-                        AnnoyingVillagersModParticleTypes.HIT_BLUNT.get(),
+                        EpicFightParticles.HIT_BLUNT.get(),
                         this.getX(), this.getY() + 1.5, this.getZ() + 0.8,
                         1,
                         0.1, 0.1, 0.1,
@@ -218,32 +231,25 @@ public class SnakeBladeEntity extends Entity {
 
             this.playSound(AnnoyingVillagersModSounds.OBSIDIAN_HIT.get(), 0.5F, (float) (0.5 + Math.random() * 0.5));
 
+            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+
             DamageSource src = (owner != null)
                     ? this.level().damageSources().indirectMagic(this, owner)
                     : this.level().damageSources().generic();
             target.hurt(src, this.getDamage(owner) / 2);
-            dealStaminaDamage(target, src);
+            EpicfightUtil.dealStaminaDamage(src, 1.0F, targetPatch, false);
 
             if (creator != null) {
                 increaseSkillPoint(creator, 3.0F);
             }
-            knockBack(target);
+            if (targetPatch != null) {
+                targetPatch.knockBackEntity(this.position(), knockBackStrength);
+            } else {
+                double kbX = this.getX() - target.getX();
+                double kbZ = this.getZ() - target.getZ();
+                target.knockback(knockBackStrength, kbX, kbZ);
+            }
         }
-    }
-
-    private void dealStaminaDamage(LivingEntity target, DamageSource src) {
-//      ADD THIS CODE IN AV_EFM
-//        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-//        EpicfightUtil.dealStaminaDamage(src, 1.0F, targetPatch, false);
-    }
-
-    private void knockBack(LivingEntity target) {
-//      ADD THIS CODE IN AV_EFM
-//        targetPatch.knockBackEntity(this.position(), 1.0);
-
-        double kbX = this.getX() - target.getX();
-        double kbZ = this.getZ() - target.getZ();
-        target.knockback(1.0, kbX, kbZ);
     }
 
     private void updateProgressAndHandleRemoval(Entity creator) {
@@ -270,23 +276,16 @@ public class SnakeBladeEntity extends Entity {
             updateLastFragment(null);
             clearSnakeAnimationTag(creator);
 
-
+            LivingEntityPatch<?> creatorPatch = EpicFightCapabilities.getEntityPatch(creator, LivingEntityPatch.class);
+            if (creatorPatch != null) {
+                AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(creatorPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
+                if (dynamicAnimation == AVAnimations.SNAKE_BLADE || dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD) {
+                    creatorPatch.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
+                }
+            }
         }
 
         this.remove(RemovalReason.DISCARDED);
-    }
-
-    private void cancelAnimation() {
-//      ADD THIS CODE IN AV_EFM
-//        LivingEntityPatch<?> creatorPatch = EpicFightCapabilities.getEntityPatch(creator, LivingEntityPatch.class);
-//        if (creatorPatch != null) {
-//            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(creatorPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-//            if (dynamicAnimation == AVAnimations.SNAKE_BLADE || dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD) {
-//                creatorPatch.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
-//            }
-//        }
-
-//        Add more logic to cover this
     }
 
     private void clearSnakeAnimationTag(Entity creator) {
@@ -348,7 +347,7 @@ public class SnakeBladeEntity extends Entity {
 
             if (this.level() instanceof ServerLevel serverLevel) {
                 serverLevel.sendParticles(
-                        AnnoyingVillagersModParticleTypes.HIT_BLUNT.get(),
+                        EpicFightParticles.HIT_BLUNT.get(),
                         this.getX(), this.getY() + 1.5, this.getZ() + 0.8,
                         1,
                         0.1, 0.1, 0.1,
@@ -357,7 +356,11 @@ public class SnakeBladeEntity extends Entity {
             }
 
             this.playSound(AnnoyingVillagersModSounds.OBSIDIAN_HIT.get(), 0.5F, (float) (0.5 + Math.random() * 0.5));
-            dealStaminaDamageByPercentage(creator, target);
+            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+            if (targetPatch != null) {
+                EpicfightUtil.dealStaminaDamageByPercentage(
+                        this.level().damageSources().indirectMagic(this, creator), targetPatch, 0.5D, true);
+            }
 
             if (target instanceof LivingEntity livingTarget) {
                 float strength = 3.0F;
@@ -366,15 +369,6 @@ public class SnakeBladeEntity extends Entity {
                 livingTarget.knockback(strength, dx, dz);
             }
         }
-    }
-
-    private void dealStaminaDamageByPercentage(LivingEntity creator, Entity target) {
-//      ADD THIS CODE IN AV_EFM
-//        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-//        if (targetPatch != null) {
-//            EpicfightUtil.dealStaminaDamageByPercentage(
-//                    this.level().damageSources().indirectMagic(this, creator), targetPatch, 0.5D, true);
-//        }
     }
 
     private void handleChaining(Entity creator) {
@@ -810,7 +804,7 @@ public class SnakeBladeEntity extends Entity {
     @Override
     public boolean hurt(@NotNull DamageSource pSource, float amount) {
         if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel && !pSource.is(DamageTypes.IN_WALL)) {
-            CommonUtil.damageBlocked(pSource, this, serverLevel);
+            EpicfightUtil.damageBlocked(pSource, this, serverLevel);
         }
         return false;
     }

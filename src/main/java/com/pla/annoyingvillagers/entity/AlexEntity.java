@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.combatbehaviour.AlexJevHookCombat;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.spawnhandler.AlexData;
 import com.pla.annoyingvillagers.util.*;
@@ -40,6 +41,7 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -101,7 +103,7 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
 
     public ItemStack getCurrentBoundHook() {
         if (currentBoundHook.isEmpty()) {
-            currentBoundHook = HookGunCombatUtil.createAlexDefaultPickaxe();
+            currentBoundHook = AlexJevHookCombat.createAlexDefaultPickaxe();
         }
         return currentBoundHook.copy();
     }
@@ -178,7 +180,7 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
         if (tag.contains("CurrentBoundHook", 10)) {
             currentBoundHook = ItemStack.of(tag.getCompound("CurrentBoundHook"));
         } else {
-            currentBoundHook = HookGunCombatUtil.createAlexDefaultPickaxe();
+            currentBoundHook = AlexJevHookCombat.createAlexDefaultPickaxe();
         }
     }
 
@@ -274,7 +276,7 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
                 dropStack.accept(stack);
             }
 
-            dropStack.accept(HookGunCombatUtil.createBoundHookGun(this.getCurrentBoundHook()));
+            dropStack.accept(AlexJevHookCombat.createBoundHookGun(this.getCurrentBoundHook()));
             dropStack.accept(this.getCurrentBoundHook());
         }
     }
@@ -361,7 +363,7 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
         this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.ENDER_PEARL));
         this.setMainWeaponItem(sword);
         this.setOffWeaponItem(new ItemStack(Items.ENDER_PEARL));
-        this.setCurrentBoundHook(HookGunCombatUtil.createAlexDefaultPickaxe());
+        this.setCurrentBoundHook(AlexJevHookCombat.createAlexDefaultPickaxe());
         return returnSpawnGroupData;
     }
 
@@ -405,7 +407,7 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
     @Override
     public void die(@NotNull DamageSource damageSource) {
         if (!this.level().isClientSide) {
-            HookGunCombatUtil.onAlexDeath(this);
+            AlexJevHookCombat.onAlexDeath(this);
         }
         super.die(damageSource);
     }
@@ -413,8 +415,7 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
     @Override
     public void tick() {
         super.tick();
-        if (this.level() instanceof ServerLevel serverLevel) {
-            HookGunCombatUtil.tickAlex(this, serverLevel);
+        if (!level().isClientSide) {
             if (!spawnJev) {
                 this.spawnJev = true;
                 spawnJev();
@@ -486,27 +487,20 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
         }
     }
 
-    public static Builder addEpicFightAttributes(Builder builder) {
-//      ADD THIS CODE IN AV_EFM
-//        return builder.add(EpicFightAttributes.IMPACT.get(), 2.0D)
-//                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 5.0D)
-//                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
-//                .add(EpicFightAttributes.MAX_STRIKES.get(), 50.0D)
-//                .add(EpicFightAttributes.MAX_STAMINA.get(), 30.0D)
-//                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
-
-        return builder;
-    }
-
     public static Builder createAttributes() {
-        Builder builder = Mob.createMobAttributes()
+        return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 50.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.35D)
                 .add(Attributes.ATTACK_DAMAGE, 0.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
-        return addEpicFightAttributes(builder);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
+                .add(EpicFightAttributes.IMPACT.get(), 2.0D)
+                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 5.0D)
+                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
+                .add(EpicFightAttributes.MAX_STRIKES.get(), 50.0D)
+                .add(EpicFightAttributes.MAX_STAMINA.get(), 30.0D)
+                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
     }
 }

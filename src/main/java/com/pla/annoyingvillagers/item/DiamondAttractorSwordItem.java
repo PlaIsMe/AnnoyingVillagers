@@ -3,7 +3,9 @@ package com.pla.annoyingvillagers.item;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.ItemProjectile;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,9 +17,14 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DiamondAttractorSwordItem extends SwordItem {
 
@@ -98,18 +105,6 @@ public class DiamondAttractorSwordItem extends SwordItem {
         }
     }
 
-    private static void knockDownFromPulling(LivingEntity target) {
-//        Add this to AV_EFM
-
-//        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-//        if (targetPatch != null) {
-//            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(targetPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-//            if (!EpicfightUtil.isLongHitAnimation(dynamicAnimation, targetPatch)) {
-//                targetPatch.playAnimationSynchronized(AnimsPugilistSteve.KNOCKDOWN_FORWARD, 0.0F);
-//            }
-//        }
-    }
-
     private static void pullHeldWeapons(ServerLevel level, LivingEntity owner, AABB area) {
         List<LivingEntity> livingEntities = level.getEntitiesOfClass(
                 LivingEntity.class,
@@ -120,7 +115,13 @@ public class DiamondAttractorSwordItem extends SwordItem {
 
         for (LivingEntity target : livingEntities) {
             CommonUtil.pullEntityTowardCaster(target, owner);
-            knockDownFromPulling(target);
+            LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+            if (targetPatch != null) {
+                AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(targetPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
+                if (!EpicfightUtil.isLongHitAnimation(dynamicAnimation, targetPatch)) {
+                    targetPatch.playAnimationSynchronized(AnimsPugilistSteve.KNOCKDOWN_FORWARD, 0.0F);
+                }
+            }
             if (CommonUtil.entityCanBeDisarmed(target)) {
                 List<InteractionHand> candidateHands = new ArrayList<>(2);
 

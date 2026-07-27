@@ -3,10 +3,9 @@ package com.pla.annoyingvillagers.entity;
 import java.util.Objects;
 import java.util.Random;
 
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
-import com.pla.annoyingvillagers.client.particle.HitParticleType;
-import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
@@ -30,11 +29,13 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.api.utils.LevelUtil;
+import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
 public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier {
-    private static final int SLAM_FX_INTERVAL_TICKS = 5;
-
     public EnderAegisProjectile(SpawnEntity spawnentity, Level level) {
         super(AnnoyingVillagersModEntities.ENDER_AEGIS_PROJECTILE.get(), level);
     }
@@ -82,8 +83,7 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
         Vec3 center = new Vec3(this.getX(), floor.getY(), this.getZ());
         Entity src = (this.getOwner() != null) ? this.getOwner() : this;
         if (src instanceof LivingEntity livingSrc) {
-            boolean spawnSlamParticle = this.tickCount == 1 || this.tickCount % SLAM_FX_INTERVAL_TICKS == 0;
-            CommonUtil.circleSlamFracture(livingSrc, serverLevel, center, 3.5D, true, !spawnSlamParticle, true);
+            LevelUtil.circleSlamFracture(livingSrc, serverLevel, center, 3.5D, true, true, true);
         }
     }
 
@@ -130,23 +130,20 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
         Entity owner = this.getOwner();
         if (vicTim == owner) return;
         if (vicTim.level() instanceof ServerLevel serverLevel) {
-            AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(
-                    serverLevel,
-                    HitParticleType.FRONT_OF_EYES,
-                    HitParticleType.ZERO,
-                    vicTim,
-                    owner == null ? this : owner
-            );
+            serverLevel.sendParticles(EpicFightParticles.HIT_BLUNT.get(),
+                    vicTim.getX(), vicTim.getY() + 1.5, vicTim.getZ() + 0.8,
+                    1,
+                    0.1, 0.1, 0.1,
+                    1);
             serverLevel.sendParticles(AnnoyingVillagersModParticleTypes.SPARK.get(),
                     vicTim.getX(), vicTim.getY() + 1.5, vicTim.getZ() + 0.8,
                     5,
                     0, 0, 0,
                     0.1);
-//          ADD THIS CODE IN AV_EFM
-//            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(vicTim, LivingEntityPatch.class);
-//            if (livingEntityPatch != null) {
-//                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LONGEST_HIT, 0.0F);
-//            }
+            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(vicTim, LivingEntityPatch.class);
+            if (livingEntityPatch != null) {
+                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LONGEST_HIT, 0.0F);
+            }
         }
         super.onHitEntity(pResult);
     }

@@ -1,11 +1,13 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.engine.ClientVfxRouter;
-import com.pla.annoyingvillagers.compat.photon.PhotonClientFxUtil;
+import com.pla.annoyingvillagers.client.engine.PhotonClientFxUtil;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.AAAParticlesUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -30,6 +32,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -207,11 +214,13 @@ public class BlueDemonThunderBeamEntity extends Entity {
     private void updateBeamFromHands() {
         if (caster == null) return;
 
-        Vec3[] hands = resolveBeamHandPositions(caster);
-        if (hands == null || hands.length < 2) return;
+        Vec3 handLeft = EpicfightUtil.getJointWithTranslation(
+                caster, new Vec3f(0,0,0), Armatures.BIPED.get().handL, 0.0F, 0.0F
+        );
+        Vec3 handRight = EpicfightUtil.getJointWithTranslation(
+                caster, new Vec3f(0,0,0), Armatures.BIPED.get().handR, 0.0F, 0.0F
+        );
 
-        Vec3 handLeft = hands[0];
-        Vec3 handRight = hands[1];
         if (handLeft == null || handRight == null) return;
         Vec3 horizontal = handRight.subtract(handLeft);
         horizontal = new Vec3(horizontal.x, 0.0D, horizontal.z);
@@ -232,36 +241,6 @@ public class BlueDemonThunderBeamEntity extends Entity {
         setStartPos(handRight);
         setEndPos(end);
         setPos(handRight.x, handRight.y, handRight.z);
-    }
-
-    protected Vec3[] resolveBeamHandPositions(LivingEntity caster) {
-//        Add this is AV_EFM
-//        Vec3 handLeft = EpicfightUtil.getJointWithTranslation(
-//                caster, new Vec3f(0,0,0), Armatures.BIPED.get().handL, 0.0F, 0.0F
-//        );
-//        Vec3 handRight = EpicfightUtil.getJointWithTranslation(
-//                caster, new Vec3f(0,0,0), Armatures.BIPED.get().handR, 0.0F, 0.0F
-//        );
-//        return new Vec3[]{handLeft, handRight};
-        return resolveVanillaBeamHandPositions(caster);
-    }
-
-    private Vec3[] resolveVanillaBeamHandPositions(LivingEntity caster) {
-        Vec3 forward = caster.getLookAngle();
-        Vec3 horizontalForward = new Vec3(forward.x, 0.0D, forward.z);
-        if (horizontalForward.lengthSqr() < 1.0E-6D) {
-            horizontalForward = getLastDirXZ();
-        } else {
-            horizontalForward = horizontalForward.normalize();
-        }
-
-        Vec3 right = new Vec3(-horizontalForward.z, 0.0D, horizontalForward.x).normalize();
-        Vec3 chest = caster.position().add(0.0D, caster.getEyeHeight() * 0.72D, 0.0D);
-        Vec3 sideOffset = right.scale(Math.max(0.18D, caster.getBbWidth() * 0.22D));
-
-        Vec3 handRight = chest.add(horizontalForward.scale(0.45D)).add(sideOffset);
-        Vec3 handLeft = handRight.subtract(horizontalForward.scale(0.7D));
-        return new Vec3[]{handLeft, handRight};
     }
 
     public BlueDemonThunderBeamHitResult raytraceEntities(Level world, Vec3 from, Vec3 to) {

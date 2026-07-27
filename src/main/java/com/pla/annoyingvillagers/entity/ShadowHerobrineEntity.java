@@ -9,7 +9,7 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.item.ShadowObsidianPillarItem;
 import com.pla.annoyingvillagers.item.ShadowObsidianSwordItem;
 import com.pla.annoyingvillagers.item.ShadowObsidianWeaponItem;
-import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -32,6 +32,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.particle.HitParticleType;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import java.util.Random;
 import java.util.UUID;
@@ -126,7 +130,7 @@ public class ShadowHerobrineEntity extends HerobrineMob {
                     this.darkObUp.moveTo(livingEntity.blockPosition().getCenter());
                     shootOne(this.darkObUp, livingEntity.getOnPos().getCenter(), 2.0F, "up", this);
                     this.darkObParryCooldown = 40;
-                    CommonUtil.damageBlocked(damageSource, this.darkObUp, serverLevel);
+                    EpicfightUtil.damageBlocked(damageSource, this.darkObUp, serverLevel);
                     if (!isDarkObReady()) {
                         this.summonDarkObCooldown = new Random().nextInt(200, 600);
                     }
@@ -135,7 +139,7 @@ public class ShadowHerobrineEntity extends HerobrineMob {
                     this.darkObRight.moveTo(livingEntity.blockPosition().getCenter());
                     shootOne(this.darkObRight, livingEntity.getOnPos().getCenter(), 2.0F, "right", this);
                     this.darkObParryCooldown = 40;
-                    CommonUtil.damageBlocked(damageSource, this.darkObRight, serverLevel);
+                    EpicfightUtil.damageBlocked(damageSource, this.darkObRight, serverLevel);
                     if (!isDarkObReady()) {
                         this.summonDarkObCooldown = new Random().nextInt(200, 600);
                     }
@@ -144,7 +148,7 @@ public class ShadowHerobrineEntity extends HerobrineMob {
                     this.darkObLeft.moveTo(livingEntity.blockPosition().getCenter());
                     shootOne(this.darkObLeft, livingEntity.getOnPos().getCenter(), 2.0F, "left", this);
                     this.darkObParryCooldown = 40;
-                    CommonUtil.damageBlocked(damageSource, this.darkObLeft, serverLevel);
+                    EpicfightUtil.damageBlocked(damageSource, this.darkObLeft, serverLevel);
                     if (!isDarkObReady()) {
                         this.summonDarkObCooldown = new Random().nextInt(200, 600);
                     }
@@ -618,27 +622,20 @@ public class ShadowHerobrineEntity extends HerobrineMob {
         }
     }
 
-    public static Builder addEpicFightAttributes(Builder builder) {
-        //      ADD THIS CODE IN AV_EFM
-//        return builder.add(EpicFightAttributes.IMPACT.get(), 4.0D)
-//                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
-//                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
-//                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
-//                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
-//                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
-
-        return builder;
-    }
-
     public static Builder createAttributes() {
-        Builder builder = Mob.createMobAttributes()
+        return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 250.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
-        return addEpicFightAttributes(builder);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
+                .add(EpicFightAttributes.IMPACT.get(), 4.0D)
+                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
+                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
+                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
+                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
+                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
     }
 }

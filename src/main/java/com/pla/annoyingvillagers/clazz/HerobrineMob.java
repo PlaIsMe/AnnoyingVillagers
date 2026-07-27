@@ -6,13 +6,19 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.blockentity.CryingObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
+import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.network.ClientboundHerobrineAssistanceFx;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
+import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.*;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
@@ -58,10 +64,19 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.shelmarow.combat_evolution.effect.CEMobEffects;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
+import yesman.epicfight.world.damagesource.StunType;
+import yesman.epicfight.world.effect.EpicFightMobEffects;
 
 import java.util.*;
 
@@ -173,6 +188,11 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
 
     public int getState() {
         return state;
+    }
+
+    @Nullable
+    public LivingEntityPatch<?> getLivingEntityPatch() {
+        return EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
     }
 
     public void setState(int state) {
@@ -397,6 +417,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
     protected void registerGoals() {
         super.registerGoals();
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
+        this.goalSelector.addGoal(1, new KeepPositionGoal(this));
         this.goalSelector.addGoal(1, new Goal() {
             @Override
             public boolean canUse() {
@@ -489,7 +510,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
     public boolean hurt(@NotNull DamageSource damageSource, float f) {
         if (this.getPersistentData().getBoolean(NBT_RISING) || this.getPersistentData().getBoolean(NBT_SINKING) || this.sacrificing) {
             if (this.level() instanceof ServerLevel serverLevel) {
-                CommonUtil.damageBlocked(damageSource, this, serverLevel);
+                EpicfightUtil.damageBlocked(damageSource, this, serverLevel);
             }
             return false;
         }
@@ -521,7 +542,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         if (this instanceof ShadowHerobrineEntity shadowHerobrineEntity) {
            shadowHerobrineEntity.clearDarkOb();
         }
-        CommonUtil.stunImmunity(this, 80, 2);
+        this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 80, 2));
 
         if (this.gregUUID != null) {
             Entity entity = serverLevel.getEntity(this.gregUUID);
@@ -773,20 +794,13 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         }
     }
 
-    private void playFallAnimation() {
-//      ADD THIS CODE IN AV_EFM
-//        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().applyStun(StunType.FALL, 0.0F);
-//        }
-
-//        Create VANILLA_ANIMATION
-    }
-
     private void recoverAfterSacrificing() {
         this.sacrificing = false;
         this.setNoAi(false);
         this.removeAllEffects();
-        playFallAnimation();
+        if (this.getLivingEntityPatch() != null) {
+            this.getLivingEntityPatch().applyStun(StunType.FALL, 0.0F);
+        }
         if (this instanceof AegisHerobrineEntity) {
             if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
                 this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
@@ -901,35 +915,6 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         return (mobeffectinstance.getEffect().getCategory() == MobEffectCategory.BENEFICIAL || mobeffectinstance.getEffect() == MobEffects.GLOWING) && super.canBeAffected(mobeffectinstance);
     }
 
-    private void playInitAnimation() {
-//      ADD THIS CODE IN AV_EFM
-
-//        if (getLivingEntityPatch() != null && !this.level().isClientSide()) {
-//            if (this instanceof ReaperHerobrineEntity || this instanceof GlaiveHerobrineEntity) {
-//                getLivingEntityPatch().playAnimationSynchronized(AnimsWom.GLOWING_AGONY_GUARD, 0.0F);
-//            } else if (this instanceof AegisHerobrineEntity aegisHerobrineEntity) {
-//                // For some reason the block animation can't be played inside finalize spawn
-//                aegisHerobrineEntity.getPersistentData().putBoolean("init_animation", true);
-//            } else if (this instanceof TransporterHerobrineCloneEntity) {
-//                getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
-//            } else if (!(this instanceof SledgehammerHerobrineEntity) && !(this instanceof SwordsmanHerobrineEntity)) {
-//                getLivingEntityPatch().playAnimationSynchronized(AVAnimations.HEROBRINE_ANIMATE, 0.0F);
-//            }
-//        }
-
-//        Create VANILLA_ANIMATION
-    }
-
-    private void playStageChangeAnimation() {
-//      ADD THIS CODE IN AV_EFM
-
-//        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_STAGE_CHANGE, 0.0F);
-//        }
-
-//        Create VANILLA_ANIMATION
-    }
-
     @Override
     public void tick() {
         super.tick();
@@ -947,8 +932,39 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 efnGuardHitState = 0;
             }
 
-            CommonUtil.dangerousReactionAi(this);
-            CommonUtil.stunEscapeAi(this);
+            if (this.getLivingEntityPatch() != null && CombatCommon.canEscape((MobPatch<?>) this.getLivingEntityPatch())) {
+                this.goalSelector.disableControlFlag(Goal.Flag.MOVE);
+                this.getNavigation().stop();
+
+                LivingEntity target = this.getTarget();
+                if (target != null) {
+                    this.getLookControl().setLookAt(target, 30.0F, 30.0F);
+                }
+            } else {
+                this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
+            }
+
+            if (ModList.get().isLoaded("efkick") && this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
+                if (getLivingEntityPatch() != null) {
+                    AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
+                    if (EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && this.isAlive()) {
+                        if (this.getRandom().nextFloat() < CombatBehaviour.calculateGuardBreakWakeUpChance(this)) {
+                            this.stunEscapeCooldown = 60;
+                            HerobrineMob entity = this;
+                            new DelayedTask(new Random().nextInt(5, 10)) {
+                                @Override
+                                public void run() {
+                                    if (getLivingEntityPatch() != null && EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && entity.isAlive()) {
+                                        CombatBehaviour.postGuardBreakWakeUp(entity, getLivingEntityPatch(), serverLevel);
+                                    } else {
+                                        entity.stunEscapeCooldown = 1;
+                                    }
+                                }
+                            };
+                        }
+                    }
+                }
+            }
 
             if (this.state == 2 && (this instanceof AegisHerobrineEntity
                     || this instanceof SledgehammerHerobrineEntity
@@ -957,7 +973,8 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                     || this instanceof GlaiveHerobrineEntity
                     || this instanceof NullEntity
                     || this instanceof ShadowHerobrineEntity)) {
-                CommonUtil.stunImmunity(this, 3, 3);
+                this.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), 3, 3));
+                this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 3, 3));
                 if (this instanceof NullEntity || this instanceof ShadowHerobrineEntity) {
                     if (new Random().nextBoolean()) {
                         serverLevel.sendParticles(
@@ -1002,7 +1019,18 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 }
                 if (this.initialSpawn) {
                     this.setNoAi(true);
-                    playInitAnimation();
+                    if (getLivingEntityPatch() != null && !this.level().isClientSide()) {
+                        if (this instanceof ReaperHerobrineEntity || this instanceof GlaiveHerobrineEntity) {
+                            getLivingEntityPatch().playAnimationSynchronized(AnimsWom.GLOWING_AGONY_GUARD, 0.0F);
+                        } else if (this instanceof AegisHerobrineEntity aegisHerobrineEntity) {
+                            // For some reason the block animation can't be played inside finalize spawn
+                            aegisHerobrineEntity.getPersistentData().putBoolean("init_animation", true);
+                        } else if (this instanceof TransporterHerobrineCloneEntity) {
+                            getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+                        } else if (!(this instanceof SledgehammerHerobrineEntity) && !(this instanceof SwordsmanHerobrineEntity)) {
+                            getLivingEntityPatch().playAnimationSynchronized(AVAnimations.HEROBRINE_ANIMATE, 0.0F);
+                        }
+                    }
                     this.initialSpawn = false;
                 }
             }
@@ -1103,7 +1131,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                     this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                     this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
                 }
-                playStageChangeAnimation();
+                if (this.getLivingEntityPatch() != null) {
+                    this.getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_STAGE_CHANGE, 0.0F);
+                }
                 AnnoyingVillagers.PACKET_HANDLER.send(
                         PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this),
                         new ClientboundHerobrineAssistanceFx(new Vec3(this.getX(), this.getY(), this.getZ()))
@@ -1119,7 +1149,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             if (this.sacrificingAnimationCooldown == 10) {
                 this.setNoAi(true);
                 if (this.firstPossessedHerobrine != null) {
-                    CommonUtil.stunImmunity(((Mob) firstPossessedHerobrine), 30, 3);
+                    ((Mob) firstPossessedHerobrine).addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 30, 3, false, false));
                     this.clearHandAndDropItem(firstPossessedHerobrine);
                     if (firstPossessedHerobrine instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity) {
                         lowShadowHerobrineCloneEntity.setSacrificing(true);
@@ -1128,7 +1158,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                     firstPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
                 }
                 if (this.secondPossessedHerobrine != null) {
-                    CommonUtil.stunImmunity(((Mob) secondPossessedHerobrine), 30, 3);
+                    ((Mob) secondPossessedHerobrine).addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 10, 3, false, false));
                     this.clearHandAndDropItem(secondPossessedHerobrine);
                     if (secondPossessedHerobrine instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity) {
                         lowShadowHerobrineCloneEntity.setSacrificing(true);
@@ -1137,7 +1167,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                     secondPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
                 }
                 if (this.thirdPossessedHerobrine != null) {
-                    CommonUtil.stunImmunity(((Mob) thirdPossessedHerobrine), 30, 3);
+                    ((Mob) thirdPossessedHerobrine).addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 10, 3, false, false));
                     this.clearHandAndDropItem(thirdPossessedHerobrine);
                     if (thirdPossessedHerobrine instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity) {
                         lowShadowHerobrineCloneEntity.setSacrificing(true);
@@ -1147,8 +1177,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                     thirdPossessedHerobrine.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
                 }
                 if (this.fourthPossessedHerobrine != null) {
-                    CommonUtil.stunImmunity(((Mob) fourthPossessedHerobrine), 30, 3);
-                    this.clearHandAndDropItem(fourthPossessedHerobrine);
+                    ((Mob) fourthPossessedHerobrine).addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 10, 3, false, false));
                     this.clearHandAndDropItem(fourthPossessedHerobrine);
                     if (fourthPossessedHerobrine instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity) {
                         lowShadowHerobrineCloneEntity.setSacrificing(true);
@@ -1162,8 +1191,10 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                     this.setNoAi(false);
                     return;
                 }
-                CommonUtil.stunImmunity(this, 5, 3);
-                playStageChangeAnimation();
+                this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 5, 3, false, false));
+                if (this.getLivingEntityPatch() != null) {
+                    this.getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_STAGE_CHANGE, 0.0F);
+                }
                 if (this instanceof NullEntity nullEntity && this.tickCount % 100 == 0) {
                     nullEntity.setSpinningToAllWeaponsAvailableFor5seconds();
                 }

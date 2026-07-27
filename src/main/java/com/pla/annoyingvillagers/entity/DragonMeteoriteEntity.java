@@ -1,3 +1,22 @@
+/*
+ * AnnoyingVillagers - Third-Party Derived File Notice
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later AND Apache-2.0
+ *
+ * Upstream: Skyfall: Meteorites - Yoshi01111
+ * Source: https://www.curseforge.com/minecraft/mc-mods/skyfall-meteorites
+ *
+ * This file contains code adapted from the upstream project.
+ * Required upstream notices must be preserved (including Apache-2.0 NOTICE if provided).
+ *
+ * License texts:
+ *   - third_party/licenses/GPL-3.0.md
+ *   - third_party/licenses/Apache-2.0.md
+ *
+ * Modifications:
+ *   Copyright (c) 2026 pla_is_me
+ */
+
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.init.*;

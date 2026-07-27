@@ -5,7 +5,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.ThunderDiamondBladeItem;
-import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -29,6 +29,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.gameasset.Armatures;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -340,39 +342,36 @@ public class ElectricPhaseEntity extends Entity implements IEntityAdditionalSpaw
     }
 
     private static Vec3 getOwnerSwordPosition(LivingEntity owner, boolean offhand) {
-//      ADD THIS CODE IN AV_EFM
-//        try {
-//            Vec3 pos = EpicfightUtil.getJointWithTranslation(
-//                    owner,
-//                    new Vec3f(0.0F, 0.0F, 0.0F),
-//                    offhand ? Armatures.BIPED.get().toolL : Armatures.BIPED.get().toolR,
-//                    1.0F,
-//                    0.25F
-//            );
-//
-//            if (pos != null) {
-//                return pos;
-//            }
-//        } catch (Exception ignored) {
-//        }
-//
-//        Vec3 look = owner.getLookAngle();
-//        Vec3 side = new Vec3(-look.z, 0.0D, look.x);
-//
-//        if (side.lengthSqr() > 1.0E-7D) {
-//            side = side.normalize();
-//        } else {
-//            side = Vec3.ZERO;
-//        }
-//
-//        double sideOffset = offhand ? -0.35D : 0.35D;
-//
-//        return owner.position()
-//                .add(0.0D, owner.getBbHeight() * 0.65D, 0.0D)
-//                .add(look.scale(0.75D))
-//                .add(side.scale(sideOffset));
+        try {
+            Vec3 pos = EpicfightUtil.getJointWithTranslation(
+                    owner,
+                    new Vec3f(0.0F, 0.0F, 0.0F),
+                    offhand ? Armatures.BIPED.get().toolL : Armatures.BIPED.get().toolR,
+                    1.0F,
+                    0.25F
+            );
 
-        return CommonUtil.getVanillaSwordOrBodyPosition(owner);
+            if (pos != null) {
+                return pos;
+            }
+        } catch (Exception ignored) {
+        }
+
+        Vec3 look = owner.getLookAngle();
+        Vec3 side = new Vec3(-look.z, 0.0D, look.x);
+
+        if (side.lengthSqr() > 1.0E-7D) {
+            side = side.normalize();
+        } else {
+            side = Vec3.ZERO;
+        }
+
+        double sideOffset = offhand ? -0.35D : 0.35D;
+
+        return owner.position()
+                .add(0.0D, owner.getBbHeight() * 0.65D, 0.0D)
+                .add(look.scale(0.75D))
+                .add(side.scale(sideOffset));
     }
 
     private void damageEntitiesInZone() {

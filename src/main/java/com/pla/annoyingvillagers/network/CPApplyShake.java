@@ -1,3 +1,21 @@
+/*
+ * AnnoyingVillagers - Third-Party Derived File Notice
+ *
+ * SPDX-License-Identifier: CC-BY-NC-SA-3.0
+ *
+ * Upstream: Epic-Fight-Impactful
+ * Source: https://github.com/Cyber2049/Epic-Fight-Impactful
+ *
+ * This file contains code adapted from the upstream project (Screen Shake algorithm).
+ * Required upstream notices must be preserved.
+ *
+ * License texts:
+ *   - third_party/licenses/LGPL-2.1.md
+ *
+ * Modifications and integration:
+ *   Copyright (c) 2025 pla_is_me
+ */
+
 package com.pla.annoyingvillagers.network;
 
 import com.pla.annoyingvillagers.client.engine.CameraEngine;

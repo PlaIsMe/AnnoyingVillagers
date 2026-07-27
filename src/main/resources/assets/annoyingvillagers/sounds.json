@@ -127,14 +127,6 @@
       }
     ]
   },
-  "clash": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:entity/hit/clash",
-        "stream": false
-      }
-    ]
-  },
   "lost": {
     "sounds": [
       {

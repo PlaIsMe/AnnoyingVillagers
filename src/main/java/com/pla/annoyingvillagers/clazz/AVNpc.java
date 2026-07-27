@@ -1,16 +1,16 @@
 package com.pla.annoyingvillagers.clazz;
 
+import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.BowLineOfSightGoal;
 import com.pla.annoyingvillagers.entity.goal.BurnNearbyItemGoal;
-import com.pla.annoyingvillagers.entity.goal.EatHealingFoodGoal;
 import com.pla.annoyingvillagers.entity.goal.FillWaterBucketGoal;
 import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
 import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
 import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
-import com.pla.annoyingvillagers.entity.goal.UseWaterBucketGoal;
 import com.pla.annoyingvillagers.entity.goal.WaterEnderPearlEscapeGoal;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.*;
@@ -35,10 +35,19 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.api.animation.AnimationPlayer;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
@@ -49,8 +58,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private static final float VILLAGER_WEAPON_DROP_CHANCE = 0.16F;
     private static final float VILLAGER_OFFHAND_EQUIPMENT_DROP_CHANCE = 0.10F;
     private static final float VILLAGER_EQUIPMENT_LOOTING_BONUS = 0.015F;
-    private static final int WATER_BUCKET_MIN_COOLDOWN_TICKS = 220;
-    private static final int WATER_BUCKET_RANDOM_COOLDOWN_TICKS = 180;
     protected static final List<ItemLike> REGULAR_FOODS = List.of(
             Items.COOKED_BEEF,
             Items.BREAD,
@@ -79,7 +86,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     protected final SimpleContainer inventory = new SimpleContainer(27);
     private int gapCooldown;
     private int enderPearlCooldown;
-    private int waterBucketCooldown;
     private int swapToBowCooldown = 0;
     private ItemStack mainWeaponItem = ItemStack.EMPTY;
     private ItemStack offWeaponItem = ItemStack.EMPTY;
@@ -93,6 +99,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private int stunEscapeCooldown = 0;
     @Nullable
     private IdleAnimation idleAnimationChoice;
+    @Nullable private AssetAccessor<? extends StaticAnimation> idleAnimationAsset;
     private boolean idleMessageBroadcast = false;
     private boolean playingIdle;
     private int playingIdleCooldown = 1200;
@@ -168,6 +175,15 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.idleAnimationChoice = choice;
     }
 
+    @Nullable
+    public AssetAccessor<? extends StaticAnimation> getIdleAnimation() {
+        return idleAnimationAsset;
+    }
+
+    public void setIdleAnimation(@Nullable AssetAccessor<? extends StaticAnimation> anim) {
+        this.idleAnimationAsset = anim;
+    }
+
     public boolean isIdleMessageBroadcast() {
         return idleMessageBroadcast;
     }
@@ -178,43 +194,8 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     public void clearIdleAnimationState() {
         this.idleAnimationChoice = null;
+        this.idleAnimationAsset = null;
         this.idleMessageBroadcast = false;
-    }
-
-    // Vanilla-safe animation extension points. AV_EFM can mixin these methods for EpicFight-specific behavior.
-    public boolean isIdleAnimationGoalAvailable() {
-        return false;
-    }
-
-    public boolean canStartIdleAnimationGoal(@Nullable IdleAnimation choice) {
-        return true;
-    }
-
-    public boolean canContinueIdleAnimationGoal(@Nullable IdleAnimation choice, int ticksLeft) {
-        return true;
-    }
-
-    public void onIdleAnimationGoalStart(IdleAnimation choice) {
-    }
-
-    public void onIdleAnimationGoalTick(IdleAnimation choice) {
-    }
-
-    public void onIdleAnimationGoalStop(@Nullable IdleAnimation choice) {
-    }
-
-    public boolean canUseLockedRandomStrollGoal() {
-        return true;
-    }
-
-    public boolean canContinueLockedRandomStrollGoal() {
-        return true;
-    }
-
-    public void onLockedRandomStrollGoalStart() {
-    }
-
-    public void onLockedRandomStrollGoalStop() {
     }
 
     public int getStunEscapeCooldown() {
@@ -284,16 +265,17 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         return new ItemStack(Items.BOW);
     }
 
+    @Nullable
+    public LivingEntityPatch<?> getLivingEntityPatch() {
+        return EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
+    }
+
     public int getGapCooldown() {
         return gapCooldown;
     }
 
     public int getEnderPearlCooldown() {
         return enderPearlCooldown;
-    }
-
-    public int getWaterBucketCooldown() {
-        return waterBucketCooldown;
     }
 
     public void setGapCooldown() {
@@ -304,10 +286,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     public void setEnderPearlCooldown() {
         this.enderPearlCooldown = random.nextInt(100, 300);
-    }
-
-    public void setWaterBucketCooldown() {
-        this.waterBucketCooldown = WATER_BUCKET_MIN_COOLDOWN_TICKS + random.nextInt(WATER_BUCKET_RANDOM_COOLDOWN_TICKS + 1);
     }
 
     public ItemStack getMainWeaponItem() {
@@ -348,10 +326,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         return InventoryUtils.consumeItem(this.inventory, itemLike, count);
     }
 
-    public boolean eatHealingFoodFromInventory() {
-        return CombatBehaviour.eatInventoryHealingFood(this);
-    }
-
     public void setUseBow(boolean useBow) {
         this.useBow = useBow;
     }
@@ -376,7 +350,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         tag.put("Inventory", this.inventory.createTag());
         tag.putInt("GapCooldown", this.gapCooldown);
         tag.putInt("EnderPearlCooldown", this.enderPearlCooldown);
-        tag.putInt("WaterBucketCooldown", this.waterBucketCooldown);
         tag.putInt("SwapToBowCooldown", this.swapToBowCooldown);
         tag.putBoolean("InitialSpawn", this.initialSpawn);
         tag.putBoolean("UseBow", this.useBow);
@@ -413,6 +386,10 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
         if (this.level().isClientSide) return;
         if (!this.isAlive() || this.isDeadOrDying() || this.getHealth() <= 0.0F) return;
+
+        if (isPlayingIdle() && getLivingEntityPatch() != null && idleAnimationAsset != null) {
+            getLivingEntityPatch().playAnimationSynchronized(idleAnimationAsset, 0.0F);
+        }
     }
 
     @Override
@@ -423,7 +400,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
         this.gapCooldown = tag.getInt("GapCooldown");
         this.enderPearlCooldown = tag.getInt("EnderPearlCooldown");
-        this.waterBucketCooldown = tag.getInt("WaterBucketCooldown");
         this.swapToBowCooldown = tag.getInt("SwapToBowCooldown");
         this.initialSpawn = tag.getBoolean("InitialSpawn");
         this.useBow = tag.getBoolean("UseBow");
@@ -585,14 +561,12 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     protected void registerGoals() {
         super.registerGoals();
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
-        this.goalSelector.addGoal(-4, new UseWaterBucketGoal(this));
         this.goalSelector.addGoal(-3, new WaterEnderPearlEscapeGoal(this));
         this.goalSelector.addGoal(-2, new RecoverWeaponInCombatGoal(this, 1.2D, 10.0D));
-        this.goalSelector.addGoal(-1, new EatHealingFoodGoal(this));
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(4, new BowLineOfSightGoal(this, 1.15D, 7.0D, 14.0D));
         this.goalSelector.addGoal(5, new BurnNearbyItemGoal(this, 1.0D, 10.0D));
-        this.goalSelector.addGoal(6, new PlayIdleAnimationGoal(this, new Random().nextInt(120, 240)));
+        this.goalSelector.addGoal(6, new PlayIdleAnimationGoal(this, new Random().nextInt(3000, 6000)));
         this.goalSelector.addGoal(7, new LockedRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(8, new FillWaterBucketGoal(this, 1.0D));
     }
@@ -615,8 +589,8 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             return;
         }
 
-        boolean shouldUseEnchantedArrow = this.getTarget() instanceof HerobrineMob;
-        ItemStack itemstack = InventoryUtils.consumeArrowAmmo(this, shouldUseEnchantedArrow).orElse(ItemStack.EMPTY);
+        ItemStack weaponStack = this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, this::canFireProjectileWeapon));
+        ItemStack itemstack = InventoryUtils.consumeArrowAmmo(this).orElse(ItemStack.EMPTY);
         if (itemstack.isEmpty()) {
             return;
         }
@@ -765,11 +739,9 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     protected void playEnderPearlCounterAnimation() {
-//        ADD THIS CODE IN AV_EFM
-//        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
-//        }
-        this.swing(InteractionHand.OFF_HAND, true);
+        if (this.getLivingEntityPatch() != null) {
+            this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
+        }
     }
 
     protected boolean throwEnderPearlNow(float angle) {
@@ -812,24 +784,19 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.throwEnderPearlLater(20, 0.1D, 90.0F);
     }
 
+    protected AssetAccessor<? extends StaticAnimation> getCurrentAnimationOrEmpty() {
+        LivingEntityPatch<?> patch = this.getLivingEntityPatch();
+        if (patch == null) {
+            return Animations.EMPTY_ANIMATION;
+        }
+
+        AnimationPlayer player = patch.getAnimator().getPlayerFor(null);
+        return player != null ? player.getRealAnimation() : Animations.EMPTY_ANIMATION;
+    }
+
     protected void tryTriggerEnderPearlCounter(@NotNull DamageSource damageSource) {
-//        ADD THIS CODE IN AV_EFM
-//        LivingEntityPatch<?> patch = this.getLivingEntityPatch();
-//        AssetAccessor<? extends StaticAnimation> dynamicAnimation = this.getCurrentAnimationOrEmpty();
-//        if (EpicfightUtil.isLongHitAnimation(dynamicAnimation, patch)) {
-//            return;
-//        }
-//        if (dynamicAnimation != Animations.EMPTY_ANIMATION) {
-//            return;
-//        }
-//
-//        if (!(patch instanceof MobPatch<?> mobPatch)) {
-//            return;
-//        }
-//
-//        if (!CombatCommon.canPerformNormalAttackLogic(mobPatch)) {
-//            return;
-//        }
+        LivingEntityPatch<?> patch = this.getLivingEntityPatch();
+        AssetAccessor<? extends StaticAnimation> dynamicAnimation = this.getCurrentAnimationOrEmpty();
 
         if (damageSource.getEntity() == null) {
             return;
@@ -839,7 +806,23 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             return;
         }
 
+        if (EpicfightUtil.isLongHitAnimation(dynamicAnimation, patch)) {
+            return;
+        }
+
         if (!(this.level() instanceof ServerLevel)) {
+            return;
+        }
+
+        if (dynamicAnimation != Animations.EMPTY_ANIMATION) {
+            return;
+        }
+
+        if (!(patch instanceof MobPatch<?> mobPatch)) {
+            return;
+        }
+
+        if (!CombatCommon.canPerformNormalAttackLogic(mobPatch)) {
             return;
         }
 
@@ -929,19 +912,43 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     @Override
     public void tick() {
         super.tick();
-        if (!(this.level() instanceof ServerLevel)) return;
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
         this.tickVoiceCooldown();
-        CommonUtil.dangerousReactionAi(this);
-        CommonUtil.stunEscapeAi(this);
 
         if (this.tickCount == 1 && !this.initialSpawn) {
             implementFirstTick((ServerLevel) this.level());
             this.initialSpawn = true;
         }
+        CombatCommon.tryPerformAvNpcWaterBucketSelfExtinguish(this);
+
+        if (ModList.get().isLoaded("efkick") && this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
+            if (getLivingEntityPatch() != null) {
+                AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
+                if (EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && this.isAlive()) {
+                    if (this.getRandom().nextFloat() < CombatBehaviour.calculateGuardBreakWakeUpChance(this)) {
+                        if (this instanceof AngrySteveEntity) {
+                            this.stunEscapeCooldown = 60;
+                        } else {
+                            this.stunEscapeCooldown = 100;
+                        }
+                        AVNpc entity = this;
+                        new DelayedTask(new Random().nextInt(5, 10)) {
+                            @Override
+                            public void run() {
+                                if (getLivingEntityPatch() != null && EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && entity.isAlive()) {
+                                    CombatBehaviour.postGuardBreakWakeUp(entity, getLivingEntityPatch(), serverLevel);
+                                } else {
+                                    entity.stunEscapeCooldown = 1;
+                                }
+                            }
+                        };
+                    }
+                }
+            }
+        }
 
         if (gapCooldown > 0) gapCooldown--;
         if (enderPearlCooldown > 0) enderPearlCooldown--;
-        if (waterBucketCooldown > 0) waterBucketCooldown--;
         if (swapToBowCooldown > 0) swapToBowCooldown--;
         if (placeBlockParryCooldown > 0) placeBlockParryCooldown--;
         if (stunEscapeCooldown > 0) stunEscapeCooldown--;

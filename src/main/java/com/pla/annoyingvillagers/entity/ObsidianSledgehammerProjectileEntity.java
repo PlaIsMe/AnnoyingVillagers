@@ -1,7 +1,28 @@
+/*
+ * AnnoyingVillagers - Third-Party Derived File Notice
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later AND Apache-2.0
+ *
+ * Upstream: Skyfall: Meteorites - Yoshi01111
+ * Source: https://www.curseforge.com/minecraft/mc-mods/skyfall-meteorites
+ *
+ * This file contains code adapted from the upstream project.
+ * Required upstream notices must be preserved (including Apache-2.0 NOTICE if provided).
+ *
+ * License texts:
+ *   - third_party/licenses/GPL-3.0.md
+ *   - third_party/licenses/Apache-2.0.md
+ *
+ * Modifications:
+ *   Copyright (c) 2026 pla_is_me
+ */
+
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.block.CryingObsidianBlock;
+import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.init.*;
+import com.pla.annoyingvillagers.skill.ObsidianSledgeHammerSkill;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.ScreenShakeUtil;
@@ -39,6 +60,12 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.Random;
 
@@ -237,7 +264,10 @@ public class ObsidianSledgehammerProjectileEntity extends PathfinderMob {
             }
             entity.hasImpulse = true;
             if (this.shouldStun) {
-                applyLongStun(entity);
+                LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+                if (patch != null) {
+                    patch.applyStun(StunType.LONG, 20.0F);
+                }
             }
             increaseSkillPoint(this.getOwner(), 5.0F);
         }
@@ -246,14 +276,6 @@ public class ObsidianSledgehammerProjectileEntity extends PathfinderMob {
         this.playSound(SoundEvents.FIREWORK_ROCKET_TWINKLE_FAR, 6.0F, 0.0F);
         this.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 10.0F, 0.0F);
         this.discard();
-    }
-
-    private void applyLongStun(Entity entity) {
-//      ADD THIS CODE IN AV_EFM
-//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-//        if (livingEntityPatch != null) {
-//            livingEntityPatch.applyStun(StunType.LONG, 20.0F);
-//        }
     }
 
     public void baseTick() {
@@ -405,22 +427,21 @@ public class ObsidianSledgehammerProjectileEntity extends PathfinderMob {
     }
 
     public void increaseSkillPoint(Entity entity, float value) {
-//      ADD THIS CODE IN AV_EFM
-//        if (!(entity instanceof Player player)) return;
-//
-//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-//        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
-//
-//        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.OBSIDIAN_SLEDGEHAMMER);
-//        if (skillContainer == null) return;
-//
-//        ObsidianSledgeHammerSkill skill = (ObsidianSledgeHammerSkill) skillContainer.getSkill();
-//
-//        float currentResource = skillContainer.getResource();
-//        float neededResource = skillContainer.getNeededResource();
-//        float addResource = Math.min(value, neededResource);
-//
-//        skill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
+        if (!(entity instanceof Player player)) return;
+
+        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
+
+        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.OBSIDIAN_SLEDGEHAMMER);
+        if (skillContainer == null) return;
+
+        ObsidianSledgeHammerSkill skill = (ObsidianSledgeHammerSkill) skillContainer.getSkill();
+
+        float currentResource = skillContainer.getResource();
+        float neededResource = skillContainer.getNeededResource();
+        float addResource = Math.min(value, neededResource);
+
+        skill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
     }
 
     public static void init() {}

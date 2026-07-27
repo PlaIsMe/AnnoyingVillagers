@@ -1,12 +1,14 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.clazz.Difficulty;
+import com.pla.annoyingvillagers.combatbehaviour.HerobrineCommon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.ProgressionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -27,6 +29,14 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import reascer.wom.gameasset.animations.weapons.AnimsMoonless;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
+
+import java.util.Objects;
 
 public class HerobrineChrisEntity extends HerobrineMob {
     public HerobrineChrisEntity(SpawnEntity spawnEntity, Level level) {
@@ -63,24 +73,6 @@ public class HerobrineChrisEntity extends HerobrineMob {
         return AnnoyingVillagersModSounds.HEROBRINE_CLONE_SAY_ON_HURT.get();
     }
 
-    private boolean playSecondFormGuardingAnimation() {
-//      ADD THIS CODE IN AV_EFM
-//        if (this.level() instanceof ServerLevel serverLevel && HerobrineCommon.canPlaySecondFormAnimation((MobPatch<?>) Objects.requireNonNull(this.getLivingEntityPatch()))) {
-//            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(this.getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
-//            if (!EpicfightUtil.isLongHitAnimation(dynamicAnimation, getLivingEntityPatch())
-//                    && (this.level() instanceof ServerLevel && dynamicAnimation == Animations.EMPTY_ANIMATION)) {
-//                Objects.requireNonNull(this.getLivingEntityPatch()).playAnimationSynchronized(AnimsMoonless.MOONLESS_GUARD_HIT_1, 0.0F);
-//                HerobrineCommon.playSecondFormAnimation((MobPatch<?>) Objects.requireNonNull(this.getLivingEntityPatch()));
-//                this.heal(4.0F);
-//                CommonUtil.damageBlocked(damagesource, this, serverLevel);
-//                return false;
-//            }
-//        }
-
-//        ADD VANILLA_ANIMATION FOR AN ABILITY TO BLOCK DAMAGE
-        return true;
-    }
-
     public boolean hurt(@NotNull DamageSource damagesource, float f) {
         if (damagesource.is(DamageTypes.FALL)) return false;
         if (damagesource.is(DamageTypes.CACTUS)) return false;
@@ -91,11 +83,18 @@ public class HerobrineChrisEntity extends HerobrineMob {
         if (!(damagesource.getDirectEntity() instanceof EnchantedArrowEntity)
                 && damagesource.getDirectEntity() instanceof AbstractArrow
                 && !(damagesource.getDirectEntity() instanceof BlueDemonThrownTridentEntity)) return false;
-        if (playSecondFormGuardingAnimation()) {
-            return super.hurt(damagesource, f);
-        } else {
-            return false;
+        if (this.level() instanceof ServerLevel serverLevel && HerobrineCommon.canPlaySecondFormAnimation((MobPatch<?>) Objects.requireNonNull(this.getLivingEntityPatch()))) {
+            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(this.getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
+            if (!EpicfightUtil.isLongHitAnimation(dynamicAnimation, getLivingEntityPatch())
+                    && (this.level() instanceof ServerLevel && dynamicAnimation == Animations.EMPTY_ANIMATION)) {
+                Objects.requireNonNull(this.getLivingEntityPatch()).playAnimationSynchronized(AnimsMoonless.MOONLESS_GUARD_HIT_1, 0.0F);
+                HerobrineCommon.playSecondFormAnimation((MobPatch<?>) Objects.requireNonNull(this.getLivingEntityPatch()));
+                this.heal(4.0F);
+                EpicfightUtil.damageBlocked(damagesource, this, serverLevel);
+                return false;
+            }
         }
+        return super.hurt(damagesource, f);
     }
 
     public void die(@NotNull DamageSource damagesource) {
@@ -126,27 +125,20 @@ public class HerobrineChrisEntity extends HerobrineMob {
         return ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM) && Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);
     }
 
-    public static Builder addEpicFightAttributes(Builder builder) {
-//      ADD THIS CODE IN AV_EFM
-//        return builder.add(EpicFightAttributes.IMPACT.get(), 4.0D)
-//                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
-//                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
-//                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
-//                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
-//                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
-
-        return builder;
-    }
-
     public static Builder createAttributes() {
-        Builder builder = Mob.createMobAttributes()
+        return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 100.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
-                .add(Attributes.ATTACK_DAMAGE, 5.0D)
+                .add(Attributes.ATTACK_DAMAGE, 1.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
-        return addEpicFightAttributes(builder);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
+                .add(EpicFightAttributes.IMPACT.get(), 4.0D)
+                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
+                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
+                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
+                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
+                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
     }
 }

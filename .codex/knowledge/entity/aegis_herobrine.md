@@ -15,6 +15,12 @@ It has 250 health, high defensive attributes, and acts as a tanker/protector sty
 
 On death, it creates `EliteHerobrineKnockedEntity` with `FromElite = "EnderAegis"` and can notify Greg through `requestProtect`.
 
+## Portal Support
+
+Aegis now has `portalSupportCooldown`.
+
+When another Herobrine-side ally is nearby and not riding a Herobrine dragon, Aegis calls `HerobrinePortalCombatUtil.tryAegisProtectPortal`.
+
 That helper spawns a linked portal pair near Aegis and near the ally. This lets Aegis use the portal route to protect or close distance.
 
 ## Portal Approach

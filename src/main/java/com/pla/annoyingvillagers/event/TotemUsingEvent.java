@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.event;
 import com.pla.annoyingvillagers.entity.AlexEntity;
 import com.pla.annoyingvillagers.entity.ChrisEntity;
 import com.pla.annoyingvillagers.entity.SteveEntity;
+import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.server.level.ServerLevel;
@@ -17,20 +18,11 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.event.entity.living.LivingUseTotemEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 @Mod.EventBusSubscriber
 public class TotemUsingEvent {
-    private static void playGuardBreakAttackAnimation(LivingEntity entity) {
-//        Add this code in AV_EFM
-
-//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-//        if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch != null) {
-//            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
-//        }
-
-//        CREATE VANILLA_ANIMATION
-    }
-
     @SubscribeEvent
     public static void onLivingUseTotem(LivingUseTotemEvent event) {
         LivingEntity entity = event.getEntity();
@@ -48,7 +40,10 @@ public class TotemUsingEvent {
                         steveEntity.setItemInHand(InteractionHand.OFF_HAND, diamondSword);
                         steveEntity.setOffWeaponItem(diamondSword);
                         steveEntity.setState(1);
-                        playGuardBreakAttackAnimation(entity);
+                        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+                        if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch != null) {
+                            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+                        }
                     }
                 };
 
@@ -106,7 +101,10 @@ public class TotemUsingEvent {
                         alexEntity.setOffWeaponItem(diamondSword);
                         alexEntity.setMainWeaponItem(diamondSword);
                         alexEntity.setState(1);
-                        playGuardBreakAttackAnimation(entity);
+                        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+                        if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch != null) {
+                            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+                        }
                     }
                 };
             }
@@ -123,7 +121,10 @@ public class TotemUsingEvent {
                         chrisEntity.setItemInHand(InteractionHand.OFF_HAND, diamondSword);
                         chrisEntity.setOffWeaponItem(diamondSword);
                         chrisEntity.setState(1);
-                        playGuardBreakAttackAnimation(entity);
+                        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+                        if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch != null) {
+                            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+                        }
                     }
                 };
             }

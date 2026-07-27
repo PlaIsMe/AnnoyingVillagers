@@ -1,6 +1,5 @@
 package com.pla.annoyingvillagers.client.engine;
 
-import com.pla.annoyingvillagers.compat.photon.PhotonClientFxUtil;
 import com.pla.annoyingvillagers.event.NoVfxPortalEvent;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;

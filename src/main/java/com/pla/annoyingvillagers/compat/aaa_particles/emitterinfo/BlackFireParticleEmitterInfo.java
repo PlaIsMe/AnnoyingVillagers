@@ -1,7 +1,9 @@
 package com.pla.annoyingvillagers.compat.aaa_particles.emitterinfo;
 
 import com.pla.annoyingvillagers.entity.BlackFireEntity;
-import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
+import mod.chloeprime.aaaparticles.api.client.EffectDefinition;
+import mod.chloeprime.aaaparticles.api.client.EffectHolder;
 import mod.chloeprime.aaaparticles.api.client.EffectRegistry;
 import mod.chloeprime.aaaparticles.api.client.effekseer.ParticleEmitter;
 import mod.chloeprime.aaaparticles.api.common.DynamicParameter;
@@ -13,8 +15,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.gameasset.Armatures;
 
 import java.lang.ref.WeakReference;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public class BlackFireParticleEmitterInfo extends ParticleEmitterInfo {
@@ -82,20 +88,17 @@ public class BlackFireParticleEmitterInfo extends ParticleEmitterInfo {
     }
 
     private static Vec3 getSwordPosition(Entity entity, float partialTick) {
-//        Add this is AV_EFM
-//        try {
-//            return EpicfightUtil.getJointWithTranslation(
-//                    entity,
-//                    new Vec3f(0.0F, 0.0F, 0.0F),
-//                    Armatures.BIPED.get().toolR,
-//                    partialTick,
-//                    0.0F
-//            );
-//        } catch (Exception ignored) {
-//            return null;
-//        }
-
-        return CommonUtil.getVanillaSwordOrBodyPosition(entity, partialTick);
+        try {
+            return EpicfightUtil.getJointWithTranslation(
+                    entity,
+                    new Vec3f(0.0F, 0.0F, 0.0F),
+                    Armatures.BIPED.get().toolR,
+                    partialTick,
+                    0.0F
+            );
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     private Vec3 getCurrentFollowPosition(float partialTick) {
@@ -114,7 +117,7 @@ public class BlackFireParticleEmitterInfo extends ParticleEmitterInfo {
                 pos = getSwordPosition(entity, partialTick);
 
                 if (pos == null) {
-                    pos = CommonUtil.getVanillaSwordOrBodyPosition(entity, partialTick);
+                    pos = getInterpolatedEntityPosition(entity, partialTick);
                 }
             }
 
@@ -139,8 +142,6 @@ public class BlackFireParticleEmitterInfo extends ParticleEmitterInfo {
                 if (swordPos != null) {
                     return swordPos;
                 }
-
-                return CommonUtil.getVanillaSwordOrBodyPosition(owner, partialTick);
             }
         }
 

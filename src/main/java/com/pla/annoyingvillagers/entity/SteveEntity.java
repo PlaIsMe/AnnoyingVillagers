@@ -18,6 +18,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -40,6 +41,7 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -587,27 +589,20 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity {
         }
     }
 
-    public static Builder addEpicFightAttributes(Builder builder) {
-//      ADD THIS CODE IN AV_EFM
-//        return builder.add(EpicFightAttributes.IMPACT.get(), 2.0D)
-//                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 5.0D)
-//                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
-//                .add(EpicFightAttributes.MAX_STRIKES.get(), 50.0D)
-//                .add(EpicFightAttributes.MAX_STAMINA.get(), 30.0D)
-//                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
-
-        return builder;
-    }
-
     public static Builder createAttributes() {
-        Builder builder = Mob.createMobAttributes()
+        return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 50.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.35D)
                 .add(Attributes.ATTACK_DAMAGE, 0.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
-        return addEpicFightAttributes(builder);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
+                .add(EpicFightAttributes.IMPACT.get(), 2.0D)
+                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 5.0D)
+                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
+                .add(EpicFightAttributes.MAX_STRIKES.get(), 50.0D)
+                .add(EpicFightAttributes.MAX_STAMINA.get(), 30.0D)
+                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
     }
 }

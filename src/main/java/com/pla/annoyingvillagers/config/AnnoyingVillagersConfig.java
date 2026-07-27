@@ -18,16 +18,30 @@ public class AnnoyingVillagersConfig {
     public static ForgeConfigSpec.ConfigValue<Integer> BLUE_DEMON_LEAVE_MIN_TIME;
     public static ForgeConfigSpec.ConfigValue<Integer> BLUE_DEMON_LEAVE_MAX_TIME;
     public static ForgeConfigSpec.ConfigValue<Boolean> TRIDENT_FESTIVAL_CAN_BREAK_BLOCK;
+    public static ForgeConfigSpec.ConfigValue<Double> MOB_GUARD_BREAK_WAKE_UP_MIN_CHANCE;
+    public static ForgeConfigSpec.ConfigValue<Double> MOB_GUARD_BREAK_WAKE_UP_MAX_CHANCE;
     public static ForgeConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_CHAT;
     public static ForgeConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_VOICE;
-    public static ForgeConfigSpec.ConfigValue<Boolean> AV_MOB_CAN_BURN_ITEM;
     public static ForgeConfigSpec.ConfigValue<Boolean> ARROW_CAN_BREAK_BLOCK;
+    public static ForgeConfigSpec.ConfigValue<Boolean> CAN_EXECUTE_AV_MOB;
+    public static ForgeConfigSpec.ConfigValue<Boolean> AV_MOB_CAN_EXECUTE;
+    public static ForgeConfigSpec.ConfigValue<Boolean> AV_MOB_CAN_BURN_ITEM;
+    public static ForgeConfigSpec.ConfigValue<Boolean> VANILLA_MOB_CAN_DRINK_HEALING_POTION;
+    public static ForgeConfigSpec.ConfigValue<Integer> WEAPON_BREAKING_MECHANISM_VALUE;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> WEAPON_DISARMS_AFFECTED_ENTITY_TYPES;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> WEAPON_DISARMS_BLACKLIST;
 
+    // ==== NPC Behaviour ====
+    public static ForgeConfigSpec.ConfigValue<Double> NPC_TARGET_WEIGHT_MONSTER_HUNTER;
+    public static ForgeConfigSpec.ConfigValue<Double> NPC_TARGET_WEIGHT_VILLAGER_HUNTER;
+    public static ForgeConfigSpec.ConfigValue<Double> NPC_TARGET_WEIGHT_PLAYER_HUNTER;
+    public static ForgeConfigSpec.ConfigValue<Double> NPC_TARGET_WEIGHT_HOSTILE_HUNTER;
+    public static ForgeConfigSpec.ConfigValue<Double> NPC_TARGET_WEIGHT_PASSIVE_HUNTER;
+    public static ForgeConfigSpec.ConfigValue<Double> NPC_TARGET_WEIGHT_ANIMAL_HUNTER;
+
     static {
         HEROBRINE_POSSESS_RATE = BUILDER.comment(
-                        "[ONLY WORK WHEN SmartNpc is installed] Chance for Herobrine possess another player npc into Low Herobrine Clone")
+                        "Chance for Herobrine possess another player npc into Low Herobrine Clone")
                 .defineInRange("herobrinePossessRate", 0.5, 0, 1);
 
         HEROBRINE_RECALL_MIN_TIME = BUILDER.comment(
@@ -68,6 +82,14 @@ public class AnnoyingVillagersConfig {
                         "Make Trident Festival can break block")
                 .define("tridentFestivalCanBreakBlock", true);
 
+        MOB_GUARD_BREAK_WAKE_UP_MIN_CHANCE = BUILDER.comment(
+                        "[ONLY WORK WHEN EpicFight: KickSkill is installed] Min chance for mob can wake up automatically on guard break")
+                .defineInRange("mobGuardBreakWakeUpMinChance", 0.05D, 0.0D, 1.0D);
+
+        MOB_GUARD_BREAK_WAKE_UP_MAX_CHANCE = BUILDER.comment(
+                        "[ONLY WORK WHEN EpicFight: KickSkill is installed] Max chance for mob can wake up automatically on guard break")
+                .defineInRange("mobGuardBreakWakeUpMaxChance", 0.4D, 0.0D, 1.0D);
+
         TURN_ON_NPC_CHAT = BUILDER.comment(
                         "Turn on all chatting for NPC")
                 .define("turnOnNpcChat", true);
@@ -79,9 +101,22 @@ public class AnnoyingVillagersConfig {
         ARROW_CAN_BREAK_BLOCK = BUILDER.comment(
                         "Make arrow can break block")
                 .define("arrowCanBreakBlock", true);
+
+        CAN_EXECUTE_AV_MOB = BUILDER.comment(
+                        "Make all of AV NPCs and Mobs can be executed")
+                .define("canExecuteAvMob", true);
+        AV_MOB_CAN_EXECUTE = BUILDER.comment(
+                        "Enable execute ability for all of Av NPCs and Mobs")
+                .define("AvMobCanExecute", true);
         AV_MOB_CAN_BURN_ITEM = BUILDER.comment(
                         "Enable burning items ability for all of Av NPCs and Mobs")
                 .define("AvMobCanBurnItem", true);
+        VANILLA_MOB_CAN_DRINK_HEALING_POTION = BUILDER.comment(
+                        "Enable drinking healing potion ability for Zombie and Skeleton")
+                .define("VanillaMobCanDrinkHealingPotion", true);
+        WEAPON_BREAKING_MECHANISM_VALUE = BUILDER.comment(
+                        "The value of durability lose of a weapon when Av Bosses blocking or clashing a dangerous animation or when Player clashing a dangerous animation by Av Bosses")
+                .defineInRange("weaponBreakingMechanismValue", 10, 0, 10000);
         WEAPON_DISARMS_AFFECTED_ENTITY_TYPES = BUILDER.comment(
                         "Living entity types whose held weapons can be disarmed")
                 .defineListAllowEmpty(
@@ -186,6 +221,37 @@ public class AnnoyingVillagersConfig {
                         ),
                         AnnoyingVillagersConfig::validResourceOrTagOrNamespace
                 );
+
+        // ===== NPC Behaviour =====
+        BUILDER.comment(
+                "==== NPC Behaviour ===="
+        ).push("npcBehaviour");
+
+        NPC_TARGET_WEIGHT_MONSTER_HUNTER = BUILDER.comment(
+                        "Weight for Player NPC to target and attack all monsters in the world")
+                .defineInRange("npcTargetWeightMonsterHunter", 1.0D, 0.0D, 10.0D);
+
+        NPC_TARGET_WEIGHT_VILLAGER_HUNTER = BUILDER.comment(
+                        "Weight for Player NPC to target and attack all villagers in the world")
+                .defineInRange("npcTargetWeightVillagerHunter", 1.0D, 0.0D, 10.0D);
+
+        NPC_TARGET_WEIGHT_PLAYER_HUNTER = BUILDER.comment(
+                        "Weight for Player NPC to target and attack players and other Player NPCs")
+                .defineInRange("npcTargetWeightPlayerHunter", 1.0D, 0.0D, 10.0D);
+
+        NPC_TARGET_WEIGHT_HOSTILE_HUNTER = BUILDER.comment(
+                        "Weight for Player NPC to target and attack everything in the world")
+                .defineInRange("npcTargetWeightHostileHunter", 1.0D, 0.0D, 10.0D);
+
+        NPC_TARGET_WEIGHT_PASSIVE_HUNTER = BUILDER.comment(
+                        "Weight for Player NPC to run away from everything in the world")
+                .defineInRange("npcTargetWeightPassiveHunter", 1.0D, 0.0D, 10.0D);
+
+        NPC_TARGET_WEIGHT_ANIMAL_HUNTER = BUILDER.comment(
+                        "Weight for Player NPC to target and attack all animals in the world")
+                .defineInRange("npcTargetWeightAnimalHunter", 1.0D, 0.0D, 10.0D);
+        BUILDER.pop();
+
         SPEC = BUILDER.build();
     }
 

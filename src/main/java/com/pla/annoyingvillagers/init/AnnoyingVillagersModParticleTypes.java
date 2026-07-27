@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.client.particle.HitParticleType;
+import com.pla.annoyingvillagers.client.particle.*;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.registries.DeferredRegister;
@@ -45,8 +45,4 @@ public class AnnoyingVillagersModParticleTypes {
         REGISTRY.register("fireball", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> ELECTRIC_LITE =
             REGISTRY.register("electric_lite", () -> new SimpleParticleType(true));
-    public static final RegistryObject<SimpleParticleType> GROUND_SLAM =
-            REGISTRY.register("ground_slam", () -> new SimpleParticleType(true));
-    public static final RegistryObject<HitParticleType> HIT_BLUNT =
-            REGISTRY.register("hit_blunt", () -> new HitParticleType(true, HitParticleType.RANDOM_WITHIN_BOUNDING_BOX, HitParticleType.ZERO));
 }

@@ -28,6 +28,7 @@ import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public class HerobrineCloneEntity extends HerobrineMob {
     public HerobrineCloneEntity(SpawnEntity spawnEntity, Level level) {
@@ -116,27 +117,20 @@ public class HerobrineCloneEntity extends HerobrineMob {
         return ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM) && Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);
     }
 
-    public static Builder addEpicFightAttributes(Builder builder) {
-//      ADD THIS CODE IN AV_EFM
-//        return builder.add(EpicFightAttributes.IMPACT.get(), 4.0D)
-//                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
-//                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
-//                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
-//                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
-//                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
-
-        return builder;
-    }
-
     public static Builder createAttributes() {
-        Builder builder = Mob.createMobAttributes()
+        return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 100.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 5.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
-        return addEpicFightAttributes(builder);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
+                .add(EpicFightAttributes.IMPACT.get(), 4.0D)
+                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
+                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
+                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
+                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
+                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
     }
 }

@@ -5,7 +5,6 @@ import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.entity.ArmoredHerobrineEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -71,6 +70,12 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.IForgeShearable;
 import net.minecraftforge.common.ToolActions;
+import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.WeaponCategory;
+import yesman.epicfight.world.damagesource.StunType;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -93,7 +98,8 @@ public final class HookUtil {
     public static boolean isPickaxe(ItemStack stack) {
         return !stack.isEmpty()
                 && (stack.getItem() instanceof PickaxeItem
-                || stack.canPerformAction(ToolActions.PICKAXE_DIG));
+                || stack.canPerformAction(ToolActions.PICKAXE_DIG)
+                || hasEpicFightWeaponCategory(stack, CapabilityItem.WeaponCategories.PICKAXE));
     }
 
     public static boolean shouldUseShieldFacing(ItemStack stack) {
@@ -114,7 +120,8 @@ public final class HookUtil {
                 || stack.canPerformAction(ToolActions.AXE_DIG)
                 || stack.canPerformAction(ToolActions.HOE_DIG)
                 || stack.canPerformAction(ToolActions.SHOVEL_DIG)
-                || stack.canPerformAction(ToolActions.PICKAXE_DIG);
+                || stack.canPerformAction(ToolActions.PICKAXE_DIG)
+                || isEpicFightMeleeWeapon(stack);
     }
 
     public static boolean shouldRenderWithoutProjectileSpin(ItemStack stack) {
@@ -537,6 +544,44 @@ public final class HookUtil {
                 || shouldAlignSharpEdge(stack);
     }
 
+    private static boolean isEpicFightMeleeWeapon(ItemStack stack) {
+        return hasEpicFightWeaponCategory(
+                stack,
+                CapabilityItem.WeaponCategories.AXE,
+                CapabilityItem.WeaponCategories.GREATSWORD,
+                CapabilityItem.WeaponCategories.HOE,
+                CapabilityItem.WeaponCategories.PICKAXE,
+                CapabilityItem.WeaponCategories.SHOVEL,
+                CapabilityItem.WeaponCategories.SWORD,
+                CapabilityItem.WeaponCategories.UCHIGATANA,
+                CapabilityItem.WeaponCategories.SPEAR,
+                CapabilityItem.WeaponCategories.TACHI,
+                CapabilityItem.WeaponCategories.TRIDENT,
+                CapabilityItem.WeaponCategories.LONGSWORD,
+                CapabilityItem.WeaponCategories.DAGGER
+        );
+    }
+
+    private static boolean hasEpicFightWeaponCategory(ItemStack stack, CapabilityItem.WeaponCategories... categories) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        CapabilityItem capability = EpicFightCapabilities.getItemStackCapability(stack);
+        if (capability == null || capability.isEmpty()) {
+            return false;
+        }
+
+        WeaponCategory weaponCategory = capability.getWeaponCategory();
+        for (CapabilityItem.WeaponCategories category : categories) {
+            if (weaponCategory == category) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static boolean isPotion(ItemStack stack) {
         return !PotionUtils.getMobEffects(stack).isEmpty()
                 || stack.getItem() instanceof ThrowablePotionItem;
@@ -611,23 +656,20 @@ public final class HookUtil {
         return new Vec3(target.getX(), target.getY() + target.getBbHeight() * 0.5D, target.getZ());
     }
 
-    private void applyLongStun(LivingEntity target) {
-//        Add this in AV_EFM
-//        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-//        if (targetPatch != null && !targetPatch.isStunned()) {
-//            targetPatch.applyStun(StunType.LONG, 0.0F);
-//        }
-    }
-
     private static HitResult hitWithShield(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
         DamageSource source = level.damageSources().thrown(projectile, owner);
         if (!target.hurt(source, 15.0F)) {
             return HitResult.PASS;
         }
 
+        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+        if (targetPatch != null && !targetPatch.isStunned()) {
+            targetPatch.applyStun(StunType.LONG, 0.0F);
+        }
+
         damageTool(boundStack, owner);
         level.playSound(null, target.getX(), target.getY(), target.getZ(),
-                AnnoyingVillagersModSounds.HEAVY_HIT.get(), SoundSource.PLAYERS, 0.8F, 0.95F);
+                EpicFightSounds.BLUNT_HIT_HARD.get(), SoundSource.PLAYERS, 0.8F, 1.0F);
         return HitResult.HANDLED;
     }
 
@@ -643,7 +685,7 @@ public final class HookUtil {
 
         damageTool(boundStack, owner);
         level.playSound(null, target.getX(), target.getY(), target.getZ(),
-                AnnoyingVillagersModSounds.CLASH.get(), SoundSource.PLAYERS, 0.8F, 1.0F);
+                EpicFightSounds.BLADE_HIT.get(), SoundSource.PLAYERS, 0.8F, 1.0F);
         return HitResult.HANDLED;
     }
 

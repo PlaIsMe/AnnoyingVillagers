@@ -4,12 +4,13 @@ import java.util.*;
 
 import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
+import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -31,8 +32,19 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
+import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.api.animation.AnimationPlayer;
+import yesman.epicfight.api.animation.Pose;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.gameasset.Animations;
+import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 public class NullEntity extends HerobrineMob {
     private NullWeapon nullSwordEntity;
@@ -176,7 +188,7 @@ public class NullEntity extends HerobrineMob {
 
         if (weapons.isEmpty()) return;
         NullWeapon chosen = weapons.get(this.getRandom().nextInt(weapons.size()));
-        CommonUtil.damageBlockedForce(chosen, attacker, serverLevel);
+        EpicfightUtil.damageBlockedForce(chosen, attacker, serverLevel);
         chosen.moveTo(this.getX(), this.getY(), this.getZ());
         chosen.spinfor5seconds();
     }
@@ -283,15 +295,6 @@ public class NullEntity extends HerobrineMob {
         }
     }
 
-    private void playSpawningWeaponAnimation() {
-//      ADD THIS CODE IN AV_EFM
-//        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsWom.CLONE_ANTITHEUS_ASCENSION, 0.0F);
-//        }
-
-//        Add VANILLA_ANIMATION
-    }
-
     @Override
     public void tick() {
         super.tick();
@@ -300,8 +303,8 @@ public class NullEntity extends HerobrineMob {
             if (!spawnNullWeapon) {
                 this.spawnNullWeapon = true;
                 initialSpawn();
-            } else if (this.tickCount == 20) {
-                playSpawningWeaponAnimation();
+            } else if (this.tickCount == 20 && this.getLivingEntityPatch() != null) {
+                this.getLivingEntityPatch().playAnimationSynchronized(AnimsWom.CLONE_ANTITHEUS_ASCENSION, 0.0F);
             }
 
             if (nullSwordEntity == null && nullSwordUUID != null) {
@@ -495,452 +498,410 @@ public class NullEntity extends HerobrineMob {
 
     public void baseTick() {
         super.baseTick();
-        this.spawnVanillaNullParticles();
-    }
+        if (this.level() instanceof ServerLevel) {
+            LivingEntityPatch<?> livingEntityPatch = this.getLivingEntityPatch();
+            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Animations.EMPTY_ANIMATION;
+            if (livingEntityPatch != null) {
+                AnimationPlayer animationPlayer = livingEntityPatch.getAnimator().getPlayerFor(null);
+                if (animationPlayer != null) {
+                    dynamicAnimation = animationPlayer.getRealAnimation();
+                }
+            }
 
-    private void spawnVanillaNullParticles() {
-        //      ADD THIS CODE IN AV_EFM
-//        if (this.level() instanceof ServerLevel) {
-//            LivingEntityPatch<?> livingEntityPatch = this.getLivingEntityPatch();
-//            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Animations.EMPTY_ANIMATION;
-//            if (livingEntityPatch != null) {
-//                AnimationPlayer animationPlayer = livingEntityPatch.getAnimator().getPlayerFor(null);
-//                if (animationPlayer != null) {
-//                    dynamicAnimation = animationPlayer.getRealAnimation();
-//                }
-//            }
-//
-//            if (this.getTarget() == null || EpicfightUtil.isLongHitAnimation(dynamicAnimation, getLivingEntityPatch()) || this.getLivingEntityPatch().isStunned() || dynamicAnimation.get() instanceof ExecutionAttackAnimation) {
-//                this.getNavigation().stop();
-//                this.setDeltaMovement(Vec3.ZERO);
-//            } else {
-//                this.setDeltaMovement(new Vec3(this.getLookAngle().x * 0.2D, this.getLookAngle().y * 0.2D, this.getLookAngle().z * 0.2D));
-//            }
-//        } else {
-//            if (this.getLivingEntityPatch() == null) return;
-//            if (this.getLivingEntityPatch().getAnimator() == null) return;
-//            if (this.getLivingEntityPatch().getArmature() == null) return;
-//            if (Armatures.BIPED.get() == null || Armatures.BIPED.get().toolL == null) return;
-//            if (this.getLivingEntityPatch().getOriginal() == null) return;
-//
-//            byte poseSampleCount = 3;
-//            float poseStep = 1.0F / (float) (poseSampleCount - 1);
-//            float poseProgress = 0.0F;
-//
-//            OpenMatrix4f toolLeftTransform;
-//            int particleIndex;
-//            int poseSampleIndex;
-//            OpenMatrix4f jointTransform;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                Pose pose;
-//                try {
-//                    pose = this.getLivingEntityPatch().getAnimator().getPose(poseProgress);
-//                } catch (Throwable t) {
-//                    return;
-//                }
-//                if (pose == null) return;
-//
-//                toolLeftTransform = this.getLivingEntityPatch().getArmature()
-//                        .getBoundTransformFor(pose, Armatures.BIPED.get().toolL);
-//
-//                if (toolLeftTransform == null) {
-//                    poseProgress += poseStep;
-//                    continue;
-//                }
-//
-//                toolLeftTransform = new OpenMatrix4f(toolLeftTransform);
-//                toolLeftTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        toolLeftTransform,
-//                        toolLeftTransform
-//                );
-//
-//                for (particleIndex = 0; particleIndex < 1; ++particleIndex) {
-//                    this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                            AnnoyingVillagersModParticleTypes.NULL.get(),
-//                            (double) toolLeftTransform.m30 + this.getLivingEntityPatch().getOriginal().getX(),
-//                            (double) toolLeftTransform.m31 + this.getLivingEntityPatch().getOriginal().getY(),
-//                            (double) toolLeftTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ(),
-//                            ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                            ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                            ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                    );
-//                }
-//
-//                for (particleIndex = 0; particleIndex < 1; ++particleIndex) {
-//                    this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                            AnnoyingVillagersModParticleTypes.NULL.get(),
-//                            (double) toolLeftTransform.m30 + this.getLivingEntityPatch().getOriginal().getX(),
-//                            (double) toolLeftTransform.m31 + this.getLivingEntityPatch().getOriginal().getY(),
-//                            (double) toolLeftTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ(),
-//                            0.0D, 0.0D, 0.0D
-//                    );
-//                }
-//
-//                poseProgress += poseStep;
-//            }
-//
-//            poseProgress = 0.0F;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
-//                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
-//                        Armatures.BIPED.get().toolR
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, 1.8F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        jointTransform,
-//                        jointTransform
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, -((new Random()).nextFloat() * 4.0F)));
-//
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX(),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY(),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ(),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                );
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX(),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY(),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ(),
-//                        0.0D, 0.0D, 0.0D
-//                );
-//
-//                poseProgress += poseStep;
-//            }
-//
-//            for (particleIndex = 0; particleIndex < 14; ++particleIndex) {
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        this.getLivingEntityPatch().getOriginal().getX(),
-//                        this.getLivingEntityPatch().getOriginal().getY() + 0.029999999329447746D,
-//                        this.getLivingEntityPatch().getOriginal().getZ(),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.65F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.05F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.65F
-//                );
-//            }
-//
-//            poseStep = 1.0F;
-//            poseProgress = 0.0F;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
-//                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
-//                        Armatures.BIPED.get().head
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        jointTransform,
-//                        jointTransform
-//                );
-//
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() + 0.1F) * 0.55F),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                );
-//
-//                poseProgress += poseStep;
-//            }
-//
-//            poseProgress = 0.0F;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
-//                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
-//                        Armatures.BIPED.get().chest
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        jointTransform,
-//                        jointTransform
-//                );
-//
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                );
-//
-//                poseProgress += poseStep;
-//            }
-//
-//            poseProgress = 0.0F;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
-//                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
-//                        Armatures.BIPED.get().armL
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        jointTransform,
-//                        jointTransform
-//                );
-//
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                );
-//
-//                poseProgress += poseStep;
-//            }
-//
-//            poseProgress = 0.0F;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
-//                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
-//                        Armatures.BIPED.get().armR
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        jointTransform,
-//                        jointTransform
-//                );
-//
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                );
-//
-//                poseProgress += poseStep;
-//            }
-//
-//            poseProgress = 0.0F;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
-//                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
-//                        Armatures.BIPED.get().torso
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        jointTransform,
-//                        jointTransform
-//                );
-//
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                );
-//
-//                poseProgress += poseStep;
-//            }
-//
-//            poseProgress = 0.0F;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
-//                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
-//                        Armatures.BIPED.get().thighL
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        jointTransform,
-//                        jointTransform
-//                );
-//
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                );
-//
-//                poseProgress += poseStep;
-//            }
-//
-//            poseProgress = 0.0F;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
-//                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
-//                        Armatures.BIPED.get().thighR
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        jointTransform,
-//                        jointTransform
-//                );
-//
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                );
-//
-//                poseProgress += poseStep;
-//            }
-//
-//            poseProgress = 0.0F;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
-//                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
-//                        Armatures.BIPED.get().legL
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        jointTransform,
-//                        jointTransform
-//                );
-//
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                );
-//
-//                poseProgress += poseStep;
-//            }
-//
-//            poseProgress = 0.0F;
-//
-//            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
-//                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
-//                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
-//                        Armatures.BIPED.get().legR
-//                );
-//                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
-//                OpenMatrix4f.mul(
-//                        (new OpenMatrix4f()).rotate(
-//                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
-//                                new Vec3f(0.0F, 1.0F, 0.0F)
-//                        ),
-//                        jointTransform,
-//                        jointTransform
-//                );
-//
-//                this.getLivingEntityPatch().getOriginal().level().addParticle(
-//                        AnnoyingVillagersModParticleTypes.NULL.get(),
-//                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
-//                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
-//                        ((new Random()).nextFloat() - 0.5F) * 0.15F
-//                );
-//
-//                poseProgress += poseStep;
-//            }
-//        }
+            if (this.getTarget() == null || EpicfightUtil.isLongHitAnimation(dynamicAnimation, getLivingEntityPatch()) || this.getLivingEntityPatch().isStunned() || dynamicAnimation.get() instanceof ExecutionAttackAnimation) {
+                this.getNavigation().stop();
+                this.setDeltaMovement(Vec3.ZERO);
+            } else {
+                this.setDeltaMovement(new Vec3(this.getLookAngle().x * 0.2D, this.getLookAngle().y * 0.2D, this.getLookAngle().z * 0.2D));
+            }
+        } else {
+            if (this.getLivingEntityPatch() == null) return;
+            if (this.getLivingEntityPatch().getAnimator() == null) return;
+            if (this.getLivingEntityPatch().getArmature() == null) return;
+            if (Armatures.BIPED.get() == null || Armatures.BIPED.get().toolL == null) return;
+            if (this.getLivingEntityPatch().getOriginal() == null) return;
 
-        if (!this.level().isClientSide()) {
-            return;
-        }
+            byte poseSampleCount = 3;
+            float poseStep = 1.0F / (float) (poseSampleCount - 1);
+            float poseProgress = 0.0F;
 
-        double width = Math.max(0.35D, this.getBbWidth());
-        double height = Math.max(1.0D, this.getBbHeight());
+            OpenMatrix4f toolLeftTransform;
+            int particleIndex;
+            int poseSampleIndex;
+            OpenMatrix4f jointTransform;
 
-        for (int i = 0; i < 4; i++) {
-            double x = this.getX() + (this.random.nextDouble() - 0.5D) * width * 1.2D;
-            double y = this.getY() + this.random.nextDouble() * height;
-            double z = this.getZ() + (this.random.nextDouble() - 0.5D) * width * 1.2D;
-            double vx = (this.random.nextDouble() - 0.5D) * 0.12D;
-            double vy = (this.random.nextDouble() - 0.5D) * 0.08D;
-            double vz = (this.random.nextDouble() - 0.5D) * 0.12D;
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                Pose pose;
+                try {
+                    pose = this.getLivingEntityPatch().getAnimator().getPose(poseProgress);
+                } catch (Throwable t) {
+                    return;
+                }
+                if (pose == null) return;
 
-            this.level().addParticle(AnnoyingVillagersModParticleTypes.NULL.get(), x, y, z, vx, vy, vz);
-        }
+                toolLeftTransform = this.getLivingEntityPatch().getArmature()
+                        .getBoundTransformFor(pose, Armatures.BIPED.get().toolL);
 
-        if ((this.tickCount & 1) == 0) {
-            for (int i = 0; i < 3; i++) {
-                double x = this.getX() + (this.random.nextDouble() - 0.5D) * width * 1.8D;
-                double z = this.getZ() + (this.random.nextDouble() - 0.5D) * width * 1.8D;
-                double vx = (this.random.nextDouble() - 0.5D) * 0.18D;
-                double vz = (this.random.nextDouble() - 0.5D) * 0.18D;
+                if (toolLeftTransform == null) {
+                    poseProgress += poseStep;
+                    continue;
+                }
 
-                this.level().addParticle(
-                        AnnoyingVillagersModParticleTypes.NULL.get(),
-                        x,
-                        this.getY() + 0.03D,
-                        z,
-                        vx,
-                        (this.random.nextDouble() - 0.5D) * 0.02D,
-                        vz
+                toolLeftTransform = new OpenMatrix4f(toolLeftTransform);
+                toolLeftTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        toolLeftTransform,
+                        toolLeftTransform
                 );
+
+                for (particleIndex = 0; particleIndex < 1; ++particleIndex) {
+                    this.getLivingEntityPatch().getOriginal().level().addParticle(
+                            AnnoyingVillagersModParticleTypes.NULL.get(),
+                            (double) toolLeftTransform.m30 + this.getLivingEntityPatch().getOriginal().getX(),
+                            (double) toolLeftTransform.m31 + this.getLivingEntityPatch().getOriginal().getY(),
+                            (double) toolLeftTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ(),
+                            ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                            ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                            ((new Random()).nextFloat() - 0.5F) * 0.15F
+                    );
+                }
+
+                for (particleIndex = 0; particleIndex < 1; ++particleIndex) {
+                    this.getLivingEntityPatch().getOriginal().level().addParticle(
+                            AnnoyingVillagersModParticleTypes.NULL.get(),
+                            (double) toolLeftTransform.m30 + this.getLivingEntityPatch().getOriginal().getX(),
+                            (double) toolLeftTransform.m31 + this.getLivingEntityPatch().getOriginal().getY(),
+                            (double) toolLeftTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ(),
+                            0.0D, 0.0D, 0.0D
+                    );
+                }
+
+                poseProgress += poseStep;
+            }
+
+            poseProgress = 0.0F;
+
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
+                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
+                        Armatures.BIPED.get().toolR
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, 1.8F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        jointTransform,
+                        jointTransform
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, -((new Random()).nextFloat() * 4.0F)));
+
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX(),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY(),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ(),
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F
+                );
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX(),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY(),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ(),
+                        0.0D, 0.0D, 0.0D
+                );
+
+                poseProgress += poseStep;
+            }
+
+            for (particleIndex = 0; particleIndex < 14; ++particleIndex) {
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        this.getLivingEntityPatch().getOriginal().getX(),
+                        this.getLivingEntityPatch().getOriginal().getY() + 0.029999999329447746D,
+                        this.getLivingEntityPatch().getOriginal().getZ(),
+                        ((new Random()).nextFloat() - 0.5F) * 0.65F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.05F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.65F
+                );
+            }
+
+            poseStep = 1.0F;
+            poseProgress = 0.0F;
+
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
+                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
+                        Armatures.BIPED.get().head
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        jointTransform,
+                        jointTransform
+                );
+
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() + 0.1F) * 0.55F),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F
+                );
+
+                poseProgress += poseStep;
+            }
+
+            poseProgress = 0.0F;
+
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
+                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
+                        Armatures.BIPED.get().chest
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        jointTransform,
+                        jointTransform
+                );
+
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F
+                );
+
+                poseProgress += poseStep;
+            }
+
+            poseProgress = 0.0F;
+
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
+                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
+                        Armatures.BIPED.get().armL
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        jointTransform,
+                        jointTransform
+                );
+
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F
+                );
+
+                poseProgress += poseStep;
+            }
+
+            poseProgress = 0.0F;
+
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
+                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
+                        Armatures.BIPED.get().armR
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        jointTransform,
+                        jointTransform
+                );
+
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F
+                );
+
+                poseProgress += poseStep;
+            }
+
+            poseProgress = 0.0F;
+
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
+                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
+                        Armatures.BIPED.get().torso
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        jointTransform,
+                        jointTransform
+                );
+
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F
+                );
+
+                poseProgress += poseStep;
+            }
+
+            poseProgress = 0.0F;
+
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
+                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
+                        Armatures.BIPED.get().thighL
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        jointTransform,
+                        jointTransform
+                );
+
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F
+                );
+
+                poseProgress += poseStep;
+            }
+
+            poseProgress = 0.0F;
+
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
+                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
+                        Armatures.BIPED.get().thighR
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        jointTransform,
+                        jointTransform
+                );
+
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F
+                );
+
+                poseProgress += poseStep;
+            }
+
+            poseProgress = 0.0F;
+
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
+                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
+                        Armatures.BIPED.get().legL
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        jointTransform,
+                        jointTransform
+                );
+
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F
+                );
+
+                poseProgress += poseStep;
+            }
+
+            poseProgress = 0.0F;
+
+            for (poseSampleIndex = 0; poseSampleIndex < poseSampleCount; ++poseSampleIndex) {
+                jointTransform = this.getLivingEntityPatch().getArmature().getBoundTransformFor(
+                        this.getLivingEntityPatch().getAnimator().getPose(poseProgress),
+                        Armatures.BIPED.get().legR
+                );
+                jointTransform.translate(new Vec3f(0.0F, 0.0F, 0.0F));
+                OpenMatrix4f.mul(
+                        (new OpenMatrix4f()).rotate(
+                                -((float) Math.toRadians(this.getLivingEntityPatch().getOriginal().yBodyRotO + 180.0F)),
+                                new Vec3f(0.0F, 1.0F, 0.0F)
+                        ),
+                        jointTransform,
+                        jointTransform
+                );
+
+                this.getLivingEntityPatch().getOriginal().level().addParticle(
+                        AnnoyingVillagersModParticleTypes.NULL.get(),
+                        (double) jointTransform.m30 + this.getLivingEntityPatch().getOriginal().getX() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m31 + this.getLivingEntityPatch().getOriginal().getY() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        (double) jointTransform.m32 + this.getLivingEntityPatch().getOriginal().getZ() + (double) (((new Random()).nextFloat() - 0.5F) * 0.55F),
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F,
+                        ((new Random()).nextFloat() - 1.0F) * 0.55F,
+                        ((new Random()).nextFloat() - 0.5F) * 0.15F
+                );
+
+                poseProgress += poseStep;
             }
         }
     }
@@ -973,27 +934,21 @@ public class NullEntity extends HerobrineMob {
         super.remove(pReason);
     }
 
-    public static Builder addEpicFightAttributes(Builder builder) {
-        //      ADD THIS CODE IN AV_EFM
-//        return builder.add(EpicFightAttributes.IMPACT.get(), 4.0D)
-//                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
-//                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
-//                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
-//                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
-//                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
-
-        return builder;
-    }
-
     public static Builder createAttributes() {
-        Builder builder = Mob.createMobAttributes()
+        return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 250.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.45D)
+                .add(Attributes.MOVEMENT_SPEED, 3.0D)
+                .add(Attributes.FLYING_SPEED, 3.0D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
-        return addEpicFightAttributes(builder);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D)
+                .add(EpicFightAttributes.IMPACT.get(), 4.0D)
+                .add(EpicFightAttributes.ARMOR_NEGATION.get(), 10.0D)
+                .add(EpicFightAttributes.STUN_ARMOR.get(), 20.0D)
+                .add(EpicFightAttributes.MAX_STRIKES.get(), 100.0D)
+                .add(EpicFightAttributes.MAX_STAMINA.get(), 60.0D)
+                .add(EpicFightAttributes.STAMINA_REGEN.get(), 1.5D);
     }
 }

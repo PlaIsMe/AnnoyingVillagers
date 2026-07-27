@@ -10,7 +10,7 @@ import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.entity.goal.HerobrinePortalCombatGoal;
+import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -35,7 +35,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -71,7 +70,11 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.shelmarow.combat_evolution.effect.CEMobEffects;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.effect.EpicFightMobEffects;
 
 import java.util.*;
 
@@ -145,6 +148,11 @@ public class HerobrineGregEntity extends Monster {
             AnnoyingVillagersModItems.DOUBLE_DIAMOND_GLAIVE.get(),
             AnnoyingVillagersModItems.DIAMOND_MOON_BLADE.get()
     );
+
+    @Nullable
+    public LivingEntityPatch<?> getLivingEntityPatch() {
+        return EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
+    }
 
     public void setWhiteEye(boolean whiteEye) {
         this.entityData.set(WHITE_EYE, whiteEye);
@@ -350,7 +358,7 @@ public class HerobrineGregEntity extends Monster {
                     && !isRidingHerobrineDragon(support)
                     && mob.getTarget() != null
                     && mob.getTarget().isAlive()
-                    && HerobrinePortalCombatUtil.isVanillaEscapePressure(mob)) {
+                    && EscapeUtil.checkEscape(mob)) {
                 return support;
             }
         }
@@ -421,15 +429,11 @@ public class HerobrineGregEntity extends Monster {
         this.hookedLeftGround = !this.onGround();
         this.setHooked(true);
         HerobrinePortalUtil.cancelSinkTransition(this);
-        cancelPortalSummonAnimation();
+        EpicfightUtil.cancel(this, AnimsSculkSteve.PORTAL_SUMMON);
         this.restoreGregHookedEscapeAppearance();
         this.releaseHookedPhysicsUntilGround();
         this.getNavigation().stop();
         return true;
-    }
-
-    private void cancelPortalSummonAnimation() {
-        // Vanilla portal feedback is instant, so there is no long-running animation state to cancel.
     }
 
     private void restoreGregHookedEscapeAppearance() {
@@ -442,9 +446,9 @@ public class HerobrineGregEntity extends Monster {
     }
 
     private void playSecondFormSupportCastAnimation() {
-        if (!this.level().isClientSide()) {
-            this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);
-            this.swing(InteractionHand.MAIN_HAND, true);
+        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
+        if (patch != null && !this.level().isClientSide()) {
+            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
         }
     }
 
@@ -496,7 +500,6 @@ public class HerobrineGregEntity extends Monster {
 
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(-1, new HerobrinePortalCombatGoal(this));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
                 this,
@@ -1129,7 +1132,8 @@ public class HerobrineGregEntity extends Monster {
                 this.setInvulnerable(true);
                 this.summoning = true;
                 this.summonTiming = 20;
-                CommonUtil.stunImmunity(this, 120, 3);
+                this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 120, 3, false, false));
+                this.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), 120, 3, false, false));
             }
 
             if (this.getHealth() <= 2 && this.summonTiming == -1) {
@@ -1142,7 +1146,8 @@ public class HerobrineGregEntity extends Monster {
                 this.summoning = true;
                 this.summonTiming = 20;
                 this.setHealth(1);
-                CommonUtil.stunImmunity(this, 120, 3);
+                this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 120, 3, false, false));
+                this.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), 120, 3, false, false));
             }
 
             if (this.summonTiming > 0) {
@@ -1166,7 +1171,9 @@ public class HerobrineGregEntity extends Monster {
             }
             if (this.escapeTiming == 60 && this.combatMode) {
                 this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get());
-                playSecondFormSupportCastAnimation();
+                if (getLivingEntityPatch() != null) {
+                    getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+                }
                 AnnoyingVillagers.PACKET_HANDLER.send(
                         PacketDistributor.TRACKING_ENTITY.with(() -> this),
                         new ClientboundHerobrinePortalFx(this.getOnPos().getCenter().add(0.0, 0.5, 0.0))
@@ -1254,7 +1261,7 @@ public class HerobrineGregEntity extends Monster {
             }
 
             if (this.combatMode) {
-                CommonUtil.stunImmunity(this, 3, 3);
+                this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 1, 3, false, false));
             }
         }
     }
@@ -1894,7 +1901,9 @@ public class HerobrineGregEntity extends Monster {
     }
 
     private void summonHerobrines() {
-        playSecondFormSupportCastAnimation();
+        if (getLivingEntityPatch() != null) {
+            getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+        }
         if (this.level() instanceof ServerLevel serverLevel) {
             this.clearSummonSpace(serverLevel);
         }
@@ -1905,7 +1914,9 @@ public class HerobrineGregEntity extends Monster {
     }
 
     private void summonHerobrinesAndEscape() {
-        playSecondFormSupportCastAnimation();
+        if (getLivingEntityPatch() != null) {
+            getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+        }
         if (this.level() instanceof ServerLevel serverLevel) {
             this.clearSummonSpace(serverLevel);
         }
@@ -1949,7 +1960,7 @@ public class HerobrineGregEntity extends Monster {
         }
         if (this.getHealth() == 1 || this.combatMode) {
             if (this.level() instanceof ServerLevel serverLevel) {
-                CommonUtil.damageBlocked(pSource, this, serverLevel);
+                EpicfightUtil.damageBlocked(pSource, this, serverLevel);
             }
             return false;
         }
@@ -1962,7 +1973,7 @@ public class HerobrineGregEntity extends Monster {
 
     private void blockPortalSummonDamage(DamageSource source) {
         if (this.level() instanceof ServerLevel serverLevel) {
-            CommonUtil.damageBlocked(source, this, serverLevel);
+            EpicfightUtil.damageBlocked(source, this, serverLevel);
         }
     }
 
