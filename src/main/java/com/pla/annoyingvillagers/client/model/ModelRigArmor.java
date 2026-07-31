@@ -6,10 +6,15 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static net.minecraft.world.entity.EquipmentSlot.*;
 
@@ -19,17 +24,97 @@ public class ModelRigArmor<T extends Mob> extends HumanoidModel<T> {
 
     public static final ModelLayerLocation OUTER_LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelrigarmor_outer"), "main");
 
+    private static final Set<Direction> UPPER_ARM_FACES = Set.of(
+            Direction.DOWN,
+            Direction.NORTH,
+            Direction.SOUTH,
+            Direction.WEST,
+            Direction.EAST
+    );
+
+    private static final Set<Direction> LOWER_ARM_FACES = Set.of(
+            Direction.NORTH,
+            Direction.SOUTH,
+            Direction.WEST,
+            Direction.EAST
+    );
+
     private final ModelPart right_hand;
     private final ModelPart left_hand;
     private final ModelPart right_lower_leg;
     private final ModelPart left_lower_leg;
 
-    public ModelRigArmor(ModelPart root) {
+    public ModelRigArmor(float deformation) {
+        this(createRootWithOpenArms(deformation));
+    }
+
+    private ModelRigArmor(ModelPart root) {
         super(root);
         this.right_hand = this.rightArm.getChild("right_hand");
         this.left_hand = this.leftArm.getChild("left_hand");
         this.right_lower_leg = this.rightLeg.getChild("right_lower_leg");
         this.left_lower_leg = this.leftLeg.getChild("left_lower_leg");
+    }
+
+    private static ModelPart createRootWithOpenArms(float deformation) {
+        ModelPart bakedRoot = createBodyLayer(new CubeDeformation(deformation)).bakeRoot();
+
+        ModelPart rightHand = createPart(
+                List.of(createCube(40, 22, -3.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, deformation, false, LOWER_ARM_FACES)),
+                Map.of(),
+                PartPose.offset(0.0F, 4.0F, 0.0F)
+        );
+
+        ModelPart rightArm = createPart(
+                List.of(createCube(40, 16, -3.0F, -2.0F, -2.0F, 4.0F, 7.0F, 4.0F, deformation, false, UPPER_ARM_FACES)),
+                Map.of("right_hand", rightHand),
+                PartPose.offset(-5.0F, 2.0F, 0.0F)
+        );
+
+        ModelPart leftHand = createPart(
+                List.of(createCube(40, 22, -1.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, deformation, true, LOWER_ARM_FACES)),
+                Map.of(),
+                PartPose.offset(0.0F, 4.0F, 0.0F)
+        );
+
+        ModelPart leftArm = createPart(
+                List.of(createCube(40, 16, -1.0F, -2.0F, -2.0F, 4.0F, 7.0F, 4.0F, deformation, true, UPPER_ARM_FACES)),
+                Map.of("left_hand", leftHand),
+                PartPose.offset(5.0F, 2.0F, 0.0F)
+        );
+
+        return createPart(
+                List.of(),
+                Map.of(
+                        "head", bakedRoot.getChild("head"),
+                        "hat", bakedRoot.getChild("hat"),
+                        "body", bakedRoot.getChild("body"),
+                        "right_arm", rightArm,
+                        "left_arm", leftArm,
+                        "right_leg", bakedRoot.getChild("right_leg"),
+                        "left_leg", bakedRoot.getChild("left_leg")
+                ),
+                PartPose.ZERO
+        );
+    }
+
+    private static ModelPart.Cube createCube(int u, int v, float x, float y, float z, float width, float height, float depth, float deformation, boolean mirror, Set<Direction> faces) {
+        return new ModelPart.Cube(
+                u, v,
+                x, y, z,
+                width, height, depth,
+                deformation, deformation, deformation,
+                mirror,
+                64.0F, 32.0F,
+                faces
+        );
+    }
+
+    private static ModelPart createPart(List<ModelPart.Cube> cubes, Map<String, ModelPart> children, PartPose pose) {
+        ModelPart part = new ModelPart(cubes, children);
+        part.setInitialPose(pose);
+        part.loadPose(pose);
+        return part;
     }
 
     public static LayerDefinition createInnerLayer() {

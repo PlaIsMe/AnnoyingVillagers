@@ -22,8 +22,8 @@ public abstract class RigMobRenderer<T extends Mob> extends HumanoidMobRenderer<
         super(context, new ModelRig<>(context.bakeLayer(ModelRig.LAYER_LOCATION)), 0.5F);
         this.addLayer(new RigArmorLayer<>(
                 this,
-                new ModelRigArmor<>(context.bakeLayer(ModelRigArmor.INNER_LAYER_LOCATION)),
-                new ModelRigArmor<>(context.bakeLayer(ModelRigArmor.OUTER_LAYER_LOCATION)),
+                new ModelRigArmor<>(0.5F),
+                new ModelRigArmor<>(1.0F),
                 context.getModelManager()));
         if (addArrowLayer) {
             this.addLayer(new RigArrowLayer<T>(context, this));
