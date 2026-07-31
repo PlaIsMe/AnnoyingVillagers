@@ -10,16 +10,8 @@ Credit to Epic Fight for sound and particle behavior used as references.
   `com/pla/annoyingvillagers/client/particle/HitParticle.java`,
   `com/pla/annoyingvillagers/client/particle/HitBluntParticle.java`,
   `com/pla/annoyingvillagers/client/particle/GroundSlamParticle.java`,
-  `assets/annoyingvillagers/particles/hit_blunt.json`, and
-  `assets/annoyingvillagers/sounds/entity/hit/clash.ogg`.
 
-## Explosive Enhancement: Reforged - Xylonity - GPL-3.0
-
-- Source: https://github.com/Xylonity/Explosive-Enhancement-Reforged
-- Local paths: `com/pla/annoyingvillagers/client/particle/FireballParticle.java`,
-  `assets/annoyingvillagers/textures/particle/fireball*.png`
-
-## Dragon Mounts: Legacy - Nico Bergemann, Kay9, contributors - GPL-3.0-or-later
+## Dragon Mounts: Legacy - Nico Bergemann, Kay9, contributors - GPL-3.0-or-ladsoter
 
 - Source: https://github.com/MWall541/Dragon-Mounts-Legacy
 - Local paths include Herobrine dragon entity, model, renderer, animation,

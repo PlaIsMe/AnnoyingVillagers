@@ -2,8 +2,7 @@ package com.pla.annoyingvillagers.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.client.animation.RigLivingAnimations;
-import com.pla.annoyingvillagers.client.animation.RigMovementAnimations;
+import com.pla.annoyingvillagers.client.animation.rig_animation.*;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.KeyframeAnimations;
 import net.minecraft.client.model.HierarchicalModel;
@@ -17,7 +16,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -147,15 +145,15 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
         if (entity.isDeadOrDying() || entity.deathTime > 0) {
             float partialTick = Math.max(0.0F, Math.min(1.0F, ageInTicks - entity.tickCount));
             float deathElapsedTicks = Math.max(0.0F, entity.deathTime - 1.0F + partialTick);
-            this.applyAnimationFromStart(RigLivingAnimations.DEATH, deathElapsedTicks, 1.0F, 1.0F);
+            this.applyAnimationFromStart(RigDeathAnimations.DEATH, deathElapsedTicks, 1.0F, 1.0F);
         } else if (entity.isShiftKeyDown()) {
-            this.applyLoopingAnimation(RigMovementAnimations.SNEAK, ageInTicks, 1.0F, 1.0F);
+            this.applyLoopingAnimation(RigSneakAnimations.SNEAK, ageInTicks, 1.0F, 1.0F);
         } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD && (entity.isSprinting() || entity.isAggressive())) {
-            this.applyLoopingAnimation(RigMovementAnimations.RUN, ageInTicks, 1.15F, 1.0F);
+            this.applyLoopingAnimation(RigRunAnimations.RUN, ageInTicks, 1.15F, 1.0F);
         } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD) {
-            this.applyLoopingAnimation(RigMovementAnimations.WALK, ageInTicks, 1.0F, 1.0F);
+            this.applyLoopingAnimation(RigWalkAnimations.WALK, ageInTicks, 1.0F, 1.0F);
         } else {
-            this.applyLoopingAnimation(RigLivingAnimations.IDLE, ageInTicks, 1.0F, 1.0F);
+            this.applyLoopingAnimation(RigIdleAnimations.IDLE, ageInTicks, 1.0F, 1.0F);
         }
 
         this.flattenAnimatedRootIntoTopLevelParts();

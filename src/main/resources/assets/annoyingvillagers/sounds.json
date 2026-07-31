@@ -130,7 +130,7 @@
   "clash": {
     "sounds": [
       {
-        "name": "annoyingvillagers:entity/hit/clash",
+        "name": "annoyingvillagers:clash",
         "stream": false
       }
     ]
