@@ -25,10 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-/*
- * Hook and rope rendering is adapted from the local Grappling-Hook-Mod-Reforged-main
- * RenderGrapplehookEntity implementation by yyonne, GPL-3.0.
- */
 public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
     private static final ResourceLocation ROPE_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/hook_gun_rope.png");

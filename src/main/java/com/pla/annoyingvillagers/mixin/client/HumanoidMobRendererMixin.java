@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.mixin.client;
 
-import com.pla.annoyingvillagers.client.overlaylayer.HumanoidMobVanillaOverlayLayer;
+import com.pla.annoyingvillagers.client.layer.HumanoidMobVanillaLayer;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
@@ -29,10 +29,10 @@ public abstract class HumanoidMobRendererMixin<T extends Mob, M extends Humanoid
     private void annoyingVillagers$addOverlayLayerIfMissing() {
         List<RenderLayer<T, M>> layers = ((LivingEntityRendererAccessor<T, M>) this).annoyingVillagers$getLayers();
         for (RenderLayer<T, M> layer : layers) {
-            if (layer instanceof HumanoidMobVanillaOverlayLayer) {
+            if (layer instanceof HumanoidMobVanillaLayer) {
                 return;
             }
         }
-        this.addLayer(new HumanoidMobVanillaOverlayLayer<>(this));
+        this.addLayer(new HumanoidMobVanillaLayer<>(this));
     }
 }

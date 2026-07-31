@@ -1,4 +1,4 @@
-package com.pla.annoyingvillagers.client.overlaylayer;
+package com.pla.annoyingvillagers.client.layer;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.HerobrineGregEntity;

@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.client.renderer;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.clazz.RigMobRenderer;
+import com.pla.annoyingvillagers.entity.LowShadowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.entity.NullEntity;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -12,17 +14,10 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-public class NullRenderer extends HumanoidMobRenderer<NullEntity, PlayerModel<NullEntity>> {
+public class NullRenderer extends RigMobRenderer<NullEntity> {
 
     public NullRenderer(Context context) {
-        super(context, new PlayerModel<>(context.bakeLayer(ModelLayers.PLAYER), false), 0.5F);
-        this.addLayer(new HumanoidArmorLayer<>(
-                this,
-                new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)),
-                new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)),
-                context.getModelManager()));
-        ArrowLayer<NullEntity, PlayerModel<NullEntity>> arrowLayer = new ArrowLayer<>(context, this);
-        this.addLayer(arrowLayer);
+        super(context);
     }
 
     @Override

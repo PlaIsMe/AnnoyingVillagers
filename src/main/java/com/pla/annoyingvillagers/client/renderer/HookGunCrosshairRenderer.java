@@ -16,10 +16,6 @@ import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-/*
- * Dual crosshair offset logic is adapted from the local Grappling-Hook-Mod-Reforged-main
- * CrosshairRenderer implementation by yyonne, GPL-3.0.
- */
 @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public final class HookGunCrosshairRenderer {
     private static final ResourceLocation GUI_ICONS =

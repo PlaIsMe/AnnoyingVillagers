@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.mixin.client;
 
-import com.pla.annoyingvillagers.client.overlaylayer.IllagerMobVanillaOverlayLayer;
+import com.pla.annoyingvillagers.client.layer.IllagerMobVanillaLayer;
 import net.minecraft.client.model.IllagerModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.IllagerRenderer;
@@ -19,6 +19,6 @@ public abstract class IllagerRendererMixin<T extends AbstractIllager> extends Mo
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void annoyingVillagers$addOverlayLayer(EntityRendererProvider.Context context, IllagerModel<T> model, float shadowRadius, CallbackInfo ci) {
-        this.addLayer(new IllagerMobVanillaOverlayLayer<>(this));
+        this.addLayer(new IllagerMobVanillaLayer<>(this));
     }
 }
