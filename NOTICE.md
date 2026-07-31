@@ -23,11 +23,6 @@ Credit to Epic Fight for sound and particle behavior used as references.
 - Local paths include HookGun item, hook entity, hook renderer, crosshair
   renderer, hook gun models/textures, and rope texture.
 
-## Sprite Arrows - iliandev - MIT
-
-- Source: https://github.com/justliliandev/arrow-sprites
-- Local paths include sprite arrow rendering code.
-
 ## Skyfall: Meteorites - Yoshi01111 - Apache-2.0
 
 - Source: https://www.curseforge.com/minecraft/mc-mods/skyfall-meteorites

@@ -1,4 +1,4 @@
-# Annoying Villagers: Herobrine Invasion
+# Annoying Villagers
 
 <p align="center">
   <a href="https://www.youtube.com/@pla_is_me" title="YouTube" style="text-decoration:none;">
