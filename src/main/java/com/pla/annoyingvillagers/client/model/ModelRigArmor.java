@@ -7,8 +7,11 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import org.jetbrains.annotations.NotNull;
+
+import static net.minecraft.world.entity.EquipmentSlot.*;
 
 public class ModelRigArmor<T extends Mob> extends HumanoidModel<T> {
 
@@ -72,5 +75,56 @@ public class ModelRigArmor<T extends Mob> extends HumanoidModel<T> {
         leftLeg.addOrReplaceChild("left_lower_leg", CubeListBuilder.create().texOffs(0, 22).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, deformation), PartPose.offset(0.0F, 6.0F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 64, 32);
+    }
+
+    public void setVisibleForSlot(EquipmentSlot slot) {
+        this.setAllVisible(false);
+
+        this.right_hand.visible = false;
+        this.left_hand.visible = false;
+        this.right_lower_leg.visible = false;
+        this.left_lower_leg.visible = false;
+
+        this.head.skipDraw = false;
+        this.hat.skipDraw = false;
+        this.body.skipDraw = false;
+        this.rightArm.skipDraw = false;
+        this.leftArm.skipDraw = false;
+        this.rightLeg.skipDraw = false;
+        this.leftLeg.skipDraw = false;
+        this.right_hand.skipDraw = false;
+        this.left_hand.skipDraw = false;
+        this.right_lower_leg.skipDraw = false;
+        this.left_lower_leg.skipDraw = false;
+
+        if (slot == HEAD) {
+            this.head.visible = true;
+            this.hat.visible = true;
+        } else if (slot == CHEST) {
+            this.body.visible = true;
+
+            this.rightArm.visible = true;
+            this.leftArm.visible = true;
+
+            this.right_hand.visible = true;
+            this.left_hand.visible = true;
+        } else if (slot == LEGS) {
+            this.body.visible = true;
+
+            this.rightLeg.visible = true;
+            this.leftLeg.visible = true;
+
+            this.right_lower_leg.visible = true;
+            this.left_lower_leg.visible = true;
+        } else if (slot == FEET) {
+            this.rightLeg.visible = true;
+            this.leftLeg.visible = true;
+
+            this.rightLeg.skipDraw = true;
+            this.leftLeg.skipDraw = true;
+
+            this.right_lower_leg.visible = true;
+            this.left_lower_leg.visible = true;
+        }
     }
 }
