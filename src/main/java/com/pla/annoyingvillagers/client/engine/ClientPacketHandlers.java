@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.client.engine;
 
 import com.pla.annoyingvillagers.compat.photon.PhotonClientFxUtil;
+import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
 import com.pla.annoyingvillagers.event.NoVfxPortalEvent;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
@@ -301,6 +302,14 @@ public final class ClientPacketHandlers {
 
         level.playLocalSound(msg.from().x, msg.from().y, msg.from().z, AnnoyingVillagersModSounds.WOOPIE_WIND.get(),
                 SoundSource.NEUTRAL, 1.0F, 1.0F, false);
+    }
+
+    public static void handleRigAnimation(ClientboundRigAnimation msg) {
+        if (Minecraft.getInstance().level == null) {
+            return;
+        }
+
+        RigClientAnimationState.start(msg.entityId(), msg.animationId(), msg.durationTicks());
     }
 
     public static void handleBlackFire(ClientboundBlackFireFx msg) {

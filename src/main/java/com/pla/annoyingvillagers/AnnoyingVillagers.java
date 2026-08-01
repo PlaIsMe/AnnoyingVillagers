@@ -174,6 +174,12 @@ public class AnnoyingVillagers {
                     ClientboundTeleportPortalFx::decode,
                     ClientboundTeleportPortalFx::handle
             );
+            AnnoyingVillagers.addNetworkMessage(
+                    ClientboundRigAnimation.class,
+                    ClientboundRigAnimation::encode,
+                    ClientboundRigAnimation::decode,
+                    ClientboundRigAnimation::handle
+            );
         }
     }
 

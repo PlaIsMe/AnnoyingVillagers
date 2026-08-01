@@ -2,6 +2,8 @@ package com.pla.annoyingvillagers.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.client.animation.RigAnimationResolver;
+import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
 import com.pla.annoyingvillagers.client.animation.rig_animation.RigDeathAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.RigIdleAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.RigSneakAnimations;
@@ -149,6 +151,7 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         this.modelRoot.getAllParts().forEach(ModelPart::resetPose);
 
         super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        RigClientAnimationState.Active activeRigAnimation = RigClientAnimationState.getActive(entity, ageInTicks);
 
         this.body.getAllParts().forEach(ModelPart::resetPose);
         this.rightArm.getAllParts().forEach(ModelPart::resetPose);
@@ -160,9 +163,11 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
             float partialTick = Math.max(0.0F, Math.min(1.0F, ageInTicks - entity.tickCount));
             float deathElapsedTicks = Math.max(0.0F, entity.deathTime - 1.0F + partialTick);
             this.applyAnimationFromStart(RigDeathAnimations.DEATH, deathElapsedTicks, 1.0F, 1.0F);
+        } else if (this.applyActiveRigAnimation(activeRigAnimation, ageInTicks)) {
+            // One-shot rig animations are driven by server packets and should override locomotion.
         } else if (entity.isShiftKeyDown()) {
             this.applyLoopingAnimation(RigSneakAnimations.SNEAK, ageInTicks, 1.0F, 1.0F);
-        } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD && (entity.isSprinting() || entity.isAggressive())) {
+        } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD && AnimationUtil.shouldUseRunAnimation(entity, limbSwingAmount)) {
             this.applyLoopingAnimation(AnimationUtil.getRunAnimation(entity), ageInTicks, 1.15F, 1.0F);
         } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD) {
             this.applyLoopingAnimation(AnimationUtil.getWalkAnimation(entity), ageInTicks, 1.0F, 1.0F);
@@ -171,7 +176,27 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         }
 
         this.flattenAnimatedRootIntoTopLevelParts();
+        this.lockHeadLookDuringAttack(activeRigAnimation, netHeadYaw, headPitch);
         this.hat.copyFrom(this.head);
+    }
+
+    private boolean applyActiveRigAnimation(RigClientAnimationState.Active active, float ageInTicks) {
+        if (active == null) {
+            return false;
+        }
+
+        this.applyAnimationFromStart(RigAnimationResolver.get(active.animationId()), active.elapsedTicks(ageInTicks), 1.0F, 1.0F);
+        return true;
+    }
+
+    private void lockHeadLookDuringAttack(RigClientAnimationState.Active active, float netHeadYaw, float headPitch) {
+        if (active == null || !active.animationId().isAttack()) {
+            return;
+        }
+
+        this.head.xRot = headPitch * ((float) Math.PI / 180.0F);
+        this.head.yRot = netHeadYaw * ((float) Math.PI / 180.0F);
+        this.head.zRot = 0.0F;
     }
 
     public void applyLoopingAnimation(AnimationDefinition animation, float ageInTicks, float speed, float weight) {
