@@ -22,10 +22,6 @@ import net.minecraftforge.network.PacketDistributor;
 import java.util.Arrays;
 
 public final class RigAnimationController {
-    private static final int LUNGE_MOVEMENT_TICKS = 6;
-    private static final int JUMP_LUNGE_DELAY_TICKS = 4;
-    private static final int JUMP_STARTUP_TICKS = 5;
-
     private RigAnimationController() {
     }
 
@@ -38,31 +34,14 @@ public final class RigAnimationController {
             return;
         }
 
-        int startupTicks = jumpStartupTicks(spec);
-        if (target != null && target.isAlive()) {
-            faceTarget(mob, target);
-        }
-
-        if (startupTicks > 0) {
-            sendAnimation(mob, RigAnimationId.JUMP, startupTicks);
-            applyJump(mob, spec.jumpStrength());
-            new DelayedTask(startupTicks) {
-                @Override
-                public void run() {
-                    playAfterStartup(mob, spec, target, false);
-                }
-            };
-            return;
-        }
-
-        playAfterStartup(mob, spec, target, true);
+        playNow(mob, spec, target);
     }
 
     public static int animationPlaybackTicks(RigAnimationSpec spec) {
-        return spec.durationTicks() + jumpStartupTicks(spec);
+        return spec.durationTicks();
     }
 
-    private static void playAfterStartup(Mob mob, RigAnimationSpec spec, LivingEntity target, boolean applyJumpMovement) {
+    private static void playNow(Mob mob, RigAnimationSpec spec, LivingEntity target) {
         if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) {
             return;
         }
@@ -78,19 +57,11 @@ public final class RigAnimationController {
         sendAnimation(mob, spec.animationId(), spec.durationTicks());
         logAvNpcAnimation(mob, target, spec);
         scheduleRigSounds(mob, spec);
-        applyMovement(mob, target, spec, applyJumpMovement);
+        scheduleRootMotion(mob, target, spec);
 
         if (spec.damagesTarget() && target != null) {
             scheduleImpacts(mob, target, spec);
         }
-    }
-
-    private static int jumpStartupTicks(RigAnimationSpec spec) {
-        return spec.animationId() != RigAnimationId.JUMP && usesJumpMovement(spec) ? JUMP_STARTUP_TICKS : 0;
-    }
-
-    private static boolean usesJumpMovement(RigAnimationSpec spec) {
-        return spec.movementType() == RigMovementType.JUMP || spec.movementType() == RigMovementType.JUMP_LUNGE;
     }
 
     private static void logAvNpcAnimation(Mob mob, LivingEntity target, RigAnimationSpec spec) {
@@ -99,15 +70,13 @@ public final class RigAnimationController {
         }
 
         AnnoyingVillagers.LOGGER.info(
-                "[AV RIG] AVNpc {} played {} target={} duration={} attackWindows={} movement={} lunge={} jump={} pos={}",
+                "[AV RIG] AVNpc {} played {} target={} duration={} attackWindows={} rootMotion={} pos={}",
                 entityLabel(mob),
                 spec.animationId(),
                 target == null ? "none" : entityLabel(target),
                 spec.durationTicks(),
                 Arrays.toString(spec.attackWindows()),
-                spec.movementType(),
-                spec.lungeDistanceBlocks(),
-                spec.jumpStrength(),
+                RigRootMotion.maxHorizontalDistanceBlocks(spec.animationId()),
                 mob.blockPosition()
         );
     }
@@ -248,54 +217,28 @@ public final class RigAnimationController {
         return mob.distanceToSqr(target) <= reach * reach;
     }
 
-    private static void applyMovement(Mob mob, LivingEntity target, RigAnimationSpec spec, boolean applyJumpMovement) {
-        RigMovementType movementType = spec.movementType();
-        if (movementType == RigMovementType.NONE) {
+    private static void scheduleRootMotion(Mob mob, LivingEntity target, RigAnimationSpec spec) {
+        RigAnimationId animationId = spec.animationId();
+        if (!RigRootMotion.has(animationId)) {
             return;
         }
 
         Vec3 forward = horizontalDirection(mob, target);
-        if (applyJumpMovement && usesJumpMovement(spec)) {
-            applyJump(mob, spec.jumpStrength());
-        }
-
-        switch (movementType) {
-            case LUNGE -> scheduleMove(mob, forward, spec.lungeDistanceBlocks(), 0, LUNGE_MOVEMENT_TICKS);
-            case JUMP_LUNGE -> scheduleMove(mob, forward, spec.lungeDistanceBlocks(), JUMP_LUNGE_DELAY_TICKS, LUNGE_MOVEMENT_TICKS);
-            case MOVE_FORWARD -> scheduleMove(mob, forward, spec.lungeDistanceBlocks(), 0, spec.durationTicks());
-            case MOVE_BACKWARD -> scheduleMove(mob, forward.scale(-1.0D), spec.lungeDistanceBlocks(), 0, spec.durationTicks());
-            case MOVE_RIGHT -> scheduleMove(mob, rightOf(forward), spec.lungeDistanceBlocks(), 0, spec.durationTicks());
-            case MOVE_LEFT -> scheduleMove(mob, rightOf(forward).scale(-1.0D), spec.lungeDistanceBlocks(), 0, spec.durationTicks());
-            default -> {
-            }
-        }
-    }
-
-    private static void applyJump(Mob mob, double jumpStrength) {
-        if (jumpStrength <= 0.0D) {
-            return;
-        }
-
-        Vec3 motion = mob.getDeltaMovement();
-        mob.setDeltaMovement(motion.x, Math.max(motion.y, jumpStrength), motion.z);
-        mob.hasImpulse = true;
-    }
-
-    private static void scheduleMove(Mob mob, Vec3 direction, double distanceBlocks, int startDelayTicks, int movementTicks) {
-        if (distanceBlocks <= 0.0D || movementTicks <= 0 || direction.lengthSqr() < 1.0E-6D) {
-            return;
-        }
-
-        Vec3 step = direction.normalize().scale(distanceBlocks / movementTicks);
-        for (int i = 0; i < movementTicks; i++) {
-            new DelayedTask(startDelayTicks + i) {
+        for (int elapsedTick = 1; elapsedTick <= spec.durationTicks(); elapsedTick++) {
+            final int currentElapsedTick = elapsedTick;
+            new DelayedTask(currentElapsedTick - 1) {
                 @Override
                 public void run() {
                     if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) {
                         return;
                     }
 
-                    mob.move(MoverType.SELF, step);
+                    Vec3 delta = RigRootMotion.worldDelta(animationId, currentElapsedTick - 1.0F, currentElapsedTick, forward);
+                    if (delta.lengthSqr() < 1.0E-8D) {
+                        return;
+                    }
+
+                    mob.move(MoverType.SELF, delta);
                     mob.hasImpulse = true;
                 }
             };
@@ -326,14 +269,5 @@ public final class RigAnimationController {
         }
 
         return direction.normalize();
-    }
-
-    private static Vec3 rightOf(Vec3 forward) {
-        Vec3 right = new Vec3(-forward.z, 0.0D, forward.x);
-        if (right.lengthSqr() < 1.0E-6D) {
-            return new Vec3(1.0D, 0.0D, 0.0D);
-        }
-
-        return right.normalize();
     }
 }

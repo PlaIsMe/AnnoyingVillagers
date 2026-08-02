@@ -15,11 +15,11 @@
 5. walk animation from `AnimationUtil.getWalkAnimation`
 6. idle animation from `AnimationUtil.getIdleAnimation`
 
-After applying animation, `flattenAnimatedRootIntoTopLevelParts` pushes any animated root transform into the humanoid top-level parts, then resets the root. For active attack one-shots, the model restores vanilla `netHeadYaw` and `headPitch` after flattening so generated attack keyframes cannot pull the head away from the mob's target. `hat.copyFrom(head)` keeps the hat aligned.
+After applying animation, `flattenAnimatedRootIntoTopLevelParts` pushes any animated root transform into the humanoid top-level parts, then resets the root. `compensateServerRootMotion` then subtracts the active animation's `RigRootMotion.modelOffset(...)` from the top-level `head`, `body`, arms, and legs so the rendered rig does not apply the same root movement that the server already applied to the entity position. For active attack one-shots, the model restores vanilla `netHeadYaw` and `headPitch` after root compensation so generated attack keyframes cannot pull the head away from the mob's target. `hat.copyFrom(head)` keeps the hat aligned.
 
 ## Villager rig model
 
-`src/main/java/com/pla/annoyingvillagers/client/model/ModelRigVillager.java` mirrors the main rig model but uses villager head/body proportions and a nose child on the head. It uses the same one-shot rig animation priority and the same speed-sensitive run predicate from `AnimationUtil.shouldUseRunAnimation`.
+`src/main/java/com/pla/annoyingvillagers/client/model/ModelRigVillager.java` mirrors the main rig model but uses villager head/body proportions and a nose child on the head. It uses the same one-shot rig animation priority, the same render-side root-motion compensation, and the same speed-sensitive run predicate from `AnimationUtil.shouldUseRunAnimation`.
 
 ## Run selection
 
@@ -44,6 +44,8 @@ This allows high-speed AI navigation goals to show run animation even if they do
 ## Client one-shot playback
 
 `RigClientAnimationState` stores active packet-driven rig animations by entity id on the client. `ClientboundRigAnimation` starts a state for a tracked entity with an animation id and duration. The rig models query that state during `setupAnim` and call `RigAnimationResolver` to map the common id to the client-side `AnimationDefinition`.
+
+Rig one-shot packets do not carry position. Server-authoritative root motion moves the real entity on the server through `RigRootMotion` and normal entity tracking syncs that position to clients. The client model only compensates the visual pose by subtracting the sampled model-space root offset.
 
 The current animation holder classes are:
 - `RigSwordAnimations` for `SWEEPING_EDGE`, `SWORD_AIRSLASH`, `SWORD_AUTO1`, `SWORD_AUTO2`, `SWORD_AUTO3`, `SWORD_AUTO4`, and `SWORD_DASH`

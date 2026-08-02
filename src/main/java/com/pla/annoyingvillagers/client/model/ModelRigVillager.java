@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.client.animation.RigAnimationResolver;
 import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
 import com.pla.annoyingvillagers.client.animation.rig_animation.*;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.RigRootMotion;
 import com.pla.annoyingvillagers.util.AnimationUtil;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.KeyframeAnimations;
@@ -21,6 +22,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -170,6 +172,7 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
         }
 
         this.flattenAnimatedRootIntoTopLevelParts();
+        this.compensateServerRootMotion(activeRigAnimation, activeWeight, ageInTicks);
         this.blendHeadLookDuringAttack(activeRigAnimation, activeWeight, netHeadYaw, headPitch);
         this.hat.copyFrom(this.head);
     }
@@ -285,6 +288,31 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
         flattenChild(rootMatrix, this.rightLeg);
         flattenChild(rootMatrix, this.leftLeg);
         this.modelRoot.resetPose();
+    }
+
+    private void compensateServerRootMotion(RigClientAnimationState.Active active, float activeWeight, float ageInTicks) {
+        if (active == null || activeWeight <= 0.0F) {
+            return;
+        }
+
+        Vec3 offset = RigRootMotion.modelOffset(active.animationId(), active.sampleTicks(ageInTicks));
+        if (offset.lengthSqr() < 1.0E-8D) {
+            return;
+        }
+
+        float x = (float) (-offset.x * activeWeight);
+        float z = (float) (-offset.z * activeWeight);
+        translateTopLevelPart(this.head, x, z);
+        translateTopLevelPart(this.body, x, z);
+        translateTopLevelPart(this.rightArm, x, z);
+        translateTopLevelPart(this.leftArm, x, z);
+        translateTopLevelPart(this.rightLeg, x, z);
+        translateTopLevelPart(this.leftLeg, x, z);
+    }
+
+    private static void translateTopLevelPart(ModelPart part, float x, float z) {
+        part.x += x;
+        part.z += z;
     }
 
     public Vector3f translateToRandomArrowPosition(PoseStack poseStack, RandomSource random) {

@@ -5,9 +5,6 @@ public record RigAnimationSpec(
         int durationTicks,
         RigAttackWindow[] attackWindows,
         double attackReachBlocks,
-        RigMovementType movementType,
-        double lungeDistanceBlocks,
-        double jumpStrength,
         boolean damagesTarget
 ) {
     public RigAnimationSpec {
@@ -32,12 +29,6 @@ public record RigAnimationSpec(
         if (attackReachBlocks < 0.0D) {
             throw new IllegalArgumentException("attackReachBlocks must be >= 0");
         }
-        if (lungeDistanceBlocks < 0.0D) {
-            throw new IllegalArgumentException("lungeDistanceBlocks must be >= 0");
-        }
-        if (jumpStrength < 0.0D) {
-            throw new IllegalArgumentException("jumpStrength must be >= 0");
-        }
         if (damagesTarget && !animationId.isAttack()) {
             throw new IllegalArgumentException("Only *_ATTACK animations can damage targets");
         }
@@ -50,52 +41,35 @@ public record RigAnimationSpec(
     }
 
     public static RigAnimationSpec normalAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive) {
-        return attack(animationId, durationTicks, 3.0D, RigMovementType.NONE, 0.0D, 0.0D, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
+        return normalAttack(animationId, durationTicks, attackStartTickInclusive, attackEndTickExclusive, 3.0D);
     }
 
-    public static RigAnimationSpec normalAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, RigMovementType movementType, double moveDistanceBlocks) {
-        return attack(animationId, durationTicks, 3.0D, movementType, moveDistanceBlocks, 0.0D,
-                RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
+    public static RigAnimationSpec normalAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, double attackReachBlocks) {
+        return attack(animationId, durationTicks, attackReachBlocks, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
     }
 
-    public static RigAnimationSpec dashAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, double lungeDistanceBlocks) {
-        return attack(animationId, durationTicks, 3.4D, RigMovementType.LUNGE, lungeDistanceBlocks, 0.0D, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
+    public static RigAnimationSpec ultimateAttack(RigAnimationId animationId, int durationTicks, RigAttackWindow... attackWindows) {
+        return attack(animationId, durationTicks, 4.0D, attackWindows);
     }
 
-    public static RigAnimationSpec jumpAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, double jumpStrength) {
-        return attack(animationId, durationTicks, 3.2D, RigMovementType.JUMP, 0.0D, jumpStrength, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
-    }
-
-    public static RigAnimationSpec jumpTowardAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, double jumpStrength, double lungeDistanceBlocks) {
-        return attack(animationId, durationTicks, 3.6D, RigMovementType.JUMP_LUNGE, lungeDistanceBlocks, jumpStrength, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
-    }
-
-    public static RigAnimationSpec ultimateAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, RigMovementType movementType, double lungeDistanceBlocks, double jumpStrength) {
-        return attack(animationId, durationTicks, 4.0D, movementType, lungeDistanceBlocks, jumpStrength, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
-    }
-
-    public static RigAnimationSpec ultimateAttack(RigAnimationId animationId, int durationTicks, RigMovementType movementType, double lungeDistanceBlocks, double jumpStrength, RigAttackWindow... attackWindows) {
-        return attack(animationId, durationTicks, 4.0D, movementType, lungeDistanceBlocks, jumpStrength, attackWindows);
-    }
-
-    public static RigAnimationSpec rolling(RigAnimationId animationId, int durationTicks, RigMovementType movementType, double rollDistanceBlocks) {
+    public static RigAnimationSpec rolling(RigAnimationId animationId, int durationTicks) {
         if (!animationId.isRolling()) {
             throw new IllegalArgumentException("Rolling specs require ROLL_* or STEP_* animation ids");
         }
 
-        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], 0.0D, movementType, rollDistanceBlocks, 0.0D, false);
+        return nonDamaging(animationId, durationTicks);
     }
 
-    public static RigAnimationSpec movementOnly(RigAnimationId animationId, int durationTicks, RigMovementType movementType, double lungeDistanceBlocks, double jumpStrength) {
-        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], 0.0D, movementType, lungeDistanceBlocks, jumpStrength, false);
+    public static RigAnimationSpec nonDamaging(RigAnimationId animationId, int durationTicks) {
+        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], 0.0D, false);
     }
 
-    private static RigAnimationSpec attack(RigAnimationId animationId, int durationTicks, double attackReachBlocks, RigMovementType movementType, double lungeDistanceBlocks, double jumpStrength, RigAttackWindow... attackWindows) {
+    private static RigAnimationSpec attack(RigAnimationId animationId, int durationTicks, double attackReachBlocks, RigAttackWindow... attackWindows) {
         if (!animationId.isAttack()) {
             throw new IllegalArgumentException("Attack specs require sword attack animation ids");
         }
 
-        return new RigAnimationSpec(animationId, durationTicks, attackWindows, attackReachBlocks, movementType, lungeDistanceBlocks, jumpStrength, true);
+        return new RigAnimationSpec(animationId, durationTicks, attackWindows, attackReachBlocks, true);
     }
 
     @Override

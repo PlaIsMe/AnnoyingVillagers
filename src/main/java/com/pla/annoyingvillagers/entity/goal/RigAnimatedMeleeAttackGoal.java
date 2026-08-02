@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.rig.RigAnimationSpec;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigCombatProfile;
 import com.pla.annoyingvillagers.rig.RigCombatProfiles;
+import com.pla.annoyingvillagers.rig.RigRootMotion;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -203,7 +204,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         double distance = 0.0D;
         for (RigAnimationId animationId : profile.specialAttacks()) {
             RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
-            distance = Math.max(distance, spec.attackReachBlocks() + spec.lungeDistanceBlocks());
+            distance = Math.max(distance, spec.attackReachBlocks() + RigRootMotion.maxHorizontalDistanceBlocks(animationId));
         }
 
         return Math.max(distance + this.mob.getBbWidth() + target.getBbWidth(), MIN_CLOSING_ATTACK_DISTANCE_BLOCKS);

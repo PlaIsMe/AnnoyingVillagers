@@ -51,7 +51,7 @@ public record RigCombatProfile(
 
         List<RigAnimationId> movingAttacks = new ArrayList<>();
         for (RigAnimationId animationId : this.specialAttacks) {
-            if (RigAnimationSpecs.get(animationId).lungeDistanceBlocks() > 0.0D) {
+            if (RigRootMotion.maxHorizontalDistanceBlocks(animationId) > 0.0D) {
                 movingAttacks.add(animationId);
             }
         }

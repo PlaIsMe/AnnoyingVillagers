@@ -11,40 +11,35 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AUTO2, 12, 1, 3));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AUTO3, 12, 1, 3));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AUTO4, 12, 1, 3));
-        put(RigAnimationSpec.dashAttack(RigAnimationId.SWORD_DASH, 13, 3, 5, 2.0D));
-        put(RigAnimationSpec.jumpAttack(RigAnimationId.SWORD_AIRSLASH, 13, 7, 10, 0.42D));
-        put(RigAnimationSpec.ultimateAttack(RigAnimationId.SWEEPING_EDGE,
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DASH, 13, 3, 5, 3.4D));
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AIRSLASH, 13, 7, 10, 3.2D));
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWEEPING_EDGE,
                 20,
                 3,
                 6,
-                RigMovementType.LUNGE,
-                6.5D,
-                0.0D
+                4.0D
         ));
 
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AUTO1, 12, 2, 4));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AUTO2, 12, 2, 4));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AUTO3, 15, 5, 7));
-        put(RigAnimationSpec.dashAttack(RigAnimationId.SWORD_DUAL_DASH, 15, 1, 6, 4.11D));
-        put(RigAnimationSpec.jumpAttack(RigAnimationId.SWORD_DUAL_AIRSLASH, 13, 7, 10, 0.42D));
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_DASH, 15, 1, 6, 3.4D));
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AIRSLASH, 13, 7, 10, 3.2D));
         put(RigAnimationSpec.ultimateAttack(
                 RigAnimationId.DANCING_EDGE,
                 25,
-                RigMovementType.LUNGE,
-                3.6D,
-                0.0D,
                 RigAttackWindow.of(5, 8),
                 RigAttackWindow.of(8, 10),
                 RigAttackWindow.of(12, 14)
         ));
 
-        put(RigAnimationSpec.rolling(RigAnimationId.ROLL_FORWARD, 13, RigMovementType.MOVE_FORWARD, 4.2D));
-        put(RigAnimationSpec.rolling(RigAnimationId.ROLL_BACKWARD, 13, RigMovementType.MOVE_BACKWARD, 4.2D));
-        put(RigAnimationSpec.rolling(RigAnimationId.STEP_FORWARD, 7, RigMovementType.MOVE_FORWARD, 4.0D));
-        put(RigAnimationSpec.rolling(RigAnimationId.STEP_BACKWARD, 7, RigMovementType.MOVE_BACKWARD, 4.0D));
-        put(RigAnimationSpec.rolling(RigAnimationId.STEP_LEFT, 7, RigMovementType.MOVE_LEFT, 4.0D));
-        put(RigAnimationSpec.rolling(RigAnimationId.STEP_RIGHT, 7, RigMovementType.MOVE_RIGHT, 4.0D));
-        put(RigAnimationSpec.movementOnly(RigAnimationId.JUMP, 10, RigMovementType.JUMP, 0.0D, 0.42D));
+        put(RigAnimationSpec.rolling(RigAnimationId.ROLL_FORWARD, 13));
+        put(RigAnimationSpec.rolling(RigAnimationId.ROLL_BACKWARD, 13));
+        put(RigAnimationSpec.rolling(RigAnimationId.STEP_FORWARD, 7));
+        put(RigAnimationSpec.rolling(RigAnimationId.STEP_BACKWARD, 7));
+        put(RigAnimationSpec.rolling(RigAnimationId.STEP_LEFT, 7));
+        put(RigAnimationSpec.rolling(RigAnimationId.STEP_RIGHT, 7));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.JUMP, 10));
     }
 
     private RigAnimationSpecs() {

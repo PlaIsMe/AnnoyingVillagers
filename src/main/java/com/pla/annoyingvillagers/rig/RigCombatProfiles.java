@@ -8,28 +8,33 @@ import java.util.List;
 
 public final class RigCombatProfiles {
     private static final RigCombatProfile DEFAULT_SWORD = new RigCombatProfile(
-            List.of(RigAnimationId.SWORD_AUTO1, RigAnimationId.SWORD_AUTO2, RigAnimationId.SWORD_AUTO4),
+            List.of(RigAnimationId.SWORD_AUTO1, RigAnimationId.SWORD_AUTO2, RigAnimationId.SWORD_AUTO4, RigAnimationId.SWEEPING_EDGE),
             List.of(RigAnimationId.SWORD_DASH, RigAnimationId.SWORD_AIRSLASH),
-            List.of(RigAnimationId.SWORD_DASH, RigAnimationId.SWORD_AIRSLASH),
-//            List.of(
-//                    RigAnimationId.ROLL_FORWARD,
-//                    RigAnimationId.ROLL_BACKWARD,
-//                    RigAnimationId.STEP_FORWARD,
-//                    RigAnimationId.STEP_BACKWARD,
-//                    RigAnimationId.STEP_LEFT,
-//                    RigAnimationId.STEP_RIGHT
-//            ),
-            List.of(RigAnimationId.SWEEPING_EDGE),
+            List.of(
+                    RigAnimationId.ROLL_FORWARD,
+                    RigAnimationId.ROLL_BACKWARD,
+                    RigAnimationId.STEP_FORWARD,
+                    RigAnimationId.STEP_BACKWARD,
+                    RigAnimationId.STEP_LEFT,
+                    RigAnimationId.STEP_RIGHT
+            ),
+            List.of(),
             0.18D,
             0.06D,
-            0.02D
+            0.0D
     );
 
     private static final RigCombatProfile DUAL_SWORD = new RigCombatProfile(
             List.of(RigAnimationId.SWORD_DUAL_AUTO1, RigAnimationId.SWORD_DUAL_AUTO2, RigAnimationId.SWORD_DUAL_AUTO3),
             List.of(RigAnimationId.SWORD_DUAL_DASH, RigAnimationId.SWORD_DUAL_AIRSLASH),
-            List.of(RigAnimationId.SWORD_DUAL_DASH, RigAnimationId.SWORD_DUAL_AIRSLASH),
-//            List.of(RigAnimationId.STEP_FORWARD, RigAnimationId.STEP_BACKWARD, RigAnimationId.STEP_LEFT, RigAnimationId.STEP_RIGHT),
+            List.of(
+                    RigAnimationId.ROLL_FORWARD,
+                    RigAnimationId.ROLL_BACKWARD,
+                    RigAnimationId.STEP_FORWARD,
+                    RigAnimationId.STEP_BACKWARD,
+                    RigAnimationId.STEP_LEFT,
+                    RigAnimationId.STEP_RIGHT
+            ),
             List.of(RigAnimationId.DANCING_EDGE),
             0.20D,
             0.06D,

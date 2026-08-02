@@ -56,7 +56,7 @@ public enum RigAnimationId {
 
     public boolean isUltimateAttack() {
         return switch (this) {
-            case SWEEPING_EDGE, DANCING_EDGE -> true;
+            case DANCING_EDGE -> true;
             default -> false;
         };
     }
