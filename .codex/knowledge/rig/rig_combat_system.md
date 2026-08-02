@@ -5,7 +5,7 @@
 Common server-safe rig combat metadata lives in `src/main/java/com/pla/annoyingvillagers/rig`.
 
 `RigAnimationId` defines shared ids for sword attacks, rolling, and side-step animations. Current attack ids are:
-- `SWORD_AUTO1`, `SWORD_AUTO2`, `SWORD_AUTO3`, `SWORD_AUTO4`
+- `SWORD_AUTO1`, `SWORD_AUTO2`, `SWORD_AUT3`
 - `SWORD_DASH`
 - `SWORD_AIRSLASH`
 - `SWEEPING_EDGE`
@@ -16,35 +16,52 @@ Common server-safe rig combat metadata lives in `src/main/java/com/pla/annoyingv
 
 `RigAnimationId.isAttack()` is true for those ids. Damage is only allowed for attack ids.
 
+`RigAnimationId.isUltimateAttack()` is true for `SWEEPING_EDGE` and `DANCING_EDGE`.
+`RigAnimationId.isRollAnimation()` is true for `ROLL_FORWARD` and `ROLL_BACKWARD`.
+`RigAnimationId.isStepAnimation()` is true for `STEP_FORWARD`, `STEP_BACKWARD`, `STEP_LEFT`, and `STEP_RIGHT`.
+
 `RigAnimationSpec` defines logic metadata:
 - `durationTicks`
-- `impactDelayTicks`
+- `attackWindows`
 - `attackReachBlocks`
 - `movementType`
 - `lungeDistanceBlocks`
 - `jumpStrength`
 - `damagesTarget`
 
+`attackWindows` is an array of `RigAttackWindow(startTickInclusive, endTickExclusive)` values. A window represents the active sword-swing state for that phase. Simple attacks have one window. Multi-phase attacks define multiple windows.
+
 Factory methods enforce intended construction:
-- `normalAttack(id, durationTicks, impactDelayTicks)`
-- `dashAttack(id, durationTicks, impactDelayTicks, lungeDistanceBlocks)`
-- `jumpAttack(id, durationTicks, impactDelayTicks, jumpStrength)`
-- `jumpTowardAttack(id, durationTicks, impactDelayTicks, jumpStrength, lungeDistanceBlocks)`
-- `ultimateAttack(id, durationTicks, impactDelayTicks, movementType, lungeDistanceBlocks, jumpStrength)`
+- `normalAttack(id, durationTicks, attackStartTickInclusive, attackEndTickExclusive)`
+- `dashAttack(id, durationTicks, attackStartTickInclusive, attackEndTickExclusive, lungeDistanceBlocks)`
+- `jumpAttack(id, durationTicks, attackStartTickInclusive, attackEndTickExclusive, jumpStrength)`
+- `jumpTowardAttack(id, durationTicks, attackStartTickInclusive, attackEndTickExclusive, jumpStrength, lungeDistanceBlocks)`
+- `ultimateAttack(id, durationTicks, attackStartTickInclusive, attackEndTickExclusive, movementType, lungeDistanceBlocks, jumpStrength)`
+- `ultimateAttack(id, durationTicks, movementType, lungeDistanceBlocks, jumpStrength, attackWindows...)`
 - `rolling(id, durationTicks, movementType, rollDistanceBlocks)`
 
-`RigAnimationSpecs` is the central spec registry. It assigns server duration, hit delay, reach, movement type, movement distance, and jump strength for each id. Current generated clip durations are represented at 20 ticks per second:
-- sword autos: `12` ticks
-- sword dash and airslash: `13` ticks
-- sweeping edge: `18` ticks
-- dual sword autos: `13` ticks
-- dual sword dash: `15` ticks
-- dual sword airslash: `12` ticks
-- dancing edge: `20` ticks
-- rolls: `10` ticks
-- steps: `8` ticks
+`RigAnimationSpecs` is the central spec registry. It assigns server duration, hit windows, reach, movement type, movement distance, and jump strength for each id. Current timings:
+- `SWORD_AUTO1`: duration `12`, windows `[0 -> 2]`
+- `SWORD_AUTO2`: duration `12`, windows `[1 -> 3]`
+- `SWORD_AUTO3`: duration `12`, windows `[1 -> 3]`
+- `SWORD_AUTO4`: duration `13`, windows `[1 -> 3]`
+- `SWORD_DASH`: duration `13`, windows `[3 -> 5]`, lunge `1.48`
+- `SWORD_AIRSLASH`: duration `13`, windows `[3 -> 6]`, jump `0.42`
+- `SWEEPING_EDGE`: duration `20`, windows `[3 -> 6]`, lunge `1.11`
+- `SWORD_DUAL_AUTO1`: duration `12`, windows `[2 -> 4]`
+- `SWORD_DUAL_AUTO2`: duration `12`, windows `[2 -> 4]`
+- `SWORD_DUAL_AUTO3`: duration `15`, windows `[5 -> 7]`
+- `SWORD_DUAL_DASH`: duration `15`, windows `[1 -> 6]`, lunge `4.11`
+- `SWORD_DUAL_AIRSLASH`: duration `13`, windows `[3 -> 6]`, jump `0.42`
+- `DANCING_EDGE`: duration `25`, windows `[5 -> 8]`, `[8 -> 10]`, `[12 -> 14]`, lunge `1.83`
+- `ROLL_FORWARD`: duration `13`, distance `3.52`
+- `ROLL_BACKWARD`: duration `13`, distance `3.50`
+- `STEP_FORWARD`: duration `7`, distance `1.34`
+- `STEP_BACKWARD`: duration `7`, distance `1.34`
+- `STEP_LEFT`: duration `7`, distance `1.52`
+- `STEP_RIGHT`: duration `7`, distance `1.44`
 
-Attack impact delays are tuned to the middle of each swing contact window, not the first wind-up frame. `DANCING_EDGE` is a multi-phase attack in concept, but the current `RigAnimationSpec` supports one impact delay, so it uses the first contact window as the temporary server hit point.
+Attack windows correspond to the active swing state. Before a window is anticipation/preparation. After a window is recovery. Among current shared ids, only `DANCING_EDGE` is multi-phase and has three separate windows. `SWORD_DUAL_AUTO3` and `SWORD_DUAL_DASH` use both weapon colliders in one phase, so each remains a single server damage window.
 
 ## Server-side playback API
 
@@ -55,8 +72,9 @@ It runs only server-side. It:
 2. swings the main hand only for attack animations
 3. marks the mob aggressive
 4. sends `ClientboundRigAnimation` to tracking clients and self
-5. applies movement logic on the server
-6. schedules impact damage after `impactDelayTicks` for damaging attack specs
+5. schedules rig sound events
+6. applies movement logic on the server
+7. schedules one damage window task group for each value in `attackWindows` for damaging attack specs
 
 Movement behavior:
 - `LUNGE`: moves forward by `lungeDistanceBlocks` over short scheduled steps
@@ -64,7 +82,16 @@ Movement behavior:
 - `JUMP_LUNGE`: jumps first, then lunges after a short delay
 - `ROLL_FORWARD`, `ROLL_BACKWARD`, `ROLL_RIGHT`, `ROLL_LEFT`: move by the rolling or step spec distance without damaging
 
-Hit timing uses `DelayedTask`. At impact, the target must still be alive, attackable, non-allied, and inside reach.
+Hit timing uses `DelayedTask`. During every attack window tick, the target must still be alive, attackable, non-allied, and inside reach. Each window can hit once; if the target enters reach during the window, the hit can still connect. Multi-window attacks temporarily clear the target hurt cooldown for each window so each phase can deal damage.
+
+Sound timing also uses `DelayedTask` from the server. The controller calls `level.playSound(null, x, y, z, sound, SoundSource.HOSTILE, volume, pitch)`, so no player is excluded and nearby players hear the sound through normal Minecraft sound broadcasting.
+
+Rig sound rules:
+- normal, dash, jump, and jump-toward attacks play `AnnoyingVillagersModSounds.SWORD_WHOOSH` when each attack window starts
+- ultimate attacks play `AnnoyingVillagersModSounds.WHOOSH_SHARP` when each attack window starts
+- successful rig damage plays `AnnoyingVillagersModSounds.BLADE_HIT` at the target position
+- `ROLL_FORWARD` and `ROLL_BACKWARD` play `AnnoyingVillagersModSounds.ROLL` at animation start
+- step animations play the current block-under-feet hit sound at animation start instead of using a custom step asset
 
 ## Weapon profiles
 

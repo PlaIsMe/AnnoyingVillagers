@@ -111,6 +111,11 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
             return;
         }
 
+        if (this.attackCooldownTicks > 0 && isWithinMeleeReach(target)) {
+            this.mob.getNavigation().stop();
+            return;
+        }
+
         RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
         RigAnimationId selectedAnimation = selectAnimation(target, profile);
 
@@ -149,8 +154,9 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
         RigAnimationController.play(this.mob, spec, target);
         this.previousAnimation = animationId;
-        this.activeAnimationTicks = spec.durationTicks();
-        this.attackCooldownTicks = spec.durationTicks() + 4 + this.mob.getRandom().nextInt(5);
+        int animationPlaybackTicks = RigAnimationController.animationPlaybackTicks(spec);
+        this.activeAnimationTicks = animationPlaybackTicks;
+        this.attackCooldownTicks = animationPlaybackTicks + 4 + this.mob.getRandom().nextInt(5);
     }
 
     private void repathToTarget(LivingEntity target) {

@@ -2,20 +2,29 @@ package com.pla.annoyingvillagers.rig;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundRigAnimation;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
+
+import java.util.Arrays;
 
 public final class RigAnimationController {
     private static final int LUNGE_MOVEMENT_TICKS = 6;
     private static final int JUMP_LUNGE_DELAY_TICKS = 4;
+    private static final int JUMP_STARTUP_TICKS = 5;
 
     private RigAnimationController() {
     }
@@ -25,6 +34,35 @@ public final class RigAnimationController {
     }
 
     public static void play(Mob mob, RigAnimationSpec spec, LivingEntity target) {
+        if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) {
+            return;
+        }
+
+        int startupTicks = jumpStartupTicks(spec);
+        if (target != null && target.isAlive()) {
+            faceTarget(mob, target);
+        }
+
+        if (startupTicks > 0) {
+            sendAnimation(mob, RigAnimationId.JUMP, startupTicks);
+            applyJump(mob, spec.jumpStrength());
+            new DelayedTask(startupTicks) {
+                @Override
+                public void run() {
+                    playAfterStartup(mob, spec, target, false);
+                }
+            };
+            return;
+        }
+
+        playAfterStartup(mob, spec, target, true);
+    }
+
+    public static int animationPlaybackTicks(RigAnimationSpec spec) {
+        return spec.durationTicks() + jumpStartupTicks(spec);
+    }
+
+    private static void playAfterStartup(Mob mob, RigAnimationSpec spec, LivingEntity target, boolean applyJumpMovement) {
         if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) {
             return;
         }
@@ -39,11 +77,20 @@ public final class RigAnimationController {
         mob.setAggressive(true);
         sendAnimation(mob, spec.animationId(), spec.durationTicks());
         logAvNpcAnimation(mob, target, spec);
-        applyMovement(mob, target, spec);
+        scheduleRigSounds(mob, spec);
+        applyMovement(mob, target, spec, applyJumpMovement);
 
         if (spec.damagesTarget() && target != null) {
-            scheduleImpact(mob, target, spec);
+            scheduleImpacts(mob, target, spec);
         }
+    }
+
+    private static int jumpStartupTicks(RigAnimationSpec spec) {
+        return spec.animationId() != RigAnimationId.JUMP && usesJumpMovement(spec) ? JUMP_STARTUP_TICKS : 0;
+    }
+
+    private static boolean usesJumpMovement(RigAnimationSpec spec) {
+        return spec.movementType() == RigMovementType.JUMP || spec.movementType() == RigMovementType.JUMP_LUNGE;
     }
 
     private static void logAvNpcAnimation(Mob mob, LivingEntity target, RigAnimationSpec spec) {
@@ -52,12 +99,12 @@ public final class RigAnimationController {
         }
 
         AnnoyingVillagers.LOGGER.info(
-                "[AV RIG] AVNpc {} played {} target={} duration={} impactDelay={} movement={} lunge={} jump={} pos={}",
+                "[AV RIG] AVNpc {} played {} target={} duration={} attackWindows={} movement={} lunge={} jump={} pos={}",
                 entityLabel(mob),
                 spec.animationId(),
                 target == null ? "none" : entityLabel(target),
                 spec.durationTicks(),
-                spec.impactDelayTicks(),
+                Arrays.toString(spec.attackWindows()),
                 spec.movementType(),
                 spec.lungeDistanceBlocks(),
                 spec.jumpStrength(),
@@ -81,17 +128,109 @@ public final class RigAnimationController {
         );
     }
 
-    private static void scheduleImpact(Mob mob, LivingEntity target, RigAnimationSpec spec) {
-        int delayTicks = Math.max(0, spec.impactDelayTicks());
+    private static void scheduleRigSounds(Mob mob, RigAnimationSpec spec) {
+        RigAnimationId animationId = spec.animationId();
+        if (animationId.isAttack()) {
+            scheduleAttackSwingSounds(mob, spec);
+            return;
+        }
+        if (animationId.isRollAnimation()) {
+            playSound(mob, AnnoyingVillagersModSounds.ROLL.get(), 0.9F, randomPitch(mob, 0.95F, 0.1F));
+            return;
+        }
 
-        new DelayedTask(delayTicks) {
-            @Override
-            public void run() {
-                if (canDamageTarget(mob, target, spec)) {
-                    mob.doHurtTarget(target);
+        playStepSound(mob);
+    }
+
+    private static void scheduleAttackSwingSounds(Mob mob, RigAnimationSpec spec) {
+        RigAttackWindow[] attackWindows = spec.attackWindows();
+        SoundEvent sound = spec.animationId().isUltimateAttack()
+                ? AnnoyingVillagersModSounds.WHOOSH_SHARP.get()
+                : AnnoyingVillagersModSounds.SWORD_WHOOSH.get();
+
+        if (attackWindows.length == 0) {
+            playSound(mob, sound, 0.9F, randomPitch(mob, 0.95F, 0.1F));
+            return;
+        }
+
+        for (RigAttackWindow attackWindow : attackWindows) {
+            new DelayedTask(attackWindow.startTickInclusive()) {
+                @Override
+                public void run() {
+                    if (mob.isAlive() && !mob.isRemoved() && !mob.isDeadOrDying()) {
+                        playSound(mob, sound, 0.9F, randomPitch(mob, 0.95F, 0.1F));
+                    }
                 }
-            }
-        };
+            };
+        }
+    }
+
+    private static void playStepSound(Mob mob) {
+        BlockPos onPos = mob.getOnPos();
+        BlockState state = mob.level().getBlockState(onPos);
+        SoundType soundType = state.getSoundType();
+        playSound(mob, soundType.getHitSound(), soundType.getVolume() * 0.35F, soundType.getPitch());
+    }
+
+    private static void playHitSound(LivingEntity target) {
+        playSound(target, AnnoyingVillagersModSounds.BLADE_HIT.get(), 0.9F, randomPitch(target, 0.95F, 0.1F));
+    }
+
+    private static float randomPitch(Entity entity, float basePitch, float variance) {
+        return basePitch + (entity.level().random.nextFloat() * 2.0F - 1.0F) * variance;
+    }
+
+    private static void playSound(Entity entity, SoundEvent sound, float volume, float pitch) {
+        entity.level().playSound(
+                null,
+                entity.getX(),
+                entity.getY(),
+                entity.getZ(),
+                sound,
+                SoundSource.HOSTILE,
+                volume,
+                pitch
+        );
+    }
+
+    private static void scheduleImpacts(Mob mob, LivingEntity target, RigAnimationSpec spec) {
+        RigAttackWindow[] attackWindows = spec.attackWindows();
+        boolean forceDamageThroughHurtCooldown = attackWindows.length > 1;
+
+        for (RigAttackWindow attackWindow : attackWindows) {
+            scheduleAttackWindow(mob, target, spec, attackWindow, forceDamageThroughHurtCooldown);
+        }
+    }
+
+    private static void scheduleAttackWindow(Mob mob, LivingEntity target, RigAnimationSpec spec, RigAttackWindow attackWindow, boolean forceDamageThroughHurtCooldown) {
+        boolean[] attemptedHit = new boolean[1];
+        for (int delayTicks = attackWindow.startTickInclusive(); delayTicks < attackWindow.endTickExclusive(); delayTicks++) {
+            new DelayedTask(delayTicks) {
+                @Override
+                public void run() {
+                    if (attemptedHit[0] || !canDamageTarget(mob, target, spec)) {
+                        return;
+                    }
+
+                    attemptedHit[0] = true;
+                    if (hurtTarget(mob, target, forceDamageThroughHurtCooldown)) {
+                        playHitSound(target);
+                    }
+                }
+            };
+        }
+    }
+
+    private static boolean hurtTarget(Mob mob, LivingEntity target, boolean forceDamageThroughHurtCooldown) {
+        if (!forceDamageThroughHurtCooldown) {
+            return mob.doHurtTarget(target);
+        }
+
+        int previousInvulnerableTime = target.invulnerableTime;
+        target.invulnerableTime = 0;
+        boolean hurt = mob.doHurtTarget(target);
+        target.invulnerableTime = previousInvulnerableTime;
+        return hurt;
     }
 
     private static boolean canDamageTarget(Mob mob, LivingEntity target, RigAnimationSpec spec) {
@@ -109,24 +248,24 @@ public final class RigAnimationController {
         return mob.distanceToSqr(target) <= reach * reach;
     }
 
-    private static void applyMovement(Mob mob, LivingEntity target, RigAnimationSpec spec) {
+    private static void applyMovement(Mob mob, LivingEntity target, RigAnimationSpec spec, boolean applyJumpMovement) {
         RigMovementType movementType = spec.movementType();
         if (movementType == RigMovementType.NONE) {
             return;
         }
 
         Vec3 forward = horizontalDirection(mob, target);
-        if (movementType == RigMovementType.JUMP || movementType == RigMovementType.JUMP_LUNGE) {
+        if (applyJumpMovement && usesJumpMovement(spec)) {
             applyJump(mob, spec.jumpStrength());
         }
 
         switch (movementType) {
             case LUNGE -> scheduleMove(mob, forward, spec.lungeDistanceBlocks(), 0, LUNGE_MOVEMENT_TICKS);
             case JUMP_LUNGE -> scheduleMove(mob, forward, spec.lungeDistanceBlocks(), JUMP_LUNGE_DELAY_TICKS, LUNGE_MOVEMENT_TICKS);
-            case ROLL_FORWARD -> scheduleMove(mob, forward, spec.lungeDistanceBlocks(), 0, LUNGE_MOVEMENT_TICKS);
-            case ROLL_BACKWARD -> scheduleMove(mob, forward.scale(-1.0D), spec.lungeDistanceBlocks(), 0, LUNGE_MOVEMENT_TICKS);
-            case ROLL_RIGHT -> scheduleMove(mob, rightOf(forward), spec.lungeDistanceBlocks(), 0, LUNGE_MOVEMENT_TICKS);
-            case ROLL_LEFT -> scheduleMove(mob, rightOf(forward).scale(-1.0D), spec.lungeDistanceBlocks(), 0, LUNGE_MOVEMENT_TICKS);
+            case MOVE_FORWARD -> scheduleMove(mob, forward, spec.lungeDistanceBlocks(), 0, spec.durationTicks());
+            case MOVE_BACKWARD -> scheduleMove(mob, forward.scale(-1.0D), spec.lungeDistanceBlocks(), 0, spec.durationTicks());
+            case MOVE_RIGHT -> scheduleMove(mob, rightOf(forward), spec.lungeDistanceBlocks(), 0, spec.durationTicks());
+            case MOVE_LEFT -> scheduleMove(mob, rightOf(forward).scale(-1.0D), spec.lungeDistanceBlocks(), 0, spec.durationTicks());
             default -> {
             }
         }
@@ -190,7 +329,7 @@ public final class RigAnimationController {
     }
 
     private static Vec3 rightOf(Vec3 forward) {
-        Vec3 right = new Vec3(forward.z, 0.0D, -forward.x);
+        Vec3 right = new Vec3(-forward.z, 0.0D, forward.x);
         if (right.lengthSqr() < 1.0E-6D) {
             return new Vec3(1.0D, 0.0D, 0.0D);
         }

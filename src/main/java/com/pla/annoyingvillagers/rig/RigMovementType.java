@@ -5,8 +5,8 @@ public enum RigMovementType {
     LUNGE,
     JUMP,
     JUMP_LUNGE,
-    ROLL_FORWARD,
-    ROLL_BACKWARD,
-    ROLL_RIGHT,
-    ROLL_LEFT
+    MOVE_FORWARD,
+    MOVE_BACKWARD,
+    MOVE_RIGHT,
+    MOVE_LEFT
 }

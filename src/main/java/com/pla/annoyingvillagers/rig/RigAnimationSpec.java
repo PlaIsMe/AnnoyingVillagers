@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.rig;
 public record RigAnimationSpec(
         RigAnimationId animationId,
         int durationTicks,
-        int impactDelayTicks,
+        RigAttackWindow[] attackWindows,
         double attackReachBlocks,
         RigMovementType movementType,
         double lungeDistanceBlocks,
@@ -17,8 +17,17 @@ public record RigAnimationSpec(
         if (durationTicks <= 0) {
             throw new IllegalArgumentException("durationTicks must be > 0");
         }
-        if (impactDelayTicks < -1) {
-            throw new IllegalArgumentException("impactDelayTicks must be >= -1");
+        if (attackWindows == null) {
+            throw new IllegalArgumentException("attackWindows cannot be null");
+        }
+        attackWindows = attackWindows.clone();
+        for (RigAttackWindow attackWindow : attackWindows) {
+            if (attackWindow == null) {
+                throw new IllegalArgumentException("attackWindows cannot contain null");
+            }
+            if (attackWindow.endTickExclusive() > durationTicks) {
+                throw new IllegalArgumentException("attack window cannot end after durationTicks");
+            }
         }
         if (attackReachBlocks < 0.0D) {
             throw new IllegalArgumentException("attackReachBlocks must be >= 0");
@@ -32,26 +41,41 @@ public record RigAnimationSpec(
         if (damagesTarget && !animationId.isAttack()) {
             throw new IllegalArgumentException("Only *_ATTACK animations can damage targets");
         }
+        if (damagesTarget && attackWindows.length == 0) {
+            throw new IllegalArgumentException("Damaging attack specs require at least one attack window");
+        }
+        if (!damagesTarget && attackWindows.length > 0) {
+            throw new IllegalArgumentException("Non-damaging specs cannot define attack windows");
+        }
     }
 
-    public static RigAnimationSpec normalAttack(RigAnimationId animationId, int durationTicks, int impactDelayTicks) {
-        return attack(animationId, durationTicks, impactDelayTicks, 3.0D, RigMovementType.NONE, 0.0D, 0.0D);
+    public static RigAnimationSpec normalAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive) {
+        return attack(animationId, durationTicks, 3.0D, RigMovementType.NONE, 0.0D, 0.0D, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
     }
 
-    public static RigAnimationSpec dashAttack(RigAnimationId animationId, int durationTicks, int impactDelayTicks, double lungeDistanceBlocks) {
-        return attack(animationId, durationTicks, impactDelayTicks, 3.4D, RigMovementType.LUNGE, lungeDistanceBlocks, 0.0D);
+    public static RigAnimationSpec normalAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, RigMovementType movementType, double moveDistanceBlocks) {
+        return attack(animationId, durationTicks, 3.0D, movementType, moveDistanceBlocks, 0.0D,
+                RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
     }
 
-    public static RigAnimationSpec jumpAttack(RigAnimationId animationId, int durationTicks, int impactDelayTicks, double jumpStrength) {
-        return attack(animationId, durationTicks, impactDelayTicks, 3.2D, RigMovementType.JUMP, 0.0D, jumpStrength);
+    public static RigAnimationSpec dashAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, double lungeDistanceBlocks) {
+        return attack(animationId, durationTicks, 3.4D, RigMovementType.LUNGE, lungeDistanceBlocks, 0.0D, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
     }
 
-    public static RigAnimationSpec jumpTowardAttack(RigAnimationId animationId, int durationTicks, int impactDelayTicks, double jumpStrength, double lungeDistanceBlocks) {
-        return attack(animationId, durationTicks, impactDelayTicks, 3.6D, RigMovementType.JUMP_LUNGE, lungeDistanceBlocks, jumpStrength);
+    public static RigAnimationSpec jumpAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, double jumpStrength) {
+        return attack(animationId, durationTicks, 3.2D, RigMovementType.JUMP, 0.0D, jumpStrength, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
     }
 
-    public static RigAnimationSpec ultimateAttack(RigAnimationId animationId, int durationTicks, int impactDelayTicks, RigMovementType movementType, double lungeDistanceBlocks, double jumpStrength) {
-        return attack(animationId, durationTicks, impactDelayTicks, 4.0D, movementType, lungeDistanceBlocks, jumpStrength);
+    public static RigAnimationSpec jumpTowardAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, double jumpStrength, double lungeDistanceBlocks) {
+        return attack(animationId, durationTicks, 3.6D, RigMovementType.JUMP_LUNGE, lungeDistanceBlocks, jumpStrength, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
+    }
+
+    public static RigAnimationSpec ultimateAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, RigMovementType movementType, double lungeDistanceBlocks, double jumpStrength) {
+        return attack(animationId, durationTicks, 4.0D, movementType, lungeDistanceBlocks, jumpStrength, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
+    }
+
+    public static RigAnimationSpec ultimateAttack(RigAnimationId animationId, int durationTicks, RigMovementType movementType, double lungeDistanceBlocks, double jumpStrength, RigAttackWindow... attackWindows) {
+        return attack(animationId, durationTicks, 4.0D, movementType, lungeDistanceBlocks, jumpStrength, attackWindows);
     }
 
     public static RigAnimationSpec rolling(RigAnimationId animationId, int durationTicks, RigMovementType movementType, double rollDistanceBlocks) {
@@ -59,14 +83,32 @@ public record RigAnimationSpec(
             throw new IllegalArgumentException("Rolling specs require ROLL_* or STEP_* animation ids");
         }
 
-        return new RigAnimationSpec(animationId, durationTicks, -1, 0.0D, movementType, rollDistanceBlocks, 0.0D, false);
+        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], 0.0D, movementType, rollDistanceBlocks, 0.0D, false);
     }
 
-    private static RigAnimationSpec attack(RigAnimationId animationId, int durationTicks, int impactDelayTicks, double attackReachBlocks, RigMovementType movementType, double lungeDistanceBlocks, double jumpStrength) {
+    public static RigAnimationSpec movementOnly(RigAnimationId animationId, int durationTicks, RigMovementType movementType, double lungeDistanceBlocks, double jumpStrength) {
+        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], 0.0D, movementType, lungeDistanceBlocks, jumpStrength, false);
+    }
+
+    private static RigAnimationSpec attack(RigAnimationId animationId, int durationTicks, double attackReachBlocks, RigMovementType movementType, double lungeDistanceBlocks, double jumpStrength, RigAttackWindow... attackWindows) {
         if (!animationId.isAttack()) {
             throw new IllegalArgumentException("Attack specs require sword attack animation ids");
         }
 
-        return new RigAnimationSpec(animationId, durationTicks, impactDelayTicks, attackReachBlocks, movementType, lungeDistanceBlocks, jumpStrength, true);
+        return new RigAnimationSpec(animationId, durationTicks, attackWindows, attackReachBlocks, movementType, lungeDistanceBlocks, jumpStrength, true);
+    }
+
+    @Override
+    public RigAttackWindow[] attackWindows() {
+        return this.attackWindows.clone();
+    }
+
+    public int[] impactDelayTicks() {
+        int[] impactDelayTicks = new int[this.attackWindows.length];
+        for (int i = 0; i < this.attackWindows.length; i++) {
+            impactDelayTicks[i] = this.attackWindows[i].fallbackImpactTick();
+        }
+
+        return impactDelayTicks;
     }
 }

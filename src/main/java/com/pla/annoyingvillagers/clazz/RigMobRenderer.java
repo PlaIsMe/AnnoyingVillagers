@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.client.model.ModelRig;
 import com.pla.annoyingvillagers.client.model.ModelRigArmor;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +20,15 @@ public abstract class RigMobRenderer<T extends Mob> extends HumanoidMobRenderer<
     }
 
     protected RigMobRenderer(EntityRendererProvider.Context context, boolean addArrowLayer) {
-        super(context, new ModelRig<>(context.bakeLayer(ModelRig.LAYER_LOCATION)), 0.5F);
+        this(context, addArrowLayer, ModelRig.LAYER_LOCATION, false);
+    }
+
+    protected RigMobRenderer(EntityRendererProvider.Context context, ModelLayerLocation layerLocation, boolean slim) {
+        this(context, true, layerLocation, slim);
+    }
+
+    protected RigMobRenderer(EntityRendererProvider.Context context, boolean addArrowLayer, ModelLayerLocation layerLocation, boolean slim) {
+        super(context, new ModelRig<>(context.bakeLayer(layerLocation), slim), 0.5F);
         this.addLayer(new RigArmorLayer<>(
                 this,
                 new ModelRigArmor<>(0.5F),

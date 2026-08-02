@@ -14,5 +14,7 @@ I don't know from the provided session knowledge
 
 Do not make unsupported guesses, do not fill gaps with likely behavior, and do not cite files other than the allowed knowledge files.
 
+Do not read, list, summarize, cite, or modify files under `src/main/java/com/pla/annoyingvillagers/client/animation/rig_animation/` unless the user explicitly names that directory or a file inside it for the current task. Those generated animation files are large and should be treated as out of scope by default. When animation context is needed, prefer `.codex/knowledge/rig/*.md` and shared rig metadata. Do not inspect generated animation holder source just to confirm animation names, mappings, or values.
+
 Do not mechanically refactor generated animation holder files. In particular, do not change inline `public static final AnimationDefinition ... = AnimationDefinition.Builder...build();` fields into private creator methods unless the user explicitly asks for that code-shape change.
 """

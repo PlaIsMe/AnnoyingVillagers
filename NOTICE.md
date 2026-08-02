@@ -11,6 +11,14 @@ Credit to Epic Fight for sound and particle behavior used as references.
   `com/pla/annoyingvillagers/client/particle/HitBluntParticle.java`,
   `com/pla/annoyingvillagers/client/particle/GroundSlamParticle.java`,
 
+## Epic Fight Sound Overhaul - William_Ashenhart - Authorized Use
+
+Credit to William_Ashenhart for authorizing use of Epic Fight Sound Overhaul
+sound assets in this project.
+
+- Local sound assets include sword whoosh, sharp whoosh, blade hit, and roll
+  sounds under `src/main/resources/assets/annoyingvillagers/sounds/entity/`.
+
 ## Dragon Mounts: Legacy - Nico Bergemann, Kay9, contributors - GPL-3.0-or-ladsoter
 
 - Source: https://github.com/MWall541/Dragon-Mounts-Legacy

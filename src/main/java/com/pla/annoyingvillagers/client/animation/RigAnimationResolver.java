@@ -26,12 +26,13 @@ public final class RigAnimationResolver {
             case SWORD_DUAL_DASH -> RigDualSwordAnimations2.SWORD_DUAL_DASH;
             case SWORD_DUAL_AIRSLASH -> RigDualSwordAnimations2.SWORD_DUAL_AIRSLASH;
             case DANCING_EDGE -> RigDualSwordAnimations2.DANCING_EDGE;
-            case ROLL_FORWARD -> RigRollAnimation.ROLL_FORWARD;
-            case ROLL_BACKWARD -> RigRollAnimation.ROLL_BACKWARD;
+            case ROLL_BACKWARD -> RigRollAnimations.ROLL_BACKWARD;
+            case ROLL_FORWARD -> RigRollAnimations.ROLL_FORWARD;
             case STEP_FORWARD -> RigStepAnimations.STEP_FORWARD;
             case STEP_BACKWARD -> RigStepAnimations.STEP_BACKWARD;
             case STEP_LEFT -> RigStepAnimations.STEP_LEFT;
             case STEP_RIGHT -> RigStepAnimations.STEP_RIGHT;
+            case JUMP -> RigJumpAnimations.JUMP;
         };
     }
 }

@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.animation.RigAnimationResolver;
 import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
 import com.pla.annoyingvillagers.client.animation.rig_animation.*;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.util.AnimationUtil;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.KeyframeAnimations;
@@ -25,6 +26,9 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
@@ -49,6 +53,8 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
     private final ModelPart right_lower_leg;
     private final ModelPart left_leg;
     private final ModelPart left_lower_leg;
+    private final Map<Integer, AnimationKey> activeAnimationKeys = new HashMap<>();
+    private final Map<Integer, TransitionPose> transitionPoses = new HashMap<>();
 
     public ModelRigVillager(ModelPart root) {
         super(root);
@@ -135,10 +141,12 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
 
     @Override
     public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        Map<ModelPart, ModelPartPose> previousRenderedPose = this.capturePose();
         this.modelRoot.getAllParts().forEach(ModelPart::resetPose);
 
         super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         RigClientAnimationState.Active activeRigAnimation = RigClientAnimationState.getActive(entity, ageInTicks);
+        TransitionPose transitionPose = this.updateTransitionPose(entity, activeRigAnimation, ageInTicks, previousRenderedPose);
 
         this.body.getAllParts().forEach(ModelPart::resetPose);
         this.rightArm.getAllParts().forEach(ModelPart::resetPose);
@@ -146,44 +154,90 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
         this.rightLeg.getAllParts().forEach(ModelPart::resetPose);
         this.leftLeg.getAllParts().forEach(ModelPart::resetPose);
 
+        float activeWeight = 0.0F;
         if (entity.isDeadOrDying() || entity.deathTime > 0) {
             float partialTick = Math.max(0.0F, Math.min(1.0F, ageInTicks - entity.tickCount));
             float deathElapsedTicks = Math.max(0.0F, entity.deathTime - 1.0F + partialTick);
             this.applyAnimationFromStart(RigDeathAnimations.DEATH, deathElapsedTicks, 1.0F, 1.0F);
-        } else if (this.applyActiveRigAnimation(activeRigAnimation, ageInTicks)) {
-            // One-shot rig animations are driven by server packets and should override locomotion.
-        } else if (entity.isShiftKeyDown()) {
-            this.applyLoopingAnimation(RigSneakAnimations.SNEAK, ageInTicks, 1.0F, 1.0F);
-        } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD && AnimationUtil.shouldUseRunAnimation(entity, limbSwingAmount)) {
-            this.applyLoopingAnimation(RigRunAnimations.RUN, ageInTicks, 1.15F, 1.0F);
-        } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD) {
-            this.applyLoopingAnimation(RigWalkAnimations.WALK, ageInTicks, 1.0F, 1.0F);
         } else {
-            this.applyLoopingAnimation(RigIdleAnimations.IDLE, ageInTicks, 1.0F, 1.0F);
+            activeWeight = activeRigAnimation == null ? 0.0F : activeRigAnimation.weight(ageInTicks);
+            float baseWeight = 1.0F - activeWeight;
+            if (activeRigAnimation != null) {
+                this.applyBlendedRigAnimation(entity, limbSwingAmount, ageInTicks, activeRigAnimation, activeWeight, transitionPose);
+            } else if (baseWeight > 0.0F) {
+                this.applyBaseRigAnimation(entity, limbSwingAmount, ageInTicks, baseWeight);
+            }
         }
 
         this.flattenAnimatedRootIntoTopLevelParts();
-        this.lockHeadLookDuringAttack(activeRigAnimation, netHeadYaw, headPitch);
+        this.blendHeadLookDuringAttack(activeRigAnimation, activeWeight, netHeadYaw, headPitch);
         this.hat.copyFrom(this.head);
     }
 
-    private boolean applyActiveRigAnimation(RigClientAnimationState.Active active, float ageInTicks) {
+    private TransitionPose updateTransitionPose(T entity, RigClientAnimationState.Active active, float ageInTicks, Map<ModelPart, ModelPartPose> previousRenderedPose) {
+        int entityId = entity.getId();
         if (active == null) {
-            return false;
+            this.activeAnimationKeys.remove(entityId);
+            this.transitionPoses.remove(entityId);
+            return null;
         }
 
-        this.applyAnimationFromStart(RigAnimationResolver.get(active.animationId()), active.elapsedTicks(ageInTicks), 1.0F, 1.0F);
-        return true;
+        AnimationKey key = new AnimationKey(active.animationId(), active.startedAtTick());
+        AnimationKey previousKey = this.activeAnimationKeys.put(entityId, key);
+        if (!key.equals(previousKey)) {
+            TransitionPose transitionPose = new TransitionPose(key, previousRenderedPose);
+            this.transitionPoses.put(entityId, transitionPose);
+            return transitionPose;
+        }
+
+        TransitionPose transitionPose = this.transitionPoses.get(entityId);
+        if (transitionPose == null || active.elapsedTicks(ageInTicks) > active.blendInTicks()) {
+            this.transitionPoses.remove(entityId);
+            return null;
+        }
+
+        return transitionPose;
     }
 
-    private void lockHeadLookDuringAttack(RigClientAnimationState.Active active, float netHeadYaw, float headPitch) {
-        if (active == null || !active.animationId().isAttack()) {
+    private void applyBlendedRigAnimation(T entity, float limbSwingAmount, float ageInTicks, RigClientAnimationState.Active active, float activeWeight, TransitionPose transitionPose) {
+        Map<ModelPart, ModelPartPose> baselinePose = this.capturePose();
+
+        this.applyBaseRigAnimation(entity, limbSwingAmount, ageInTicks, 1.0F);
+        Map<ModelPart, ModelPartPose> basePose = this.capturePose();
+
+        this.restorePose(baselinePose);
+        this.applyActiveRigAnimation(active, ageInTicks, 1.0F);
+        Map<ModelPart, ModelPartPose> activePose = this.capturePose();
+
+        this.blendPose(basePose, activePose, activeWeight, transitionPose);
+    }
+
+    private void applyBaseRigAnimation(T entity, float limbSwingAmount, float ageInTicks, float weight) {
+        if (entity.isShiftKeyDown()) {
+            this.applyLoopingAnimation(RigSneakAnimations.SNEAK, ageInTicks, 1.0F, weight);
+        } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD && AnimationUtil.shouldUseRunAnimation(entity, limbSwingAmount)) {
+            this.applyLoopingAnimation(RigRunAnimations.RUN, ageInTicks, 1.15F, weight);
+        } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD) {
+            this.applyLoopingAnimation(RigWalkAnimations.WALK, ageInTicks, 1.0F, weight);
+        } else {
+            this.applyLoopingAnimation(RigIdleAnimations.IDLE, ageInTicks, 1.0F, weight);
+        }
+    }
+
+    private void applyActiveRigAnimation(RigClientAnimationState.Active active, float ageInTicks, float weight) {
+        this.applyAnimationFromStart(RigAnimationResolver.get(active.animationId()), active.sampleTicks(ageInTicks), 1.0F, weight);
+    }
+
+    private void blendHeadLookDuringAttack(RigClientAnimationState.Active active, float weight, float netHeadYaw, float headPitch) {
+        if (active == null || !active.animationId().isAttack() || weight <= 0.0F) {
             return;
         }
 
-        this.head.xRot = headPitch * ((float) Math.PI / 180.0F);
-        this.head.yRot = netHeadYaw * ((float) Math.PI / 180.0F);
-        this.head.zRot = 0.0F;
+        float targetXRot = headPitch * ((float) Math.PI / 180.0F);
+        float targetYRot = netHeadYaw * ((float) Math.PI / 180.0F);
+        this.head.xRot = Mth.lerp(weight, this.head.xRot, targetXRot);
+        this.head.yRot = Mth.lerp(weight, this.head.yRot, targetYRot);
+        this.head.zRot = Mth.lerp(weight, this.head.zRot, 0.0F);
     }
 
     public void applyLoopingAnimation(AnimationDefinition animation, float ageInTicks, float speed, float weight) {
@@ -196,6 +250,26 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
         long elapsedMilliseconds = (long) (safeElapsedTicks * TICK_TO_MILLISECONDS * speed);
 
         KeyframeAnimations.animate(this.animationView, animation, elapsedMilliseconds, weight, this.animationVectorCache);
+    }
+
+    private Map<ModelPart, ModelPartPose> capturePose() {
+        Map<ModelPart, ModelPartPose> pose = new IdentityHashMap<>();
+        this.modelRoot.getAllParts().forEach(part -> pose.put(part, ModelPartPose.from(part)));
+        return pose;
+    }
+
+    private void restorePose(Map<ModelPart, ModelPartPose> pose) {
+        pose.forEach((part, partPose) -> partPose.applyTo(part));
+    }
+
+    private void blendPose(Map<ModelPart, ModelPartPose> basePose, Map<ModelPart, ModelPartPose> activePose, float activeWeight, TransitionPose transitionPose) {
+        basePose.forEach((part, basePartPose) -> {
+            ModelPartPose activePartPose = activePose.get(part);
+            if (activePartPose != null) {
+                ModelPartPose startPartPose = basePartPose.withRotationsFrom(transitionPose == null ? null : transitionPose.pose().get(part));
+                startPartPose.blendTo(part, activePartPose, activeWeight);
+            }
+        });
     }
 
     private void flattenAnimatedRootIntoTopLevelParts() {
@@ -391,6 +465,75 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
         part.xRot = (float) xRot;
         part.yRot = (float) yRot;
         part.zRot = (float) zRot;
+    }
+
+    private record AnimationKey(RigAnimationId animationId, int startedAtTick) {
+    }
+
+    private record TransitionPose(AnimationKey activeKey, Map<ModelPart, ModelPartPose> pose) {
+    }
+
+    private record ModelPartPose(
+            float x,
+            float y,
+            float z,
+            float xRot,
+            float yRot,
+            float zRot,
+            float xScale,
+            float yScale,
+            float zScale
+    ) {
+        private static ModelPartPose from(ModelPart part) {
+            return new ModelPartPose(part.x, part.y, part.z, part.xRot, part.yRot, part.zRot, part.xScale, part.yScale, part.zScale);
+        }
+
+        private void applyTo(ModelPart part) {
+            part.x = this.x;
+            part.y = this.y;
+            part.z = this.z;
+            part.xRot = this.xRot;
+            part.yRot = this.yRot;
+            part.zRot = this.zRot;
+            part.xScale = this.xScale;
+            part.yScale = this.yScale;
+            part.zScale = this.zScale;
+        }
+
+        private void blendTo(ModelPart part, ModelPartPose target, float weight) {
+            part.x = Mth.lerp(weight, this.x, target.x);
+            part.y = Mth.lerp(weight, this.y, target.y);
+            part.z = Mth.lerp(weight, this.z, target.z);
+            part.xRot = lerpAngleRadians(weight, this.xRot, target.xRot);
+            part.yRot = lerpAngleRadians(weight, this.yRot, target.yRot);
+            part.zRot = lerpAngleRadians(weight, this.zRot, target.zRot);
+            part.xScale = Mth.lerp(weight, this.xScale, target.xScale);
+            part.yScale = Mth.lerp(weight, this.yScale, target.yScale);
+            part.zScale = Mth.lerp(weight, this.zScale, target.zScale);
+        }
+
+        private ModelPartPose withRotationsFrom(ModelPartPose rotationPose) {
+            if (rotationPose == null) {
+                return this;
+            }
+
+            return new ModelPartPose(
+                    this.x,
+                    this.y,
+                    this.z,
+                    rotationPose.xRot,
+                    rotationPose.yRot,
+                    rotationPose.zRot,
+                    this.xScale,
+                    this.yScale,
+                    this.zScale
+            );
+        }
+
+        private static float lerpAngleRadians(float weight, float start, float end) {
+            float delta = Mth.wrapDegrees((end - start) * 180.0F / (float) Math.PI) * ((float) Math.PI / 180.0F);
+            return start + delta * weight;
+        }
     }
 
     private static final class AnimationView extends HierarchicalModel<Entity> {

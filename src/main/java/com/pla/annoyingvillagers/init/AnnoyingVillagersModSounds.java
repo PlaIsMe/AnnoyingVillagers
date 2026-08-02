@@ -58,6 +58,10 @@ public class AnnoyingVillagersModSounds {
     public static final RegistryObject<SoundEvent> METAL_HIT = register("metal_hit");
     public static final RegistryObject<SoundEvent> TARGET_BLOCK_HIT = register("target_block_hit");
     public static final RegistryObject<SoundEvent> CLASH = register("clash");
+    public static final RegistryObject<SoundEvent> SWORD_WHOOSH = register("sword_whoosh");
+    public static final RegistryObject<SoundEvent> WHOOSH_SHARP = register("whoosh_sharp");
+    public static final RegistryObject<SoundEvent> BLADE_HIT = register("blade_hit");
+    public static final RegistryObject<SoundEvent> ROLL = register("roll");
     public static final RegistryObject<SoundEvent> HEAVY_ATTACK_LEGENDARY_SWORD = register("heavy_attack_legendary_sword");
     public static final RegistryObject<SoundEvent> HEAVY_ATTACK_LEGENDARY_SWORD_2 = register("heavy_attack_legendary_sword_2");
     public static final RegistryObject<SoundEvent> HEAVY_ATTACK_START = register("heavy_attack_start");
@@ -67,13 +71,8 @@ public class AnnoyingVillagersModSounds {
     public static final RegistryObject<SoundEvent> OBSIDIAN_PLACE = register("obsidian_place");
     public static final RegistryObject<SoundEvent> POP = register("pop");
     public static final RegistryObject<SoundEvent> OBSIDIAN_HIT = register("obsidian_hit");
-    public static final RegistryObject<SoundEvent> HEAVY_HIT = register("heavy_hit");
-    public static final RegistryObject<SoundEvent> WOOSH_HARD = register("woosh_hard");
-    public static final RegistryObject<SoundEvent> WING = register("wing");
-    public static final RegistryObject<SoundEvent> WHOOSH = register("whoosh");
+    public static final RegistryObject<SoundEvent> HEAVY_HIT = register("heavy_hit");;
     public static final RegistryObject<SoundEvent> COOL_DOWN = register("cooldown");
-    public static final RegistryObject<SoundEvent> GET_OUT = register("get_out");
-    public static final RegistryObject<SoundEvent> THROW = register("throw");
     public static final RegistryObject<SoundEvent> ENDER_SHOT = register("ender_shot");
     public static final RegistryObject<SoundEvent> BLOOM = register("bloom");
     public static final RegistryObject<SoundEvent> DRAGON_BREATH = register("dragon_breath");

@@ -19,7 +19,8 @@ public enum RigAnimationId {
     STEP_FORWARD,
     STEP_BACKWARD,
     STEP_LEFT,
-    STEP_RIGHT;
+    STEP_RIGHT,
+    JUMP;
 
     private static final RigAnimationId[] VALUES = values();
 
@@ -38,7 +39,26 @@ public enum RigAnimationId {
     }
 
     public boolean isRolling() {
-        return this.name().startsWith("ROLL_") || this.name().startsWith("STEP_");
+        return isRollAnimation() || isStepAnimation();
+    }
+
+    public boolean isRollAnimation() {
+        String name = this.name();
+        return name.startsWith("ROLL_") || name.contains("_ROLL");
+    }
+
+    public boolean isStepAnimation() {
+        return switch (this) {
+            case STEP_FORWARD, STEP_BACKWARD, STEP_LEFT, STEP_RIGHT -> true;
+            default -> false;
+        };
+    }
+
+    public boolean isUltimateAttack() {
+        return switch (this) {
+            case SWEEPING_EDGE, DANCING_EDGE -> true;
+            default -> false;
+        };
     }
 
     public static RigAnimationId fromNetworkId(int networkId) {
