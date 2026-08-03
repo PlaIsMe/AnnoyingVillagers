@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigAnimationSpec;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
+import com.pla.annoyingvillagers.rig.RigShieldGuardController;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import com.pla.annoyingvillagers.util.RidingUtil;
@@ -51,7 +52,9 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
 
     @Override
     public boolean canUse() {
-        return this.canUseBow()
+        return !RigShieldGuardController.isGuarding(this.avNpc)
+                && !RigAnimationController.hasActiveAnimation(this.avNpc)
+                && this.canUseBow()
                 && (this.isHoldingBow() || InventoryUtils.hasBow(this.avNpc));
     }
 

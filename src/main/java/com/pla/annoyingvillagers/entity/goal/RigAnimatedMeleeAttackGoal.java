@@ -44,7 +44,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     @Override
     public boolean canUse() {
         LivingEntity target = this.mob.getTarget();
-        if (!isValidMeleeState(target)) {
+        if (!isValidMeleeState(target) || RigAnimationController.hasActiveAnimation(this.mob)) {
             return false;
         }
 

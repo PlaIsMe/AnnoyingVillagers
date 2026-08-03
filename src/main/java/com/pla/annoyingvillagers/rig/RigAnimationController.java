@@ -96,6 +96,10 @@ public final class RigAnimationController {
         return false;
     }
 
+    public static boolean hasActiveAnimation(Mob mob) {
+        return getActiveAnimationState(mob) != null;
+    }
+
     public static void clearActiveAnimations() {
         ACTIVE_ANIMATIONS.clear();
     }

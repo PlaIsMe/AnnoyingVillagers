@@ -32,7 +32,9 @@ public enum RigAnimationId {
     KNOCKDOWN_WAKEUP_RIGHT,
     EAT_OFFHAND,
     EAT_MAINHAND,
-    THROW_ENDER_PEARL;
+    THROW_ENDER_PEARL,
+    SHIELD_OFFHAND,
+    HIT_SHIELD_OFFHAND;
 
     private static final RigAnimationId[] VALUES = values();
 
@@ -63,9 +65,18 @@ public enum RigAnimationId {
             case BOW_AIM_DOWN, BOW_AIM_MID, BOW_AIM_UP,
                  BOW_SHOT_DOWN, BOW_SHOT_MID, BOW_SHOT_UP,
                  KNOCKDOWN_WAKEUP_LEFT, KNOCKDOWN_WAKEUP_RIGHT,
-                 EAT_MAINHAND, EAT_OFFHAND, THROW_ENDER_PEARL -> true;
+                 EAT_MAINHAND, EAT_OFFHAND, THROW_ENDER_PEARL,
+                 SHIELD_OFFHAND, HIT_SHIELD_OFFHAND -> true;
             default -> false;
         };
+    }
+
+    public boolean isShieldGuardAnimation() {
+        return this == SHIELD_OFFHAND;
+    }
+
+    public boolean isShieldGuardHitAnimation() {
+        return this == HIT_SHIELD_OFFHAND;
     }
 
     public boolean isBowAnimation() {

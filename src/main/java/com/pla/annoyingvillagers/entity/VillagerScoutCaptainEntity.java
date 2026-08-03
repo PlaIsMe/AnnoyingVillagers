@@ -104,8 +104,9 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
         this.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.DIAMOND_CHESTPLATE));
         this.setItemSlot(EquipmentSlot.LEGS, new ItemStack(Items.DIAMOND_LEGGINGS));
         this.setItemSlot(EquipmentSlot.FEET, new ItemStack(Items.DIAMOND_BOOTS));
+        this.maybeEquipSpawnShield();
         this.setMainWeaponItem(this.getMainHandItem().copy());
-        this.setOffWeaponItem(this.getOffWeaponItem().copy());
+        this.setOffWeaponItem(this.getOffhandItem().copy());
 
         if (new Random().nextBoolean()) {
             this.setUseBow(false);

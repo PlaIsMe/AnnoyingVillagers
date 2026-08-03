@@ -123,8 +123,9 @@ public class RedVillagerKnightEntity extends VillagerArmyEntity {
         this.setItemSlot(EquipmentSlot.CHEST, new ItemStack(AnnoyingVillagersModItems.RED_VILLAGER_KNIGHT_CHESTPLATE.get()));
         this.setItemSlot(EquipmentSlot.LEGS, new ItemStack(AnnoyingVillagersModItems.VILLAGER_KNIGHT_LEGGINGS.get()));
         this.setItemSlot(EquipmentSlot.FEET, new ItemStack(AnnoyingVillagersModItems.VILLAGER_KNIGHT_BOOTS.get()));
+        this.maybeEquipSpawnShield();
         this.setMainWeaponItem(this.getMainHandItem().copy());
-        this.setOffWeaponItem(this.getOffWeaponItem().copy());
+        this.setOffWeaponItem(this.getOffhandItem().copy());
 
         if (new Random().nextBoolean()) {
             this.setUseBow(false);

@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.entity.goal;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.RigShieldGuardController;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 
@@ -30,6 +31,8 @@ public class RandomCombatJumpGoal extends Goal {
                 || this.avNpc.isInWater()
                 || this.avNpc.isInLava()
                 || this.avNpc.isHealing()
+                || RigShieldGuardController.isGuarding(this.avNpc)
+                || RigAnimationController.hasActiveAnimation(this.avNpc)
                 || !this.avNpc.onGround()) {
             return false;
         }

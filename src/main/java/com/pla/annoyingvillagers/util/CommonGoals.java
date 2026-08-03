@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.RigAnimatedMeleeAttackGoal;
 import com.pla.annoyingvillagers.entity.goal.PortalApproachGoal;
+import com.pla.annoyingvillagers.entity.goal.RigShieldGuardGoal;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
@@ -33,6 +34,12 @@ public class CommonGoals {
         }
 
         return new MeleeAttackGoal(mob, speedModifier, followingTargetEvenIfNotSeen);
+    }
+
+    private static void addRigShieldGuardGoal(PathfinderMob mob, int priority) {
+        if (supportsRigCombat(mob)) {
+            mob.goalSelector.addGoal(priority, new RigShieldGuardGoal(mob));
+        }
     }
 
     private static boolean supportsRigCombat(Mob mob) {
@@ -62,6 +69,7 @@ public class CommonGoals {
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
         if (!(monster instanceof TransporterHerobrineCloneEntity)) {
             monster.goalSelector.addGoal(0, new PortalApproachGoal(monster));
+            addRigShieldGuardGoal(monster, 1);
             monster.goalSelector.addGoal(2, createMeleeAttackGoal(monster, 1.2D, false));
         }
         monster.goalSelector.addGoal(3, new RandomStrollGoal(monster, 1.0D));
@@ -89,6 +97,7 @@ public class CommonGoals {
         monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
         monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
         monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, AbstractIllager.class, true, false));
+        addRigShieldGuardGoal(monster, 2);
         monster.goalSelector.addGoal(3, createMeleeAttackGoal(monster, 1.2D, false));
         monster.goalSelector.addGoal(4, new RandomStrollGoal(monster, 1.0D));
         monster.goalSelector.addGoal(5, new RandomLookAroundGoal(monster));
@@ -117,6 +126,7 @@ public class CommonGoals {
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AngrySteveEntity.class, true, false));
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AlexEntity.class, true, false));
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, ChrisEntity.class, true, false));
+        addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(5, createMeleeAttackGoal(mob, 1.2D, false));
         mob.goalSelector.addGoal(6, new RandomStrollGoal(mob, 1.0D) {
             @Override
@@ -202,6 +212,7 @@ public class CommonGoals {
         }
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, Monster.class, false, (target) -> !(target instanceof FakePlayer || target instanceof BlueDemonEntity)));
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AbstractIllager.class, true, false));
+        addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(3, createMeleeAttackGoal(mob, 1.2D, false));
         mob.goalSelector.addGoal(4, new RandomStrollGoal(mob, 1.0D));
         mob.goalSelector.addGoal(5, new OpenDoorGoal(mob, true));
@@ -232,6 +243,7 @@ public class CommonGoals {
         mob.targetSelector.addGoal(20, new NearestAttackableTargetGoal<>(mob, AlexEntity.class, false, false));
         mob.targetSelector.addGoal(20, new NearestAttackableTargetGoal<>(mob, ChrisEntity.class, false, false));
         mob.targetSelector.addGoal(21, new NearestAttackableTargetGoal<>(mob, Player.class, true, true));
+        addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(22, createMeleeAttackGoal(mob, 1.2D, false));
         mob.goalSelector.addGoal(23, new RandomStrollGoal(mob, 1.0D));
         mob.goalSelector.addGoal(24, new RandomLookAroundGoal(mob));

@@ -45,6 +45,8 @@ public final class RigAnimationResolver {
             case EAT_OFFHAND -> RigHandOnlyAnimations.EAT_OFFHAND;
             case EAT_MAINHAND -> RigHandOnlyAnimations.EAT_MAINHAND;
             case THROW_ENDER_PEARL -> RigHandOnlyAnimations.THROW_ENDER_PEARL;
+            case SHIELD_OFFHAND -> RigShieldAnimations.SHIELD_OFFHAND;
+            case HIT_SHIELD_OFFHAND -> RigShieldAnimations.HIT_SHIELD_OFFHAND;
         };
     }
 }

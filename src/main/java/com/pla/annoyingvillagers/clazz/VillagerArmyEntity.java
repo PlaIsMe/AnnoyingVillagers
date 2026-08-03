@@ -4,9 +4,11 @@ import com.pla.annoyingvillagers.entity.goal.VillagerArmyHurtByTargetGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 
@@ -15,6 +17,8 @@ import java.util.List;
 import java.util.Random;
 
 public abstract class VillagerArmyEntity extends AVNpc {
+    private static final float OFFHAND_SHIELD_SPAWN_CHANCE = 0.20F;
+
     protected VillagerArmyEntity(EntityType<? extends VillagerArmyEntity> entityType, Level level) {
         super(entityType, level);
     }
@@ -60,6 +64,17 @@ public abstract class VillagerArmyEntity extends AVNpc {
             return true;
         } else {
             return false;
+        }
+    }
+
+    protected void maybeEquipSpawnShield() {
+        ItemStack offhand = this.getOffhandItem();
+        if (offhand.getItem() instanceof ShieldItem || (!offhand.isEmpty() && !offhand.is(Items.ENDER_PEARL))) {
+            return;
+        }
+
+        if (this.getRandom().nextFloat() < OFFHAND_SHIELD_SPAWN_CHANCE) {
+            this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
         }
     }
 }

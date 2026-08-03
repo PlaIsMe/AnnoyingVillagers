@@ -51,6 +51,8 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EAT_OFFHAND, 32, RigAnimationPlaybackType.LEFT_HAND));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EAT_MAINHAND, 32, RigAnimationPlaybackType.MAIN_HAND));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.THROW_ENDER_PEARL, 10, RigAnimationPlaybackType.BOTH_HAND));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.SHIELD_OFFHAND, 56, RigAnimationPlaybackType.UPPER_BODY));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.HIT_SHIELD_OFFHAND, 4, RigAnimationPlaybackType.UPPER_BODY));
     }
 
     private RigAnimationSpecs() {

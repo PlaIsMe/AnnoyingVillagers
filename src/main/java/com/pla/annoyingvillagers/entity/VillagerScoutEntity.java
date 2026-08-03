@@ -162,8 +162,9 @@ public class VillagerScoutEntity extends VillagerArmyEntity {
         this.setItemSlot(EquipmentSlot.CHEST, new ItemStack(AnnoyingVillagersModItems.CLASSIC_GOLDEN_CHESTPLATE.get()));
         this.setItemSlot(EquipmentSlot.LEGS, new ItemStack(AnnoyingVillagersModItems.CLASSIC_GOLDEN_LEGGINGS.get()));
         this.setItemSlot(EquipmentSlot.FEET, new ItemStack(AnnoyingVillagersModItems.CLASSIC_GOLDEN_BOOTS.get()));
+        this.maybeEquipSpawnShield();
         this.setMainWeaponItem(this.getMainHandItem().copy());
-        this.setOffWeaponItem(this.getOffWeaponItem().copy());
+        this.setOffWeaponItem(this.getOffhandItem().copy());
 
         return returnSpawnGroupData;
     }
