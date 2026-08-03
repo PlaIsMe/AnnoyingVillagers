@@ -66,7 +66,10 @@ public final class RigAnimationController {
             mob.swing(InteractionHand.MAIN_HAND, true);
         }
         mob.setAggressive(true);
-        recordActiveAnimation(mob, spec);
+        ActiveAnimationState state = recordActiveAnimation(mob, spec);
+        runHooks(mob, spec, RigAnimationSpec.RigTimedAnimationHook.START);
+        scheduleTimedHooks(mob, spec, state);
+        scheduleAnimationEnd(mob, spec, state);
         sendAnimation(mob, spec.animationId(), spec.durationTicks());
         scheduleRigSounds(mob, spec);
         scheduleRootMotion(mob, target, spec);
@@ -107,16 +110,10 @@ public final class RigAnimationController {
                 || spec.animationId().isMountedAttack();
     }
 
-    private static void recordActiveAnimation(Mob mob, RigAnimationSpec spec) {
+    private static ActiveAnimationState recordActiveAnimation(Mob mob, RigAnimationSpec spec) {
         ActiveAnimationState state = new ActiveAnimationState(spec, mob.tickCount);
         ACTIVE_ANIMATIONS.put(mob.getUUID(), state);
-
-        new DelayedTask(spec.durationTicks() + 1) {
-            @Override
-            public void run() {
-                ACTIVE_ANIMATIONS.remove(mob.getUUID(), state);
-            }
-        };
+        return state;
     }
 
     private static ActiveAnimationState getActiveAnimationState(Mob mob) {
@@ -126,7 +123,7 @@ public final class RigAnimationController {
         }
 
         int elapsedTicks = state.elapsedTicks(mob);
-        if (elapsedTicks < 0 || elapsedTicks >= state.spec().durationTicks()) {
+        if (elapsedTicks < 0 || elapsedTicks > state.spec().durationTicks()) {
             ACTIVE_ANIMATIONS.remove(mob.getUUID(), state);
             return null;
         }
@@ -140,11 +137,65 @@ public final class RigAnimationController {
         }
     }
 
+    private static boolean isCurrentAnimation(Mob mob, ActiveAnimationState state) {
+        return ACTIVE_ANIMATIONS.get(mob.getUUID()) == state;
+    }
+
     private static void sendAnimation(Mob mob, RigAnimationId animationId, int durationTicks) {
         AnnoyingVillagers.PACKET_HANDLER.send(
                 PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
                 new ClientboundRigAnimation(mob.getId(), animationId, durationTicks)
         );
+    }
+
+    private static void scheduleAnimationEnd(Mob mob, RigAnimationSpec spec, ActiveAnimationState state) {
+        new DelayedTask(spec.durationTicks()) {
+            @Override
+            public void run() {
+                if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) {
+                    ACTIVE_ANIMATIONS.remove(mob.getUUID(), state);
+                    return;
+                }
+
+                if (ACTIVE_ANIMATIONS.remove(mob.getUUID(), state)) {
+                    runHooks(mob, spec, RigAnimationSpec.RigTimedAnimationHook.END);
+                }
+            }
+        };
+    }
+
+    private static void scheduleTimedHooks(Mob mob, RigAnimationSpec spec, ActiveAnimationState state) {
+        for (RigAnimationSpec.RigTimedAnimationHook timedHook : spec.timedHooks()) {
+            if (!timedHook.isTimed()) {
+                continue;
+            }
+            new DelayedTask(timedHook.tick()) {
+                @Override
+                public void run() {
+                    if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || !isCurrentAnimation(mob, state)) {
+                        return;
+                    }
+
+                    runHook(mob, timedHook.action());
+                }
+            };
+        }
+    }
+
+    private static void runHooks(Mob mob, RigAnimationSpec spec, int tick) {
+        for (RigAnimationSpec.RigTimedAnimationHook timedHook : spec.timedHooks()) {
+            if (timedHook.tick() == tick) {
+                runHook(mob, timedHook.action());
+            }
+        }
+    }
+
+    private static void runHook(Mob mob, RigAnimationSpec.RigAnimationHook hook) {
+        try {
+            hook.run(mob);
+        } catch (Exception e) {
+            AnnoyingVillagers.LOGGER.error("[AV MOD DEBUG] Rig animation hook failed for {}", mob.getName().getString(), e);
+        }
     }
 
     private static void scheduleRigSounds(Mob mob, RigAnimationSpec spec) {

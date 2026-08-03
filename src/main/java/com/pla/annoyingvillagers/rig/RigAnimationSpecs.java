@@ -1,6 +1,10 @@
 package com.pla.annoyingvillagers.rig;
 
+import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.rig.RigAnimationSpec.RigTimedAnimationHook;
+
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 public final class RigAnimationSpecs {

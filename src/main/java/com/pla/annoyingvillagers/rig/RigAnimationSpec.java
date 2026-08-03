@@ -1,12 +1,17 @@
 package com.pla.annoyingvillagers.rig;
 
+import net.minecraft.world.entity.Mob;
+
+import java.util.List;
+
 public record RigAnimationSpec(
         RigAnimationId animationId,
         int durationTicks,
         RigAttackWindow[] attackWindows,
         double attackReachBlocks,
         RigAnimationPlaybackType playbackType,
-        boolean damagesTarget
+        boolean damagesTarget,
+        List<RigTimedAnimationHook> timedHooks
 ) {
     public RigAnimationSpec {
         if (animationId == null) {
@@ -33,6 +38,18 @@ public record RigAnimationSpec(
         if (playbackType == null) {
             throw new IllegalArgumentException("playbackType cannot be null");
         }
+        if (timedHooks == null) {
+            throw new IllegalArgumentException("timedHooks cannot be null");
+        }
+        for (RigTimedAnimationHook timedHook : timedHooks) {
+            if (timedHook == null) {
+                throw new IllegalArgumentException("timedHooks cannot contain null");
+            }
+            if (timedHook.isTimed() && timedHook.tick() > durationTicks) {
+                throw new IllegalArgumentException("timed hook tick must be within animation duration");
+            }
+        }
+        timedHooks = List.copyOf(timedHooks);
         if (damagesTarget && !animationId.isAttack()) {
             throw new IllegalArgumentException("Only *_ATTACK animations can damage targets");
         }
@@ -52,8 +69,44 @@ public record RigAnimationSpec(
         return attack(animationId, durationTicks, attackReachBlocks, RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive));
     }
 
+    public static RigAnimationSpec normalAttack(
+            RigAnimationId animationId,
+            int durationTicks,
+            int attackStartTickInclusive,
+            int attackEndTickExclusive,
+            List<RigTimedAnimationHook> timedHooks
+    ) {
+        return normalAttack(animationId, durationTicks, attackStartTickInclusive, attackEndTickExclusive, 1.0D, timedHooks);
+    }
+
+    public static RigAnimationSpec normalAttack(
+            RigAnimationId animationId,
+            int durationTicks,
+            int attackStartTickInclusive,
+            int attackEndTickExclusive,
+            double attackReachBlocks,
+            List<RigTimedAnimationHook> timedHooks
+    ) {
+        return attack(
+                animationId,
+                durationTicks,
+                attackReachBlocks,
+                timedHooks,
+                RigAttackWindow.of(attackStartTickInclusive, attackEndTickExclusive)
+        );
+    }
+
     public static RigAnimationSpec ultimateAttack(RigAnimationId animationId, int durationTicks, RigAttackWindow... attackWindows) {
-        return attack(animationId, durationTicks, 4.0D, attackWindows);
+        return attack(animationId, durationTicks, 4.0D, List.of(), attackWindows);
+    }
+
+    public static RigAnimationSpec ultimateAttack(
+            RigAnimationId animationId,
+            int durationTicks,
+            List<RigTimedAnimationHook> timedHooks,
+            RigAttackWindow... attackWindows
+    ) {
+        return attack(animationId, durationTicks, 4.0D, timedHooks, attackWindows);
     }
 
     public static RigAnimationSpec rolling(RigAnimationId animationId, int durationTicks) {
@@ -69,15 +122,23 @@ public record RigAnimationSpec(
     }
 
     public static RigAnimationSpec nonDamaging(RigAnimationId animationId, int durationTicks, RigAnimationPlaybackType playbackType) {
-        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], 0.0D, playbackType, false);
+        return nonDamaging(animationId, durationTicks, playbackType, List.of());
+    }
+
+    public static RigAnimationSpec nonDamaging(RigAnimationId animationId, int durationTicks, RigAnimationPlaybackType playbackType, List<RigTimedAnimationHook> timedHooks) {
+        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], 0.0D, playbackType, false, timedHooks);
     }
 
     private static RigAnimationSpec attack(RigAnimationId animationId, int durationTicks, double attackReachBlocks, RigAttackWindow... attackWindows) {
+        return attack(animationId, durationTicks, attackReachBlocks, List.of(), attackWindows);
+    }
+
+    private static RigAnimationSpec attack(RigAnimationId animationId, int durationTicks, double attackReachBlocks, List<RigTimedAnimationHook> timedHooks, RigAttackWindow... attackWindows) {
         if (!animationId.isAttack()) {
             throw new IllegalArgumentException("Attack specs require sword attack animation ids");
         }
 
-        return new RigAnimationSpec(animationId, durationTicks, attackWindows, attackReachBlocks, RigAnimationPlaybackType.DEFAULT, true);
+        return new RigAnimationSpec(animationId, durationTicks, attackWindows, attackReachBlocks, RigAnimationPlaybackType.DEFAULT, true, timedHooks);
     }
 
     @Override
@@ -92,5 +153,43 @@ public record RigAnimationSpec(
         }
 
         return impactDelayTicks;
+    }
+
+    @FunctionalInterface
+    public interface RigAnimationHook {
+        RigAnimationHook NO_OP = mob -> {
+        };
+
+        void run(Mob mob);
+    }
+
+    public record RigTimedAnimationHook(int tick, RigAnimationHook action) {
+        public static final int START = -1;
+        public static final int END = -2;
+
+        public RigTimedAnimationHook {
+            if (tick < 0 && tick != START && tick != END) {
+                throw new IllegalArgumentException("tick must be >= 0, START, or END");
+            }
+            if (action == null) {
+                throw new IllegalArgumentException("action cannot be null");
+            }
+        }
+
+        public static RigTimedAnimationHook at(int tick, RigAnimationHook action) {
+            return new RigTimedAnimationHook(tick, action);
+        }
+
+        public boolean isStart() {
+            return this.tick == START;
+        }
+
+        public boolean isEnd() {
+            return this.tick == END;
+        }
+
+        public boolean isTimed() {
+            return this.tick >= 0;
+        }
     }
 }
