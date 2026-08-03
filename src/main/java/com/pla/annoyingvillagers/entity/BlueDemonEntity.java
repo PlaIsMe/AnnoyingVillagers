@@ -120,28 +120,6 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         this.voiceCooldown = cooldown;
     }
 
-    protected float recentDamageTaken = 0.0F;
-    protected int recentHitCounter = 0;
-    @Override
-    public float getRecentDamageTaken() {
-        return recentDamageTaken;
-    }
-
-    @Override
-    public void setRecentDamageTaken(float value) {
-        recentDamageTaken = value;
-    }
-
-    @Override
-    public int getRecentHitCounter() {
-        return recentHitCounter;
-    }
-
-    @Override
-    public void setRecentHitCounter(int value) {
-        recentHitCounter = value;
-    }
-
     public void setLeaveTicks(int leaveTicks) {
         this.leaveTicks = leaveTicks;
     }
@@ -1418,8 +1396,6 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 
         if (this.level() instanceof ServerLevel serverLevel) {
             this.tickVoiceCooldown();
-            this.tickBurstProtectionDecay(this);
-
             if (!this.spawnedBbqSauce) {
                 this.ensureSauceExists(SauceType.BBQ_SAUCE);
                 this.spawnedBbqSauce = true;

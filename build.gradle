@@ -85,6 +85,8 @@ dependencies {
 //    implementation fg.deobf("curse.maven:cloth-config-348521:5729105")
 //    implementation fg.deobf("curse.maven:playeranimator-658587:4587214")
 //    implementation fg.deobf("curse.maven:better-combat-by-daedelus-639842:7287334")
+    implementation fg.deobf("curse.maven:damage-indicator-reborn-1059519:5512460")
+    implementation fg.deobf("curse.maven:jade-324717:8479276")
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
 

@@ -12,6 +12,8 @@ import com.pla.annoyingvillagers.entity.goal.RandomCombatJumpGoal;
 import com.pla.annoyingvillagers.entity.goal.RandomEnderPearlEscapeGoal;
 import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
+import com.pla.annoyingvillagers.entity.goal.CombatFishingRodGoal;
+import com.pla.annoyingvillagers.entity.goal.RollItemGoal;
 import com.pla.annoyingvillagers.entity.goal.ThrowEnderPearlToTargetGoal;
 import com.pla.annoyingvillagers.entity.goal.UseLiquidBucketGoal;
 import com.pla.annoyingvillagers.entity.goal.WaterEnderPearlEscapeGoal;
@@ -637,6 +639,12 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.goalSelector.addGoal(-2, new RecoverWeaponInCombatGoal(this, 1.2D, 10.0D));
         this.goalSelector.addGoal(-1, new EatHealingFoodGoal(this));
         this.goalSelector.addGoal(0, new FloatGoal(this));
+        if (this instanceof RollItemUser) {
+            this.goalSelector.addGoal(1, new RollItemGoal(this));
+        }
+        if (this instanceof FishingRodUser) {
+            this.goalSelector.addGoal(1, new CombatFishingRodGoal(this));
+        }
         this.goalSelector.addGoal(1, new AVNpcRangedBowAttackGoal(this, 1.15D, 20, 14.0F));
         this.goalSelector.addGoal(2, new RandomCombatJumpGoal(this));
         this.goalSelector.addGoal(4, new BowLineOfSightGoal(this, 1.15D, 7.0D, 14.0D));
@@ -867,6 +875,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         if (swapToBowCooldown > 0) swapToBowCooldown--;
         if (placeBlockParryCooldown > 0) placeBlockParryCooldown--;
         if (stunEscapeCooldown > 0) stunEscapeCooldown--;
+        if (this instanceof FishingRodUser fishingRodUser) fishingRodUser.tickCombatFishingRodCooldown();
         if (playingIdleCooldown > 0) playingIdleCooldown--;
         if (efnGuardHitCooldown > 0) efnGuardHitCooldown--;
 

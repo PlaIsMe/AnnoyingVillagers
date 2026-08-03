@@ -2,7 +2,6 @@ package com.pla.annoyingvillagers.rig;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.particle.HitParticleType;
-import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundRigAnimation;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -70,7 +68,6 @@ public final class RigAnimationController {
         mob.setAggressive(true);
         recordActiveAnimation(mob, spec);
         sendAnimation(mob, spec.animationId(), spec.durationTicks());
-        logAvNpcAnimation(mob, target, spec);
         scheduleRigSounds(mob, spec);
         scheduleRootMotion(mob, target, spec);
 
@@ -141,32 +138,6 @@ public final class RigAnimationController {
         private int elapsedTicks(Mob mob) {
             return mob.tickCount - this.startTick;
         }
-    }
-
-    private static void logAvNpcAnimation(Mob mob, LivingEntity target, RigAnimationSpec spec) {
-        if (!(mob instanceof AVNpc)) {
-            return;
-        }
-
-        AnnoyingVillagers.LOGGER.info(
-                "[AV RIG] AVNpc {} played {} target={} duration={} attackWindows={} rootMotion={} pos={}",
-                entityLabel(mob),
-                spec.animationId(),
-                target == null ? "none" : entityLabel(target),
-                spec.durationTicks(),
-                Arrays.toString(spec.attackWindows()),
-                RigRootMotion.maxHorizontalDistanceBlocks(spec.animationId()),
-                mob.blockPosition()
-        );
-    }
-
-    private static String entityLabel(Entity entity) {
-        String type = entity.getEncodeId();
-        if (type == null) {
-            type = entity.getType().toString();
-        }
-
-        return type + "#" + entity.getId();
     }
 
     private static void sendAnimation(Mob mob, RigAnimationId animationId, int durationTicks) {

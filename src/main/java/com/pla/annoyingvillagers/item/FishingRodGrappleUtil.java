@@ -1,8 +1,10 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.clazz.FishingRodUser;
 import com.pla.annoyingvillagers.entity.ItemProjectile;
 import com.pla.annoyingvillagers.entity.HerobrineGregEntity;
 import com.pla.annoyingvillagers.entity.TransporterHerobrineCloneEntity;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.mixin.FishingHookAccessor;
 import java.util.Optional;
 import net.minecraft.sounds.SoundEvents;
@@ -17,6 +19,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +27,7 @@ import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -370,6 +374,27 @@ public final class FishingRodGrappleUtil {
         markNpcCombatHookResolved(hook, true);
     }
 
+    public static boolean damageEnemyHitByNpcHookedFishingRodItem(Mob owner, LivingEntity target, ItemStack stuckItem) {
+        if (!owner.isAlive()
+                || !target.isAlive()
+                || target.isSpectator()
+                || owner.isAlliedTo(target)
+                || stuckItem.isEmpty()) {
+            return false;
+        }
+
+        float damage = calculateNpcHookedFishingRodItemDamage(stuckItem);
+        if (!target.hurt(target.level().damageSources().mobAttack(owner), damage)) {
+            return false;
+        }
+
+        if (stuckItem.is(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get())) {
+            target.playSound(SoundEvents.SHIELD_BLOCK, 1.0F, 0.8F);
+        }
+
+        return true;
+    }
+
     public static boolean tickNpcCombatFishingHook(FishingHook hook) {
         Entity ownerEntity = hook.getOwner();
         boolean serverHook = hook.getPersistentData().getBoolean(KEY_NPC_COMBAT_HOOK);
@@ -435,6 +460,16 @@ public final class FishingRodGrappleUtil {
         return true;
     }
 
+    private static float calculateNpcHookedFishingRodItemDamage(ItemStack stuckItem) {
+        if (stuckItem.is(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get())) {
+            return 10.0F;
+        }
+        if (stuckItem.getItem() instanceof ShieldItem) {
+            return 8.0F;
+        }
+        return 4.0F;
+    }
+
     private static void discardNpcCombatHookPayload(FishingHook hook) {
         ItemProjectile projectile = getStickyItemProjectile(hook);
         if (projectile != null) {
@@ -455,7 +490,7 @@ public final class FishingRodGrappleUtil {
     public static boolean isNpcCombatFishingHookOwner(Entity entity) {
         return entity instanceof LivingEntity owner
                 && !(owner instanceof Player)
-                && isHoldingGrappleRod(owner);
+                && owner instanceof FishingRodUser;
     }
 
     public static void onGrappleHookRemoved(FishingHook hook) {
@@ -483,7 +518,13 @@ public final class FishingRodGrappleUtil {
             offHand = false;
         }
 
-        return (mainHand || offHand) && entity instanceof Player player && player.fishing != null ? 1.0F : 0.0F;
+        if (!mainHand && !offHand) {
+            return 0.0F;
+        }
+        if (entity instanceof Player player) {
+            return player.fishing != null ? 1.0F : 0.0F;
+        }
+        return entity instanceof FishingRodUser && isHoldingGrappleRod(entity) ? 1.0F : 0.0F;
     }
 
     public static boolean shouldOffhandFishingRodTakeRightClick(Player player) {

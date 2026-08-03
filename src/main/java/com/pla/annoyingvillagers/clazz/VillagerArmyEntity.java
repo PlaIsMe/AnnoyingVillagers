@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShieldItem;
@@ -16,11 +17,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public abstract class VillagerArmyEntity extends AVNpc {
+public abstract class VillagerArmyEntity extends AVNpc implements FishingRodUser {
     private static final float OFFHAND_SHIELD_SPAWN_CHANCE = 0.20F;
+    private final FishingRodUser.State combatFishingRodState = new FishingRodUser.State();
 
     protected VillagerArmyEntity(EntityType<? extends VillagerArmyEntity> entityType, Level level) {
         super(entityType, level);
+    }
+
+    @Override
+    public FishingRodUser.State getCombatFishingRodState() {
+        return this.combatFishingRodState;
+    }
+
+    @Override
+    public Item getCombatFishingRodItem() {
+        return AnnoyingVillagersModItems.ADVANCED_FISHING_ROD.get();
     }
 
     @Override

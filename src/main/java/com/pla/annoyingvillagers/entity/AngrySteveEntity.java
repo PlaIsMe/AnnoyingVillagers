@@ -49,28 +49,6 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
     private boolean neverLeave = false;
     private int leaveTicks = 0;
 
-    protected float recentDamageTaken = 0.0F;
-    protected int recentHitCounter = 0;
-    @Override
-    public float getRecentDamageTaken() {
-        return recentDamageTaken;
-    }
-
-    @Override
-    public void setRecentDamageTaken(float value) {
-        recentDamageTaken = value;
-    }
-
-    @Override
-    public int getRecentHitCounter() {
-        return recentHitCounter;
-    }
-
-    @Override
-    public void setRecentHitCounter(int value) {
-        recentHitCounter = value;
-    }
-
     public void setLeaveTicks(int leaveTicks) {
         this.leaveTicks = leaveTicks;
     }
@@ -294,7 +272,6 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
     public void tick() {
         super.tick();
         if (this.level() instanceof ServerLevel) {
-            this.tickBurstProtectionDecay(this);
             CommonUtil.stunImmunity(this, 3, 3);
             if (!neverLeave) {
                 this.leaveTicks = this.leaveTicks - 1;

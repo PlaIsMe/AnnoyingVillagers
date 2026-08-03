@@ -33,7 +33,8 @@
     "client.IllagerRendererMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ItemRendererMixin",
-    "client.ArrowLayerMixin"
+    "client.ArrowLayerMixin",
+    "client.FishingHookRendererMixin"
   ],
   "minVersion": "0.8"
 }

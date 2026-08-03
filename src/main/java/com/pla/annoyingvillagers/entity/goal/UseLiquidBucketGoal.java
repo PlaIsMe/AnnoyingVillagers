@@ -17,13 +17,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 
 import java.util.EnumSet;
 
 public class UseLiquidBucketGoal extends Goal {
-    private static final int PICKUP_DELAY_TICKS = 20;
-    private static final int MAX_PICKUP_TICKS = 60;
+    private static final int WATER_PICKUP_DELAY_TICKS = 5;
+    private static final int LAVA_PICKUP_DELAY_TICKS = 40;
+    private static final int MAX_PICKUP_TICKS = 80;
     private static final int COMBAT_SEARCH_INTERVAL_TICKS = 20;
     private static final double MAX_COMBAT_PLACE_DISTANCE_SQR = 36.0D;
     private static final double RANDOM_COMBAT_PLACE_CHANCE = 0.08D;
@@ -44,6 +46,11 @@ public class UseLiquidBucketGoal extends Goal {
     public UseLiquidBucketGoal(AVNpc avNpc) {
         this.avNpc = avNpc;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+    }
+
+    @Override
+    public boolean requiresUpdateEveryTick() {
+        return true;
     }
 
     @Override
@@ -150,7 +157,7 @@ public class UseLiquidBucketGoal extends Goal {
 
         if (this.pickupLiquid) {
             this.placedLiquidPos = this.placePos.immutable();
-            this.pickupDelayTicks = PICKUP_DELAY_TICKS;
+            this.pickupDelayTicks = pickupDelayFor(this.liquidBlock);
             this.pickupTicks = 0;
             this.finished = false;
         } else {
@@ -163,7 +170,6 @@ public class UseLiquidBucketGoal extends Goal {
     public void stop() {
         if (this.pickupLiquid
                 && !this.finished
-                && this.pickupDelayTicks <= 0
                 && this.avNpc.level() instanceof ServerLevel serverLevel) {
             this.tryPickupLiquid(serverLevel);
         }
@@ -201,15 +207,11 @@ public class UseLiquidBucketGoal extends Goal {
 
     private Item chooseCombatBucket(LivingEntity target) {
         boolean hasLava = InventoryUtils.hasItem(this.avNpc, Items.LAVA_BUCKET);
-        boolean hasWater = this.canUseWaterBucket() && InventoryUtils.hasItem(this.avNpc, Items.WATER_BUCKET);
 
-        if (hasLava && !target.isInWater() && (this.avNpc.getRandom().nextBoolean() || !hasWater)) {
+        if (hasLava && !target.isInWater()) {
             return Items.LAVA_BUCKET;
         }
-        if (hasWater) {
-            return Items.WATER_BUCKET;
-        }
-        return hasLava && !target.isInWater() ? Items.LAVA_BUCKET : Items.AIR;
+        return Items.AIR;
     }
 
     private boolean canUseWaterBucket() {
@@ -220,8 +222,6 @@ public class UseLiquidBucketGoal extends Goal {
         BlockPos feet = this.avNpc.blockPosition();
         BlockPos[] candidates = {
                 feet,
-                feet.above(),
-                feet.below(),
                 feet.relative(this.avNpc.getDirection()),
                 feet.relative(this.avNpc.getDirection().getOpposite())
         };
@@ -242,8 +242,7 @@ public class UseLiquidBucketGoal extends Goal {
                 feet,
                 feet.relative(facing.getOpposite()),
                 feet.relative(facing.getClockWise()),
-                feet.relative(facing.getCounterClockWise()),
-                feet.above()
+                feet.relative(facing.getCounterClockWise())
         };
 
         for (BlockPos candidate : candidates) {
@@ -260,11 +259,25 @@ public class UseLiquidBucketGoal extends Goal {
             return false;
         }
 
-        if (bucket == Items.WATER_BUCKET && allowReplacingLava && serverLevel.getFluidState(pos).is(FluidTags.LAVA)) {
+        if (!this.hasGroundSupport(serverLevel, pos)) {
+            return false;
+        }
+
+        FluidState fluidState = serverLevel.getFluidState(pos);
+        if (bucket == Items.WATER_BUCKET && allowReplacingLava && fluidState.is(FluidTags.LAVA)) {
             return true;
         }
 
-        return serverLevel.getBlockState(pos).isAir() && serverLevel.getFluidState(pos).isEmpty();
+        BlockState blockState = serverLevel.getBlockState(pos);
+        return (blockState.isAir() || blockState.canBeReplaced()) && fluidState.isEmpty();
+    }
+
+    private boolean hasGroundSupport(ServerLevel serverLevel, BlockPos pos) {
+        BlockPos belowPos = pos.below();
+        BlockState belowState = serverLevel.getBlockState(belowPos);
+        return belowState.getFluidState().isEmpty()
+                && (belowState.isFaceSturdy(serverLevel, belowPos, Direction.UP)
+                || !belowState.getCollisionShape(serverLevel, belowPos).isEmpty());
     }
 
     private boolean tryPickupLiquid(ServerLevel serverLevel) {
@@ -305,6 +318,10 @@ public class UseLiquidBucketGoal extends Goal {
 
     private static SoundEvent fillSoundFor(Item filledBucket) {
         return filledBucket == Items.LAVA_BUCKET ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL;
+    }
+
+    private static int pickupDelayFor(Block liquidBlock) {
+        return liquidBlock == Blocks.LAVA ? LAVA_PICKUP_DELAY_TICKS : WATER_PICKUP_DELAY_TICKS;
     }
 
     private void restoreOffhand() {

@@ -86,8 +86,6 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
     private int swapWeaponCooldown;
     private int efnGuardHitState = 0;
     private int efnGuardHitCooldown = 0;
-    protected float recentDamageTaken = 0.0F;
-    protected int recentHitCounter = 0;
     private int voiceCooldown = 0;
 
     @Override
@@ -98,26 +96,6 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
     @Override
     public void setVoiceCooldown(int cooldown) {
         this.voiceCooldown = cooldown;
-    }
-
-    @Override
-    public float getRecentDamageTaken() {
-        return recentDamageTaken;
-    }
-
-    @Override
-    public void setRecentDamageTaken(float value) {
-        recentDamageTaken = value;
-    }
-
-    @Override
-    public int getRecentHitCounter() {
-        return recentHitCounter;
-    }
-
-    @Override
-    public void setRecentHitCounter(int value) {
-        recentHitCounter = value;
     }
 
     public int getEfnGuardHitState() {
@@ -937,8 +915,6 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         this.checkInsideBlocks();
         if (this.level() instanceof ServerLevel serverLevel) {
             this.tickVoiceCooldown();
-            this.tickBurstProtectionDecay(this);
-
             if (stunEscapeCooldown > 0) stunEscapeCooldown--;
             if (swapWeaponCooldown > 0) swapWeaponCooldown--;
             if (efnGuardHitCooldown > 0) efnGuardHitCooldown--;

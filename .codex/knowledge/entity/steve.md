@@ -8,10 +8,10 @@ Session facts in this file come from the current workspace code and the edits di
 
 - `src/main/java/com/pla/annoyingvillagers/entity/SteveEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/event/TotemUsingEvent.java`
-- `src/main/java/com/pla/annoyingvillagers/compat/epicfight/patch/StevePatch.java`
-- `src/main/java/com/pla/annoyingvillagers/combatbehaviour/CombatCommon.java`
-- `src/main/java/com/pla/annoyingvillagers/combatbehaviour/CombatBehaviourTemplates.java`
-- `src/main/java/com/pla/annoyingvillagers/combatbehaviour/AvNpcCombatBehaviorBuilder.java`
+- `src/main/java/com/pla/annoyingvillagers/clazz/RollItemUser.java`
+- `src/main/java/com/pla/annoyingvillagers/clazz/FishingRodUser.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/RollItemGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/CombatFishingRodGoal.java`
 - `src/main/java/com/pla/annoyingvillagers/util/InventoryUtils.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/goal/FillWaterBucketGoal.java`
 - `src/main/java/com/pla/annoyingvillagers/item/TonyTheFishingRod.java`
@@ -74,6 +74,13 @@ After Steve uses the totem:
 
 `rollItem()` controls Steve's combat item swaps.
 
+Steve implements `RollItemUser`, so `AVNpc.registerGoals()` automatically installs `RollItemGoal`. The goal checks `SteveEntity.canRollItem()`, plays either `ROLL_BACKWARD` or `STEP_BACKWARD`, then calls `rollItem()` after a short delay. This keeps the visible backward rig movement ahead of the actual weapon swap and keeps the goal reusable for other mobs that implement `RollItemUser`.
+
+Steve can roll items when he has a living target and either:
+
+- block-damage handling is idle and `swapWeaponCooldown` is `0`,
+- or state `0` Steve is at `<= 20` health and is not already holding a diamond sword.
+
 In state `1`, when Steve is above half health:
 
 - roll `< 0.2`: Woopie The Sword in main hand and Jessica The Dark Shield in off hand.
@@ -90,7 +97,7 @@ In state `0`, if health is `<= 20`, Steve equips a diamond sword and a totem.
 
 If no phase-specific branch selected equipment, Steve picks one normal item from diamond sword, wooden door, crafting table, ladder, or trapdoor.
 
-After rolling, Steve stores a copy of the main hand stack as `mainWeaponItem` and sets swap cooldown to a random value from 100 to 199 ticks.
+After rolling, Steve stores copies of the current main hand and off hand as `mainWeaponItem` and `offWeaponItem`, then sets swap cooldown to a random value from 100 to 199 ticks.
 
 ## Tick Behavior
 
@@ -162,13 +169,15 @@ When the EFN compatibility path is loaded, guard hit handling applies for diamon
 
 ## Tony Fishing Rod Availability
 
-Steve is an NPC combat fishing rod user.
+Steve is an NPC combat fishing rod user through `FishingRodUser`.
 
-`CombatCommon.getNpcCombatFishingRodItem(mob)` returns `AnnoyingVillagersModItems.TONY_THE_FISHING_ROD` for Steve.
+`SteveEntity.getCombatFishingRodItem()` returns `AnnoyingVillagersModItems.TONY_THE_FISHING_ROD`.
 
-Steve state `0` is blocked from starting new fishing rod sessions by `isStevePhaseOneFishingRodBlocked`. This preserves first-phase totem/offhand behavior. If a fishing rod session is already active, the active session is allowed to finish.
+Steve state `0` is blocked from starting new fishing rod sessions by `canStartCombatFishingRodSession`. This preserves first-phase totem/offhand behavior. If a fishing rod session is already active, the active session is allowed to finish or restore.
 
-Steve state `1` can use Tony The Fishing Rod through `CombatBehaviourTemplates.combatFishingRodRoot()` and `combatFishingRodEscapeRoot()`.
+Steve state `1` can use Tony The Fishing Rod through `CombatFishingRodGoal`, which is installed automatically by `AVNpc.registerGoals()` for any `FishingRodUser`.
+
+Villager knights implement the same `FishingRodUser` contract through `VillagerArmyEntity`, but return `ADVANCED_FISHING_ROD` instead of Tony.
 
 ## Steve Tony Fishing Rod Actions
 
@@ -205,18 +214,19 @@ Jessica payloads used by NPC fishing rod sessions are discarded by the hook clea
 
 Steve's fishing rod use is not a normal player right click.
 
-The NPC combat flow:
+The current NPC combat flow is goal-driven:
 
 1. Save Steve's original offhand.
 2. Mark the NPC fishing rod session active.
 3. Equip Tony The Fishing Rod in the off hand.
 4. Swing offhand and play bobber throw sound.
-5. Use `AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP` through the combat behavior root.
-6. Spawn a tagged NPC combat fishing hook.
-7. Wait until the hook hits/resolves or until max wait reaches 80 ticks.
-8. Resolve the pull/plunge/escape action.
-9. Return the hook and increment session use count.
-10. Maybe restore the original offhand.
+5. Spawn a tagged NPC combat fishing hook through `FishingRodGrappleUtil.spawnNpcCombatFishingHook`.
+6. Wait until the hook hits/resolves or until max wait reaches 80 ticks.
+7. Resolve the pull/plunge/reposition action.
+8. Return the hook and increment session use count.
+9. Maybe restore the original offhand.
+
+Mob fishing rod session state lives in `FishingRodUser.State` fields rather than ad hoc persistent mob NBT keys. Hook-specific travel/return state still lives on the hook entity because that is how the bobber mechanics already sync and clean up.
 
 The restore chance after each hook is based on session use count:
 

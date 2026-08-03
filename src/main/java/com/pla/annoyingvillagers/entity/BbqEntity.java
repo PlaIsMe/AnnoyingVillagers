@@ -95,28 +95,6 @@ public class BbqEntity extends Chicken implements BurstProtectEntity, CombatVoic
         this.voiceCooldown = cooldown;
     }
 
-    protected float recentDamageTaken = 0.0F;
-    protected int recentHitCounter = 0;
-    @Override
-    public float getRecentDamageTaken() {
-        return recentDamageTaken;
-    }
-
-    @Override
-    public void setRecentDamageTaken(float value) {
-        recentDamageTaken = value;
-    }
-
-    @Override
-    public int getRecentHitCounter() {
-        return recentHitCounter;
-    }
-
-    @Override
-    public void setRecentHitCounter(int value) {
-        recentHitCounter = value;
-    }
-
     public boolean isEscapeFlying() {
         return this.escapeMode && this.escapeFlying;
     }
@@ -1013,8 +991,6 @@ public class BbqEntity extends Chicken implements BurstProtectEntity, CombatVoic
         }
 
         this.tickVoiceCooldown();
-        this.tickBurstProtectionDecay(this);
-
         if (this.deathWatchMode) {
             this.tickLeaderDeathWatch();
             return;
@@ -1218,20 +1194,6 @@ public class BbqEntity extends Chicken implements BurstProtectEntity, CombatVoic
         if (!pDamageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             float cap = this.getMaxHealth() * 0.025F;
             f1 = Mth.clamp(f1, 0.0F, cap);
-
-            float damageScale = 1.0F - Mth.clamp(this.recentDamageTaken / (this.getMaxHealth() * 0.07F), 0.0F, 0.9F);
-            float hitScale = 1.0F - Mth.clamp((float) this.recentHitCounter / 5.0F, 0.0F, 0.9F);
-
-            f1 *= damageScale;
-
-            if (this.recentHitCounter >= 5) {
-                f1 = 0.1F;
-            } else {
-                f1 *= hitScale;
-            }
-
-            this.recentHitCounter++;
-            this.recentDamageTaken += f1;
         }
         if (f1 <= 0.0F) {
             return;

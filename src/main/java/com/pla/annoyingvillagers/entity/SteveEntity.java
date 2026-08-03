@@ -4,6 +4,8 @@ import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.clazz.Difficulty;
+import com.pla.annoyingvillagers.clazz.FishingRodUser;
+import com.pla.annoyingvillagers.clazz.RollItemUser;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -27,6 +29,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShieldItem;
@@ -46,34 +49,13 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class SteveEntity extends AVNpc implements BurstProtectEntity {
+public class SteveEntity extends AVNpc implements BurstProtectEntity, RollItemUser, FishingRodUser {
     // 0: normal
     // 1: second
     private int state = 0;
     private int swapWeaponCooldown;
     private boolean sayLegendary = false;
-
-    protected float recentDamageTaken = 0.0F;
-    protected int recentHitCounter = 0;
-    @Override
-    public float getRecentDamageTaken() {
-        return recentDamageTaken;
-    }
-
-    @Override
-    public void setRecentDamageTaken(float value) {
-        recentDamageTaken = value;
-    }
-
-    @Override
-    public int getRecentHitCounter() {
-        return recentHitCounter;
-    }
-
-    @Override
-    public void setRecentHitCounter(int value) {
-        recentHitCounter = value;
-    }
+    private final FishingRodUser.State combatFishingRodState = new FishingRodUser.State();
 
     @Override
     public float getBurstProtectCapRatio() {
@@ -132,6 +114,44 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity {
 
     public int getSwapWeaponCooldown() {
         return swapWeaponCooldown;
+    }
+
+    @Override
+    public boolean canRollItem() {
+        LivingEntity target = this.getTarget();
+        if (target == null || !target.isAlive()) {
+            return false;
+        }
+
+        return (this.getBlockDamage() == null && this.swapWeaponCooldown == 0)
+                || (this.state == 0
+                && this.getHealth() <= 20.0F
+                && !this.getMainHandItem().is(Items.DIAMOND_SWORD));
+    }
+
+    @Override
+    public FishingRodUser.State getCombatFishingRodState() {
+        return this.combatFishingRodState;
+    }
+
+    @Override
+    public Item getCombatFishingRodItem() {
+        return AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get();
+    }
+
+    @Override
+    public boolean canStartCombatFishingRodSession(Mob self) {
+        return this.state == 1;
+    }
+
+    @Override
+    public boolean canUseStickyCombatFishingRodTarget() {
+        return this.state == 1;
+    }
+
+    @Override
+    public boolean canUseJessicaCombatFishingRodHook() {
+        return this.state == 1;
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
@@ -457,6 +477,7 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity {
             }
         }
         this.setMainWeaponItem(this.getMainHandItem().copy());
+        this.setOffWeaponItem(this.getOffhandItem().copy());
         this.swapWeaponCooldown = new Random().nextInt(100, 200);
     }
 

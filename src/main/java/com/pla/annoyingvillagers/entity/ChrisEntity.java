@@ -43,28 +43,6 @@ import java.util.function.Consumer;
 
 public class ChrisEntity extends AVNpc implements BurstProtectEntity {
     private int state = 0;
-    protected float recentDamageTaken = 0.0F;
-    protected int recentHitCounter = 0;
-    @Override
-    public float getRecentDamageTaken() {
-        return recentDamageTaken;
-    }
-
-    @Override
-    public void setRecentDamageTaken(float value) {
-        recentDamageTaken = value;
-    }
-
-    @Override
-    public int getRecentHitCounter() {
-        return recentHitCounter;
-    }
-
-    @Override
-    public void setRecentHitCounter(int value) {
-        recentHitCounter = value;
-    }
-
     @Override
     public float getBurstProtectCapRatio() {
         return 0.15F;
