@@ -5,6 +5,7 @@ public record RigAnimationSpec(
         int durationTicks,
         RigAttackWindow[] attackWindows,
         double attackReachBlocks,
+        RigAnimationPlaybackType playbackType,
         boolean damagesTarget
 ) {
     public RigAnimationSpec {
@@ -29,6 +30,9 @@ public record RigAnimationSpec(
         if (attackReachBlocks < 0.0D) {
             throw new IllegalArgumentException("attackReachBlocks must be >= 0");
         }
+        if (playbackType == null) {
+            throw new IllegalArgumentException("playbackType cannot be null");
+        }
         if (damagesTarget && !animationId.isAttack()) {
             throw new IllegalArgumentException("Only *_ATTACK animations can damage targets");
         }
@@ -41,7 +45,7 @@ public record RigAnimationSpec(
     }
 
     public static RigAnimationSpec normalAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive) {
-        return normalAttack(animationId, durationTicks, attackStartTickInclusive, attackEndTickExclusive, 3.0D);
+        return normalAttack(animationId, durationTicks, attackStartTickInclusive, attackEndTickExclusive, 1.0D);
     }
 
     public static RigAnimationSpec normalAttack(RigAnimationId animationId, int durationTicks, int attackStartTickInclusive, int attackEndTickExclusive, double attackReachBlocks) {
@@ -61,7 +65,11 @@ public record RigAnimationSpec(
     }
 
     public static RigAnimationSpec nonDamaging(RigAnimationId animationId, int durationTicks) {
-        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], 0.0D, false);
+        return nonDamaging(animationId, durationTicks, RigAnimationPlaybackType.DEFAULT);
+    }
+
+    public static RigAnimationSpec nonDamaging(RigAnimationId animationId, int durationTicks, RigAnimationPlaybackType playbackType) {
+        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], 0.0D, playbackType, false);
     }
 
     private static RigAnimationSpec attack(RigAnimationId animationId, int durationTicks, double attackReachBlocks, RigAttackWindow... attackWindows) {
@@ -69,7 +77,7 @@ public record RigAnimationSpec(
             throw new IllegalArgumentException("Attack specs require sword attack animation ids");
         }
 
-        return new RigAnimationSpec(animationId, durationTicks, attackWindows, attackReachBlocks, true);
+        return new RigAnimationSpec(animationId, durationTicks, attackWindows, attackReachBlocks, RigAnimationPlaybackType.DEFAULT, true);
     }
 
     @Override

@@ -7,11 +7,18 @@ import com.pla.annoyingvillagers.entity.goal.EatHealingFoodGoal;
 import com.pla.annoyingvillagers.entity.goal.FillWaterBucketGoal;
 import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
 import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
+import com.pla.annoyingvillagers.entity.goal.AVNpcRangedBowAttackGoal;
+import com.pla.annoyingvillagers.entity.goal.RandomCombatJumpGoal;
+import com.pla.annoyingvillagers.entity.goal.RandomEnderPearlEscapeGoal;
 import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
-import com.pla.annoyingvillagers.entity.goal.UseWaterBucketGoal;
+import com.pla.annoyingvillagers.entity.goal.ThrowEnderPearlToTargetGoal;
+import com.pla.annoyingvillagers.entity.goal.UseLiquidBucketGoal;
 import com.pla.annoyingvillagers.entity.goal.WaterEnderPearlEscapeGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
+import com.pla.annoyingvillagers.rig.RigBowAnimationSelector;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.*;
 import net.minecraft.nbt.CompoundTag;
@@ -30,6 +37,7 @@ import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -281,7 +289,44 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     public ItemStack getBowItem() {
-        return new ItemStack(Items.BOW);
+        ItemStack bow = new ItemStack(Items.BOW);
+
+        if (this instanceof VillagerScoutCaptainEntity) {
+            bow.enchant(Enchantments.POWER_ARROWS, 1);
+            bow.enchant(Enchantments.PUNCH_ARROWS, 1);
+        }
+        if (this instanceof RedVillagerKnightEntity) {
+            bow.enchant(Enchantments.FLAMING_ARROWS, 2);
+        }
+        if (this instanceof BlueVillagerKnightEntity) {
+            bow.enchant(Enchantments.POWER_ARROWS, 2);
+        }
+        if (this instanceof GreenVillagerKnightEntity) {
+            bow.enchant(Enchantments.POWER_ARROWS, 1);
+            bow.enchant(Enchantments.FLAMING_ARROWS, 1);
+        }
+        if (this instanceof PurpleVillagerKnightEntity) {
+            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+        }
+        if ((this instanceof SteveEntity steveEntity && steveEntity.getState() == 1)
+                || this instanceof AngrySteveEntity) {
+            bow.enchant(Enchantments.POWER_ARROWS, 2);
+            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+            if (this instanceof AngrySteveEntity) {
+                bow.enchant(Enchantments.FLAMING_ARROWS, 2);
+            }
+        }
+        if (this instanceof AlexEntity alexEntity && alexEntity.getState() == 1) {
+            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+            bow.enchant(Enchantments.POWER_ARROWS, 2);
+            bow.enchant(Enchantments.FLAMING_ARROWS, 1);
+        }
+        if (this instanceof ChrisEntity chrisEntity && chrisEntity.getState() == 1) {
+            bow.enchant(Enchantments.POWER_ARROWS, 2);
+            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+        }
+
+        return bow;
     }
 
     public int getGapCooldown() {
@@ -585,11 +630,15 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     protected void registerGoals() {
         super.registerGoals();
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
-        this.goalSelector.addGoal(-4, new UseWaterBucketGoal(this));
+        this.goalSelector.addGoal(-4, new UseLiquidBucketGoal(this));
         this.goalSelector.addGoal(-3, new WaterEnderPearlEscapeGoal(this));
+        this.goalSelector.addGoal(-3, new ThrowEnderPearlToTargetGoal(this));
+        this.goalSelector.addGoal(-3, new RandomEnderPearlEscapeGoal(this));
         this.goalSelector.addGoal(-2, new RecoverWeaponInCombatGoal(this, 1.2D, 10.0D));
         this.goalSelector.addGoal(-1, new EatHealingFoodGoal(this));
         this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new AVNpcRangedBowAttackGoal(this, 1.15D, 20, 14.0F));
+        this.goalSelector.addGoal(2, new RandomCombatJumpGoal(this));
         this.goalSelector.addGoal(4, new BowLineOfSightGoal(this, 1.15D, 7.0D, 14.0D));
         this.goalSelector.addGoal(5, new BurnNearbyItemGoal(this, 1.0D, 10.0D));
         this.goalSelector.addGoal(6, new PlayIdleAnimationGoal(this, new Random().nextInt(120, 240)));
@@ -632,6 +681,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         double d3 = Math.sqrt(x * x + z * z);
         mobArrow.setOwner(this);
         mobArrow.shoot(x, y + d3 * (double)0.2F, z, 1.6F, (float)(14 - this.level().getDifficulty().getId() * 4));
+        RigAnimationController.play(this, RigAnimationSpecs.get(RigBowAnimationSelector.shotForTarget(this, pTarget)), pTarget);
         this.playSound(SoundEvents.ARROW_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
         this.level().addFreshEntity(mobArrow);
     }
@@ -705,6 +755,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         if (!InventoryUtils.isEmpty(this.inventory)) {
             return false;
         }
+        InventoryUtils.addItem(this.inventory, this.getBowItem());
         return true;
     }
 
@@ -731,9 +782,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     @Override
     public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        if (this.hasEnderPearlCounter()) {
-            this.tryTriggerEnderPearlCounter(damageSource);
-        }
         boolean result = super.hurt(damageSource, f);
         if (result) {
             this.sayHurtSound(this, damageSource);
@@ -748,132 +796,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             this.sayAttackSound(this, target);
         }
         return result;
-    }
-
-    protected boolean hasEnderPearlCounter() {
-        return false;
-    }
-
-    protected void beforeEnderPearlCounter(@NotNull DamageSource damageSource) {
-    }
-
-    protected void afterEnderPearlCounter(@NotNull DamageSource damageSource) {
-    }
-
-    protected void doEnderPearlCounterPattern(@NotNull DamageSource damageSource) {
-        this.throwEnderPearlNow(180.0F);
-    }
-
-    protected void playEnderPearlCounterAnimation() {
-//        ADD THIS CODE IN AV_EFM
-//        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
-//        }
-        this.swing(InteractionHand.OFF_HAND, true);
-    }
-
-    protected boolean throwEnderPearlNow(float angle) {
-        return CombatBehaviour.throwEnderPearl(this, angle);
-    }
-
-    protected void throwEnderPearlLater(int delayTicks, float angle) {
-        AVNpc entity = this;
-        new DelayedTask(delayTicks) {
-            @Override
-            public void run() {
-                if (!entity.isAlive()) return;
-                entity.playEnderPearlCounterAnimation();
-                entity.throwEnderPearlNow(angle);
-            }
-        };
-    }
-
-    protected void throwEnderPearlLater(int delayTicks, double chance, float angle) {
-        if (this.random.nextDouble() <= chance) {
-            this.throwEnderPearlLater(delayTicks, angle);
-        }
-    }
-
-    protected void doChrisStyleEnderPearlCounter() {
-        this.throwEnderPearlNow(180.0F);
-        this.throwEnderPearlLater(20, 0.2D, 90.0F);
-    }
-
-    protected void doSteveStyleEnderPearlCounter() {
-        this.throwEnderPearlNow(new Random().nextFloat(90.0F, 180.0F));
-        this.throwEnderPearlLater(20, 0.5D, 180.0F);
-        this.throwEnderPearlLater(20, 0.3D, 90.0F);
-    }
-
-    protected void doVillagerKnightStyleEnderPearlCounter() {
-        this.throwEnderPearlNow(new Random().nextFloat(90.0F, 180.0F));
-        this.throwEnderPearlLater(40, 0.5D, 0.0F);
-        this.throwEnderPearlLater(20, 0.2D, 180.0F);
-        this.throwEnderPearlLater(20, 0.1D, 90.0F);
-    }
-
-    protected void tryTriggerEnderPearlCounter(@NotNull DamageSource damageSource) {
-//        ADD THIS CODE IN AV_EFM
-//        LivingEntityPatch<?> patch = this.getLivingEntityPatch();
-//        AssetAccessor<? extends StaticAnimation> dynamicAnimation = this.getCurrentAnimationOrEmpty();
-//        if (EpicfightUtil.isLongHitAnimation(dynamicAnimation, patch)) {
-//            return;
-//        }
-//        if (dynamicAnimation != Animations.EMPTY_ANIMATION) {
-//            return;
-//        }
-//
-//        if (!(patch instanceof MobPatch<?> mobPatch)) {
-//            return;
-//        }
-//
-//        if (!CombatCommon.canPerformNormalAttackLogic(mobPatch)) {
-//            return;
-//        }
-
-        if (damageSource.getEntity() == null) {
-            return;
-        }
-
-        if (this.getEnderPearlCooldown() != 0) {
-            return;
-        }
-
-        if (!(this.level() instanceof ServerLevel)) {
-            return;
-        }
-
-        if (!InventoryUtils.hasItem(this, Items.ENDER_PEARL)) {
-            return;
-        }
-
-        this.beforeEnderPearlCounter(damageSource);
-        this.playEnderPearlCounterAnimation();
-        this.doEnderPearlCounterPattern(damageSource);
-        this.afterEnderPearlCounter(damageSource);
-        this.setEnderPearlCooldown();
-    }
-
-    protected ItemStack getEnderPearlCounterRestoreOffhandItem() {
-        return this.getOffWeaponItem().copy();
-    }
-
-    protected void restoreOffhandLater(int delayTicks) {
-        AVNpc entity = this;
-        ItemStack restore = this.getEnderPearlCounterRestoreOffhandItem().copy();
-
-        new DelayedTask(delayTicks) {
-            @Override
-            public void run() {
-                if (!entity.isAlive()) return;
-                entity.setItemInHand(InteractionHand.OFF_HAND, restore.copy());
-            }
-        };
-    }
-
-    protected void swapOffhandDuringEnderPearlCounter(ItemStack temporaryOffhand, int restoreDelayTicks) {
-        this.setItemInHand(InteractionHand.OFF_HAND, temporaryOffhand.copy());
-        this.restoreOffhandLater(restoreDelayTicks);
     }
 
     protected boolean afterBurstProtection(@NotNull ServerLevel serverLevel,

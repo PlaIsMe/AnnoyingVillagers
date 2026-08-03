@@ -90,26 +90,6 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
         return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.villager.death"));
     }
 
-    @Override
-    protected boolean hasEnderPearlCounter() {
-        return true;
-    }
-
-    @Override
-    protected void beforeEnderPearlCounter(@NotNull DamageSource damageSource) {
-        this.swapOffhandDuringEnderPearlCounter(new ItemStack(Items.DIAMOND_SWORD), 120);
-    }
-
-    @Override
-    protected ItemStack getEnderPearlCounterRestoreOffhandItem() {
-        return new ItemStack(Items.ENDER_PEARL);
-    }
-
-    @Override
-    protected void doEnderPearlCounterPattern(@NotNull DamageSource damageSource) {
-        this.doSteveStyleEnderPearlCounter();
-    }
-
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, compoundTag);
 

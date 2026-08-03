@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.world.entity.Mob;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class RigMobRenderer<T extends Mob> extends HumanoidMobRenderer<T, ModelRig<T>> {
 
@@ -33,5 +34,10 @@ public abstract class RigMobRenderer<T extends Mob> extends HumanoidMobRenderer<
         if (addArrowLayer) {
             this.addLayer(new RigArrowLayer<T>(context, this));
         }
+    }
+
+    @Override
+    protected float getFlipDegrees(@NotNull T entity) {
+        return 0.0F;
     }
 }

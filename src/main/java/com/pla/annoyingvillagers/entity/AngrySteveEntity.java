@@ -147,16 +147,6 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
     }
 
     @Override
-    protected boolean hasEnderPearlCounter() {
-        return true;
-    }
-
-    @Override
-    protected void doEnderPearlCounterPattern(@NotNull DamageSource damageSource) {
-        this.doSteveStyleEnderPearlCounter();
-    }
-
-    @Override
     public float getBurstProtectCapRatio() {
         return 0.05F;
     }

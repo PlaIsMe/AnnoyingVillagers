@@ -12,6 +12,78 @@
       {
         "name": "annoyingvillagers:entity/weapon/whoosh2",
         "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing1",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing2",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing3",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing4",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing5",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing6",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing7",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing8",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing9",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing10",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing11",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing12",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing13",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing14",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing15",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing16",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing17",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/sword_swing18",
+        "stream": true
       }
     ]
   },
@@ -146,7 +218,135 @@
   "clash": {
     "sounds": [
       {
-        "name": "annoyingvillagers:clash",
+        "name": "annoyingvillagers:entity/hit/clash1",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash2",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash3",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash4",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash5",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash6",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash7",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash8",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash9",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash10",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash11",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash12",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash13",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash14",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash15",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash16",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash17",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash18",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash19",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash20",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash21",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash22",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash23",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash24",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash25",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash26",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash27",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash28",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash29",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash30",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash31",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash32",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/clash33",
         "stream": false
       }
     ]

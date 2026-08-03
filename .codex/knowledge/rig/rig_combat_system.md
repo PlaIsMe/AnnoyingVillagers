@@ -19,14 +19,24 @@ Common server-safe rig combat metadata lives in `src/main/java/com/pla/annoyingv
 `RigAnimationId.isUltimateAttack()` is true only for `DANCING_EDGE`. `SWEEPING_EDGE` is a normal attack even though it used to be treated as an ultimate.
 `RigAnimationId.isRollAnimation()` is true for `ROLL_FORWARD` and `ROLL_BACKWARD`.
 `RigAnimationId.isStepAnimation()` is true for `STEP_FORWARD`, `STEP_BACKWARD`, `STEP_LEFT`, and `STEP_RIGHT`.
+`RigAnimationId.isUtilityAnimation()` is true for `EAT_OFFHAND`, `EAT_MAINHAND`, and `THROW_ENDER_PEARL`.
 
 `RigAnimationSpec` defines logic metadata:
 - `durationTicks`
 - `attackWindows`
 - `attackReachBlocks`
+- `playbackType`
 - `damagesTarget`
 
 `RigAnimationSpec` no longer stores movement metadata. Do not reintroduce `RigMovementType`, `lungeDistanceBlocks`, or `jumpStrength`; animation movement comes from `RigRootMotion`.
+
+`RigAnimationPlaybackType` controls which model parts a one-shot animation is allowed to override during client blending:
+- `DEFAULT`: whole body
+- `LEFT_HAND`: full left arm tree
+- `MAIN_HAND`: full right arm tree
+- `BOTH_HAND`: both arm trees
+
+The playback type is a client render mask. It is not sent in the network packet because the client resolves it from `RigAnimationSpecs.get(animationId)`.
 
 `attackWindows` is an array of `RigAttackWindow(startTickInclusive, endTickExclusive)` values. A window represents the active sword-swing state for that phase. Simple attacks have one window. Multi-phase attacks define multiple windows.
 
@@ -60,6 +70,9 @@ Factory methods enforce intended construction:
 - `STEP_LEFT`: duration `7`
 - `STEP_RIGHT`: duration `7`
 - `JUMP`: duration `10`
+- `EAT_OFFHAND`: duration `32`, playback type `LEFT_HAND`
+- `EAT_MAINHAND`: duration `32`, playback type `MAIN_HAND`
+- `THROW_ENDER_PEARL`: duration `10`, playback type `BOTH_HAND`
 
 Attack windows correspond to the active swing state. Before a window is anticipation/preparation. After a window is recovery. Among current shared ids, only `DANCING_EDGE` is multi-phase and has three separate windows. `SWORD_DUAL_AUTO3` and `SWORD_DUAL_DASH` use both weapon colliders in one phase, so each remains a single server damage window.
 
@@ -95,6 +108,7 @@ Rig sound rules:
 - `DANCING_EDGE` plays `AnnoyingVillagersModSounds.WHOOSH_SHARP` when each attack window starts
 - successful rig damage plays `AnnoyingVillagersModSounds.BLADE_HIT` at the target position
 - `ROLL_FORWARD` and `ROLL_BACKWARD` play `AnnoyingVillagersModSounds.ROLL` at animation start
+- utility animations do not play attack, roll, or fallback step sounds
 - step animations play the current block-under-feet hit sound at animation start instead of using a custom step asset
 
 ## Weapon profiles

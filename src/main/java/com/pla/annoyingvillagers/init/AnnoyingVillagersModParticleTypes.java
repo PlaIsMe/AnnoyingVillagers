@@ -49,4 +49,6 @@ public class AnnoyingVillagersModParticleTypes {
             REGISTRY.register("ground_slam", () -> new SimpleParticleType(true));
     public static final RegistryObject<HitParticleType> HIT_BLUNT =
             REGISTRY.register("hit_blunt", () -> new HitParticleType(true, HitParticleType.RANDOM_WITHIN_BOUNDING_BOX, HitParticleType.ZERO));
+    public static final RegistryObject<HitParticleType> BLADE_RUSH =
+            REGISTRY.register("blade_rush", () -> new HitParticleType(true, HitParticleType.RANDOM_WITHIN_BOUNDING_BOX, HitParticleType.ZERO));
 }

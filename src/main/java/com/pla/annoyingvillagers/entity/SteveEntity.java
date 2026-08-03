@@ -143,16 +143,6 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity {
     }
 
     @Override
-    protected boolean hasEnderPearlCounter() {
-        return true;
-    }
-
-    @Override
-    protected void doEnderPearlCounterPattern(@NotNull DamageSource damageSource) {
-        this.doSteveStyleEnderPearlCounter();
-    }
-
-    @Override
     protected boolean afterBurstProtection(@NotNull ServerLevel serverLevel,
                                            @NotNull DamageSource source,
                                            float finalDamage) {

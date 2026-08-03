@@ -4,6 +4,8 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.entity.DragonMeteoriteEntity;
 import com.pla.annoyingvillagers.entity.ObsidianSledgehammerProjectileEntity;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.InventoryUtils;
@@ -268,6 +270,41 @@ public final class MobPlaceBlockEvent {
     }
 
     private static void rollAndSwapAfterPlaceBlock(AVNpc avNpc) {
+        double chance = avNpc.getRandom().nextDouble();
+        boolean canSwapToBow = canSwapToBowAfterPlaceBlock(avNpc);
+        boolean swapToBow = canSwapToBow && chance <= 0.7D;
+        RigAnimationId animationId;
+
+        if (canSwapToBow) {
+            if (chance <= 0.25D) {
+                animationId = RigAnimationId.KNOCKDOWN_WAKEUP_RIGHT;
+            } else if (chance <= 0.5D) {
+                animationId = RigAnimationId.KNOCKDOWN_WAKEUP_LEFT;
+            } else if (chance <= 0.7D) {
+                animationId = RigAnimationId.ROLL_BACKWARD;
+            } else if (chance <= 0.8D) {
+                animationId = RigAnimationId.KNOCKDOWN_WAKEUP_RIGHT;
+            } else if (chance <= 0.9D) {
+                animationId = RigAnimationId.KNOCKDOWN_WAKEUP_LEFT;
+            } else {
+                animationId = RigAnimationId.ROLL_BACKWARD;
+            }
+        } else {
+            if (chance <= 0.4D) {
+                animationId = RigAnimationId.KNOCKDOWN_WAKEUP_RIGHT;
+            } else if (chance <= 0.5D) {
+                animationId = RigAnimationId.KNOCKDOWN_WAKEUP_LEFT;
+            } else {
+                animationId = RigAnimationId.ROLL_BACKWARD;
+            }
+        }
+
+        RigAnimationController.play(avNpc, animationId);
+        swapToMelee(avNpc);
+        if (swapToBow) {
+            CommonUtil.swapToBow(avNpc);
+        }
+
 //        Add this code in AV_EFM
 
 //        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(avNpc, LivingEntityPatch.class);
@@ -306,6 +343,17 @@ public final class MobPlaceBlockEvent {
 //                }
 //            }
 //        }
+    }
+
+    private static boolean canSwapToBowAfterPlaceBlock(AVNpc avNpc) {
+        return InventoryUtils.hasArrowAmmo(avNpc)
+                && (avNpc.getMainHandItem().getItem() instanceof BowItem || InventoryUtils.hasBow(avNpc));
+    }
+
+    private static void swapToMelee(AVNpc avNpc) {
+        avNpc.setUseBow(false);
+        avNpc.setItemInHand(InteractionHand.MAIN_HAND, avNpc.getMainWeaponItem().copy());
+        avNpc.setItemInHand(InteractionHand.OFF_HAND, avNpc.getOffWeaponItem().copy());
     }
 
     private static BiFunction<Integer, Integer, int[]> getIntegerIntegerBiFunction(Entity anchor, int rot) {

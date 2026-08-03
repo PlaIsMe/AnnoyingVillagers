@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.world.entity.Mob;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class RigVillagerRenderer<T extends Mob> extends HumanoidMobRenderer<T, ModelRigVillager<T>> {
 
@@ -19,5 +20,10 @@ public abstract class RigVillagerRenderer<T extends Mob> extends HumanoidMobRend
                 new HumanoidModel<>(context.bakeLayer(ModelRigArmor.OUTER_LAYER_LOCATION)),
                 context.getModelManager()));
         this.addLayer(new VillagerRigArrowLayer<>(context, this));
+    }
+
+    @Override
+    protected float getFlipDegrees(@NotNull T entity) {
+        return 0.0F;
     }
 }

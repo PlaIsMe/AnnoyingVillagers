@@ -22,8 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AegisHerobrineEntity extends HerobrineMob {
-    private int portalSupportCooldown = 180;
-
     public AegisHerobrineEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.AEGIS_HEROBRINE.get(), level);
     }

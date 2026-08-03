@@ -82,6 +82,7 @@ public class AnnoyingVillagersConfig {
         AV_MOB_CAN_BURN_ITEM = BUILDER.comment(
                         "Enable burning items ability for all of Av NPCs and Mobs")
                 .define("AvMobCanBurnItem", true);
+
         WEAPON_DISARMS_AFFECTED_ENTITY_TYPES = BUILDER.comment(
                         "Living entity types whose held weapons can be disarmed")
                 .defineListAllowEmpty(

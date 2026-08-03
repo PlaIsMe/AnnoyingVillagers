@@ -8,6 +8,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -154,6 +155,14 @@ public class InventoryUtils {
         return hasItem(entity, InventoryUtils::isArrowStack);
     }
 
+    public static boolean hasBow(Entity entity) {
+        return hasItem(entity, InventoryUtils::isBowStack);
+    }
+
+    public static Optional<ItemStack> consumeBow(Entity entity) {
+        return consumeItem(entity, InventoryUtils::isBowStack, 1);
+    }
+
     public static boolean hasArrowAmmo(Entity entity, boolean allowEnchantedArrow) {
         return hasItem(entity, stack -> isUsableArrowStack(stack, allowEnchantedArrow));
     }
@@ -187,6 +196,24 @@ public class InventoryUtils {
 
     public static boolean hasHealingFood(Entity entity) {
         return hasItem(entity, InventoryUtils::isHealingFoodStack);
+    }
+
+    public static boolean isHealingFoodStack(ItemStack stack) {
+        return stack.is(Items.GOLDEN_APPLE)
+                || stack.is(Items.ENCHANTED_GOLDEN_APPLE)
+                || isRegularFoodStack(stack);
+    }
+
+    public static boolean isWaterBucketStack(ItemStack stack) {
+        return stack.is(Items.WATER_BUCKET);
+    }
+
+    public static boolean isLavaBucketStack(ItemStack stack) {
+        return stack.is(Items.LAVA_BUCKET);
+    }
+
+    public static boolean isLiquidBucketStack(ItemStack stack) {
+        return isWaterBucketStack(stack) || isLavaBucketStack(stack);
     }
 
     public static boolean isInventoryBackedSupplyDrop(ItemStack stack) {
@@ -260,7 +287,7 @@ public class InventoryUtils {
         return null;
     }
 
-    private static Optional<ItemStack> findItem(Entity entity, Predicate<ItemStack> matcher) {
+    public static Optional<ItemStack> findItem(Entity entity, Predicate<ItemStack> matcher) {
         SimpleContainer inventory = getTrackedInventory(entity);
         if (inventory == null) {
             return Optional.empty();
@@ -279,6 +306,10 @@ public class InventoryUtils {
         return stack.getItem() instanceof ArrowItem;
     }
 
+    private static boolean isBowStack(ItemStack stack) {
+        return stack.getItem() instanceof BowItem;
+    }
+
     private static boolean isUsableArrowStack(ItemStack stack, boolean allowEnchantedArrow) {
         return isArrowStack(stack) && (allowEnchantedArrow || !isEnchantedArrowStack(stack));
     }
@@ -293,12 +324,6 @@ public class InventoryUtils {
 
     private static boolean isPlaceableBlockStack(ItemStack stack) {
         return stack.getItem() instanceof BlockItem;
-    }
-
-    private static boolean isHealingFoodStack(ItemStack stack) {
-        return stack.is(Items.GOLDEN_APPLE)
-                || stack.is(Items.ENCHANTED_GOLDEN_APPLE)
-                || isRegularFoodStack(stack);
     }
 
     private static boolean isUtilityMaterialStack(ItemStack stack) {

@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.client.particle;
 
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -42,7 +43,7 @@ public class HitBluntParticle extends HitParticle {
             double zMovement = this.random.nextDouble() * sign;
             sign *= this.random.nextBoolean() ? 1.0D : -1.0D;
             this.level.addParticle(
-                    ParticleTypes.POOF,
+                    AnnoyingVillagersModParticleTypes.SPARK.get(),
                     this.x,
                     this.y,
                     this.z,

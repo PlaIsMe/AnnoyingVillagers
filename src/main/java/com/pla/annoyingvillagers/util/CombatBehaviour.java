@@ -23,36 +23,107 @@ import net.minecraftforge.fml.ModList;
 import java.util.Random;
 
 public class CombatBehaviour {
+    public record HealingFoodUse(ItemStack foodStack, InteractionHand hand, boolean fromInventory) {
+    }
+
     public static boolean eatInventoryHealingFood(LivingEntity entity) {
         if (entity == null || entity.level().isClientSide() || isTrackedHealing(entity)) {
             return false;
         }
 
-        ItemStack foodStack = InventoryUtils.selectHealingFood(entity, entity.getRandom()).orElse(ItemStack.EMPTY);
-        if (foodStack.isEmpty()) {
+        HealingFoodUse foodUse = selectHealingFoodUse(entity);
+        if (foodUse == null) {
             return false;
         }
 
         setTrackedHealing(entity, true);
         try {
-            if (!InventoryUtils.consumeHealingFood(entity, foodStack)) {
-                return false;
-            }
-
-            ItemStack useStack = foodStack.copy();
-            useStack.setCount(1);
-            ItemStack remainder = useStack.getItem().finishUsingItem(useStack, entity.level(), entity);
-            if (!remainder.isEmpty() && !InventoryUtils.addItem(entity, remainder.copy())) {
-                entity.spawnAtLocation(remainder.copy());
-            }
-            healFromRegularFood(entity, foodStack);
-            entity.swing(InteractionHand.MAIN_HAND, true);
-            entity.level().playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
-            entity.level().playSound(null, entity.blockPosition(), SoundEvents.PLAYER_BURP, SoundSource.NEUTRAL, 0.5F, 1.0F);
-            return true;
+            return useHealingFood(entity, foodUse);
         } finally {
             setTrackedHealing(entity, false);
         }
+    }
+
+    public static HealingFoodUse selectHealingFoodUse(LivingEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        ItemStack offhand = entity.getOffhandItem();
+        if (InventoryUtils.isHealingFoodStack(offhand)) {
+            return new HealingFoodUse(oneOf(offhand), InteractionHand.OFF_HAND, false);
+        }
+
+        ItemStack mainhand = entity.getMainHandItem();
+        if (InventoryUtils.isHealingFoodStack(mainhand)) {
+            return new HealingFoodUse(oneOf(mainhand), InteractionHand.MAIN_HAND, false);
+        }
+
+        ItemStack inventoryFood = InventoryUtils.selectHealingFood(entity, entity.getRandom()).orElse(ItemStack.EMPTY);
+        if (inventoryFood.isEmpty()) {
+            return null;
+        }
+
+        return new HealingFoodUse(inventoryFood.copy(), InteractionHand.MAIN_HAND, true);
+    }
+
+    public static boolean useHealingFood(LivingEntity entity, HealingFoodUse foodUse) {
+        if (entity == null || foodUse == null || entity.level().isClientSide()) {
+            return false;
+        }
+
+        ItemStack foodStack = foodUse.foodStack().copy();
+        foodStack.setCount(1);
+        if (foodStack.isEmpty()) {
+            return false;
+        }
+
+        if (foodUse.fromInventory()) {
+            if (!InventoryUtils.consumeHealingFood(entity, foodStack)) {
+                return false;
+            }
+        } else if (!consumeHandFood(entity, foodUse.hand(), foodStack)) {
+            return false;
+        }
+
+        return finishUsingHealingFood(entity, foodStack, foodUse.hand());
+    }
+
+    public static boolean finishUsingHealingFood(LivingEntity entity, ItemStack foodStack, InteractionHand hand) {
+        if (entity == null || entity.level().isClientSide() || foodStack.isEmpty()) {
+            return false;
+        }
+
+        ItemStack useStack = foodStack.copy();
+        useStack.setCount(1);
+        ItemStack remainder = useStack.getItem().finishUsingItem(useStack, entity.level(), entity);
+        if (!remainder.isEmpty() && !InventoryUtils.addItem(entity, remainder.copy())) {
+            entity.spawnAtLocation(remainder.copy());
+        }
+        healFromRegularFood(entity, foodStack);
+        entity.swing(hand, true);
+        entity.level().playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
+        entity.level().playSound(null, entity.blockPosition(), SoundEvents.PLAYER_BURP, SoundSource.NEUTRAL, 0.5F, 1.0F);
+        return true;
+    }
+
+    private static boolean consumeHandFood(LivingEntity entity, InteractionHand hand, ItemStack foodStack) {
+        ItemStack handStack = entity.getItemInHand(hand);
+        if (handStack.isEmpty() || !ItemStack.isSameItemSameTags(handStack, foodStack)) {
+            return false;
+        }
+
+        handStack.shrink(1);
+        if (handStack.isEmpty()) {
+            entity.setItemInHand(hand, ItemStack.EMPTY);
+        }
+        return true;
+    }
+
+    private static ItemStack oneOf(ItemStack stack) {
+        ItemStack copy = stack.copy();
+        copy.setCount(1);
+        return copy;
     }
 
     private static void healFromRegularFood(LivingEntity entity, ItemStack foodStack) {

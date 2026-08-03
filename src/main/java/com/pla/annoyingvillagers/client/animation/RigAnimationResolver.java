@@ -20,6 +20,7 @@ public final class RigAnimationResolver {
             case SWORD_DASH -> RigSwordAnimations2.SWORD_DASH;
             case SWORD_AIRSLASH -> RigSwordAnimations2.SWORD_AIRSLASH;
             case SWEEPING_EDGE -> RigSwordAnimations2.SWEEPING_EDGE;
+            case SWORD_MOUNT_ATTACK -> RigMountAttackAnimations.SWORD_MOUNT_ATTACK;
             case SWORD_DUAL_AUTO1 -> RigDualSwordAnimations1.SWORD_DUAL_AUTO1;
             case SWORD_DUAL_AUTO2 -> RigDualSwordAnimations1.SWORD_DUAL_AUTO2;
             case SWORD_DUAL_AUTO3 -> RigDualSwordAnimations1.SWORD_DUAL_AUTO3;
@@ -33,6 +34,17 @@ public final class RigAnimationResolver {
             case STEP_LEFT -> RigStepAnimations.STEP_LEFT;
             case STEP_RIGHT -> RigStepAnimations.STEP_RIGHT;
             case JUMP -> RigJumpAnimations.JUMP;
+            case BOW_AIM_DOWN -> RigBowAimAnimations.BOW_AIM_DOWN;
+            case BOW_AIM_MID -> RigBowAimAnimations.BOW_AIM_MID;
+            case BOW_AIM_UP -> RigBowAimAnimations.BOW_AIM_UP;
+            case BOW_SHOT_DOWN -> RigBowShotAnimations.BOW_SHOT_DOWN;
+            case BOW_SHOT_MID -> RigBowShotAnimations.BOW_SHOT_MID;
+            case BOW_SHOT_UP -> RigBowShotAnimations.BOW_SHOT_UP;
+            case KNOCKDOWN_WAKEUP_LEFT -> RigKnockdownWakeUpAnimations.KNOCKDOWN_WAKEUP_LEFT;
+            case KNOCKDOWN_WAKEUP_RIGHT -> RigKnockdownWakeUpAnimations.KNOCKDOWN_WAKEUP_RIGHT;
+            case EAT_OFFHAND -> RigHandOnlyAnimations.EAT_OFFHAND;
+            case EAT_MAINHAND -> RigHandOnlyAnimations.EAT_MAINHAND;
+            case THROW_ENDER_PEARL -> RigHandOnlyAnimations.THROW_ENDER_PEARL;
         };
     }
 }

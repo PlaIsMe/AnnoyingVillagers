@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.util.RidingUtil;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 
@@ -32,6 +33,7 @@ public class LockedRandomStrollGoal extends WaterAvoidingRandomStrollGoal {
         if (mob.getTarget() != null) return false;
         if (isPlayingIdle()) return false;
         if (!canUseAnimationState()) return false;
+        if (mob.isPassenger() && !RidingUtil.hasUsableMountedMob(mob)) return false;
         return super.canUse();
     }
 
@@ -40,6 +42,9 @@ public class LockedRandomStrollGoal extends WaterAvoidingRandomStrollGoal {
         if (mob.getTarget() != null) return false;
         if (isPlayingIdle()) return false;
         if (!canContinueAnimationState()) return false;
+        if (mob.isPassenger()) {
+            return RidingUtil.hasUsableMountedMob(mob) && !RidingUtil.isNavigationDone(mob);
+        }
         return super.canContinueToUse();
     }
 
@@ -49,7 +54,11 @@ public class LockedRandomStrollGoal extends WaterAvoidingRandomStrollGoal {
             avNpc.onLockedRandomStrollGoalStart();
         }
         setStrolling(true);
-        super.start();
+        if (mob.isPassenger()) {
+            RidingUtil.moveTo(mob, this.wantedX, this.wantedY, this.wantedZ, this.speedModifier);
+        } else {
+            super.start();
+        }
     }
 
     @Override
@@ -58,6 +67,6 @@ public class LockedRandomStrollGoal extends WaterAvoidingRandomStrollGoal {
         if (mob instanceof AVNpc avNpc) {
             avNpc.onLockedRandomStrollGoalStop();
         }
-        super.stop();
+        RidingUtil.stopNavigation(mob);
     }
 }

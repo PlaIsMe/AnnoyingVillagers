@@ -84,21 +84,6 @@ public class PurpleVillagerKnightEntity extends VillagerArmyEntity {
     }
 
     @Override
-    protected boolean hasEnderPearlCounter() {
-        return true;
-    }
-
-    @Override
-    protected void beforeEnderPearlCounter(@NotNull DamageSource damageSource) {
-        this.restoreOffhandLater(150);
-    }
-
-    @Override
-    protected void doEnderPearlCounterPattern(@NotNull DamageSource damageSource) {
-        this.doVillagerKnightStyleEnderPearlCounter();
-    }
-
-    @Override
     protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
         super.dropCustomDeathLoot(source, looting, recentlyHit);
         if (this.level() instanceof ServerLevel serverLevel) {

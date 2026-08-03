@@ -1,5 +1,10 @@
 {
   "textures": [
-    "minecraft:flash"
+    "annoyingvillagers:flash1",
+    "annoyingvillagers:flash2",
+    "annoyingvillagers:flash3",
+    "annoyingvillagers:flash4",
+    "annoyingvillagers:flash5",
+    "annoyingvillagers:flash6"
   ]
 }

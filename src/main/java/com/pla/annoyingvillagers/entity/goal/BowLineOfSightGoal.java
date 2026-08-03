@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
 import com.pla.annoyingvillagers.util.BowFunction;
 import com.pla.annoyingvillagers.util.InventoryUtils;
+import com.pla.annoyingvillagers.util.RidingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -59,14 +60,14 @@ public class BowLineOfSightGoal extends Goal {
             return;
         }
 
-        this.mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
+        RidingUtil.lookAtTarget(this.mob, target, 30.0F, 30.0F);
 
         if (!needsBetterBowPosition(target)) {
-            this.mob.getNavigation().stop();
+            RidingUtil.stopNavigation(this.mob);
             return;
         }
 
-        if (this.repathDelay-- <= 0 || this.mob.getNavigation().isDone()) {
+        if (this.repathDelay-- <= 0 || RidingUtil.isNavigationDone(this.mob)) {
             this.repathDelay = 10 + this.mob.getRandom().nextInt(10);
             repath();
         }
@@ -74,7 +75,7 @@ public class BowLineOfSightGoal extends Goal {
 
     @Override
     public void stop() {
-        this.mob.getNavigation().stop();
+        RidingUtil.stopNavigation(this.mob);
     }
 
     private boolean shouldReposition() {
@@ -84,7 +85,7 @@ public class BowLineOfSightGoal extends Goal {
                 && !this.mob.isRemoved()
                 && !this.mob.isDeadOrDying()
                 && !this.mob.isNoAi()
-                && !this.mob.isPassenger()
+                && (!this.mob.isPassenger() || RidingUtil.hasUsableMountedMob(this.mob))
                 && this.mob.getMainHandItem().getItem() instanceof BowItem
                 && target != null
                 && target.isAlive()
@@ -107,14 +108,14 @@ public class BowLineOfSightGoal extends Goal {
 
         BlockPos clearShotPos = findClearShotPosition(target);
         if (clearShotPos != null) {
-            Path path = this.mob.getNavigation().createPath(clearShotPos, 0);
+            Path path = RidingUtil.createNavigationPath(this.mob, clearShotPos);
             if (path != null) {
-                this.mob.getNavigation().moveTo(path, this.speedModifier);
+                RidingUtil.moveToPath(this.mob, path, this.speedModifier);
                 return;
             }
         }
 
-        this.mob.getNavigation().moveTo(target, this.speedModifier);
+        RidingUtil.moveTo(this.mob, target, this.speedModifier);
     }
 
     private BlockPos findClearShotPosition(LivingEntity target) {
@@ -140,7 +141,7 @@ public class BowLineOfSightGoal extends Goal {
                     continue;
                 }
 
-                Path path = this.mob.getNavigation().createPath(standPos, 0);
+                Path path = RidingUtil.createNavigationPath(this.mob, standPos);
                 if (path == null) {
                     continue;
                 }
@@ -170,18 +171,19 @@ public class BowLineOfSightGoal extends Goal {
     }
 
     private boolean canStandAt(BlockPos standPos) {
+        Mob navigationMob = RidingUtil.navigationMobOrSelf(this.mob);
         if (this.mob.level().getBlockState(standPos.below()).getCollisionShape(this.mob.level(), standPos.below()).isEmpty()) {
             return false;
         }
 
         Vec3 feet = Vec3.atBottomCenterOf(standPos);
-        AABB box = this.mob.getBoundingBox().move(
-                feet.x - this.mob.getX(),
-                feet.y - this.mob.getY(),
-                feet.z - this.mob.getZ()
+        AABB box = navigationMob.getBoundingBox().move(
+                feet.x - navigationMob.getX(),
+                feet.y - navigationMob.getY(),
+                feet.z - navigationMob.getZ()
         );
 
-        return this.mob.level().noCollision(this.mob, box);
+        return this.mob.level().noCollision(navigationMob, box);
     }
 
     private boolean isInBowRange(BlockPos standPos, LivingEntity target) {

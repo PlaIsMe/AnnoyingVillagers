@@ -1,12 +1,15 @@
 package com.pla.annoyingvillagers.rig;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.client.particle.HitParticleType;
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundRigAnimation;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -20,8 +23,13 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public final class RigAnimationController {
+    private static final Map<UUID, ActiveAnimationState> ACTIVE_ANIMATIONS = new HashMap<>();
+
     private RigAnimationController() {
     }
 
@@ -31,6 +39,9 @@ public final class RigAnimationController {
 
     public static void play(Mob mob, RigAnimationSpec spec, LivingEntity target) {
         if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) {
+            return;
+        }
+        if (!canPlayWhileMounted(mob, spec)) {
             return;
         }
 
@@ -45,6 +56,9 @@ public final class RigAnimationController {
         if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) {
             return;
         }
+        if (!canPlayWhileMounted(mob, spec)) {
+            return;
+        }
 
         if (target != null && target.isAlive()) {
             faceTarget(mob, target);
@@ -54,6 +68,7 @@ public final class RigAnimationController {
             mob.swing(InteractionHand.MAIN_HAND, true);
         }
         mob.setAggressive(true);
+        recordActiveAnimation(mob, spec);
         sendAnimation(mob, spec.animationId(), spec.durationTicks());
         logAvNpcAnimation(mob, target, spec);
         scheduleRigSounds(mob, spec);
@@ -61,6 +76,66 @@ public final class RigAnimationController {
 
         if (spec.damagesTarget() && target != null) {
             scheduleImpacts(mob, target, spec);
+        }
+    }
+
+    public static boolean isInActiveAttackWindow(Mob mob) {
+        ActiveAnimationState state = getActiveAnimationState(mob);
+        if (state == null || !state.spec().damagesTarget()) {
+            return false;
+        }
+
+        int elapsedTicks = state.elapsedTicks(mob);
+        for (RigAttackWindow attackWindow : state.spec().attackWindows()) {
+            if (elapsedTicks >= attackWindow.startTickInclusive()
+                    && elapsedTicks < attackWindow.endTickExclusive()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static void clearActiveAnimations() {
+        ACTIVE_ANIMATIONS.clear();
+    }
+
+    private static boolean canPlayWhileMounted(Mob mob, RigAnimationSpec spec) {
+        return !mob.isPassenger()
+                || !spec.animationId().isAttack()
+                || spec.animationId().isMountedAttack();
+    }
+
+    private static void recordActiveAnimation(Mob mob, RigAnimationSpec spec) {
+        ActiveAnimationState state = new ActiveAnimationState(spec, mob.tickCount);
+        ACTIVE_ANIMATIONS.put(mob.getUUID(), state);
+
+        new DelayedTask(spec.durationTicks() + 1) {
+            @Override
+            public void run() {
+                ACTIVE_ANIMATIONS.remove(mob.getUUID(), state);
+            }
+        };
+    }
+
+    private static ActiveAnimationState getActiveAnimationState(Mob mob) {
+        ActiveAnimationState state = ACTIVE_ANIMATIONS.get(mob.getUUID());
+        if (state == null) {
+            return null;
+        }
+
+        int elapsedTicks = state.elapsedTicks(mob);
+        if (elapsedTicks < 0 || elapsedTicks >= state.spec().durationTicks()) {
+            ACTIVE_ANIMATIONS.remove(mob.getUUID(), state);
+            return null;
+        }
+
+        return state;
+    }
+
+    private record ActiveAnimationState(RigAnimationSpec spec, int startTick) {
+        private int elapsedTicks(Mob mob) {
+            return mob.tickCount - this.startTick;
         }
     }
 
@@ -105,6 +180,9 @@ public final class RigAnimationController {
         }
         if (animationId.isRollAnimation()) {
             playSound(mob, AnnoyingVillagersModSounds.ROLL.get(), 0.9F, randomPitch(mob, 0.95F, 0.1F));
+            return;
+        }
+        if (animationId.isUtilityAnimation()) {
             return;
         }
 
@@ -192,14 +270,35 @@ public final class RigAnimationController {
 
     private static boolean hurtTarget(Mob mob, LivingEntity target, boolean forceDamageThroughHurtCooldown) {
         if (!forceDamageThroughHurtCooldown) {
-            return mob.doHurtTarget(target);
+            boolean hurt = mob.doHurtTarget(target);
+            if (hurt) {
+                spawnHitParticle(mob, target);
+            }
+            return hurt;
         }
 
         int previousInvulnerableTime = target.invulnerableTime;
         target.invulnerableTime = 0;
         boolean hurt = mob.doHurtTarget(target);
         target.invulnerableTime = previousInvulnerableTime;
+        if (hurt) {
+            spawnHitParticle(mob, target);
+        }
         return hurt;
+    }
+
+    private static void spawnHitParticle(Mob mob, LivingEntity target) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+//        AnnoyingVillagersModParticleTypes.BLADE_RUSH.get().spawnParticleWithArgument(
+//                serverLevel,
+//                HitParticleType.RANDOM_WITHIN_BOUNDING_BOX,
+//                HitParticleType.ZERO,
+//                target,
+//                mob
+//        );
     }
 
     private static boolean canDamageTarget(Mob mob, LivingEntity target, RigAnimationSpec spec) {
@@ -248,6 +347,10 @@ public final class RigAnimationController {
     private static void faceTarget(Mob mob, LivingEntity target) {
         mob.getLookControl().setLookAt(target, 60.0F, 60.0F);
         mob.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
+        if (mob.isPassenger() && mob.getVehicle() instanceof Mob mount) {
+            mount.getLookControl().setLookAt(target, 60.0F, 60.0F);
+            mount.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
+        }
     }
 
     private static Vec3 horizontalDirection(Mob mob, Entity target) {

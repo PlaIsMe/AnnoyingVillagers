@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigCombatProfile;
 import com.pla.annoyingvillagers.rig.RigCombatProfiles;
 import com.pla.annoyingvillagers.rig.RigRootMotion;
+import com.pla.annoyingvillagers.util.RidingUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -47,7 +48,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
             return false;
         }
 
-        this.path = this.mob.getNavigation().createPath(target, 0);
+        this.path = RidingUtil.createNavigationPath(this.mob, target);
         return this.path != null || isWithinMeleeReach(target);
     }
 
@@ -58,13 +59,13 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
             return false;
         }
 
-        return this.followingTargetEvenIfNotSeen || !this.mob.getNavigation().isDone() || this.activeAnimationTicks > 0 || isWithinMeleeReach(target);
+        return this.followingTargetEvenIfNotSeen || !RidingUtil.isNavigationDone(this.mob) || this.activeAnimationTicks > 0 || isWithinMeleeReach(target);
     }
 
     @Override
     public void start() {
         if (this.path != null) {
-            this.mob.getNavigation().moveTo(this.path, this.speedModifier);
+            RidingUtil.moveToPath(this.mob, this.path, this.speedModifier);
         }
 
         this.mob.setAggressive(true);
@@ -76,7 +77,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     @Override
     public void stop() {
         this.mob.setAggressive(false);
-        this.mob.getNavigation().stop();
+        RidingUtil.stopNavigation(this.mob);
         this.path = null;
         this.activeAnimationTicks = 0;
         this.attackCooldownTicks = 0;
@@ -100,7 +101,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         }
 
         updateWeaponComboState();
-        this.mob.getLookControl().setLookAt(target, 60.0F, 60.0F);
+        RidingUtil.lookAtTarget(this.mob, target, 60.0F, 60.0F);
 
         if (this.attackCooldownTicks > 0) {
             this.attackCooldownTicks--;
@@ -108,12 +109,12 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
         if (this.activeAnimationTicks > 0) {
             this.activeAnimationTicks--;
-            this.mob.getNavigation().stop();
+            RidingUtil.stopNavigation(this.mob);
             return;
         }
 
         if (this.attackCooldownTicks > 0 && isWithinMeleeReach(target)) {
-            this.mob.getNavigation().stop();
+            RidingUtil.stopNavigation(this.mob);
             return;
         }
 
@@ -131,6 +132,10 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     private RigAnimationId selectAnimation(LivingEntity target, RigCombatProfile profile) {
         if (this.attackCooldownTicks > 0) {
             return null;
+        }
+
+        if (this.mob.isPassenger()) {
+            return isWithinMeleeReach(target) ? RigAnimationId.SWORD_MOUNT_ATTACK : null;
         }
 
         if (!isWithinMeleeReach(target)) {
@@ -161,12 +166,12 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     }
 
     private void repathToTarget(LivingEntity target) {
-        if (--this.ticksUntilNextPathRecalculation > 0 && !this.mob.getNavigation().isDone()) {
+        if (--this.ticksUntilNextPathRecalculation > 0 && !RidingUtil.isNavigationDone(this.mob)) {
             return;
         }
 
         this.ticksUntilNextPathRecalculation = PATH_RECALCULATION_BASE_TICKS + this.mob.getRandom().nextInt(7);
-        this.mob.getNavigation().moveTo(target, this.speedModifier);
+        RidingUtil.moveTo(this.mob, target, this.speedModifier);
     }
 
     private void updateWeaponComboState() {
@@ -187,7 +192,6 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
                 && !this.mob.isRemoved()
                 && !this.mob.isDeadOrDying()
                 && !this.mob.isNoAi()
-                && !this.mob.isPassenger()
                 && !(this.mob.getMainHandItem().getItem() instanceof BowItem)
                 && target != null
                 && target.isAlive()

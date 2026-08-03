@@ -135,16 +135,6 @@ public class ChrisEntity extends AVNpc implements BurstProtectEntity {
     }
 
     @Override
-    protected boolean hasEnderPearlCounter() {
-        return true;
-    }
-
-    @Override
-    protected void doEnderPearlCounterPattern(@NotNull DamageSource damageSource) {
-        this.doChrisStyleEnderPearlCounter();
-    }
-
-    @Override
     protected boolean afterBurstProtection(@NotNull ServerLevel serverLevel,
                                            @NotNull DamageSource source,
                                            float finalDamage) {

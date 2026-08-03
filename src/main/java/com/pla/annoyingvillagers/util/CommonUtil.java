@@ -8,10 +8,6 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.item.FlankerHookedSwordItem;
-import com.pla.annoyingvillagers.item.HookedDiamondSwordItem;
-import com.pla.annoyingvillagers.item.HookedGoldenSwordItem;
-import com.pla.annoyingvillagers.item.HookedIronSwordItem;
 import com.pla.annoyingvillagers.client.particle.HitParticleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,7 +24,6 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -424,46 +419,15 @@ public class CommonUtil {
             return;
         }
 
-        ItemStack bow = new ItemStack(Items.BOW);
-        if (livingEntity instanceof AVNpc avNpc) bow = avNpc.getBowItem();
-
-        if (livingEntity instanceof VillagerScoutCaptainEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 1);
-            bow.enchant(Enchantments.PUNCH_ARROWS, 1);
-        }
-        if (livingEntity instanceof RedVillagerKnightEntity) {
-            bow.enchant(Enchantments.FLAMING_ARROWS, 2);
-        }
-        if (livingEntity instanceof BlueVillagerKnightEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-        }
-        if (livingEntity instanceof GreenVillagerKnightEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 1);
-            bow.enchant(Enchantments.FLAMING_ARROWS, 1);
-        }
-        if (livingEntity instanceof PurpleVillagerKnightEntity) {
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
-        }
-        if ((livingEntity instanceof SteveEntity steveEntity && steveEntity.getState() == 1)
-                || livingEntity instanceof AngrySteveEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
-            if (livingEntity instanceof AngrySteveEntity) {
-                bow.enchant(Enchantments.FLAMING_ARROWS, 2);
-            }
-        }
-        if (livingEntity instanceof AlexEntity alexEntity && alexEntity.getState() == 1) {
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-            bow.enchant(Enchantments.FLAMING_ARROWS, 1);
-        }
-        if (livingEntity instanceof ChrisEntity chrisEntity && chrisEntity.getState() == 1) {
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+        if (!(livingEntity instanceof AVNpc avNpc) || !InventoryUtils.hasArrowAmmo(avNpc)) {
+            return;
         }
 
-        livingEntity.setItemInHand(InteractionHand.MAIN_HAND, bow.copy());
-        livingEntity.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+        if (!(livingEntity.getMainHandItem().getItem() instanceof BowItem) && !InventoryUtils.hasBow(avNpc)) {
+            return;
+        }
+
+        avNpc.setUseBow(true);
     }
 
     public static boolean isAvDamageableEfnWeaponsMob(Entity livingEntity) {

@@ -208,23 +208,6 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
     }
 
     @Override
-    protected boolean hasEnderPearlCounter() {
-        return true;
-    }
-
-    @Override
-    protected void beforeEnderPearlCounter(@NotNull DamageSource damageSource) {
-        if (this.random.nextDouble() <= 0.2D && this.getServer() != null) {
-            // say something
-        }
-    }
-
-    @Override
-    protected void doEnderPearlCounterPattern(@NotNull DamageSource damageSource) {
-        this.doChrisStyleEnderPearlCounter();
-    }
-
-    @Override
     protected boolean afterBurstProtection(@NotNull ServerLevel serverLevel,
                                            @NotNull DamageSource source,
                                            float finalDamage) {

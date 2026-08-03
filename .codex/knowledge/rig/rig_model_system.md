@@ -17,6 +17,8 @@
 
 After applying animation, `flattenAnimatedRootIntoTopLevelParts` pushes any animated root transform into the humanoid top-level parts, then resets the root. `compensateServerRootMotion` then subtracts the active animation's `RigRootMotion.modelOffset(...)` from the top-level `head`, `body`, arms, and legs so the rendered rig does not apply the same root movement that the server already applied to the entity position. For active attack one-shots, the model restores vanilla `netHeadYaw` and `headPitch` after root compensation so generated attack keyframes cannot pull the head away from the mob's target. `hat.copyFrom(head)` keeps the hat aligned.
 
+One-shot animation blending uses `RigAnimationSpec.playbackType()` as a render mask. `DEFAULT` blends the whole captured active pose over the locomotion pose. `LEFT_HAND`, `MAIN_HAND`, and `BOTH_HAND` restore the base idle/walk/run pose first, then blend only the selected `ModelPart` arm subtree, so utility animations can layer over locomotion without replacing the body, head, or legs.
+
 ## Villager rig model
 
 `src/main/java/com/pla/annoyingvillagers/client/model/ModelRigVillager.java` mirrors the main rig model but uses villager head/body proportions and a nose child on the head. It uses the same one-shot rig animation priority, the same render-side root-motion compensation, and the same speed-sensitive run predicate from `AnimationUtil.shouldUseRunAnimation`.
@@ -52,5 +54,6 @@ The current animation holder classes are:
 - `RigDualSwordAnimations` for `DANCING_EDGE`, `SWORD_DUAL_AIRSLASH`, `SWORD_DUAL_AUTO1`, `SWORD_DUAL_AUTO2`, `SWORD_DUAL_AUTO3`, and `SWORD_DUAL_DASH`
 - `RigRollAnimation` for `ROLL_FORWARD` and `ROLL_BACKWARD`
 - `RigStepAnimations` for `STEP_FORWARD`, `STEP_BACKWARD`, `STEP_LEFT`, and `STEP_RIGHT`
+- `RigHandOnlyAnimations` for `EAT_OFFHAND` and `EAT_MAINHAND` and `THROW_ENDER_PEARL`
 
 Generated animation holder classes should preserve the user-authored generated style. Do not mechanically split inline `AnimationDefinition.Builder...build()` fields into private creator methods unless the user explicitly asks for that refactor.

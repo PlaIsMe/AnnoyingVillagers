@@ -8,6 +8,7 @@ public enum RigAnimationId {
     SWORD_DASH,
     SWORD_AIRSLASH,
     SWEEPING_EDGE,
+    SWORD_MOUNT_ATTACK,
     SWORD_DUAL_AUTO1,
     SWORD_DUAL_AUTO2,
     SWORD_DUAL_AUTO3,
@@ -20,7 +21,18 @@ public enum RigAnimationId {
     STEP_BACKWARD,
     STEP_LEFT,
     STEP_RIGHT,
-    JUMP;
+    JUMP,
+    BOW_AIM_DOWN,
+    BOW_AIM_MID,
+    BOW_AIM_UP,
+    BOW_SHOT_DOWN,
+    BOW_SHOT_MID,
+    BOW_SHOT_UP,
+    KNOCKDOWN_WAKEUP_LEFT,
+    KNOCKDOWN_WAKEUP_RIGHT,
+    EAT_OFFHAND,
+    EAT_MAINHAND,
+    THROW_ENDER_PEARL;
 
     private static final RigAnimationId[] VALUES = values();
 
@@ -31,15 +43,47 @@ public enum RigAnimationId {
     public boolean isAttack() {
         return switch (this) {
             case SWORD_AUTO1, SWORD_AUTO2, SWORD_AUTO3, SWORD_AUTO4,
-                 SWORD_DASH, SWORD_AIRSLASH, SWEEPING_EDGE,
+                 SWORD_DASH, SWORD_AIRSLASH, SWEEPING_EDGE, SWORD_MOUNT_ATTACK,
                  SWORD_DUAL_AUTO1, SWORD_DUAL_AUTO2, SWORD_DUAL_AUTO3,
                  SWORD_DUAL_DASH, SWORD_DUAL_AIRSLASH, DANCING_EDGE -> true;
             default -> false;
         };
     }
 
+    public boolean isMountedAttack() {
+        return this == SWORD_MOUNT_ATTACK;
+    }
+
     public boolean isRolling() {
         return isRollAnimation() || isStepAnimation();
+    }
+
+    public boolean isUtilityAnimation() {
+        return switch (this) {
+            case BOW_AIM_DOWN, BOW_AIM_MID, BOW_AIM_UP,
+                 BOW_SHOT_DOWN, BOW_SHOT_MID, BOW_SHOT_UP,
+                 KNOCKDOWN_WAKEUP_LEFT, KNOCKDOWN_WAKEUP_RIGHT,
+                 EAT_MAINHAND, EAT_OFFHAND, THROW_ENDER_PEARL -> true;
+            default -> false;
+        };
+    }
+
+    public boolean isBowAnimation() {
+        return isBowAimAnimation() || isBowShotAnimation();
+    }
+
+    public boolean isBowAimAnimation() {
+        return switch (this) {
+            case BOW_AIM_DOWN, BOW_AIM_MID, BOW_AIM_UP -> true;
+            default -> false;
+        };
+    }
+
+    public boolean isBowShotAnimation() {
+        return switch (this) {
+            case BOW_SHOT_DOWN, BOW_SHOT_MID, BOW_SHOT_UP -> true;
+            default -> false;
+        };
     }
 
     public boolean isRollAnimation() {

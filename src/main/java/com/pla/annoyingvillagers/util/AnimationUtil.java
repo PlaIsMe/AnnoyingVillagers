@@ -16,6 +16,10 @@ public class AnimationUtil {
     private static final double FAST_SPEED_ATTRIBUTE_RATIO = 0.38D;
 
     public static boolean shouldUseRunAnimation(Mob mob, float limbSwingAmount) {
+        if (mob.isInWaterOrBubble()) {
+            return false;
+        }
+
         return mob.isSprinting()
                 || mob.isAggressive()
                 || isMovingFasterThanRegularSpeed(mob, limbSwingAmount);

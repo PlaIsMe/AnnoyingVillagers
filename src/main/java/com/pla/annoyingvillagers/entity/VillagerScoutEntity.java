@@ -91,26 +91,6 @@ public class VillagerScoutEntity extends VillagerArmyEntity {
     }
 
     @Override
-    protected boolean hasEnderPearlCounter() {
-        return true;
-    }
-
-    @Override
-    protected void beforeEnderPearlCounter(@NotNull DamageSource damageSource) {
-        this.swapOffhandDuringEnderPearlCounter(new ItemStack(Items.IRON_SWORD), 120);
-    }
-
-    @Override
-    protected ItemStack getEnderPearlCounterRestoreOffhandItem() {
-        return new ItemStack(Items.ENDER_PEARL);
-    }
-
-    @Override
-    protected void doEnderPearlCounterPattern(@NotNull DamageSource damageSource) {
-        this.doSteveStyleEnderPearlCounter();
-    }
-
-    @Override
     public void die(@NotNull DamageSource pDamageSource) {
         super.die(pDamageSource);
 

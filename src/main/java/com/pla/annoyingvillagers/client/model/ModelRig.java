@@ -8,6 +8,9 @@ import com.pla.annoyingvillagers.client.animation.rig_animation.RigDeathAnimatio
 import com.pla.annoyingvillagers.client.animation.rig_animation.RigIdleAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.RigSneakAnimations;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.RigAnimationPlaybackType;
+import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
+import com.pla.annoyingvillagers.rig.RigBowAnimationSelector;
 import com.pla.annoyingvillagers.rig.RigRootMotion;
 import com.pla.annoyingvillagers.util.AnimationUtil;
 import net.minecraft.client.animation.AnimationDefinition;
@@ -28,12 +31,14 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.BowItem;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -64,6 +69,9 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
     private final ModelPart left_lower_leg;
     private final Map<Integer, AnimationKey> activeAnimationKeys = new HashMap<>();
     private final Map<Integer, TransitionPose> transitionPoses = new HashMap<>();
+    private final Set<ModelPart> upperBodyPlaybackParts;
+    private final Set<ModelPart> rightHandPlaybackParts;
+    private final Set<ModelPart> leftHandPlaybackParts;
     private final boolean slim;
 
     public ModelRig(ModelPart root) {
@@ -87,6 +95,9 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         this.right_lower_leg = this.right_leg.getChild("right_lower_leg");
         this.left_leg = root.getChild("left_leg");
         this.left_lower_leg = this.left_leg.getChild("left_lower_leg");
+        this.upperBodyPlaybackParts = collectPartTrees(this.head, this.body, this.right_arm, this.left_arm);
+        this.rightHandPlaybackParts = collectPartTree(this.right_arm);
+        this.leftHandPlaybackParts = collectPartTree(this.left_arm);
     }
 
     @Override
@@ -196,7 +207,9 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
             activeWeight = activeRigAnimation == null ? 0.0F : activeRigAnimation.weight(ageInTicks);
             float baseWeight = 1.0F - activeWeight;
             if (activeRigAnimation != null) {
-                this.applyBlendedRigAnimation(entity, limbSwingAmount, ageInTicks, activeRigAnimation, activeWeight, transitionPose);
+                this.applyBlendedRigAnimation(entity, limbSwingAmount, ageInTicks, activeRigAnimation, activeWeight, transitionPose, activeRigAnimation.animationId().isBowAnimation());
+            } else if (isUsingBow(entity)) {
+                this.applyBowAimAnimation(entity, limbSwingAmount, ageInTicks, headPitch);
             } else if (baseWeight > 0.0F) {
                 this.applyBaseRigAnimation(entity, limbSwingAmount, ageInTicks, baseWeight);
             }
@@ -233,20 +246,35 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         return transitionPose;
     }
 
-    private void applyBlendedRigAnimation(T entity, float limbSwingAmount, float ageInTicks, RigClientAnimationState.Active active, float activeWeight, TransitionPose transitionPose) {
+    private void applyBlendedRigAnimation(T entity, float limbSwingAmount, float ageInTicks, RigClientAnimationState.Active active, float activeWeight, TransitionPose transitionPose, boolean forceWalkBase) {
         Map<ModelPart, ModelPartPose> baselinePose = this.capturePose();
 
-        this.applyBaseRigAnimation(entity, limbSwingAmount, ageInTicks, 1.0F);
+        this.applyBaseRigAnimation(entity, limbSwingAmount, ageInTicks, 1.0F, forceWalkBase);
         Map<ModelPart, ModelPartPose> basePose = this.capturePose();
 
         this.restorePose(baselinePose);
         this.applyActiveRigAnimation(active, ageInTicks, 1.0F);
         Map<ModelPart, ModelPartPose> activePose = this.capturePose();
 
-        this.blendPose(basePose, activePose, activeWeight, transitionPose);
+        this.restorePose(basePose);
+        this.blendPose(basePose, activePose, activeWeight, transitionPose, RigAnimationSpecs.get(active.animationId()).playbackType());
     }
 
     private void applyBaseRigAnimation(T entity, float limbSwingAmount, float ageInTicks, float weight) {
+        this.applyBaseRigAnimation(entity, limbSwingAmount, ageInTicks, weight, false);
+    }
+
+    private void applyBaseRigAnimation(T entity, float limbSwingAmount, float ageInTicks, float weight, boolean forceWalk) {
+        if (entity.isPassenger()) {
+            this.applyLoopingAnimation(RigIdleAnimations.MOUNT, ageInTicks, 1.0F, weight);
+            return;
+        }
+
+        if (forceWalk) {
+            this.applyLoopingAnimation(AnimationUtil.getWalkAnimation(entity), ageInTicks, 1.0F, weight);
+            return;
+        }
+
         if (entity.isShiftKeyDown()) {
             this.applyLoopingAnimation(RigSneakAnimations.SNEAK, ageInTicks, 1.0F, weight);
         } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD && AnimationUtil.shouldUseRunAnimation(entity, limbSwingAmount)) {
@@ -260,6 +288,34 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
 
     private void applyActiveRigAnimation(RigClientAnimationState.Active active, float ageInTicks, float weight) {
         this.applyAnimationFromStart(RigAnimationResolver.get(active.animationId()), active.sampleTicks(ageInTicks), 1.0F, weight);
+    }
+
+    private void applyBowAimAnimation(T entity, float limbSwingAmount, float ageInTicks, float headPitch) {
+        RigAnimationId animationId = RigBowAnimationSelector.aimForPitch(headPitch);
+        Map<ModelPart, ModelPartPose> baselinePose = this.capturePose();
+
+        this.applyBaseRigAnimation(entity, limbSwingAmount, ageInTicks, 1.0F, true);
+        Map<ModelPart, ModelPartPose> basePose = this.capturePose();
+
+        this.restorePose(baselinePose);
+        this.applyAnimationFromStart(
+                RigAnimationResolver.get(animationId),
+                Math.min((float) entity.getTicksUsingItem(), RigAnimationSpecs.get(animationId).durationTicks()),
+                1.0F,
+                1.0F
+        );
+        Map<ModelPart, ModelPartPose> activePose = this.capturePose();
+
+        this.restorePose(basePose);
+        this.blendPose(basePose, activePose, bowAimWeight(entity), null, RigAnimationPlaybackType.UPPER_BODY);
+    }
+
+    private static boolean isUsingBow(Mob entity) {
+        return entity.isUsingItem() && entity.getUseItem().getItem() instanceof BowItem;
+    }
+
+    private static float bowAimWeight(Mob entity) {
+        return Math.min(1.0F, Math.max(0.0F, entity.getTicksUsingItem() / 2.0F));
     }
 
     private void blendHeadLookDuringAttack(RigClientAnimationState.Active active, float weight, float netHeadYaw, float headPitch) {
@@ -296,14 +352,40 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         pose.forEach((part, partPose) -> partPose.applyTo(part));
     }
 
-    private void blendPose(Map<ModelPart, ModelPartPose> basePose, Map<ModelPart, ModelPartPose> activePose, float activeWeight, TransitionPose transitionPose) {
+    private void blendPose(Map<ModelPart, ModelPartPose> basePose, Map<ModelPart, ModelPartPose> activePose, float activeWeight, TransitionPose transitionPose, RigAnimationPlaybackType playbackType) {
         basePose.forEach((part, basePartPose) -> {
+            if (!shouldBlendPart(playbackType, part)) {
+                return;
+            }
+
             ModelPartPose activePartPose = activePose.get(part);
             if (activePartPose != null) {
                 ModelPartPose startPartPose = basePartPose.withRotationsFrom(transitionPose == null ? null : transitionPose.pose().get(part));
                 startPartPose.blendTo(part, activePartPose, activeWeight);
             }
         });
+    }
+
+    private boolean shouldBlendPart(RigAnimationPlaybackType playbackType, ModelPart part) {
+        return switch (playbackType) {
+            case DEFAULT -> true;
+            case UPPER_BODY -> this.upperBodyPlaybackParts.contains(part);
+            case MAIN_HAND -> this.rightHandPlaybackParts.contains(part);
+            case LEFT_HAND -> this.leftHandPlaybackParts.contains(part);
+            case BOTH_HAND -> this.rightHandPlaybackParts.contains(part) || this.leftHandPlaybackParts.contains(part);
+        };
+    }
+
+    private static Set<ModelPart> collectPartTree(ModelPart root) {
+        return collectPartTrees(root);
+    }
+
+    private static Set<ModelPart> collectPartTrees(ModelPart... roots) {
+        Set<ModelPart> parts = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (ModelPart root : roots) {
+            root.getAllParts().forEach(parts::add);
+        }
+        return parts;
     }
 
     private void flattenAnimatedRootIntoTopLevelParts() {

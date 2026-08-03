@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
@@ -71,12 +73,12 @@ public class WaterEnderPearlEscapeGoal extends Goal {
         return false;
     }
 
-    private void playBucketAnimation() {
+    private void playPearlAnimation() {
 //        ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
 //            this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
 //        }
-        this.mob.swing(InteractionHand.OFF_HAND, true);
+        RigAnimationController.play(this.mob, RigAnimationId.THROW_ENDER_PEARL);
     }
 
     @Override
@@ -85,7 +87,7 @@ public class WaterEnderPearlEscapeGoal extends Goal {
             return;
         }
 
-        playBucketAnimation();
+        playPearlAnimation();
         this.mob.getNavigation().stop();
         this.mob.getLookControl().setLookAt(this.pearlTarget.x, this.pearlTarget.y, this.pearlTarget.z, 60.0F, 60.0F);
 //        this.mob.swing(InteractionHand.OFF_HAND, true);

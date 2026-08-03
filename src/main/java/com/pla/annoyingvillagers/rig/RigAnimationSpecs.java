@@ -11,20 +11,20 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AUTO2, 12, 1, 3));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AUTO3, 12, 1, 3));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AUTO4, 12, 1, 3));
-        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DASH, 13, 3, 5, 3.4D));
-        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AIRSLASH, 13, 7, 10, 3.2D));
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DASH, 13, 3, 5));
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AIRSLASH, 13, 7, 10));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWEEPING_EDGE,
                 20,
                 3,
-                6,
-                4.0D
+                6
         ));
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_MOUNT_ATTACK, 12, 2, 6, 2.25D));
 
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AUTO1, 12, 2, 4));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AUTO2, 12, 2, 4));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AUTO3, 15, 5, 7));
-        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_DASH, 15, 1, 6, 3.4D));
-        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AIRSLASH, 13, 7, 10, 3.2D));
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_DASH, 15, 1, 6));
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AIRSLASH, 13, 7, 10));
         put(RigAnimationSpec.ultimateAttack(
                 RigAnimationId.DANCING_EDGE,
                 25,
@@ -40,6 +40,17 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.rolling(RigAnimationId.STEP_LEFT, 7));
         put(RigAnimationSpec.rolling(RigAnimationId.STEP_RIGHT, 7));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.JUMP, 10));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_AIM_DOWN, 14, RigAnimationPlaybackType.UPPER_BODY));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_AIM_MID, 14, RigAnimationPlaybackType.UPPER_BODY));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_AIM_UP, 14, RigAnimationPlaybackType.UPPER_BODY));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_SHOT_DOWN, 2, RigAnimationPlaybackType.UPPER_BODY));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_SHOT_MID, 2, RigAnimationPlaybackType.UPPER_BODY));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_SHOT_UP, 2, RigAnimationPlaybackType.UPPER_BODY));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.KNOCKDOWN_WAKEUP_LEFT, 12));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.KNOCKDOWN_WAKEUP_RIGHT, 12));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.EAT_OFFHAND, 32, RigAnimationPlaybackType.LEFT_HAND));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.EAT_MAINHAND, 32, RigAnimationPlaybackType.MAIN_HAND));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.THROW_ENDER_PEARL, 10, RigAnimationPlaybackType.BOTH_HAND));
     }
 
     private RigAnimationSpecs() {
