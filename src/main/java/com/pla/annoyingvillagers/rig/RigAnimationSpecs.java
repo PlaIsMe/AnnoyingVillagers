@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.rig;
 
-import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.rig.RigAnimationSpec.RigTimedAnimationHook;
+import com.pla.annoyingvillagers.util.AnimationUtil;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -17,10 +16,10 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AUTO4, 12, 1, 3));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DASH, 13, 3, 5));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_AIRSLASH, 13, 7, 10));
-        put(RigAnimationSpec.normalAttack(RigAnimationId.SWEEPING_EDGE,
-                20,
-                3,
-                6
+        put(RigAnimationSpec.normalAttack(RigAnimationId.SWEEPING_EDGE, 20, 3, 6,
+                List.of(
+                        RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, AnimationUtil::moreSweepingEdgeLogic)
+                )
         ));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_MOUNT_ATTACK, 12, 2, 6, 2.25D));
 
@@ -29,9 +28,10 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AUTO3, 15, 5, 7));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_DASH, 15, 1, 6));
         put(RigAnimationSpec.normalAttack(RigAnimationId.SWORD_DUAL_AIRSLASH, 13, 7, 10));
-        put(RigAnimationSpec.ultimateAttack(
-                RigAnimationId.DANCING_EDGE,
-                25,
+        put(RigAnimationSpec.ultimateAttack(RigAnimationId.DANCING_EDGE, 25,
+                List.of(
+                        RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, AnimationUtil::moreDancingEdgeLogic)
+                ),
                 RigAttackWindow.of(5, 8),
                 RigAttackWindow.of(8, 10),
                 RigAttackWindow.of(12, 14)

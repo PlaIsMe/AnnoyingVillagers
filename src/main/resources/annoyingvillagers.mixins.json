@@ -28,8 +28,6 @@
   ],
   "client": [
     "client.ModelPartMixin",
-    "client.LivingEntityRendererAccessor",
-    "client.HumanoidMobRendererMixin",
     "client.IllagerRendererMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ItemRendererMixin",

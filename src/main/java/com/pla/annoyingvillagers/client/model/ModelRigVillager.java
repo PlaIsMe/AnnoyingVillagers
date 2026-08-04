@@ -24,6 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.phys.Vec3;
@@ -150,6 +151,26 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
         left_lower_leg.addOrReplaceChild("left_lower_leg_bottom_face", CubeListBuilder.create().texOffs(4, 22).mirror().addBox(-2.0F, 6.001F, -2.0F, 4.0F, 0.0F, 4.0F, Set.of(Direction.DOWN)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 64, 64);
+    }
+
+    @Override
+    public void translateToHand(@NotNull HumanoidArm side, @NotNull PoseStack poseStack) {
+        if (side == HumanoidArm.RIGHT) {
+            this.rightArm.translateAndRotate(poseStack);
+            this.right_hand.translateAndRotate(poseStack);
+        } else {
+            this.leftArm.translateAndRotate(poseStack);
+            this.left_hand.translateAndRotate(poseStack);
+        }
+    }
+
+    public void translateToTool(HumanoidArm side, PoseStack poseStack) {
+        this.translateToHand(side, poseStack);
+        if (side == HumanoidArm.RIGHT) {
+            this.right_tool.translateAndRotate(poseStack);
+        } else {
+            this.left_tool.translateAndRotate(poseStack);
+        }
     }
 
     @Override

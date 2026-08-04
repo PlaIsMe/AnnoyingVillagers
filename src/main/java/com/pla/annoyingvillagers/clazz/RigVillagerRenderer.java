@@ -1,12 +1,14 @@
 package com.pla.annoyingvillagers.clazz;
 
 import com.pla.annoyingvillagers.client.layer.VillagerRigArrowLayer;
+import com.pla.annoyingvillagers.client.layer.VillagerRigItemInHandLayer;
 import com.pla.annoyingvillagers.client.model.ModelRigArmor;
 import com.pla.annoyingvillagers.client.model.ModelRigVillager;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.Mob;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +21,8 @@ public abstract class RigVillagerRenderer<T extends Mob> extends HumanoidMobRend
                 new HumanoidModel<>(context.bakeLayer(ModelRigArmor.INNER_LAYER_LOCATION)),
                 new HumanoidModel<>(context.bakeLayer(ModelRigArmor.OUTER_LAYER_LOCATION)),
                 context.getModelManager()));
+        this.layers.removeIf(layer -> layer instanceof ItemInHandLayer<?, ?>);
+        this.addLayer(new VillagerRigItemInHandLayer<>(this, context.getItemInHandRenderer()));
         this.addLayer(new VillagerRigArrowLayer<>(context, this));
     }
 

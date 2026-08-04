@@ -3,7 +3,10 @@ package com.pla.annoyingvillagers.util;
 import com.pla.annoyingvillagers.client.animation.rig_animation.RigIdleAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.RigRunAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.RigWalkAnimations;
+import com.pla.annoyingvillagers.entity.AlexEntity;
+import com.pla.annoyingvillagers.entity.ElectricPhaseEntity;
 import net.minecraft.client.animation.AnimationDefinition;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
@@ -64,5 +67,18 @@ public class AnimationUtil {
         ItemStack offHandItem = mob.getOffhandItem();
 
         return RigIdleAnimations.IDLE;
+    }
+
+    public static void moreSweepingEdgeLogic(Mob mob) {
+        if (mob instanceof AlexEntity alexEntity && alexEntity.level() instanceof ServerLevel serverLevel) {
+            ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, alexEntity);
+        }
+    }
+
+    public static void moreDancingEdgeLogic(Mob mob) {
+        if (mob instanceof AlexEntity alexEntity && alexEntity.level() instanceof ServerLevel serverLevel) {
+            ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, alexEntity);
+            ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, alexEntity, true);
+        }
     }
 }

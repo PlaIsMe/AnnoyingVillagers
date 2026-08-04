@@ -8,7 +8,7 @@ import java.util.List;
 
 public final class RigCombatProfiles {
     private static final RigCombatProfile DEFAULT_SWORD = new RigCombatProfile(
-            List.of(RigAnimationId.SWORD_AUTO1, RigAnimationId.SWORD_AUTO2, RigAnimationId.SWORD_AUTO4, RigAnimationId.SWEEPING_EDGE),
+            List.of(RigAnimationId.SWORD_AUTO1, RigAnimationId.SWORD_AUTO2, RigAnimationId.SWORD_AUTO3, RigAnimationId.SWORD_AUTO4),
             List.of(RigAnimationId.SWORD_DASH, RigAnimationId.SWORD_AIRSLASH),
             List.of(
                     RigAnimationId.ROLL_FORWARD,
@@ -18,7 +18,7 @@ public final class RigCombatProfiles {
                     RigAnimationId.STEP_LEFT,
                     RigAnimationId.STEP_RIGHT
             ),
-            List.of(),
+            List.of(RigAnimationId.SWEEPING_EDGE),
             0.18D,
             0.06D,
             0.0D
