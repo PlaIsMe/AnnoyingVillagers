@@ -1,11 +1,7 @@
 package com.pla.annoyingvillagers.compat.cdmoveset;
 
 import com.pla.annoyingvillagers.combatbehaviour.AvNpcDagger;
-import com.pla.annoyingvillagers.combatbehaviour.AvNpcSpear;
-import com.pla.annoyingvillagers.combatbehaviour.AvNpcSword;
-import com.pla.annoyingvillagers.compat.refm.AvNpcRapier;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import net.corruptdog.cdm.gameasset.CorruptAnimations;
 import net.corruptdog.cdm.world.CorruptWeaponCategories;
 import net.corruptdog.cdm.world.item.CDAddonItems;
 import net.minecraft.server.level.ServerLevel;
@@ -28,9 +24,9 @@ public class EpicFightResurrection {
 
     static {
         DANGEROUS_ANIMATIONS.addAll(Set.of(
-                CorruptAnimations.YAMATO_JUDGEMENT_CUT.get().getRegistryName().toString(),
-                CorruptAnimations.YAMATO_JUDGEMENT_CUT_JUST.get().getRegistryName().toString(),
-                CorruptAnimations.YAMATO_JUDGEMENT_CUT_END.get().getRegistryName().toString()
+                "cdmoveset:biped/new/yamato/skill/yamato_judgement_cut",
+                "cdmoveset:biped/new/yamato/skill/yamato_judgement_cut_just",
+                "cdmoveset:biped/new/yamato/skill/yamato_judgement_cut_end"
         ));
     }
 

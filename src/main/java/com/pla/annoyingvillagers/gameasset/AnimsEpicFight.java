@@ -34,7 +34,8 @@ public class AnimsEpicFight {
     public static AnimationManager.AnimationAccessor<StaticAnimation> EAT_OFFHAND;
     public static AnimationManager.AnimationAccessor<StaticAnimation> DRINK_OFFHAND;
     public static AnimationManager.AnimationAccessor<StaticAnimation> SHIELD_MAINHAND;
-    public static AnimationManager.AnimationAccessor<ActionAnimation> AEGIS_SHIELD_SHOOT;
+    public static AnimationManager.AnimationAccessor<ActionAnimation> AEGIS_SHIELD_SHOOT_MAINHAND;
+    public static AnimationManager.AnimationAccessor<ActionAnimation> AEGIS_SHIELD_SHOOT_OFFHAND;
     public static AnimationManager.AnimationAccessor<StaticAnimation> SHIELD_OFFHAND;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> OBSIDIAN_FIST_AUTO1;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> OBSIDIAN_FIST_AUTO2;
@@ -65,15 +66,18 @@ public class AnimsEpicFight {
                 accessor -> new StaticAnimation(0.35F, true, accessor, humanoidArmature));
         SHIELD_MAINHAND = builder.nextAccessor("biped/epicfight_clone/shield_mainhand",
                 accessor -> new StaticAnimation(0.35F, true, accessor, humanoidArmature));
-        AEGIS_SHIELD_SHOOT = builder.nextAccessor("biped/epicfight_clone/aegis_shield_shoot",
+        AEGIS_SHIELD_SHOOT_MAINHAND = builder.nextAccessor("biped/epicfight_clone/aegis_shield_shoot_mainhand",
                 accessor -> new ActionAnimation(0.35F, accessor, humanoidArmature)
                         .addEvents(
                                 AnimationEvent.InTimeEvent.create(0.5F, (livingEntityPatch, self, p) -> {
                                     EnderAegisItem.shieldShoot(livingEntityPatch.getOriginal().level(), livingEntityPatch.getOriginal());
-                                    if (livingEntityPatch.getOriginal() instanceof Player player) {
-                                        ItemCooldowns cooldowns = player.getCooldowns();
-                                        cooldowns.addCooldown(player.getMainHandItem().getItem(), 10);
-                                    }
+                                }, AnimationEvent.Side.SERVER)
+                        ));
+        AEGIS_SHIELD_SHOOT_OFFHAND = builder.nextAccessor("biped/epicfight_clone/aegis_shield_shoot_offhand",
+                accessor -> new ActionAnimation(0.35F, accessor, humanoidArmature)
+                        .addEvents(
+                                AnimationEvent.InTimeEvent.create(0.5F, (livingEntityPatch, self, p) -> {
+                                    EnderAegisItem.shieldShoot(livingEntityPatch.getOriginal().level(), livingEntityPatch.getOriginal());
                                 }, AnimationEvent.Side.SERVER)
                         ));
         SHIELD_OFFHAND = builder.nextAccessor("biped/epicfight_clone/shield_offhand",

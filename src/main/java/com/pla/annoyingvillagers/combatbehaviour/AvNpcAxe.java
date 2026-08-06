@@ -4,7 +4,6 @@ import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightAwaken;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightBattleArts;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Builder;
 import reascer.wom.gameasset.WOMAnimations;
 import reascer.wom.gameasset.animations.weapons.AnimsOrbit;
@@ -74,7 +73,7 @@ public class AvNpcAxe {
     public static final Builder<MobPatch<?>> EARTH_AXE = aggressiveAxe(
             standardAxeOpener(),
             axeFinisher(
-                    AnimsWom.EARTH_AXE,
+                    AVAnimations.EARTH_AXE,
                     AVAnimations.EARTH_AXE_SHOOT
             )
     );

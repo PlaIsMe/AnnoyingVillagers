@@ -2,11 +2,15 @@ package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.particle.*;
+import com.pla.annoyingvillagers.client.particle.ground_slam.AwakenGroundSlamOptions;
+import com.pla.annoyingvillagers.client.particle.smoke_wave.AwakenSmokeWaveOptions;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 
 public class AnnoyingVillagersModParticleTypes {
 
@@ -45,4 +49,25 @@ public class AnnoyingVillagersModParticleTypes {
         REGISTRY.register("fireball", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> ELECTRIC_LITE =
             REGISTRY.register("electric_lite", () -> new SimpleParticleType(true));
+    public static final RegistryObject<ParticleType<AwakenSmokeWaveOptions>> AWAKEN_SMOKE_WAVE =
+            REGISTRY.register("awaken_smoke_wave", () -> new ParticleType<AwakenSmokeWaveOptions>(false, AwakenSmokeWaveOptions.DESERIALIZER) {
+                @Override
+                public @NotNull Codec<AwakenSmokeWaveOptions> codec() {
+                    return AwakenSmokeWaveOptions.codec();
+                }
+            });
+    public static final RegistryObject<ParticleType<AwakenGroundSlamOptions>> AWAKEN_GROUND_SLAM =
+            REGISTRY.register("awaken_ground_slam", () -> new ParticleType<AwakenGroundSlamOptions>(false, AwakenGroundSlamOptions.DESERIALIZER) {
+                @Override
+                public @NotNull Codec<AwakenGroundSlamOptions> codec() {
+                    return AwakenGroundSlamOptions.codec();
+                }
+            });
+    public static final RegistryObject<ParticleType<AwakenJointFollowParticleOptions>> AWAKEN_AIRFLOW =
+            REGISTRY.register("awaken_airflow", () -> new ParticleType<AwakenJointFollowParticleOptions>(false, AwakenJointFollowParticleOptions.DESERIALIZER) {
+                @Override
+                public @NotNull Codec<AwakenJointFollowParticleOptions> codec() {
+                    return AwakenJointFollowParticleOptions.codec(this);
+                }
+            });
 }

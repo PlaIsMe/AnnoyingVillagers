@@ -8,8 +8,6 @@
     "MobMixin",
     "SkeletonMixin",
     "ZombieMixin",
-    "GuardSkillMixin",
-    "ImpactGuardSkillMixin",
     "ExplosionMixin",
     "RaiderMixin",
     "MixinPHumanoidRenderer",
@@ -69,7 +67,8 @@
     "client.ArrowLayerMixin",
     "client.PatchedArrowLayerMixin",
     "client.FishingHookRendererMixin",
-    "client.ControlEngineMixin"
+    "client.ControlEngineMixin",
+    "client.GameRendererImpactBlurMixin"
   ],
   "minVersion": "0.8"
 }

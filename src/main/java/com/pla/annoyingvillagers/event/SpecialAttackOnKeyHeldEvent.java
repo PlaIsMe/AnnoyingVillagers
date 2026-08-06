@@ -2,13 +2,17 @@ package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
+import com.pla.annoyingvillagers.item.EnderAegisItem;
+import com.pla.annoyingvillagers.item.NullWeaponItem;
 import com.pla.annoyingvillagers.item.TransporterFragmentItem;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -37,6 +41,25 @@ public class SpecialAttackOnKeyHeldEvent {
                 if (transporterUseResult.activated()) {
                     livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
                 }
+                return;
+            }
+        }
+
+        if (entity instanceof Player player && !player.level().isClientSide()) {
+            if (NullWeaponItem.tryReleaseHeldWeapons(player)) {
+                livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+                return;
+            }
+        }
+
+        if (entity instanceof Player player && !player.level().isClientSide()) {
+            ItemStack mainHandItem = player.getMainHandItem();
+            if (EnderAegisItem.activateSecondForm(player, mainHandItem)) {
+                return;
+            }
+
+            ItemStack offHandItem = player.getOffhandItem();
+            if (EnderAegisItem.activateSecondForm(player, offHandItem)) {
                 return;
             }
         }

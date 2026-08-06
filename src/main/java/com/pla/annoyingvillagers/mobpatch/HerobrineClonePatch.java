@@ -5,8 +5,8 @@ import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.combatbehaviour.HerobrineCommon;
 import com.pla.annoyingvillagers.combatbehaviour.HerobrineObsidianWeapon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.EscapeUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -62,8 +62,8 @@ public class HerobrineClonePatch extends CEHumanoidPatch<PathfinderMob> implemen
                                         Pair.of(LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, AnimsWom.OLD_MOONLESS_RUN),
-                                        Pair.of(LivingMotions.CHASE, AnimsWom.OLD_MOONLESS_RUN),
+                                        Pair.of(LivingMotions.RUN, AVAnimations.HEROBRINE_RUN),
+                                        Pair.of(LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 )
                         ));

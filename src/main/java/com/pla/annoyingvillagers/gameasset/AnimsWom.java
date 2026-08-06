@@ -95,8 +95,6 @@ public class AnimsWom {
     public static AnimationManager.AnimationAccessor<MovementAnimation> TORMENT_BERSERK_WALK;
     public static AnimationManager.AnimationAccessor<StaticAnimation> TRIDENT_GUARD_HIT_1;
     public static AnimationManager.AnimationAccessor<StaticAnimation> TRIDENT_GUARD_HIT_2;
-    public static AnimationManager.AnimationAccessor<ActionAnimation> ELECTRIC_FIELD;
-    public static AnimationManager.AnimationAccessor<AttackAnimation> EARTH_AXE;
     public static AnimationManager.AnimationAccessor<StaticAnimation> GLOWING_AGONY_GUARD;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> ENDER_AEGIS_BULL_CHARGE;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> ENDER_AEGIS_MOONLESS_AUTO_1;
@@ -145,8 +143,6 @@ public class AnimsWom {
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> NULL_ANTITHEUS_ASCENDED_AUTO_3;
     public static AnimationManager.AnimationAccessor<DodgeAnimation> HEROBRINE_MOB_ENDERSTEP_OBSCURIS;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL;
-    public static AnimationManager.AnimationAccessor<MovementAnimation> OLD_MOONLESS_RUN;
-    public static AnimationManager.AnimationAccessor<MovementAnimation> TRIDENT_TWO_HAND_RUN;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> OBSIDIAN_STRONG_PUNCH;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> OBSIDIAN_ENDERBLASTER_TWOHAND_TISHNAW;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> SHADOW_OBSIDIAN_SWORD_TORMENT_AIRSLAM;
@@ -155,7 +151,6 @@ public class AnimsWom {
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> SHADOW_OBSIDIAN_SWORD_GESETZ_AUTO_2;
     public static AnimationManager.AnimationAccessor<SpecialAttackAnimation> CLONE_NAPOLEON_WATERLOW_SHOOT;
     public static AnimationManager.AnimationAccessor<StaticAnimation> CUT_ENDERBLASTER_TWOHAND_RELOAD;
-    public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> HACKER_SWORD_SKILL;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> WARBLADE_SATSUJIN_TSUKUYOMI;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> HOOK_HERRSCHER_UP;
 
@@ -190,46 +185,6 @@ public class AnimsWom {
                                 AnimationEvent.InTimeEvent.create(0.2F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT),
                                 AnimationEvent.InTimeEvent.create(0.3F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT),
                                 AnimationEvent.InTimeEvent.create(0.4F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT)));
-        ELECTRIC_FIELD = builder.nextAccessor("biped/wom_clone/electric_field",
-                accessor -> new ActionAnimation(0.05F, Float.MAX_VALUE, accessor, humanoidArmature)
-                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, true)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, true)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(0.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(0.8F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(0.8F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(1.0F, (livingEntityPatch, self, p) -> {
-                                    if (livingEntityPatch.getOriginal().level() instanceof ServerLevel serverLevel) {
-                                        BlueDemonTridentItem.spawnDamageZones(serverLevel, livingEntityPatch.getOriginal());
-                                    }
-                                }, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(1.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(1.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(1.8F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(1.8F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(2.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(2.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(2.8F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(2.8F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(3.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(3.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(3.8F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(3.8F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER)
-                        ));
-        EARTH_AXE = builder.nextAccessor("biped/wom_clone/earth_axe",
-                accessor -> new AttackAnimation(0.0F, 0.0F, 0.0F, 0.0F, Float.MAX_VALUE, null, Armatures.BIPED.get().head, accessor, Armatures.BIPED)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, true)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, true)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.2F, (livingEntityPatch, self, p) -> {
-                                    if (livingEntityPatch.getOriginal().level() instanceof ServerLevel serverLevel) {
-                                        EarthAxeItem.summonEarthWall(serverLevel, livingEntityPatch.getOriginal());
-                                    }
-                                }, AnimationEvent.Side.SERVER)
-                        ));
         GLOWING_AGONY_GUARD = builder.nextAccessor("biped/wom_clone/glowing_agony_guard",
                 accessor -> new StaticAnimation(0.05F, true, accessor, humanoidArmature)
                         .addEvents(AnimationEvent.InTimeEvent.create(0.0F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING_AGONY, AnimationEvent.Side.CLIENT),
@@ -1593,10 +1548,7 @@ public class AnimsWom {
                                 AnimationEvent.InTimeEvent.create(0.6F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_CROSS_FIX_DELAY_SHADOW_HEROBRINE, AnimationEvent.Side.SERVER)
                         )
         );
-        OLD_MOONLESS_RUN = builder.nextAccessor("biped/wom_clone/old_moonless_run",
-                accessor -> new MovementAnimation(0.1F, true, accessor, humanoidArmature));
-        TRIDENT_TWO_HAND_RUN = builder.nextAccessor("biped/wom_clone/trident_two_hand_run",
-                accessor -> new MovementAnimation(0.1F, true, accessor, humanoidArmature));
+
         OBSIDIAN_STRONG_PUNCH = builder.nextAccessor("biped/wom_clone/obsidian_strong_punch",
                 accessor -> new BasicMultipleAttackAnimation(0.3F, 0.1F, 0.15F, 0.35F, WOMWeaponColliders.PUNCH, humanoidArmature.get().handL, accessor, humanoidArmature)
                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(4.0F))
@@ -1879,43 +1831,7 @@ public class AnimsWom {
                                 AnimationEvent.InTimeEvent.create(0.35F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
                                 AnimationEvent.InTimeEvent.create(0.4F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
                                 AnimationEvent.InTimeEvent.create(0.5F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT)));
-        HACKER_SWORD_SKILL = builder.nextAccessor("biped/wom_clone/hacker_sword_skill", accessor -> (BasicMultipleAttackAnimation) new BasicMultipleAttackAnimation(0.15F, accessor, humanoidArmature, new AttackAnimation.Phase(0.0F, 0.45F, 0.5F, 0.55F, 0.55F, humanoidArmature.get().toolR, ColliderPreset.SWORD),
-                new AttackAnimation.Phase(0.55F, 0.8F, 0.85F, 0.9F, 0.9F, humanoidArmature.get().toolR, ColliderPreset.SWORD),
-                new AttackAnimation.Phase(0.9F, 1.35F, 1.4F, 1.4F, 1.4F, humanoidArmature.get().toolR, ColliderPreset.SWORD),
-                new AttackAnimation.Phase(1.55F, 1.8F, 1.85F, 1.9F, 1.9F, humanoidArmature.get().toolR, ColliderPreset.SWORD),
-                new AttackAnimation.Phase(1.9F, 2.35F, 2.4F, 2.4F, Float.MAX_VALUE, humanoidArmature.get().toolR, ColliderPreset.SWORD))
-                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.5F))
-                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.5F))
-                .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F)
-                .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, true)
-                .addEvents(new AnimationEvent[]{
-                        AnimationEvent.InTimeEvent.create(0.0F, (entityPatch, self, params) -> {
-                            Level level = entityPatch.getOriginal().level();
-                            LivingEntity entity = entityPatch.getOriginal();
-                            level.addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
-                        }, AnimationEvent.Side.CLIENT),
-                        AnimationEvent.InTimeEvent.create(0.35F, (entityPatch, self, params) -> {
-                            Level level = entityPatch.getOriginal().level();
-                            LivingEntity entity = entityPatch.getOriginal();
-                            level.addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
-                        }, AnimationEvent.Side.CLIENT),
-                        AnimationEvent.InTimeEvent.create(0.85F, (entityPatch, self, params) -> {
-                            Level level = entityPatch.getOriginal().level();
-                            LivingEntity entity = entityPatch.getOriginal();
-                            level.addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
-                        }, AnimationEvent.Side.CLIENT),
-                        AnimationEvent.InTimeEvent.create(1.35F, (entityPatch, self, params) -> {
-                            Level level = entityPatch.getOriginal().level();
-                            LivingEntity entity = entityPatch.getOriginal();
-                            level.addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
-                        }, AnimationEvent.Side.CLIENT),
-                        AnimationEvent.InTimeEvent.create(1.85F, (entityPatch, self, params) -> {
-                            Level level = entityPatch.getOriginal().level();
-                            LivingEntity entity = entityPatch.getOriginal();
-                            level.addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
-                        }, AnimationEvent.Side.CLIENT)
-                })
-        );
+
         WARBLADE_SATSUJIN_TSUKUYOMI = builder.nextAccessor("biped/wom_clone/warblade_katana_tsukuyomi",
                 accessor -> new BasicMultipleAttackAnimation(0.05F, accessor, humanoidArmature,
                         new AttackAnimation.Phase(0.0F, 0.6F, 0.75F, 0.9F, Float.MAX_VALUE, humanoidArmature.get().toolR, null))

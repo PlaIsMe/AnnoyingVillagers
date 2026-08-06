@@ -143,7 +143,7 @@ public class HerobrineEnderAegis {
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 8.0D)
                                             .custom(HerobrineCommon::canPlaySecondFormAnimation)
-                                            .animationBehavior(AnimsEpicFight.AEGIS_SHIELD_SHOOT, 0.0F)
+                                            .animationBehavior(AnimsEpicFight.AEGIS_SHIELD_SHOOT_MAINHAND, 0.0F)
                                             .addExBehavior(HerobrineCommon::playSecondFormAnimation)
                             )
             )

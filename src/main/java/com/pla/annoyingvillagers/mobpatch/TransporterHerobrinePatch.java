@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.combatbehaviour.TransporterHerobrineFist;
 import com.pla.annoyingvillagers.entity.TransporterHerobrineCloneEntity;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -60,8 +60,8 @@ public class TransporterHerobrinePatch extends HerobrineClonePatch {
                                         Pair.of(LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, AnimsWom.OLD_MOONLESS_RUN),
-                                        Pair.of(LivingMotions.CHASE, AnimsWom.OLD_MOONLESS_RUN),
+                                        Pair.of(LivingMotions.RUN, AVAnimations.HEROBRINE_RUN),
+                                        Pair.of(LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 )));
         this.weaponAttackMotions
@@ -76,8 +76,8 @@ public class TransporterHerobrinePatch extends HerobrineClonePatch {
                                         Pair.of(LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, AnimsWom.OLD_MOONLESS_RUN),
-                                        Pair.of(LivingMotions.CHASE, AnimsWom.OLD_MOONLESS_RUN),
+                                        Pair.of(LivingMotions.RUN, AVAnimations.HEROBRINE_RUN),
+                                        Pair.of(LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 )));
         this.weaponAttackMotions

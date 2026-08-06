@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.combatbehaviour.GregFist;
 import com.pla.annoyingvillagers.entity.HerobrineGregEntity;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraft.world.entity.PathfinderMob;
 import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
@@ -33,8 +33,8 @@ public class HerobrineGregPatch extends CEHumanoidPatch<PathfinderMob> {
         super.initAnimator(animator);
         animator.addLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE);
         animator.addLivingAnimation(LivingMotions.WALK, Animations.BIPED_WALK);
-        animator.addLivingAnimation(LivingMotions.RUN, AnimsWom.OLD_MOONLESS_RUN);
-        animator.addLivingAnimation(LivingMotions.CHASE, AnimsWom.OLD_MOONLESS_RUN);
+        animator.addLivingAnimation(LivingMotions.RUN, AVAnimations.HEROBRINE_RUN);
+        animator.addLivingAnimation(LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN);
         animator.addLivingAnimation(LivingMotions.DEATH, Animations.BIPED_DEATH);
     }
 
@@ -76,8 +76,8 @@ public class HerobrineGregPatch extends CEHumanoidPatch<PathfinderMob> {
                 Pair.of(LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD),
                 Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
                 Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                Pair.of(LivingMotions.RUN, AnimsWom.OLD_MOONLESS_RUN),
-                Pair.of(LivingMotions.CHASE, AnimsWom.OLD_MOONLESS_RUN),
+                Pair.of(LivingMotions.RUN, AVAnimations.HEROBRINE_RUN),
+                Pair.of(LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN),
                 Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
         );
         this.weaponLivingMotions

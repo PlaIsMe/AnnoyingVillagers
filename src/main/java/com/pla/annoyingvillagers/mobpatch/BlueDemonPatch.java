@@ -61,8 +61,8 @@ public class BlueDemonPatch extends CEHumanoidPatch<PathfinderMob> implements Cu
                                         Pair.of(LivingMotions.BLOCK, Animations.SWORD_DUAL_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_HOLD_DUAL_WEAPON),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_HOLD_DUAL_WEAPON),
-                                        Pair.of(LivingMotions.RUN, AnimsWom.TRIDENT_TWO_HAND_RUN),
-                                        Pair.of(LivingMotions.CHASE, AnimsWom.TRIDENT_TWO_HAND_RUN),
+                                        Pair.of(LivingMotions.RUN, AVAnimations.TRIDENT_TWO_HAND_RUN),
+                                        Pair.of(LivingMotions.CHASE, AVAnimations.TRIDENT_TWO_HAND_RUN),
                                         Pair.of(LivingMotions.DEATH, AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM)
                                 )
                         ));

@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.client.engine;
 
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
@@ -53,7 +54,7 @@ public class RenderObsidianWeapon extends RenderItemBase {
             EntityState entityState = (dynamicAnimation.get()).getState(livingEntityPatch, elapsedTimeFloat);
             ItemStack itemstack;
 
-            if (dynamicAnimation == AnimsWom.OLD_MOONLESS_RUN
+            if (dynamicAnimation == AVAnimations.HEROBRINE_RUN
                     || dynamicAnimation == AnimsWom.OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL
                     || dynamicAnimation == AnimsEpicFight.OBSIDIAN_ZOMBIE_ATTACK3
                     || dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AUTO3

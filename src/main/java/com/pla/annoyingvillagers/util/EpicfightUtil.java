@@ -1,13 +1,16 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.FlyingShockwaveProjectile;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
+import com.pla.annoyingvillagers.network.ClientboundEpicFightCameraFx;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -18,12 +21,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.network.PacketDistributor;
 import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
 import net.shelmarow.combat_evolution.ai.util.CEPatchUtils;
 import net.shelmarow.combat_evolution.effect.CEMobEffects;
 import net.shelmarow.combat_evolution.execution.ExecutionHandler;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionHitAnimation;
 import yesman.epicfight.api.animation.Joint;
+import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
@@ -227,6 +232,26 @@ public class EpicfightUtil {
                 defender, attacker);
         if (attacker instanceof Player player) {
             ScreenShakeUtil.applyScreenShake(level, player.getOnPos().getCenter(), 1.0, 20, 4);
+        }
+    }
+
+    public static AnimationEvent.InTimeEvent<?> cameraZoomInEvent(float time, float fovModifier, int durationTicks) {
+        return AnimationEvent.InTimeEvent.create(time, (livingEntityPatch, self, params) -> {
+            LivingEntity entity = livingEntityPatch.getOriginal();
+            sendEpicFightCameraFx(entity, ClientboundEpicFightCameraFx.zoomIn(fovModifier, durationTicks));
+        }, AnimationEvent.Side.SERVER);
+    }
+
+    public static AnimationEvent.InTimeEvent<?> cameraZoomOutBlurEvent(float time, float blurStrength, int blurTicks) {
+        return AnimationEvent.InTimeEvent.create(time, (livingEntityPatch, self, params) -> {
+            LivingEntity entity = livingEntityPatch.getOriginal();
+            sendEpicFightCameraFx(entity, ClientboundEpicFightCameraFx.resetZoomAndBlur(blurStrength, blurTicks));
+        }, AnimationEvent.Side.SERVER);
+    }
+
+    private static void sendEpicFightCameraFx(LivingEntity entity, ClientboundEpicFightCameraFx packet) {
+        if (entity instanceof ServerPlayer player) {
+            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> player), packet);
         }
     }
 

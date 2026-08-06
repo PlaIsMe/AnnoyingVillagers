@@ -1,6 +1,9 @@
 package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.client.particle.*;
+import com.pla.annoyingvillagers.client.particle.airflow.AwakenAirflowParticle;
+import com.pla.annoyingvillagers.client.particle.ground_slam.AwakenGroundSlamParticle;
+import com.pla.annoyingvillagers.client.particle.smoke_wave.AwakenSmokeWaveParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.SmokeParticle;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -30,5 +33,8 @@ public class AnnoyingVillagersModParticles {
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.BIG_SPLASH.get(), BigSplashParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.FIREBALL.get(), FireballParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.ELECTRIC_LITE.get(), ElectricLiteParticle::provider);
+        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.AWAKEN_GROUND_SLAM.get(), AwakenGroundSlamParticle.Provider::new);
+        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.AWAKEN_SMOKE_WAVE.get(), AwakenSmokeWaveParticle.Provider::new);
+        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.AWAKEN_AIRFLOW.get(), AwakenAirflowParticle.Provider::new);
     }
 }

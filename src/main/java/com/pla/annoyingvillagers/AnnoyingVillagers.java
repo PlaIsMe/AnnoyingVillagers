@@ -139,6 +139,12 @@ public class AnnoyingVillagers {
                     ClientboundBlackFireFx::handle
             );
             AnnoyingVillagers.addNetworkMessage(
+                    ClientboundEpicFightCameraFx.class,
+                    ClientboundEpicFightCameraFx::encode,
+                    ClientboundEpicFightCameraFx::decode,
+                    ClientboundEpicFightCameraFx::handle
+            );
+            AnnoyingVillagers.addNetworkMessage(
                     CPApplyShake.class,
                     CPApplyShake::encode,
                     CPApplyShake::new,

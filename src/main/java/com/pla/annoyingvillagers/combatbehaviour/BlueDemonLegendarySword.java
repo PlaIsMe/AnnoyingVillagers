@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -136,7 +137,7 @@ public class BlueDemonLegendarySword {
                                     AnimsSolar.SOLAR_AUTO_2,
                                     AnimsAgony.AGONY_RIPPING_FANGS,
                                     AnimsAgony.AGONY_AUTO_3,
-                                    AnimsWom.ELECTRIC_FIELD,
+                                    AVAnimations.ELECTRIC_FIELD,
                                     AnimsWom.DEMONIAC_RUINE_COMET,
                                     AnimsWom.CLONE_ENDERBLASTER_ONEHAND_DASH,
                                     AnimsWom.YELLOW_NAPOLEON_AUSTERLITZ_SHOOT,
@@ -246,7 +247,7 @@ public class BlueDemonLegendarySword {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(5.0D, 10.0D)
-                                            .animationBehavior(AnimsWom.ELECTRIC_FIELD, 0.0F)
+                                            .animationBehavior(AVAnimations.ELECTRIC_FIELD, 0.0F)
                             )
             )
             .newBehaviorRoot(CombatBehaviourTemplates.guardRoot())

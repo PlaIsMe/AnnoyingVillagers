@@ -34,6 +34,7 @@ import yesman.epicfight.model.armature.HumanoidArmature;
 public class AnimsSculkSteve {
     public static AnimationManager.AnimationAccessor<StaticAnimation> PLAYER_HEROBRINE_POSSESSION;
     public static AnimationManager.AnimationAccessor<StaticAnimation> LEGENDARY_SWORD_IDLE;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> ENDER_SLAYER_SCYTHE_IDLE;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HEROBRINE_SACRIFICING;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HEROBRINE_ASSISTANCE;
     public static AnimationManager.AnimationAccessor<StaticAnimation> HEROBRINE_STAGE_CHANGE;
@@ -44,6 +45,8 @@ public class AnimsSculkSteve {
         PLAYER_HEROBRINE_POSSESSION = builder.nextAccessor("biped/sculk_steve/player_herobrine_possession",
                 accessor -> new StaticAnimation(false, accessor, humanoidArmature));
         LEGENDARY_SWORD_IDLE = builder.nextAccessor("biped/sculk_steve/legendary_sword_idle",
+                accessor -> new StaticAnimation(true, accessor, humanoidArmature));
+        ENDER_SLAYER_SCYTHE_IDLE = builder.nextAccessor("biped/sculk_steve/ender_slayer_scythe_idle",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
         HEROBRINE_SACRIFICING = builder.nextAccessor("biped/sculk_steve/herobrine_sacrificing",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));

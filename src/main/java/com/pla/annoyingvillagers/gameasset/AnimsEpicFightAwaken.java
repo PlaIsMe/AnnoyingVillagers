@@ -18,10 +18,20 @@
 
 package com.pla.annoyingvillagers.gameasset;
 
+import com.p1nero.invincible.api.events.Side;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.entity.BlueDemonEntity;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
+import com.pla.annoyingvillagers.util.ScreenShakeUtil;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -32,16 +42,17 @@ import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.BasicAttackAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
+import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.Set;
@@ -81,6 +92,31 @@ public class AnimsEpicFightAwaken {
     public static AnimationManager.AnimationAccessor<AttackAnimation> DP_FALLING_SHADOW;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> HOOK_AIR;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> HOOK_GROUND;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_HEAVY_AUTO1;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_HEAVY_AUTO2;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_HEAVY_AUTO3;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_HEAVY_AUTO4;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_HEAVY_AUTO5;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_AIR_SLASH_HEAVY;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_DASH_HEAVY;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_DODGE_SLASH1;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_DODGE_SLASH2;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_SWEEP_BASH1;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_SWEEP_BASH2;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_DOUBLE_BASH1;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_DOUBLE_BASH2;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_AUTO1;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_AUTO2;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_AUTO3;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_AUTO4;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_AUTO5;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_AUTO6;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_AIR_SLASH_LIGHT;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_DASH_LIGHT;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_DODGE_PURSUIT;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_GUARD_COUNTER;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> THUNDER_PUNISHMENT;
+    public static AnimationManager.AnimationAccessor<AttackAnimation> VACUUM_SLICE;
 
     public static void build(AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> humanoidArmature = Armatures.BIPED;
@@ -88,7 +124,7 @@ public class AnimsEpicFightAwaken {
                 accessor -> new AttackAnimation(0.05F, accessor, Armatures.BIPED,
                         new AttackAnimation.Phase(0.0F, 0.167F, 0.167F, 0.38F, 1.0F, Float.MAX_VALUE, InteractionHand.MAIN_HAND, Armatures.BIPED.get().toolL, null))
                         .addProperty(AnimationProperty.AttackAnimationProperty.REMOVE_DELTA_MOVEMENT, false)
-                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 1.5F)
                         .newTimePair(0.0F, 0.3F)
                         .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
                         .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
@@ -571,5 +607,484 @@ public class AnimsEpicFightAwaken {
                         .newTimePair(0.0F, 0.25F)
                         .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
                         .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)));
+        STRAIGHTSWORD_HEAVY_AUTO1 = builder.nextAccessor("biped/epicfight_awaken/straightsword_heavy_auto1",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.23F, 0.4F, 0.75F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                        .newTimePair(0.0F, 0.03F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.23F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 0.65F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.75F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_HEAVY_AUTO2 = builder.nextAccessor("biped/epicfight_awaken/straightsword_heavy_auto2",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.05F, 0.0F, 0.25F, 0.5F, 0.85F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.1F))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                        .newTimePair(0.0F, 0.05F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.2F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 0.75F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.85F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_HEAVY_AUTO3 = builder.nextAccessor("biped/epicfight_awaken/straightsword_heavy_auto3",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.13F, 0.33F, 0.8F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.2F))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                        .newTimePair(0.0F, 0.05F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.13F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 0.5F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.67F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_HEAVY_AUTO4 = builder.nextAccessor("biped/epicfight_awaken/straightsword_heavy_auto4",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.26F, 0.53F, 0.85F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.3F))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                        .newTimePair(0.0F, 0.06F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.26F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 0.6F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.7F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_HEAVY_AUTO5 = builder.nextAccessor("biped/epicfight_awaken/straightsword_heavy_auto5",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.36F, 0.5F, 0.85F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.4F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_RUSH_FINISHER.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.BLADE_RUSH_SKILL)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                        .newTimePair(0.0F, 0.16F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.36F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 0.6F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.7F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_AIR_SLASH_HEAVY = builder.nextAccessor("biped/epicfight_awaken/straightsword_airslash_heavy",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.1F, 0.0F, 0.2F, 0.4F, 1.36F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.75F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(2.0F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.FINISHER))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_RUSH_FINISHER.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.BLADE_RUSH_SKILL)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.RESET_PLAYER_COMBO_COUNTER, true)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, false)
+                        .newTimePair(0.0F, 1.16F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 1.26F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_DASH_HEAVY = builder.nextAccessor("biped/epicfight_awaken/straightsword_dash_heavy",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.1F, 0.5F, 0.6F, 0.73F, 1.4F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.35F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.75F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.FINISHER))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_RUSH_FINISHER.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.BLADE_RUSH_SKILL)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.RESET_PLAYER_COMBO_COUNTER, true)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                        .newTimePair(0.0F, 1.16F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 1.3F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_DODGE_SLASH1 = builder.nextAccessor("biped/epicfight_awaken/straightsword_dodgeslash_1",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.1F, 0.0F, 0.13F, 0.33F, 1.16F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.5F))
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 1.5F)
+                        .newTimePair(0.0F, 0.05F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.13F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 0.83F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 1.0F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+                        .newTimePair(0.0F, 0.33F));
+        STRAIGHTSWORD_DODGE_SLASH2 = builder.nextAccessor("biped/epicfight_awaken/straightsword_dodgeslash_2",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.1F, 0.06F, 0.06F, 0.2F, 1.16F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.5F))
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 1.5F)
+                        .newTimePair(0.0F, 0.83F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 1.0F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+                        .newTimePair(0.0F, 0.33F));
+        STRAIGHTSWORD_SWEEP_BASH1 = builder.nextAccessor("biped/epicfight_awaken/straightsword_sweepbash1",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.85F, 1.1F, 1.63F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.5F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(2.0F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_SHARP.get())
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 2.0F)
+                        .addEvents(
+                                EpicfightUtil.cameraZoomInEvent(0.05F, -0.35F, 30),
+                                EpicfightUtil.cameraZoomOutBlurEvent(1.15F, 10.0F, 20))
+                        .newTimePair(0.0F, 0.66F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.86F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 1.16F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 1.33F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+                        .newTimePair(0.0F, 0.86F));
+        STRAIGHTSWORD_SWEEP_BASH2 = builder.nextAccessor("biped/epicfight_awaken/straightsword_sweepbash2",
+                (accessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 1.15F, 1.3F, 2.0F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(2.5F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(3.0F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_SHARP.get())
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 2.0F)
+                        .addEvents(
+                                EpicfightUtil.cameraZoomInEvent(0.05F, -0.35F, 30),
+                                EpicfightUtil.cameraZoomOutBlurEvent(1.35F, 10.0F, 20))
+                        .newTimePair(0.0F, 0.9F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(1.0F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 1.5F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 1.66F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+                        .newTimePair(0.0F, 1.0F));
+        STRAIGHTSWORD_DOUBLE_BASH1 = builder.nextAccessor("biped/epicfight_awaken/straightsword_double_bash1",
+                (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.35F, animationaccessor, Armatures.BIPED,
+                        (new AttackAnimation.Phase(0.0F, 0.0F, 0.53F, 0.73F, 0.73F, 0.73F, Armatures.BIPED.get().toolR, null))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.75F))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.5F))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_SHARP.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD), (new AttackAnimation.Phase(0.73F, 0.0F, 0.86F, 1.0F, 1.5F, 1.5F, Armatures.BIPED.get().toolR, null))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.75F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.5F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_SHARP.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_RUSH_FINISHER.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.BLADE_RUSH_SKILL)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)))
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER,
+                                (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 1.0F).newTimePair(0.0F, 0.3F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true).newTimePair(0.5F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true).newTimePair(0.0F, 1.16F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false).newTimePair(0.0F, 1.3F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false).newTimePair(0.0F, 0.53F));
+        STRAIGHTSWORD_DOUBLE_BASH2 = builder.nextAccessor("biped/epicfight_awaken/straightsword_double_bash2",
+                (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.15F, animationaccessor, Armatures.BIPED,
+                        (new AttackAnimation.Phase(0.0F, 0.0F, 1.16F, 1.26F, 1.26F, 1.26F, Armatures.BIPED.get().toolR, null))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.25F))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(2.0F))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_SHARP.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD),
+                        (new AttackAnimation.Phase(0.73F, 0.0F, 1.5F, 1.73F, 2.5F, 2.5F, Armatures.BIPED.get().toolR, null))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.25F))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(2.0F))
+                                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_SHARP.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_RUSH_FINISHER.get())
+                                .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.BLADE_RUSH_SKILL)
+                                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)))
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER,
+                                (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 1.0F)
+                        .newTimePair(0.0F, 0.96F).addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(1.16F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 2.0F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 2.26F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+                        .newTimePair(0.0F, 1.16F));
+        STRAIGHTSWORD_AUTO1 = builder.nextAccessor("biped/epicfight_awaken/straightsword_auto1",
+                (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.28F, 0.38F, 0.68F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F).newTimePair(0.0F, 0.08F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.28F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 0.48F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.58F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_AUTO2 = builder.nextAccessor("biped/epicfight_awaken/straightsword_auto2",
+                (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.23F, 0.4F, 0.77F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.05F))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F).newTimePair(0.0F, 0.03F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.23F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 0.46F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.57F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_AUTO3 = builder.nextAccessor("biped/epicfight_awaken/straightsword_auto3",
+                (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.23F, 0.4F, 0.77F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.1F))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F).newTimePair(0.0F, 0.03F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.24F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 0.56F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.67F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_AUTO4 = builder.nextAccessor("biped/epicfight_awaken/straightsword_auto4", (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.2F, 0.33F, 0.73F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
+                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.15F))
+                .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F).newTimePair(0.0F, 0.05F)
+                .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                .newTimePair(0.2F, Float.MAX_VALUE)
+                .addState(EntityState.TURNING_LOCKED, true)
+                .newTimePair(0.0F, 0.36F)
+                .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                .newTimePair(0.0F, 0.63F)
+                .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_AUTO5 = builder.nextAccessor("biped/epicfight_awaken/straightsword_auto5", (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.13F, 0.4F, 0.7F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
+                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.2F))
+                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_RUSH_FINISHER.get())
+                .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.BLADE_RUSH_SKILL)
+                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                .newTimePair(0.0F, 0.05F)
+                .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                .newTimePair(0.13F, Float.MAX_VALUE)
+                .addState(EntityState.TURNING_LOCKED, true)
+                .newTimePair(0.0F, 0.45F)
+                .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                .newTimePair(0.0F, 0.6F)
+                .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_AUTO6 = builder.nextAccessor("biped/epicfight_awaken/straightsword_auto6",
+                (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 0.4F, 0.5F, 0.8F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.25F))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                        .newTimePair(0.0F, 0.2F)
+                        .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.4F, Float.MAX_VALUE)
+                        .addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 0.56F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.7F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_AIR_SLASH_LIGHT = builder.nextAccessor
+                ("biped/epicfight_awaken/straightsword_airslash_light", (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.1F, 0.0F, 0.1F, 0.26F, 0.66F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.25F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.6F))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.RESET_PLAYER_COMBO_COUNTER, true)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, false)
+                        .newTimePair(0.0F, 0.5F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.56F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+                        .addEvents(
+                                AnimationEvent.InTimeEvent.create(0.1F, (livingEntityPatch, self, p) -> {
+                                    Vec3 vec3 = livingEntityPatch.getOriginal().getDeltaMovement().add(0.0D, 0.16D, 0.0D);
+                                    livingEntityPatch.getOriginal().setDeltaMovement(vec3);
+                                }, AnimationEvent.Side.BOTH)
+                        ));
+        STRAIGHTSWORD_DASH_LIGHT = builder.nextAccessor("biped/epicfight_awaken/straightsword_dash_light",
+                (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.1F, 0.63F, 0.56F, 0.73F, 1.4F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.15F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.5F))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.RESET_PLAYER_COMBO_COUNTER, true)
+                        .newTimePair(0.0F, 1.16F)
+                        .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 1.3F)
+                        .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_DODGE_PURSUIT = builder.nextAccessor("biped/epicfight_awaken/straightsword_dodgepursuit",
+                (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.1F, 0.5F, 0.53F, 0.67F, 1.3F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.1F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(2.0F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_RUSH_FINISHER.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.BLADE_RUSH_SKILL)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER,
+                                (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 1.0F)
+                        .newTimePair(0.0F, 1.16F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 1.2F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+        STRAIGHTSWORD_GUARD_COUNTER = builder.nextAccessor("biped/epicfight_awaken/straightsword_guardcounter", (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.1F, 0.0F, 0.5F, 0.76F, 1.36F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
+                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.2F))
+                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.2F))
+                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.BLADE_RUSH_SKILL)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER,
+                        (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 1.0F)
+                .newTimePair(0.0F, 0.3F).addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                .newTimePair(0.53F, Float.MAX_VALUE).addState(EntityState.TURNING_LOCKED, true)
+                .newTimePair(0.0F, 1.16F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                .newTimePair(0.0F, 0.0F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+//        THUNDER_PUNISHMENT = builder.nextAccessor("biped/skill/thunder_punishment", (animationaccessor) -> {
+//            return (AttackAnimation) (new AttackAnimation(0.1F, animationaccessor, Armatures.BIPED, new Phase[]{(new Phase(0.0F, 0.0F, 0.83F, 1.0F, 1.5F, 1.5F, ((HumanoidArmature) Armatures.BIPED.get()).toolR, (Collider) null)).addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_SHIELD)), (new Phase(1.5F, 0.0F, 3.2F, 3.46F, Float.MAX_VALUE, Float.MAX_VALUE, ((HumanoidArmature) Armatures.BIPED.get()).toolR, (Collider) null)).addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_SHIELD)).addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, (SoundEvent) EFASounds.VACUUM_SLICE_2.get())})).addProperty(StaticAnimationProperty.PLAY_SPEED_MODIFIER, playbackspeedmodifier).newTimePair(0.0F, 4.5F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false).newTimePair(0.0F, 4.5F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false).newTimePair(0.0F, Float.MAX_VALUE).addState(EntityState.ATTACK_RESULT, (damagesource) -> {
+//                return damagesource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) ? ResultType.SUCCESS : ResultType.MISSED;
+//            }).addEvents(new AnimationEvent[]{InTimeEvent.create(3.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                final LivingEntity livingentity = (LivingEntity) livingentitypatch.getOriginal();
+//                final Level level = livingentity.level();
+//
+//                if (level instanceof ServerLevel) {
+//                    final ServerLevel serverlevel = (ServerLevel) level;
+//                    final float f = (float) livingentity.getAttributeValue(Attributes.ATTACK_DAMAGE) + EnchantmentHelper.getDamageBonus(livingentity.getItemInHand(InteractionHand.MAIN_HAND), MobType.UNDEFINED);
+//                    List<LivingEntity> list = serverlevel.getEntitiesOfClass(LivingEntity.class, livingentity.getBoundingBox().inflate(20.0D), (livingentity1) -> {
+//                        return livingentity1.distanceTo(livingentity) <= 16.0F && TargetingConditions.forCombat().test(livingentity, livingentity1);
+//                    });
+//
+//                    list.sort(Comparator.comparingDouble((livingentity1) -> {
+//                        return (double) livingentity1.distanceTo(livingentity);
+//                    }));
+//
+//                    for (int i = 0; i < Math.min(list.size(), 10); ++i) {
+//                        final LivingEntity livingentity1 = (LivingEntity) list.get(i);
+//
+//                        hurtTarget(animationaccessor, livingentitypatch, serverlevel, livingentity1, livingentity, f, level);
+//                        if (livingentity1.getHealth() <= livingentity1.getMaxHealth() * 0.25F) {
+//                            EFATickTaskManager.addServerTask(new EFATickTask(5) {
+//                                @Override
+//                                public void onStart() {}
+//
+//                                @Override
+//                                public void onTick() {}
+//
+//                                @Override
+//                                public void onFinish() {
+//                                    if (livingentity1.isAlive()) {
+//                                        AwakenSkillAnimations.hurtTarget(animationaccessor, livingentitypatch, serverlevel, livingentity1, livingentity, f, level);
+//                                    }
+//
+//                                }
+//                            });
+//                        }
+//                    }
+//                }
+//
+//            }, Side.SERVER)}).addEvents(new AnimationEvent[]{InTimeEvent.create(3.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                summonWaveParticle(livingentitypatch, 4.0F, 18);
+//                spawnSmoke(((LivingEntity) livingentitypatch.getOriginal()).level(), ((LivingEntity) livingentitypatch.getOriginal()).position());
+//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(3.3F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                summonWaveParticle(livingentitypatch, 8.0F, 24);
+//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(3.4F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                summonWaveParticle(livingentitypatch, 12.0F, 30);
+//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(3.5F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                summonWaveParticle(livingentitypatch, 16.0F, 36);
+//            }, Side.CLIENT)}).addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, new AnimationEvent[]{SimpleEvent.create(ReusableSources.PLAY_SOUND, Side.SERVER).params((SoundEvent) EFASounds.LIGHTNING_START.get())}).addEvents(new AnimationEvent[]{InTimeEvent.create(0.83F, ReusableSources.PLAY_SOUND, Side.SERVER).params((SoundEvent) EFASounds.LIGHTNING_ENCHANT.get())}).addEvents(new AnimationEvent[]{InTimeEvent.create(1.0F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                Level level = ((LivingEntity) livingentitypatch.getOriginal()).level();
+//                Vec3 vec3 = ArmatureUtil.getJointWorldPosition(livingentitypatch, ((HumanoidArmature) Armatures.BIPED.get()).toolR, new Vec3(0.0D, 0.0D, -1.2000000476837158D));
+//
+//                level.addParticle((ParticleOptions) EFAParticles.LIGHTNING_BALL.get(), true, vec3.x, vec3.y, vec3.z, 0.0D, 0.0D, 0.0D);
+//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InPeriodEvent.create(1.0F, 6.0F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                ItemStack itemstack = ((LivingEntity) livingentitypatch.getOriginal()).getMainHandItem();
+//                TrailInfo trailinfo = null;
+//                RenderItemBase renderitembase = ClientEngine.getInstance().renderEngine.getItemRenderer(itemstack);
+//
+//                if (renderitembase != null && renderitembase.trailInfo() != null) {
+//                    trailinfo = renderitembase.trailInfo();
+//                }
+//
+//                Vec3 vec3 = new Vec3(0.0D, 0.0D, 0.0D);
+//                Vec3 vec31 = new Vec3(0.0D, 0.2D, -1.5D);
+//
+//                if (trailinfo != null) {
+//                    vec3 = trailinfo.start();
+//                    vec31 = trailinfo.end();
+//                }
+//
+//                Joint joint = ((HumanoidArmature) Armatures.BIPED.get()).toolR;
+//
+//                if (joint != null) {
+//                    generateParticleLine(livingentitypatch, joint, (ParticleType) EFAParticles.ELECTRICITY_A.get(), vec3, vec31, 4);
+//                }
+//
+//            }, Side.CLIENT)}).addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, new AnimationEvent[]{SimpleEvent.create((livingentitypatch, assetaccessor, animationparameters) -> {
+//                Entity entity = livingentitypatch.getOriginal();
+//
+//                if (entity instanceof LocalPlayer) {
+//                    LocalPlayer localplayer = (LocalPlayer) entity;
+//
+//                    EFAFovManager.setFovModifierTask(localplayer, -0.65F, 30);
+//                }
+//
+//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(0.83F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                Entity entity = livingentitypatch.getOriginal();
+//
+//                if (entity instanceof LocalPlayer) {
+//                    LocalPlayer localplayer = (LocalPlayer) entity;
+//
+//                    EFAFovManager.resetFovModifier(localplayer);
+//                }
+//
+//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(1.66F, ReusableSources.PLAY_SOUND, Side.SERVER).params((SoundEvent) EFASounds.VACUUM_SLICE_1.get())}).addEvents(new AnimationEvent[]{InTimeEvent.create(1.66F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                Entity entity = livingentitypatch.getOriginal();
+//
+//                if (entity instanceof LocalPlayer) {
+//                    LocalPlayer localplayer = (LocalPlayer) entity;
+//
+//                    EFAFovManager.setFovModifierTask(localplayer, -0.25F, 30);
+//                }
+//
+//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(2.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                Entity entity = livingentitypatch.getOriginal();
+//
+//                if (entity instanceof LocalPlayer) {
+//                    LocalPlayer localplayer = (LocalPlayer) entity;
+//
+//                    EFAFovManager.setFovModifierTask(localplayer, -0.5F, 30);
+//                }
+//
+//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(3.25F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                Entity entity = livingentitypatch.getOriginal();
+//
+//                if (entity instanceof LocalPlayer) {
+//                    LocalPlayer localplayer = (LocalPlayer) entity;
+//
+//                    EFAFovManager.setFovModifierTask(localplayer, 0.75F, 20);
+//                    ImpactBlurShaderManager.trigger(14.0F, 40);
+//                }
+//
+//            }, Side.CLIENT)});
+//        });
+//        VACUUM_SLICE = builder.nextAccessor("vacuum_slice/vacuum_slice_1", (animationaccessor) -> {
+//            return (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 1.16F, 1.26F, Float.MAX_VALUE, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED)).addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.5F)).addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.5F)).addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, (SoundEvent) EFASounds.VACUUM_SLICE_2.get()).addProperty(StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicanimation, livingentitypatch, f, f1, f2) -> {
+//                return 1.0F;
+//            }).newTimePair(0.0F, 0.7F).addStateRemoveOld(EntityState.TURNING_LOCKED, true).newTimePair(1.1F, Float.MAX_VALUE).addState(EntityState.TURNING_LOCKED, true).newTimePair(0.0F, 2.0F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false).newTimePair(0.0F, 2.5F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false).addEvents(new AnimationEvent[]{InTimeEvent.create(0.05F, ReusableSources.PLAY_SOUND, Side.SERVER).params((SoundEvent) EFASounds.VACUUM_SLICE_1.get()), InTimeEvent.create(0.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                ServerLevel serverlevel = (ServerLevel) ((LivingEntity) livingentitypatch.getOriginal()).level();
+//                Vec3 vec3 = ((LivingEntity) livingentitypatch.getOriginal()).position();
+//                EFAJointFollowParticleOptions efajointfollowparticleoptions = new EFAJointFollowParticleOptions((ParticleType) EFAParticles.AIRFLOW.get(), ((LivingEntity) livingentitypatch.getOriginal()).getId(), ((HumanoidArmature) Armatures.BIPED.get()).toolR.getId(), new Vec3(0.0D, 0.0D, -0.8D));
+//
+//                serverlevel.sendParticles(efajointfollowparticleoptions, vec3.x, vec3.y, vec3.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+//                LightningBolt lightningbolt = (LightningBolt) EntityType.LIGHTNING_BOLT.create(serverlevel);
+//
+//                if (lightningbolt != null) {
+//                    lightningbolt.setVisualOnly(true);
+//                    lightningbolt.moveTo(vec3.x, vec3.y + 3.0D, vec3.z);
+//                    serverlevel.addFreshEntity(lightningbolt);
+//                }
+//
+//            }, Side.SERVER), InTimeEvent.create(1.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                Level level = ((LivingEntity) livingentitypatch.getOriginal()).level();
+//                VacuumSliceEntity vacuumsliceentity = new VacuumSliceEntity(livingentitypatch, level);
+//
+//                level.addFreshEntity(vacuumsliceentity);
+//            }, Side.SERVER), InTimeEvent.create(0.05F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                Entity entity = livingentitypatch.getOriginal();
+//
+//                if (entity instanceof LocalPlayer) {
+//                    LocalPlayer localplayer = (LocalPlayer) entity;
+//
+//                    EFAFovManager.setFovModifierTask(localplayer, -0.35F, 30);
+//                }
+//
+//            }, Side.CLIENT), InTimeEvent.create(1.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
+//                Entity entity = livingentitypatch.getOriginal();
+//
+//                if (entity instanceof LocalPlayer) {
+//                    LocalPlayer localplayer = (LocalPlayer) entity;
+//
+//                    EFAFovManager.resetFovModifier(localplayer);
+//                    ImpactBlurShaderManager.trigger(10.0F, 20);
+//                }
+//
+//            }, Side.CLIENT)});
+//        });
     }
 }

@@ -241,6 +241,19 @@ public final class ClientPacketHandlers {
                 });
     }
 
+    public static void handleEpicFightCameraFx(ClientboundEpicFightCameraFx msg) {
+        switch (msg.action()) {
+            case ClientboundEpicFightCameraFx.ACTION_ZOOM_IN ->
+                    EpicFightCameraFxClient.zoomIn(msg.fovModifier(), msg.fovTicks());
+            case ClientboundEpicFightCameraFx.ACTION_RESET_ZOOM_AND_BLUR ->
+                    EpicFightCameraFxClient.resetZoomAndBlur(msg.blurStrength(), msg.blurTicks());
+            case ClientboundEpicFightCameraFx.ACTION_BLUR ->
+                    EpicFightCameraFxClient.triggerBlur(msg.blurStrength(), msg.blurTicks());
+            default -> {
+            }
+        }
+    }
+
     public static void handleWoopieSwordWind(ClientboundWoopieSwordWindFx msg) {
         Level level = Minecraft.getInstance().level;
         if (level == null) return;

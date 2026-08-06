@@ -180,7 +180,7 @@ public class BlueDemonTrident {
                                     Behavior.builder()
                                             .custom(CombatCommon::canPerformNormalAttackLogic)
                                             .withinDistance(0.0D, 10.0D)
-                                            .animationBehavior(AnimsWom.ELECTRIC_FIELD, 0.0F)
+                                            .animationBehavior(AVAnimations.ELECTRIC_FIELD, 0.0F)
                             )
                             .addFirstBehavior(
                                     Behavior.builder()

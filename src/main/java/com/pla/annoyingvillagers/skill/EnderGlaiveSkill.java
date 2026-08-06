@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightAwaken;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.EnderGlaiveItem;
@@ -24,7 +25,7 @@ public class EnderGlaiveSkill extends WeaponInnateSkill {
         if (!this.isActivated(skillContainer)) {
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
-            skillContainer.getExecutor().playAnimationSynchronized(AnimsWom.ENDER_GLAIVE_AGONY_AUTO_1, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightAwaken.STRAIGHTSWORD_SWEEP_BASH1, 0.0F);
         }
     }
 

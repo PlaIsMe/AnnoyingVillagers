@@ -39,6 +39,10 @@ public class ModModelPredicateProvider {
                     (stack, world, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F,
                     AnnoyingVillagersModItems.NETHERITE_SHIELD.get()
             );
+            addShieldPropertyOverrides(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "blocking"),
+                    (stack, world, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F,
+                    AnnoyingVillagersModItems.ENDER_AEGIS.get()
+            );
         });
     }
 
@@ -56,7 +60,8 @@ public class ModModelPredicateProvider {
                     LOCATION_JESSICA_THE_DARK_SHIELD,
                     LOCATION_HEATER_SHIELD,
                     LOCATION_GEM_SHIELD,
-                    LOCATION_NETHERITE_SHIELD
+                    LOCATION_NETHERITE_SHIELD,
+                    LOCATION_ENDER_AEGIS
             }) {
                 event.addSprite(textures.texture());
             }
@@ -81,6 +86,7 @@ public class ModModelPredicateProvider {
     public static final Material LOCATION_HEATER_SHIELD = material("item/heater_shield");
     public static final Material LOCATION_GEM_SHIELD = material("item/gem_shield");
     public static final Material LOCATION_NETHERITE_SHIELD = material("item/netherite_shield");
+    public static final Material LOCATION_ENDER_AEGIS = material("item/ender_aegis");
 
     @SuppressWarnings("deprecation")
     private static Material material(String path) {

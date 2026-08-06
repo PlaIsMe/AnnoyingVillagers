@@ -97,11 +97,11 @@ public class AvNpcSword {
     );
 
     public static final Builder<MobPatch<?>> HACKER_SWORD = swordSkill(
-            AnimsWom.HACKER_SWORD_SKILL
+            AVAnimations.HACKER_SWORD_SKILL
     );
 
     public static final Builder<MobPatch<?>> DUAL_HACKER_SWORD = dualSwordSkill(
-            AnimsWom.HACKER_SWORD_SKILL
+            AVAnimations.HACKER_SWORD_SKILL
     );
 
     public static final Builder<MobPatch<?>> HOOK_SWORD = swordSkill(

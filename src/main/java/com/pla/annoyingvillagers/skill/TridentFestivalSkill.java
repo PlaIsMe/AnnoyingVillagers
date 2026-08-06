@@ -65,7 +65,7 @@ public class TridentFestivalSkill extends WeaponInnateSkill {
                     skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.TRIDENT_ATTACK, 0.0F);
                 }
             } else {
-                skillContainer.getExecutor().playAnimationSynchronized(AnimsWom.ELECTRIC_FIELD, 0.0F);
+                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.ELECTRIC_FIELD, 0.0F);
             }
         }
     }
@@ -144,7 +144,7 @@ public class TridentFestivalSkill extends WeaponInnateSkill {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             if (dynamicAnimation == null) return;
 
-            if (dynamicAnimation == AVAnimations.TRIDENT_ATTACK || dynamicAnimation == AnimsWom.ELECTRIC_FIELD || dynamicAnimation == AnimsPugilistSteve.TRIDENT_FESTIVAL) {
+            if (dynamicAnimation == AVAnimations.TRIDENT_ATTACK || dynamicAnimation == AVAnimations.ELECTRIC_FIELD || dynamicAnimation == AnimsPugilistSteve.TRIDENT_FESTIVAL) {
                 pre.setCanceled(true);
                 pre.setResult(AttackResult.ResultType.BLOCKED);
             }

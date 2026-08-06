@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.combatbehaviour.HerobrineShadowObsidianSword;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.EscapeUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -59,8 +59,8 @@ public class ArmoredHerobrinePatch extends CEHumanoidPatch<PathfinderMob> implem
                                         Pair.of(LivingMotions.BLOCK, AnimsMoonless.MOONLESS_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, AnimsWom.OLD_MOONLESS_RUN),
-                                        Pair.of(LivingMotions.CHASE, AnimsWom.OLD_MOONLESS_RUN),
+                                        Pair.of(LivingMotions.RUN, AVAnimations.HEROBRINE_RUN),
+                                        Pair.of(LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 ),
                                 Styles.TWO_HAND,
@@ -68,8 +68,8 @@ public class ArmoredHerobrinePatch extends CEHumanoidPatch<PathfinderMob> implem
                                         Pair.of(LivingMotions.BLOCK, Animations.SWORD_DUAL_GUARD),
                                         Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
                                         Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, AnimsWom.OLD_MOONLESS_RUN),
-                                        Pair.of(LivingMotions.CHASE, AnimsWom.OLD_MOONLESS_RUN),
+                                        Pair.of(LivingMotions.RUN, AVAnimations.HEROBRINE_RUN),
+                                        Pair.of(LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN),
                                         Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
                                 )
                         ));

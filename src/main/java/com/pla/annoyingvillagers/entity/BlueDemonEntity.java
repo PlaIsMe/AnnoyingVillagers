@@ -1020,7 +1020,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(this.getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
             if (dynamicAnimation == AnimsWom.CUT_ANTITHEUS_ASCENSION
                     || dynamicAnimation == AVAnimations.TRIDENT_ATTACK
-                    || dynamicAnimation == AnimsWom.ELECTRIC_FIELD
+                    || dynamicAnimation == AVAnimations.ELECTRIC_FIELD
                     || dynamicAnimation == AnimsPugilistSteve.TRIDENT_FESTIVAL
                     || dynamicAnimation == AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM
                     || dynamicAnimation == AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END) {
