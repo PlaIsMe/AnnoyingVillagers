@@ -18,17 +18,15 @@
 
 package com.pla.annoyingvillagers.gameasset;
 
-import com.p1nero.invincible.api.events.Side;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.entity.BlueDemonEntity;
+import com.pla.annoyingvillagers.client.particle.smoke_wave.SmokeWaveOptions;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.item.EnderGlaiveItem;
+import com.pla.annoyingvillagers.potion.GroundStuckMobEffect;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
-import com.pla.annoyingvillagers.util.ScreenShakeUtil;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
@@ -40,18 +38,21 @@ import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
+import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.BasicAttackAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
-import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
@@ -116,7 +117,7 @@ public class AnimsEpicFightAwaken {
     public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_DASH_LIGHT;
     public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_DODGE_PURSUIT;
     public static AnimationManager.AnimationAccessor<AttackAnimation> STRAIGHTSWORD_GUARD_COUNTER;
-    public static AnimationManager.AnimationAccessor<AttackAnimation> THUNDER_PUNISHMENT;
+    public static AnimationManager.AnimationAccessor<ActionAnimation> THUNDER_PUNISHMENT;
     public static AnimationManager.AnimationAccessor<AttackAnimation> VACUUM_SLICE;
 
     public static void build(AnimationBuilder builder) {
@@ -927,175 +928,53 @@ public class AnimsEpicFightAwaken {
                 .newTimePair(0.53F, Float.MAX_VALUE).addState(EntityState.TURNING_LOCKED, true)
                 .newTimePair(0.0F, 1.16F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
                 .newTimePair(0.0F, 0.0F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
-//        THUNDER_PUNISHMENT = builder.nextAccessor("biped/skill/thunder_punishment", (animationaccessor) -> {
-//            return (AttackAnimation) (new AttackAnimation(0.1F, animationaccessor, Armatures.BIPED, new Phase[]{(new Phase(0.0F, 0.0F, 0.83F, 1.0F, 1.5F, 1.5F, ((HumanoidArmature) Armatures.BIPED.get()).toolR, (Collider) null)).addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_SHIELD)), (new Phase(1.5F, 0.0F, 3.2F, 3.46F, Float.MAX_VALUE, Float.MAX_VALUE, ((HumanoidArmature) Armatures.BIPED.get()).toolR, (Collider) null)).addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_SHIELD)).addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, (SoundEvent) EFASounds.VACUUM_SLICE_2.get())})).addProperty(StaticAnimationProperty.PLAY_SPEED_MODIFIER, playbackspeedmodifier).newTimePair(0.0F, 4.5F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false).newTimePair(0.0F, 4.5F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false).newTimePair(0.0F, Float.MAX_VALUE).addState(EntityState.ATTACK_RESULT, (damagesource) -> {
-//                return damagesource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) ? ResultType.SUCCESS : ResultType.MISSED;
-//            }).addEvents(new AnimationEvent[]{InTimeEvent.create(3.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                final LivingEntity livingentity = (LivingEntity) livingentitypatch.getOriginal();
-//                final Level level = livingentity.level();
-//
-//                if (level instanceof ServerLevel) {
-//                    final ServerLevel serverlevel = (ServerLevel) level;
-//                    final float f = (float) livingentity.getAttributeValue(Attributes.ATTACK_DAMAGE) + EnchantmentHelper.getDamageBonus(livingentity.getItemInHand(InteractionHand.MAIN_HAND), MobType.UNDEFINED);
-//                    List<LivingEntity> list = serverlevel.getEntitiesOfClass(LivingEntity.class, livingentity.getBoundingBox().inflate(20.0D), (livingentity1) -> {
-//                        return livingentity1.distanceTo(livingentity) <= 16.0F && TargetingConditions.forCombat().test(livingentity, livingentity1);
-//                    });
-//
-//                    list.sort(Comparator.comparingDouble((livingentity1) -> {
-//                        return (double) livingentity1.distanceTo(livingentity);
-//                    }));
-//
-//                    for (int i = 0; i < Math.min(list.size(), 10); ++i) {
-//                        final LivingEntity livingentity1 = (LivingEntity) list.get(i);
-//
-//                        hurtTarget(animationaccessor, livingentitypatch, serverlevel, livingentity1, livingentity, f, level);
-//                        if (livingentity1.getHealth() <= livingentity1.getMaxHealth() * 0.25F) {
-//                            EFATickTaskManager.addServerTask(new EFATickTask(5) {
-//                                @Override
-//                                public void onStart() {}
-//
-//                                @Override
-//                                public void onTick() {}
-//
-//                                @Override
-//                                public void onFinish() {
-//                                    if (livingentity1.isAlive()) {
-//                                        AwakenSkillAnimations.hurtTarget(animationaccessor, livingentitypatch, serverlevel, livingentity1, livingentity, f, level);
-//                                    }
-//
-//                                }
-//                            });
-//                        }
-//                    }
-//                }
-//
-//            }, Side.SERVER)}).addEvents(new AnimationEvent[]{InTimeEvent.create(3.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                summonWaveParticle(livingentitypatch, 4.0F, 18);
-//                spawnSmoke(((LivingEntity) livingentitypatch.getOriginal()).level(), ((LivingEntity) livingentitypatch.getOriginal()).position());
-//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(3.3F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                summonWaveParticle(livingentitypatch, 8.0F, 24);
-//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(3.4F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                summonWaveParticle(livingentitypatch, 12.0F, 30);
-//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(3.5F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                summonWaveParticle(livingentitypatch, 16.0F, 36);
-//            }, Side.CLIENT)}).addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, new AnimationEvent[]{SimpleEvent.create(ReusableSources.PLAY_SOUND, Side.SERVER).params((SoundEvent) EFASounds.LIGHTNING_START.get())}).addEvents(new AnimationEvent[]{InTimeEvent.create(0.83F, ReusableSources.PLAY_SOUND, Side.SERVER).params((SoundEvent) EFASounds.LIGHTNING_ENCHANT.get())}).addEvents(new AnimationEvent[]{InTimeEvent.create(1.0F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                Level level = ((LivingEntity) livingentitypatch.getOriginal()).level();
-//                Vec3 vec3 = ArmatureUtil.getJointWorldPosition(livingentitypatch, ((HumanoidArmature) Armatures.BIPED.get()).toolR, new Vec3(0.0D, 0.0D, -1.2000000476837158D));
-//
-//                level.addParticle((ParticleOptions) EFAParticles.LIGHTNING_BALL.get(), true, vec3.x, vec3.y, vec3.z, 0.0D, 0.0D, 0.0D);
-//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InPeriodEvent.create(1.0F, 6.0F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                ItemStack itemstack = ((LivingEntity) livingentitypatch.getOriginal()).getMainHandItem();
-//                TrailInfo trailinfo = null;
-//                RenderItemBase renderitembase = ClientEngine.getInstance().renderEngine.getItemRenderer(itemstack);
-//
-//                if (renderitembase != null && renderitembase.trailInfo() != null) {
-//                    trailinfo = renderitembase.trailInfo();
-//                }
-//
-//                Vec3 vec3 = new Vec3(0.0D, 0.0D, 0.0D);
-//                Vec3 vec31 = new Vec3(0.0D, 0.2D, -1.5D);
-//
-//                if (trailinfo != null) {
-//                    vec3 = trailinfo.start();
-//                    vec31 = trailinfo.end();
-//                }
-//
-//                Joint joint = ((HumanoidArmature) Armatures.BIPED.get()).toolR;
-//
-//                if (joint != null) {
-//                    generateParticleLine(livingentitypatch, joint, (ParticleType) EFAParticles.ELECTRICITY_A.get(), vec3, vec31, 4);
-//                }
-//
-//            }, Side.CLIENT)}).addEvents(StaticAnimationProperty.ON_BEGIN_EVENTS, new AnimationEvent[]{SimpleEvent.create((livingentitypatch, assetaccessor, animationparameters) -> {
-//                Entity entity = livingentitypatch.getOriginal();
-//
-//                if (entity instanceof LocalPlayer) {
-//                    LocalPlayer localplayer = (LocalPlayer) entity;
-//
-//                    EFAFovManager.setFovModifierTask(localplayer, -0.65F, 30);
-//                }
-//
-//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(0.83F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                Entity entity = livingentitypatch.getOriginal();
-//
-//                if (entity instanceof LocalPlayer) {
-//                    LocalPlayer localplayer = (LocalPlayer) entity;
-//
-//                    EFAFovManager.resetFovModifier(localplayer);
-//                }
-//
-//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(1.66F, ReusableSources.PLAY_SOUND, Side.SERVER).params((SoundEvent) EFASounds.VACUUM_SLICE_1.get())}).addEvents(new AnimationEvent[]{InTimeEvent.create(1.66F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                Entity entity = livingentitypatch.getOriginal();
-//
-//                if (entity instanceof LocalPlayer) {
-//                    LocalPlayer localplayer = (LocalPlayer) entity;
-//
-//                    EFAFovManager.setFovModifierTask(localplayer, -0.25F, 30);
-//                }
-//
-//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(2.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                Entity entity = livingentitypatch.getOriginal();
-//
-//                if (entity instanceof LocalPlayer) {
-//                    LocalPlayer localplayer = (LocalPlayer) entity;
-//
-//                    EFAFovManager.setFovModifierTask(localplayer, -0.5F, 30);
-//                }
-//
-//            }, Side.CLIENT)}).addEvents(new AnimationEvent[]{InTimeEvent.create(3.25F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                Entity entity = livingentitypatch.getOriginal();
-//
-//                if (entity instanceof LocalPlayer) {
-//                    LocalPlayer localplayer = (LocalPlayer) entity;
-//
-//                    EFAFovManager.setFovModifierTask(localplayer, 0.75F, 20);
-//                    ImpactBlurShaderManager.trigger(14.0F, 40);
-//                }
-//
-//            }, Side.CLIENT)});
-//        });
-//        VACUUM_SLICE = builder.nextAccessor("vacuum_slice/vacuum_slice_1", (animationaccessor) -> {
-//            return (AttackAnimation) (new AttackAnimation(0.15F, 0.0F, 1.16F, 1.26F, Float.MAX_VALUE, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED)).addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.5F)).addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.5F)).addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, (SoundEvent) EFASounds.VACUUM_SLICE_2.get()).addProperty(StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicanimation, livingentitypatch, f, f1, f2) -> {
-//                return 1.0F;
-//            }).newTimePair(0.0F, 0.7F).addStateRemoveOld(EntityState.TURNING_LOCKED, true).newTimePair(1.1F, Float.MAX_VALUE).addState(EntityState.TURNING_LOCKED, true).newTimePair(0.0F, 2.0F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false).newTimePair(0.0F, 2.5F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false).addEvents(new AnimationEvent[]{InTimeEvent.create(0.05F, ReusableSources.PLAY_SOUND, Side.SERVER).params((SoundEvent) EFASounds.VACUUM_SLICE_1.get()), InTimeEvent.create(0.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                ServerLevel serverlevel = (ServerLevel) ((LivingEntity) livingentitypatch.getOriginal()).level();
-//                Vec3 vec3 = ((LivingEntity) livingentitypatch.getOriginal()).position();
-//                EFAJointFollowParticleOptions efajointfollowparticleoptions = new EFAJointFollowParticleOptions((ParticleType) EFAParticles.AIRFLOW.get(), ((LivingEntity) livingentitypatch.getOriginal()).getId(), ((HumanoidArmature) Armatures.BIPED.get()).toolR.getId(), new Vec3(0.0D, 0.0D, -0.8D));
-//
-//                serverlevel.sendParticles(efajointfollowparticleoptions, vec3.x, vec3.y, vec3.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
-//                LightningBolt lightningbolt = (LightningBolt) EntityType.LIGHTNING_BOLT.create(serverlevel);
-//
-//                if (lightningbolt != null) {
-//                    lightningbolt.setVisualOnly(true);
-//                    lightningbolt.moveTo(vec3.x, vec3.y + 3.0D, vec3.z);
-//                    serverlevel.addFreshEntity(lightningbolt);
-//                }
-//
-//            }, Side.SERVER), InTimeEvent.create(1.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                Level level = ((LivingEntity) livingentitypatch.getOriginal()).level();
-//                VacuumSliceEntity vacuumsliceentity = new VacuumSliceEntity(livingentitypatch, level);
-//
-//                level.addFreshEntity(vacuumsliceentity);
-//            }, Side.SERVER), InTimeEvent.create(0.05F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                Entity entity = livingentitypatch.getOriginal();
-//
-//                if (entity instanceof LocalPlayer) {
-//                    LocalPlayer localplayer = (LocalPlayer) entity;
-//
-//                    EFAFovManager.setFovModifierTask(localplayer, -0.35F, 30);
-//                }
-//
-//            }, Side.CLIENT), InTimeEvent.create(1.2F, (livingentitypatch, assetaccessor, animationparameters) -> {
-//                Entity entity = livingentitypatch.getOriginal();
-//
-//                if (entity instanceof LocalPlayer) {
-//                    LocalPlayer localplayer = (LocalPlayer) entity;
-//
-//                    EFAFovManager.resetFovModifier(localplayer);
-//                    ImpactBlurShaderManager.trigger(10.0F, 20);
-//                }
-//
-//            }, Side.CLIENT)});
-//        });
+        VACUUM_SLICE = builder.nextAccessor("biped/epicfight_awaken/vacuum_slice_1",
+                animationaccessor -> (AttackAnimation) new AttackAnimation(0.15F, 0.0F, 0.54F, 0.70F, 1.75F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.5F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.5F))
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicanimation, livingentitypatch, f, f1, f2) -> 1.0F)
+                        .newTimePair(0.0F, 0.4F).addStateRemoveOld(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.4F, Float.MAX_VALUE).addState(EntityState.TURNING_LOCKED, true)
+                        .newTimePair(0.0F, 1.85F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+                        .newTimePair(0.0F, 1.85F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .addEvents(
+                                EpicfightUtil.cameraZoomInEvent(0.05F, -0.35F, 30),
+                                EpicfightUtil.cameraZoomOutBlurEvent(0.5F, 10.0F, 20),
+                                AnimationEvent.InTimeEvent.create(0.6F, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, AnimationEvent.Side.CLIENT)
+                                        .params(new Vec3f(0.0F, -0.24F, -2.0F),
+                                                Armatures.BIPED.get().toolR, 2.5D, 0.6F)));
+        THUNDER_PUNISHMENT = builder.nextAccessor("biped/epicfight_awaken/thunder_punishment", animationaccessor -> (ActionAnimation) new ActionAnimation(0.1F, animationaccessor, Armatures.BIPED)
+                .newTimePair(0.0F, 4.5F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+                .newTimePair(0.0F, 4.5F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                .addEvents(
+                        EpicfightUtil.cameraZoomInEvent(0.05F, -0.35F, 30),
+                        EpicfightUtil.cameraZoomOutBlurEvent(1.5F, 10.0F, 20),
+                        AnimationEvent.InTimeEvent.create(1.5F, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.SERVER).params(AnnoyingVillagersModSounds.SLEDGE_HAMMER.get()),
+                        AnimationEvent.InTimeEvent.create(1.7F, (livingEntityPatch, self, params) -> spawnWave(livingEntityPatch, 0.0F, 4.0F, 18), AnimationEvent.Side.SERVER),
+                        AnimationEvent.InTimeEvent.create(1.8F, (livingEntityPatch, self, params) -> spawnWave(livingEntityPatch, 4.0F, 8.0F, 24), AnimationEvent.Side.SERVER),
+                        AnimationEvent.InTimeEvent.create(1.9F, (livingEntityPatch, self, params) -> spawnWave(livingEntityPatch, 8.0F, 12.0F, 30), AnimationEvent.Side.SERVER),
+                        AnimationEvent.InTimeEvent.create(2.0F, (livingEntityPatch, self, params) -> spawnWave(livingEntityPatch, 12.0F, 16.0F, 36), AnimationEvent.Side.SERVER)
+                ));
+    }
+
+    private static void spawnWave(LivingEntityPatch<?> livingEntityPatch, float innerRadius, float radius, int particleCount) {
+        LivingEntity caster = livingEntityPatch.getOriginal();
+        if (!(caster.level() instanceof ServerLevel level)) return;
+        Vec3 center = caster.position();
+        float yaw = livingEntityPatch.getYRot();
+        double yawRad = Math.toRadians(yaw);
+        double forwardX = -Math.sin(yawRad), forwardZ = Math.cos(yawRad), rightX = Math.cos(yawRad), rightZ = Math.sin(yawRad);
+        for (int i = 0; i < particleCount; i++) {
+            double angle = Math.PI * 2.0D * i / particleCount, localX = Math.cos(angle) * radius, localZ = Math.sin(angle) * radius;
+            double x = center.x + forwardX * localX + rightX * localZ, z = center.z + forwardZ * localX + rightZ * localZ;
+            float particleYaw = yaw - 360.0F / particleCount * i, particlePitch = -30.0F + level.random.nextFloat() * 60.0F - 30.0F;
+            level.sendParticles(new SmokeWaveOptions(particleYaw, particlePitch, 0.0D), x, center.y + 0.4D, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        }
+        for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(radius, 4.0D, radius), target -> target != caster && target.isAlive() && !caster.isAlliedTo(target))) {
+            double dx = target.getX() - caster.getX(), dz = target.getZ() - caster.getZ(), distance = Math.sqrt(dx * dx + dz * dz);
+            if ((innerRadius > 0.0F && distance <= innerRadius) || distance > radius) continue;
+            int amplifier = Mth.clamp(Math.round(5.0F * (1.0F - (float)(distance / 16.0D))), 0, 5);
+            GroundStuckMobEffect.apply(target, GroundStuckMobEffect.DEFAULT_DURATION, amplifier);
+        }
     }
 }

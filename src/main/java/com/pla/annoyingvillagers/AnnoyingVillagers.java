@@ -180,6 +180,12 @@ public class AnnoyingVillagers {
                     ClientboundTeleportPortalFx::decode,
                     ClientboundTeleportPortalFx::handle
             );
+            AnnoyingVillagers.addNetworkMessage(
+                    ClientboundGroundStuckKnockoutFx.class,
+                    ClientboundGroundStuckKnockoutFx::encode,
+                    ClientboundGroundStuckKnockoutFx::decode,
+                    ClientboundGroundStuckKnockoutFx::handle
+            );
         }
     }
 

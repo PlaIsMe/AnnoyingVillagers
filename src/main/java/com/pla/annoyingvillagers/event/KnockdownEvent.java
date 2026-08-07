@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,6 +22,7 @@ public class KnockdownEvent {
     @SubscribeEvent
     public static void onEntityAttacked(LivingHurtEvent livingHurtEvent) {
         if (livingHurtEvent != null && livingHurtEvent.getEntity() != null) {
+            if (livingHurtEvent.getEntity().hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get())) return;
             LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(livingHurtEvent.getEntity(), LivingEntityPatch.class);
             if (livingEntityPatch != null && livingHurtEvent.getEntity().level() instanceof ServerLevel) {
                 AnimationPlayer animationPlayer = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null));

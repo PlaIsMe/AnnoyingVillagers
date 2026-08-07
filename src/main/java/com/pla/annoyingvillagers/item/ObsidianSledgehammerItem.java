@@ -47,16 +47,17 @@ public class ObsidianSledgehammerItem extends SwordItem {
         }, 1, -2.6F, (new Properties()).fireResistant());
     }
 
-    public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
-        super.inventoryTick(itemstack, level, entity, i, flag);
-        if (flag && entity instanceof Player player) {
-            PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-            if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.OBSIDIAN_SLEDGEHAMMER);
-                if (skillContainer.isActivated()) {
-                    HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
-                }
-            }
+    @Override
+    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, level, entity, slot, selected);
+        if (!selected || !(entity instanceof Player player)) return;
+
+        PlayerPatch<?> patch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+        if (!(patch instanceof ServerPlayerPatch serverPatch)) return;
+
+        SkillContainer skill = serverPatch.getSkill(AVSkills.OBSIDIAN_SLEDGEHAMMER);
+        if (skill != null && skill.getStack() >= 1) {
+            HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
         }
     }
 

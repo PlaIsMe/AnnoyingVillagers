@@ -1073,5 +1073,12 @@
         "name": "annoyingvillagers:entity/portal_entity/wpn_portal_ambient_lp_01"
       }
     ]
+  },
+  "sledge_hammer": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:sledge_hammer"
+      }
+    ]
   }
 }

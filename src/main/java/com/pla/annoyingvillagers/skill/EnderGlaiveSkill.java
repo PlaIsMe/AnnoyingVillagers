@@ -14,8 +14,6 @@ import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import java.util.UUID;
 
 public class EnderGlaiveSkill extends WeaponInnateSkill {
-    private static final UUID EVENT_UUID = UUID.fromString("f79be742-fddd-454d-bd28-4d030613b284");
-
     public EnderGlaiveSkill(SkillBuilder<? extends WeaponInnateSkill> builder) {
         super(builder);
     }

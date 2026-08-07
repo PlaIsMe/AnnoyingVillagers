@@ -67,7 +67,7 @@ public class AVWeaponCapabilityPresets {
                             AnimsEpicFightAwaken.STRAIGHTSWORD_HEAVY_AUTO2,
                             AnimsEpicFightAwaken.STRAIGHTSWORD_HEAVY_AUTO3,
                             AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_AUTO_3,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DOUBLE_BASH1,
+                            AnimsEpicFightAwaken.STRAIGHTSWORD_GUARD_COUNTER,
                             AnimsEpicFightAwaken.STRAIGHTSWORD_DASH_HEAVY,
                             AnimsEpicFightAwaken.STRAIGHTSWORD_AIR_SLASH_HEAVY
                     ).newStyleCombo(Styles.MOUNT,
@@ -257,9 +257,9 @@ public class AVWeaponCapabilityPresets {
                             AnimsEpicFightAwaken.STRAIGHTSWORD_AUTO6,
                             AnimsEpicFightAwaken.STRAIGHTSWORD_HEAVY_AUTO5,
                             AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_AUTO_3,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DOUBLE_BASH2,
-                            AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DODGE_PURSUIT
+                            AnimsEpicFightAwaken.STRAIGHTSWORD_DASH_HEAVY,
+                            AnimsEpicFightAwaken.STRAIGHTSWORD_DODGE_PURSUIT,
+                            AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK
                     ).newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
                     .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.LEGENDARY_SWORD)

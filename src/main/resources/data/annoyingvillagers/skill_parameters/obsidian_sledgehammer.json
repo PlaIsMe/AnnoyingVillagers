@@ -1,4 +1,4 @@
 {
-	"consumption": 80.0,
-	"max_duration": 200
+	"consumption": 60.0,
+	"max_stacks": 3
 }

@@ -55,7 +55,9 @@
     "PlayerMixin",
     "MixinPIllagerRenderer",
     "compat.dualgreatswords.DualGreatswordMixin",
-    "compat.dualaxes.DualAxeMixin"
+    "compat.dualaxes.DualAxeMixin",
+    "client.EpicFightCameraAPIMixin",
+    "client.EpicFightKnockoutRenderMixin"
   ],
   "client": [
     "client.ModelPartMixin",
