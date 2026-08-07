@@ -1,21 +1,25 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.entity.VacuumSliceEntity;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
-import com.pla.annoyingvillagers.skill.EnderGlaiveSkill;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.RandomSource;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -24,133 +28,116 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import java.util.List;
 
 public class EnderGlaiveItem extends SwordItem {
+    private static final double DEFAULT_SPEED = 1.60D;
+    private static final double DEFAULT_DOWN_ANGLE_DEGREES = 24.0D;
+    public static final float DEFAULT_DAMAGE = 10.0F;
+
+    private static final Tier TIER = new Tier() {
+        @Override
+        public int getUses() {
+            return 1561;
+        }
+
+        @Override
+        public float getSpeed() {
+            return 4.0F;
+        }
+
+        @Override
+        public float getAttackDamageBonus() {
+            return 5.0F;
+        }
+
+        @Override
+        public int getLevel() {
+            return 1;
+        }
+
+        @Override
+        public int getEnchantmentValue() {
+            return 2;
+        }
+
+        @Override
+        public @NotNull Ingredient getRepairIngredient() {
+            return Ingredient.of(AnnoyingVillagersModItems.ELITE_OBSIDIAN.get());
+        }
+    };
 
     public EnderGlaiveItem() {
-        super(new Tier() {
-            public int getUses() {
-                return 1561;
-            }
-
-            public float getSpeed() {
-                return 4.0F;
-            }
-
-            public float getAttackDamageBonus() {
-                return 5.0F;
-            }
-
-            public int getLevel() {
-                return 1;
-            }
-
-            public int getEnchantmentValue() {
-                return 2;
-            }
-
-            public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(AnnoyingVillagersModItems.ELITE_OBSIDIAN.get());
-            }
-        }, 3, -2.5F, (new Properties().fireResistant()));
-    }
-
-    public static void spawnExplosionFallback(Level level, Vec3 center) {
-        if (level == null || center == null) {
-            return;
-        }
-
-        RandomSource rand = level.getRandom();
-        level.addParticle(
-                AnnoyingVillagersModParticleTypes.FIREBALL.get(),
-                true,
-                center.x, center.y, center.z,
-                5.0D, 1.0D, 0.0D
-        );
-
-        for (int i = 0; i < 6; i++) {
-            Vec3 normal = randomUnit(rand);
-            spawnRing3d(level, rand, center, normal, 52, 2.0D, 0.10D, 0.12D, 0.035D);
-            spawnRing3d(level, rand, center, normal, 60, 2.8D, 0.14D, 0.11D, 0.030D);
-        }
-    }
-
-    private static void spawnRing3d(Level level, RandomSource rand, Vec3 center, Vec3 normal,
-                                    int points, double radius, double thickness,
-                                    double tangentialSpeed, double outwardSpeed) {
-        Vec3 n = normal.normalize();
-        Vec3 u = n.cross(new Vec3(0.0D, 1.0D, 0.0D));
-        if (u.lengthSqr() < 1.0E-6D) {
-            u = n.cross(new Vec3(1.0D, 0.0D, 0.0D));
-        }
-        u = u.normalize();
-        Vec3 v = n.cross(u).normalize();
-
-        for (int i = 0; i < points; i++) {
-            double angle = (i / (double) points) * (Math.PI * 2.0D) + rand.nextDouble() * 0.10D;
-            double cos = Math.cos(angle);
-            double sin = Math.sin(angle);
-
-            Vec3 radial = u.scale(cos).add(v.scale(sin));
-            Vec3 tangent = n.cross(radial).normalize();
-            Vec3 pos = center
-                    .add(radial.scale(radius))
-                    .add(n.scale((rand.nextDouble() - 0.5D) * 2.0D * thickness));
-            Vec3 velocity = tangent.scale(tangentialSpeed)
-                    .add(radial.scale(outwardSpeed))
-                    .add((rand.nextDouble() - 0.5D) * 0.02D, (rand.nextDouble() - 0.5D) * 0.02D, (rand.nextDouble() - 0.5D) * 0.02D);
-
-            level.addParticle(AnnoyingVillagersModParticleTypes.ENDER.get(), true,
-                    pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
-
-            if ((i & 3) == 0) {
-                level.addParticle(ParticleTypes.REVERSE_PORTAL, true,
-                        pos.x, pos.y, pos.z, velocity.x * 0.35D, velocity.y * 0.2D, velocity.z * 0.35D);
-            }
-        }
-    }
-
-    private static Vec3 randomUnit(RandomSource rand) {
-        double z = rand.nextDouble() * 2.0D - 1.0D;
-        double angle = rand.nextDouble() * Math.PI * 2.0D;
-        double radius = Math.sqrt(Math.max(0.0D, 1.0D - z * z));
-        return new Vec3(radius * Math.cos(angle), z, radius * Math.sin(angle));
+        super(TIER, 3, -2.5F, new Properties().fireResistant());
     }
 
     @Override
-    public boolean hurtEnemy(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
-        if (pAttacker instanceof Player player) {
-            PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-            if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_GLAIVE);
-                if (skillContainer == null) return super.hurtEnemy(pStack, pTarget, pAttacker);
-                EnderGlaiveSkill enderGlaiveSkill = (EnderGlaiveSkill) skillContainer.getSkill();
+    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, level, entity, slot, selected);
+        if (!selected || !(entity instanceof Player player)) return;
 
-                float currentResource = skillContainer.getResource();
-                float neededResource = skillContainer.getNeededResource();
-                float addResource = Math.min(2.0F, neededResource);
-                enderGlaiveSkill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
-            }
+        PlayerPatch<?> patch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+        if (!(patch instanceof ServerPlayerPatch serverPatch)) return;
+
+        SkillContainer skill = serverPatch.getSkill(AVSkills.ENDER_GLAIVE);
+        if (skill != null && skill.getStack() >= 1) {
+            HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
         }
-        return super.hurtEnemy(pStack, pTarget, pAttacker);
     }
 
-    public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
-        super.inventoryTick(itemstack, level, entity, i, flag);
-        if (flag && entity instanceof Player player) {
-            PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-            if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_GLAIVE);
-                if (skillContainer != null) {
-                    if (skillContainer.getStack() >= 1) {
-                        HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
-                    }
-                }
-            }
-        }
+    public static void spawnVacuumSlice(ServerLevel level, LivingEntity owner) {
+        spawnVacuumSlice(level, owner, DEFAULT_SPEED, DEFAULT_DOWN_ANGLE_DEGREES, DEFAULT_DAMAGE);
+    }
+
+    public static void spawnVacuumSlice(ServerLevel level, LivingEntity owner, float damage) {
+        spawnVacuumSlice(level, owner, DEFAULT_SPEED, DEFAULT_DOWN_ANGLE_DEGREES, damage);
+    }
+
+    public static void spawnVacuumSlice(ServerLevel level, LivingEntity owner, double speed, double downwardAngleDegrees, float damage) {
+        VacuumSliceEntity slice = AnnoyingVillagersModEntities.VACUUM_SLICE.get().create(level);
+        if (slice == null) return;
+
+        Vec3 horizontalDirection = getHorizontalDirection(owner);
+        double angleRadians = Math.toRadians(Mth.clamp(downwardAngleDegrees, 0.0D, 89.0D));
+        Vec3 velocity = horizontalDirection.scale(Math.cos(angleRadians) * speed)
+                .add(0.0D, -Math.sin(angleRadians) * speed, 0.0D);
+        Vec3 spawnPosition = owner.getBoundingBox().getCenter();
+
+        slice.setOwner(owner);
+        slice.captureWeaponEnchantments(owner.getMainHandItem());
+        slice.setDamage(damage);
+        slice.setPos(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+        slice.setDeltaMovement(velocity);
+        setInitialRotation(slice, velocity);
+
+        level.addFreshEntity(slice);
+    }
+
+    private static Vec3 getHorizontalDirection(LivingEntity owner) {
+        Vec3 look = owner.getLookAngle();
+        Vec3 horizontal = new Vec3(look.x, 0.0D, look.z);
+        if (horizontal.lengthSqr() >= 1.0E-7D) return horizontal.normalize();
+
+        float yaw = owner.getYRot() * Mth.DEG_TO_RAD;
+        return new Vec3(-Mth.sin(yaw), 0.0D, Mth.cos(yaw));
+    }
+
+    private static void setInitialRotation(VacuumSliceEntity slice, Vec3 velocity) {
+        double horizontalSpeed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+        slice.setYRot((float) (Mth.atan2(-velocity.x, velocity.z) * Mth.RAD_TO_DEG));
+        slice.setXRot((float) (Mth.atan2(-velocity.y, horizontalSpeed) * Mth.RAD_TO_DEG));
+        slice.yRotO = slice.getYRot();
+        slice.xRotO = slice.getXRot();
+    }
+
+    public static void spawnVacumSlise(ServerLevel level, LivingEntity owner) {
+        spawnVacuumSlice(level, owner);
+    }
+
+    public static void spawnVacumSlise(ServerLevel level, LivingEntity owner, float damage) {
+        spawnVacuumSlice(level, owner, damage);
     }
 
     @Override
-    public void appendHoverText(ItemStack itemstack, Level level, List<Component> list, TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.literal(Component.translatable("tooltip.annoyingvillagers.ender_glaive").getString()));
+    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        tooltip.add(Component.translatable("tooltip.annoyingvillagers.ender_glaive"));
     }
 }

@@ -27,8 +27,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
-import com.pla.annoyingvillagers.item.EarthAxeItem;
-import com.pla.annoyingvillagers.network.ClientboundGlaiveExplosionFx;
+import com.pla.annoyingvillagers.item.EarthAxeItem;;
 import com.pla.annoyingvillagers.network.ClientboundMuteExplosionAtPos;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -998,10 +997,6 @@ public class AnimsWom {
                                                 Armatures.BIPED.get().toolR, 1.3F, 2.3F);
                                         Vec3 explosionPos = EpicfightUtil.getJointWithTranslation(livingEntityPatch.getOriginal(), new Vec3f(0, 0, 0),
                                                 Armatures.BIPED.get().toolR, 10.3F, 2.3F);
-                                        AnnoyingVillagers.PACKET_HANDLER.send(
-                                                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(livingEntityPatch::getOriginal),
-                                                new ClientboundGlaiveExplosionFx(glaivePos, explosionPos)
-                                        );
                                         if (explosionPos != null) {
                                             livingEntityPatch.getOriginal().level().playSound(null, new BlockPos((int) explosionPos.x, (int) explosionPos.y, (int) explosionPos.z), AnnoyingVillagersModSounds.ENDER_SHOT.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
                                         }
@@ -1069,10 +1064,6 @@ public class AnimsWom {
                                                 Armatures.BIPED.get().toolR, 1.3F, 2.3F);
                                         Vec3 explosionPos = EpicfightUtil.getJointWithTranslation(livingEntityPatch.getOriginal(), new Vec3f(0, 0, 0),
                                                 Armatures.BIPED.get().toolR, 10.3F, 2.3F);
-                                        AnnoyingVillagers.PACKET_HANDLER.send(
-                                                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(livingEntityPatch::getOriginal),
-                                                new ClientboundGlaiveExplosionFx(glaivePos, explosionPos)
-                                        );
                                         if (explosionPos != null) {
                                             livingEntityPatch.getOriginal().level().playSound(null, new BlockPos((int) explosionPos.x, (int) explosionPos.y, (int) explosionPos.z), AnnoyingVillagersModSounds.ENDER_SHOT.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
                                         }

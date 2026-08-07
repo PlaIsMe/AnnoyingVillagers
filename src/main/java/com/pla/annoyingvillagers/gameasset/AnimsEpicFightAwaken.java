@@ -23,6 +23,7 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
+import com.pla.annoyingvillagers.item.EnderGlaiveItem;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.ScreenShakeUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -728,6 +729,11 @@ public class AnimsEpicFightAwaken {
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 2.0F)
                         .addEvents(
                                 EpicfightUtil.cameraZoomInEvent(0.05F, -0.35F, 30),
+                                AnimationEvent.InTimeEvent.create(1.15F, (livingEntityPatch, self, p) -> {
+                                    if (livingEntityPatch.getOriginal().level() instanceof ServerLevel serverLevel) {
+                                        EnderGlaiveItem.spawnVacumSlise(serverLevel, livingEntityPatch.getOriginal());
+                                    }
+                                }, AnimationEvent.Side.SERVER),
                                 EpicfightUtil.cameraZoomOutBlurEvent(1.15F, 10.0F, 20))
                         .newTimePair(0.0F, 0.66F)
                         .addStateRemoveOld(EntityState.TURNING_LOCKED, true)
@@ -747,6 +753,11 @@ public class AnimsEpicFightAwaken {
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (self, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 2.0F)
                         .addEvents(
                                 EpicfightUtil.cameraZoomInEvent(0.05F, -0.35F, 30),
+                                AnimationEvent.InTimeEvent.create(1.35F, (livingEntityPatch, self, p) -> {
+                                    if (livingEntityPatch.getOriginal().level() instanceof ServerLevel serverLevel) {
+                                        EnderGlaiveItem.spawnVacumSlise(serverLevel, livingEntityPatch.getOriginal(), EnderGlaiveItem.DEFAULT_DAMAGE * 2);
+                                    }
+                                }, AnimationEvent.Side.SERVER),
                                 EpicfightUtil.cameraZoomOutBlurEvent(1.35F, 10.0F, 20))
                         .newTimePair(0.0F, 0.9F)
                         .addStateRemoveOld(EntityState.TURNING_LOCKED, true)

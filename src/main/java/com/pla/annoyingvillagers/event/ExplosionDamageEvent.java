@@ -3,12 +3,8 @@ package com.pla.annoyingvillagers.event;
 import com.pla.annoyingvillagers.entity.TridentLightningBolt;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
-import com.pla.annoyingvillagers.item.EnderGlaiveItem;
 import com.pla.annoyingvillagers.item.WoopieTheSwordItem;
-import com.pla.annoyingvillagers.skill.EnderGlaiveSkill;
 import com.pla.annoyingvillagers.skill.WoopieTheSwordSkill;
-import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -46,39 +42,6 @@ public class ExplosionDamageEvent {
             LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(livingEntity, LivingEntityPatch.class);
             if (livingEntityPatch == null) return;
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-            if (livingEntity.getMainHandItem().getItem() instanceof EnderGlaiveItem
-                    && (dynamicAnimation == AnimsWom.ENDER_GLAIVE_AGONY_AUTO_1 || dynamicAnimation == AnimsWom.ENDER_GLAIVE_NAPOLEON_SHOOT_3)) {
-                SkillContainer skillContainer = null;
-                if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                    skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_GLAIVE);
-                }
-                for (Entity entity : detonate.getAffectedEntities()) {
-                    if (entity.isAlive() && entity != detonate.getExplosion().getIndirectSourceEntity()
-                            && entity instanceof LivingEntity livingExploded && !(entity instanceof EnderHand)
-                            && !(entity instanceof Player player && player.isCreative())) {
-                        LivingEntityPatch<?> explodedPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-                        new DelayedTask(10) {
-                            @Override
-                            public void run() {
-                                EnderHand enderHand = new EnderHand(serverLevel, new Vec3(entity.getX(), entity.getY(), entity.getZ()), livingEntity, livingExploded);
-                                serverLevel.addFreshEntity(enderHand);
-                            }
-                        };
-
-                        if (skillContainer != null && skillContainer.getStack() < 3) {
-                            EnderGlaiveSkill enderGlaiveSkill = (EnderGlaiveSkill) skillContainer.getSkill();
-                            float currentResource = skillContainer.getResource();
-                            float neededResource = skillContainer.getNeededResource();
-                            float addResource = Math.min(50.0F, neededResource);
-                            enderGlaiveSkill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
-                        }
-
-                        entity.hurt(entity.level().damageSources().mobAttack(livingEntity), 12.0F);
-                        EpicfightUtil.dealStaminaDamageByPercentage(detonate.getExplosion().getDamageSource(), explodedPatch, 0.2F, false);
-                    }
-                }
-            }
-
             if (livingEntity.getMainHandItem().getItem() instanceof WoopieTheSwordItem && dynamicAnimation == AnimsHerrscher.HERRSCHER_AUTO_2) {
                 SkillContainer skillContainer = null;
                 if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {

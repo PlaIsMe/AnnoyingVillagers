@@ -77,23 +77,6 @@ public final class ClientPacketHandlers {
                 () -> entity.isRemoved() ? null : entity.position().add(fixedOffset), lifetimeTicks);
     }
 
-    public static void handleGlaiveExplosion(ClientboundGlaiveExplosionFx msg) {
-        Level level = Minecraft.getInstance().level;
-        if (level == null) return;
-
-        ClientVfxRouter.run(
-                VfxEffect.GLAIVE_EXPLOSION,
-                () -> PhotonClientFxUtil.spawnDirectional(level, "av_explodepurpur", msg.from(), msg.to(), true),
-                () -> {
-                    AAAParticlesUtil.sendEnderGlaiveExplosion(msg.from(), msg.to(), level);
-                    return true;
-                },
-                () -> EnderGlaiveItem.spawnExplosionFallback(level, msg.to()));
-
-        level.playLocalSound(msg.from().x, msg.from().y, msg.from().z, AnnoyingVillagersModSounds.ENDER_SHOT.get(),
-                SoundSource.NEUTRAL, 1.0F, 1.0F, false);
-    }
-
     public static void handleMuteExplosionAtPos(ClientboundMuteExplosionAtPos msg) {
         Level level = Minecraft.getInstance().level;
         if (level == null) return;

@@ -81,6 +81,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.ELECTRIC_PHASE.get(), ElectricPhaseRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.RISING_WALL_BLOCK.get(), RisingWallBlockRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.FLOATING_LOOK_BLOCK.get(), FloatingLookBlockRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.VACUUM_SLICE.get(), VacuumSliceRenderer::new);
     }
 
     @SubscribeEvent
