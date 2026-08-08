@@ -22,28 +22,38 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.animations.HeavyAttackAnimation;
 import com.pla.annoyingvillagers.animations.RushSwordAnimation;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
+import com.pla.annoyingvillagers.network.ClientboundWoopieSwordWindFx;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.ScreenShakeUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.network.PacketDistributor;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionAttackAnimation;
 import net.shelmarow.combat_evolution.gameassets.animation.ExecutionHitAnimation;
 import reascer.wom.animation.attacks.BasicMultipleAttackAnimation;
 import reascer.wom.gameasset.colliders.WOMWeaponColliders;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
+import yesman.epicfight.api.animation.TransformSheet;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
+import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.collider.MultiCollider;
 import yesman.epicfight.api.collider.MultiOBBCollider;
@@ -51,12 +61,14 @@ import yesman.epicfight.api.collider.OBBCollider;
 import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.ExtraDamageInstance;
 import yesman.epicfight.world.damagesource.StunType;
@@ -293,29 +305,27 @@ public class AnimsPugilistSteve {
                         .addProperty(AnimationProperty.AttackAnimationProperty.ATTACK_SPEED_FACTOR, 1.5F)
                         .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
                         .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0F, 0.3F))
-                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicanimation, livingentitypatch, f, f1, pose) -> {
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, f, f1, pose) -> {
                             if (f1 >= 0.3F && f1 < 0.35F) {
-                                float f2 = (float) livingentitypatch.getOriginal().getX();
-                                float f3 = (float) livingentitypatch.getOriginal().getY();
-                                float f4 = (float) livingentitypatch.getOriginal().getZ();
+                                float x = (float)livingEntityPatch.getOriginal().getX();
+                                float y = (float)livingEntityPatch.getOriginal().getY();
+                                float z = (float)livingEntityPatch.getOriginal().getZ();
 
-                                for (BlockState blockstate = livingentitypatch.getOriginal().level().getBlockState(new BlockPos(new Vec3i((int) f2, (int) f3, (int) f4))); (blockstate.getBlock() instanceof BushBlock || blockstate.isAir()) && !blockstate.is(Blocks.VOID_AIR); blockstate = livingentitypatch.getOriginal().level().getBlockState(new BlockPos(new Vec3i((int) f2, (int) f3, (int) f4)))) {
-                                    --f3;
-                                }
+                                for (BlockState blockState = livingEntityPatch.getOriginal().level().getBlockState(new BlockPos(new Vec3i((int)x, (int)y, (int)z))); (blockState.getBlock() instanceof BushBlock || blockState.isAir()) && !blockState.is(Blocks.VOID_AIR); blockState = livingEntityPatch.getOriginal().level().getBlockState(new BlockPos(new Vec3i((int)x, (int)y, (int)z)))) --y;
 
-                                float f5 = (float) Math.max(Math.abs(livingentitypatch.getOriginal().getY() - (double) f3) - 1.0D, 0.0D);
-
-                                return 1.0F - (1.0F / (-f5 - 1.0F) + 1.0F);
-                            } else {
-                                return 1.0F;
+                                float distance = (float)Math.max(Math.abs(livingEntityPatch.getOriginal().getY() - y) - 1.0D, 0.0D);
+                                return 1.0F - (1.0F / (-distance - 1.0F) + 1.0F);
                             }
-                        }).addEvents(
-                                new AnimationEvent.InTimeEvent[]{
-                                        AnimationEvent.InTimeEvent.create(0.6F, reascer.wom.gameasset.ReuseableEvents.TORMENT_GROUNDSLAM, AnimationEvent.Side.CLIENT),
-                                        AnimationEvent.InTimeEvent.create(0.6F, AVAnimations.ReuseableEvents.SHOCK_WAVE, AnimationEvent.Side.SERVER)
-                                })
-        );
+
+                            return 1.0F;
+                        })
+                        .addEvents(
+                                EpicfightUtil.cameraZoomInEvent(0.05F, -0.35F, 30),
+                                AnimationEvent.InTimeEvent.create(0.0F, LEGENDARY_SWORD_HEAVY_START, AnimationEvent.Side.SERVER),
+                                AnimationEvent.InTimeEvent.create(0.5F, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, AnimationEvent.Side.CLIENT).params(new Vec3f(0.0F, -0.24F, -2.0F), Armatures.BIPED.get().toolR, 2.5D, 0.6F),
+                                AnimationEvent.InTimeEvent.create(0.5F, AVAnimations.ReuseableEvents.SHOCK_WAVE, AnimationEvent.Side.SERVER),
+                                EpicfightUtil.cameraZoomOutBlurEvent(0.5F, 10.0F, 20)
+                        ));
         HACKER_SWORD_SKILL_TWOHAND = builder.nextAccessor("biped/pugilist_steve/hacker_sword_skill",
                 accessor -> new AttackAnimation(0.05F, accessor, humanoidArmature, new AttackAnimation.Phase(0.0F, 0.016F, 0.066F, 0.133F, 0.133F, InteractionHand.MAIN_HAND, humanoidArmature.get().toolL, ColliderPreset.SWORD), new AttackAnimation.Phase(0.133F, 0.133F, 0.183F, 0.25F, 0.25F, humanoidArmature.get().toolR, ColliderPreset.SWORD), new AttackAnimation.Phase(0.25F, 0.25F, 0.3F, 0.366F, 0.366F, InteractionHand.MAIN_HAND, humanoidArmature.get().toolL, ColliderPreset.SWORD), new AttackAnimation.Phase(0.366F, 0.366F, 0.416F, 0.483F, 0.483F, humanoidArmature.get().toolR, ColliderPreset.SWORD), new AttackAnimation.Phase(0.483F, 0.483F, 0.533F, 0.6F, 0.6F, InteractionHand.MAIN_HAND, humanoidArmature.get().toolL, ColliderPreset.SWORD), new AttackAnimation.Phase(0.6F, 0.6F, 0.65F, 0.716F, 0.716F, humanoidArmature.get().toolR, ColliderPreset.SWORD), new AttackAnimation.Phase(0.716F, 0.716F, 0.766F, 0.833F, 0.833F, InteractionHand.MAIN_HAND, humanoidArmature.get().toolL, ColliderPreset.SWORD), new AttackAnimation.Phase(0.833F, 0.833F, 0.883F, 1.1F, 1.1F, humanoidArmature.get().toolR, ColliderPreset.SWORD), new AttackAnimation.Phase(0.933F, 1.133F, 1.183F, 1.6F, 1.6F, humanoidArmature.get().toolL, ColliderPreset.SWORD)).addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 4.0F));
         DUAL_SWORD_AUTO1 = builder.nextAccessor("biped/pugilist_steve/dual_sword_auto1",
@@ -1021,6 +1031,17 @@ public class AnimsPugilistSteve {
                                         AnimationEvent.Side.BOTH)}
                         ));
         SHIELD_EXECUTE_HIT = builder.nextAccessor("biped/pugilist_steve/shield_execute_hit", (accessor) -> (new ExecutionHitAnimation(0.1F, accessor, Armatures.BIPED)).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
-
     }
+
+    public static final AnimationEvent.E0 LEGENDARY_SWORD_HEAVY_START = (livingEntityPatch, animation, params) -> {
+        LivingEntity entity = livingEntityPatch.getOriginal();
+        if (!(entity.level() instanceof ServerLevel serverLevel)) return;
+
+        serverLevel.playSound(null, entity.getX(), entity.getY(), entity.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_START.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+        serverLevel.playSound(null, entity.getX(), entity.getY(), entity.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+        serverLevel.playSound(null, entity.getX(), entity.getY(), entity.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+
+        serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, entity.getX(), entity.getY(), entity.getZ(), 15, 0.0D, 0.0D, 0.0D, 0.2D);
+        serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, entity.getX(), entity.getEyeY(), entity.getZ(), 100, 0.0D, 0.0D, 0.0D, 0.5D);
+    };
 }

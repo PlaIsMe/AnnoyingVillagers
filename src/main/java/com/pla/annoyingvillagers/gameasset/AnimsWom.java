@@ -1281,9 +1281,6 @@ public class AnimsWom {
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, WOMParticles.OVERBLOOD_HIT)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 0.8F)
                         .addProperty(AnimationProperty.AttackAnimationProperty.ATTACK_SPEED_FACTOR, 1.2F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.35F, AVAnimations.ReuseableEvents.SLEDGEHAMMER_SHOOT, AnimationEvent.Side.SERVER)
-                        )
         );
         SLEDGEHAMMER_TORMENT_BERSERK_AUTO_2 = builder.nextAccessor("biped/wom_clone/sledgehammer_torment_berserk_auto_2",
                 accessor -> new BasicMultipleAttackAnimation(0.4F, 0.15F, 0.5F, 0.5F, null, humanoidArmature.get().toolR, accessor, humanoidArmature)
@@ -1295,9 +1292,6 @@ public class AnimsWom {
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, WOMParticles.OVERBLOOD_HIT)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 0.8F)
                         .addProperty(AnimationProperty.AttackAnimationProperty.ATTACK_SPEED_FACTOR, 1.2F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.31F, AVAnimations.ReuseableEvents.SLEDGEHAMMER_SHOOT, AnimationEvent.Side.SERVER)
-                        )
         );
         SLEDGEHAMMER_SOLAR_AUTO_3 = builder.nextAccessor("biped/wom_clone/sledgehammer_solar_auto_3",
                 accessor -> new BasicMultipleAttackAnimation(0.05F, 0.4F, 0.75F, 0.85F, null, humanoidArmature.get().toolR, accessor, humanoidArmature)
@@ -1307,14 +1301,6 @@ public class AnimsWom {
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_RUSH_FINISHER.get())
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.3F)
                         .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, false)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.6F, AVAnimations.ReuseableEvents.SLEDGEHAMMER_SHOOT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(1.5F, (livingEntityPatch, self, p) -> {
-                                    if (!livingEntityPatch.isLogicalClient()) {
-                                        livingEntityPatch.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
-                                    }
-                                }, AnimationEvent.Side.SERVER)
-                        )
         );
         CLONE_ANTITHEUS_SHOOT = builder.nextAccessor("biped/wom_clone/clone_antitheus_shoot",
                 accessor -> new AntitheusShootAttackAnimation(0.05F, 0.05F, 0.1F, 0.5F, WOMWeaponColliders.ANTITHEUS_SHOOT, humanoidArmature.get().toolL, accessor, humanoidArmature)

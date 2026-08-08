@@ -30,6 +30,7 @@ import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.AttackAnimation;
+import yesman.epicfight.api.animation.types.MovementAnimation;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Armatures;
@@ -50,6 +51,7 @@ public class AnimsEpicFightDualGreatsword {
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> GREATSWORD_DUAL_AUTO_4;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> GREATSWORD_DUAL_DASH;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> GREATSWORD_DUAL_AIRSLASH;
+    public static AnimationManager.AnimationAccessor<MovementAnimation> GREATSWORD_DUAL_RUN;
     public static AnimationManager.AnimationAccessor<SpecialAttackAnimation> GREATSWORD_DUAL_EARTHQUAKE;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> SHADOW_OBSIDIAN_SWORD_GREATSWORD_TWOHAND_AUTO_1;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> SHADOW_OBSIDIAN_SWORD_GREATSWORD_TWOHAND_AUTO_2;
@@ -134,6 +136,8 @@ public class AnimsEpicFightDualGreatsword {
                         .addEvents(
                                 AnimationEvent.InTimeEvent.create(1.25F, reascer.wom.gameasset.ReuseableEvents.SOLAR_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT)
                         ));
+        GREATSWORD_DUAL_RUN = builder.nextAccessor("biped/epicfight_dual_greatsword/greatsword_dual_run",
+                accessor -> new MovementAnimation(true, accessor, Armatures.BIPED));
         SHADOW_OBSIDIAN_SWORD_GREATSWORD_TWOHAND_AUTO_1 = builder.nextAccessor("biped/epicfight_dual_greatsword/shadow_obsidian_sword_greatsword_twohand_auto_1",
                 accessor -> new BasicMultipleAttackAnimation(0.25F, accessor, humanoidArmature,
                         new AttackAnimation.Phase(0.0F, 0.2F, 0.4F, 0.45F, 0.45F, InteractionHand.OFF_HAND, humanoidArmature.get().toolL, null),

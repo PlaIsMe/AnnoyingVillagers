@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.entity.TridentLightningBolt;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.item.WoopieTheSwordItem;
@@ -78,6 +79,34 @@ public class ExplosionDamageEvent {
                             float addResource = Math.min(50.0F, neededResource);
                             woopieTheSwordSkill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
                         }
+                    }
+                }
+            }
+
+            if (livingEntity.getOffhandItem().getItem() instanceof WoopieTheSwordItem && dynamicAnimation == AVAnimations.LEGENDARYSWORD_WOOPIE_FLY) {
+                for (Entity entity : detonate.getAffectedEntities()) {
+                    if (entity.isAlive() && entity != detonate.getExplosion().getIndirectSourceEntity()
+                            && entity instanceof LivingEntity livingExploded && !(entity instanceof EnderHand)
+                            && !(entity instanceof Player player && player.isCreative())) {
+                        LivingEntityPatch<?> explodedPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+                        if (explodedPatch != null) {
+                            AssetAccessor<? extends StaticAnimation> explodedDynamicAnimation = Objects.requireNonNull(explodedPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
+                            if (!EpicfightUtil.isLongHitAnimation(explodedDynamicAnimation, explodedPatch)) {
+                                explodedPatch.playAnimationSynchronized(AnimsPugilistSteve.LONGEST_HIT, 0.0F);
+                            }
+                        }
+                        if (!entity.isAlive()) continue;
+                        double dx = center.x - entity.getX();
+                        double dz = center.z - entity.getZ();
+                        double dist = entity.position().distanceTo(center);
+                        double falloff = Mth.clamp(1.0D - (dist / 8.0D), 0.0D, 1.0D);
+
+                        double horizontal = 6.0D * falloff;
+                        double up = 2.6D * falloff;
+
+                        livingExploded.knockback(horizontal, dx, dz);
+                        livingExploded.push(0.0D, up, 0.0D);
+                        livingExploded.hurtMarked = true;
                     }
                 }
             }

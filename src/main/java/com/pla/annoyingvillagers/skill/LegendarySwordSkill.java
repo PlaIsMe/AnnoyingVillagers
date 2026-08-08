@@ -1,19 +1,12 @@
 package com.pla.annoyingvillagers.skill;
 
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.task.DelayedTask;
-import net.minecraft.core.particles.ParticleTypes;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.LivingEntity;
-import reascer.wom.gameasset.animations.weapons.AnimsAgony;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
-import yesman.epicfight.world.effect.EpicFightMobEffects;
 
 public class LegendarySwordSkill extends WeaponInnateSkill {
     public LegendarySwordSkill(SkillBuilder<? extends WeaponInnateSkill> builder) {
@@ -22,55 +15,31 @@ public class LegendarySwordSkill extends WeaponInnateSkill {
 
     @Override
     public void executeOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
-        LivingEntity entity = skillContainer.getExecutor().getOriginal();
-        ServerLevel serverLevel = (ServerLevel) entity.level();
+        if (!this.isActivated(skillContainer)) {
+            super.executeOnServer(skillContainer, friendlyByteBuf);
+            skillContainer.activate();
 
-        skillContainer.getExecutor().playAnimationSynchronized(AnimsAgony.AGONY_RISING_EAGLE, 0.0F);
-        entity.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 60, 2));
-        new DelayedTask(10) {
-            @Override
-            public void run() {
-                serverLevel.playSound(
-                        null,
-                        entity.getX(), entity.getY(), entity.getZ(),
-                        AnnoyingVillagersModSounds.HEAVY_ATTACK_START.get(),
-                        SoundSource.NEUTRAL,
-                        1.0F, 1.0F
-                );
-
-                serverLevel.playSound(
-                        null,
-                        entity.getX(), entity.getY(), entity.getZ(),
-                        AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(),
-                        SoundSource.NEUTRAL,
-                        1.0F, 1.0F
-                );
-
-                serverLevel.playSound(
-                        null,
-                        entity.getX(), entity.getY(), entity.getZ(),
-                        AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(),
-                        SoundSource.NEUTRAL,
-                        1.0F, 1.0F
-                );
-
-                serverLevel.sendParticles(
-                        ParticleTypes.TOTEM_OF_UNDYING,
-                        entity.getX(), entity.getY(), entity.getZ(),
-                        15,
-                        0.0D, 0.0D, 0.0D,
-                        0.2D);
-
-                serverLevel.sendParticles(
-                        ParticleTypes.TOTEM_OF_UNDYING,
-                        entity.getX(), entity.getEyeY(), entity.getZ(),
-                        100,
-                        0.0D, 0.0D, 0.0D,
-                        0.5D
-                );
+            if (skillContainer.getExecutor().getOriginal().getOffhandItem().is(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get())) {
+                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.LEGENDARYSWORD_WOOPIE_FLY, 0.0F);
+            } else {
                 skillContainer.getExecutor().playAnimationSynchronized(AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK, 0.0F);
             }
-        };
-        super.executeOnServer(skillContainer, friendlyByteBuf);
+        }
+    }
+
+    @Override
+    public void cancelOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
+        skillContainer.deactivate();
+        super.cancelOnServer(skillContainer, friendlyByteBuf);
+    }
+
+    public void executeOnClient(SkillContainer container, FriendlyByteBuf args) {
+        super.executeOnClient(container, args);
+        container.activate();
+    }
+
+    public void cancelOnClient(SkillContainer container, FriendlyByteBuf args) {
+        super.cancelOnClient(container, args);
+        container.deactivate();
     }
 }

@@ -39,15 +39,15 @@ public class AnimsEpicFightValourGuard {
 
     public static void build(AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> humanoidArmature = Armatures.BIPED;
-        AnimsEpicFightValourGuard.VALOUR_HOLD_GREATSWORD = builder.nextAccessor("biped/epicfight_valour_guard/valour_hold_greatsword",
+        VALOUR_HOLD_GREATSWORD = builder.nextAccessor("biped/epicfight_valour_guard/valour_hold_greatsword",
                 accessor -> new StaticAnimation(true, accessor, Armatures.BIPED));
-        AnimsEpicFightValourGuard.VALOUR_RUN_GREATSWORD = builder.nextAccessor("biped/epicfight_valour_guard/valour_run_greatsword",
+        VALOUR_RUN_GREATSWORD = builder.nextAccessor("biped/epicfight_valour_guard/valour_run_greatsword",
                 accessor -> new MovementAnimation(true, accessor, Armatures.BIPED));
-        AnimsEpicFightValourGuard.VALOUR_WALK_GREATSWORD = builder.nextAccessor("biped/epicfight_valour_guard/valour_walk_greatsword",
+        VALOUR_WALK_GREATSWORD = builder.nextAccessor("biped/epicfight_valour_guard/valour_walk_greatsword",
                 accessor -> new MovementAnimation(true, accessor, Armatures.BIPED));
-        AnimsEpicFightValourGuard.VALOUR_FIST_GUARD = builder.nextAccessor("biped/epicfight_valour_guard/valour_fist_guard",
+        VALOUR_FIST_GUARD = builder.nextAccessor("biped/epicfight_valour_guard/valour_fist_guard",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
-        AnimsEpicFightValourGuard.VALOUR_FIST_GUARD_HIT = builder.nextAccessor("biped/epicfight_valour_guard/valour_fist_guard_hit",
+        VALOUR_FIST_GUARD_HIT = builder.nextAccessor("biped/epicfight_valour_guard/valour_fist_guard_hit",
                 accessor -> new GuardAnimation(0.05F, accessor, humanoidArmature));
     }
 }

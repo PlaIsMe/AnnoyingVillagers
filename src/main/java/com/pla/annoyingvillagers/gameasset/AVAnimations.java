@@ -8,6 +8,8 @@ import com.pla.annoyingvillagers.compat.p1nero_bow.AnimsP1neroEpicBow;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.item.*;
+import com.pla.annoyingvillagers.network.ClientboundMuteExplosionAtPos;
+import com.pla.annoyingvillagers.network.ClientboundWoopieSwordWindFx;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.*;
 import net.minecraft.core.BlockPos;
@@ -30,6 +32,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.PacketDistributor;
 import reascer.wom.animation.attacks.BasicMultipleAttackAnimation;
 import reascer.wom.gameasset.colliders.WOMWeaponColliders;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -92,6 +95,7 @@ public class AVAnimations {
     public static AnimationManager.AnimationAccessor<MovementAnimation> HEROBRINE_RUN;
     public static AnimationManager.AnimationAccessor<MovementAnimation> TRIDENT_TWO_HAND_RUN;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> HACKER_SWORD_SKILL;
+    public static AnimationManager.AnimationAccessor<ActionAnimation> LEGENDARYSWORD_WOOPIE_FLY;
 
     @SubscribeEvent
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
@@ -439,6 +443,29 @@ public class AVAnimations {
                         }, AnimationEvent.Side.CLIENT)
                 })
         );
+
+        LEGENDARYSWORD_WOOPIE_FLY = builder.nextAccessor("biped/pla/legendarysword_woopie_fly",
+                accessor -> new ActionAnimation(0.05F, accessor, humanoidArmature)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.REMOVE_DELTA_MOVEMENT, true)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (animation, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 1.0F)
+                        .newTimePair(0.0F, 0.3F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.3F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false)
+                        .addEvents(
+                                AnimationEvent.InTimeEvent.create(0.0F, (livingEntityPatch, self, params) -> {
+                                    LivingEntity entity = livingEntityPatch.getOriginal();
+                                    if (entity.level().isClientSide() || !entity.getOffhandItem().is(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get())) return;
+
+                                    Vec3 offHandPos = EpicfightUtil.getJointWithTranslation(entity, new Vec3f(0.0F, 0.0F, 0.0F), Armatures.BIPED.get().toolL, 0.0F, 0.0F);
+                                    Vec3 windPos = offHandPos == null ? entity.position().add(0.0D, 0.05D, 0.0D) : new Vec3(offHandPos.x, entity.getY() + 0.05D, offHandPos.z);
+
+                                    AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
+                                    entity.level().explode(entity, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
+                                    AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), new ClientboundWoopieSwordWindFx(windPos));
+                                }, AnimationEvent.Side.SERVER),
+                                AnimationEvent.InTimeEvent.create(0.6F, (livingEntityPatch, self, params) -> livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK, 0.0F), AnimationEvent.Side.SERVER)
+                        ));
     }
 
     static class ReuseableEvents {
@@ -1122,42 +1149,6 @@ public class AVAnimations {
                     }
                 };
 
-        public static final AnimationEvent.E0 SLEDGEHAMMER_SHOOT =
-                (livingEntityPatch, staticAnimation, object) -> {
-                    if (livingEntityPatch.getOriginal().level() instanceof ServerLevel serverLevel) {
-                        LivingEntity shooterEntity = livingEntityPatch.getOriginal();
-
-                        Vec3 aimPosition = null;
-
-                        if (shooterEntity instanceof Mob mob && mob.getTarget() != null) {
-                            aimPosition = mob.getTarget().getEyePosition(1.0F);
-                            Vec3 portalAimPosition = HerobrinePortalCombatUtil.getProjectilePortalAim(shooterEntity, mob.getTarget());
-                            if (portalAimPosition != null) {
-                                aimPosition = portalAimPosition;
-                            }
-                        } else if (shooterEntity instanceof Player player) {
-                            Vec3 playerEyePosition = player.getEyePosition(1.0F);
-                            Vec3 playerLookDirection = player.getLookAngle();
-                            double aimDistance = 64.0D;
-                            aimPosition = playerEyePosition.add(playerLookDirection.scale(aimDistance));
-                        }
-
-                        ObsidianSledgehammerProjectileEntity obsidianSledgehammerProjectileEntity = new ObsidianSledgehammerProjectileEntity(AnnoyingVillagersModEntities.OBSIDIAN_SLEDGEHAMMER_PROJECTILE.get(), serverLevel);
-                        Vec3 hammerPos = EpicfightUtil.getJointWithTranslation(livingEntityPatch.getOriginal(), new Vec3f(0, 0, 0),
-                                Armatures.BIPED.get().toolR, 1.0F, 0.0F);
-                        if (hammerPos != null && aimPosition != null) {
-                            obsidianSledgehammerProjectileEntity.moveTo(hammerPos.x, hammerPos.y, hammerPos.z, 0F, 0F);
-                            obsidianSledgehammerProjectileEntity.setPosToAim(new Vec3(aimPosition.x, aimPosition.y, aimPosition.z));
-                            obsidianSledgehammerProjectileEntity.setInvulnerable(true);
-                            obsidianSledgehammerProjectileEntity.playSound(AnnoyingVillagersModSounds.METAL_HIT.get(), 1.0F, 1.0F);
-                            obsidianSledgehammerProjectileEntity.setOwner(shooterEntity);
-                            if (staticAnimation == AnimsWom.SLEDGEHAMMER_SOLAR_AUTO_3) {
-                                obsidianSledgehammerProjectileEntity.setShouldStun(true);
-                            }
-                            serverLevel.addFreshEntity(obsidianSledgehammerProjectileEntity);
-                        }
-                    }
-                };
         public static final AnimationEvent.E0 SHOCK_WAVE =
                 (livingEntityPatch, staticAnimation, object) -> {
 
@@ -1185,6 +1176,5 @@ public class AVAnimations {
                         livingentitypatch.playAnimationSynchronized(AnimsPugilistSteve.DUAL_END, 0.1F);
                     }
                 };
-
     }
 }

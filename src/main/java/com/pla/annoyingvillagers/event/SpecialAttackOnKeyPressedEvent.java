@@ -428,14 +428,12 @@ public class SpecialAttackOnKeyPressedEvent {
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.LEGENDARY_SWORD.get())) {
                 if (entity.level() instanceof ServerLevel) {
                     boolean success = false;
-                    boolean holdingTridentOffhand = offHandItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get());
-
                     PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
                     if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                         SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.LEGENDARY_SWORD);
                         if (skillContainer != null && skillContainer.getSkill() instanceof LegendarySwordSkill legendarySwordSkill && player.level() instanceof ServerLevel) {
                             if (skillContainer.getStack() >= 1) {
-                                if (holdingTridentOffhand) {
+                                if (offHandItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
                                     livingEntityPatch.playAnimationSynchronized(AVAnimations.ELECTRIC_FIELD, 0.0F);
                                 } else {
                                     livingEntityPatch.playAnimationSynchronized(AnimsEpicFightAwaken.STRAIGHTSWORD_GUARD_COUNTER, 0.0F);
@@ -448,7 +446,7 @@ public class SpecialAttackOnKeyPressedEvent {
                     }
 
                     if (!success) {
-                        if (holdingTridentOffhand) {
+                        if (offHandItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
                             livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_THROW_LEGENDARY, 0.0F);
                         } else {
                             livingEntityPatch.playAnimationSynchronized(AnimsEpicFightAwaken.STRAIGHTSWORD_GUARD_COUNTER, 0.0F);

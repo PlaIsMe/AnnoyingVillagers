@@ -11,6 +11,7 @@ import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
+import com.pla.annoyingvillagers.item.WoopieTheSwordItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -247,8 +248,8 @@ public class AVWeaponCapabilityPresets {
             WeaponCapability.builder()
                     .category(WeaponCategories.GREATSWORD)
                     .styleProvider(
-                            (livingentitypatch) -> Styles.TWO_HAND
-                    ).collider(ColliderPreset.GREATSWORD)
+                            (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get()) || livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get()) ? Styles.OCHS : Styles.TWO_HAND)
+                    .collider(ColliderPreset.GREATSWORD)
                     .swingSound(EpicFightSounds.WHOOSH_BIG.get())
                     .hitSound(EpicFightSounds.BLADE_HIT.get())
                     .canBePlacedOffhand(false)
@@ -260,16 +261,28 @@ public class AVWeaponCapabilityPresets {
                             AnimsEpicFightAwaken.STRAIGHTSWORD_DASH_HEAVY,
                             AnimsEpicFightAwaken.STRAIGHTSWORD_DODGE_PURSUIT,
                             AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK
-                    ).newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
-                    .innateSkill(Styles.TWO_HAND,
+                    )
+                    .newStyleCombo(Styles.OCHS,
+                            AnimsEpicFightAwaken.STRAIGHTSWORD_DUAL_AUTO1,
+                            AnimsPugilistSteve.DUAL_SWORD_AUTO2,
+                            AnimsEpicFightAwaken.STRAIGHTSWORD_DUAL_AUTO4,
+                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_AUTO_3,
+                            AnimsEpicFightAwaken.STRAIGHTSWORD_DUAL_DASH_LIGHT,
+                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_DASH,
+                            AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK
+                    )
+                    .newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
+                    .innateSkill(Styles.COMMON,
                             (itemstack) -> AVSkills.LEGENDARY_SWORD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsSculkSteve.LEGENDARY_SWORD_IDLE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsWom.TORMENT_BERSERK_WALK)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.IDLE, AnimsSculkSteve.LEGENDARY_SWORD_IDLE)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.WALK, AnimsEpicFightValourGuard.VALOUR_WALK_GREATSWORD)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsPugilistSteve.RUN_DUAL_BIG)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsPugilistSteve.RUN_DUAL_BIG)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsPugilistSteve.LEGENDARY_SWORD_GUARD)
+                    .livingMotionModifier(Styles.OCHS, LivingMotions.RUN, AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_RUN)
+                    .livingMotionModifier(Styles.OCHS, LivingMotions.CHASE, AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_RUN)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.BLOCK, AnimsPugilistSteve.LEGENDARY_SWORD_GUARD)
                     .weaponCombinationPredicator(
-                            (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof BlueDemonTridentItem);
+                            (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof BlueDemonTridentItem || livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof WoopieTheSwordItem);
 
     public static final Function<Item, Builder> BLUE_DEMON_TRIDENT = (item) ->
             WeaponCapability.builder()
