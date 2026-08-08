@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.mixin.client;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.gameasset.AVSkillDataKeys;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
+import com.pla.annoyingvillagers.skill.LegendarySwordSkill;
 import com.pla.annoyingvillagers.skill.TridentFestivalSkill;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -50,6 +51,38 @@ public class WeaponInnateSkillMixin {
         }
 
         return skill.getSkillTexture();
+    }
+
+    @Redirect(
+            method = "drawOnGui",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lyesman/epicfight/skill/Skill;getActivateType()Lyesman/epicfight/skill/Skill$ActivateType;",
+                    ordinal = 0
+            )
+    )
+    private Skill.ActivateType useDurationGuiForLegendarySwordAwakeningFirst(Skill skill, BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
+        return getGuiActivateType(skill, container);
+    }
+
+    @Redirect(
+            method = "drawOnGui",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lyesman/epicfight/skill/Skill;getActivateType()Lyesman/epicfight/skill/Skill$ActivateType;",
+                    ordinal = 1
+            )
+    )
+    private Skill.ActivateType useDurationGuiForLegendarySwordAwakeningSecond(Skill skill, BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
+        return getGuiActivateType(skill, container);
+    }
+
+    private static Skill.ActivateType getGuiActivateType(Skill skill, SkillContainer container) {
+        if (skill instanceof LegendarySwordSkill && LegendarySwordSkill.isAwakened(container)) {
+            return Skill.ActivateType.DURATION;
+        }
+
+        return skill.getActivateType();
     }
 
     @Inject(method = "drawOnGui", at = @At("TAIL"), remap = false)

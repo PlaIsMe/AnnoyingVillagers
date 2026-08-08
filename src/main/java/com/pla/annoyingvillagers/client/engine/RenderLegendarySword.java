@@ -2,6 +2,8 @@ package com.pla.annoyingvillagers.client.engine;
 
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.pla.annoyingvillagers.gameasset.AVSkillDataKeys;
+import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -12,12 +14,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.skill.LegendarySwordSkill;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
+import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 import java.util.Objects;
 
@@ -26,6 +31,20 @@ public class RenderLegendarySword extends RenderItemBase {
 
     public RenderLegendarySword(JsonElement json) {
         super(json);
+    }
+
+    private static boolean shouldRenderAwakened(ItemStack stack, LivingEntityPatch<?> livingEntityPatch) {
+        if (LegendarySwordSkill.isAwakened(stack, livingEntityPatch.getOriginal())) {
+            return true;
+        }
+
+        if (livingEntityPatch instanceof PlayerPatch<?> playerPatch) {
+            SkillContainer skillContainer = playerPatch.getSkill(AVSkills.LEGENDARY_SWORD);
+            return skillContainer != null
+                    && Boolean.TRUE.equals(skillContainer.getDataManager().getDataValue(AVSkillDataKeys.LEGENDARY_SWORD_AWAKENED.get()));
+        }
+
+        return false;
     }
 
     @Override
@@ -42,14 +61,15 @@ public class RenderLegendarySword extends RenderItemBase {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             ItemStack itemstack;
 
-            if (dynamicAnimation == AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK) {
+            if (dynamicAnimation == AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK
+                    || shouldRenderAwakened(stack, livingEntityPatch)) {
                 itemstack = new ItemStack(AnnoyingVillagersModItems.HEAVY_ATTACK_LEGENDARY_SWORD.get());
                 poseStack.pushPose();
                 MathUtils.mulStack(poseStack, openmatrix4f);
                 Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                 poseStack.popPose();
             } else {
-                itemstack = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
+                itemstack = stack;
                 poseStack.pushPose();
                 MathUtils.mulStack(poseStack, openmatrix4f);
                 Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);

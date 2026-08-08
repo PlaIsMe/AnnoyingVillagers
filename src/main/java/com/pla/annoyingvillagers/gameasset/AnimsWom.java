@@ -149,7 +149,7 @@ public class AnimsWom {
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> SHADOW_OBSIDIAN_SWORD_GESETZ_AUTO_3;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> SHADOW_OBSIDIAN_SWORD_GESETZ_AUTO_2;
     public static AnimationManager.AnimationAccessor<SpecialAttackAnimation> CLONE_NAPOLEON_WATERLOW_SHOOT;
-    public static AnimationManager.AnimationAccessor<StaticAnimation> CUT_ENDERBLASTER_TWOHAND_RELOAD;
+
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> WARBLADE_SATSUJIN_TSUKUYOMI;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> HOOK_HERRSCHER_UP;
 
@@ -1795,19 +1795,6 @@ public class AnimsWom {
                         .addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, true)
                         .newTimePair(0.0F, 0.35F).addState(EntityState.CAN_SKILL_EXECUTION, false)
                         .newTimePair(0.55F, 1.1F).addState(EntityState.CAN_SKILL_EXECUTION, false));
-        CUT_ENDERBLASTER_TWOHAND_RELOAD = builder.nextAccessor("biped/wom_clone/cut_enderblaster_twohand_reload",
-                accessor -> new StaticAnimation(0.1F, false, accessor, humanoidArmature)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.2F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(0.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(0.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(0.25F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(0.3F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(0.35F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(0.35F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(0.35F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(0.4F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(0.5F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT)));
 
         WARBLADE_SATSUJIN_TSUKUYOMI = builder.nextAccessor("biped/wom_clone/warblade_katana_tsukuyomi",
                 accessor -> new BasicMultipleAttackAnimation(0.05F, accessor, humanoidArmature,

@@ -96,6 +96,8 @@ public class AVAnimations {
     public static AnimationManager.AnimationAccessor<MovementAnimation> TRIDENT_TWO_HAND_RUN;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> HACKER_SWORD_SKILL;
     public static AnimationManager.AnimationAccessor<ActionAnimation> LEGENDARYSWORD_WOOPIE_FLY;
+    public static AnimationManager.AnimationAccessor<ActionAnimation> TOUCH_THE_SWORD;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> TRIDENT_SPIN;
 
     @SubscribeEvent
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
@@ -466,6 +468,27 @@ public class AVAnimations {
                                 }, AnimationEvent.Side.SERVER),
                                 AnimationEvent.InTimeEvent.create(0.6F, (livingEntityPatch, self, params) -> livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK, 0.0F), AnimationEvent.Side.SERVER)
                         ));
+        TOUCH_THE_SWORD = builder.nextAccessor("biped/pla/touch_the_sword",
+                accessor -> new ActionAnimation(0.05F, accessor, humanoidArmature)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, true)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (animation, livingEntityPatch, speed, prevElapsedTime, elapsedTime) -> 1.0F)
+                        .newTimePair(0.0F, 0.3F).addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false)
+                        .newTimePair(0.0F, 0.3F).addStateRemoveOld(EntityState.CAN_SKILL_EXECUTION, false));
+
+        TRIDENT_SPIN = builder.nextAccessor("biped/pla/trident_spin",
+                accessor -> new StaticAnimation(0.1F, false, accessor, humanoidArmature)
+                        .addEvents(
+                                AnimationEvent.InTimeEvent.create(0.2F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
+                                AnimationEvent.InTimeEvent.create(0.2F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
+                                AnimationEvent.InTimeEvent.create(0.25F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.3F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.35F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.35F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_RIGHT, AnimationEvent.Side.SERVER),
+                                AnimationEvent.InTimeEvent.create(0.35F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
+                                AnimationEvent.InTimeEvent.create(0.4F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.5F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT)));
+
     }
 
     static class ReuseableEvents {

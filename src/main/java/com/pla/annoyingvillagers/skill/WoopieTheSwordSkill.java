@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.skill;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightACG;
+import com.pla.annoyingvillagers.gameasset.AnimsEpicFightAwaken;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.item.WoopieTheSwordItem;
 import com.pla.annoyingvillagers.network.ClientboundMuteExplosionAtPos;
@@ -37,37 +39,27 @@ public class WoopieTheSwordSkill extends WeaponInnateSkill {
 
     @Override
     public void executeOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
-        skillContainer.getExecutor().playAnimationSynchronized(AnimsHerrscher.HERRSCHER_AUTO_2, 0.0F);
-
-        Player player = skillContainer.getExecutor().getOriginal();
-        ItemStack itemStack = player.getMainHandItem();
-        if (itemStack.getItem() instanceof WoopieTheSwordItem) {
-            new DelayedTask(6) {
-                @Override
-                public void run() {
-                    Vec3 windPos = EpicfightUtil.getJointWithTranslation(
-                            player,
-                            new Vec3f(0.0F, 0.0F, 0.0F),
-                            Armatures.BIPED.get().toolR,
-                            5.3F,
-                            0.5F
-                    );
-                    if (windPos != null) {
-                        BlockPos mutePos = BlockPos.containing(windPos);
-                        AnnoyingVillagers.PACKET_HANDLER.send(
-                                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                                new ClientboundMuteExplosionAtPos(mutePos, 4)
-                        );
-                        player.level().explode(player, windPos.x, windPos.y, windPos.z,
-                                2.0F, false, Level.ExplosionInteraction.NONE);
-                        AnnoyingVillagers.PACKET_HANDLER.send(
-                                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                                new ClientboundWoopieSwordWindFx(windPos)
-                        );
-                    }
-                }
-            };
+        if (!this.isActivated(skillContainer)) {
+            super.executeOnServer(skillContainer, friendlyByteBuf);
+            skillContainer.activate();
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightACG.SAO_DUAL_SWORD_AUTO12, 0.0F);
         }
+    }
+
+    @Override
+    public void cancelOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
+        skillContainer.deactivate();
+        super.cancelOnServer(skillContainer, friendlyByteBuf);
+    }
+
+    public void executeOnClient(SkillContainer container, FriendlyByteBuf args) {
+        super.executeOnClient(container, args);
+        container.activate();
+    }
+
+    public void cancelOnClient(SkillContainer container, FriendlyByteBuf args) {
+        super.cancelOnClient(container, args);
+        container.deactivate();
     }
 
     @Override

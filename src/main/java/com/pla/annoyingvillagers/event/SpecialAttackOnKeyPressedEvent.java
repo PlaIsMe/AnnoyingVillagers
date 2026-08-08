@@ -204,7 +204,7 @@ public class SpecialAttackOnKeyPressedEvent {
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
                 if (entity.level() instanceof ServerLevel) {
                     if (offHandItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsWom.CUT_ENDERBLASTER_TWOHAND_RELOAD, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AVAnimations.TRIDENT_SPIN, 0.0F);
                         PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
                         if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                             SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.TRIDENT_FESTIVAL);
@@ -432,14 +432,23 @@ public class SpecialAttackOnKeyPressedEvent {
                     if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                         SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.LEGENDARY_SWORD);
                         if (skillContainer != null && skillContainer.getSkill() instanceof LegendarySwordSkill legendarySwordSkill && player.level() instanceof ServerLevel) {
+                            if (LegendarySwordSkill.isAwakened(skillContainer)
+                                    && offHandItem.getItem().equals(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get())) {
+                                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.RUSH_SWORD_OFFHAND, 0.0F);
+                                return;
+                            }
+
                             if (skillContainer.getStack() >= 1) {
                                 if (offHandItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
                                     livingEntityPatch.playAnimationSynchronized(AVAnimations.ELECTRIC_FIELD, 0.0F);
+                                    legendarySwordSkill.getResourceType().consumer
+                                            .consume(skillContainer, serverPlayerPatch, legendarySwordSkill.getDefaultConsumptionAmount(serverPlayerPatch));
                                 } else {
-                                    livingEntityPatch.playAnimationSynchronized(AnimsEpicFightAwaken.STRAIGHTSWORD_GUARD_COUNTER, 0.0F);
+                                    livingEntityPatch.playAnimationSynchronized(AVAnimations.TOUCH_THE_SWORD, 0.0F);
+                                    legendarySwordSkill.getResourceType().consumer
+                                            .consume(skillContainer, serverPlayerPatch, legendarySwordSkill.getDefaultConsumptionAmount(serverPlayerPatch));
+                                    legendarySwordSkill.startAwakening(skillContainer);
                                 }
-                                legendarySwordSkill.getResourceType().consumer
-                                        .consume(skillContainer, serverPlayerPatch, legendarySwordSkill.getDefaultConsumptionAmount(serverPlayerPatch));
                                 success = true;
                             }
                         }
@@ -472,7 +481,7 @@ public class SpecialAttackOnKeyPressedEvent {
                     if (success) {
                         livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.RUSH_SWORD, 0.0F);
                     } else {
-                        livingEntityPatch.playAnimationSynchronized(AnimsRuine.RUINE_AUTO_4, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F);
                     }
                     return;
                 }

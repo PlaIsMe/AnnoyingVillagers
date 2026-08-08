@@ -100,6 +100,7 @@ public class AnimsPugilistSteve {
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> DUAL_SWORD3;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> FIST_UP;
     public static AnimationManager.AnimationAccessor<RushSwordAnimation> RUSH_SWORD;
+    public static AnimationManager.AnimationAccessor<RushSwordAnimation> RUSH_SWORD_OFFHAND;
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> DUAL_DANCING_EDGE;
     public static AnimationManager.AnimationAccessor<AttackAnimation> SWEEPING_EDGE;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> HIT_BACKWARD;
@@ -382,6 +383,14 @@ public class AnimsPugilistSteve {
                         .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(2.5F))
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 2.2F));
         RUSH_SWORD = builder.nextAccessor("biped/pugilist_steve/rush_sword",
+                accessor -> new RushSwordAnimation(
+                        0.15F, 0.0F, 0.1F, 0.26F, 0.75F,
+                        ColliderPreset.SWORD, humanoidArmature.get().toolR, accessor, humanoidArmature)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.BLADE_RUSH_SKILL)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true));
+        RUSH_SWORD_OFFHAND = builder.nextAccessor("biped/pugilist_steve/rush_sword_offhand",
                 accessor -> new RushSwordAnimation(
                         0.15F, 0.0F, 0.1F, 0.26F, 0.75F,
                         ColliderPreset.SWORD, humanoidArmature.get().toolR, accessor, humanoidArmature)

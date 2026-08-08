@@ -20,17 +20,28 @@ package com.pla.annoyingvillagers.gameasset;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.animations.BowAttackAnimation;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.network.ClientboundMuteExplosionAtPos;
+import com.pla.annoyingvillagers.network.ClientboundWoopieSwordWindFx;
 import com.pla.annoyingvillagers.util.BowFunction;
+import com.pla.annoyingvillagers.util.EpicfightUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.network.PacketDistributor;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.BasicAttackAnimation;
+import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.world.damagesource.StunType;
@@ -54,6 +65,7 @@ public class AnimsEpicFightACG {
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> BATTLE_SCYTHE_AUTO4;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> BATTLE_SCYTHE_AUTO5;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> BATTLE_SCYTHE_DASH;
+    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> SAO_DUAL_SWORD_AUTO12;
 
     public static void build(AnimationBuilder builder) {
         Armatures.ArmatureAccessor<HumanoidArmature> humanoidArmature = Armatures.BIPED;
@@ -168,5 +180,37 @@ public class AnimsEpicFightACG {
                 }).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.2F)
                         .addProperty(AnimationProperty.AttackAnimationProperty.ATTACK_SPEED_FACTOR, 0.5F));
+        SAO_DUAL_SWORD_AUTO12 = builder.nextAccessor("biped/epic_acg/sao_dual_sword_auto12", (animationaccessor) -> (BasicAttackAnimation) (new BasicAttackAnimation(0.05F, 0.01F, 0.1F, 0.6F, null, humanoidArmature.get().toolR, animationaccessor, humanoidArmature))
+                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(2.1F))
+                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
+                .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.6F)
+                .addProperty(AnimationProperty.AttackAnimationProperty.ATTACK_SPEED_FACTOR, 0.6F)
+                .addEvents(
+                        AnimationEvent.InTimeEvent.create(0.2F, (livingEntityPatch, self, params) -> {
+                            LivingEntity entity = livingEntityPatch.getOriginal();
+                            if (entity.level().isClientSide()) return;
+                            Vec3 windPos = EpicfightUtil.getJointWithTranslation(
+                                    entity,
+                                    new Vec3f(0.0F, 0.0F, 0.0F),
+                                    Armatures.BIPED.get().toolR,
+                                    4.3F,
+                                    0.5F
+                            );
+                            if (windPos != null) {
+                                BlockPos mutePos = BlockPos.containing(windPos);
+                                AnnoyingVillagers.PACKET_HANDLER.send(
+                                        PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity),
+                                        new ClientboundMuteExplosionAtPos(mutePos, 4)
+                                );
+                                entity.level().explode(entity, windPos.x, windPos.y, windPos.z,
+                                        2.0F, false, Level.ExplosionInteraction.NONE);
+                                AnnoyingVillagers.PACKET_HANDLER.send(
+                                        PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity),
+                                        new ClientboundWoopieSwordWindFx(windPos)
+                                );
+                            }
+                        }, AnimationEvent.Side.SERVER)
+                )
+        );
     }
 }

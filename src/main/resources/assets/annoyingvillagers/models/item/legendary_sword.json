@@ -3,5 +3,11 @@
   "textures": {
     "0": "annoyingvillagers:item/legendary_sword",
     "particle": "annoyingvillagers:item/legendary_sword"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": { "annoyingvillagers:awakened": 1.0 },
+      "model": "annoyingvillagers:item/heavy_attack_legendary_sword"
+    }
+  ]
 }

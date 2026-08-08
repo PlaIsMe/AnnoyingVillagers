@@ -335,21 +335,21 @@ public class AVWeaponCapabilityPresets {
                     .hitSound(EpicFightSounds.BLADE_HIT.get())
                     .swingSound(AVSounds.SWORD_WHOOSH.get())
                     .newStyleCombo(Styles.ONE_HAND,
-                            Animations.SWORD_AUTO1,
-                            Animations.SWORD_AUTO2,
-                            Animations.SWORD_AUTO3,
-                            AnimsSatsujin.SATSUJIN_AUTO_1,
-                            AnimsSatsujin.SATSUJIN_AUTO_2,
-                            AnimsHerrscher.HERRSCHER_VERDAMMNIS,
-                            AnimsSatsujin.SATSUJIN_TSUKUYOMI)
+                            AnimsEpicFightAwaken.CUT_LEFT_DP_AUTO_3,
+                            AnimsPugilistSteve.SWORD_DASH,
+                            AnimsPugilistSteve.DAGGER_AUTO1,
+                            AnimsHerrscher.HERRSCHER_AUTO_2,
+                            AnimsHerrscher.HERRSCHER_AUTO_1,
+                            AnimsEpicFightAwaken.CUT_LEFT_DP_DASH,
+                            AnimsEpicFightAwaken.HOOK_SLASH_AIR)
                     .newStyleCombo(Styles.TWO_HAND,
-                            Animations.SWORD_DUAL_AUTO1,
-                            Animations.SWORD_DUAL_AUTO2,
-                            Animations.SWORD_DUAL_AUTO3,
-                            AnimsSatsujin.SATSUJIN_AUTO_1,
-                            AnimsSatsujin.SATSUJIN_AUTO_2,
-                            AnimsHerrscher.HERRSCHER_VERDAMMNIS,
-                            AnimsSatsujin.SATSUJIN_TSUKUYOMI)
+                            AnimsEpicFightAwaken.DP_AUTO_1,
+                            AnimsEpicFightAwaken.DP_AUTO_2,
+                            AnimsEpicFightAwaken.DP_AUTO_3,
+                            AnimsEpicFightAwaken.DP_AUTO_4,
+                            AnimsPugilistSteve.DUAL_SWORD_AUTO2,
+                            AnimsEpicFightAwaken.DP_DASH,
+                            AnimsEpicFightAwaken.DP_NIGHT_FALL)
                     .innateSkill(Styles.ONE_HAND,
                             (itemstack) -> AVSkills.WOOPIE_THE_SWORD)
                     .innateSkill(Styles.TWO_HAND,

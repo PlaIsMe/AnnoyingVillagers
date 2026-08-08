@@ -16,6 +16,7 @@ import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.network.*;
+import com.pla.annoyingvillagers.skill.LegendarySwordSkill;
 import com.pla.annoyingvillagers.world.AVMobSpawnBiomeModifier;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -278,6 +279,11 @@ public class AnnoyingVillagers {
                             }
                             return 0.0F;
                         }
+                );
+                ItemProperties.register(
+                        AnnoyingVillagersModItems.LEGENDARY_SWORD.get(),
+                        ResourceLocation.fromNamespaceAndPath(MODID, "awakened"),
+                        (stack, level, entity, seed) -> LegendarySwordSkill.isAwakened(stack, level) ? 1.0F : 0.0F
                 );
                 ItemProperties.register(
                         AnnoyingVillagersModItems.ADVANCED_FISHING_ROD.get(),
