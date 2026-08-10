@@ -253,18 +253,17 @@ public class SpecialAttackOnKeyPressedEvent {
                     PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
                     if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                         SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_GLAIVE);
-                        if (skillContainer != null && skillContainer.getSkill() instanceof EnderGlaiveSkill enderGlaiveSkill && player.level() instanceof ServerLevel) {
+                        if (skillContainer != null && skillContainer.getSkill() instanceof EnderGlaiveSkill enderGlaiveSkill) {
                             if (skillContainer.getStack() >= 1) {
-                                livingEntityPatch.playAnimationSynchronized(AnimsEpicFightAwaken.STRAIGHTSWORD_SWEEP_BASH2, 0.0F);
+                                livingEntityPatch.playAnimationSynchronized(AnimsEnderGlaive.ENDER_GLAIVE_INNATE_SPECIAL, 0.0F);
                                 enderGlaiveSkill.getResourceType().consumer
                                         .consume(skillContainer, serverPlayerPatch, enderGlaiveSkill.getDefaultConsumptionAmount(serverPlayerPatch));
                                 success = true;
                             }
                         }
                     }
-
                     if (!success) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsEpicFightACG.GS_LAODENG_AUTO5, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsEnderGlaive.ENDER_GLAIVE_SPECIAL, 0.0F);
                     }
                     return;
                 }
@@ -272,9 +271,24 @@ public class SpecialAttackOnKeyPressedEvent {
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get())) {
                 if (entity.level() instanceof ServerLevel
                         && holdingItem.getTag() != null && !holdingItem.getTag().getBoolean("SnakeAnimation")) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsEpicFightAwaken.STRAIGHTSWORD_DODGE_SLASH2, 0.0F);
+                    boolean success = false;
+                    PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+                    if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
+                        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.DEMONIAC_VOLTAGE_REAVER);
+                        if (skillContainer != null && skillContainer.getSkill() instanceof DemoniacVoltageReaverSkill demoniacVoltageReaverSkill) {
+                            if (skillContainer.getStack() >= 1) {
+                                livingEntityPatch.playAnimationSynchronized(AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_INNATE_SPECIAL, 0.0F);
+                                demoniacVoltageReaverSkill.getResourceType().consumer
+                                        .consume(skillContainer, serverPlayerPatch, demoniacVoltageReaverSkill.getDefaultConsumptionAmount(serverPlayerPatch));
+                                success = true;
+                            }
+                        }
+                    }
+                    if (!success) {
+                        livingEntityPatch.playAnimationSynchronized(AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_SPECIAL, 0.0F);
+                    }
+                    return;
                 }
-                return;
             }
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.OBSIDIAN_SLEDGEHAMMER.get())) {
                 if (entity.level() instanceof ServerLevel) {
@@ -285,38 +299,57 @@ public class SpecialAttackOnKeyPressedEvent {
                         SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.OBSIDIAN_SLEDGEHAMMER);
                         if (skillContainer != null && skillContainer.getSkill() instanceof ObsidianSledgeHammerSkill obsidianSledgeHammerSkill && player.level() instanceof ServerLevel) {
                             if (skillContainer.getStack() >= 1) {
-                                livingEntityPatch.playAnimationSynchronized(AnimsEpicFightAwaken.THUNDER_PUNISHMENT, 0.0F);
+                                livingEntityPatch.playAnimationSynchronized(AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_INNATE_SPECIAL, 0.0F);
                                 obsidianSledgeHammerSkill.getResourceType().consumer
                                         .consume(skillContainer, serverPlayerPatch, obsidianSledgeHammerSkill.getDefaultConsumptionAmount(serverPlayerPatch));
                                 success = true;
                             }
                         }
                     }
-
                     if (!success) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsEpicFightAwaken.STRAIGHTSWORD_DODGE_SLASH1, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_SPECIAL, 0.0F);
                     }
                     return;
                 }
             }
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get())) {
-                if (entity.level() instanceof ServerLevel) {
+                if (entity.level() instanceof ServerLevel serverLevel) {
+                    boolean usedInnateSpecial = false;
                     PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
                     if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                         SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_SLAYER_SCYTHE);
                         if (skillContainer != null
-                                && entity.level() instanceof ServerLevel serverLevel
-                                && entity.onGround()
                                 && skillContainer.getSkill() instanceof EnderSlayerScytheSkill) {
-                            if (entity.getPersistentData().contains("DragonUUID") && !player.getCooldowns().isOnCooldown(holdingItem.getItem())) {
-                                Entity dragon = serverLevel.getEntity(player.getPersistentData().getUUID("DragonUUID"));
+                            if (skillContainer.isActivated() && entity.getPersistentData().hasUUID(EnderSlayerScytheSkill.DRAGON_UUID_TAG)) {
+                                Entity dragon = serverLevel.getEntity(player.getPersistentData().getUUID(EnderSlayerScytheSkill.DRAGON_UUID_TAG));
 
-                                if (dragon instanceof HerobrineDragonEntity herobrineDragonEntity && herobrineDragonEntity.getPassengers().isEmpty()) {
-                                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.POSE_UP, 0.0F);
-                                    herobrineDragonEntity.recallAndLand(true);
-                                    player.getCooldowns().addCooldown(holdingItem.getItem(), 60);
+                                if (dragon instanceof HerobrineDragonEntity herobrineDragonEntity) {
+                                    if (player.getVehicle() == herobrineDragonEntity) {
+                                        usedInnateSpecial = true;
+                                    } else {
+                                        livingEntityPatch.playAnimationSynchronized(AnimsEnderSlayerScythe.ENDER_SLAYER_SCYTHE_SPECIAL_INNATE, 0.0F);
+                                        herobrineDragonEntity.recallAndLand(true);
+                                        usedInnateSpecial = true;
+                                    }
                                 }
                             }
+                        }
+                    }
+                    if (!usedInnateSpecial) {
+                        livingEntityPatch.playAnimationSynchronized(AnimsEnderSlayerScythe.ENDER_SLAYER_SCYTHE_SPECIAL, 0.0F);
+                    }
+                    return;
+                }
+            }
+            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.NULL_WEAPON.get())) {
+                if (entity.level() instanceof ServerLevel) {
+                    PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+                    if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
+                        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.NULL_WEAPON);
+                        if (skillContainer != null && skillContainer.getSkill() instanceof NullWeaponSkill && !skillContainer.isActivated()) {
+                            livingEntityPatch.playAnimationSynchronized(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F);
+                        } else {
+                            livingEntityPatch.playAnimationSynchronized(AnimsWom.NULL_SKELETON_ANTITHEUS_ASCENSION, 0.0F);
                         }
                     }
                     return;
@@ -458,7 +491,7 @@ public class SpecialAttackOnKeyPressedEvent {
                         if (offHandItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
                             livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_THROW_LEGENDARY, 0.0F);
                         } else {
-                            livingEntityPatch.playAnimationSynchronized(AnimsEpicFightAwaken.STRAIGHTSWORD_GUARD_COUNTER, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsWom.CLONE_NAPOLEON_WATERLOW_SHOOT, 0.0F);
                         }
                     }
                     return;
@@ -481,7 +514,7 @@ public class SpecialAttackOnKeyPressedEvent {
                     if (success) {
                         livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.RUSH_SWORD, 0.0F);
                     } else {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsRuine.RUINE_AUTO_4, 0.0F);
                     }
                     return;
                 }

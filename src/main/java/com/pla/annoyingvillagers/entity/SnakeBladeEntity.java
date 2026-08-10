@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
+import com.pla.annoyingvillagers.gameasset.AnimsDemoniacVoltageReaver;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -279,7 +280,7 @@ public class SnakeBladeEntity extends Entity {
             LivingEntityPatch<?> creatorPatch = EpicFightCapabilities.getEntityPatch(creator, LivingEntityPatch.class);
             if (creatorPatch != null) {
                 AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(creatorPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-                if (dynamicAnimation == AVAnimations.SNAKE_BLADE || dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD) {
+                if (dynamicAnimation == AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_INNATE || dynamicAnimation == AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_INNATE_SPECIAL) {
                     creatorPatch.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
                 }
             }

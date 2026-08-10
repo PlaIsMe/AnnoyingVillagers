@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightAwaken;
+import com.pla.annoyingvillagers.gameasset.AnimsObsidianSledgehammer;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.ObsidianSledgehammerItem;
 import net.minecraft.network.FriendlyByteBuf;
@@ -20,7 +20,7 @@ public class ObsidianSledgeHammerSkill extends WeaponInnateSkill {
         if (!skillContainer.isActivated()) {
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
-            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightAwaken.VACUUM_SLICE, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_INNATE, 0.0F);
         }
     }
 

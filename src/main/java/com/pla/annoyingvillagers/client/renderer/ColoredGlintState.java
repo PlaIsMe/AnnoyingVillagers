@@ -3,8 +3,6 @@ package com.pla.annoyingvillagers.client.renderer;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
-import com.pla.annoyingvillagers.item.EnderAegisItem;
-import com.pla.annoyingvillagers.item.NullWeaponItem;
 import com.pla.annoyingvillagers.util.GlintColorHelper;
 import net.minecraft.world.item.ItemStack;
 
@@ -43,10 +41,6 @@ public final class ColoredGlintState {
                             || BlueDemonChestplateItem.hasBlueDemonHealingFoil(stack)))
             ) {
                 mode = CYAN;
-            } else if (stack.is(AnnoyingVillagersModItems.ENDER_AEGIS.get()) && EnderAegisItem.isFullyCharged(stack)) {
-                mode = PURPLE;
-            } else if (stack.is(AnnoyingVillagersModItems.NULL_WEAPON.get()) && NullWeaponItem.isFullyCharged(stack)) {
-                mode = PURPLE;
             }
         }
 

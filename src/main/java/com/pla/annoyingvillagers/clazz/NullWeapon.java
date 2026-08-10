@@ -8,10 +8,12 @@ import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.entity.NullEntity;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.entity.goal.PortalApproachGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.NullWeaponItem;
+import com.pla.annoyingvillagers.skill.NullWeaponSkill;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.core.BlockPos;
@@ -51,8 +53,13 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import reascer.wom.world.entity.mob.EnderHand;
+import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 public class NullWeapon extends Monster {
     protected UUID nullUUID;
@@ -331,9 +338,21 @@ public class NullWeapon extends Monster {
     }
 
     public void increaseSkillPoint(Entity entity, float value) {
-        if (entity instanceof Player player) {
-            NullWeaponItem.addCharge(player, value);
-        }
+        if (!(entity instanceof Player pEntity)) return;
+
+        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(pEntity, PlayerPatch.class);
+        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
+
+        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.NULL_WEAPON);
+        if (skillContainer == null) return;
+
+        NullWeaponSkill skill = (NullWeaponSkill) skillContainer.getSkill();
+
+        float currentResource = skillContainer.getResource();
+        float neededResource = skillContainer.getNeededResource();
+        float addResource = Math.min(value, neededResource);
+
+        skill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
     }
 
     @Override
@@ -397,6 +416,30 @@ public class NullWeapon extends Monster {
         } else {
             return super.doHurtTarget(pEntity);
         }
+    }
+
+    private static boolean isAllowedHeldCategory(Player p) {
+        ItemStack main = p.getMainHandItem();
+
+        if (main.getItem() instanceof NullWeaponItem) return true;
+
+        CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(main);
+        if (!(cap instanceof WeaponCapability weaponCap)) return true;
+
+        var cat = weaponCap.getWeaponCategory();
+        return cat == CapabilityItem.WeaponCategories.BOW
+                || cat == CapabilityItem.WeaponCategories.CROSSBOW
+                || cat == CapabilityItem.WeaponCategories.NOT_WEAPON;
+    }
+
+    private static boolean hasNullSword(Player p) {
+        for (ItemStack s : p.getInventory().items) {
+            if (s.getItem() instanceof NullWeaponItem) return true;
+        }
+        for (ItemStack s : p.getInventory().offhand) {
+            if (s.getItem() instanceof NullWeaponItem) return true;
+        }
+        return false;
     }
 
     @Override
@@ -473,10 +516,8 @@ public class NullWeapon extends Monster {
                 this.remove(RemovalReason.KILLED);
             }
             if (player != null && player.isAlive()) {
-                if (!NullWeaponItem.isHeldBy(player) || !NullWeaponItem.isTrackedByOwner(player, this)) {
+                if (!hasNullSword(player) || !isAllowedHeldCategory(player)) {
                     this.remove(RemovalReason.KILLED);
-                } else {
-                    updatePlayerOwnedTarget();
                 }
             }
         }
@@ -490,18 +531,6 @@ public class NullWeapon extends Monster {
         }
         if (this.releaseCooldown == 0 && this.nullEntity != null && this.released) {
             this.released = false;
-        }
-    }
-
-    private void updatePlayerOwnedTarget() {
-        LivingEntity currentTarget = this.getTarget();
-        if (currentTarget != null && currentTarget.isAlive()) {
-            return;
-        }
-
-        LivingEntity nearbyTarget = NullWeapon.getNearestLivingEntity(player.level(), player, 12.0D);
-        if (nearbyTarget != null) {
-            this.setTarget(nearbyTarget);
         }
     }
 

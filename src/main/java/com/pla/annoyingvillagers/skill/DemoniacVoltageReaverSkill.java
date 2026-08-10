@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsDemoniacVoltageReaver;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,7 +15,6 @@ import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.Objects;
@@ -32,7 +31,7 @@ public class DemoniacVoltageReaverSkill extends WeaponInnateSkill {
     public void executeOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
         Player player = skillContainer.getExecutor().getOriginal();
         if (DemoniacVoltageReaverItem.checkNearbyTarget(player)) {
-            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.SNAKE_BLADE, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_INNATE, 0.0F);
             super.executeOnServer(skillContainer, friendlyByteBuf);
         }
     }
@@ -57,20 +56,7 @@ public class DemoniacVoltageReaverSkill extends WeaponInnateSkill {
             Player player = container.getExecutor().getOriginal();
             ItemStack item = player.getMainHandItem();
             Skill skill = event.getSkillContainer().getSkill();
-
-            if (skill.getCategory() == SkillCategories.GUARD){
-                if (container.getExecutor() instanceof ServerPlayerPatch serverPlayerPatch
-                        && container.getStack() >= 1
-                        && item.getItem() instanceof DemoniacVoltageReaverItem
-                        && item.getTag() != null) {
-                    event.setCanceled(true);
-                    if (!item.getTag().getBoolean("SnakeAnimation")) {
-                        container.getExecutor().playAnimationSynchronized(AVAnimations.SNAKE_BLADE_GUARD, 0.0F);
-                        this.getResourceType().consumer
-                                .consume(container, serverPlayerPatch, this.getDefaultConsumptionAmount(serverPlayerPatch));
-                    }
-                }
-            } else if ((skill.getCategory() == SkillCategories.BASIC_ATTACK) &&
+            if ((skill.getCategory() == SkillCategories.BASIC_ATTACK) &&
                     (item.getItem() instanceof DemoniacVoltageReaverItem
                             && item.getTag() != null
                             && item.getTag().getBoolean("SnakeAnimation"))) {
@@ -84,7 +70,7 @@ public class DemoniacVoltageReaverSkill extends WeaponInnateSkill {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             if (dynamicAnimation == null) return;
 
-            if (dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD) {
+            if (dynamicAnimation == AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_INNATE_SPECIAL) {
                 pre.setCanceled(true);
                 pre.setResult(AttackResult.ResultType.BLOCKED);
             }

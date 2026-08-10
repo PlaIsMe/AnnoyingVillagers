@@ -183,6 +183,7 @@ public class DragonOrbitLeaderGoal extends Goal {
         if (dragon.isLeashed()) return false;
         if (dragon.isPassenger()) return false;
         if (dragon.hasControllingPassenger()) return false;
+        if (dragon.isSummonRising()) return false;
         if (dragon.isOrderedToSit() && dragon.getSummoner() == null) return false;
         if (dragon.isRecallActive()) return false;
 
@@ -200,6 +201,7 @@ public class DragonOrbitLeaderGoal extends Goal {
         if (dragon.isLeashed()) return false;
         if (dragon.isPassenger()) return false;
         if (dragon.hasControllingPassenger()) return false;
+        if (dragon.isSummonRising()) return false;
         if (dragon.isOrderedToSit() && dragon.getSummoner() == null) return false;
         if (dragon.isRecallActive()) return false;
 

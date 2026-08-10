@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFightAwaken;
+import com.pla.annoyingvillagers.gameasset.AnimsObsidianSledgehammer;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
@@ -39,7 +40,7 @@ public class GroundStuckEvent {
 
         boolean wasStuck = target.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get()) && target.getPersistentData().getBoolean(GroundStuckMobEffect.NBT_STUCK);
 
-        if (event.getSource() instanceof EpicFightDamageSource source && source.getAnimation() == AnimsEpicFightAwaken.VACUUM_SLICE) GroundStuckMobEffect.apply(target);
+        if (event.getSource() instanceof EpicFightDamageSource source && source.getAnimation() == AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_INNATE) GroundStuckMobEffect.apply(target);
 
         if (!wasStuck) return;
         event.setAmount(event.getAmount() * 2.0F);

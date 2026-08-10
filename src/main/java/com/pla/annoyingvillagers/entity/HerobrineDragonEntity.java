@@ -1,21 +1,3 @@
-/*
- * AnnoyingVillagers - Third-Party Derived File Notice
- *
- * SPDX-License-Identifier: GPL-3.0-or-later
- *
- * Upstream: Dragon Mounts: Legacy - Nico Bergemann (BarracudaATA), Kay9, contributors
- * Source: https://github.com/MWall541/Dragon-Mounts-Legacy
- *
- * This file contains code adapted from the upstream project.
- * Required upstream notices must be preserved.
- *
- * License texts:
- *   - third_party/licenses/GPL-3.0.md
- *
- * Modifications:
- *   Copyright (c) 2026 pla_is_me
- */
-
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.client.animation.DragonAnimator;
@@ -24,12 +6,13 @@ import com.pla.annoyingvillagers.client.engine.MountControlsMessenger;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.entity.goal.DragonOrbitLeaderGoal;
+import com.pla.annoyingvillagers.entity.goal.DragonSummonRiseGoal;
 import com.pla.annoyingvillagers.entity.goal.RecallLandGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModKeyMappings;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
+import com.pla.annoyingvillagers.skill.EnderSlayerScytheSkill;
 import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -81,14 +64,6 @@ import java.util.*;
 
 import static net.minecraft.world.entity.ai.attributes.Attributes.*;
 
-/**
- * Here be dragons.
- * <p>
- * Let the legacy live on.
- *
- * @author Nico Bergemann <barracuda415 at yahoo.de>
- * @author Kay9
- */
 @SuppressWarnings({"deprecation", "SameReturnValue"})
 public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal, PlayerRideable
 {
@@ -121,6 +96,10 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
     private boolean recallAutoMount = false;
     private Vec3 recallLandPos = null;
 
+    private int summonRiseTimeToLiveTicks;
+    private double summonRisePhysicsReleaseY;
+    private Vec3 summonRiseTarget;
+
     public boolean isRecallAutoMount() {
         return recallAutoMount;
     }
@@ -140,6 +119,59 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
 
     public boolean isRecallActive() {
         return recallActive;
+    }
+
+    public boolean isSummonRising() {
+        return summonRiseTimeToLiveTicks > 0 && summonRiseTarget != null;
+    }
+
+    @Nullable
+    public Vec3 getSummonRiseTarget() {
+        return summonRiseTarget;
+    }
+
+    public void startSummonRise(Vec3 target, int durationTicks, double physicsReleaseY) {
+        if (this.level().isClientSide()) return;
+
+        this.summonRiseTarget = target;
+        this.summonRiseTimeToLiveTicks = Math.max(1, durationTicks);
+        this.summonRisePhysicsReleaseY = physicsReleaseY;
+
+        this.getNavigation().stop();
+        this.setNoGravity(true);
+        this.noPhysics = true;
+        if (!this.isFlying() && this.canFly()) this.liftOff();
+        this.setFlying(true);
+        this.setNavigation(true);
+    }
+
+    public void tickSummonRiseState(boolean reachedTarget) {
+        if (!isSummonRising()) {
+            stopSummonRise();
+            return;
+        }
+
+        summonRiseTimeToLiveTicks--;
+
+        if (noPhysics && this.getY() >= summonRisePhysicsReleaseY) {
+            noPhysics = false;
+        }
+
+        if (reachedTarget || summonRiseTimeToLiveTicks <= 0) {
+            stopSummonRise();
+        }
+    }
+
+    public void stopSummonRise() {
+        summonRiseTimeToLiveTicks = 0;
+        summonRisePhysicsReleaseY = 0.0D;
+        summonRiseTarget = null;
+
+        noPhysics = false;
+
+        if (isNoGravity()) {
+            setNoGravity(false);
+        }
     }
 
     public void setRecallActive(boolean recallActive) {
@@ -174,6 +206,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
     @Override
     protected void registerGoals()
     {
+        goalSelector.addGoal(0, new DragonSummonRiseGoal(this));
         goalSelector.addGoal(1, new FloatGoal(this));
         goalSelector.addGoal(1, new RecallLandGoal(this));
         goalSelector.addGoal(2, new SitWhenOrderedToGoal(this));
@@ -256,6 +289,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
 
     public boolean shouldFly()
     {
+        if (isSummonRising()) return true;
         if (isFlying()) return !onGround();
         return canFly() && !isInWater() && !isNearGround();
     }
@@ -359,6 +393,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         if (target == null || !target.isAlive()) return;
 
+        stopSummonRise();
         this.breathHoverTarget = target;
 
         Vec3 position = this.position();
@@ -393,6 +428,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         if (target == null || !target.isAlive()) return;
 
+        stopSummonRise();
         this.breathHoverTarget = target;
 
         Vec3 position = this.position();
@@ -434,6 +470,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         if (this.level().isClientSide()) return;
         if (this.summoner == null || !this.summoner.isAlive()) return;
 
+        stopSummonRise();
         this.recallActive = true;
         this.recallAutoMount = autoMount;
         this.recallLandPos = null;
@@ -510,7 +547,11 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
                 this.nearestCrystal.setBeamTarget(this.blockPosition());
             }
 
-            if (breathHoverTimeToLiveTicks > 0) {
+            if (isSummonRising()) {
+                if (isControlLocked()) {
+                    setControlLocked(false);
+                }
+            } else if (breathHoverTimeToLiveTicks > 0) {
                 if (shouldApplyControlLocked()) {
                     if (!isControlLocked()) setControlLocked(true);
                 } else {
@@ -569,17 +610,17 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
             }
 
             if (summoner != null && summoner.isAlive() && summoner instanceof Player player) {
-                if (summoner.getPersistentData().contains("DragonUUID")
-                        && !this.getUUID().equals(summoner.getPersistentData().getUUID("DragonUUID"))) {
+                if (summoner.getPersistentData().hasUUID(EnderSlayerScytheSkill.DRAGON_UUID_TAG)
+                        && !this.getUUID().equals(summoner.getPersistentData().getUUID(EnderSlayerScytheSkill.DRAGON_UUID_TAG))) {
                     this.discard();
                     return;
-                } else if (!summoner.getPersistentData().contains("DragonUUID")) {
+                } else if (!summoner.getPersistentData().hasUUID(EnderSlayerScytheSkill.DRAGON_UUID_TAG)) {
                     this.discard();
                     return;
                 }
 
                 if (!hasEnderSlayerScythe(player) || !isAllowedHeldCategory(player)) {
-                    player.getPersistentData().remove("DragonUUID");
+                    player.getPersistentData().remove(EnderSlayerScytheSkill.DRAGON_UUID_TAG);
                     this.discard();
                     return;
                 }
@@ -649,7 +690,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         {
             moveForward = moveForward > 0? moveForward : 0;
             if (driver.jumping) moveY = 1;
-            else if (AnnoyingVillagersModKeyMappings.DRAGON_FLIGHT_DESCENT_KEY.isDown()) moveY = -1;
+            else if (AnnoyingVillagersModKeyMappings.SPECIAL_ATTACK.isDown()) moveY = -1;
             else if (moveForward > 0) moveY = -driver.getXRot() / 90;
         }
 
@@ -1093,10 +1134,10 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
     public void die(@NotNull DamageSource source) {
         if (this.level() instanceof ServerLevel) {
             if (this.summoner != null && this.summoner instanceof Player player && player.isAlive()) {
-                player.getCooldowns().addCooldown(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get(), 3600);
-                if (player.getPersistentData().contains("DragonUUID")
-                        && this.getUUID().equals(player.getPersistentData().getUUID("DragonUUID"))) {
-                    player.getPersistentData().remove("DragonUUID");
+                if (player.getPersistentData().hasUUID(EnderSlayerScytheSkill.DRAGON_UUID_TAG)
+                        && this.getUUID().equals(player.getPersistentData().getUUID(EnderSlayerScytheSkill.DRAGON_UUID_TAG))) {
+                    player.getPersistentData().remove(EnderSlayerScytheSkill.DRAGON_UUID_TAG);
+                    EnderSlayerScytheSkill.deactivateFor(player);
                 }
             }
         }

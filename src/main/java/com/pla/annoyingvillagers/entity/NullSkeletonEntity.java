@@ -1,8 +1,8 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
-import com.pla.annoyingvillagers.item.NullWeaponItem;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -30,6 +30,10 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -291,9 +295,12 @@ public class NullSkeletonEntity extends AbstractSkeleton {
                 this.kill();
             }
             if (player != null && player.isAlive()) {
-                if (!NullWeaponItem.isHeldBy(player)) {
-                    this.kill();
-                    return;
+                PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+                if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
+                    SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.NULL_WEAPON);
+                    if (skillContainer != null && !skillContainer.isActivated()) {
+                        this.kill();
+                    }
                 }
 
                 double distanceSq = this.distanceToSqr(player);

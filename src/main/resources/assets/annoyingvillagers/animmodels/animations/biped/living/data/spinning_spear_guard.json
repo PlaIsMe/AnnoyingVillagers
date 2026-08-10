@@ -1,0 +1,37 @@
+{
+	"layer":"COMPOSITE_LAYER",
+	"priority":"HIGHEST",
+	"masks":
+	[
+		{
+			"livingmotion":"ALL",
+			"type":"right_arms"
+		},
+		{
+			"livingmotion":"idle",
+			"type":"none"
+		},
+		{
+			"livingmotion":"swim",
+			"type":"arms"
+		},
+		{
+			"livingmotion":"kneel",
+			"type":"arms"
+		},
+		{
+			"livingmotion":"sneak",
+			"type":"arms"
+		}
+	],
+	"trail_effects": [
+		{
+			"start_time": 0.05,
+			"end_time": 1.0,
+			"lifetime": 4,
+			"interpolations": 6,
+			"joint": "Tool_R",
+			"item_skin_hand": "main_hand"
+		}
+	]
+}

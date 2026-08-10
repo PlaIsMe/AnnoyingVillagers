@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.gameasset;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.skill.EnderSlayerScytheSkill;
 import com.pla.annoyingvillagers.skill.LegendarySwordSkill;
 import com.pla.annoyingvillagers.skill.TridentFestivalSkill;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +15,7 @@ public class AVSkillDataKeys {
     public static final RegistryObject<SkillDataKey<Boolean>> IS_TRIDENT_RANGED_MODE;
     public static final RegistryObject<SkillDataKey<Integer>> TRIDENT_AMOUNT;
     public static final RegistryObject<SkillDataKey<Boolean>> LEGENDARY_SWORD_AWAKENED;
+    public static final RegistryObject<SkillDataKey<Boolean>> ENDER_SLAYER_SCYTHE_SUMMON_PENDING;
 
     public AVSkillDataKeys() {
     }
@@ -22,5 +24,6 @@ public class AVSkillDataKeys {
         IS_TRIDENT_RANGED_MODE = DATA_KEYS.register("is_trident_ranged_mode", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.BOOLEAN, false, true, TridentFestivalSkill.class));
         TRIDENT_AMOUNT = DATA_KEYS.register("trident_amount", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, true, TridentFestivalSkill.class));
         LEGENDARY_SWORD_AWAKENED = DATA_KEYS.register("legendary_sword_awakened", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.BOOLEAN, false, true, LegendarySwordSkill.class));
+        ENDER_SLAYER_SCYTHE_SUMMON_PENDING = DATA_KEYS.register("ender_slayer_scythe_summon_pending", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.BOOLEAN, false, true, EnderSlayerScytheSkill.class));
     }
 }

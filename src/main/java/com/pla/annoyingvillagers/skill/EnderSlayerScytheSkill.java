@@ -7,10 +7,11 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -20,10 +21,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import reascer.wom.gameasset.animations.weapons.AnimsAgony;
+import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.skill.*;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
@@ -31,93 +33,116 @@ import java.util.UUID;
 
 public class EnderSlayerScytheSkill extends WeaponInnateSkill {
     private static final UUID EVENT_UUID = UUID.fromString("f79be742-fddd-454d-bd28-4d030613b284");
+    public static final String DRAGON_UUID_TAG = "DragonUUID";
+    private static final int SUMMON_RISE_DURATION_TICKS = 120;
+    private static final double SUMMON_UNDERGROUND_DISTANCE = 5.0D;
+    private static final double SUMMON_RISE_DISTANCE = 15.0D;
+    private static final int SUMMON_PENDING_TIMEOUT_TICKS = 60;
 
     public EnderSlayerScytheSkill(SkillBuilder<? extends WeaponInnateSkill> builder) {
         super(builder);
     }
 
-    private static Vec3 findOrbitSpawnPos(ServerLevel level, Player player, HerobrineDragonEntity dragon) {
-        RandomSource rng = level.getRandom();
-        boolean hasCeiling = level.dimensionType().hasCeiling();
+    public static void discardSummonedDragon(Player player) {
+        if (player.level() instanceof ServerLevel serverLevel) {
+            discardSummonedDragon(player, serverLevel);
+        } else {
+            player.getPersistentData().remove(DRAGON_UUID_TAG);
+        }
+    }
 
-        for (int i = 0; i < 32; i++) {
-            double ang = rng.nextDouble() * (Math.PI * 2.0);
-            double r = Mth.nextDouble(rng, (float) 20.0, (float) 50.0);
+    private static void discardSummonedDragon(Player player, ServerLevel serverLevel) {
+        CompoundTag data = player.getPersistentData();
+        if (!data.hasUUID(DRAGON_UUID_TAG)) return;
 
-            double x = player.getX() + Math.cos(ang) * r;
-            double z = player.getZ() + Math.sin(ang) * r;
+        UUID dragonId = data.getUUID(DRAGON_UUID_TAG);
+        Entity entity = findTrackedDragonEntity(player, serverLevel, dragonId);
+        data.remove(DRAGON_UUID_TAG);
 
-            if (!hasCeiling) {
-                BlockPos col = BlockPos.containing(x, 0.0, z);
-                int groundY = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, col).getY();
+        if (entity instanceof HerobrineDragonEntity dragon && !dragon.isRemoved()) {
+            dragon.ejectPassengers();
+            dragon.discard();
+        }
+    }
 
-                double y = Math.max(player.getY() + 12.0, groundY + 18.0);
-                y += Mth.nextDouble(rng, -2.0, 6.0);
+    private static Entity findTrackedDragonEntity(Player player, ServerLevel currentLevel, UUID dragonId) {
+        Entity entity = currentLevel.getEntity(dragonId);
+        if (entity != null) return entity;
 
-                y = Mth.clamp(y, level.getMinBuildHeight() + 6.0, level.getMaxBuildHeight() - 6.0);
+        MinecraftServer server = player.getServer();
+        if (server == null) return null;
 
-                dragon.moveTo(x, y, z, rng.nextFloat() * 360.0F, 0.0F);
-                AABB box = dragon.getBoundingBox();
+        for (ServerLevel level : server.getAllLevels()) {
+            if (level == currentLevel) continue;
 
-                if (level.noCollision(dragon, box) && !level.containsAnyLiquid(box)) {
-                    return new Vec3(x, y, z);
-                }
-            } else {
-                BlockPos col = BlockPos.containing(x, 0.0, z);
-                int roofAirY = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, col).getY();
-
-                double yWanted = player.getY() + 12.0 + Mth.nextDouble(rng, -2.0, 6.0);
-
-                double minY = level.getMinBuildHeight() + 6.0;
-                double maxY = Math.min(level.getMaxBuildHeight() - 2.0, roofAirY - 2.0);
-
-                int yStart = Mth.floor(Mth.clamp(yWanted, minY, maxY));
-                int yMin = Mth.floor(minY);
-
-                for (int y = yStart; y >= yMin && (yStart - y) <= 96; y--) {
-                    dragon.moveTo(x, y, z, rng.nextFloat() * 360.0F, 0.0F);
-                    AABB box = dragon.getBoundingBox();
-
-                    if (level.noCollision(dragon, box) && !level.containsAnyLiquid(box)) {
-                        return new Vec3(x, y, z);
-                    }
-                }
-            }
+            entity = level.getEntity(dragonId);
+            if (entity != null) return entity;
         }
 
-        double fx = player.getX();
-        double fz = player.getZ();
-        double fy = player.getY() + 16.0;
+        return null;
+    }
 
-        if (hasCeiling) {
-            BlockPos col = BlockPos.containing(fx, 0.0, fz);
-            int roofAirY = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, col).getY();
-            fy = Math.min(fy, roofAirY - 8.0);
+    public static void deactivateFor(Player player) {
+        if (player.level().isClientSide()) return;
+
+        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
+
+        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_SLAYER_SCYTHE);
+        if (skillContainer != null
+                && skillContainer.isActivated()
+                && skillContainer.getSkill() instanceof EnderSlayerScytheSkill enderSlayerScytheSkill) {
+            enderSlayerScytheSkill.cancelOnServer(skillContainer, null);
         }
+    }
 
-        fy = Mth.clamp(fy, level.getMinBuildHeight() + 6.0, level.getMaxBuildHeight() - 6.0);
+    public static void activateFromInnateAnimation(PlayerPatch<?> playerPatch) {
+        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
 
-        int start = Mth.floor(fy);
-        for (int y = start; y >= level.getMinBuildHeight() + 6 && (start - y) <= 64; y--) {
-            dragon.moveTo(fx, y, fz, rng.nextFloat() * 360.0F, 0.0F);
-            AABB box = dragon.getBoundingBox();
-
-            if (level.noCollision(dragon, box) && !level.containsAnyLiquid(box)) {
-                return new Vec3(fx, y, fz);
-            }
+        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_SLAYER_SCYTHE);
+        if (skillContainer != null && skillContainer.getSkill() instanceof EnderSlayerScytheSkill enderSlayerScytheSkill) {
+            enderSlayerScytheSkill.activateFromInnateEvent(skillContainer);
         }
-
-        return player.position().add(0.0, 8.0, 0.0);
     }
 
     @Override
     public void executeOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
-        if (!skillContainer.isActivated()) {
-            skillContainer.getExecutor().playAnimationSynchronized(AnimsWom.AGONY_GUARD_HIT_1, 0.0F);
-            skillContainer.getExecutor().getOriginal().playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_WEAPON_SCREAMING.get(), 0.5F, 1.0F);
-            super.executeOnServer(skillContainer, friendlyByteBuf);
-            skillContainer.activate();
-        }
+        if (skillContainer.isActivated()) return;
+        if (isSummonPending(skillContainer)) return;
+
+        Player player = skillContainer.getExecutor().getOriginal();
+
+        setSummonPending(skillContainer, true);
+        skillContainer.getExecutor().playAnimationSynchronized(AnimsEnderSlayerScythe.ENDER_SLAYER_SCYTHE_INNATE, 0.0F);
+        player.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_WEAPON_SCREAMING.get(), 0.5F, 1.0F);
+
+        new DelayedTask(SUMMON_PENDING_TIMEOUT_TICKS) {
+            @Override
+            public void run() {
+                if (!skillContainer.isActivated()) {
+                    setSummonPending(skillContainer, false);
+                }
+            }
+        };
+    }
+
+    private void activateFromInnateEvent(SkillContainer skillContainer) {
+        if (skillContainer.isActivated()) return;
+        if (!isSummonPending(skillContainer)) return;
+
+        Player player = skillContainer.getExecutor().getOriginal();
+        setSummonPending(skillContainer, false);
+        if (!(player.level() instanceof ServerLevel serverLevel)) return;
+        if (!(player.getMainHandItem().getItem() instanceof EnderSlayerScytheItem)) return;
+
+        discardSummonedDragon(player, serverLevel);
+        HerobrineDragonEntity herobrineDragonEntity = spawnEnderDragon(player, serverLevel);
+        if (herobrineDragonEntity == null) return;
+
+        player.getPersistentData().putUUID(DRAGON_UUID_TAG, herobrineDragonEntity.getUUID());
+        super.executeOnServer(skillContainer, null);
+        this.setDurationSynchronize(skillContainer, this.maxDuration);
+        skillContainer.activate();
     }
 
     @Override
@@ -135,12 +160,12 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
                         event.setCanceled(true);
                         if (event.getPlayerPatch().getOriginal().getCooldowns().getCooldownPercent(itemStack.getItem(), 0) == 0
                                 && itemStack.getItem() instanceof EnderSlayerScytheItem && player.level() instanceof ServerLevel serverLevel
-                                && player.getPersistentData().contains("DragonUUID")) {
-                            UUID dragonId = player.getPersistentData().getUUID("DragonUUID");
+                                && player.getPersistentData().hasUUID(DRAGON_UUID_TAG)) {
+                            UUID dragonId = player.getPersistentData().getUUID(DRAGON_UUID_TAG);
                             Entity entity = serverLevel.getEntity(dragonId);
 
                             if (entity == null) {
-                                player.getPersistentData().remove("DragonUUID");
+                                player.getPersistentData().remove(DRAGON_UUID_TAG);
                                 return;
                             }
 
@@ -152,7 +177,7 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
                                 target = HerobrineDragonEntity.getNearestLivingEntity(player.level(), player, 48.0D);
                             }
                             if (entity instanceof HerobrineDragonEntity herobrineDragonEntity && target != null && target.isAlive()) {
-                                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+                                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
                                 LivingEntity finalTarget = target;
                                 new DelayedTask(10) {
                                     @Override
@@ -171,7 +196,7 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
                         if (player.getMainHandItem().getItem() instanceof BowItem) {
                             skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightACG.BOW_AUTO_1, 0.0F);
                         } else {
-                            skillContainer.getExecutor().playAnimationSynchronized(AnimsAgony.AGONY_AUTO_1, 0.0F);
+                            skillContainer.getExecutor().playAnimationSynchronized(Animations.SPEAR_MOUNT_ATTACK, 0.0F);
                         }
                     }
                 }
@@ -191,12 +216,12 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
                         event.setCanceled(true);
                         if (event.getPlayerPatch().getOriginal().getCooldowns().getCooldownPercent(itemStack.getItem(), 0) == 0
                                 && itemStack.getItem() instanceof EnderSlayerScytheItem && player.level() instanceof ServerLevel serverLevel
-                                && player.getPersistentData().contains("DragonUUID")) {
-                            UUID dragonId = player.getPersistentData().getUUID("DragonUUID");
+                                && player.getPersistentData().hasUUID(DRAGON_UUID_TAG)) {
+                            UUID dragonId = player.getPersistentData().getUUID(DRAGON_UUID_TAG);
                             Entity entity = serverLevel.getEntity(dragonId);
 
                             if (entity == null) {
-                                player.getPersistentData().remove("DragonUUID");
+                                player.getPersistentData().remove(DRAGON_UUID_TAG);
                                 return;
                             }
 
@@ -210,7 +235,7 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
                             ItemCooldowns cooldowns = event.getPlayerPatch().getOriginal().getCooldowns();
                             cooldowns.addCooldown(itemStack.getItem(), 20);
                             if (entity instanceof HerobrineDragonEntity herobrineDragonEntity && target != null && target.isAlive()) {
-                                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
+                                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_UP, 0.0F);
                                 LivingEntity finalTarget = target;
                                 new DelayedTask(10) {
                                     @Override
@@ -234,13 +259,20 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
                         float addResource = Math.min(10f, neededResource);
                         enderSlayerScytheSkill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
                     } else if (skillContainer.isActivated()) {
-                        enderSlayerScytheSkill.setDurationSynchronize(skillContainer, skillContainer.getRemainDuration() + 80);
+                        enderSlayerScytheSkill.setDurationSynchronize(
+                                skillContainer,
+                                Math.min(skillContainer.getRemainDuration() + 80, enderSlayerScytheSkill.maxDuration)
+                        );
                     }
         });
     }
 
     @Override
     public void cancelOnServer(SkillContainer container, FriendlyByteBuf args) {
+        if (!container.getExecutor().isLogicalClient()) {
+            discardSummonedDragon(container.getExecutor().getOriginal());
+            setSummonPending(container, false);
+        }
         container.deactivate();
         super.cancelOnServer(container, args);
     }
@@ -262,11 +294,17 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
         return EpicFightCapabilities.getItemStackCapability(itemstack).getInnateSkill(container.getExecutor(), itemstack) == this
                 && (container.getExecutor().getOriginal().getVehicle() == null
                 || (container.getExecutor().getOriginal().getVehicle() != null && container.getExecutor().getOriginal().getVehicle() instanceof HerobrineDragonEntity))
+                && !isSummonPending(container)
                 && (!this.isActivated(container) || this.activateType == ActivateType.TOGGLE);
     }
 
     @Override
     public void onRemoved(SkillContainer container) {
+        if (!container.getExecutor().isLogicalClient()) {
+            Player player = container.getExecutor().getOriginal();
+            setSummonPending(container, false);
+            discardSummonedDragon(player);
+        }
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.BASIC_ATTACK_EVENT, EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DODGE_SUCCESS_EVENT, EVENT_UUID);
@@ -279,38 +317,100 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
 
         ServerPlayerPatch serverPlayerPatch = container.getServerExecutor();
         Player player = serverPlayerPatch.getOriginal();
+        boolean summonPending = isSummonPending(container);
         if (!(player.level() instanceof ServerLevel serverLevel)) return;
 
-        if (player.tickCount % 5 != 0) return;
-
-        ItemStack main = player.getMainHandItem();
-        if (!(main.getItem() instanceof EnderSlayerScytheItem)) {
+        if (!container.isActivated()) {
+            if (!summonPending) {
+                discardSummonedDragon(player, serverLevel);
+            }
             return;
         }
 
-        if (player.getPersistentData().contains("DragonUUID")) {
-            UUID id = player.getPersistentData().getUUID("DragonUUID");
-            Entity entity = serverLevel.getEntity(id);
-            if (!(entity instanceof HerobrineDragonEntity) || entity.isRemoved()) {
-                player.getPersistentData().remove("DragonUUID");
-            }
+        if (player.tickCount % 5 != 0) return;
+
+        CompoundTag data = player.getPersistentData();
+        if (!data.hasUUID(DRAGON_UUID_TAG)) {
+            this.cancelOnServer(container, null);
+            return;
         }
 
-        if (!player.getPersistentData().contains("DragonUUID")) {
-            HerobrineDragonEntity herobrineDragonEntity = spawnEnderDragon(player, serverLevel);
-            if (herobrineDragonEntity != null)
-                player.getPersistentData().putUUID("DragonUUID", herobrineDragonEntity.getUUID());
+        UUID id = data.getUUID(DRAGON_UUID_TAG);
+        Entity entity = serverLevel.getEntity(id);
+        if (!(entity instanceof HerobrineDragonEntity) || entity.isRemoved()) {
+            data.remove(DRAGON_UUID_TAG);
+            this.cancelOnServer(container, null);
         }
     }
 
     private HerobrineDragonEntity spawnEnderDragon(Player player, ServerLevel serverLevel) {
         if (!player.isAlive()) return null;
         HerobrineDragonEntity herobrineDragonEntity = new HerobrineDragonEntity(AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get(), serverLevel);
-        Vec3 spawnPos = findOrbitSpawnPos(serverLevel, player, herobrineDragonEntity);
-        herobrineDragonEntity.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
+        Vec3 spawnPos = findSummonSpawnPos(serverLevel, player);
+        herobrineDragonEntity.setPos(spawnPos);
+        herobrineDragonEntity.setYRot(player.getYRot());
+        herobrineDragonEntity.setYHeadRot(player.getYRot());
+        herobrineDragonEntity.setYBodyRot(player.getYRot());
+        herobrineDragonEntity.setXRot(-85.0F);
         herobrineDragonEntity.setSummoner(player);
         herobrineDragonEntity.setSummonerUUID(player.getUUID());
+        herobrineDragonEntity.startSummonRise(
+                findSummonRiseTarget(serverLevel, player, herobrineDragonEntity),
+                SUMMON_RISE_DURATION_TICKS,
+                player.getY()
+        );
         serverLevel.addFreshEntity(herobrineDragonEntity);
         return herobrineDragonEntity;
+    }
+
+    private static Vec3 findSummonSpawnPos(ServerLevel serverLevel, Player player) {
+        double y = Mth.clamp(
+                player.getY() - SUMMON_UNDERGROUND_DISTANCE,
+                serverLevel.getMinBuildHeight() + 2.0D,
+                serverLevel.getMaxBuildHeight() - 8.0D
+        );
+        return new Vec3(player.getX(), y, player.getZ());
+    }
+
+    private static Vec3 findSummonRiseTarget(ServerLevel serverLevel, Player player, HerobrineDragonEntity dragon) {
+        double minY = serverLevel.getMinBuildHeight() + 6.0D;
+        double maxY = serverLevel.getMaxBuildHeight() - 6.0D;
+
+        if (serverLevel.dimensionType().hasCeiling()) {
+            BlockPos col = BlockPos.containing(player.getX(), 0.0D, player.getZ());
+            int roofAirY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, col).getY();
+            maxY = Math.min(maxY, roofAirY - dragon.getBbHeight() - 2.0D);
+        }
+
+        if (maxY < minY) maxY = minY;
+
+        double desiredY = Mth.clamp(player.getY() + SUMMON_RISE_DISTANCE, minY, maxY);
+        int start = Mth.floor(desiredY);
+        int end = Mth.floor(Math.max(minY, player.getY() + 8.0D));
+
+        for (int y = start; y >= end; y--) {
+            if (canDragonFitAt(serverLevel, dragon, player.getX(), y, player.getZ())) {
+                return new Vec3(player.getX(), y, player.getZ());
+            }
+        }
+
+        return new Vec3(player.getX(), desiredY, player.getZ());
+    }
+
+    private static boolean canDragonFitAt(ServerLevel serverLevel, HerobrineDragonEntity dragon, double x, double y, double z) {
+        AABB movedBox = dragon.getBoundingBox().move(
+                x - dragon.getX(),
+                y - dragon.getY(),
+                z - dragon.getZ()
+        );
+        return serverLevel.noCollision(dragon, movedBox) && !serverLevel.containsAnyLiquid(movedBox);
+    }
+
+    private static void setSummonPending(SkillContainer container, boolean pending) {
+        container.getDataManager().setDataSync(AVSkillDataKeys.ENDER_SLAYER_SCYTHE_SUMMON_PENDING.get(), pending);
+    }
+
+    private static boolean isSummonPending(SkillContainer container) {
+        return Boolean.TRUE.equals(container.getDataManager().getDataValue(AVSkillDataKeys.ENDER_SLAYER_SCYTHE_SUMMON_PENDING.get()));
     }
 }

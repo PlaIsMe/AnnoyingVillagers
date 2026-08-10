@@ -77,18 +77,19 @@ dependencies {
 
     implementation fg.deobf("curse.maven:epic-fight-mod-405076:8049910")
     implementation fg.deobf("curse.maven:combat-evolution-1377795:8051212")
+    implementation fg.deobf("curse.maven:weapons-of-miracles-epicfight-918614:7517612")
+    implementation fg.deobf("curse.maven:epicfight-nightfall-1307848:8366962")
+    implementation fg.deobf("curse.maven:epic-fight-invincible-1184379:7679941")
+    implementation fg.deobf("curse.maven:epic-fight-avalon-1268823:7619938")
+    implementation fg.deobf("curse.maven:epicfight-awaken-1423319:8506984")
+
     implementation fg.deobf("curse.maven:epicfight-clash-blade-1408812:7973024")
     implementation fg.deobf("curse.maven:epicfight-kick-skills-1521559:7966307")
-    implementation fg.deobf("curse.maven:weapons-of-miracles-epicfight-918614:7517612")
 
     implementation fg.deobf("curse.maven:aaa-particles-979809:8082320")
     implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
 
     implementation fg.deobf("curse.maven:epic-fight-mod-rapier-moveset-addon-1036425:8078907")
-    implementation fg.deobf("curse.maven:epicfight-nightfall-1307848:8082392")
-    implementation fg.deobf("curse.maven:epic-fight-avalon-1268823:7619938")
-    implementation fg.deobf("curse.maven:epic-fight-invincible-1184379:7679941")
-    implementation fg.deobf("curse.maven:sword-soaring-1011068:7627333")
     implementation fg.deobf("curse.maven:epic-fight-dual-axes-1174112:7647115")
     implementation fg.deobf("curse.maven:epic-fight-dual-greatswords-updated-1224015:7647220")
     implementation fg.deobf("curse.maven:epicfight-extra-1434276:7961244")

@@ -28,6 +28,7 @@ public class AVSkills {
     public static Skill DEMONIAC_VOLTAGE_REAVER;
     public static Skill OBSIDIAN_SLEDGEHAMMER;
     public static Skill ENDER_SLAYER_SCYTHE;
+    public static Skill NULL_WEAPON;
     public static Skill OBSIDIAN_WEAPON;
     public static Skill SHADOW_OBSIDIAN_PILLAR;
     public static Skill SHADOW_OBSIDIAN_PILLAR_SWORD;
@@ -89,6 +90,7 @@ public class AVSkills {
         OBSIDIAN_SLEDGEHAMMER = modRegistry.build("obsidian_sledgehammer", ObsidianSledgeHammerSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());
         ENDER_SLAYER_SCYTHE = modRegistry.build("ender_slayer_scythe", EnderSlayerScytheSkill::new, WeaponInnateSkill.createWeaponInnateBuilder().setActivateType(Skill.ActivateType.DURATION));
         OBSIDIAN_WEAPON = modRegistry.build("obsidian_weapon", ObsidianWeaponSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());
+        NULL_WEAPON = modRegistry.build("null_weapon", NullWeaponSkill::new, WeaponInnateSkill.createWeaponInnateBuilder().setActivateType(Skill.ActivateType.DURATION));
         SHADOW_OBSIDIAN_PILLAR = modRegistry.build("shadow_obsidian_pillar", ShadowObsidianPillarSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());
         SHADOW_OBSIDIAN_PILLAR_SWORD = modRegistry.build("shadow_obsidian_pillar_sword", ShadowObsidianPillarSwordSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());
         SHADOW_OBSIDIAN_SWORD = modRegistry.build("shadow_obsidian_sword", ShadowObsidianSwordSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());

@@ -72,7 +72,7 @@ public class DemoniacVoltageReaverItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(AnnoyingVillagersModItems.ELITE_OBSIDIAN.get());
             }
-        }, 3, -1.32F, (new Properties()));
+        }, 3, -3.0F, (new Properties()));
     }
 
     public static boolean checkNearbyTarget(LivingEntity attacker) {

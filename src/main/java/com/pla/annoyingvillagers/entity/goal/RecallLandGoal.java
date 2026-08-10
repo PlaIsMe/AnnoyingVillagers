@@ -72,17 +72,32 @@ public class RecallLandGoal extends Goal {
             return;
         }
 
-        if (dragon.getRecallLandPos() == null) {
-            dragon.setRecallLandPos(findLandingPosNearSummoner(serverLevel, owner));
-        }
-
-        Vec3 land = dragon.getRecallLandPos();
-
         dragon.getNavigation().stop();
         dragon.setNoGravity(true);
         if (!dragon.isFlying() && dragon.canFly()) dragon.liftOff();
         dragon.setFlying(true);
         dragon.setNavigation(true);
+
+        if (dragon.isRecallAutoMount()) {
+            Vec3 catchPos = findCatchPosAtSummoner(serverLevel, owner);
+            dragon.setRecallLandPos(catchPos);
+            dragon.getMoveControl().setWantedPosition(catchPos.x, catchPos.y, catchPos.z, 1.8D);
+            dragon.aimBodyAndHeadAt(owner.getEyePosition(), 25.0F, 18.0F);
+
+            if (dragon.distanceToSqr(catchPos) < 16.0D || dragon.distanceToSqr(owner) < 25.0D) {
+                dragon.setNoGravity(false);
+                dragon.setDeltaMovement(Vec3.ZERO);
+                owner.startRiding(dragon, true);
+                stop();
+            }
+            return;
+        }
+
+        if (dragon.getRecallLandPos() == null) {
+            dragon.setRecallLandPos(findLandingPosNearSummoner(serverLevel, owner));
+        }
+
+        Vec3 land = dragon.getRecallLandPos();
 
         double aboveY = Math.max(owner.getY() + 10.0, land.y + 10.0);
         aboveY = clampYForWorld(serverLevel, land.x, land.z, aboveY);
@@ -110,12 +125,20 @@ public class RecallLandGoal extends Goal {
             dragon.setNoGravity(false);
             dragon.setDeltaMovement(Vec3.ZERO);
 
-            if (dragon.isRecallAutoMount()) {
-                owner.startRiding(dragon, true);
-            }
-
             stop();
         }
+    }
+
+    private Vec3 findCatchPosAtSummoner(ServerLevel level, LivingEntity owner) {
+        double y = owner.getY() - dragon.getPassengersRidingOffset();
+        y = clampYForWorld(level, owner.getX(), owner.getZ(), y);
+
+        if (canFitAt(level, owner.getX(), y, owner.getZ())) {
+            return new Vec3(owner.getX(), y, owner.getZ());
+        }
+
+        y = findNearestFreeY(level, owner.getX(), owner.getZ(), y, false);
+        return new Vec3(owner.getX(), y, owner.getZ());
     }
 
     private Vec3 findLandingPosNearSummoner(ServerLevel level, LivingEntity owner) {

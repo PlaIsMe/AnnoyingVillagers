@@ -44,7 +44,7 @@ public class LegendarySwordItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get()));
             }
-        }, 3, -1.32F, (new Properties()).fireResistant());
+        }, 3, -2.32F, (new Properties()).fireResistant());
     }
 
     @Override

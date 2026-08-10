@@ -65,6 +65,14 @@ import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AVAnimations {
+    public static AnimationManager.AnimationAccessor<StaticAnimation> ELITE_HOLD_WEAPON;
+    public static AnimationManager.AnimationAccessor<MovementAnimation> ELITE_WALK_WEAPON;
+    public static AnimationManager.AnimationAccessor<MovementAnimation> ELITE_RUN_WEAPON;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> SPINNING_SPEAR_GUARD;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> POINT_LEFT_HAND_TOWARD;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> POINT_LEFT_HAND_MIDDLE;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> POINT_LEFT_HAND_UP;
+
     public static AnimationManager.AnimationAccessor<ActionAnimation> TRIDENT_ATTACK;
     public static AnimationManager.AnimationAccessor<StaticAnimation> KNOCKED_ELITE;
     public static AnimationManager.AnimationAccessor<StaticAnimation> EATING_ELITE_1;
@@ -99,12 +107,18 @@ public class AVAnimations {
     public static AnimationManager.AnimationAccessor<ActionAnimation> TOUCH_THE_SWORD;
     public static AnimationManager.AnimationAccessor<StaticAnimation> TRIDENT_SPIN;
 
+
     @SubscribeEvent
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
         event.newBuilder(AnnoyingVillagers.MODID, AVAnimations::build);
     }
 
     private static void build(AnimationManager.AnimationBuilder builder) {
+        AnimsEnderGlaive.build(builder);
+        AnimsEnderSlayerScythe.build(builder);
+        AnimsDemoniacVoltageReaver.build(builder);
+        AnimsObsidianSledgehammer.build(builder);
+
         AnimsEpicFight.build(builder);
         AnimsEpicFightACG.build(builder);
         AnimsEpicFightAwaken.build(builder);
@@ -125,6 +139,33 @@ public class AVAnimations {
         }
 
         Armatures.ArmatureAccessor<HumanoidArmature> humanoidArmature = Armatures.BIPED;
+        ELITE_HOLD_WEAPON = builder.nextAccessor("biped/living/elite_hold_weapon",
+                accessor -> new StaticAnimation(true, accessor, Armatures.BIPED));
+        ELITE_RUN_WEAPON = builder.nextAccessor("biped/living/elite_run_weapon",
+                accessor -> new MovementAnimation(true, accessor, Armatures.BIPED));
+        ELITE_WALK_WEAPON = builder.nextAccessor("biped/living/elite_walk_weapon",
+                accessor -> new MovementAnimation(true, accessor, Armatures.BIPED));
+        SPINNING_SPEAR_GUARD = builder.nextAccessor("biped/living/spinning_spear_guard",
+                accessor -> new StaticAnimation(0.05F, true, accessor, humanoidArmature)
+                        .addEvents(AnimationEvent.InTimeEvent.create(0.0F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING_AGONY, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.1F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING_AGONY, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.2F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING_AGONY, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.3F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING_AGONY, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.4F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING_AGONY, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.5F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING_AGONY, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.6F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING_AGONY, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.7F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING_AGONY, AnimationEvent.Side.CLIENT)));
+        POINT_LEFT_HAND_TOWARD = builder.nextAccessor("biped/living/point_left_hand_toward",
+                accessor -> new StaticAnimation(false, accessor, humanoidArmature)
+                        .addState(EntityState.CAN_BASIC_ATTACK, false));
+        POINT_LEFT_HAND_UP = builder.nextAccessor("biped/living/point_left_hand_up",
+                accessor -> new StaticAnimation(false, accessor, humanoidArmature)
+                        .addState(EntityState.CAN_BASIC_ATTACK, false));
+        POINT_LEFT_HAND_MIDDLE = builder.nextAccessor("biped/epicfight_ironspell/point_left_hand_middle",
+                accessor -> new StaticAnimation(false, accessor, humanoidArmature)
+                        .addState(EntityState.CAN_BASIC_ATTACK, false));
+
+
         TRIDENT_ATTACK = builder.nextAccessor("biped/pla/trident_attack",
                 accessor -> new ActionAnimation(0.05F, Float.MAX_VALUE, accessor, humanoidArmature)
                         .addProperty(StaticAnimationProperty.PLAY_SPEED_MODIFIER, ReusableSources.CONSTANT_ONE)
@@ -488,7 +529,6 @@ public class AVAnimations {
                                 AnimationEvent.InTimeEvent.create(0.35F, AVAnimations.ReuseableEvents.PLAY_TRIDENT_EFFECT_HAND_LEFT, AnimationEvent.Side.SERVER),
                                 AnimationEvent.InTimeEvent.create(0.4F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT),
                                 AnimationEvent.InTimeEvent.create(0.5F, AVAnimations.ReuseableEvents.TRIDENT_SPINNING, AnimationEvent.Side.CLIENT)));
-
     }
 
     static class ReuseableEvents {

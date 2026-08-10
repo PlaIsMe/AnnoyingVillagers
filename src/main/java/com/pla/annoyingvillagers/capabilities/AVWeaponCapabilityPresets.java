@@ -19,6 +19,7 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.fml.ModList;
 import reascer.wom.gameasset.WOMAnimations;
 import reascer.wom.gameasset.animations.weapons.*;
+import reascer.wom.gameasset.colliders.WOMWeaponColliders;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.forgeevent.WeaponCapabilityPresetRegistryEvent;
 import yesman.epicfight.gameasset.*;
@@ -33,26 +34,52 @@ public class AVWeaponCapabilityPresets {
     public static final Function<Item, CapabilityItem.Builder> ENDER_GLAIVE = (item) ->
             WeaponCapability.builder().category(WeaponCategories.SPEAR)
                     .styleProvider((livingEntityPatch) -> Styles.TWO_HAND)
-                    .collider(ColliderPreset.SPEAR)
+                    .collider(WOMWeaponColliders.AGONY)
                     .hitSound(EpicFightSounds.BLADE_HIT.get())
                     .canBePlacedOffhand(false)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsEpicFightACG.SAO_RAPIER_AUTO1,
-                            AnimsEpicFightACG.SAO_RAPIER_AUTO2,
-                            AnimsEpicFightACG.SAO_RAPIER_AUTO5,
-                            AnimsEpicFightACG.SAO_RAPIER_AUTO3,
-                            AnimsEpicFightACG.SAO_RAPIER_AUTO4,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DASH_HEAVY,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_AIR_SLASH_HEAVY)
+                            AnimsEnderGlaive.ENDER_GLAIVE_AUTO1,
+                            AnimsEnderGlaive.ENDER_GLAIVE_AUTO2,
+                            AnimsEnderGlaive.ENDER_GLAIVE_AUTO3,
+                            AnimsEnderGlaive.ENDER_GLAIVE_AUTO4,
+                            AnimsEnderGlaive.ENDER_GLAIVE_AUTO5,
+                            AnimsEnderGlaive.ENDER_GLAIVE_DASH,
+                            AnimsEnderGlaive.ENDER_GLAIVE_AIRSLASH)
                     .newStyleCombo(Styles.MOUNT,
                             Animations.SPEAR_MOUNT_ATTACK)
                     .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.ENDER_GLAIVE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsEpicFightValourGuard.VALOUR_HOLD_GREATSWORD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsEpicFightValourGuard.VALOUR_WALK_GREATSWORD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsEpicFightValourGuard.VALOUR_RUN_GREATSWORD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsEpicFightValourGuard.VALOUR_RUN_GREATSWORD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.SPEAR_GUARD);
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AVAnimations.ELITE_HOLD_WEAPON)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AVAnimations.ELITE_WALK_WEAPON)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.ELITE_RUN_WEAPON)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.ELITE_RUN_WEAPON)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AVAnimations.SPINNING_SPEAR_GUARD);
+
+    public static final Function<Item, CapabilityItem.Builder> ENDER_SLAYER_SCYTHE = (item) ->
+            WeaponCapability.builder().category(WeaponCategories.SPEAR)
+                    .styleProvider((entityPatch) -> Styles.TWO_HAND)
+                    .collider(WOMWeaponColliders.ANTITHEUS)
+                    .hitSound(EpicFightSounds.BLADE_HIT.get())
+                    .swingSound(EpicFightSounds.WHOOSH.get())
+                    .canBePlacedOffhand(false)
+                    .newStyleCombo(Styles.TWO_HAND,
+                            AnimsEnderSlayerScythe.ENDER_SLAYER_SCYTHE_AUTO1,
+                            AnimsEnderSlayerScythe.ENDER_SLAYER_SCYTHE_AUTO2,
+                            AnimsEnderSlayerScythe.ENDER_SLAYER_SCYTHE_AUTO3,
+                            AnimsEnderSlayerScythe.ENDER_SLAYER_SCYTHE_AUTO4,
+                            AnimsEnderSlayerScythe.ENDER_SLAYER_SCYTHE_AUTO5,
+                            AnimsEnderSlayerScythe.ENDER_SLAYER_SCYTHE_DASH,
+                            AnimsEnderSlayerScythe.ENDER_SLAYER_SCYTHE_AIRSLASH)
+                    .innateSkill(Styles.TWO_HAND, (itemstack) -> AVSkills.ENDER_SLAYER_SCYTHE)
+                    .innateSkill(Styles.MOUNT, (itemstack) -> AVSkills.ENDER_SLAYER_SCYTHE)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsEnderblaster.ENDERBLASTER_TWOHAND_IDLE)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsEnderblaster.ENDERBLASTER_TWOHAND_IDLE)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsEnderblaster.ENDERBLASTER_TWOHAND_IDLE)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsEnderblaster.ENDERBLASTER_TWOHAND_IDLE)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.MOUNT, Animations.BIPED_MOUNT)
+                    .livingMotionModifier(Styles.MOUNT, LivingMotions.MOUNT, Animations.BIPED_MOUNT)
+                    .livingMotionModifier(Styles.MOUNT, LivingMotions.IDLE, Animations.BIPED_MOUNT)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsWom.GLOWING_AGONY_GUARD);
 
     public static final Function<Item, Builder> DEMONIAC_VOLTAGE_REAVER = (item) ->
             WeaponCapability.builder()
@@ -64,13 +91,13 @@ public class AVWeaponCapabilityPresets {
                     .hitSound(EpicFightSounds.BLADE_HIT.get())
                     .canBePlacedOffhand(false)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_HEAVY_AUTO1,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_HEAVY_AUTO2,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_HEAVY_AUTO3,
-                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_AUTO_3,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_GUARD_COUNTER,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DASH_HEAVY,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_AIR_SLASH_HEAVY
+                            AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_AUTO1,
+                            AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_AUTO2,
+                            AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_AUTO3,
+                            AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_AUTO4,
+                            AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_AUTO5,
+                            AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_DASH,
+                            AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_AIRSLASH
                     ).newStyleCombo(Styles.MOUNT,
                             Animations.SWORD_MOUNT_ATTACK)
                     .innateSkill(Styles.TWO_HAND, (itemstack) -> AVSkills.DEMONIAC_VOLTAGE_REAVER)
@@ -78,11 +105,7 @@ public class AVWeaponCapabilityPresets {
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsEpicFightValourGuard.VALOUR_WALK_GREATSWORD)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsEpicFightValourGuard.VALOUR_RUN_GREATSWORD)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsEpicFightValourGuard.VALOUR_RUN_GREATSWORD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.GREATSWORD_GUARD)
-                    .weaponCombinationPredicator(
-                            (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.AXE
-                                    || (livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.SWORD
-                                    || (livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.DAGGER)));
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsSolar.SOLAR_GUARD);
 
     public static final Function<Item, Builder> OBSIDIAN_SLEDGEHAMMER = (item) ->
             WeaponCapability.builder()
@@ -94,13 +117,13 @@ public class AVWeaponCapabilityPresets {
                     .hitSound(EpicFightSounds.BLADE_HIT.get())
                     .canBePlacedOffhand(false)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_AUTO1,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_AUTO2,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_AUTO3,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_AUTO4,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_AUTO5,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DASH_LIGHT,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_AIR_SLASH_LIGHT
+                            AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_AUTO1,
+                            AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_AUTO2,
+                            AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_AUTO3,
+                            AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_AUTO4,
+                            AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_AUTO5,
+                            AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_DASH,
+                            AnimsObsidianSledgehammer.OBSIDIAN_SLEDGEHAMMER_AIRSLASH
                     ).newStyleCombo(Styles.MOUNT,
                             Animations.SWORD_MOUNT_ATTACK)
                     .innateSkill(Styles.TWO_HAND, (itemstack) -> AVSkills.OBSIDIAN_SLEDGEHAMMER)
@@ -108,37 +131,30 @@ public class AVWeaponCapabilityPresets {
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsEpicFightValourGuard.VALOUR_WALK_GREATSWORD)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsEpicFightValourGuard.VALOUR_RUN_GREATSWORD)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsEpicFightValourGuard.VALOUR_RUN_GREATSWORD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.GREATSWORD_GUARD)
-                    .weaponCombinationPredicator(
-                            (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.AXE
-                                    || (livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.SWORD
-                                    || (livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.DAGGER)));
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsRuine.RUINE_GUARD);
 
-    public static final Function<Item, CapabilityItem.Builder> ENDER_SLAYER_SCYTHE = (item) ->
-            WeaponCapability.builder().category(WeaponCategories.SPEAR)
-                    .styleProvider((entityPatch) -> Styles.TWO_HAND)
-                    .collider(ColliderPreset.SPEAR)
-                    .hitSound(EpicFightSounds.BLADE_HIT.get())
-                    .swingSound(EpicFightSounds.WHOOSH.get())
+    public static final Function<Item, CapabilityItem.Builder> NULL_WEAPON = (item) ->
+            WeaponCapability.builder().category(WeaponCategories.SWORD)
+                    .styleProvider((livingEntityPatch) -> Styles.TWO_HAND)
+                    .collider(ColliderPreset.FIST)
+                    .hitSound(EpicFightSounds.BLUNT_HIT_HARD.get())
                     .canBePlacedOffhand(false)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsEpicFightACG.BATTLE_SCYTHE_AUTO1,
-                            AnimsEpicFightACG.BATTLE_SCYTHE_AUTO2,
-                            AnimsEpicFightACG.BATTLE_SCYTHE_AUTO3,
-                            AnimsEpicFightACG.BATTLE_SCYTHE_AUTO4,
-                            AnimsEpicFightACG.BATTLE_SCYTHE_AUTO5,
-                            AnimsEpicFightACG.BATTLE_SCYTHE_DASH,
-                            AnimsEpicFightACG.GS_LAODENG_AUTO5)
-                    .innateSkill(Styles.TWO_HAND, (itemstack) -> AVSkills.ENDER_SLAYER_SCYTHE)
-                    .innateSkill(Styles.MOUNT, (itemstack) -> AVSkills.ENDER_SLAYER_SCYTHE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsSculkSteve.ENDER_SLAYER_SCYTHE_IDLE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsSculkSteve.ENDER_SLAYER_SCYTHE_IDLE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsSculkSteve.ENDER_SLAYER_SCYTHE_IDLE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsSculkSteve.ENDER_SLAYER_SCYTHE_IDLE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.MOUNT, Animations.BIPED_MOUNT)
-                    .livingMotionModifier(Styles.MOUNT, LivingMotions.MOUNT, Animations.BIPED_MOUNT)
-                    .livingMotionModifier(Styles.MOUNT, LivingMotions.IDLE, Animations.BIPED_MOUNT)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.SPEAR_GUARD);
+                            AnimsAgony.AGONY_AIR_ATTACK_1,
+                            WOMAnimations.ANTITHEUS_ASCENDED_AUTO_1,
+                            WOMAnimations.ANTITHEUS_ASCENDED_AUTO_2,
+                            WOMAnimations.ANTITHEUS_ASCENDED_AUTO_3,
+                            AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE,
+                            AnimsAgony.AGONY_AIR_ATTACK_4,
+                            AnimsAgony.AGONY_AIR_ATTACK_3,
+                            AnimsWom.CLONE_ANTITHEUS_ASCENDED_DEATHFALL)
+                    .innateSkill(Styles.TWO_HAND,
+                            (itemstack) -> AVSkills.NULL_WEAPON)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsWom.CLONE_ANTITHEUS_ASCENDED_IDLE)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, WOMAnimations.ANTITHEUS_ASCENDED_WALK)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, WOMAnimations.ANTITHEUS_ASCENDED_RUN)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, WOMAnimations.ANTITHEUS_ASCENDED_RUN)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD);
 
     public static final Function<Item, CapabilityItem.Builder> OBSIDIAN_WEAPON = (item) ->
             WeaponCapability.builder().category(WeaponCategories.SWORD)
@@ -152,7 +168,7 @@ public class AVWeaponCapabilityPresets {
                             AnimsEpicFight.OBSIDIAN_FIST_AUTO3,
                             AnimsEpicFight.OBSIDIAN_FIST_AIR_SLASH,
                             AnimsEpicFight.OBSIDIAN_BIPED_LANDING,
-                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_DASH,
+                            AnimsWom.OBSIDIAN_STRONG_PUNCH,
                             AnimsWom.OBSIDIAN_ENDERBLASTER_TWOHAND_TISHNAW)
                     .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.OBSIDIAN_WEAPON)
@@ -161,7 +177,7 @@ public class AVWeaponCapabilityPresets {
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.HEROBRINE_RUN)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD);
-
+    
     public static final Function<Item, CapabilityItem.Builder> SHADOW_OBSIDIAN_PILLAR = (item) ->
             WeaponCapability.builder().category(WeaponCategories.SWORD)
                     .styleProvider(
@@ -175,7 +191,7 @@ public class AVWeaponCapabilityPresets {
                             AnimsEpicFight.OBSIDIAN_FIST_AUTO3,
                             AnimsEpicFight.OBSIDIAN_FIST_AIR_SLASH,
                             AnimsEpicFight.OBSIDIAN_ZOMBIE_ATTACK3,
-                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_DASH,
+                            AnimsWom.OBSIDIAN_STRONG_PUNCH,
                             AnimsWom.OBSIDIAN_ENDERBLASTER_TWOHAND_TISHNAW)
                     .newStyleCombo(Styles.OCHS,
                             AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO1,
@@ -183,7 +199,7 @@ public class AVWeaponCapabilityPresets {
                             AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO3,
                             AnimsEpicFight.OBSIDIAN_FIST_AIR_SLASH,
                             AnimsEpicFightInfernalGainer.OBSIDIAN_INFERNAL_AUTO_1,
-                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_DASH,
+                            AnimsWom.OBSIDIAN_STRONG_PUNCH,
                             AnimsWom.OBSIDIAN_ENDERBLASTER_TWOHAND_TISHNAW)
                     .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.SHADOW_OBSIDIAN_PILLAR)
@@ -220,19 +236,19 @@ public class AVWeaponCapabilityPresets {
                             AnimsPugilistSteve.SWORD_HEAVY_AUTO_1,
                             AnimsWom.SHADOW_OBSIDIAN_SWORD_TORMENT_AIRSLAM)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsEpicFightAwaken.DP_AUTO_2,
+                            AnimsWom.SHADOW_OBSIDIAN_SWORD_GESETZ_AUTO_2,
                             AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO4,
                             AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO5,
                             AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_AUTO_2,
                             AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AUTO_3,
-                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_DASH,
+                            WOMAnimations.TORMENT_DASH,
                             AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AIRSLASH)
                     .innateSkill(Styles.ONE_HAND,
                             (itemstack) -> AVSkills.SHADOW_OBSIDIAN_SWORD)
                     .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.SHADOW_OBSIDIAN_SWORD_DUAL)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.IDLE, Animations.BIPED_IDLE)
-                    .livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, Animations.SWORD_GUARD)
+                    .livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, AnimsMoonless.MOONLESS_GUARD)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.RUN, AVAnimations.HEROBRINE_RUN)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.WALK, Animations.BIPED_WALK)
@@ -254,15 +270,17 @@ public class AVWeaponCapabilityPresets {
                     .hitSound(EpicFightSounds.BLADE_HIT.get())
                     .canBePlacedOffhand(false)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_HEAVY_AUTO4,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_AUTO6,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_HEAVY_AUTO5,
-                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_AUTO_3,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DASH_HEAVY,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DODGE_PURSUIT,
-                            AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK
-                    )
-                    .newStyleCombo(Styles.OCHS,
+                            WOMAnimations.TORMENT_AUTO_1,
+                            WOMAnimations.TORMENT_AUTO_2,
+                            AnimsSolar.SOLAR_AUTO_1,
+                            AnimsPugilistSteve.LEGENDARY_SWORD_AUTO_4,
+                            AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK,
+                            AnimsWom.YELLOW_SOLAR_AUTO_2,
+                            AnimsWom.YELLOW_NAPOLEON_AUTO_3,
+                            AnimsWom.DEMONIAC_TORMENT_CHARGED_ATTACK_2,
+                            AnimsWom.YELLOW_NAPOLEON_AUSTERLITZ_SHOOT,
+                            WOMAnimations.TORMENT_BERSERK_DASH
+                    ).newStyleCombo(Styles.OCHS,
                             AnimsEpicFightAwaken.STRAIGHTSWORD_DUAL_AUTO1,
                             AnimsPugilistSteve.DUAL_SWORD_AUTO2,
                             AnimsEpicFightAwaken.STRAIGHTSWORD_DUAL_AUTO4,
@@ -270,12 +288,11 @@ public class AVWeaponCapabilityPresets {
                             AnimsEpicFightAwaken.STRAIGHTSWORD_DUAL_DASH_LIGHT,
                             AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_DASH,
                             AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK
-                    )
-                    .newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
-                    .innateSkill(Styles.COMMON,
+                    ).newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
+                    .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.LEGENDARY_SWORD)
-                    .livingMotionModifier(Styles.COMMON, LivingMotions.IDLE, AnimsSculkSteve.LEGENDARY_SWORD_IDLE)
-                    .livingMotionModifier(Styles.COMMON, LivingMotions.WALK, AnimsEpicFightValourGuard.VALOUR_WALK_GREATSWORD)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsSculkSteve.LEGENDARY_SWORD_IDLE)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsWom.TORMENT_BERSERK_WALK)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsPugilistSteve.RUN_DUAL_BIG)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsPugilistSteve.RUN_DUAL_BIG)
                     .livingMotionModifier(Styles.OCHS, LivingMotions.RUN, AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_RUN)
@@ -335,21 +352,21 @@ public class AVWeaponCapabilityPresets {
                     .hitSound(EpicFightSounds.BLADE_HIT.get())
                     .swingSound(AVSounds.SWORD_WHOOSH.get())
                     .newStyleCombo(Styles.ONE_HAND,
-                            AnimsEpicFightAwaken.CUT_LEFT_DP_AUTO_3,
-                            AnimsPugilistSteve.SWORD_DASH,
-                            AnimsPugilistSteve.DAGGER_AUTO1,
-                            AnimsHerrscher.HERRSCHER_AUTO_2,
-                            AnimsHerrscher.HERRSCHER_AUTO_1,
-                            AnimsEpicFightAwaken.CUT_LEFT_DP_DASH,
-                            AnimsEpicFightAwaken.HOOK_SLASH_AIR)
+                            Animations.SWORD_AUTO1,
+                            Animations.SWORD_AUTO2,
+                            Animations.SWORD_AUTO3,
+                            AnimsSatsujin.SATSUJIN_AUTO_1,
+                            AnimsSatsujin.SATSUJIN_AUTO_2,
+                            AnimsHerrscher.HERRSCHER_VERDAMMNIS,
+                            AnimsSatsujin.SATSUJIN_TSUKUYOMI)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsEpicFightAwaken.DP_AUTO_1,
-                            AnimsEpicFightAwaken.DP_AUTO_2,
-                            AnimsEpicFightAwaken.DP_AUTO_3,
-                            AnimsEpicFightAwaken.DP_AUTO_4,
-                            AnimsPugilistSteve.DUAL_SWORD_AUTO2,
-                            AnimsEpicFightAwaken.DP_DASH,
-                            AnimsEpicFightAwaken.DP_NIGHT_FALL)
+                            Animations.SWORD_DUAL_AUTO1,
+                            Animations.SWORD_DUAL_AUTO2,
+                            Animations.SWORD_DUAL_AUTO3,
+                            AnimsSatsujin.SATSUJIN_AUTO_1,
+                            AnimsSatsujin.SATSUJIN_AUTO_2,
+                            AnimsHerrscher.HERRSCHER_VERDAMMNIS,
+                            AnimsSatsujin.SATSUJIN_TSUKUYOMI)
                     .innateSkill(Styles.ONE_HAND,
                             (itemstack) -> AVSkills.WOOPIE_THE_SWORD)
                     .innateSkill(Styles.TWO_HAND,
@@ -1094,20 +1111,20 @@ public class AVWeaponCapabilityPresets {
 
     public static final Function<Item, Builder> HALBERD = (item) ->
             WeaponCapability.builder()
-                .category(WeaponCategories.AXE)
+                    .category(WeaponCategories.AXE)
                     .styleProvider((livingentitypatch) -> Styles.TWO_HAND)
-                .collider(ColliderPreset.SPEAR).canBePlacedOffhand(false)
-                .hitSound(EpicFightSounds.BLADE_HIT.get())
-                .newStyleCombo(Styles.TWO_HAND,
-                        AnimsEpicFightBattleArts.BAXE_AUTO_1,
-                        AnimsEpicFightBattleArts.BAXE_AUTO_2,
-                        Animations.SWORD_AUTO1,
-                        Animations.SWORD_AUTO2,
-                        Animations.SWORD_AUTO3,
-                        AnimsEpicFightBattleArts.BAXE_DASH_ATTACK,
-                        AnimsEpicFightBattleArts.BAXE_AIR_ATTACK
-                ).innateSkill(Styles.TWO_HAND,
-                    (itemstack) -> AVSkills.HALBERD)
+                    .collider(ColliderPreset.SPEAR).canBePlacedOffhand(false)
+                    .hitSound(EpicFightSounds.BLADE_HIT.get())
+                    .newStyleCombo(Styles.TWO_HAND,
+                            AnimsEpicFightBattleArts.BAXE_AUTO_1,
+                            AnimsEpicFightBattleArts.BAXE_AUTO_2,
+                            Animations.SWORD_AUTO1,
+                            Animations.SWORD_AUTO2,
+                            Animations.SWORD_AUTO3,
+                            AnimsEpicFightBattleArts.BAXE_DASH_ATTACK,
+                            AnimsEpicFightBattleArts.BAXE_AIR_ATTACK
+                    ).innateSkill(Styles.TWO_HAND,
+                            (itemstack) -> AVSkills.HALBERD)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsEpicFightBattleArts.BAXE_IDLE)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.SWORD_GUARD)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsEpicFightBattleArts.BAXE_RUN)
@@ -1765,6 +1782,7 @@ public class AVWeaponCapabilityPresets {
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "demoniac_voltage_reaver"), AVWeaponCapabilityPresets.DEMONIAC_VOLTAGE_REAVER);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "obsidian_sledgehammer"), AVWeaponCapabilityPresets.OBSIDIAN_SLEDGEHAMMER);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "ender_slayer_scythe"), AVWeaponCapabilityPresets.ENDER_SLAYER_SCYTHE);
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "null_weapon"), AVWeaponCapabilityPresets.NULL_WEAPON);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "obsidian_weapon"), AVWeaponCapabilityPresets.OBSIDIAN_WEAPON);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "shadow_obsidian_pillar"), AVWeaponCapabilityPresets.SHADOW_OBSIDIAN_PILLAR);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "shadow_obsidian_sword"), AVWeaponCapabilityPresets.SHADOW_OBSIDIAN_SWORD);

@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
 import com.pla.annoyingvillagers.network.SpecialAttackMessage;
 import com.pla.annoyingvillagers.network.ThrowingEnderPearlMessage;
 import net.minecraft.client.Camera;
@@ -46,6 +47,12 @@ public class AnnoyingVillagersModKeyMappings {
             }
 
             if (this.isDownOld && !flag) {
+                if (minecraft.player.getVehicle() instanceof HerobrineDragonEntity) {
+                    this.pressedAtTick = -1;
+                    this.isDownOld = flag;
+                    return;
+                }
+
                 int heldTicks = this.pressedAtTick >= 0
                         ? minecraft.player.tickCount - this.pressedAtTick
                         : 0;
@@ -77,17 +84,10 @@ public class AnnoyingVillagersModKeyMappings {
         }
     };
 
-    public static final KeyMapping DRAGON_FLIGHT_DESCENT_KEY = new KeyMapping(
-            "key.annoyingvillagers.dragon_flight_descent",
-            GLFW.GLFW_KEY_Z,
-            "key.categories.annoyingvillagers"
-    );
-
     @SubscribeEvent
     public static void registerKeyBindings(RegisterKeyMappingsEvent event) {
         event.register(SPECIAL_ATTACK);
         event.register(THROW_ENDER_PEARL);
-        event.register(DRAGON_FLIGHT_DESCENT_KEY);
     }
 
     private static SpecialAttackMessage createSpecialAttackMessage(int type, int heldTicks) {

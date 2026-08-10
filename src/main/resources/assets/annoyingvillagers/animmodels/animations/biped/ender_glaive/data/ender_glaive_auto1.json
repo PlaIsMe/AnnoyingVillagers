@@ -1,0 +1,15 @@
+{
+	"trail_effects": [
+		{
+			"begin_pos": [0.0, 0.5, -2.6],
+    		"end_pos": [0.0, -0.5, -2.6],
+    		"lifetime": 6,
+			"start_time": 0.05,
+			"end_time": 0.25,
+			"interpolations": 2,
+			"joint": "Tool_R",
+			"item_skin_hand": "main_hand",
+			"texture_path": "wom:textures/particle/agony/weapon_trail/thrust.png"
+		}
+	]
+}
