@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.gameasset.AnimsLegendarySword;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
@@ -192,7 +193,7 @@ public class ShockWaveBlockEntity extends Entity {
         if (targetPatch != null) {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(targetPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             if (dynamicAnimation != null && !EpicfightUtil.isLongHitAnimation(dynamicAnimation, targetPatch)) {
-                targetPatch.playAnimationSynchronized(AnimsPugilistSteve.TRIED, 0.0F);
+                targetPatch.playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_KNOCKDOWN, 0.0F);
             }
         }
         Vec3 dir = target.position().subtract(this.position());

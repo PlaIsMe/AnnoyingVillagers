@@ -18,6 +18,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.fml.ModList;
+import net.shelmarow.ef_awaken.efassets.animations.StraightSwordAnimations;
 import reascer.wom.gameasset.WOMAnimations;
 import reascer.wom.gameasset.animations.weapons.*;
 import reascer.wom.gameasset.colliders.WOMWeaponColliders;
@@ -260,33 +261,28 @@ public class AVWeaponCapabilityPresets {
                     .hitSound(EpicFightSounds.BLADE_HIT.get())
                     .canBePlacedOffhand(false)
                     .newStyleCombo(Styles.TWO_HAND,
-                            WOMAnimations.TORMENT_AUTO_1,
-                            WOMAnimations.TORMENT_AUTO_2,
-                            AnimsSolar.SOLAR_AUTO_1,
-                            AnimsPugilistSteve.LEGENDARY_SWORD_AUTO_4,
-                            AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK,
-                            AnimsWom.YELLOW_SOLAR_AUTO_2,
-                            AnimsWom.YELLOW_NAPOLEON_AUTO_3,
-                            AnimsWom.DEMONIAC_TORMENT_CHARGED_ATTACK_2,
-                            AnimsWom.YELLOW_NAPOLEON_AUSTERLITZ_SHOOT,
-                            WOMAnimations.TORMENT_BERSERK_DASH
+                            AnimsLegendarySword.LEGENDARY_SWORD_AUTO1,
+                            AnimsLegendarySword.LEGENDARY_SWORD_AUTO2,
+                            AnimsLegendarySword.LEGENDARY_SWORD_AUTO3,
+                            AnimsLegendarySword.LEGENDARY_SWORD_AUTO4,
+                            AnimsLegendarySword.LEGENDARY_SWORD_AUTO5,
+                            AnimsLegendarySword.LEGENDARY_SWORD_DASH,
+                            AnimsLegendarySword.LEGENDARY_SWORD_AIRSLASH
                     ).newStyleCombo(Styles.OCHS,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DUAL_AUTO1,
                             AnimsPugilistSteve.DUAL_SWORD_AUTO2,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DUAL_AUTO4,
-                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_AUTO_3,
-                            AnimsEpicFightAwaken.STRAIGHTSWORD_DUAL_DASH_LIGHT,
-                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_DASH,
-                            AnimsPugilistSteve.LEGENDARY_SWORD_WAKE_UP_ATTACK
+                            StraightSwordAnimations.STRAIGHTSWORD_DUAL_AUTO1,
+                            StraightSwordAnimations.STRAIGHTSWORD_DUAL_DASH_LIGHT,
+                            AnimsLegendarySword.LEGENDARY_SWORD_AUTO4,
+                            AnimsLegendarySword.LEGENDARY_SWORD_AUTO5,
+                            AnimsLegendarySword.LEGENDARY_SWORD_DASH,
+                            AnimsLegendarySword.LEGENDARY_SWORD_AIRSLASH
                     ).newStyleCombo(Styles.MOUNT, Animations.SWORD_MOUNT_ATTACK)
-                    .innateSkill(Styles.TWO_HAND,
+                    .innateSkill(Styles.COMMON,
                             (itemstack) -> AVSkills.LEGENDARY_SWORD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsSculkSteve.LEGENDARY_SWORD_IDLE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsWom.TORMENT_BERSERK_WALK)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsPugilistSteve.RUN_DUAL_BIG)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsPugilistSteve.RUN_DUAL_BIG)
-                    .livingMotionModifier(Styles.OCHS, LivingMotions.RUN, AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_RUN)
-                    .livingMotionModifier(Styles.OCHS, LivingMotions.CHASE, AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_RUN)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.IDLE, AnimsSculkSteve.LEGENDARY_SWORD_IDLE)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.WALK, AnimsWom.TORMENT_BERSERK_WALK)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.RUN, AnimsPugilistSteve.RUN_DUAL_BIG)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.CHASE, AnimsPugilistSteve.RUN_DUAL_BIG)
                     .livingMotionModifier(Styles.COMMON, LivingMotions.BLOCK, AnimsPugilistSteve.LEGENDARY_SWORD_GUARD)
                     .weaponCombinationPredicator(
                             (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof BlueDemonTridentItem || livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof WoopieTheSwordItem);
@@ -302,32 +298,30 @@ public class AVWeaponCapabilityPresets {
                             (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get()) ? Styles.TWO_HAND : Styles.ONE_HAND)
                     .collider(ColliderPreset.SPEAR)
                     .newStyleCombo(Styles.ONE_HAND,
-                            AnimsEpicFightBattleArts.ADVANCED_LANCER_AUTO1,
-                            AnimsEpicFight.NERF_TSUNAMI_REINFORCED,
-                            AnimsEpicFightBattleArts.ADVANCED_DUELIST_SHOOTING_STAR)
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_AUTO1,
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_DASH,
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_AUTO3)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsEpicFightBattleArts.ADVANCED_LANCER_AUTO1,
-                            AnimsPugilistSteve.TRIDENT_DUAL_AUTO2,
-                            AnimsEpicFightBattleArts.ADVANCED_DUELIST_SHOOTING_STAR,
-                            AnimsEpicFightAwaken.CUT_DP_AIR_ATTACK,
-                            AnimsEpicFightBattleArts.ADVANCED_LANCER_AUTO3,
-                            AnimsEpicFightBattleArts.ADVANCED_DUELIST_WHIRLEDGE,
-                            AnimsEpicFight.NERF_TSUNAMI_REINFORCED,
-                            AnimsEpicFightAwaken.CUT_HOOK_SPIN_SLASH_AIR)
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_AUTO1,
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_AUTO2,
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_AUTO3,
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_AUTO4,
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_AUTO5,
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_AUTO6,
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_DASH,
+                            AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_AIRSLASH)
                     .innateSkill(Styles.ONE_HAND,
                             (itemstack) -> EpicFightSkills.WRATHFUL_LIGHTING)
                     .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.TRIDENT_FESTIVAL)
-                    .livingMotionModifier(Styles.ONE_HAND, LivingMotions.IDLE, Animations.BIPED_IDLE)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.IDLE, EFNDualSwordAnimations.NF_DUAL_IDLE)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.WALK, EFNDualSwordAnimations.NF_DUAL_WALK)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, Animations.SWORD_GUARD)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.RUN, AnimsPugilistSteve.BIPED_RUN_ESWORD)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.CHASE, AnimsPugilistSteve.BIPED_RUN_ESWORD)
-                    .livingMotionModifier(Styles.ONE_HAND, LivingMotions.WALK, Animations.BIPED_WALK)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_DUAL_WEAPON)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.SWORD_DUAL_GUARD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.TRIDENT_TWO_HAND_RUN)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.TRIDENT_TWO_HAND_RUN)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_HOLD_DUAL_WEAPON)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_TWOHAND_RUN)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_TWOHAND_RUN)
                     .weaponCombinationPredicator(
                             (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get()));
 

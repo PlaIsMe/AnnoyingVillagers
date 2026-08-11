@@ -1,8 +1,6 @@
 package com.pla.annoyingvillagers.gameasset;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.block.ObsidianBlock;
-import com.pla.annoyingvillagers.block.ShadowObsidianBlock;
 import com.pla.annoyingvillagers.clazz.TridentMode;
 import com.pla.annoyingvillagers.compat.p1nero_bow.AnimsP1neroEpicBow;
 import com.pla.annoyingvillagers.entity.*;
@@ -27,7 +25,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -121,6 +118,8 @@ public class AVAnimations {
         AnimsObsidianSledgehammer.build(builder);
         AnimsNullWeapon.build(builder);
         AnimsObsidianWeapon.build(builder);
+        AnimsLegendarySword.build(builder);
+        AnimsBlueDemonTrident.build(builder);
 
         AnimsEpicFight.build(builder);
         AnimsEpicFightACG.build(builder);

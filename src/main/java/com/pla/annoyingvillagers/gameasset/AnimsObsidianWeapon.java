@@ -572,7 +572,7 @@ public class AnimsObsidianWeapon {
                 .setValue(ObsidianBlock.FROM_PLAYER, livingEntity instanceof Player);
     }
 
-    public static final AnimationEvent.E0 SUMMON_2_OBSIDIAN_HAND_RIGHT =
+    private static final AnimationEvent.E0 SUMMON_2_OBSIDIAN_HAND_RIGHT =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -596,7 +596,7 @@ public class AnimsObsidianWeapon {
                     }
                 }
             };
-    public static final AnimationEvent.E0 SUMMON_2_OBSIDIAN_HAND_LEFT =
+    private static final AnimationEvent.E0 SUMMON_2_OBSIDIAN_HAND_LEFT =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -620,7 +620,7 @@ public class AnimsObsidianWeapon {
                     }
                 }
             };
-    public static final AnimationEvent.E0 SUMMON_3_OBSIDIAN_HAND_LEFT =
+    private static final AnimationEvent.E0 SUMMON_3_OBSIDIAN_HAND_LEFT =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -644,7 +644,7 @@ public class AnimsObsidianWeapon {
                     }
                 }
             };
-    public static final AnimationEvent.E0 SUMMON_6_OBSIDIAN_HAND_LEFT =
+    private static final AnimationEvent.E0 SUMMON_6_OBSIDIAN_HAND_LEFT =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -668,7 +668,7 @@ public class AnimsObsidianWeapon {
                     }
                 }
             };
-    public static final AnimationEvent.E0 SUMMON_6_OBSIDIAN_HAND_RIGHT =
+    private static final AnimationEvent.E0 SUMMON_6_OBSIDIAN_HAND_RIGHT =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -692,7 +692,7 @@ public class AnimsObsidianWeapon {
                     }
                 }
             };
-    public static final AnimationEvent.E0 SUMMON_OBSIDIAN_PILLAR =
+    private static final AnimationEvent.E0 SUMMON_OBSIDIAN_PILLAR =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -714,7 +714,7 @@ public class AnimsObsidianWeapon {
                     }
                 }
             };
-    public static final AnimationEvent.E0 SUMMON_OBSIDIAN_WALL =
+    private static final AnimationEvent.E0 SUMMON_OBSIDIAN_WALL =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -737,7 +737,7 @@ public class AnimsObsidianWeapon {
                 }
             };
 
-    public static final AnimationEvent.E0 SUMMON_OBSIDIAN_CIRCLE =
+    private static final AnimationEvent.E0 SUMMON_OBSIDIAN_CIRCLE =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -748,7 +748,7 @@ public class AnimsObsidianWeapon {
                 }
             };
 
-    public static final AnimationEvent.E0 SUMMON_OBSIDIAN_CROSS =
+    private static final AnimationEvent.E0 SUMMON_OBSIDIAN_CROSS =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -774,7 +774,7 @@ public class AnimsObsidianWeapon {
                 }
             };
 
-    public static final AnimationEvent.E0 SUMMON_OBSIDIAN_CROSS_FIX_DELAY_SHADOW_HEROBRINE =
+    private static final AnimationEvent.E0 SUMMON_OBSIDIAN_CROSS_FIX_DELAY_SHADOW_HEROBRINE =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 Item weapon = livingEntity.getMainHandItem().getItem();
@@ -785,7 +785,7 @@ public class AnimsObsidianWeapon {
                 }
             };
 
-    public static final AnimationEvent.E0 SUMMON_OBSIDIAN_SMALL_CROSS =
+    private static final AnimationEvent.E0 SUMMON_OBSIDIAN_SMALL_CROSS =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -812,7 +812,7 @@ public class AnimsObsidianWeapon {
                 }
             };
 
-    public static final AnimationEvent.E0 THROW_OBSIDIAN =
+    private static final AnimationEvent.E0 THROW_OBSIDIAN =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {
@@ -849,7 +849,7 @@ public class AnimsObsidianWeapon {
                 }
             };
 
-    public static final AnimationEvent.E0 THROW_OBSIDIAN_OFFHAND =
+    private static final AnimationEvent.E0 THROW_OBSIDIAN_OFFHAND =
             (livingEntityPatch, staticAnimation, object) -> {
                 LivingEntity livingEntity = livingEntityPatch.getOriginal();
                 if (livingEntity.level() instanceof ServerLevel serverLevel) {

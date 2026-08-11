@@ -322,7 +322,17 @@ public class AnimsPugilistSteve {
                         })
                         .addEvents(
                                 EpicfightUtil.cameraZoomInEvent(0.05F, -0.35F, 30),
-                                AnimationEvent.InTimeEvent.create(0.0F, LEGENDARY_SWORD_HEAVY_START, AnimationEvent.Side.SERVER),
+                                AnimationEvent.InTimeEvent.create(0.0F, ((livingEntityPatch, assetAccessor, animationParameters) -> {
+                                    LivingEntity entity = livingEntityPatch.getOriginal();
+                                    if (!(entity.level() instanceof ServerLevel serverLevel)) return;
+
+                                    serverLevel.playSound(null, entity.getX(), entity.getY(), entity.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_START.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                                    serverLevel.playSound(null, entity.getX(), entity.getY(), entity.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                                    serverLevel.playSound(null, entity.getX(), entity.getY(), entity.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+
+                                    serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, entity.getX(), entity.getY(), entity.getZ(), 15, 0.0D, 0.0D, 0.0D, 0.2D);
+                                    serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, entity.getX(), entity.getEyeY(), entity.getZ(), 100, 0.0D, 0.0D, 0.0D, 0.5D);
+                                }), AnimationEvent.Side.SERVER),
                                 AnimationEvent.InTimeEvent.create(0.5F, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, AnimationEvent.Side.CLIENT).params(new Vec3f(0.0F, -0.24F, -2.0F), Armatures.BIPED.get().toolR, 2.5D, 0.6F),
                                 AnimationEvent.InTimeEvent.create(0.5F, AVAnimations.ReuseableEvents.SHOCK_WAVE, AnimationEvent.Side.SERVER),
                                 EpicfightUtil.cameraZoomOutBlurEvent(0.5F, 10.0F, 20)
@@ -1040,14 +1050,6 @@ public class AnimsPugilistSteve {
     }
 
     public static final AnimationEvent.E0 LEGENDARY_SWORD_HEAVY_START = (livingEntityPatch, animation, params) -> {
-        LivingEntity entity = livingEntityPatch.getOriginal();
-        if (!(entity.level() instanceof ServerLevel serverLevel)) return;
 
-        serverLevel.playSound(null, entity.getX(), entity.getY(), entity.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_START.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-        serverLevel.playSound(null, entity.getX(), entity.getY(), entity.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-        serverLevel.playSound(null, entity.getX(), entity.getY(), entity.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-
-        serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, entity.getX(), entity.getY(), entity.getZ(), 15, 0.0D, 0.0D, 0.0D, 0.2D);
-        serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, entity.getX(), entity.getEyeY(), entity.getZ(), 100, 0.0D, 0.0D, 0.0D, 0.5D);
     };
 }

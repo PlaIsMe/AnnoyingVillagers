@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.potion;
 
-import com.pla.annoyingvillagers.gameasset.AnimsTacticalImbuements;
+import com.pla.annoyingvillagers.gameasset.AnimsBlueDemonTrident;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import net.minecraft.core.BlockPos;
@@ -52,8 +52,8 @@ public class ElectrifyMobEffect extends MobEffect {
                             && !(currentAnimation instanceof ExecutionAttackAnimation)
                             && !(currentAnimation instanceof ExecutionHitAnimation)) {
                         playElectrifyAnimation(livingEntityPatch, pAmplifier > 1
-                                ? AnimsTacticalImbuements.ZAP_LONG
-                                : AnimsTacticalImbuements.ZAP);
+                                ? AnimsBlueDemonTrident.ZAP_LONG
+                                : AnimsBlueDemonTrident.ZAP);
                     }
                 }
             }

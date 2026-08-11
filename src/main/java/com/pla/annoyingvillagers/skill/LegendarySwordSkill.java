@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.skill;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AVSkillDataKeys;
+import com.pla.annoyingvillagers.gameasset.AnimsLegendarySword;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.nbt.CompoundTag;
@@ -14,12 +15,17 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.shelmarow.combat_evolution.effect.CEMobEffects;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -27,6 +33,8 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityDecorations;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.effect.EpicFightMobEffects;
+import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.eventlistener.DealDamageEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
@@ -40,8 +48,10 @@ public class LegendarySwordSkill extends WeaponInnateSkill {
     public static final int AWAKEN_DURATION_TICKS = 20 * 15;
 
     private static final int AWAKEN_EFFECT_AMPLIFIER = 2;
+    private static final double AWAKEN_ATTACK_SPEED_MULTIPLIER = 0.5D;
     private static final float TRIED_CHANCE = 0.3F;
     private static final UUID AWAKEN_DAMAGE_EVENT_UUID = UUID.fromString("b3bf9455-bf68-4b6a-8f8b-c56c7484ad0c");
+    private static final UUID AWAKEN_ATTACK_SPEED_MODIFIER_UUID = UUID.fromString("db78a10d-0191-4728-8a2c-2cb8efe69dfa");
     private static final ResourceLocation AWAKEN_TRAIL_MODIFIER = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "legendary_sword_awaken_trail");
 
     public LegendarySwordSkill(SkillBuilder<? extends WeaponInnateSkill> builder) {
@@ -154,6 +164,8 @@ public class LegendarySwordSkill extends WeaponInnateSkill {
         boolean hadAwakeningState = Boolean.TRUE.equals(container.getDataManager().getDataValue(AVSkillDataKeys.LEGENDARY_SWORD_AWAKENED.get()))
                 || hasAwakeningTag(player.getMainHandItem());
 
+        removeAwakeningAttackSpeed(player);
+
         if (!hadAwakeningState) {
             return;
         }
@@ -169,6 +181,41 @@ public class LegendarySwordSkill extends WeaponInnateSkill {
         player.addEffect(new MobEffectInstance(MobEffects.JUMP, 25, AWAKEN_EFFECT_AMPLIFIER, false, false, true));
         player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 25, AWAKEN_EFFECT_AMPLIFIER, false, false, true));
         player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 25, AWAKEN_EFFECT_AMPLIFIER, false, false, true));
+        player.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), 25, AWAKEN_EFFECT_AMPLIFIER, false, false, true));
+        player.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 25, AWAKEN_EFFECT_AMPLIFIER, false, false, true));
+        applyAwakeningAttackSpeed(player);
+    }
+
+    private static void applyAwakeningAttackSpeed(Player player) {
+        applyAwakeningAttackSpeedModifier(player, Attributes.ATTACK_SPEED);
+        applyAwakeningAttackSpeedModifier(player, EpicFightAttributes.OFFHAND_ATTACK_SPEED.get());
+    }
+
+    private static void applyAwakeningAttackSpeedModifier(Player player, Attribute attribute) {
+        AttributeInstance attackSpeed = player.getAttribute(attribute);
+        if (attackSpeed == null) {
+            return;
+        }
+
+        attackSpeed.removeModifier(AWAKEN_ATTACK_SPEED_MODIFIER_UUID);
+        attackSpeed.addTransientModifier(new AttributeModifier(
+                AWAKEN_ATTACK_SPEED_MODIFIER_UUID,
+                "Legendary sword awakening attack speed",
+                AWAKEN_ATTACK_SPEED_MULTIPLIER,
+                AttributeModifier.Operation.MULTIPLY_TOTAL
+        ));
+    }
+
+    private static void removeAwakeningAttackSpeed(Player player) {
+        removeAwakeningAttackSpeedModifier(player, Attributes.ATTACK_SPEED);
+        removeAwakeningAttackSpeedModifier(player, EpicFightAttributes.OFFHAND_ATTACK_SPEED.get());
+    }
+
+    private static void removeAwakeningAttackSpeedModifier(Player player, Attribute attribute) {
+        AttributeInstance attackSpeed = player.getAttribute(attribute);
+        if (attackSpeed != null) {
+            attackSpeed.removeModifier(AWAKEN_ATTACK_SPEED_MODIFIER_UUID);
+        }
     }
 
     private static boolean shouldUseAwakenedTrail(SkillContainer container) {
@@ -179,17 +226,34 @@ public class LegendarySwordSkill extends WeaponInnateSkill {
                 || isAwakened(mainHand, player.level()));
     }
 
+    private boolean canExecuteAwakenedInnate(SkillContainer container) {
+        Player player = container.getExecutor().getOriginal();
+        ItemStack mainHand = player.getMainHandItem();
+        return this.checkExecuteCondition(container)
+                && isAwakened(container)
+                && mainHand.is(AnnoyingVillagersModItems.LEGENDARY_SWORD.get())
+                && EpicFightCapabilities.getItemStackCapability(mainHand).getInnateSkill(container.getExecutor(), mainHand) == this
+                && player.getVehicle() == null;
+    }
+
+    @Override
+    public boolean canExecute(SkillContainer container) {
+        return super.canExecute(container) || canExecuteAwakenedInnate(container);
+    }
+
     @Override
     public void executeOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
-        if (!this.isActivated(skillContainer)) {
-            super.executeOnServer(skillContainer, friendlyByteBuf);
-            skillContainer.activate();
+        if (this.isActivated(skillContainer) && !isAwakened(skillContainer)) {
+            return;
+        }
 
-            if (skillContainer.getExecutor().getOriginal().getOffhandItem().is(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get())) {
-                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.LEGENDARYSWORD_WOOPIE_FLY, 0.0F);
-            } else {
-                skillContainer.getExecutor().playAnimationSynchronized(AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK, 0.0F);
-            }
+        super.executeOnServer(skillContainer, friendlyByteBuf);
+        skillContainer.activate();
+
+        if (skillContainer.getExecutor().getOriginal().getOffhandItem().is(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get())) {
+            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.LEGENDARYSWORD_WOOPIE_FLY, 0.0F);
+        } else {
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_INNATE, 0.0F);
         }
     }
 
@@ -233,7 +297,7 @@ public class LegendarySwordSkill extends WeaponInnateSkill {
 
                     LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
                     if (targetPatch != null) {
-                        targetPatch.playAnimationSynchronized(AnimsPugilistSteve.TRIED, 0.0F);
+                        targetPatch.playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_KNOCKDOWN, 0.0F);
                     }
                 },
                 10
@@ -299,6 +363,7 @@ public class LegendarySwordSkill extends WeaponInnateSkill {
         }
 
         if (!Boolean.TRUE.equals(container.getDataManager().getDataValue(AVSkillDataKeys.LEGENDARY_SWORD_AWAKENED.get()))) {
+            removeAwakeningAttackSpeed(player);
             return;
         }
 

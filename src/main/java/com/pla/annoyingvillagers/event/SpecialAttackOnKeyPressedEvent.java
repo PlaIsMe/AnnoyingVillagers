@@ -202,7 +202,7 @@ public class SpecialAttackOnKeyPressedEvent {
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
                 if (entity.level() instanceof ServerLevel) {
                     if (offHandItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
-                        livingEntityPatch.playAnimationSynchronized(AVAnimations.TRIDENT_SPIN, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_SPECIAL, 0.0F);
                         PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
                         if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                             SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.TRIDENT_FESTIVAL);
@@ -211,7 +211,7 @@ public class SpecialAttackOnKeyPressedEvent {
                             }
                         }
                     } else {
-                        livingEntityPatch.playAnimationSynchronized(AnimsEpicFightBattleArts.TRIDENT_THROW_3, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_3, 0.0F);
                     }
                     return;
                 }
@@ -470,14 +470,11 @@ public class SpecialAttackOnKeyPressedEvent {
 
                             if (skillContainer.getStack() >= 1) {
                                 if (offHandItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
-                                    livingEntityPatch.playAnimationSynchronized(AVAnimations.ELECTRIC_FIELD, 0.0F);
+                                    livingEntityPatch.playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_ELECTRIC_FIELD, 0.0F);
                                     legendarySwordSkill.getResourceType().consumer
                                             .consume(skillContainer, serverPlayerPatch, legendarySwordSkill.getDefaultConsumptionAmount(serverPlayerPatch));
                                 } else {
-                                    livingEntityPatch.playAnimationSynchronized(AVAnimations.TOUCH_THE_SWORD, 0.0F);
-                                    legendarySwordSkill.getResourceType().consumer
-                                            .consume(skillContainer, serverPlayerPatch, legendarySwordSkill.getDefaultConsumptionAmount(serverPlayerPatch));
-                                    legendarySwordSkill.startAwakening(skillContainer);
+                                    livingEntityPatch.playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_INNATE_SPECIAL, 0.0F);
                                 }
                                 success = true;
                             }
@@ -486,9 +483,9 @@ public class SpecialAttackOnKeyPressedEvent {
 
                     if (!success) {
                         if (offHandItem.getItem().equals(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
-                            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_THROW_LEGENDARY, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_SPECIAL_LEGENDARY, 0.0F);
                         } else {
-                            livingEntityPatch.playAnimationSynchronized(AnimsWom.CLONE_NAPOLEON_WATERLOW_SHOOT, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_SPECIAL, 0.0F);
                         }
                     }
                     return;

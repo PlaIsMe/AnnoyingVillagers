@@ -60,12 +60,12 @@ public class TridentFestivalSkill extends WeaponInnateSkill {
                                 && BlueDemonTridentItem.isFullyCharged(mainHand)
                                 && BlueDemonTridentItem.isFullyCharged(offHand);
                 if (bothFullyCharged) {
-                    skillContainer.getExecutor().playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_FESTIVAL, 0.0F);
+                    skillContainer.getExecutor().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_FESTIVAL, 0.0F);
                 } else {
-                    skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.TRIDENT_ATTACK, 0.0F);
+                    skillContainer.getExecutor().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THUNDER_ATTACK, 0.0F);
                 }
             } else {
-                skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.ELECTRIC_FIELD, 0.0F);
+                skillContainer.getExecutor().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_ELECTRIC_FIELD, 0.0F);
             }
         }
     }
@@ -118,21 +118,21 @@ public class TridentFestivalSkill extends WeaponInnateSkill {
                         AssetAccessor<? extends StaticAnimation> dynamicAnimation =
                                 Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
 
-                        if (dynamicAnimation != null && dynamicAnimation == AnimsEpicFightBattleArts.TRIDENT_THROW_1) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_THROW_2, 0.0F);
-                        } else if (dynamicAnimation != null && dynamicAnimation == AnimsPugilistSteve.TRIDENT_THROW_2) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightBattleArts.TRIDENT_THROW_3, 0.0F);
-                        } else if (dynamicAnimation != null && dynamicAnimation == AnimsEpicFightBattleArts.TRIDENT_THROW_3) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_2, 0.0F);
-                        } else if (dynamicAnimation != null && dynamicAnimation == AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_2) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightBattleArts.TRIDENT_THROW_5, 0.0F);
+                        if (dynamicAnimation != null && dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_1) {
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_2, 0.0F);
+                        } else if (dynamicAnimation != null && dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_2) {
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_3, 0.0F);
+                        } else if (dynamicAnimation != null && dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_3) {
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_4, 0.0F);
+                        } else if (dynamicAnimation != null && dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_4) {
+                            skillContainer.getExecutor().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_5, 0.0F);
                         } else {
                             if (playerPatch.getOriginal().isSprinting()) {
-                                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightAwaken.DP_THROW_BLADE_AUTO_1, 0.0F);
+                                skillContainer.getExecutor().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_DASH, 0.0F);
                             } else if (!playerPatch.getOriginal().onGround() && !playerPatch.getOriginal().isInWater()) {
-                                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightAwaken.THROW_HOOK_SLASH_AIR, 0.0F);
+                                skillContainer.getExecutor().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_AIRSLASH, 0.0F);
                             } else {
-                                skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightBattleArts.TRIDENT_THROW_1, 0.0F);
+                                skillContainer.getExecutor().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THROW_1, 0.0F);
                             }
                         }
                     }
@@ -144,7 +144,7 @@ public class TridentFestivalSkill extends WeaponInnateSkill {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             if (dynamicAnimation == null) return;
 
-            if (dynamicAnimation == AVAnimations.TRIDENT_ATTACK || dynamicAnimation == AVAnimations.ELECTRIC_FIELD || dynamicAnimation == AnimsPugilistSteve.TRIDENT_FESTIVAL) {
+            if (dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THUNDER_ATTACK || dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_ELECTRIC_FIELD || dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_FESTIVAL) {
                 pre.setCanceled(true);
                 pre.setResult(AttackResult.ResultType.BLOCKED);
             }
