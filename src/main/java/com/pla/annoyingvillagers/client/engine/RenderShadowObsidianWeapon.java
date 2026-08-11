@@ -2,10 +2,7 @@ package com.pla.annoyingvillagers.client.engine;
 
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -52,12 +49,12 @@ public class RenderShadowObsidianWeapon extends RenderItemBase {
             ItemStack itemstack;
 
             if (dynamicAnimation == AVAnimations.HEROBRINE_RUN
-                    || dynamicAnimation == AnimsWom.OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL
-                    || dynamicAnimation == AnimsEpicFight.OBSIDIAN_ZOMBIE_ATTACK3
-                    || dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AUTO3
-                    || dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AUTO1
-                    || dynamicAnimation == AnimsEpicFight.OBSIDIAN_BIPED_LANDING
-                    || dynamicAnimation == AnimsWom.OBSIDIAN_STRONG_PUNCH
+                    || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_INNATE_SPECIAL
+                    || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_TWOHAND_1
+                    || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_3
+                    || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_1
+                    || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_TWOHAND_2
+                    || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_DASH
                     || dynamicAnimation.get() instanceof ExecutionAttackAnimation) {
                 itemstack = ItemStack.EMPTY;
                 poseStack.pushPose();

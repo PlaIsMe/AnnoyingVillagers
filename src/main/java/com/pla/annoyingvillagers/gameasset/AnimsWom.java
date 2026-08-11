@@ -1519,12 +1519,7 @@ public class AnimsWom {
                                 livingEntityPatch.getOriginal().level().addParticle(ParticleTypes.LARGE_SMOKE, livingEntityPatch.getOriginal().getX() + (double) vec3f.x, (float) (int) livingEntityPatch.getOriginal().getY() + vec3f.y + 0.02F, livingEntityPatch.getOriginal().getZ() + (double) vec3f.z, vec3f.x, vec3f.y, vec3f.z);
                             }
 
-                        }, AnimationEvent.Side.CLIENT), AnimationEvent.InTimeEvent.create(0.55F, (livingEntityPatch, assetaccessor, animationparameters) -> livingEntityPatch.getOriginal().resetFallDistance(), AnimationEvent.Side.SERVER))
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.5F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_CROSS, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(0.6F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_CROSS_FIX_DELAY_SHADOW_HEROBRINE, AnimationEvent.Side.SERVER)
-                        )
-        );
+                        }, AnimationEvent.Side.CLIENT), AnimationEvent.InTimeEvent.create(0.55F, (livingEntityPatch, assetaccessor, animationparameters) -> livingEntityPatch.getOriginal().resetFallDistance(), AnimationEvent.Side.SERVER)));
 
         OBSIDIAN_STRONG_PUNCH = builder.nextAccessor("biped/wom_clone/obsidian_strong_punch",
                 accessor -> new BasicMultipleAttackAnimation(0.3F, 0.1F, 0.15F, 0.35F, WOMWeaponColliders.PUNCH, humanoidArmature.get().handL, accessor, humanoidArmature)
@@ -1536,10 +1531,7 @@ public class AnimsWom {
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AnimationProperty.AttackAnimationProperty.ATTACK_SPEED_FACTOR, 0.0F)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 3.0F)
-                        .addProperty(WomAnimationProperty.ANTI_STUN_MULTIPLYER, 0.0F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.1F, AVAnimations.ReuseableEvents.SUMMON_3_OBSIDIAN_HAND_LEFT, AnimationEvent.Side.SERVER)
-                        ));
+                        .addProperty(WomAnimationProperty.ANTI_STUN_MULTIPLYER, 0.0F));
         OBSIDIAN_ENDERBLASTER_TWOHAND_TISHNAW = builder.nextAccessor("biped/wom_clone/obsidian_enderblaster_twohand_tishnaw",
                 accessor -> new BasicMultipleAttackAnimation(0.05F, 0.3F, 0.5F, 0.65F, WOMWeaponColliders.KICK_HUGE, humanoidArmature.get().legR, accessor, humanoidArmature)
                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.65F))
@@ -1592,8 +1584,7 @@ public class AnimsWom {
                                                             Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F
                                                     );
                                         }, AnimationEvent.Side.CLIENT),
-                                        AnimationEvent.InTimeEvent.create(0.5F, reascer.wom.gameasset.ReuseableEvents.GROUND_BODYSCRAPE_LAND, AnimationEvent.Side.CLIENT),
-                                        AnimationEvent.InTimeEvent.create(0.5F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_SMALL_CROSS, AnimationEvent.Side.SERVER)
+                                        AnimationEvent.InTimeEvent.create(0.5F, reascer.wom.gameasset.ReuseableEvents.GROUND_BODYSCRAPE_LAND, AnimationEvent.Side.CLIENT)
                                 })
         );
         SHADOW_OBSIDIAN_SWORD_TORMENT_AIRSLAM = builder.nextAccessor("biped/wom_clone/shadow_obsidian_sword_torment_airslam",
@@ -1649,15 +1640,7 @@ public class AnimsWom {
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F)
                         .addProperty(AnimationProperty.StaticAnimationProperty.POSE_MODIFIER, null)
                         .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, false)
-                        .addEvents(new AnimationEvent[]{
-                                AnimationEvent.InTimeEvent.create(0.5F, reascer.wom.gameasset.ReuseableEvents.TORMENT_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(0.5F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_WALL, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(0.85F, reascer.wom.gameasset.ReuseableEvents.TORMENT_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(0.85F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_WALL, AnimationEvent.Side.SERVER),
-                                AnimationEvent.InTimeEvent.create(1.4F, reascer.wom.gameasset.ReuseableEvents.TORMENT_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(1.4F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_WALL, AnimationEvent.Side.SERVER)
-                        }));
+                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, false));
         SHADOW_OBSIDIAN_SWORD_GESETZ_AUTO_3 = builder.nextAccessor("biped/wom_clone/shadow_obsidian_sword_gezets_auto_3",
                 accessor -> new BasicMultipleAttackAnimation(0.15F, accessor, humanoidArmature, new AttackAnimation.Phase(0.0F, 0.3F, 0.5F, 0.55F, 0.55F, InteractionHand.OFF_HAND, humanoidArmature.get().handL, WOMWeaponColliders.PUNCH), new AttackAnimation.Phase(0.55F, 0.7F, 0.85F, 1.0F, Float.MAX_VALUE, InteractionHand.OFF_HAND, humanoidArmature.get().toolL, WOMWeaponColliders.GESETZ))
                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.6F))
@@ -1677,8 +1660,7 @@ public class AnimsWom {
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.5F)
                         .addEvents(
                                 new AnimationEvent[] {
-                                        AnimationEvent.InTimeEvent.create(0.8F, (livingEntityPatch, self, params) -> livingEntityPatch.getOriginal().level().playSound(null, livingEntityPatch.getOriginal(), SoundEvents.ANVIL_LAND, SoundSource.MASTER, 0.3F, 1.2F - (new Random().nextFloat() - 0.5F) * 0.2F), AnimationEvent.Side.CLIENT),
-                                        AnimationEvent.InTimeEvent.create(0.8F, AVAnimations.ReuseableEvents.THROW_OBSIDIAN_OFFHAND, AnimationEvent.Side.SERVER)
+                                        AnimationEvent.InTimeEvent.create(0.8F, (livingEntityPatch, self, params) -> livingEntityPatch.getOriginal().level().playSound(null, livingEntityPatch.getOriginal(), SoundEvents.ANVIL_LAND, SoundSource.MASTER, 0.3F, 1.2F - (new Random().nextFloat() - 0.5F) * 0.2F), AnimationEvent.Side.CLIENT)
                                 }
                         )
         );

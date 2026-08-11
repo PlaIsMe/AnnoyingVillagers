@@ -51,21 +51,22 @@ public class RenderShadowObsidianPillar extends RenderItemBase {
                 EntityState entityState = (dynamicAnimation.get()).getState(livingEntityPatch, elapsedTimeFloat);
                 ItemStack itemstack;
 
-                if (dynamicAnimation == AnimsWom.OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL
-                        || dynamicAnimation == AnimsEpicFight.OBSIDIAN_ZOMBIE_ATTACK3
-                        || dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AUTO3
-                        || dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AUTO1
-                        || dynamicAnimation == AnimsEpicFight.OBSIDIAN_BIPED_LANDING) {
+                if (dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_INNATE_SPECIAL
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_TWOHAND_1
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_3
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_1
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_TWOHAND_2
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_DASH) {
                     itemstack = ItemStack.EMPTY;
                     poseStack.pushPose();
                     MathUtils.mulStack(poseStack, openmatrix4fmainHand);
                     Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                     poseStack.popPose();
-                } else if (((dynamicAnimation == AnimsEpicFight.OBSIDIAN_FIST_AIR_SLASH
-                        || dynamicAnimation == AnimsEpicFightInfernalGainer.OBSIDIAN_INFERNAL_AUTO_2
+                } else if (((dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_4
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_PILLAR_SPECIAL
                         || dynamicAnimation.get() instanceof ExecutionAttackAnimation) && entityState.getLevel() > 1)
-                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE
-                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE_PILLAR) {
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_INNATE
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_PILLAR_DUAL_INNATE) {
                     itemstack = new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_BURST.get());
                     if (itemstack.getTag() != null) {
                         itemstack.getTag().putBoolean("foil", livingEntityPatch.getOriginal().getMainHandItem().isEnchanted());
@@ -74,10 +75,10 @@ public class RenderShadowObsidianPillar extends RenderItemBase {
                     MathUtils.mulStack(poseStack, openmatrix4fmainHand);
                     Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                     poseStack.popPose();
-                } else if ((dynamicAnimation == AnimsEpicFightInfernalGainer.OBSIDIAN_INFERNAL_AUTO_1
-                        || dynamicAnimation == AnimsWom.OBSIDIAN_STRONG_PUNCH
-                        || dynamicAnimation == AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO1
-                        || dynamicAnimation == AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO3)
+                } else if ((dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_LEFT_3
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_DASH
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_1
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_3)
                         && entityState.getLevel() > 1) {
                     itemstack = new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_PILLAR.get());
                     poseStack.pushPose();

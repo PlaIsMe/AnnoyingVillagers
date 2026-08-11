@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightDualGreatsword;
+import com.pla.annoyingvillagers.gameasset.AnimsObsidianWeapon;
 import net.minecraft.network.FriendlyByteBuf;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -16,7 +16,7 @@ public class ShadowObsidianSwordDualSkill extends WeaponInnateSkill {
         if (!this.isActivated(skillContainer)) {
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
-            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_INNATE, 0.0F);
         }
     }
 

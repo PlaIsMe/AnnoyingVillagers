@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.capabilities;
 
 import java.util.function.Function;
 
+import com.hm.efn.gameasset.animations.EFNDualSwordAnimations;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.compat.dualaxes.EpicFightDualAxe;
 import com.pla.annoyingvillagers.compat.dualaxes.EpicFightXDualAxe;
@@ -140,21 +141,20 @@ public class AVWeaponCapabilityPresets {
                     .hitSound(EpicFightSounds.BLUNT_HIT_HARD.get())
                     .canBePlacedOffhand(false)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsAgony.AGONY_AIR_ATTACK_1,
-                            WOMAnimations.ANTITHEUS_ASCENDED_AUTO_1,
-                            WOMAnimations.ANTITHEUS_ASCENDED_AUTO_2,
-                            WOMAnimations.ANTITHEUS_ASCENDED_AUTO_3,
-                            AnimsWom.CLONE_ANTITHEUS_ASCENDED_BLACKHOLE,
-                            AnimsAgony.AGONY_AIR_ATTACK_4,
-                            AnimsAgony.AGONY_AIR_ATTACK_3,
-                            AnimsWom.CLONE_ANTITHEUS_ASCENDED_DEATHFALL)
+                            AnimsNullWeapon.NULL_WEAPON_AUTO1,
+                            AnimsNullWeapon.NULL_WEAPON_AUTO2,
+                            AnimsNullWeapon.NULL_WEAPON_AUTO3,
+                            AnimsNullWeapon.NULL_WEAPON_AUTO4,
+                            AnimsNullWeapon.NULL_WEAPON_AUTO5,
+                            AnimsNullWeapon.NULL_WEAPON_DASH,
+                            AnimsNullWeapon.NULL_WEAPON_AIRSLASH)
                     .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.NULL_WEAPON)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsWom.CLONE_ANTITHEUS_ASCENDED_IDLE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, WOMAnimations.ANTITHEUS_ASCENDED_WALK)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, WOMAnimations.ANTITHEUS_ASCENDED_RUN)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, WOMAnimations.ANTITHEUS_ASCENDED_RUN)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD);
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsNullWeapon.NULL_WEAPON_IDLE)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsNullWeapon.NULL_WEAPON_WALK)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AnimsNullWeapon.NULL_WEAPON_RUN)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AnimsNullWeapon.NULL_WEAPON_RUN)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AVAnimations.FIST_GUARD);
 
     public static final Function<Item, CapabilityItem.Builder> OBSIDIAN_WEAPON = (item) ->
             WeaponCapability.builder().category(WeaponCategories.SWORD)
@@ -163,20 +163,20 @@ public class AVWeaponCapabilityPresets {
                     .hitSound(EpicFightSounds.BLUNT_HIT_HARD.get())
                     .canBePlacedOffhand(false)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsEpicFight.OBSIDIAN_FIST_AUTO1,
-                            AnimsEpicFight.OBSIDIAN_FIST_AUTO2,
-                            AnimsEpicFight.OBSIDIAN_FIST_AUTO3,
-                            AnimsEpicFight.OBSIDIAN_FIST_AIR_SLASH,
-                            AnimsEpicFight.OBSIDIAN_BIPED_LANDING,
-                            AnimsWom.OBSIDIAN_STRONG_PUNCH,
-                            AnimsWom.OBSIDIAN_ENDERBLASTER_TWOHAND_TISHNAW)
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_1,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_2,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_3,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_4,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_TWOHAND_1,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_DASH,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_AIRSLASH)
                     .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.OBSIDIAN_WEAPON)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_IDLE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, EFNDualSwordAnimations.NF_DUAL_IDLE)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, EFNDualSwordAnimations.NF_DUAL_WALK)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.HEROBRINE_RUN)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD);
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AVAnimations.FIST_GUARD);
     
     public static final Function<Item, CapabilityItem.Builder> SHADOW_OBSIDIAN_PILLAR = (item) ->
             WeaponCapability.builder().category(WeaponCategories.SWORD)
@@ -186,35 +186,30 @@ public class AVWeaponCapabilityPresets {
                     .hitSound(EpicFightSounds.BLUNT_HIT_HARD.get())
                     .canBePlacedOffhand(false)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsEpicFight.OBSIDIAN_FIST_AUTO1,
-                            AnimsEpicFight.OBSIDIAN_FIST_AUTO2,
-                            AnimsEpicFight.OBSIDIAN_FIST_AUTO3,
-                            AnimsEpicFight.OBSIDIAN_FIST_AIR_SLASH,
-                            AnimsEpicFight.OBSIDIAN_ZOMBIE_ATTACK3,
-                            AnimsWom.OBSIDIAN_STRONG_PUNCH,
-                            AnimsWom.OBSIDIAN_ENDERBLASTER_TWOHAND_TISHNAW)
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_1,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_2,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_3,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_4,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_TWOHAND_2,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_DASH,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_AIRSLASH)
                     .newStyleCombo(Styles.OCHS,
-                            AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO1,
-                            AnimsEpicFight.OBSIDIAN_FIST_AUTO2,
-                            AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO3,
-                            AnimsEpicFight.OBSIDIAN_FIST_AIR_SLASH,
-                            AnimsEpicFightInfernalGainer.OBSIDIAN_INFERNAL_AUTO_1,
-                            AnimsWom.OBSIDIAN_STRONG_PUNCH,
-                            AnimsWom.OBSIDIAN_ENDERBLASTER_TWOHAND_TISHNAW)
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_LEFT_1,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_2,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_LEFT_2,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_4,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_LEFT_3,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_DASH,
+                            AnimsObsidianWeapon.OBSIDIAN_WEAPON_AIRSLASH)
                     .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.SHADOW_OBSIDIAN_PILLAR)
                     .innateSkill(Styles.OCHS,
                             (itemstack) -> AVSkills.SHADOW_OBSIDIAN_PILLAR_SWORD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_IDLE)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.HEROBRINE_RUN)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD)
-                    .livingMotionModifier(Styles.OCHS, LivingMotions.IDLE, Animations.BIPED_IDLE)
-                    .livingMotionModifier(Styles.OCHS, LivingMotions.WALK, Animations.BIPED_WALK)
-                    .livingMotionModifier(Styles.OCHS, LivingMotions.RUN, AVAnimations.HEROBRINE_RUN)
-                    .livingMotionModifier(Styles.OCHS, LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN)
-                    .livingMotionModifier(Styles.OCHS, LivingMotions.BLOCK, AnimsPugilistSteve.FIST_GUARD)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.IDLE, EFNDualSwordAnimations.NF_DUAL_IDLE)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.WALK, EFNDualSwordAnimations.NF_DUAL_WALK)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.RUN, AVAnimations.HEROBRINE_RUN)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.BLOCK, AVAnimations.FIST_GUARD)
                     .weaponCombinationPredicator(
                             (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get()));;
 
@@ -229,34 +224,29 @@ public class AVWeaponCapabilityPresets {
                             (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get()) ? Styles.TWO_HAND : Styles.ONE_HAND)
                     .collider(ColliderPreset.SWORD)
                     .newStyleCombo(Styles.ONE_HAND,
-                            AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_TWOHAND_AUTO_1,
-                            AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_TWOHAND_AUTO_2,
-                            AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_ONEHAND_LONG,
-                            AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AIR_SLASH,
-                            AnimsPugilistSteve.SWORD_HEAVY_AUTO_1,
-                            AnimsWom.SHADOW_OBSIDIAN_SWORD_TORMENT_AIRSLAM)
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_AUTO1,
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_AUTO2,
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_AUTO3,
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_AUTO4,
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DASH,
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_AIRSLASH)
                     .newStyleCombo(Styles.TWO_HAND,
-                            AnimsWom.SHADOW_OBSIDIAN_SWORD_GESETZ_AUTO_2,
-                            AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO4,
-                            AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO5,
-                            AnimsEpicFightDualGreatsword.GREATSWORD_DUAL_AUTO_2,
-                            AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AUTO_3,
-                            WOMAnimations.TORMENT_DASH,
-                            AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AIRSLASH)
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AUTO1,
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AUTO2,
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AUTO3,
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AUTO4,
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_DASH,
+                            AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AIRSLASH)
                     .innateSkill(Styles.ONE_HAND,
                             (itemstack) -> AVSkills.SHADOW_OBSIDIAN_SWORD)
                     .innateSkill(Styles.TWO_HAND,
                             (itemstack) -> AVSkills.SHADOW_OBSIDIAN_SWORD_DUAL)
-                    .livingMotionModifier(Styles.ONE_HAND, LivingMotions.IDLE, Animations.BIPED_IDLE)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.IDLE, EFNDualSwordAnimations.NF_DUAL_IDLE)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.WALK, EFNDualSwordAnimations.NF_DUAL_WALK)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.RUN, AVAnimations.HEROBRINE_RUN)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN)
                     .livingMotionModifier(Styles.ONE_HAND, LivingMotions.BLOCK, AnimsMoonless.MOONLESS_GUARD)
-                    .livingMotionModifier(Styles.ONE_HAND, LivingMotions.RUN, AVAnimations.HEROBRINE_RUN)
-                    .livingMotionModifier(Styles.ONE_HAND, LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN)
-                    .livingMotionModifier(Styles.ONE_HAND, LivingMotions.WALK, Animations.BIPED_WALK)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, Animations.BIPED_HOLD_DUAL_WEAPON)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.SWORD_DUAL_GUARD)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.HEROBRINE_RUN)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.HEROBRINE_RUN)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_HOLD_DUAL_WEAPON)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AVAnimations.FIST_GUARD)
                     .weaponCombinationPredicator(
                             (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem().equals(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get()));
 

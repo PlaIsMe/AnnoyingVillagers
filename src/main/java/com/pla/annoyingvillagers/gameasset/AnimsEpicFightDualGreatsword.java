@@ -181,8 +181,7 @@ public class AnimsEpicFightDualGreatsword {
                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.SHORT, 1)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.05F)
                         .addEvents(
-                                AnimationEvent.InTimeEvent.create(1.25F, reascer.wom.gameasset.ReuseableEvents.SOLAR_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(1.25F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_CIRCLE, AnimationEvent.Side.SERVER)
+                                AnimationEvent.InTimeEvent.create(1.25F, reascer.wom.gameasset.ReuseableEvents.SOLAR_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT)
                         ));
 
         SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE_PILLAR = builder.nextAccessor("biped/epicfight_dual_greatsword/shadow_obsidian_sword_greatsword_dual_earthquake_pillar",
@@ -195,8 +194,7 @@ public class AnimsEpicFightDualGreatsword {
                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.SHORT, 1)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 2.05F)
                         .addEvents(
-                                AnimationEvent.InTimeEvent.create(1.25F, reascer.wom.gameasset.ReuseableEvents.SOLAR_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT),
-                                AnimationEvent.InTimeEvent.create(1.25F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_CIRCLE, AnimationEvent.Side.SERVER)
+                                AnimationEvent.InTimeEvent.create(1.25F, reascer.wom.gameasset.ReuseableEvents.SOLAR_GROUNDSLAM_SMALL, AnimationEvent.Side.CLIENT)
                         ));
     }
 }

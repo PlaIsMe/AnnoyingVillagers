@@ -86,43 +86,26 @@ public class AnimsEpicFight {
                 accessor -> new BasicAttackAnimation(0.08F, 0.05F, 0.15F, 0.15F, InteractionHand.OFF_HAND, null, Armatures.BIPED.get().toolL, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 3.2F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.1F, AVAnimations.ReuseableEvents.SUMMON_2_OBSIDIAN_HAND_LEFT, AnimationEvent.Side.SERVER)
-                        ));
+        );
         OBSIDIAN_FIST_AUTO2 = builder.nextAccessor("biped/epicfight_clone/obsidian_fist_auto2",
                 accessor -> new BasicAttackAnimation(0.08F, 0.05F, 0.15F, 0.15F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 3.2F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.1F, AVAnimations.ReuseableEvents.SUMMON_2_OBSIDIAN_HAND_RIGHT, AnimationEvent.Side.SERVER)
-                        ));
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 3.2F));
         OBSIDIAN_FIST_AUTO3 = builder.nextAccessor("biped/epicfight_clone/obsidian_fist_auto3",
                 accessor -> new BasicAttackAnimation(0.08F, 0.05F, 0.15F, 0.5F, InteractionHand.OFF_HAND, null, Armatures.BIPED.get().toolL, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 3.2F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.1F, AVAnimations.ReuseableEvents.SUMMON_3_OBSIDIAN_HAND_LEFT, AnimationEvent.Side.SERVER)
-                        ));
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 3.2F));
         SHADOW_OBSIDIAN_FIST_AUTO1 = builder.nextAccessor("biped/epicfight_clone/shadow_obsidian_fist_auto1",
                 accessor -> new BasicAttackAnimation(0.08F, 0.05F, 0.15F, 0.15F, InteractionHand.OFF_HAND, null, Armatures.BIPED.get().toolL, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.2F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.1F, AVAnimations.ReuseableEvents.SUMMON_2_OBSIDIAN_HAND_LEFT, AnimationEvent.Side.SERVER)
-                        ));
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.2F));
         SHADOW_OBSIDIAN_FIST_AUTO3 = builder.nextAccessor("biped/epicfight_clone/shadow_obsidian_fist_auto3",
                 accessor -> new BasicAttackAnimation(0.08F, 0.05F, 0.15F, 0.5F, InteractionHand.OFF_HAND, null, Armatures.BIPED.get().toolL, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.2F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.1F, AVAnimations.ReuseableEvents.SUMMON_3_OBSIDIAN_HAND_LEFT, AnimationEvent.Side.SERVER)
-                        ));
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.2F));
         OBSIDIAN_FIST_AIR_SLASH = builder.nextAccessor("biped/epicfight_clone/obsidian_fist_airslash",
                 accessor -> new AirSlashAnimation(0.1F, 0.15F, 0.26F, 0.4F, null, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 4.0F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.2F, AVAnimations.ReuseableEvents.SUMMON_6_OBSIDIAN_HAND_RIGHT, AnimationEvent.Side.SERVER)
-                        ));
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 4.0F));
         SHADOW_OBSIDIAN_FIST_AIR_SLASH = builder.nextAccessor("biped/epicfight_clone/shadow_obsidian_fist_airslash",
                 accessor -> new AirSlashAnimation(0.1F, 0.15F, 0.26F, 0.4F, AVCollider.SHADOW_OBSIDIAN_PILLAR, Armatures.BIPED.get().toolR, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 4.0F));
@@ -130,16 +113,10 @@ public class AnimsEpicFight {
                 accessor -> new AttackAnimation(0.0F, 0.0F, 0.0F, 0.0F, Float.MAX_VALUE, null, Armatures.BIPED.get().head, accessor, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 2.0F)
                         .addState(EntityState.CAN_BASIC_ATTACK, false)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.1F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_PILLAR, AnimationEvent.Side.SERVER)
-                        ));
+                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false));
         OBSIDIAN_ZOMBIE_ATTACK3 = builder.nextAccessor("biped/epicfight_clone/obsidian_zombie_attack3",
                 accessor -> new AttackAnimation(0.1F, 0.5F, 0.5F, 0.6F, 1.15F, ColliderPreset.HEAD, Armatures.BIPED.get().head, accessor, Armatures.BIPED)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.5F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.65F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_WALL, AnimationEvent.Side.SERVER)
-                        ));
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.5F));
         SHADOW_HEROBRINE_BIPED_LANDING = builder.nextAccessor("biped/epicfight_clone/shadow_herobrine_landing",
                 accessor -> new AttackAnimation(0.0F, 0.0F, 0.0F, 0.0F, Float.MAX_VALUE, null, Armatures.BIPED.get().head, accessor, Armatures.BIPED)
                         .addState(EntityState.CAN_BASIC_ATTACK, false)

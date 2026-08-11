@@ -40,11 +40,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class NullSkeletonEntity extends AbstractSkeleton {
+    private static final int DISCARD_AFTER_DEATH_TICKS = 25;
+
     protected UUID nullUUID;
     protected NullEntity nullEntity;
 
     protected UUID playerUUID;
     protected Player player;
+    private int forcedDeathDiscardTicks = -1;
 
     public NullSkeletonEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.NULL_SKELETON.get(), level);
@@ -82,6 +85,37 @@ public class NullSkeletonEntity extends AbstractSkeleton {
 
     private boolean isOwner(LivingEntity livingEntity) {
         return livingEntity instanceof Player playerEntity && playerUUID != null && playerUUID.equals(playerEntity.getUUID());
+    }
+
+    public boolean isOwnedBy(Player owner) {
+        return owner != null && playerUUID != null && playerUUID.equals(owner.getUUID());
+    }
+
+    public void killForDeathAnimation() {
+        if (this.forcedDeathDiscardTicks < 0) {
+            this.forcedDeathDiscardTicks = DISCARD_AFTER_DEATH_TICKS;
+        }
+        if (!this.isDeadOrDying() && this.isAlive()) {
+            this.kill();
+        }
+    }
+
+    private boolean discardAfterDeathAnimation() {
+        if (this.forcedDeathDiscardTicks >= 0) {
+            if (this.forcedDeathDiscardTicks-- <= 0) {
+                this.discard();
+            }
+            return true;
+        }
+
+        if (!this.isDeadOrDying() && this.getHealth() > 0.0F) {
+            return false;
+        }
+
+        if (this.deathTime >= DISCARD_AFTER_DEATH_TICKS) {
+            this.discard();
+        }
+        return true;
     }
 
     private boolean validTarget(LivingEntity livingEntity) {
@@ -248,6 +282,10 @@ public class NullSkeletonEntity extends AbstractSkeleton {
     public void tick() {
         super.tick();
         if (this.level() instanceof ServerLevel serverLevel) {
+            if (discardAfterDeathAnimation()) {
+                return;
+            }
+
             if (this.tickCount == 1) {
                 ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
                 sword.enchant(Enchantments.FIRE_ASPECT, 1);
@@ -261,6 +299,10 @@ public class NullSkeletonEntity extends AbstractSkeleton {
                 helmet.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 1);
                 this.setItemSlot(EquipmentSlot.HEAD, helmet);
             }
+            if (nullEntity == null && nullUUID == null && player == null && playerUUID == null) {
+                this.discard();
+                return;
+            }
             if (nullEntity == null && nullUUID != null) {
                 Entity entity = serverLevel.getEntity(nullUUID);
                 if (entity instanceof NullEntity entityNull) {
@@ -272,7 +314,8 @@ public class NullSkeletonEntity extends AbstractSkeleton {
             if (nullEntity != null && !nullEntity.isAlive()) {
                 nullEntity = null;
                 nullUUID = null;
-                this.kill();
+                this.killForDeathAnimation();
+                return;
             }
             if (nullEntity != null && nullEntity.isAlive()) {
                 double distanceSq = this.distanceToSqr(nullEntity);
@@ -288,19 +331,28 @@ public class NullSkeletonEntity extends AbstractSkeleton {
 
             if (player == null && playerUUID != null) {
                 player = serverLevel.getPlayerByUUID(playerUUID);
+                if (player == null) {
+                    this.killForDeathAnimation();
+                    return;
+                }
             }
             if (player != null && !player.isAlive()) {
                 player = null;
                 playerUUID = null;
-                this.kill();
+                this.killForDeathAnimation();
+                return;
             }
             if (player != null && player.isAlive()) {
                 PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-                if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                    SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.NULL_WEAPON);
-                    if (skillContainer != null && !skillContainer.isActivated()) {
-                        this.kill();
-                    }
+                if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) {
+                    this.killForDeathAnimation();
+                    return;
+                }
+
+                SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.NULL_WEAPON);
+                if (skillContainer == null || !skillContainer.isActivated() || skillContainer.getRemainDuration() <= 0) {
+                    this.killForDeathAnimation();
+                    return;
                 }
 
                 double distanceSq = this.distanceToSqr(player);
@@ -340,6 +392,9 @@ public class NullSkeletonEntity extends AbstractSkeleton {
         if (playerUUID != null) {
             tag.putUUID("PlayerUUID", playerUUID);
         }
+        if (forcedDeathDiscardTicks >= 0) {
+            tag.putInt("ForcedDeathDiscardTicks", forcedDeathDiscardTicks);
+        }
     }
 
     @Override
@@ -350,6 +405,9 @@ public class NullSkeletonEntity extends AbstractSkeleton {
         }
         if (tag.hasUUID("PlayerUUID")) {
             playerUUID = tag.getUUID("PlayerUUID");
+        }
+        if (tag.contains("ForcedDeathDiscardTicks")) {
+            forcedDeathDiscardTicks = tag.getInt("ForcedDeathDiscardTicks");
         }
     }
 

@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
+import com.pla.annoyingvillagers.gameasset.AnimsObsidianWeapon;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.minecraft.network.FriendlyByteBuf;
 import yesman.epicfight.skill.SkillBuilder;
@@ -20,7 +21,7 @@ public class ShadowObsidianSwordSkill extends WeaponInnateSkill {
         if (!this.isActivated(skillContainer)) {
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
-            skillContainer.getExecutor().playAnimationSynchronized(AnimsWom.SHADOW_OBSIDIAN_SWORD_TORMENT_BERSERK_DASH, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_INNATE, 0.0F);
         }
     }
 

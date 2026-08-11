@@ -16,7 +16,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BowItem;
@@ -41,7 +40,6 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
-import yesman.epicfight.world.effect.EpicFightMobEffects;
 
 import java.util.Objects;
 
@@ -347,9 +345,9 @@ public class SpecialAttackOnKeyPressedEvent {
                     if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                         SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.NULL_WEAPON);
                         if (skillContainer != null && skillContainer.getSkill() instanceof NullWeaponSkill && !skillContainer.isActivated()) {
-                            livingEntityPatch.playAnimationSynchronized(AnimsWom.CLONE_ANTITHEUS_SHOOT, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsNullWeapon.NULL_WEAPON_SPECIAL, 0.0F);
                         } else {
-                            livingEntityPatch.playAnimationSynchronized(AnimsWom.NULL_SKELETON_ANTITHEUS_ASCENSION, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsNullWeapon.NULL_WEAPON_INNATE_SPECIAL, 0.0F);
                         }
                     }
                     return;
@@ -370,9 +368,9 @@ public class SpecialAttackOnKeyPressedEvent {
                         }
                     }
                     if (success) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsWom.OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsObsidianWeapon.OBSIDIAN_WEAPON_INNATE_SPECIAL, 0.0F);
                     } else {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.OBSIDIAN_FIST_DASH, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsObsidianWeapon.OBSIDIAN_WEAPON_SPECIAL, 0.0F);
                     }
                     return;
                 }
@@ -392,9 +390,9 @@ public class SpecialAttackOnKeyPressedEvent {
                         }
                     }
                     if (success) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsWom.OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsObsidianWeapon.OBSIDIAN_WEAPON_INNATE_SPECIAL, 0.0F);
                     } else {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.OBSIDIAN_FIST_DASH, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsObsidianWeapon.OBSIDIAN_WEAPON_SPECIAL, 0.0F);
                     }
                     return;
                 }
@@ -420,9 +418,9 @@ public class SpecialAttackOnKeyPressedEvent {
                         }
                     }
                     if (success) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsWom.OBSIDIAN_ANTITHEUS_ASCENDED_DEATHFALL, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsObsidianWeapon.OBSIDIAN_WEAPON_INNATE_SPECIAL, 0.0F);
                     } else {
-                        livingEntityPatch.playAnimationSynchronized(AnimsEpicFightInfernalGainer.OBSIDIAN_INFERNAL_AUTO_2, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsObsidianWeapon.SHADOW_OBSIDIAN_PILLAR_SPECIAL, 0.0F);
                     }
                     return;
                 }
@@ -430,9 +428,9 @@ public class SpecialAttackOnKeyPressedEvent {
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get())) {
                 if (entity.level() instanceof ServerLevel) {
                     if (offHandItem.getItem().equals(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get())) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsWom.SHADOW_OBSIDIAN_SWORD_GESETZ_AUTO_3, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_SPECIAL, 0.0F);
                     } else {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.OBSIDIAN_FIST_DASH, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AnimsObsidianWeapon.OBSIDIAN_WEAPON_SPECIAL, 0.0F);
                     }
                     return;
                 }
@@ -440,8 +438,7 @@ public class SpecialAttackOnKeyPressedEvent {
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get())
                     || offHandItem.getItem().equals(AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get())) {
                 if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(Animations.BIPED_LANDING, 0.0F);
-                    HerobrineEnderEyeItem.startShadowObsidianMachineGun((ServerLevel) player.level(), player);
+                    livingEntityPatch.playAnimationSynchronized(AnimsObsidianWeapon.OBSIDIAN_MACHINE_GUN, 0.0F);
                     if (player.getMainHandItem().getItem().equals(AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get())) {
                         player.getMainHandItem().hurtAndBreak(10, player, p -> {
                         });

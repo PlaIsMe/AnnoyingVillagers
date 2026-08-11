@@ -67,19 +67,13 @@ public class AnimsEpicFightInfernalGainer {
                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.0F))
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 5.4F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.2F, AVAnimations.ReuseableEvents.SUMMON_6_OBSIDIAN_HAND_LEFT, AnimationEvent.Side.SERVER)
-                        ));
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 5.4F));
         OBSIDIAN_INFERNAL_AUTO_2 = builder.nextAccessor("biped/epicfight_infernal_gainer/obsidian_infernal_auto_2",
                 accessor -> new BasicMultipleAttackAnimation(0.2F, 0.1F, 0.2F, 0.25F, ColliderPreset.FIST, humanoidArmature.get().toolR, accessor, humanoidArmature)
                         .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.0F))
                         .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.5F))
                         .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                         .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 5.4F)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.1F, AVAnimations.ReuseableEvents.SUMMON_OBSIDIAN_WALL, AnimationEvent.Side.SERVER)
-                        ));
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 5.4F));
     }
 }

@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.gameasset;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.skill.EnderSlayerScytheSkill;
 import com.pla.annoyingvillagers.skill.LegendarySwordSkill;
+import com.pla.annoyingvillagers.skill.NullWeaponSkill;
 import com.pla.annoyingvillagers.skill.TridentFestivalSkill;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
@@ -16,6 +17,7 @@ public class AVSkillDataKeys {
     public static final RegistryObject<SkillDataKey<Integer>> TRIDENT_AMOUNT;
     public static final RegistryObject<SkillDataKey<Boolean>> LEGENDARY_SWORD_AWAKENED;
     public static final RegistryObject<SkillDataKey<Boolean>> ENDER_SLAYER_SCYTHE_SUMMON_PENDING;
+    public static final RegistryObject<SkillDataKey<Integer>> NULL_WEAPON_RELEASE_STACKS;
 
     public AVSkillDataKeys() {
     }
@@ -25,5 +27,6 @@ public class AVSkillDataKeys {
         TRIDENT_AMOUNT = DATA_KEYS.register("trident_amount", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, true, TridentFestivalSkill.class));
         LEGENDARY_SWORD_AWAKENED = DATA_KEYS.register("legendary_sword_awakened", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.BOOLEAN, false, true, LegendarySwordSkill.class));
         ENDER_SLAYER_SCYTHE_SUMMON_PENDING = DATA_KEYS.register("ender_slayer_scythe_summon_pending", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.BOOLEAN, false, true, EnderSlayerScytheSkill.class));
+        NULL_WEAPON_RELEASE_STACKS = DATA_KEYS.register("null_weapon_release_stacks", () -> SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, true, NullWeaponSkill.class));
     }
 }

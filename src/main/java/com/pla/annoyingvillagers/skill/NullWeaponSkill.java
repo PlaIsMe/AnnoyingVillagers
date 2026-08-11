@@ -2,8 +2,9 @@ package com.pla.annoyingvillagers.skill;
 
 import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AVSkillDataKeys;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.item.NullWeaponItem;
@@ -18,9 +19,6 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import reascer.wom.gameasset.WOMAnimations;
-import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -42,13 +40,13 @@ import java.util.*;
 
 public class NullWeaponSkill extends WeaponInnateSkill {
     private static final UUID EVENT_UUID = UUID.fromString("08b6bf0d-2fbe-4b7a-87da-ad4c4ebb9597");
-    private static final String NBT_SPENT_STACKS = "AV_NullWeaponSpentStacks";
+    private static final int MAX_NULL_WEAPON_STACKS = 5;
     public static final List<String> NULL_WEAPON_KEYS = List.of(
-            "NullSwordUUID",
-            "NullAxeUUID",
             "NullPickaxeUUID",
+            "NullAxeUUID",
             "NullHoeUUID",
-            "NullShovelUUID"
+            "NullShovelUUID",
+            "NullSwordUUID"
     );
 
     public static NullWeapon pickRandomNullWeapon(ServerLevel serverLevel, CompoundTag data, RandomSource rand) {
@@ -74,35 +72,18 @@ public class NullWeaponSkill extends WeaponInnateSkill {
     @Override
     public void executeOnServer(SkillContainer skillContainer, FriendlyByteBuf friendlyByteBuf) {
         if (!skillContainer.isActivated()) {
-            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
             Player player = skillContainer.getExecutor().getOriginal();
 
-            int stack = player.getPersistentData().getInt(NBT_SPENT_STACKS);
-            player.getPersistentData().remove(NBT_SPENT_STACKS);
-
             if (player.level() instanceof ServerLevel serverLevel) {
-                List<String> weaponKeys = List.of(
-                        "NullAxeUUID",
-                        "NullPickaxeUUID",
-                        "NullShovelUUID",
-                        "NullHoeUUID",
-                        "NullSwordUUID"
-                );
-                List<String> shuffledKeys = new ArrayList<>(weaponKeys);
-                Collections.shuffle(shuffledKeys, new Random());
-
-                for (int i = 0; i < stack; i++) {
-                    String key = shuffledKeys.get(i);
-
-                    if (player.getPersistentData().hasUUID(key)) {
-                        UUID uuid = player.getPersistentData().getUUID(key);
-                        Entity entity = serverLevel.getEntity(uuid);
-
-                        if (entity instanceof NullWeapon nullWeapon) {
-                            nullWeapon.setReleased(true);
-                        }
-                    }
+                CompoundTag data = player.getPersistentData();
+                int releaseStacks = getReleaseStackCount(skillContainer);
+                if (releaseStacks > 0) {
+                    releaseAvailableWeapons(serverLevel, data, releaseStacks);
+                } else {
+                    releaseTrackedWeapons(serverLevel, data);
                 }
+                skillContainer.getDataManager().setDataSync(AVSkillDataKeys.NULL_WEAPON_RELEASE_STACKS.get(), 0);
             }
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
@@ -121,15 +102,20 @@ public class NullWeaponSkill extends WeaponInnateSkill {
         }
 
         Player player = serverPatch.getOriginal();
+        int available = getClampedStack(container.getStack());
+        container.getDataManager().setDataSync(AVSkillDataKeys.NULL_WEAPON_RELEASE_STACKS.get(), available);
+
+        if (player.level() instanceof ServerLevel serverLevel) {
+            syncWeaponsForStack(serverLevel, player, player.getPersistentData(), available);
+        }
+
         if (player.isCreative()) {
             return true;
         }
 
-        int available = container.getStack();
         if (available <= 0) {
             return false;
         }
-        player.getPersistentData().putInt(NBT_SPENT_STACKS, available);
 
         Skill.setSkillStackSynchronize(container, 0);
         Skill.setSkillConsumptionSynchronize(container, 0.0F);
@@ -139,23 +125,7 @@ public class NullWeaponSkill extends WeaponInnateSkill {
     @Override
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
-        container.getExecutor().getEventListener().addEventListener(
-                PlayerEventListener.EventType.BASIC_ATTACK_EVENT, EVENT_UUID, event -> {
-                    if (event.getPlayerPatch().isLogicalClient()) return;
-                    SkillContainer skillContainer = event.getPlayerPatch().getSkill(this);
-                    if (!skillContainer.isActivated()) {
-                        event.setCanceled(true);
-                        final PlayerPatch<?> playerPatch = event.getPlayerPatch();
-                        AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-                        if (dynamicAnimation != null && dynamicAnimation == WOMAnimations.ANTITHEUS_ASCENDED_AUTO_2) {
-                            skillContainer.getExecutor().playAnimationSynchronized(WOMAnimations.ANTITHEUS_ASCENDED_AUTO_3, 0.0F);
-                        } else if (dynamicAnimation != null && dynamicAnimation == WOMAnimations.ANTITHEUS_ASCENDED_AUTO_1) {
-                            skillContainer.getExecutor().playAnimationSynchronized(WOMAnimations.ANTITHEUS_ASCENDED_AUTO_2, 0.0F);
-                        } else {
-                            skillContainer.getExecutor().playAnimationSynchronized(WOMAnimations.ANTITHEUS_ASCENDED_AUTO_1, 0.0F);
-                        }
-                    }
-                });
+        container.getDataManager().setDataSync(AVSkillDataKeys.NULL_WEAPON_RELEASE_STACKS.get(), 0);
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, (pre) -> {
             DamageSource damageSource = pre.getDamageSource();
             if (!damageSource.is(DamageTypes.MAGIC)
@@ -197,15 +167,7 @@ public class NullWeaponSkill extends WeaponInnateSkill {
                     Skill skill = event.getSkillContainer().getSkill();
 
                     if (skill.getCategory() == SkillCategories.GUARD){
-                        List<String> weaponKeys = List.of(
-                                "NullAxeUUID",
-                                "NullPickaxeUUID",
-                                "NullShovelUUID",
-                                "NullHoeUUID",
-                                "NullSwordUUID"
-                        );
-
-                        for (String key : weaponKeys) {
+                        for (String key : NULL_WEAPON_KEYS) {
                             if (player.getPersistentData().hasUUID(key) && player.level() instanceof ServerLevel serverLevel) {
                                 UUID uuid = player.getPersistentData().getUUID(key);
                                 Entity entity = serverLevel.getEntity(uuid);
@@ -222,24 +184,25 @@ public class NullWeaponSkill extends WeaponInnateSkill {
 
     @Override
     public void onRemoved(SkillContainer container) {
+        if (!container.getExecutor().isLogicalClient()
+                && container.getExecutor().getOriginal().level() instanceof ServerLevel serverLevel) {
+            killOwnedNullSkeletons(serverLevel, container.getExecutor().getOriginal());
+        }
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID);
-        container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.BASIC_ATTACK_EVENT, EVENT_UUID);
     }
 
     @Override
     public void cancelOnServer(SkillContainer container, FriendlyByteBuf args) {
         container.deactivate();
         Player player = container.getExecutor().getOriginal();
-        List<String> weaponKeys = List.of(
-                "NullAxeUUID",
-                "NullPickaxeUUID",
-                "NullShovelUUID",
-                "NullHoeUUID",
-                "NullSwordUUID"
-        );
+        container.getDataManager().setDataSync(AVSkillDataKeys.NULL_WEAPON_RELEASE_STACKS.get(), 0);
 
-        for (String key : weaponKeys) {
+        if (player.level() instanceof ServerLevel serverLevel) {
+            killOwnedNullSkeletons(serverLevel, player);
+        }
+
+        for (String key : NULL_WEAPON_KEYS) {
             if (player.getPersistentData().hasUUID(key) && player.level() instanceof ServerLevel serverLevel) {
                 UUID uuid = player.getPersistentData().getUUID(key);
                 Entity entity = serverLevel.getEntity(uuid);
@@ -268,9 +231,96 @@ public class NullWeaponSkill extends WeaponInnateSkill {
         }
 
         Entity trackedEntity = serverLevel.getEntity(persistentData.getUUID(uuidKey));
-        if (trackedEntity != null && (!expectedClass.isInstance(trackedEntity) || !trackedEntity.isAlive())) {
+        if (trackedEntity == null || !expectedClass.isInstance(trackedEntity) || !trackedEntity.isAlive() || trackedEntity.isRemoved()) {
             persistentData.remove(uuidKey);
         }
+    }
+
+    private static int getClampedStack(int stack) {
+        return Math.max(0, Math.min(MAX_NULL_WEAPON_STACKS, stack));
+    }
+
+    private static int getReleaseStackCount(SkillContainer container) {
+        Integer releaseStacks = container.getDataManager().getDataValue(AVSkillDataKeys.NULL_WEAPON_RELEASE_STACKS.get());
+        return getClampedStack(releaseStacks == null ? 0 : releaseStacks);
+    }
+
+    private static NullWeapon getTrackedWeapon(ServerLevel serverLevel, CompoundTag data, String key) {
+        if (!data.hasUUID(key)) {
+            return null;
+        }
+
+        Entity entity = serverLevel.getEntity(data.getUUID(key));
+        if (entity instanceof NullWeapon nullWeapon && nullWeapon.isAlive() && !nullWeapon.isRemoved()) {
+            return nullWeapon;
+        }
+
+        data.remove(key);
+        return null;
+    }
+
+    private static void releaseAvailableWeapons(ServerLevel serverLevel, CompoundTag data, int stack) {
+        int available = getClampedStack(stack);
+        for (int i = 0; i < available; i++) {
+            NullWeapon nullWeapon = getTrackedWeapon(serverLevel, data, NULL_WEAPON_KEYS.get(i));
+            if (nullWeapon != null) {
+                nullWeapon.setReleased(true);
+            }
+        }
+    }
+
+    private static void releaseTrackedWeapons(ServerLevel serverLevel, CompoundTag data) {
+        for (String key : NULL_WEAPON_KEYS) {
+            NullWeapon nullWeapon = getTrackedWeapon(serverLevel, data, key);
+            if (nullWeapon != null) {
+                nullWeapon.setReleased(true);
+            }
+        }
+    }
+
+    private static void removeTrackedWeaponIfIdle(ServerLevel serverLevel, CompoundTag data, String key) {
+        if (!data.hasUUID(key)) {
+            return;
+        }
+
+        Entity entity = serverLevel.getEntity(data.getUUID(key));
+        if (entity instanceof NullWeapon nullWeapon && nullWeapon.isAlive() && !nullWeapon.isRemoved()) {
+            if (!nullWeapon.isReleased()) {
+                nullWeapon.remove(Entity.RemovalReason.KILLED);
+                data.remove(key);
+            }
+            return;
+        }
+
+        data.remove(key);
+    }
+
+    private static void syncWeaponForStack(ServerLevel serverLevel, Player player, CompoundTag data, int available,
+                                           int requiredStack, String key,
+                                           EntityType<? extends NullWeapon> type,
+                                           Class<? extends Entity> expectedClass) {
+        if (available >= requiredStack) {
+            ensureWeapon(serverLevel, player, data, key, type, expectedClass);
+        } else {
+            removeTrackedWeaponIfIdle(serverLevel, data, key);
+        }
+    }
+
+    private static void syncWeaponsForStack(ServerLevel serverLevel, Player player, CompoundTag data, int stack) {
+        int available = getClampedStack(stack);
+        syncWeaponForStack(serverLevel, player, data, available, 1, "NullPickaxeUUID", AnnoyingVillagersModEntities.NULL_PICKAXE.get(), NullPickaxeEntity.class);
+        syncWeaponForStack(serverLevel, player, data, available, 2, "NullAxeUUID", AnnoyingVillagersModEntities.NULL_AXE.get(), NullAxeEntity.class);
+        syncWeaponForStack(serverLevel, player, data, available, 3, "NullHoeUUID", AnnoyingVillagersModEntities.NULL_HOE.get(), NullHoeEntity.class);
+        syncWeaponForStack(serverLevel, player, data, available, 4, "NullShovelUUID", AnnoyingVillagersModEntities.NULL_SHOVEL.get(), NullShovelEntity.class);
+        syncWeaponForStack(serverLevel, player, data, available, 5, "NullSwordUUID", AnnoyingVillagersModEntities.NULL_SWORD.get(), NullSwordEntity.class);
+    }
+
+    private static void killOwnedNullSkeletons(ServerLevel serverLevel, Player player) {
+        serverLevel.getEntitiesOfClass(
+                NullSkeletonEntity.class,
+                player.getBoundingBox().inflate(128.0D),
+                nullSkeleton -> nullSkeleton.isOwnedBy(player)
+        ).forEach(NullSkeletonEntity::killForDeathAnimation);
     }
 
     @Override
@@ -662,20 +712,24 @@ public class NullWeaponSkill extends WeaponInnateSkill {
         ServerLevel serverLevel = (ServerLevel) player.level();
         CompoundTag data = player.getPersistentData();
 
+        if (container.isActivated() && container.getRemainDuration() <= 0) {
+            this.cancelOnServer(container, null);
+            return;
+        }
+
         if (player.tickCount >= 40 && player.tickCount % 10 == 0) {
-            if (container.getExecutor().getOriginal().getMainHandItem().getItem() instanceof NullWeaponItem) {
-                ensureWeapon(serverLevel, player, data, "NullSwordUUID", AnnoyingVillagersModEntities.NULL_SWORD.get(), NullSwordEntity.class);
-                ensureWeapon(serverLevel, player, data, "NullAxeUUID", AnnoyingVillagersModEntities.NULL_AXE.get(), NullAxeEntity.class);
-                ensureWeapon(serverLevel, player, data, "NullPickaxeUUID", AnnoyingVillagersModEntities.NULL_PICKAXE.get(), NullPickaxeEntity.class);
-                ensureWeapon(serverLevel, player, data, "NullShovelUUID", AnnoyingVillagersModEntities.NULL_SHOVEL.get(), NullShovelEntity.class);
-                ensureWeapon(serverLevel, player, data, "NullHoeUUID", AnnoyingVillagersModEntities.NULL_HOE.get(), NullHoeEntity.class);
+            if (!container.isActivated()) {
+                killOwnedNullSkeletons(serverLevel, player);
             }
 
-            teleportWeapon("NullSwordUUID", serverLevel, data);
-            teleportWeapon("NullAxeUUID", serverLevel, data);
-            teleportWeapon("NullPickaxeUUID", serverLevel, data);
-            teleportWeapon("NullHoeUUID", serverLevel, data);
-            teleportWeapon("NullShovelUUID", serverLevel, data);
+            if (!container.isActivated()
+                    && container.getExecutor().getOriginal().getMainHandItem().getItem() instanceof NullWeaponItem) {
+                syncWeaponsForStack(serverLevel, player, data, getClampedStack(container.getStack()));
+            }
+
+            for (String key : NULL_WEAPON_KEYS) {
+                teleportWeapon(key, serverLevel, data);
+            }
         }
     }
 
@@ -694,8 +748,10 @@ public class NullWeaponSkill extends WeaponInnateSkill {
     private void teleportWeapon(String uuidNbt, ServerLevel serverLevel, CompoundTag compoundTag) {
         if (compoundTag.hasUUID(uuidNbt)) {
             Entity entity = serverLevel.getEntity(compoundTag.getUUID(uuidNbt));
-            if (entity instanceof NullWeapon nullWeapon) {
+            if (entity instanceof NullWeapon nullWeapon && nullWeapon.isAlive() && !nullWeapon.isRemoved()) {
                 nullWeapon.processTeleportByPlayer();
+            } else {
+                compoundTag.remove(uuidNbt);
             }
         }
     }

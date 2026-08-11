@@ -51,22 +51,22 @@ public class RenderShadowObsidianSword extends RenderItemBase {
                 EntityState entityState = (dynamicAnimation.get()).getState(livingEntityPatch, elapsedTimeFloat);
                 ItemStack itemstack;
 
-                if (dynamicAnimation == AnimsPugilistSteve.OBSIDIAN_FIST_DASH && entityState.getLevel() > 1) {
+                if (dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_SPECIAL && entityState.getLevel() > 1) {
                     itemstack = ItemStack.EMPTY;
                     poseStack.pushPose();
                     MathUtils.mulStack(poseStack, openmatrix4f);
                     Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                     poseStack.popPose();
-                } else if (((dynamicAnimation == AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_ONEHAND_LONG
-                        || dynamicAnimation == AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AIR_SLASH
-                        || dynamicAnimation == AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO4
-                        || dynamicAnimation == AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO5
+                } else if (((dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_AUTO3
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_AUTO4
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AUTO1
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AUTO2
                         || dynamicAnimation.get() instanceof ExecutionAttackAnimation) && entityState.getLevel() > 1)
-                        || dynamicAnimation == AnimsWom.SHADOW_OBSIDIAN_SWORD_TORMENT_AIRSLAM
-                        || dynamicAnimation == AnimsWom.SHADOW_OBSIDIAN_SWORD_TORMENT_BERSERK_DASH
-                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AIRSLASH
-                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE
-                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE_PILLAR) {
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_AIRSLASH
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_INNATE
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AIRSLASH
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_INNATE
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_PILLAR_DUAL_INNATE) {
                     itemstack = new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_STRAIGHT.get());
                     if (itemstack.getTag() != null) {
                         itemstack.getTag().putBoolean("foil", livingEntityPatch.getOriginal().getMainHandItem().isEnchanted());
@@ -91,23 +91,23 @@ public class RenderShadowObsidianSword extends RenderItemBase {
                 float elapsedTimeFloat = animationPlayer.getElapsedTime();
                 EntityState entityState = (dynamicAnimation.get()).getState(livingEntityPatch, elapsedTimeFloat);
                 ItemStack itemstack;
-                if (((dynamicAnimation == AnimsEpicFightInfernalGainer.OBSIDIAN_INFERNAL_AUTO_1
-                        || dynamicAnimation == AnimsWom.OBSIDIAN_STRONG_PUNCH
-                        || dynamicAnimation == AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO1
-                        || dynamicAnimation == AnimsEpicFight.SHADOW_OBSIDIAN_FIST_AUTO3) && entityState.getLevel() > 1)
-                        || (dynamicAnimation == AnimsWom.SHADOW_OBSIDIAN_SWORD_GESETZ_AUTO_3  && entityState.getLevel() > 2)) {
+                if (((dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_LEFT_3
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_DASH
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_1
+                        || dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_RIGHT_3) && entityState.getLevel() > 1)
+                        || (dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_SPECIAL  && entityState.getLevel() > 2)) {
                     itemstack = ItemStack.EMPTY;
                     poseStack.pushPose();
                     MathUtils.mulStack(poseStack, openmatrix4f);
                     Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                     poseStack.popPose();
-                } else if (((dynamicAnimation == AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO4
-                        || dynamicAnimation == AnimsPugilistSteve.SHADOW_OBSIDIAN_SWORD_DUAL_SWORD_AUTO5
+                } else if (((dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AUTO2
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AUTO3
                         || dynamicAnimation.get() instanceof ExecutionAttackAnimation) && entityState.getLevel() > 1)
-                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AUTO_3
-                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_AIRSLASH
-                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE
-                        || dynamicAnimation == AnimsEpicFightDualGreatsword.SHADOW_OBSIDIAN_SWORD_GREATSWORD_DUAL_EARTHQUAKE_PILLAR) {
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_DASH
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_AIRSLASH
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_SWORD_DUAL_INNATE
+                        || dynamicAnimation == AnimsObsidianWeapon.SHADOW_OBSIDIAN_PILLAR_DUAL_INNATE) {
                     itemstack = new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_STRAIGHT.get());
                     if (itemstack.getTag() != null) {
                         itemstack.getTag().putBoolean("foil", livingEntityPatch.getOriginal().getOffhandItem().isEnchanted());

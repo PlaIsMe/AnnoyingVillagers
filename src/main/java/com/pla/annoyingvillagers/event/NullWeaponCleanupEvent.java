@@ -11,7 +11,7 @@ import java.util.List;
 
 @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class NullWeaponCleanupEvent {
-    private static final String NBT_SPENT_STACKS = "AV_NullWeaponSpentStacks";
+    private static final String LEGACY_NBT_SPENT_STACKS = "AV_NullWeaponSpentStacks";
     private static final List<String> NULL_WEAPON_KEYS = List.of(
             "NullSwordUUID",
             "NullAxeUUID",
@@ -25,7 +25,7 @@ public class NullWeaponCleanupEvent {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
         CompoundTag data = player.getPersistentData();
-        data.remove(NBT_SPENT_STACKS);
+        data.remove(LEGACY_NBT_SPENT_STACKS);
 
         for (String key : NULL_WEAPON_KEYS) {
             data.remove(key);

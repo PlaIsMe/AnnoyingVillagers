@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AnimsObsidianWeapon;
 import net.minecraft.network.FriendlyByteBuf;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -20,7 +20,7 @@ public class ShadowObsidianPillarSkill extends WeaponInnateSkill {
         if (!this.isActivated(skillContainer)) {
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
-            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFight.OBSIDIAN_BIPED_LANDING, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsObsidianWeapon.OBSIDIAN_WEAPON_TWOHAND_1, 0.0F);
         }
     }
 
