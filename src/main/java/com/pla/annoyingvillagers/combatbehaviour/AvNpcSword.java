@@ -57,11 +57,11 @@ public class AvNpcSword {
     );
 
     public static final Builder<MobPatch<?>> BLACK_FIRE_SWORD = swordSkill(
-            AVAnimations.BLACK_FIRE_SWORD_SKILL
+            AnimsEpicFightAwaken.HOOK_SLASH_GROUND
     );
 
     public static final Builder<MobPatch<?>> DUAL_BLACK_FIRE_SWORD = dualSwordSkill(
-            AVAnimations.BLACK_FIRE_SWORD_SKILL
+            AnimsEpicFightAwaken.HOOK_SLASH_GROUND
     );
 
     public static final Builder<MobPatch<?>> BLUE_FLAME_SWORD = swordSkill(
@@ -89,11 +89,11 @@ public class AvNpcSword {
     );
 
     public static final Builder<MobPatch<?>> DIAMOND_BLASTER_SWORD = swordSkill(
-            AVAnimations.DIAMOND_BLASTER_SKILL
+            AnimsYonchiChikito.DIAMOND_ATTRACTOR_SKILL
     );
 
     public static final Builder<MobPatch<?>> DUAL_DIAMOND_BLASTER_SWORD = dualSwordSkill(
-            AVAnimations.DIAMOND_BLASTER_SKILL
+            AnimsYonchiChikito.DIAMOND_ATTRACTOR_SKILL
     );
 
     public static final Builder<MobPatch<?>> HACKER_SWORD = swordSkill(

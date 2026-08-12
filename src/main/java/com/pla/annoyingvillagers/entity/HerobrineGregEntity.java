@@ -10,7 +10,7 @@ import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -429,7 +429,7 @@ public class HerobrineGregEntity extends Monster {
         this.hookedLeftGround = !this.onGround();
         this.setHooked(true);
         HerobrinePortalUtil.cancelSinkTransition(this);
-        EpicfightUtil.cancel(this, AnimsSculkSteve.PORTAL_SUMMON);
+        EpicfightUtil.cancel(this, AVAnimations.PORTAL_SUMMON);
         this.restoreGregHookedEscapeAppearance();
         this.releaseHookedPhysicsUntilGround();
         this.getNavigation().stop();
@@ -448,7 +448,7 @@ public class HerobrineGregEntity extends Monster {
     private void playSecondFormSupportCastAnimation() {
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
         if (patch != null && !this.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            patch.playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
         }
     }
 
@@ -1172,7 +1172,7 @@ public class HerobrineGregEntity extends Monster {
             if (this.escapeTiming == 60 && this.combatMode) {
                 this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get());
                 if (getLivingEntityPatch() != null) {
-                    getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+                    getLivingEntityPatch().playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
                 }
                 AnnoyingVillagers.PACKET_HANDLER.send(
                         PacketDistributor.TRACKING_ENTITY.with(() -> this),
@@ -1902,7 +1902,7 @@ public class HerobrineGregEntity extends Monster {
 
     private void summonHerobrines() {
         if (getLivingEntityPatch() != null) {
-            getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            getLivingEntityPatch().playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
         }
         if (this.level() instanceof ServerLevel serverLevel) {
             this.clearSummonSpace(serverLevel);
@@ -1915,7 +1915,7 @@ public class HerobrineGregEntity extends Monster {
 
     private void summonHerobrinesAndEscape() {
         if (getLivingEntityPatch() != null) {
-            getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            getLivingEntityPatch().playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
         }
         if (this.level() instanceof ServerLevel serverLevel) {
             this.clearSummonSpace(serverLevel);

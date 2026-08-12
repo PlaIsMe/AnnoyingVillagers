@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.combatbehaviour;
 
 import com.pla.annoyingvillagers.entity.AlexEntity;
 import com.pla.annoyingvillagers.entity.JevEntity;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.task.DelayedTask;
@@ -1145,7 +1145,7 @@ public final class AlexJevHookCombat {
     private static void playHookGunAnimation(LivingEntity entity) {
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
         if (patch != null && !entity.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsPugilistSteve.HOOK_GUN, 0.0F);
+            patch.playAnimationSynchronized(AVAnimations.HOOK_GUN, 0.0F);
         }
     }
 

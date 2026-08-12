@@ -54,7 +54,7 @@ public class EarthAxeItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(Items.NETHERITE_INGOT));
             }
-        }, 3, -2.8F, (new Properties()));
+        }, 3, -2.2F, (new Properties()));
     }
 
     public static void summonEarthWall(ServerLevel level, LivingEntity caster) {

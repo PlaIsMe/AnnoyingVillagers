@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.client.engine;
 
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AnimsAVSword;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -60,12 +60,8 @@ public class RenderDNAxHookSword extends RenderItemBase {
 
         AssetAccessor<? extends StaticAnimation> currentAnimation = animationPlayer.getRealAnimation();
 
-        boolean sweepingEdge = currentAnimation == AnimsEpicFight.DNAX_HOOK_SWEEPING_EDGE;
-        boolean dancingEdge = currentAnimation == AnimsEpicFight.DNAX_HOOK_DANCING_EDGE;
-
         ItemStack renderStack;
-
-        if (sweepingEdge || dancingEdge) {
+        if (currentAnimation == AnimsAVSword.DNAX_HOOK_SWORD_INNATE || currentAnimation == AnimsAVSword.DNAX_HOOK_SWORD_DUAL_INNATE) {
             renderStack = new ItemStack(AnnoyingVillagersModItems.DNAX_HOOKED_SWORD_ABILITY.get());
             if (heldStack.isEnchanted()) {
                 renderStack.getOrCreateTag().putBoolean("foil", true);
@@ -73,16 +69,7 @@ public class RenderDNAxHookSword extends RenderItemBase {
         } else {
             renderStack = heldStack.copy();
         }
-
-        renderStack(
-                renderStack,
-                livingEntityPatch,
-                hand,
-                poses,
-                buffer,
-                poseStack,
-                packedLight
-        );
+        renderStack(renderStack, livingEntityPatch, hand, poses, buffer, poseStack, packedLight);
     }
 
     private static boolean isDNAxHookSword(ItemStack stack) {

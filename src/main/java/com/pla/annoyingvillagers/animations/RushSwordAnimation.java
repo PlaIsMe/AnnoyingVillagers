@@ -98,6 +98,7 @@ public class RushSwordAnimation extends BasicMultipleAttackAnimation {
                 Vec3 cur = livingEntity.getDeltaMovement();
                 livingEntity.setDeltaMovement(cur.x + dash.x, cur.y + dash.y, cur.z + dash.z);
                 livingEntity.hasImpulse = true;
+                livingEntity.hurtMarked = true;
             }
         };
     }

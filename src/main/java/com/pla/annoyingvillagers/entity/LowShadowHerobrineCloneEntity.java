@@ -4,7 +4,6 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
@@ -19,7 +18,6 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
@@ -360,7 +358,7 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                     }
                     final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
                     if (livingentitypatch != null && !this.level().isClientSide()) {
-                        livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.PLAYER_HEROBRINE_POSSESSION, 0.0F);
+                        livingentitypatch.playAnimationSynchronized(AVAnimations.PLAYER_HEROBRINE_POSSESSION, 0.0F);
                     }
                     this.initialSpawn = false;
                 }
@@ -444,9 +442,9 @@ public class LowShadowHerobrineCloneEntity extends Monster {
                 this.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 1, 3, false, false));
                 if (this.livingentitypatch != null && !this.isDeadOrDying() && this.isAlive()) {
                     if (this.sacrificing) {
-                        this.livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_ASSISTANCE, 0.0F);
+                        this.livingentitypatch.playAnimationSynchronized(AVAnimations.HEROBRINE_ASSISTANCE, 0.0F);
                     } else if (this.healing) {
-                        this.livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_SACRIFICING, 0.0F);
+                        this.livingentitypatch.playAnimationSynchronized(AVAnimations.HEROBRINE_SACRIFICING, 0.0F);
                     }
                 }
                 if (this.tickCount % 140 == 0 && this.possessedByEntity.getHealth() < this.possessedByEntity.getMaxHealth() * 0.8) {

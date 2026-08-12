@@ -1,12 +1,8 @@
 package com.pla.annoyingvillagers.item;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public class DiamondMaceItem extends SwordItem {
     public DiamondMaceItem() {
@@ -34,6 +30,6 @@ public class DiamondMaceItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(Items.DIAMOND));
             }
-        }, 3, -3.2F, (new Properties()));
+        }, 3, -2.2F, (new Properties()));
     }
 }

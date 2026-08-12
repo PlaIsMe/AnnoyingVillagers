@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
+import com.pla.annoyingvillagers.gameasset.AnimsAVSword;
 import com.pla.annoyingvillagers.gameasset.AnimsYonchiChikito;
 import net.minecraft.network.FriendlyByteBuf;
 import yesman.epicfight.skill.SkillBuilder;
@@ -16,7 +17,7 @@ public class DiamondAttractorSwordSkill extends WeaponInnateSkill {
         if (!this.isActivated(skillContainer)) {
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
-            skillContainer.getExecutor().playAnimationSynchronized(AnimsYonchiChikito.DIAMOND_ATTRACTOR_SKILL, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsAVSword.DIAMOND_ATTRACTOR_INNATE, 0.0F);
         }
     }
 

@@ -1,14 +1,17 @@
 package com.pla.annoyingvillagers.compat.cdmoveset;
 
+import com.hm.efn.gameasset.animations.EFNSwordAnimations;
 import com.pla.annoyingvillagers.combatbehaviour.AvNpcDagger;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsAVGreatsword;
+import com.pla.annoyingvillagers.gameasset.AnimsAVSpear;
+import com.pla.annoyingvillagers.gameasset.AnimsAVTachi;
 import net.corruptdog.cdm.world.CorruptWeaponCategories;
 import net.corruptdog.cdm.world.item.CDAddonItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
-import yesman.epicfight.gameasset.Animations;
+import net.shelmarow.ef_awaken.efassets.animations.StraightSwordAnimations;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
@@ -115,65 +118,56 @@ public class EpicFightResurrection {
     }
 
     public static boolean addMoreSpecialAttack(PlayerPatch<?> playerpatch, Entity entity, LivingEntityPatch<?> livingEntityPatch) {
-        if (playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.S_SPEAR) {
-            if (entity.level() instanceof ServerLevel) {
-                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SPEAR_THRUST, 0.0F);
+        CapabilityItem mainHandCapability = playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+        if (mainHandCapability.getWeaponCategory() == CorruptWeaponCategories.S_SWORD) {
+            if (mainHandCapability.getStyle(playerpatch) == CapabilityItem.Styles.ONE_HAND && entity.level() instanceof ServerLevel) {
+                livingEntityPatch.playAnimationSynchronized(EFNSwordAnimations.NF_SWORD_SKILL, 0.0F);
+                return true;
+            }
+
+            if (mainHandCapability.getStyle(playerpatch) == CapabilityItem.Styles.TWO_HAND && entity.level() instanceof ServerLevel) {
+                livingEntityPatch.playAnimationSynchronized(StraightSwordAnimations.STRAIGHTSWORD_DUAL_DODGE_SLASH, 0.0F);
                 return true;
             }
         }
 
-        if ((playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.S_SWORD
-                || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.S_DAGGER
-                || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.GREAT_TACHI)
-                && (playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == CorruptWeaponCategories.S_SWORD
-                || playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == CorruptWeaponCategories.GREAT_TACHI
-                || playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == CorruptWeaponCategories.S_DAGGER)) {
+        if (mainHandCapability.getWeaponCategory() == CorruptWeaponCategories.S_TACHI) {
             if (entity.level() instanceof ServerLevel) {
-                if (!entity.getPersistentData().contains("DualSwordCombo")) {
-                    livingEntityPatch.playAnimationSynchronized(Animations.DAGGER_DUAL_DASH, 0.0F);
-                    entity.getPersistentData().putDouble("DualSwordCombo", 1.0);
-                } else if (entity.getPersistentData().getDouble("DualSwordCombo") == 1.0) {
-                    livingEntityPatch.playAnimationSynchronized(Animations.LONGSWORD_AUTO2, 0.0F);
-                    entity.getPersistentData().putDouble("DualSwordCombo", 2.0);
-                } else if (entity.getPersistentData().getDouble("DualSwordCombo") == 2.0) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.DUAL_DANCING_EDGE, 0.0F);
-                    entity.getPersistentData().putDouble("DualSwordCombo", 3.0);
-                } else if (entity.getPersistentData().getDouble("DualSwordCombo") == 3.0) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.DUAL_SWORD_DANCING_EDGE, 0.0F);
-                    entity.getPersistentData().remove("DualSwordCombo");
-                }
+                livingEntityPatch.playAnimationSynchronized(AnimsAVTachi.AV_TACHI_SPECIAL, 0.0F);
                 return true;
             }
         }
 
-        if ((playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.S_SWORD
-                || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.S_LONGSWORD
-                || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.S_TACHI
-                || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.S_DAGGER
-                || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.GREAT_TACHI
-                || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.KATANA)
-                && (playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() != CorruptWeaponCategories.S_SWORD
-                && playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() != CorruptWeaponCategories.GREAT_TACHI
-                && playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() != CorruptWeaponCategories.S_DAGGER)) {
+        if (mainHandCapability.getWeaponCategory() == CorruptWeaponCategories.S_DAGGER) {
             if (entity.level() instanceof ServerLevel) {
-                if (!entity.getPersistentData().contains("SwordCombo")) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F);
-                    entity.getPersistentData().putDouble("SwordCombo", 1.0);
-                } else if (entity.getPersistentData().getDouble("SwordCombo") == 1.0) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F);
-                    entity.getPersistentData().putDouble("SwordCombo", 2.0);
-                } else if (entity.getPersistentData().getDouble("SwordCombo") == 2.0) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F);
-                    entity.getPersistentData().remove("SwordCombo");
-                }
+                livingEntityPatch.playAnimationSynchronized(EFNSwordAnimations.NF_SWORD_SKILL_SECOND, 0.0F);
                 return true;
             }
         }
 
-        if (playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == CorruptWeaponCategories.S_GREATSWORD) {
-            if (entity.level() instanceof ServerLevel) {
-                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GIANT_WHIRLWIND, 0.0F);
+        if (mainHandCapability.getWeaponCategory() == CorruptWeaponCategories.S_LONGSWORD) {
+            if (mainHandCapability.getStyle(playerpatch) == CapabilityItem.Styles.ONE_HAND && entity.level() instanceof ServerLevel) {
+                livingEntityPatch.playAnimationSynchronized(StraightSwordAnimations.STRAIGHTSWORD_DODGE_SLASH1, 0.0F);
                 return true;
+            }
+
+            if (mainHandCapability.getStyle(playerpatch) == CapabilityItem.Styles.TWO_HAND && entity.level() instanceof ServerLevel) {
+                livingEntityPatch.playAnimationSynchronized(StraightSwordAnimations.STRAIGHTSWORD_DUAL_DODGE_PURSUIT, 0.0F);
+                return true;
+            }
+        }
+
+        if (mainHandCapability.getWeaponCategory() == CorruptWeaponCategories.S_GREATSWORD) {
+            if (entity.level() instanceof ServerLevel) {
+                livingEntityPatch.playAnimationSynchronized(AnimsAVGreatsword.AV_GREATSWORD_SPECIAL, 0.0F);
+                return true;
+            }
+        }
+
+        if (mainHandCapability.getWeaponCategory() == CorruptWeaponCategories.S_SPEAR
+                || mainHandCapability.getWeaponCategory() == CapabilityItem.WeaponCategories.TRIDENT) {
+            if (entity.level() instanceof ServerLevel) {
+                livingEntityPatch.playAnimationSynchronized(AnimsAVSpear.AV_SPEAR_SPECIAL, 0.0F);
             }
         }
 

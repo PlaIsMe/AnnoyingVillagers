@@ -1,12 +1,8 @@
 package com.pla.annoyingvillagers.item;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public class GoldenMaceItem extends SwordItem {
     public GoldenMaceItem() {
@@ -34,6 +30,6 @@ public class GoldenMaceItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(Items.GOLD_INGOT));
             }
-        }, 3, -28F, (new Properties()));
+        }, 3, -2.4F, (new Properties()));
     }
 }

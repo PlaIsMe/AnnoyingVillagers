@@ -1,10 +1,7 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.entity.TridentLightningBolt;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AVSkills;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightACG;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.item.WoopieTheSwordItem;
 import com.pla.annoyingvillagers.skill.WoopieTheSwordSkill;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
@@ -44,8 +41,8 @@ public class ExplosionDamageEvent {
             LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(livingEntity, LivingEntityPatch.class);
             if (livingEntityPatch == null) return;
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-            if (dynamicAnimation == AnimsPugilistSteve.RUSH_SWORD || dynamicAnimation == AnimsPugilistSteve.RUSH_SWORD_OFFHAND
-                    || dynamicAnimation == AVAnimations.LEGENDARYSWORD_WOOPIE_FLY || dynamicAnimation == AnimsEpicFightACG.SAO_DUAL_SWORD_AUTO12) {
+            if (dynamicAnimation == AnimsAVSword.WOOPIE_INNATE || dynamicAnimation == AnimsAVSword.WOOPIE_INNATE_SPECIAL
+                    || dynamicAnimation == AVAnimations.LEGENDARYSWORD_WOOPIE_FLY || dynamicAnimation == AnimsAVSword.WOOPIE_INNATE_SPECIAL_LEGENDARY) {
                 for (Entity entity : detonate.getAffectedEntities()) {
                     if (entity.isAlive() && entity != detonate.getExplosion().getIndirectSourceEntity()
                             && entity instanceof LivingEntity livingExploded && !(entity instanceof EnderHand)
@@ -54,7 +51,7 @@ public class ExplosionDamageEvent {
                         if (explodedPatch != null) {
                             AssetAccessor<? extends StaticAnimation> explodedDynamicAnimation = Objects.requireNonNull(explodedPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
                             if (!EpicfightUtil.isLongHitAnimation(explodedDynamicAnimation, explodedPatch)) {
-                                explodedPatch.playAnimationSynchronized(AnimsPugilistSteve.LONGEST_HIT, 0.0F);
+                                explodedPatch.playAnimationSynchronized(AVAnimations.SUPER_KNOCK_BACK, 0.0F);
                             }
                         }
                         if (!entity.isAlive()) continue;

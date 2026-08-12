@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.client.particle.ground_slam.GroundSlamOptions;
 import com.pla.annoyingvillagers.client.particle.smoke_wave.SmokeWaveOptions;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.core.BlockPos;
@@ -237,7 +237,7 @@ public class VacuumSliceEntity extends Entity {
         if (this.level() instanceof ServerLevel level) {
             LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
             if (targetPatch != null) {
-                targetPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+                targetPatch.playAnimationSynchronized(AVAnimations.STUN_BACK, 0.0F);
                 EpicfightUtil.dealStaminaDamageByPercentage(source, targetPatch, 0.2F, false);
             }
         }

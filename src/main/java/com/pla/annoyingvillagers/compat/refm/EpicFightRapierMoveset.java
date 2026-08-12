@@ -1,14 +1,12 @@
 package com.pla.annoyingvillagers.compat.refm;
 
-import com.pla.annoyingvillagers.combatbehaviour.AvNpcSpear;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightBattleArts;
+import com.hm.efn.gameasset.animations.EFNSwordAnimations;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
 import net.yonchi.refm.world.capabilities.item.RapierWeaponCategories;
 import net.yonchi.refm.world.item.RapierAddonItems;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
@@ -45,7 +43,7 @@ public class EpicFightRapierMoveset {
         WeaponCategory mainHandCategory = playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory();
 
         if (isRapier(mainHandCategory) && entity.level() instanceof ServerLevel) {
-            livingEntityPatch.playAnimationSynchronized(AnimsEpicFightBattleArts.SABRE_QUAD_STING, 0.0F);
+            livingEntityPatch.playAnimationSynchronized(EFNSwordAnimations.NF_SWORD_SKILL_SECOND, 0.0F);
             return true;
         }
 

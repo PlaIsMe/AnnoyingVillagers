@@ -8,9 +8,7 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.gameasset.AnimsBlueDemonTrident;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
@@ -764,9 +762,9 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 
         if (this.getLivingEntityPatch() != null) {
             if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_DIE, 0.0F);
+                this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_DIE, 0.0F);
             } else {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFight.BLUE_DEMON_DIE_LEGENDARY_SWORD_START, 0.0F);
+                this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_DIE_LEGENDARY_SWORD_START, 0.0F);
             }
         }
 
@@ -800,9 +798,9 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 
         if (this.getLivingEntityPatch() != null && (this.dieTick <= 180 && this.dieTick % 10 == 0)) {
             if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
+                this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
             } else {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFight.BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK, 0.0F);
+                this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK, 0.0F);
             }
         }
 
@@ -1018,12 +1016,11 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         }
         if (this.level() instanceof ServerLevel serverLevel && this.getLivingEntityPatch() != null && this.dieTick <= 0) {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(this.getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
-            if (dynamicAnimation == AnimsWom.CUT_ANTITHEUS_ASCENSION
-                    || dynamicAnimation == AVAnimations.TRIDENT_ATTACK
-                    || dynamicAnimation == AVAnimations.ELECTRIC_FIELD
-                    || dynamicAnimation == AnimsPugilistSteve.TRIDENT_FESTIVAL
-                    || dynamicAnimation == AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM
-                    || dynamicAnimation == AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END) {
+            if (dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THUNDER_ATTACK
+                    || dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_ELECTRIC_FIELD
+                    || dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_FESTIVAL
+                    || dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_STATE_TRANSFORM
+                    || dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_STATE_TRANSFORM_END) {
                 EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(serverLevel, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO,
                         this, damagesource.getEntity());
                 return false;
@@ -1329,7 +1326,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 
         if (this.tickCount % 2 == 0 && this.getLivingEntityPatch() != null) {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
-            if (dynamicAnimation != AVAnimations.TRIDENT_ATTACK && dynamicAnimation != AnimsPugilistSteve.TRIDENT_FESTIVAL) {
+            if (dynamicAnimation != AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THUNDER_ATTACK && dynamicAnimation != AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_FESTIVAL) {
                 this.absorbNearbyGroundedOwnerTridents(serverLevel);
             }
         }
@@ -1406,12 +1403,12 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             if (stateTransformCooldown > 0) {
                 if (this.getLivingEntityPatch() != null) {
                     if (stateTransformCooldown > 20) {
-                        this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
+                        this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
                     } else if (stateTransformCooldown == 20) {
                         if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
                             this.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_PHASE_2_RELEASE.get(), 0.5F, 1.0F);
                         }
-                        this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END, 0.0F);
+                        this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_STATE_TRANSFORM_END, 0.0F);
                     } else if (stateTransformCooldown == 10) {
                         ItemStack legendaryStack = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
                         legendaryStack.enchant(Enchantments.SHARPNESS, 5);
@@ -1712,7 +1709,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             BlueDemonTridentItem.addStormEnergy(this.getMainHandItem(), 100);
             BlueDemonTridentItem.addStormEnergy(this.getOffhandItem(), 100);
             if (this.getLivingEntityPatch() != null) {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_FESTIVAL, 0.0F);
+                this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_FESTIVAL, 0.0F);
             }
             return;
         }

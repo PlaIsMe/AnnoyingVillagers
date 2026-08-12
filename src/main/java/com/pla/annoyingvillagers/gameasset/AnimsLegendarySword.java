@@ -58,6 +58,7 @@ import java.util.Set;
 @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AnimsLegendarySword {
     public static AnimationManager.AnimationAccessor<StaticAnimation> LEGENDARY_SWORD_IDLE;
+    public static AnimationManager.AnimationAccessor<MovementAnimation> LEGENDARY_SWORD_RUN;
     public static AnimationManager.AnimationAccessor<StaticAnimation> LEGENDARY_SWORD_GUARD;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> LEGENDARY_SWORD_AUTO1;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> LEGENDARY_SWORD_AUTO2;
@@ -66,6 +67,7 @@ public class AnimsLegendarySword {
     public static AnimationManager.AnimationAccessor<AvalonAttackAnimation> LEGENDARY_SWORD_AUTO5;
     public static AnimationManager.AnimationAccessor<SpecialAttackAnimation> LEGENDARY_SWORD_DASH;
     public static AnimationManager.AnimationAccessor<SpecialAttackAnimation> LEGENDARY_SWORD_AIRSLASH;
+    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> LEGENDARY_SWORD_WOOPIE_AUTO1;
     public static AnimationManager.AnimationAccessor<AttackAnimation> LEGENDARY_SWORD_SPECIAL;
     public static AnimationManager.AnimationAccessor<HeavyAttackAnimation> LEGENDARY_SWORD_INNATE;
     public static AnimationManager.AnimationAccessor<UltimateAttackAnimation> LEGENDARY_SWORD_INNATE_SPECIAL;
@@ -87,6 +89,9 @@ public class AnimsLegendarySword {
         Armatures.ArmatureAccessor<HumanoidArmature> humanoidArmature = Armatures.BIPED;
         LEGENDARY_SWORD_IDLE = builder.nextAccessor("biped/legendary_sword/legendary_sword_idle",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
+
+        LEGENDARY_SWORD_RUN = builder.nextAccessor("biped/legendary_sword/legendary_sword_run",
+                accessor -> new MovementAnimation(true, accessor, humanoidArmature));
 
         LEGENDARY_SWORD_GUARD = builder.nextAccessor("biped/legendary_sword/legendary_sword_guard",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
@@ -274,6 +279,12 @@ public class AnimsLegendarySword {
                         .addState(EntityState.CAN_SKILL_EXECUTION, false)
                         .newTimePair(0.55F, 1.1F)
                         .addState(EntityState.CAN_SKILL_EXECUTION, false));
+
+        LEGENDARY_SWORD_WOOPIE_AUTO1 = builder.nextAccessor("biped/legendary_sword/legendary_sword_woopie_auto1",
+                accessor -> new BasicAttackAnimation(0.15F, accessor, humanoidArmature, new AttackAnimation.Phase(0.0F, 0.5F, 0.63F, 0.667F, 0.667F, InteractionHand.MAIN_HAND, humanoidArmature.get().toolR, null), new AttackAnimation.Phase(0.2F, 0.7F, 0.8F, 0.9F, 1.3F, humanoidArmature.get().toolL, null))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(2.5F))
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F));
 
         LEGENDARY_SWORD_SPECIAL = builder.nextAccessor("biped/legendary_sword/legendary_sword_special", (animationaccessor) -> (AttackAnimation) (new AttackAnimation(0.1F, 0.0F, 0.5F, 0.76F, 1.36F, null, Armatures.BIPED.get().toolR, animationaccessor, Armatures.BIPED))
                 .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.2F))

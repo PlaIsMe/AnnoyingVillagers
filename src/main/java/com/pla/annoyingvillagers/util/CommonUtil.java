@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.clazz.HookDisarmLaunch;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.gameasset.AnimsAVSword;
 import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
 import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.item.FlankerHookedSwordItem;
@@ -341,10 +342,10 @@ public class CommonUtil {
     }
 
     public static boolean isHookSwordClashAnimation(AssetAccessor<? extends StaticAnimation> dynamicAnimation) {
-        return dynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO1
-                || dynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO2
-                || dynamicAnimation == AnimsEpicFight.HOOK_DANCING_EDGE
-                || dynamicAnimation == AnimsWom.HOOK_HERRSCHER_UP;
+        return dynamicAnimation == AnimsAVSword.HOOK_SWORD_INNATE1
+                || dynamicAnimation == AnimsAVSword.HOOK_SWORD_INNATE2
+                || dynamicAnimation == AnimsAVSword.HOOK_SWORD_DUAL_INNATE
+                || dynamicAnimation == AnimsAVSword.FLANKER_HOOK_SWORD_INNATE;
     }
 
     public static void applyHookClashDisarmLogic(

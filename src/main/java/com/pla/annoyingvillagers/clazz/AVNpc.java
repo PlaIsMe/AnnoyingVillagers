@@ -10,7 +10,7 @@ import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
 import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.entity.goal.WaterEnderPearlEscapeGoal;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.*;
@@ -740,7 +740,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     protected void playEnderPearlCounterAnimation() {
         if (this.getLivingEntityPatch() != null) {
-            this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F);
+            this.getLivingEntityPatch().playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_UP, 0.0F);
         }
     }
 

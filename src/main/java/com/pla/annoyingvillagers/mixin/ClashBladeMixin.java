@@ -5,9 +5,7 @@ import com.pla.annoyingvillagers.clazz.HookDisarmLaunch;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.compat.p1nero_bow.EpicFightBow;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.item.FlankerHookedSwordItem;
 import com.pla.annoyingvillagers.item.HookedDiamondSwordItem;
 import com.pla.annoyingvillagers.item.HookedGoldenSwordItem;
@@ -74,34 +72,34 @@ public class ClashBladeMixin {
                 || player.getMainHandItem().getItem() instanceof HookedGoldenSwordItem
                 || player.getMainHandItem().getItem() instanceof HookedDiamondSwordItem
                 || player.getMainHandItem().getItem() instanceof FlankerHookedSwordItem) {
-            if (dynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO1) {
+            if (dynamicAnimation == AnimsAVSword.HOOK_SWORD_INNATE1) {
                 CommonUtil.applyHookClashDisarmLogic(
                         player,
                         damageSource,
                         serverLevel,
-                        AnimsPugilistSteve.KNOCKDOWN_RIGHT,
+                        AVAnimations.KNOCKDOWN_RIGHT,
                         HookDisarmLaunch.RIGHT
                 );
                 return;
             }
 
-            if (dynamicAnimation == AnimsEpicFight.HOOK_AXE_AUTO2) {
+            if (dynamicAnimation == AnimsAVSword.HOOK_SWORD_INNATE2) {
                 CommonUtil.applyHookClashDisarmLogic(
                         player,
                         damageSource,
                         serverLevel,
-                        AnimsPugilistSteve.KNOCKDOWN_LEFT,
+                        AVAnimations.KNOCKDOWN_LEFT,
                         HookDisarmLaunch.LEFT
                 );
                 return;
             }
 
-            if (dynamicAnimation == AnimsEpicFight.HOOK_DANCING_EDGE || dynamicAnimation == AnimsWom.HOOK_HERRSCHER_UP) {
+            if (dynamicAnimation == AnimsAVSword.HOOK_SWORD_DUAL_INNATE || dynamicAnimation == AnimsAVSword.FLANKER_HOOK_SWORD_INNATE) {
                 CommonUtil.applyHookClashDisarmLogic(
                         player,
                         damageSource,
                         serverLevel,
-                        AnimsPugilistSteve.GUARD_BREAK_ATTACK,
+                        AVAnimations.STUN_BACK,
                         HookDisarmLaunch.BACKWARD
                 );
             }

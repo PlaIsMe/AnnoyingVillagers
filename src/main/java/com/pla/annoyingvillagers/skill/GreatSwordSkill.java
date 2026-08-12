@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.skill;
 
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsAVSword;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -46,7 +48,7 @@ public class GreatSwordSkill extends WeaponInnateSkill {
         if (skillContainer.isActivated()) {
             this.cancelOnServer(skillContainer, friendlyByteBuf);
         } else {
-            skillContainer.getExecutor().playAnimationSynchronized(AnimsPugilistSteve.HARD_GREATSWORD_GUARD_SKILL, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsAVSword.GREAT_SWORD_INNATE, 0.0F);
             livingEntity.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 60, 2));
 
             new DelayedTask(4) {
@@ -100,7 +102,7 @@ public class GreatSwordSkill extends WeaponInnateSkill {
                     final Player defender = playerPatch.getOriginal();
 
                     AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-                    if (dynamicAnimation == null || dynamicAnimation != AnimsPugilistSteve.HARD_GREATSWORD_GUARD_SKILL) return;
+                    if (dynamicAnimation == null || dynamicAnimation != AnimsAVSword.GREAT_SWORD_INNATE) return;
 
                     Entity attacker = event.getDamageSource().getEntity();
                     if (!(attacker instanceof LivingEntity livingEntity) || !attacker.isAlive()) return;
@@ -111,7 +113,7 @@ public class GreatSwordSkill extends WeaponInnateSkill {
 
                     LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(attacker, LivingEntityPatch.class);
                     if (livingEntityPatch != null) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AVAnimations.STUN_BACK, 0.0F);
                     }
                     livingEntity.knockback(KNOCKBACK_STRENGTH, defender.getX() - attacker.getX(), defender.getZ() - attacker.getZ());
 

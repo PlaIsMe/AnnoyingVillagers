@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.gameasset.AnimsLegendarySword;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.core.BlockPos;

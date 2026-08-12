@@ -4,7 +4,7 @@ import java.util.*;
 
 import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -304,7 +304,7 @@ public class NullEntity extends HerobrineMob {
                 this.spawnNullWeapon = true;
                 initialSpawn();
             } else if (this.tickCount == 20 && this.getLivingEntityPatch() != null) {
-                this.getLivingEntityPatch().playAnimationSynchronized(AnimsWom.CLONE_ANTITHEUS_ASCENSION, 0.0F);
+                this.getLivingEntityPatch().playAnimationSynchronized(AVAnimations.HEROBRINE_ANIMATE, 0.0F);
             }
 
             if (nullSwordEntity == null && nullSwordUUID != null) {

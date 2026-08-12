@@ -1,9 +1,11 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
+import com.hm.efn.gameasset.animations.EFNSwordAnimations;
 import com.pla.annoyingvillagers.gameasset.*;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Builder;
+import net.shelmarow.ef_awaken.efassets.animations.StraightSwordAnimations;
 import reascer.wom.gameasset.animations.weapons.AnimsHerrscher;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -15,16 +17,16 @@ import java.util.Arrays;
 public class AlexSword {
     public static final Builder<MobPatch<?>> THUNDER_DIAMOND_BLADE = AvNpcCombatBehaviorBuilder.weapon(
             CombatCommon.animations(
-                    AnimsEpicFightAwaken.CUT_LEFT_DP_AUTO_3,
-                    AnimsPugilistSteve.SWORD_DASH,
-                    AnimsPugilistSteve.DAGGER_AUTO1,
-                    AnimsHerrscher.HERRSCHER_AUTO_2,
-                    AnimsHerrscher.HERRSCHER_AUTO_1
+                    EFNSwordAnimations.NF_SWORD_AUTO1,
+                    EFNSwordAnimations.NF_SWORD_AUTO2,
+                    StraightSwordAnimations.STRAIGHTSWORD_AUTO4,
+                    StraightSwordAnimations.STRAIGHTSWORD_AUTO3,
+                    StraightSwordAnimations.STRAIGHTSWORD_AUTO5
             ),
             CombatCommon.animations(
-                    AnimsPugilistSteve.SWORD_HEAVY_AUTO_1,
-                    AnimsPugilistSteve.SWORD_HEAVY_AUTO_2,
-                    AnimsPugilistSteve.SWORD_HEAVY_AUTO_3
+                    StraightSwordAnimations.STRAIGHTSWORD_DODGE_PURSUIT,
+                    EFNSwordAnimations.NF_SWORD_AIRSLASH,
+                    EFNSwordAnimations.NF_SWORD_SKILL
             ),
             CombatCommon.animations(
                     AnimsEpicFightAwaken.CUT_LEFT_DP_DASH,

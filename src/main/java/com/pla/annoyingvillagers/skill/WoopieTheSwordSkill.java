@@ -1,26 +1,10 @@
 package com.pla.annoyingvillagers.skill;
 
-import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightACG;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightAwaken;
+import com.pla.annoyingvillagers.gameasset.AnimsAVSword;
 import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.item.WoopieTheSwordItem;
-import com.pla.annoyingvillagers.network.ClientboundMuteExplosionAtPos;
-import com.pla.annoyingvillagers.network.ClientboundWoopieSwordWindFx;
-import com.pla.annoyingvillagers.task.DelayedTask;
-import com.pla.annoyingvillagers.util.EpicfightUtil;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
-import reascer.wom.gameasset.animations.weapons.AnimsHerrscher;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
-import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
@@ -42,7 +26,7 @@ public class WoopieTheSwordSkill extends WeaponInnateSkill {
         if (!this.isActivated(skillContainer)) {
             super.executeOnServer(skillContainer, friendlyByteBuf);
             skillContainer.activate();
-            skillContainer.getExecutor().playAnimationSynchronized(AnimsEpicFightACG.SAO_DUAL_SWORD_AUTO12, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsAVSword.WOOPIE_INNATE, 0.0F);
         }
     }
 
@@ -74,7 +58,7 @@ public class WoopieTheSwordSkill extends WeaponInnateSkill {
                     AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(playerPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
                     if (dynamicAnimation == null) return;
 
-                    if (dynamicAnimation == AnimsPugilistSteve.RUSH_SWORD && container.getStack() < 1) {
+                    if (dynamicAnimation == AnimsAVSword.WOOPIE_INNATE_SPECIAL && container.getStack() < 1) {
                         WoopieTheSwordSkill woopieTheSwordSkill = (WoopieTheSwordSkill) container.getSkill();
                         float currentResource = container.getResource();
                         float neededResource = container.getNeededResource();

@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.gameasset.AVSkillDataKeys;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AnimsLegendarySword;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -61,7 +61,7 @@ public class RenderLegendarySword extends RenderItemBase {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             ItemStack itemstack;
 
-            if (dynamicAnimation == AnimsPugilistSteve.LEGENDARY_SWORD_HEAVY_ATTACK
+            if (dynamicAnimation == AnimsLegendarySword.LEGENDARY_SWORD_INNATE
                     || shouldRenderAwakened(stack, livingEntityPatch)) {
                 itemstack = new ItemStack(AnnoyingVillagersModItems.HEAVY_ATTACK_LEGENDARY_SWORD.get());
                 poseStack.pushPose();

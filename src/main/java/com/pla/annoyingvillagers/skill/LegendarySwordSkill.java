@@ -1,10 +1,7 @@
 package com.pla.annoyingvillagers.skill;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AVSkillDataKeys;
-import com.pla.annoyingvillagers.gameasset.AnimsLegendarySword;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -251,7 +248,7 @@ public class LegendarySwordSkill extends WeaponInnateSkill {
         skillContainer.activate();
 
         if (skillContainer.getExecutor().getOriginal().getOffhandItem().is(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get())) {
-            skillContainer.getExecutor().playAnimationSynchronized(AVAnimations.LEGENDARYSWORD_WOOPIE_FLY, 0.0F);
+            skillContainer.getExecutor().playAnimationSynchronized(AnimsAVSword.WOOPIE_FLY, 0.0F);
         } else {
             skillContainer.getExecutor().playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_INNATE, 0.0F);
         }

@@ -1,8 +1,10 @@
 package com.pla.annoyingvillagers.item;
 
+import com.hm.efn.gameasset.animations.EFNDualSwordAnimations;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.shelmarow.ef_awaken.efassets.animations.DarkNightPursuitersAnimations;
 import org.jetbrains.annotations.NotNull;
 import reascer.wom.gameasset.animations.weapons.AnimsHerrscher;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -20,7 +22,7 @@ public class ClowSwordItem extends SwordItem {
             LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(pAttacker, LivingEntityPatch.class);
             if (livingEntityPatch != null) {
                 AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-                if (dynamicAnimation == AnimsHerrscher.HERRSCHER_BEFREIUNG) {
+                if (dynamicAnimation == EFNDualSwordAnimations.NF_DUAL_DODGE || dynamicAnimation == DarkNightPursuitersAnimations.HOOK_SLASH_GROUND) {
                     pTarget.spawnAtLocation(new ItemStack(Items.LAPIS_LAZULI, new Random().nextInt(1, 3)));
                 }
             }

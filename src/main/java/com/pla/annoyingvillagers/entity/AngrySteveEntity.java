@@ -5,8 +5,8 @@ import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsLegendarySword;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -292,7 +292,7 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
                 0.5F, 1.0F
         );
         if (this.getLivingEntityPatch() != null) {
-            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+            this.getLivingEntityPatch().playAnimationSynchronized(AVAnimations.STUN_BACK, 0.0F);
         }
     }
 

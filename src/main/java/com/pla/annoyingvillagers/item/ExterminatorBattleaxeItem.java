@@ -31,6 +31,6 @@ public class ExterminatorBattleaxeItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(Items.DIAMOND));
             }
-        }, 3, -3.0F, (new Properties()));
+        }, 3, -2.0F, (new Properties()));
     }
 }

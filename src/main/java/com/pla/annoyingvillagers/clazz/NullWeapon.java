@@ -9,8 +9,8 @@ import javax.annotation.Nullable;
 import com.pla.annoyingvillagers.entity.NullEntity;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.entity.goal.PortalApproachGoal;
+import com.pla.annoyingvillagers.gameasset.AnimsAVSpear;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.NullWeaponItem;
 import com.pla.annoyingvillagers.skill.NullWeaponSkill;
@@ -106,7 +106,7 @@ public class NullWeapon extends Monster {
     public void spinfor5seconds() {
         final LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
         if (livingEntityPatch != null) {
-            livingEntityPatch.playAnimationSynchronized(AnimsWom.GLOWING_AGONY_GUARD, 0.0F);
+            livingEntityPatch.playAnimationSynchronized(AnimsAVSpear.AV_SPEAR_GUARD, 0.0F);
             new DelayedTask(100) {
                 @Override
                 public void run() {

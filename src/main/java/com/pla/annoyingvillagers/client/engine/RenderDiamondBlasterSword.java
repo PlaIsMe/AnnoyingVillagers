@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.client.engine;
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsAVSword;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -41,7 +42,7 @@ public class RenderDiamondBlasterSword extends RenderItemBase {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             ItemStack itemstack;
 
-            if (dynamicAnimation != AVAnimations.DIAMOND_BLASTER_SKILL) {
+            if (dynamicAnimation != AnimsAVSword.DIAMOND_BLASTER_INNATE) {
                 itemstack = new ItemStack(AnnoyingVillagersModItems.DIAMOND_BLASTER_SWORD.get());
                 poseStack.pushPose();
                 MathUtils.mulStack(poseStack, openmatrix4f);

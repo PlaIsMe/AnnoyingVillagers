@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.event;
 
+import com.hm.efn.gameasset.animations.EFNSwordAnimations;
 import com.pla.annoyingvillagers.compat.cdmoveset.EpicFightResurrection;
 import com.pla.annoyingvillagers.compat.refm.EpicFightRapierMoveset;
 import com.pla.annoyingvillagers.entity.BlackFireEntity;
@@ -28,8 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
-import reascer.wom.gameasset.WOMAnimations;
-import reascer.wom.gameasset.animations.weapons.*;
+import net.shelmarow.ef_awaken.efassets.animations.StraightSwordAnimations;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.gameasset.Animations;
@@ -39,6 +39,8 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
 
 import java.util.Objects;
@@ -54,7 +56,7 @@ public class SpecialAttackOnKeyPressedEvent {
 
                 LivingEntityPatch<?> freshPatch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
                 if (freshPatch != null) {
-                    freshPatch.playAnimationSynchronized(AnimsPugilistSteve.HOOK_GUN, 0.0F);
+                    freshPatch.playAnimationSynchronized(AVAnimations.HOOK_GUN, 0.0F);
                 }
             }
         };
@@ -67,9 +69,9 @@ public class SpecialAttackOnKeyPressedEvent {
     ) {
         switch (useMode) {
             case BOTH_HANDS, MAIN_HAND -> {
-                livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+                livingEntityPatch.playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
             }
-            case OFF_HAND -> livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+            case OFF_HAND -> livingEntityPatch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
             case NONE -> {
             }
         }
@@ -124,7 +126,6 @@ public class SpecialAttackOnKeyPressedEvent {
                                     skillContainer.getResource() - 5
                             );
                             BlackFireEntity.spawnOnOwnerSword(serverLevel, player);
-                            return;
                         }
                     }
                 }
@@ -219,7 +220,7 @@ public class SpecialAttackOnKeyPressedEvent {
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.ENDER_AEGIS.get())) {
                 if (entity.level() instanceof ServerLevel) {
                     if (EnderAegisItem.isSecondForm(holdingItem)) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsEpicFight.AEGIS_SHIELD_SHOOT_MAINHAND, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AVAnimations.AEGIS_SHIELD_SHOOT_MAINHAND, 0.0F);
                     } else {
                         livingEntityPatch.playAnimationSynchronized(AVAnimations.ENDER_AEGIS_PUSH, 0.0F);
                     }
@@ -229,19 +230,13 @@ public class SpecialAttackOnKeyPressedEvent {
             if (offHandItem.getItem().equals(AnnoyingVillagersModItems.ENDER_AEGIS.get())
                     && EnderAegisItem.isSecondForm(offHandItem)) {
                 if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsEpicFight.AEGIS_SHIELD_SHOOT_OFFHAND, 0.0F);
+                    livingEntityPatch.playAnimationSynchronized(AVAnimations.AEGIS_SHIELD_SHOOT_OFFHAND, 0.0F);
                     return;
                 }
             }
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.EARTH_AXE.get())) {
                 if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AVAnimations.EARTH_AXE_SHOOT, 0.0F);
-                    return;
-                }
-            }
-            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.TWIN_DIAMOND_SPEAR.get())) {
-                if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SPEAR_THRUST, 0.0F);
+                    livingEntityPatch.playAnimationSynchronized(AnimsAVAxe.EARTH_AXE_SPECIAL, 0.0F);
                     return;
                 }
             }
@@ -397,12 +392,6 @@ public class SpecialAttackOnKeyPressedEvent {
                     return;
                 }
             }
-            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.BEDROCK_WEAPON.get())) {
-                if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SUPER_PUNCH, 0.0F);
-                    return;
-                }
-            }
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_PILLAR.get())) {
                 if (entity.level() instanceof ServerLevel) {
                     boolean success = false;
@@ -451,7 +440,7 @@ public class SpecialAttackOnKeyPressedEvent {
             }
             if (holdingItem.getItem() instanceof BowItem) {
                 if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsEpicFightACG.BOW_AUTO_2, 0.0F);
+                    livingEntityPatch.playAnimationSynchronized(AnimsBow.BOW_AUTO_2, 0.0F);
                     return;
                 }
             }
@@ -464,7 +453,7 @@ public class SpecialAttackOnKeyPressedEvent {
                         if (skillContainer != null && skillContainer.getSkill() instanceof LegendarySwordSkill legendarySwordSkill && player.level() instanceof ServerLevel) {
                             if (LegendarySwordSkill.isAwakened(skillContainer)
                                     && offHandItem.getItem().equals(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get())) {
-                                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.RUSH_SWORD_OFFHAND, 0.0F);
+                                livingEntityPatch.playAnimationSynchronized(AnimsAVSword.WOOPIE_INNATE_SPECIAL_LEGENDARY, 0.0F);
                                 return;
                             }
 
@@ -493,61 +482,20 @@ public class SpecialAttackOnKeyPressedEvent {
             }
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get())) {
                 if (entity.level() instanceof ServerLevel) {
-                    boolean success = false;
                     PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
                     if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                         SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.WOOPIE_THE_SWORD);
                         if (skillContainer != null && skillContainer.getStack() == 1
                                 && entity.level() instanceof ServerLevel
                                 && skillContainer.getSkill() instanceof WoopieTheSwordSkill woopieTheSwordSkill) {
-                            success = true;
+                            livingEntityPatch.playAnimationSynchronized(AnimsAVSword.WOOPIE_INNATE_SPECIAL, 0.0F);
                             woopieTheSwordSkill.getResourceType().consumer
                                     .consume(skillContainer, serverPlayerPatch, woopieTheSwordSkill.getDefaultConsumptionAmount(serverPlayerPatch));
+                            return;
                         }
                     }
-                    if (success) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.RUSH_SWORD, 0.0F);
-                    } else {
-                        livingEntityPatch.playAnimationSynchronized(AnimsRuine.RUINE_AUTO_4, 0.0F);
-                    }
-                    return;
                 }
             }
-            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.GREAT_SWORD.get())) {
-                if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsHerrscher.HERRSCHER_AUTO_2, 0.0F);
-                    return;
-                }
-            }
-
-            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.WOODEN_DOOR.get())) {
-                if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(WOMAnimations.TORMENT_CHARGED_ATTACK_2, 0.0F);
-                    return;
-                }
-            }
-
-            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.CRAFTING_TABLE.get())) {
-                if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(WOMAnimations.TORMENT_AIRSLAM, 0.0F);
-                    return;
-                }
-            }
-
-            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.LADDER.get())) {
-                if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(Animations.VINDICATOR_SWING_AXE3, 0.0F);
-                    return;
-                }
-            }
-
-            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.TRAPDOOR.get())) {
-                if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(Animations.VINDICATOR_SWING_AXE2, 0.0F);
-                    return;
-                }
-            }
-
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.BLUE_FLAME_SWORD.get())) {
                 if (entity.level() instanceof ServerLevel) {
                     if (player.level() instanceof ServerLevel level) {
@@ -566,7 +514,7 @@ public class SpecialAttackOnKeyPressedEvent {
                                     BlockState soulFireState = Blocks.SOUL_FIRE.defaultBlockState();
                                     if (soulFireState.canSurvive(level, firePos)) {
                                         level.setBlock(firePos, soulFireState, Block.UPDATE_ALL);
-                                        livingEntityPatch.playAnimationSynchronized(AVAnimations.BLUE_FLAME_SWORD, 0.0F);
+                                        livingEntityPatch.playAnimationSynchronized(AnimsAVSword.BLUE_FLAME_SWORD_SPECIAL, 0.0F);
                                         holdingItem.hurtAndBreak(1, player, (serverPlayer1) -> serverPlayer1.broadcastBreakEvent(InteractionHand.MAIN_HAND));
                                         return;
                                     }
@@ -583,101 +531,71 @@ public class SpecialAttackOnKeyPressedEvent {
             ResourceLocation key = BuiltInRegistries.ITEM.getKey(holdingItem.getItem());
             if (ModList.get().isLoaded("efn") && key.getNamespace().equals("efn")) return;
 
-            if (playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.AXE) {
-                if (entity.level() instanceof ServerLevel) {
-                    if (!entity.getPersistentData().contains("AxeCombo")) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.AXE_HEAVY_AUTO_1, 0.0F);
-                        entity.getPersistentData().putDouble("AxeCombo", 1.0);
-                    } else if (entity.getPersistentData().getDouble("AxeCombo") == 1.0) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.AXE_HEAVY_AUTO_2, 0.0F);
-                        entity.getPersistentData().putDouble("AxeCombo", 2.0);
-                    } else if (entity.getPersistentData().getDouble("AxeCombo") == 2.0) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.AXE_FUN_SKILL, 0.0F);
-                        entity.getPersistentData().remove("AxeCombo");
-                    }
+            CapabilityItem mainHandCapability = playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND);
+            if (mainHandCapability.getWeaponCategory() == WeaponCategories.SWORD
+                    || mainHandCapability.getWeaponCategory() == WeaponCategories.AXE) {
+                if (mainHandCapability.getStyle(playerpatch) == Styles.ONE_HAND && entity.level() instanceof ServerLevel) {
+                    livingEntityPatch.playAnimationSynchronized(EFNSwordAnimations.NF_SWORD_SKILL, 0.0F);
+                    return;
+                }
+
+                if (mainHandCapability.getStyle(playerpatch) == Styles.TWO_HAND && entity.level() instanceof ServerLevel) {
+                    livingEntityPatch.playAnimationSynchronized(StraightSwordAnimations.STRAIGHTSWORD_DUAL_DODGE_SLASH, 0.0F);
                     return;
                 }
             }
 
-            if ((playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.SWORD
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.LONGSWORD
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.TACHI
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.DAGGER)
-                    && (playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.SWORD
-                    || playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.TACHI
-                    || playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.AXE)) {
+            if (mainHandCapability.getWeaponCategory() == WeaponCategories.TACHI) {
                 if (entity.level() instanceof ServerLevel) {
-                    if (!entity.getPersistentData().contains("DualSwordCombo")) {
-                        livingEntityPatch.playAnimationSynchronized(Animations.DAGGER_DUAL_DASH, 0.0F);
-                        entity.getPersistentData().putDouble("DualSwordCombo", 1.0);
-                    } else if (entity.getPersistentData().getDouble("DualSwordCombo") == 1.0) {
-                        livingEntityPatch.playAnimationSynchronized(Animations.LONGSWORD_AUTO2, 0.0F);
-                        entity.getPersistentData().putDouble("DualSwordCombo", 2.0);
-                    } else if (entity.getPersistentData().getDouble("DualSwordCombo") == 2.0) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.DUAL_DANCING_EDGE, 0.0F);
-                        entity.getPersistentData().putDouble("DualSwordCombo", 3.0);
-                    } else if (entity.getPersistentData().getDouble("DualSwordCombo") == 3.0) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.DUAL_SWORD_DANCING_EDGE, 0.0F);
-                        entity.getPersistentData().remove("DualSwordCombo");
-                    }
+                    livingEntityPatch.playAnimationSynchronized(AnimsAVTachi.AV_TACHI_SPECIAL, 0.0F);
                     return;
                 }
             }
 
-            if ((playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.SWORD
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.LONGSWORD
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.TACHI
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.DAGGER
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.UCHIGATANA)
-                    && playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() != WeaponCategories.SWORD
-                    && playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() != WeaponCategories.TACHI
-                    && playerpatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() != WeaponCategories.AXE) {
+            if (mainHandCapability.getWeaponCategory() == WeaponCategories.DAGGER) {
                 if (entity.level() instanceof ServerLevel) {
-                    if (!entity.getPersistentData().contains("SwordCombo")) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SWORD_HEAVY_AUTO_1, 0.0F);
-                        entity.getPersistentData().putDouble("SwordCombo", 1.0);
-                    } else if (entity.getPersistentData().getDouble("SwordCombo") == 1.0) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SWORD_HEAVY_AUTO_2, 0.0F);
-                        entity.getPersistentData().putDouble("SwordCombo", 2.0);
-                    } else if (entity.getPersistentData().getDouble("SwordCombo") == 2.0) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SWORD_HEAVY_AUTO_3, 0.0F);
-                        entity.getPersistentData().remove("SwordCombo");
-                    }
+                    livingEntityPatch.playAnimationSynchronized(EFNSwordAnimations.NF_SWORD_SKILL_SECOND, 0.0F);
                     return;
                 }
             }
 
-            if (playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.GREATSWORD) {
-                if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GIANT_WHIRLWIND, 0.0F);
+            if (mainHandCapability.getWeaponCategory() == WeaponCategories.LONGSWORD) {
+                if (mainHandCapability.getStyle(playerpatch) == Styles.ONE_HAND && entity.level() instanceof ServerLevel) {
+                    livingEntityPatch.playAnimationSynchronized(StraightSwordAnimations.STRAIGHTSWORD_DODGE_SLASH1, 0.0F);
+                    return;
+                }
+
+                if (mainHandCapability.getStyle(playerpatch) == Styles.TWO_HAND && entity.level() instanceof ServerLevel) {
+                    livingEntityPatch.playAnimationSynchronized(StraightSwordAnimations.STRAIGHTSWORD_DUAL_DODGE_PURSUIT, 0.0F);
                     return;
                 }
             }
 
-            if (playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.FIST
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.NOT_WEAPON
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.BOW
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.CROSSBOW) {
+            if (mainHandCapability.getWeaponCategory() == WeaponCategories.GREATSWORD) {
+                if (entity.level() instanceof ServerLevel) {
+                    livingEntityPatch.playAnimationSynchronized(AnimsAVGreatsword.AV_GREATSWORD_SPECIAL, 0.0F);
+                    return;
+                }
+            }
+
+            if (mainHandCapability.getWeaponCategory() == WeaponCategories.FIST
+                    || mainHandCapability.getWeaponCategory() == WeaponCategories.NOT_WEAPON
+                    || mainHandCapability.getWeaponCategory() == WeaponCategories.BOW
+                    || mainHandCapability.getWeaponCategory() == WeaponCategories.CROSSBOW) {
                 if (entity.level() instanceof ServerLevel) {
                     if (entity.isSprinting()) {
-                        if (entity.isShiftKeyDown()) {
-                            if (entity.level() instanceof ServerLevel) {
-                                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.WHIRLWIND_KICK_LEFT, 0.0F);
-                            }
-                        } else {
-                            if (entity.level() instanceof ServerLevel) {
-                                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.WHIRLWIND_KICK, 0.0F);
-                            }
+                        if (entity.level() instanceof ServerLevel) {
+                            livingEntityPatch.playAnimationSynchronized(AnimsAVFist.WHIRLWIND_KICK, 0.0F);
                         }
                     } else {
                         if (!entity.getPersistentData().contains("FistCombo")) {
-                            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.FIST_LEFT, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsAVFist.FIST_LEFT, 0.0F);
                             entity.getPersistentData().putDouble("FistCombo", 1.0);
                         } else if (entity.getPersistentData().getDouble("FistCombo") == 1.0) {
-                            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.FIST_UP, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsAVFist.FIST_UP, 0.0F);
                             entity.getPersistentData().putDouble("FistCombo", 2.0);
                         } else if (entity.getPersistentData().getDouble("FistCombo") == 2.0) {
-                            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.FIST_DASH, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AnimsAVFist.FIST_DASH, 0.0F);
                             entity.getPersistentData().remove("FistCombo");
                         }
                     }
@@ -685,10 +603,10 @@ public class SpecialAttackOnKeyPressedEvent {
                 }
             }
 
-            if (playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.SPEAR
-                    || playerpatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.TRIDENT) {
+            if (mainHandCapability.getWeaponCategory() == WeaponCategories.SPEAR
+                    || mainHandCapability.getWeaponCategory() == WeaponCategories.TRIDENT) {
                 if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.SPEAR_THRUST, 0.0F);
+                    livingEntityPatch.playAnimationSynchronized(AnimsAVSpear.AV_SPEAR_SPECIAL, 0.0F);
                 }
             }
 

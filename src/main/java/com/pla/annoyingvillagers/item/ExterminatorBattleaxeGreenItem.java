@@ -34,6 +34,6 @@ public class ExterminatorBattleaxeGreenItem extends SwordItem {
             public @NotNull Ingredient getRepairIngredient() {
                 return Ingredient.of(new ItemStack(Items.EMERALD));
             }
-        }, 3, -2.8F, (new Properties()));
+        }, 3, -2.0F, (new Properties()));
     }
 }

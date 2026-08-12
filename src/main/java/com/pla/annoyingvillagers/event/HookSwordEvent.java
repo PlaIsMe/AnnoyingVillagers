@@ -2,9 +2,7 @@ package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.HookDisarmLaunch;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -135,31 +133,26 @@ public class HookSwordEvent {
     private static AssetAccessor<? extends StaticAnimation> getKnockdownAnimation(
             AssetAccessor<? extends StaticAnimation> defenderAnimation
     ) {
-        if (defenderAnimation == AnimsEpicFight.HOOK_AXE_AUTO1) {
-            return AnimsPugilistSteve.KNOCKDOWN_RIGHT;
+        if (defenderAnimation == AnimsAVSword.HOOK_SWORD_INNATE1) {
+            return AVAnimations.KNOCKDOWN_RIGHT;
         }
 
-        if (defenderAnimation == AnimsEpicFight.HOOK_AXE_AUTO2) {
-            return AnimsPugilistSteve.KNOCKDOWN_LEFT;
+        if (defenderAnimation == AnimsAVSword.HOOK_SWORD_INNATE2) {
+            return AVAnimations.KNOCKDOWN_LEFT;
         }
 
-        return AnimsPugilistSteve.GUARD_BREAK_ATTACK;
+        return AVAnimations.STUN_BACK;
     }
 
     private static HookDisarmLaunch getLaunchDirection(
             AssetAccessor<? extends StaticAnimation> defenderAnimation
     ) {
-        if (defenderAnimation == AnimsEpicFight.HOOK_AXE_AUTO1) {
+        if (defenderAnimation == AnimsAVSword.HOOK_SWORD_INNATE1) {
             return HookDisarmLaunch.RIGHT;
         }
 
-        if (defenderAnimation == AnimsEpicFight.HOOK_AXE_AUTO2) {
+        if (defenderAnimation == AnimsAVSword.HOOK_SWORD_INNATE2) {
             return HookDisarmLaunch.LEFT;
-        }
-
-        if (defenderAnimation == AnimsEpicFight.HOOK_DANCING_EDGE
-                || defenderAnimation == AnimsWom.HOOK_HERRSCHER_UP) {
-            return HookDisarmLaunch.BACKWARD;
         }
 
         return HookDisarmLaunch.BACKWARD;

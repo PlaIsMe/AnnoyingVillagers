@@ -80,6 +80,8 @@ public class AnimsBlueDemonTrident {
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_STATE_TRANSFORM;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_STATE_TRANSFORM_END;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_DIE;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_DIE_LEGENDARY_SWORD_START;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ZAP;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ZAP_LONG;
 
@@ -505,6 +507,12 @@ public class AnimsBlueDemonTrident {
 
         BLUE_DEMON_DIE = builder.nextAccessor("biped/blue_demon_trident/blue_demon_die",
                 accessor -> new StaticAnimation(false, accessor, humanoidArmature));
+
+        BLUE_DEMON_DIE_LEGENDARY_SWORD_START = builder.nextAccessor("biped/blue_demon_trident/blue_demon_die_legendary_sword_start",
+                accessor -> new StaticAnimation(false, accessor, humanoidArmature));
+
+        BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK = builder.nextAccessor("biped/blue_demon_trident/blue_demon_die_legendary_sword_tick",
+                accessor -> new StaticAnimation(true, accessor, humanoidArmature));
 
         ZAP = builder.nextAccessor("biped/blue_demon_trident/zap",
                 accessor -> new LongHitAnimation(0.1F, accessor, humanoidArmature)

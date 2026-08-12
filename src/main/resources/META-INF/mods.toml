@@ -33,32 +33,14 @@ description='''${mod_description}'''
     ordering="NONE"
     side="BOTH"
 [[dependencies.annoyingvillagers]]
-    modId="combat_evolution"
+    modId="epicfight_awaken"
     mandatory=true
-    versionRange="[1.1.7, )"
+    versionRange="[0,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.annoyingvillagers]]
     modId="efn"
-    mandatory=false
+    mandatory=true
     versionRange="[0,)"
-    ordering="AFTER"
-    side="BOTH"
-[[dependencies.annoyingvillagers]]
-    modId="epicfightx"
-    mandatory=false
-    versionRange="[0,)"
-    ordering="AFTER"
-    side="BOTH"
-[[dependencies.annoyingvillagers]]
-    modId="dualaxes"
-    mandatory=false
-    versionRange="[0,)"
-    ordering="AFTER"
-    side="BOTH"
-[[dependencies.annoyingvillagers]]
-    modId="dualgreatswords"
-    mandatory=false
-    versionRange="[0,)"
-    ordering="AFTER"
+    ordering="NONE"
     side="BOTH"
