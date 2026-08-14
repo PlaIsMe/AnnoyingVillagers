@@ -4,7 +4,6 @@ import java.util.Objects;
 import java.util.Random;
 
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.util.HerobrineUtil;

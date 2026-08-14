@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.entity.EnchantedEnderPearlEntity;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
@@ -71,7 +71,7 @@ public class ThrowingPearlKeyPressedEvent {
                         .filter(s -> !s.isEmpty() && s.is(AnnoyingVillagersModItems.ENCHANTED_ENDER_PEARL.get()))
                         .findFirst()
                         .map(stack -> {
-                            livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+                            livingEntityPatch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
                             Level level = entity.level();
                             var projectile = new EnchantedEnderPearlEntity(
                                     AnnoyingVillagersModEntities.ENCHANTED_ENDER_PEARL_PROJECTILE.get(), level);
@@ -98,7 +98,7 @@ public class ThrowingPearlKeyPressedEvent {
             if (entity instanceof Player player) {
 
                 if (player.getInventory().contains(new ItemStack(Items.ENDER_PEARL))) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+                    livingEntityPatch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
                     level = entity.level();
                     projectile = new ThrownEnderpearl(EntityType.ENDER_PEARL, level);
                     projectile.setOwner(entity);

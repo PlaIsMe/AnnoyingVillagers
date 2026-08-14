@@ -82,6 +82,8 @@ public class AnimsBlueDemonTrident {
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_DIE;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_DIE_LEGENDARY_SWORD_START;
     public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_TRIDENT_GUARD_HIT1;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> BLUE_DEMON_TRIDENT_GUARD_HIT2;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ZAP;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> ZAP_LONG;
 
@@ -514,14 +516,24 @@ public class AnimsBlueDemonTrident {
         BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK = builder.nextAccessor("biped/blue_demon_trident/blue_demon_die_legendary_sword_tick",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
 
+        BLUE_DEMON_TRIDENT_GUARD_HIT1 = builder.nextAccessor("biped/blue_demon_trident/blue_demon_trident_guard_hit1",
+                accessor -> new StaticAnimation(false, accessor, humanoidArmature)
+                        .addEvents(
+                                AnimationEvent.InTimeEvent.create(0.1F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.2F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.3F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.4F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT)));
+
+        BLUE_DEMON_TRIDENT_GUARD_HIT2 = builder.nextAccessor("biped/blue_demon_trident/blue_demon_trident_guard_hit2",
+                accessor -> new StaticAnimation(false, accessor, humanoidArmature)
+                        .addEvents(
+                                AnimationEvent.InTimeEvent.create(0.1F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.2F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.3F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT),
+                                AnimationEvent.InTimeEvent.create(0.4F, reascer.wom.gameasset.ReuseableEvents.FAST_SPINING, AnimationEvent.Side.CLIENT)));
+
         ZAP = builder.nextAccessor("biped/blue_demon_trident/zap",
                 accessor -> new LongHitAnimation(0.1F, accessor, humanoidArmature)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, true)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
-        );
-
-        ZAP_LONG = builder.nextAccessor("biped/blue_demon_trident/zap_long",
-                accessor -> (LongHitAnimation) new LongHitAnimation(0.1F, accessor, humanoidArmature)
                         .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, true)
                         .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
         );

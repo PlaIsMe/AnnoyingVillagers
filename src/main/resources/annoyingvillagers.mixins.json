@@ -21,6 +21,7 @@
     "ItemCooldownsMixin",
     "EnsureSafeFlyingVehicleMixin",
     "BasicAttackMixin",
+    "WeaponCapabilityAccessor",
     "AbstractArrowBreakMixin",
     "FishingHookAccessor",
     "FishingHookReturnMixin",

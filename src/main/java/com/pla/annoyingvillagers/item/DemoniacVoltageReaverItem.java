@@ -10,6 +10,7 @@ import com.pla.annoyingvillagers.entity.SnakeBladeEntity;
 import com.pla.annoyingvillagers.entity.SwordsmanHerobrineEntity;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AVSkills;
+import com.pla.annoyingvillagers.gameasset.AnimsDemoniacVoltageReaver;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModCapabilities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -152,8 +153,8 @@ public class DemoniacVoltageReaverItem extends SwordItem {
         }
 
         var dynamicAnimation = animationPlayer.getRealAnimation();
-        return dynamicAnimation == AVAnimations.SNAKE_BLADE
-                || dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD;
+        return dynamicAnimation == AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_INNATE
+                || dynamicAnimation == AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_INNATE_SPECIAL;
     }
 
     public static boolean process(ItemStack stack, LivingEntity attacker) {

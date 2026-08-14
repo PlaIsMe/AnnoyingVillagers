@@ -9,13 +9,11 @@ import com.pla.annoyingvillagers.entity.LowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.entity.LowShadowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.entity.TransporterHerobrineCloneEntity;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
-import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.TransporterFragmentItem;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.Mth;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -328,14 +326,14 @@ public final class HerobrinePortalCombatUtil {
         }
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
         if (patch != null && !entity.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            patch.playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
         }
     }
 
     public static void playPortalPairSummon(LivingEntity entity) {
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
         if (patch != null && !entity.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+            patch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
         }
     }
 
@@ -348,7 +346,7 @@ public final class HerobrinePortalCombatUtil {
         }
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
         if (patch != null && !entity.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            patch.playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
         }
     }
 

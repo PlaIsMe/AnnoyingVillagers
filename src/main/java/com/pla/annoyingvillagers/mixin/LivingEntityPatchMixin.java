@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.mixin;
 
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,9 +22,9 @@ public abstract class LivingEntityPatchMixin {
         if ((stunType == StunType.SHORT
                 || stunType == StunType.LONG
                 || stunType == StunType.HOLD)
-                && (dynamicAnimation == AnimsPugilistSteve.HIT_BACKWARD
-                || dynamicAnimation == AnimsPugilistSteve.HIT_LEFT
-                || dynamicAnimation == AnimsPugilistSteve.HIT_RIGHT)) {
+                && (dynamicAnimation == AVAnimations.HIT_BACKWARD
+                || dynamicAnimation == AVAnimations.HIT_LEFT
+                || dynamicAnimation == AVAnimations.HIT_RIGHT)) {
             self.getOriginal().xxa = 0.0F;
             self.getOriginal().yya = 0.0F;
             self.getOriginal().zza = 0.0F;

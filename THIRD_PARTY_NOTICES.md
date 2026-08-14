@@ -100,6 +100,16 @@ All required upstream notices must be preserved.
 - assets/annoyingvillagers/textures/item/hook_gun*.png
 - assets/annoyingvillagers/textures/entities/hook_gun_rope.png
 
+### A8) Combat Evolution - ShelMarow - GPL-3.0
+- Type: code adapted into an independent behavior scheduler and mob AI goals
+- License text: `third_party/licenses/GPL-3.0.md`
+- Source: https://www.curseforge.com/minecraft/mc-mods/combat-evolution
+
+**Paths / Files**
+- com/pla/annoyingvillagers/advancedmobpatch/AdvancedCombatBehaviors.java
+- com/pla/annoyingvillagers/advancedmobpatch/AdvancedAnimationAttackGoal.java
+- com/pla/annoyingvillagers/advancedmobpatch/AdvancedChasingGoal.java
+
 ---
 
 ## B) LGPL Components

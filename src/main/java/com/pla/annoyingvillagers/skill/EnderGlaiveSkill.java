@@ -1,8 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
 import com.pla.annoyingvillagers.gameasset.AnimsEnderGlaive;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightAwaken;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.EnderGlaiveItem;
 import net.minecraft.network.FriendlyByteBuf;
@@ -11,8 +9,6 @@ import net.minecraft.world.item.ItemStack;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
-
-import java.util.UUID;
 
 public class EnderGlaiveSkill extends WeaponInnateSkill {
     public EnderGlaiveSkill(SkillBuilder<? extends WeaponInnateSkill> builder) {

@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.mixin;
 
+import com.pla.annoyingvillagers.advancedmobpatch.AdvancedMobPatch;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -60,8 +61,10 @@ public abstract class EnderHandMixin {
                     entity.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, (9 + 3 * EnchantmentHelper.getEnchantmentLevel(Enchantments.SWEEPING_EDGE, livingEntity)) * 20, 0, false, true));
                 }
 
-                if (livingEntityPatch instanceof CEHumanoidPatch<?> ceHumanoidPatch) {
-                    CEPatchUtils.setStamina(ceHumanoidPatch, CEPatchUtils.getStamina(ceHumanoidPatch) + CEPatchUtils.getMaxStamina(ceHumanoidPatch) * 0.05F);
+                if (livingEntityPatch instanceof AdvancedMobPatch<?> advancedMobPatch) {
+                    advancedMobPatch.addStamina(advancedMobPatch.getMaxStamina() * 0.05F);
+                } else if (livingEntityPatch instanceof CEHumanoidPatch<?>) {
+                    CEPatchUtils.setStamina(livingEntityPatch, CEPatchUtils.getStamina(livingEntityPatch) + CEPatchUtils.getMaxStamina(livingEntityPatch) * 0.05F);
                 }
                 (livingEntityPatch.getOriginal()).heal((float)(1 + EnchantmentHelper.getEnchantmentLevel(Enchantments.SWEEPING_EDGE, livingEntity)));
                 serverLevel.sendParticles(WOMParticles.ENDERBLASTER_BULLET.get(), entity.getX(), entity.getY() + (double)1.2F, entity.getZ(), 1, (double)0.0F, 0.0F, 0.0F, 0.0F);

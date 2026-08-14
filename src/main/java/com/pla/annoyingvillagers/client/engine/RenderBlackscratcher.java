@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.client.engine;
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
+import com.pla.annoyingvillagers.gameasset.AnimsAVSpear;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -49,7 +50,7 @@ public class RenderBlackscratcher extends RenderItemBase {
                 ? null
                 : animationPlayer.getRealAnimation();
 
-        if (currentAnimation == AVAnimations.BLACKSCRATCHER_IDLE || currentAnimation == AVAnimations.BLACKSCRATCHER_ATTACK) {
+        if (currentAnimation == AnimsAVSpear.BLACKSCRATCHER_IDLE || currentAnimation == AnimsAVSpear.BLACKSCRATCHER_ATTACK) {
             renderStack(
                     new ItemStack(AnnoyingVillagersModItems.BLACKSCRATCHER_TOP.get()),
                     livingEntityPatch,

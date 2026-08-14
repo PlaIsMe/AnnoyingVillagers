@@ -2,7 +2,6 @@ package com.pla.annoyingvillagers.skill;
 
 import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsAVSword;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.task.DelayedTask;

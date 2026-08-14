@@ -3,7 +3,6 @@ package com.pla.annoyingvillagers.mixin;
 import com.pla.annoyingvillagers.animations.BowAttackAnimation;
 import com.pla.annoyingvillagers.clazz.HookDisarmLaunch;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
-import com.pla.annoyingvillagers.compat.p1nero_bow.EpicFightBow;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.gameasset.*;
 import com.pla.annoyingvillagers.item.FlankerHookedSwordItem;
@@ -35,10 +34,10 @@ public class ClashBladeMixin {
                                                                 EntityState entityState,
                                                                 ServerPlayer serverPlayer,
                                                                 CallbackInfoReturnable<Boolean> cir) {
-        if (dynamicAnimation.get() instanceof BowAttackAnimation
-                || (ModList.get().isLoaded("p1nero_bow") && EpicFightBow.isP1neroBowAnimation(dynamicAnimation))) {
-            cir.setReturnValue(false);
-        }
+//        if (dynamicAnimation.get() instanceof BowAttackAnimation
+//                || (ModList.get().isLoaded("p1nero_bow") && EpicFightBow.isP1neroBowAnimation(dynamicAnimation))) {
+//            cir.setReturnValue(false);
+//        }
     }
 
     @Inject(method = "getWeaponDestroyValueOnClash", at = @At("HEAD"), cancellable = true)

@@ -56,41 +56,35 @@ public class MobClashBladeMixin {
 
         // Auto clash while playing animation
         if (defender instanceof AegisHerobrineEntity
-                && defenderDynamicAnimation == AnimsEpicFight.AEGIS_SHIELD_SHOOT_MAINHAND
+                && defenderDynamicAnimation == AVAnimations.AEGIS_SHIELD_SHOOT_MAINHAND
                 && defenderEntityState.getLevel() == 3) {
             cir.setReturnValue(true);
             return;
         }
 
-        if (defender instanceof AegisHerobrineEntity
-                && defenderDynamicAnimation == AnimsWom.ENDER_AEGIS_NAPOLEON_RELOAD_1) {
-            cir.setReturnValue(true);
-            return;
-        }
-
-        if (defender instanceof SwordsmanHerobrineEntity
-                && defenderDynamicAnimation == WOMAnimations.TORMENT_BERSERK_CONVERT) {
-            cir.setReturnValue(true);
-            return;
-        }
-
-        if (defender instanceof GlaiveHerobrineEntity
-                && (defenderDynamicAnimation == AnimsWom.AGONY_GUARD_HIT_1)) {
-            cir.setReturnValue(true);
-            return;
-        }
-
-        if (defender instanceof SledgehammerHerobrineEntity
-                && (defenderDynamicAnimation == WOMAnimations.TORMENT_BERSERK_CONVERT)) {
-            cir.setReturnValue(true);
-            return;
-        }
-
-        if (defender instanceof HerobrineChrisEntity
-                && (defenderDynamicAnimation == AnimsMoonless.MOONLESS_GUARD_HIT_1)) {
-            cir.setReturnValue(true);
-            return;
-        }
+//        if (defender instanceof SwordsmanHerobrineEntity
+//                && defenderDynamicAnimation == WOMAnimations.TORMENT_BERSERK_CONVERT) {
+//            cir.setReturnValue(true);
+//            return;
+//        }
+//
+//        if (defender instanceof GlaiveHerobrineEntity
+//                && (defenderDynamicAnimation == AnimsWom.AGONY_GUARD_HIT_1)) {
+//            cir.setReturnValue(true);
+//            return;
+//        }
+//
+//        if (defender instanceof SledgehammerHerobrineEntity
+//                && (defenderDynamicAnimation == WOMAnimations.TORMENT_BERSERK_CONVERT)) {
+//            cir.setReturnValue(true);
+//            return;
+//        }
+//
+//        if (defender instanceof HerobrineChrisEntity
+//                && (defenderDynamicAnimation == AnimsMoonless.MOONLESS_GUARD_HIT_1)) {
+//            cir.setReturnValue(true);
+//            return;
+//        }
 
     }
 

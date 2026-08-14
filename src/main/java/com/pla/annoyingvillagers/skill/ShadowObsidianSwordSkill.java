@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.skill;
 
 import com.pla.annoyingvillagers.gameasset.AnimsObsidianWeapon;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import net.minecraft.network.FriendlyByteBuf;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;

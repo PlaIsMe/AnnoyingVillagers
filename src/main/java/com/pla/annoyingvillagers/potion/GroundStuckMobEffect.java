@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.potion;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.network.ClientboundGroundStuckKnockoutFx;
 import net.minecraft.core.BlockPos;
@@ -131,7 +131,7 @@ public class GroundStuckMobEffect extends MobEffect {
         AnimationPlayer player = patch.getAnimator().getPlayerFor(null);
         if (player == null) return false;
         AssetAccessor<? extends StaticAnimation> animation = player.getRealAnimation();
-        return animation == AnimsPugilistSteve.HIT_LEFT || animation == AnimsPugilistSteve.HIT_RIGHT;
+        return animation == AVAnimations.HIT_LEFT || animation == AVAnimations.HIT_RIGHT;
     }
 
     public static void knockOut(LivingEntity entity, @Nullable LivingEntity attacker) {

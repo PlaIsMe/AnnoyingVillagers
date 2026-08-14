@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
-import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -323,7 +323,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
         this.hookedLeftGround = !this.onGround();
         this.setHooked(true);
         HerobrinePortalUtil.cancelSinkTransition(this);
-        EpicfightUtil.cancel(this, AnimsSculkSteve.PORTAL_SUMMON);
+        EpicfightUtil.cancel(this, AVAnimations.PORTAL_SUMMON);
         this.releaseHookedPhysicsUntilGround();
         this.getNavigation().stop();
         return true;
@@ -480,7 +480,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
         this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
         if (patch != null) {
-            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            patch.playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
         }
         if (this.level() instanceof ServerLevel) {
             AnnoyingVillagers.PACKET_HANDLER.send(
@@ -573,7 +573,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
     private void playSecondFormSupportCastAnimation() {
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
         if (patch != null && !this.level().isClientSide()) {
-            patch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+            patch.playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
         }
     }
 

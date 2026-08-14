@@ -21,6 +21,5 @@ public class AnnoyingVillagersModModels {
         registerlayerdefinitions.registerLayerDefinition(ModelHerobrineWarden.LAYER_LOCATION, ModelHerobrineWarden::createBodyLayer);
         registerlayerdefinitions.registerLayerDefinition(ModelHerobrineDragon.LAYER_LOCATION, ModelHerobrineDragon::createBodyLayer);
         registerlayerdefinitions.registerLayerDefinition(ModelDragonMeteorite.LAYER_LOCATION, ModelDragonMeteorite::createBodyLayer);
-        registerlayerdefinitions.registerLayerDefinition(ModelFlyingShockwave.LAYER_LOCATION, ModelFlyingShockwave::createBodyLayer);
     }
 }

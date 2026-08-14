@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
@@ -56,7 +56,7 @@ public class AegisHerobrineEntity extends HerobrineMob {
             if (this.tickCount == 5 && this.getPersistentData().getBoolean("init_animation")) {
                 final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
                 if (livingentitypatch != null) {
-                    livingentitypatch.playAnimationSynchronized(AnimsEpicFight.SHIELD_MAINHAND, 0.0F);
+                    livingentitypatch.playAnimationSynchronized(AVAnimations.SHIELD_MAINHAND, 0.0F);
                 }
             }
             if (this.tickCount % 20 == 0) {

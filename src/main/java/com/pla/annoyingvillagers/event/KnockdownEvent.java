@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.event;
 
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -28,19 +28,19 @@ public class KnockdownEvent {
                 AnimationPlayer animationPlayer = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null));
                 AssetAccessor<? extends StaticAnimation> dynamicAnimation = animationPlayer.getRealAnimation();
                 if (dynamicAnimation == Animations.BIPED_HIT_LONG) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.HIT_BACKWARD, 0.0F);
-                } else if (dynamicAnimation == AnimsPugilistSteve.HIT_BACKWARD) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.HIT_LEFT, 0.0F);
-                } else if (dynamicAnimation == AnimsPugilistSteve.HIT_LEFT) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.HIT_RIGHT, 0.0F);
-                } else if (dynamicAnimation == AnimsPugilistSteve.HIT_RIGHT) {
+                    livingEntityPatch.playAnimationSynchronized(AVAnimations.HIT_BACKWARD, 0.0F);
+                } else if (dynamicAnimation == AVAnimations.HIT_BACKWARD) {
+                    livingEntityPatch.playAnimationSynchronized(AVAnimations.HIT_LEFT, 0.0F);
+                } else if (dynamicAnimation == AVAnimations.HIT_LEFT) {
+                    livingEntityPatch.playAnimationSynchronized(AVAnimations.HIT_RIGHT, 0.0F);
+                } else if (dynamicAnimation == AVAnimations.HIT_RIGHT) {
                     float chance = new Random().nextFloat();
                     if (chance <= 0.25F) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.KNOCKDOWN_LEFT, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AVAnimations.KNOCKDOWN_LEFT, 0.0F);
                     } else if (chance <= 0.5F) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.KNOCKDOWN_RIGHT, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AVAnimations.KNOCKDOWN_RIGHT, 0.0F);
                     } else if (chance <= 0.75F) {
-                        livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.KNOCKDOWN_FORWARD, 0.0F);
+                        livingEntityPatch.playAnimationSynchronized(AVAnimations.KNOCKDOWN_FORWARD, 0.0F);
                     } else {
                         livingEntityPatch.applyStun(StunType.KNOCKDOWN, 40.0F);
                     }

@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import com.pla.annoyingvillagers.util.InventoryUtils;
@@ -84,7 +84,7 @@ public class WaterEnderPearlEscapeGoal extends Goal {
 
         LivingEntityPatch<?> patch = this.getLivingEntityPatch();
         if (patch != null) {
-            patch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+            patch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
         }
 
         this.mob.getNavigation().stop();

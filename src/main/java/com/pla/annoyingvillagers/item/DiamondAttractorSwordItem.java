@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.item;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.ItemProjectile;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -119,7 +119,7 @@ public class DiamondAttractorSwordItem extends SwordItem {
             if (targetPatch != null) {
                 AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(targetPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
                 if (!EpicfightUtil.isLongHitAnimation(dynamicAnimation, targetPatch)) {
-                    targetPatch.playAnimationSynchronized(AnimsPugilistSteve.KNOCKDOWN_FORWARD, 0.0F);
+                    targetPatch.playAnimationSynchronized(AVAnimations.KNOCKDOWN_FORWARD, 0.0F);
                 }
             }
             if (CommonUtil.entityCanBeDisarmed(target)) {

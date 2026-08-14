@@ -42,7 +42,7 @@ public class ExplosionDamageEvent {
             if (livingEntityPatch == null) return;
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
             if (dynamicAnimation == AnimsAVSword.WOOPIE_INNATE || dynamicAnimation == AnimsAVSword.WOOPIE_INNATE_SPECIAL
-                    || dynamicAnimation == AVAnimations.LEGENDARYSWORD_WOOPIE_FLY || dynamicAnimation == AnimsAVSword.WOOPIE_INNATE_SPECIAL_LEGENDARY) {
+                    || dynamicAnimation == AnimsAVSword.WOOPIE_FLY || dynamicAnimation == AnimsAVSword.WOOPIE_INNATE_SPECIAL_LEGENDARY) {
                 for (Entity entity : detonate.getAffectedEntities()) {
                     if (entity.isAlive() && entity != detonate.getExplosion().getIndirectSourceEntity()
                             && entity instanceof LivingEntity livingExploded && !(entity instanceof EnderHand)

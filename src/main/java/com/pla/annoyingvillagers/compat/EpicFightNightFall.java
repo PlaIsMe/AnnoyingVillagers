@@ -12,7 +12,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
 import org.joml.Vector3d;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -163,8 +162,8 @@ public class EpicFightNightFall {
         }
     }
 
-    public static boolean isPlayingEfnGuardHit(CEHumanoidPatch<?> ceHumanoidPatch) {
-        AnimationPlayer animationPlayer = ceHumanoidPatch.getAnimator().getPlayerFor(null);
+    public static boolean isPlayingEfnGuardHit(LivingEntityPatch<?> livingEntityPatch) {
+        AnimationPlayer animationPlayer = livingEntityPatch.getAnimator().getPlayerFor(null);
         if (animationPlayer != null) {
             AssetAccessor<? extends StaticAnimation> dynamicAnimation = animationPlayer.getRealAnimation();
             return dynamicAnimation == EFNSkillAnimations.EFN_GUARD_ACTIVE_HIT1 || dynamicAnimation == EFNSkillAnimations.EFN_GUARD_ACTIVE_HIT2 || dynamicAnimation == EFNSkillAnimations.EFN_GUARD_ACTIVE_HIT3;

@@ -7,7 +7,6 @@ import com.pla.annoyingvillagers.compat.dualaxes.AvNpcDualAxe;
 import com.pla.annoyingvillagers.compat.dualgreatsword.AvNpcDualGreatsword;
 import com.pla.annoyingvillagers.compat.epicfightx.*;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.util.MobPatchCommon;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;

@@ -168,7 +168,7 @@ public class AnimsAVSword {
                                 }, AnimationEvent.Side.BOTH)
                         ));
 
-        THUNDER_DIAMOND_BLADE_DUAL_INNATE = builder.nextAccessor("biped/c/thunder_diamond_blade_dual_innate",
+        THUNDER_DIAMOND_BLADE_DUAL_INNATE = builder.nextAccessor("biped/av_sword/thunder_diamond_blade_dual_innate",
                 (accessor) -> (AttackAnimation)(new AttackAnimation(0.1F, accessor, Armatures.BIPED,
                         new AttackAnimation.Phase(0.0F, 0.25F, 0.4F, 0.4F, 0.4F, Armatures.BIPED.get().toolR, null),
                         new AttackAnimation.Phase(0.4F, 0.4F, 0.5F, 0.55F, 0.6F, InteractionHand.OFF_HAND, Armatures.BIPED.get().toolL, null),

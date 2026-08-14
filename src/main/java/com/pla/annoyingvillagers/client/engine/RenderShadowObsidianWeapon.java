@@ -61,7 +61,7 @@ public class RenderShadowObsidianWeapon extends RenderItemBase {
                 MathUtils.mulStack(poseStack, openmatrix4f);
                 Minecraft.getInstance().getItemRenderer().renderStatic(itemstack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, livingEntityPatch.getOriginal().level(), 0);
                 poseStack.popPose();
-            }  else if (dynamicAnimation == AnimsPugilistSteve.OBSIDIAN_FIST_DASH && entityState.getLevel() > 1) {
+            }  else if (dynamicAnimation == AnimsObsidianWeapon.OBSIDIAN_WEAPON_SPECIAL && entityState.getLevel() > 1) {
                 itemstack = ItemStack.EMPTY;
                 poseStack.pushPose();
                 MathUtils.mulStack(poseStack, openmatrix4f);

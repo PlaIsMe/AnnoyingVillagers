@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.event;
 
-import com.pla.annoyingvillagers.gameasset.AnimsSculkSteve;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.EnderAegisItem;
 import com.pla.annoyingvillagers.item.TransporterFragmentItem;
@@ -37,7 +36,7 @@ public class SpecialAttackOnKeyHeldEvent {
             TransporterFragmentItem.UseResult transporterUseResult = TransporterFragmentItem.tryUseHeldSpecialAttack(player);
             if (transporterUseResult.consumed()) {
                 if (transporterUseResult.activated()) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+                    livingEntityPatch.playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
                 }
                 return;
             }
@@ -64,7 +63,7 @@ public class SpecialAttackOnKeyHeldEvent {
         if (entity instanceof Player player) {
             if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof BlueDemonChestplateItem && BlueDemonChestplateItem.isBlueDemonChestplate(player.getItemBySlot(EquipmentSlot.CHEST))) {
                 if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsWom.CUT_ANTITHEUS_ASCENSION, 0.0F);
+                    livingEntityPatch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_MIDDLE, 0.0F);
                     return;
                 }
             }

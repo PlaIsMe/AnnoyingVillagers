@@ -7,12 +7,12 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.compat.EfKick;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
+import com.pla.annoyingvillagers.advancedmobpatch.AdvancedMobPatch;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.task.MobExecutionTask;
 import com.pla.annoyingvillagers.util.BowFunction;
@@ -493,7 +493,7 @@ public class CombatCommon {
 
         LivingEntityPatch<?> entityPatch = EpicFightCapabilities.getEntityPatch(avNpc, LivingEntityPatch.class);
         if (entityPatch != null) {
-            entityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+            entityPatch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
         }
 
         avNpc.getPersistentData().putBoolean(KEY_AVNPC_WATER_BUCKET_ACTIVE, true);
@@ -829,7 +829,7 @@ public class CombatCommon {
                     targetPatch.applyStun(StunType.LONG, 0.0F);
                 }
                 if (targetPatch.isStunned()) {
-                    targetPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+                    targetPatch.playAnimationSynchronized(AVAnimations.STUN_BACK, 0.0F);
                 }
             }
             target.playSound(SoundEvents.SHIELD_BLOCK, 1.0F, 0.8F);
@@ -1780,6 +1780,11 @@ public class CombatCommon {
 
     public static void cancelCombatEvolutionGuard(MobPatch<?> mobpatch) {
         LivingEntity livingEntity = mobpatch.getOriginal();
+
+        if (mobpatch instanceof AdvancedMobPatch<?> advancedMobPatch) {
+            advancedMobPatch.cancelGuard();
+        }
+
         CECombatBehaviors.Behavior<?> currentBehavior = BehaviorUtils.getCurrentBehavior(mobpatch);
 
         if (isCombatEvolutionGuardBehavior(currentBehavior)) {

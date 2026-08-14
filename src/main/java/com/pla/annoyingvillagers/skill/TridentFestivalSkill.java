@@ -161,9 +161,9 @@ public class TridentFestivalSkill extends WeaponInnateSkill {
                         EpicfightUtil.damageBlocked(pre.getDamageSource(), playerPatch.getOriginal(), serverLevel);
                     }
                     if (new Random().nextBoolean()) {
-                        playerPatch.playAnimationSynchronized(AnimsWom.TRIDENT_GUARD_HIT_1, 0.0F);
+                        playerPatch.playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_GUARD_HIT1, 0.0F);
                     } else {
-                        playerPatch.playAnimationSynchronized(AnimsWom.TRIDENT_GUARD_HIT_2, 0.0F);
+                        playerPatch.playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_GUARD_HIT2, 0.0F);
                     }
                 }
             }

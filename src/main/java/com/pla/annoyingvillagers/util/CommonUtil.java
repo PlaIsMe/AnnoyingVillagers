@@ -7,8 +7,6 @@ import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.gameasset.AnimsAVSword;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFight;
-import com.pla.annoyingvillagers.gameasset.AnimsWom;
 import com.pla.annoyingvillagers.item.FlankerHookedSwordItem;
 import com.pla.annoyingvillagers.item.HookedDiamondSwordItem;
 import com.pla.annoyingvillagers.item.HookedGoldenSwordItem;

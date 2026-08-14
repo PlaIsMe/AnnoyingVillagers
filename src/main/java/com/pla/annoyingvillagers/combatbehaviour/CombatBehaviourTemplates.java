@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.combatbehaviour;
 
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightIronSpell;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.Behavior;
 import net.shelmarow.combat_evolution.ai.CECombatBehaviors.BehaviorRoot;
 import net.shelmarow.combat_evolution.ai.condition.HealthCheck;
@@ -239,7 +239,7 @@ public final class CombatBehaviourTemplates {
                                 .custom(CombatCommon::canPerformNormalAttackLogic)
                                 .custom(CombatCommon::canUseNpcCombatFishingRod)
                                 .withinDistance(0.0D, 32.0D)
-                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
+                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F)
                                 .addExBehavior(CombatCommon::performNpcCombatFishingRod)
                 );
     }
@@ -254,7 +254,7 @@ public final class CombatBehaviourTemplates {
                                 .custom(CombatCommon::canEscape)
                                 .custom(CombatCommon::canUseNpcCombatFishingRodEscape)
                                 .withinDistance(0.0D, 32.0D)
-                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
+                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F)
                                 .addExBehavior(CombatCommon::performNpcCombatFishingRodEscape)
                 );
     }
@@ -270,7 +270,7 @@ public final class CombatBehaviourTemplates {
                                 .custom(CombatCommon::isGeneral)
                                 .custom(CombatCommon::canUseVillagerKnightLavaBucket)
                                 .withinDistance(0.0D, 5.0D)
-                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
+                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F)
                                 .addExBehavior(CombatCommon::performVillagerKnightLavaBucket)
                 );
     }
@@ -291,7 +291,7 @@ public final class CombatBehaviourTemplates {
                 .addFirstBehavior(
                         behavior
                                 .withinDistance(7.0D, 48.0D)
-                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
+                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F)
                                 .addExBehavior(CombatCommon::performEnderPearlToTarget)
                 );
     }
@@ -334,7 +334,7 @@ public final class CombatBehaviourTemplates {
                 .maxCooldown(maxCooldown)
                 .addFirstBehavior(
                         behavior
-                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F)
+                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F)
                                 .addExBehavior(CombatCommon::performEnderPearlAway)
                 );
     }
@@ -400,7 +400,7 @@ public final class CombatBehaviourTemplates {
                                 .custom(CombatCommon::canPerformNormalAttackLogic)
                                 .health(2.0F / 3.0F, HealthCheck.Comparator.LESS_RATIO_CONTAIN)
                                 .custom(HerobrineCommon::canPerformHealing)
-                                .animationBehavior(AnimsEpicFightIronSpell.CASTING_ONE_HAND_BUFF, 0.0F)
+                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_UP, 0.0F)
                                 .addExBehavior(HerobrineCommon::performHealingAnimation)
                 );
     }

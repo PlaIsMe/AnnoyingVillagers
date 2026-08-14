@@ -65,6 +65,7 @@ public class AVAnimations {
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> ENDER_AEGIS_PUSH;
     public static AnimationManager.AnimationAccessor<ActionAnimation> AEGIS_SHIELD_SHOOT_MAINHAND;
     public static AnimationManager.AnimationAccessor<ActionAnimation> AEGIS_SHIELD_SHOOT_OFFHAND;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> SHIELD_MAINHAND;
 
     @SubscribeEvent
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
@@ -254,6 +255,8 @@ public class AVAnimations {
                                     EnderAegisItem.shieldShoot(livingEntityPatch.getOriginal().level(), livingEntityPatch.getOriginal());
                                 }, AnimationEvent.Side.SERVER)
                         ));
+        SHIELD_MAINHAND = builder.nextAccessor("biped/living/shield_mainhand",
+                accessor -> new StaticAnimation(0.35F, true, accessor, humanoidArmature));
         IDLE_BREAK = builder.nextAccessor("biped/living/idle_break",
                 accessor -> new StaticAnimation(false, accessor, humanoidArmature));
         PLACE_BLOCK = builder.nextAccessor("biped/living/place_block",

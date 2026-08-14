@@ -9,7 +9,9 @@ import com.merlin204.avalon.util.AvalonEventUtils;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.animations.HeavyAttackAnimation;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.item.LegendarySwordItem;
 import com.pla.annoyingvillagers.skill.LegendarySwordSkill;
+import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.EpicfightUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.common.Mod;
 import reascer.wom.animation.WomAnimationProperty;
 import reascer.wom.gameasset.WOMSounds;
@@ -341,7 +344,7 @@ public class AnimsLegendarySword {
                                     serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, entity.getX(), entity.getEyeY(), entity.getZ(), 100, 0.0D, 0.0D, 0.0D, 0.5D);
                                 }), AnimationEvent.Side.SERVER),
                                 AnimationEvent.InTimeEvent.create(0.5F, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, AnimationEvent.Side.CLIENT).params(new Vec3f(0.0F, -0.24F, -2.0F), Armatures.BIPED.get().toolR, 2.5D, 0.6F),
-                                AnimationEvent.InTimeEvent.create(0.5F, AVAnimations.ReuseableEvents.SHOCK_WAVE, AnimationEvent.Side.SERVER),
+                                AnimationEvent.InTimeEvent.create(0.5F, SHOCK_WAVE, AnimationEvent.Side.SERVER),
                                 EpicfightUtil.cameraZoomOutBlurEvent(0.5F, 10.0F, 20)
                         ));
 
@@ -377,4 +380,24 @@ public class AnimsLegendarySword {
                         .addState(EntityState.LOCKON_ROTATE, true)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
     }
+
+    private static final AnimationEvent.E0 SHOCK_WAVE =
+            (livingEntityPatch, staticAnimation, object) -> {
+                Vec3 legendarySwordPos = EpicfightUtil.getJointWithTranslation(livingEntityPatch.getOriginal(), new Vec3f(0, 0, 0),
+                        Armatures.BIPED.get().toolR, 1.5F, 0.0F);
+                final int MAX_SHOCKWAVE_RADIUS = 6;
+                final int TICKS_BETWEEN_LAYERS = 2;
+                for (int radius = 1; radius <= MAX_SHOCKWAVE_RADIUS; radius++) {
+                    int delayTicks = (radius - 1) * TICKS_BETWEEN_LAYERS;
+                    int ringRadius = radius;
+                    if (legendarySwordPos == null) return;
+                    BlockPos finalVec = BlockPos.containing(legendarySwordPos);
+                    new DelayedTask(delayTicks) {
+                        @Override
+                        public void run() {
+                            LegendarySwordItem.spawnCircleRing((ServerLevel) livingEntityPatch.getOriginal().level(), finalVec, ringRadius, livingEntityPatch.getOriginal());
+                        }
+                    };
+                }
+            };
 }

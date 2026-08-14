@@ -1,52 +1,44 @@
 package com.pla.annoyingvillagers.mobpatch;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.util.Pair;
+import com.hm.efn.gameasset.animations.EFNSwordAnimations;
+import com.pla.annoyingvillagers.advancedmobpatch.AdvancedCombatBehaviors;
+import com.pla.annoyingvillagers.advancedmobpatch.AdvancedMobPatch;
 import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.combatbehaviour.*;
+import com.pla.annoyingvillagers.combatbehaviour.CombatCommon;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
-import com.pla.annoyingvillagers.util.MobPatchCommon;
-import net.minecraft.server.level.ServerLevel;
+import com.pla.annoyingvillagers.gameasset.AnimsAVSword;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
-import net.minecraftforge.fml.ModList;
-import net.shelmarow.combat_evolution.ai.CECombatBehaviors;
-import net.shelmarow.combat_evolution.ai.CEHumanoidPatch;
-import net.shelmarow.combat_evolution.ai.iml.CustomExecuteEntity;
-import net.shelmarow.combat_evolution.execution.ExecutionTypeManager;
-import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
+import net.shelmarow.ef_awaken.efassets.animations.StraightSwordAnimations;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
-import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.AttackResult.ResultType;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
-import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.particle.HitParticleType;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.MobPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.WeaponCategories;
+import yesman.epicfight.world.capabilities.item.Style;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
-import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.List;
-import java.util.Set;
 
-public class AlexPatch extends CEHumanoidPatch<PathfinderMob> implements CustomExecuteEntity {
+public class AlexPatch extends AdvancedMobPatch<PathfinderMob> {
     public AlexPatch() {
         super(Factions.NEUTRAL);
     }
 
+    @Override
     public void initAnimator(Animator animator) {
         super.initAnimator(animator);
         animator.addLivingAnimation(LivingMotions.BLOCK, Animations.BIPED_BLOCK);
@@ -57,168 +49,269 @@ public class AlexPatch extends CEHumanoidPatch<PathfinderMob> implements CustomE
         animator.addLivingAnimation(LivingMotions.DEATH, Animations.BIPED_DEATH);
     }
 
-    protected void setWeaponMotions() {
-        this.weaponLivingMotions
-                .put(WeaponCategories.NOT_WEAPON,
-                        ImmutableMap.of(Styles.ONE_HAND,
-                                Set.of(
-                                        Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
-                                        Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, Animations.BIPED_RUN),
-                                        Pair.of(LivingMotions.CHASE, Animations.BIPED_RUN),
-                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
-                                )));
-        this.weaponAttackMotions
-                .put(WeaponCategories.NOT_WEAPON,
-                        ImmutableMap.of(Styles.ONE_HAND, AvNpcFist.FIST));
-
-        this.weaponLivingMotions
-                .put(WeaponCategories.FIST,
-                        ImmutableMap.of(Styles.ONE_HAND,
-                                Set.of(
-                                        Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
-                                        Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, Animations.BIPED_RUN),
-                                        Pair.of(LivingMotions.CHASE, Animations.BIPED_RUN),
-                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
-                                )));
-        this.weaponAttackMotions
-                .put(WeaponCategories.FIST,
-                        ImmutableMap.of(Styles.ONE_HAND, AvNpcFist.FIST));
-
-        this.weaponLivingMotions
-                .put(WeaponCategories.SWORD,
-                        ImmutableMap.of(
-                                Styles.ONE_HAND,
-                                Set.of(
-                                        Pair.of(LivingMotions.BLOCK, Animations.SWORD_GUARD),
-                                        Pair.of(LivingMotions.IDLE, Animations.BIPED_IDLE),
-                                        Pair.of(LivingMotions.WALK, Animations.BIPED_WALK),
-                                        Pair.of(LivingMotions.RUN, AnimsPugilistSteve.BIPED_RUN_ESWORD),
-                                        Pair.of(LivingMotions.CHASE, AnimsPugilistSteve.BIPED_RUN_ESWORD),
-                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
-                                ),
-                                Styles.TWO_HAND,
-                                Set.of(
-                                        Pair.of(LivingMotions.BLOCK, Animations.SWORD_DUAL_GUARD),
-                                        Pair.of(LivingMotions.IDLE, Animations.BIPED_HOLD_DUAL_WEAPON),
-                                        Pair.of(LivingMotions.WALK, Animations.BIPED_HOLD_DUAL_WEAPON),
-                                        Pair.of(LivingMotions.RUN, AnimsPugilistSteve.RUN_HOLD),
-                                        Pair.of(LivingMotions.CHASE, Animations.BIPED_HOLD_DUAL_WEAPON),
-                                        Pair.of(LivingMotions.DEATH, Animations.BIPED_DEATH)
-                                )
-                        ));
-        this.weaponAttackMotions
-                .put(WeaponCategories.SWORD,
-                        ImmutableMap.of(
-                                Styles.ONE_HAND, AlexSword.THUNDER_DIAMOND_BLADE,
-                                Styles.TWO_HAND, AlexSword.DUAL_THUNDER_DIAMOND_BLADE
-                        ));
-        
-        this.guardHitMotions.put(WeaponCategories.SWORD,
-                ImmutableMap.of(
-                        Styles.ONE_HAND, List.of(
-                                Animations.SWORD_GUARD_ACTIVE_HIT1,
-                                Animations.SWORD_GUARD_ACTIVE_HIT2,
-                                Animations.SWORD_GUARD_ACTIVE_HIT3
-                        ),
-                        Styles.TWO_HAND, List.of(
-                                Animations.SWORD_DUAL_GUARD_HIT
-                        )
-                )
-        );
+    @Override
+    protected void addCustomBehaviorRoots(AdvancedCombatBehaviors.Builder<MobPatch<?>> builder,
+                                          CapabilityItem mainHandCap,
+                                          CapabilityItem offHandCap, Style style) {
+//        builder
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(4.0D)
+//                                .weight(1000.0D)
+//                                .maxCooldown(0)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::canExecute)
+//                                                .withinDistance(0.0D, 5.0D)
+//                                                .animationBehavior(Animations.BIPED_SNEAK, 0.0F)
+//                                                .addExBehavior(CombatCommon::performExecute)
+//                                )
+//                )
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(2.0D)
+//                                .weight(70.0D)
+//                                .maxCooldown(0)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::usesStepMoveset)
+//                                                .health(2.0F / 3.0F, HealthCheck.Comparator.LESS_RATIO_CONTAIN)
+//                                                .custom(CombatCommon::canPerformEating)
+//                                                .animationBehavior(Animations.BIPED_STEP_BACKWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::performEatingAnimation)
+//                                )
+//                )
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(2.0D)
+//                                .weight(70.0D)
+//                                .maxCooldown(0)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::usesRollMoveset)
+//                                                .health(2.0F / 3.0F, HealthCheck.Comparator.LESS_RATIO_CONTAIN)
+//                                                .custom(CombatCommon::canPerformEating)
+//                                                .animationBehavior(Animations.BIPED_ROLL_BACKWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::performEatingAnimation)
+//                                )
+//                )
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(2.0D)
+//                                .weight(100.0D)
+//                                .maxCooldown(120)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::usesStepMoveset)
+//                                                .custom(CombatCommon::canPerformNormalAttackLogic)
+//                                                .custom(CombatCommon::canSwapToBow)
+//                                                .withinDistance(7.0D, 14.0D)
+//                                                .animationBehavior(Animations.BIPED_STEP_BACKWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::swapToBow)
+//                                )
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::usesStepMoveset)
+//                                                .custom(CombatCommon::canPerformNormalAttackLogic)
+//                                                .custom(CombatCommon::canSwapToBow)
+//                                                .withinDistance(7.0D, 14.0D)
+//                                                .animationBehavior(Animations.BIPED_STEP_FORWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::swapToBow)
+//                                )
+//                )
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(2.0D)
+//                                .weight(100.0D)
+//                                .maxCooldown(120)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::usesRollMoveset)
+//                                                .custom(CombatCommon::canPerformNormalAttackLogic)
+//                                                .custom(CombatCommon::canSwapToBow)
+//                                                .withinDistance(7.0D, 14.0D)
+//                                                .animationBehavior(Animations.BIPED_ROLL_BACKWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::swapToBow)
+//                                )
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::usesRollMoveset)
+//                                                .custom(CombatCommon::canPerformNormalAttackLogic)
+//                                                .custom(CombatCommon::canSwapToBow)
+//                                                .withinDistance(7.0D, 14.0D)
+//                                                .animationBehavior(Animations.BIPED_ROLL_FORWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::swapToBow)
+//                                )
+//                )
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(2.0D)
+//                                .weight(80.0D)
+//                                .maxCooldown(120)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::canPerformNormalAttackLogic)
+//                                                .custom(CombatCommon::canThrowEnderPearl)
+//                                                .withinDistance(7.0D, 48.0D)
+//                                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::performEnderPearlToTarget)
+//                                )
+//                )
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(2.0D)
+//                                .weight(30.0D)
+//                                .maxCooldown(120)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::canPerformNormalAttackLogic)
+//                                                .custom(CombatCommon::isGeneral)
+//                                                .custom(CombatCommon::canUseVillagerKnightLavaBucket)
+//                                                .withinDistance(0.0D, 5.0D)
+//                                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::performVillagerKnightLavaBucket)
+//                                )
+//                )
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(3.0D)
+//                                .weight(1000.0D)
+//                                .maxCooldown(35)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::canEscape)
+//                                                .custom(CombatCommon::canUseNpcCombatFishingRodEscape)
+//                                                .withinDistance(0.0D, 32.0D)
+//                                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::performNpcCombatFishingRodEscape)
+//                                )
+//                )
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(1.0D)
+//                                .weight(10.0D)
+//                                .maxCooldown(60)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::canPerformNormalAttackLogic)
+//                                                .withinDistance(0.0D, 3.0D)
+//                                                .custom(CombatCommon::canThrowEnderPearl)
+//                                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::performEnderPearlAway)
+//                                )
+//                )
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(1.0D)
+//                                .weight(40.0D)
+//                                .maxCooldown(160)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::canPerformNormalAttackLogic)
+//                                                .custom(CombatCommon::canJump)
+//                                                .withinDistance(5.0D, 14.0D)
+//                                                .animationBehavior(Animations.BIPED_JUMP, 0.0F)
+//                                                .addExBehavior(CombatCommon::jump)
+//                                )
+//                )
+//                .newBehaviorRoot(
+//                        BehaviorRoot.builder()
+//                                .priority(2.0D)
+//                                .weight(55.0D)
+//                                .maxCooldown(35)
+//                                .addFirstBehavior(
+//                                        Behavior.builder()
+//                                                .custom(CombatCommon::canPerformNormalAttackLogic)
+//                                                .custom(CombatCommon::canUseNpcCombatFishingRod)
+//                                                .withinDistance(0.0D, 32.0D)
+//                                                .animationBehavior(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F)
+//                                                .addExBehavior(CombatCommon::performNpcCombatFishingRod)
+//                                )
+//                );
     }
 
     @Override
-    protected CECombatBehaviors.Builder<MobPatch<?>> getCustomWeaponMotionBuilder() {
-        CapabilityItem mainHandCap = this.getHoldingItemCapability(InteractionHand.MAIN_HAND);
-        CECombatBehaviors.Builder<MobPatch<?>> customOverride = MobPatchCommon.overideBowMotionBuilderForNpc(mainHandCap, mainHandCap.getStyle(this));
-        return customOverride != null ? customOverride : super.getCustomWeaponMotionBuilder();
+    protected List<AdditionalAttackGroup> getAdditionalAttackGroups(CapabilityItem mainHandCap, CapabilityItem offHandCap, Style style) {
+        if (mainHandCap.getWeaponCategory() == WeaponCategories.SWORD
+                && this.getOriginal().getMainHandItem().getItem() == AnnoyingVillagersModItems.THUNDER_DIAMOND_BLADE.get()) {
+            return style == Styles.TWO_HAND
+                    ? List.of(
+                    AdditionalAttackGroup.random(
+                            0.35F,
+                            StraightSwordAnimations.STRAIGHTSWORD_DUAL_DODGE_SLASH,
+                            AnimsAVSword.THUNDER_DIAMOND_BLADE_DUAL_INNATE
+                    ))
+                    : List.of(
+                    AdditionalAttackGroup.random(
+                            0.35F,
+                            EFNSwordAnimations.NF_SWORD_SKILL,
+                            AnimsAVSword.THUNDER_DIAMOND_BLADE_INNATE
+                    )
+            );
+
+        }
+        return List.of();
     }
 
+    @Override
+    protected boolean canPerformGeneratedAttack() {
+        return CombatCommon.canPerformNormalAttackLogic(this);
+    }
+
+    @Override
+    public boolean canGuard() {
+        return CombatCommon.canPerformGuarding(this);
+    }
+
+    @Override
+    public int getGuardChance() {
+        return 15;
+    }
+
+    @Override
     public void playGuardBreakSound() {
         this.playSound(EpicFightSounds.NEUTRALIZE_MOBS.get(), 0.0F, 0.0F);
     }
 
-    public AttackResult attack(EpicFightDamageSource epicFightDamageSource, Entity entity, InteractionHand interactionhand) {
-        AttackResult attackresult = super.attack(epicFightDamageSource, entity, interactionhand);
-
-        if (attackresult.resultType == ResultType.SUCCESS && entity.isAlive()) {
-            // More logic when mob attack success
+    @Override
+    public AttackResult attack(EpicFightDamageSource epicFightDamageSource,
+                               Entity entity, InteractionHand interactionHand) {
+        AttackResult attackResult = super.attack(epicFightDamageSource, entity, interactionHand);
+        if (attackResult.resultType == ResultType.SUCCESS && entity.isAlive()) {
+            // More logic when the mob's attack succeeds.
         }
-
-        return attackresult;
+        return attackResult;
     }
 
+    @Override
     public void tick(LivingTickEvent livingTickEvent) {
         super.tick(livingTickEvent);
-        AlexJevHookCombat.tickAlex(this);
     }
 
+    @Override
     public void onDeath(LivingDeathEvent livingDeathEvent) {
         super.onDeath(livingDeathEvent);
     }
 
     @Override
     public void playGuardHitAnimation(DamageSource damageSource, boolean canCounter) {
-        if (ModList.get().isLoaded("efn") && this.getOriginal() instanceof AVNpc avNpc && avNpc.getLivingEntityPatch() != null) {
-            EpicFightNightFall.playEfnGuardHit(avNpc.getLivingEntityPatch(), avNpc.getEfnGuardHitState(), damageSource);
+        if (this.getOriginal() instanceof AVNpc avNpc
+                && avNpc.getLivingEntityPatch() != null) {
+            EpicFightNightFall.playEfnGuardHit(
+                    avNpc.getLivingEntityPatch(),
+                    avNpc.getEfnGuardHitState(),
+                    damageSource
+            );
             avNpc.postPlayEfnGuardHit();
-        } else {
-            super.playGuardHitAnimation(damageSource, canCounter);
         }
     }
 
     @Override
     public void playGuardHitSound() {
-        if (ModList.get().isLoaded("efn")) {
-        } else {
-            super.playGuardHitSound();
-        }
     }
 
     @Override
-    public boolean dealStaminaDamage(DamageSource damageSource, float amount) {
-        if (ModList.get().isLoaded("efn") && EpicFightNightFall.isPlayingEfnGuardHit(this)) {
-            return false;
-        } else {
-            return super.dealStaminaDamage(damageSource, amount);
-        }
-    }
-
-    @Override
-    public void onGuardHit(DamageSource damageSource) {
-        super.onGuardHit(damageSource);
-        if (this.getOriginal().level() instanceof ServerLevel serverLevel) {
-            EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(serverLevel, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, this.getOriginal(), damageSource.getEntity());
-        }
-    }
-
-    public AnimationAccessor<? extends StaticAnimation> getHitAnimation(StunType stuntype) {
-        return switch (stuntype) {
-            case LONG -> Animations.BIPED_HIT_LONG;
-            case SHORT, HOLD -> Animations.BIPED_HIT_SHORT;
-            case KNOCKDOWN -> Animations.BIPED_KNOCKDOWN;
-            case NEUTRALIZE -> (
-                    this.getHoldingItemCapability(InteractionHand.MAIN_HAND).getWeaponCategory() == WeaponCategories.GREATSWORD ?
-                            Animations.GREATSWORD_GUARD_BREAK : Animations.BIPED_COMMON_NEUTRALIZED);
-            case FALL -> Animations.BIPED_LANDING;
-            default -> null;
-        };
-    }
-
-    @Override
-    public boolean canBeExecuted(LivingEntityPatch<?> livingEntityPatch) {
+    public boolean canBeExecuted(LivingEntityPatch<?> executorPatch) {
         return AnnoyingVillagersConfig.CAN_EXECUTE_AV_MOB.get();
-    }
-
-    @Override
-    public boolean canUseCustomType(LivingEntityPatch<?> livingEntityPatch, ExecutionTypeManager.Type type) {
-        return true;
-    }
-
-    @Override
-    public ExecutionTypeManager.Type getExecutionType(LivingEntityPatch<?> livingEntityPatch, ExecutionTypeManager.Type type) {
-        return type;
     }
 }

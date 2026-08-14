@@ -3,9 +3,9 @@ package com.pla.annoyingvillagers.util;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.compat.EpicFightNightFall;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.entity.FlyingShockwaveProjectile;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
+import com.pla.annoyingvillagers.advancedmobpatch.AdvancedMobPatch;
 import com.pla.annoyingvillagers.network.ClientboundEpicFightCameraFx;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -149,7 +149,12 @@ public class EpicfightUtil {
 
     public static void dealStaminaDamageByPercentage(DamageSource damageSource, LivingEntityPatch<?> livingEntityPatch, double percentage, boolean playStunAnimation) {
         float decrease = 0.0F;
-        if (livingEntityPatch instanceof CEHumanoidPatch) {
+        if (livingEntityPatch instanceof AdvancedMobPatch<?> advancedMobPatch) {
+            float currentStamina = advancedMobPatch.getStamina();
+            float maxStamina = advancedMobPatch.getMaxStamina();
+            float staminaToDecrease = (float) (maxStamina * percentage);
+            decrease = Math.min(staminaToDecrease, currentStamina);
+        } else if (livingEntityPatch instanceof CEHumanoidPatch) {
             float currentStamina = CEPatchUtils.getStamina(livingEntityPatch);
             float maxStamina = CEPatchUtils.getMaxStamina(livingEntityPatch);
             float staminaToDecrease = (float) (maxStamina * percentage);
@@ -166,7 +171,11 @@ public class EpicfightUtil {
     public static void dealStaminaDamage(DamageSource damageSource, float amount, LivingEntityPatch<?> livingEntityPatch, boolean playStunAnimation) {
         if (livingEntityPatch instanceof CEHumanoidPatch<?> ceHumanoidPatch) {
             if (!ceHumanoidPatch.dealStaminaDamage(damageSource, amount) && playStunAnimation) {
-                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+                livingEntityPatch.playAnimationSynchronized(AVAnimations.STUN_BACK, 0.0F);
+            }
+        } else if (livingEntityPatch instanceof AdvancedMobPatch<?> advancedMobPatch) {
+            if (!advancedMobPatch.dealStaminaDamage(damageSource, amount) && playStunAnimation) {
+                livingEntityPatch.playAnimationSynchronized(AVAnimations.STUN_BACK, 0.0F);
             }
         } else if (livingEntityPatch instanceof PlayerPatch<?> playerPatch) {
             float stamina = playerPatch.getStamina();
@@ -252,25 +261,6 @@ public class EpicfightUtil {
     private static void sendEpicFightCameraFx(LivingEntity entity, ClientboundEpicFightCameraFx packet) {
         if (entity instanceof ServerPlayer player) {
             AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> player), packet);
-        }
-    }
-
-    public static void shootFlyingShockwave(LivingEntityPatch<?> livingEntityPatch) {
-        float ang = (float) ((livingEntityPatch.getYRot()+90)/180 * Math.PI);
-        Vec3 shootVec = new Vec3(Math.cos(ang), 0 , Math.sin(ang));
-        Vec3 shootPos = livingEntityPatch.getOriginal().position().add(shootVec.x, 0, shootVec.z);
-
-        FlyingShockwaveProjectile projectile = AnnoyingVillagersModEntities.FLYING_SHOCKWAVE.get().create(livingEntityPatch.getOriginal().level());
-        float multiplier = 1.5f;
-        if (projectile != null)
-        {
-            projectile.setDamage((float) livingEntityPatch.getOriginal().getAttributeValue(Attributes.ATTACK_DAMAGE) * multiplier);
-
-            projectile.setPos(shootPos);
-            projectile.setMaxStrikes(3);
-            projectile.setOwner(livingEntityPatch.getOriginal());
-            projectile.shoot(shootVec.x(), 0, shootVec.z(), 4.2f, 0);
-            livingEntityPatch.getOriginal().level().addFreshEntity(projectile);
         }
     }
 }

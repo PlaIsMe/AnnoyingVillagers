@@ -1,9 +1,8 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.gameasset.AnimsEpicFightAwaken;
+import com.pla.annoyingvillagers.gameasset.AVAnimations;
 import com.pla.annoyingvillagers.gameasset.AnimsObsidianSledgehammer;
-import com.pla.annoyingvillagers.gameasset.AnimsPugilistSteve;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.potion.GroundStuckMobEffect;
@@ -54,7 +53,7 @@ public class GroundStuckEvent {
         }
 
         LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-        if (patch != null) patch.playAnimationSynchronized(level.random.nextBoolean() ? AnimsPugilistSteve.HIT_LEFT : AnimsPugilistSteve.HIT_RIGHT, 0.0F);
+        if (patch != null) patch.playAnimationSynchronized(level.random.nextBoolean() ? AVAnimations.HIT_LEFT : AVAnimations.HIT_RIGHT, 0.0F);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

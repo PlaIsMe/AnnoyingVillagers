@@ -56,7 +56,38 @@ minecraft {
     }
 }
 
-sourceSets.main.resources { srcDirs = ['src/main/resources', 'src/generated/resources'] }
+sourceSets {
+    main {
+        java {
+            exclude { details ->
+                def path = details.path.replace('\\', '/')
+                if (path.startsWith('com/pla/annoyingvillagers/mobpatch/')) {
+                    return path != 'com/pla/annoyingvillagers/mobpatch/AlexPatch.java'
+                }
+                if (path.startsWith('com/pla/annoyingvillagers/combatbehaviour/')) {
+                    return path != 'com/pla/annoyingvillagers/combatbehaviour/AlexJevHookCombat.java'
+                            && path != 'com/pla/annoyingvillagers/combatbehaviour/AvNpcCombatBehaviorBuilder.java'
+                            && path != 'com/pla/annoyingvillagers/combatbehaviour/AvNpcCombatBehaviourBuilder.java'
+                            && path != 'com/pla/annoyingvillagers/combatbehaviour/CombatBehaviourTemplates.java'
+                            && path != 'com/pla/annoyingvillagers/combatbehaviour/CombatCommon.java'
+                            && path != 'com/pla/annoyingvillagers/combatbehaviour/HerobrineCommon.java'
+                            && path != 'com/pla/annoyingvillagers/combatbehaviour/TransporterHerobrineCombatValues.java'
+                }
+                if (path.startsWith('com/pla/annoyingvillagers/compat/cdmoveset/')
+                        || path.startsWith('com/pla/annoyingvillagers/compat/dualaxes/')
+                        || path.startsWith('com/pla/annoyingvillagers/compat/dualgreatsword/')
+                        || path.startsWith('com/pla/annoyingvillagers/compat/epicfightx/')
+                        || path.startsWith('com/pla/annoyingvillagers/compat/refm/')) {
+                    return true
+                }
+                return false
+            }
+        }
+        resources {
+            srcDirs = ['src/main/resources', 'src/generated/resources']
+        }
+    }
+}
 
 repositories {
     mavenCentral()
