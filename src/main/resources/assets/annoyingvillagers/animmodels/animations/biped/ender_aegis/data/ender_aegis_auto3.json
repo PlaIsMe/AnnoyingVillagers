@@ -1,0 +1,13 @@
+{
+	"trail_effects": [
+		{
+	    	"begin_pos": [-0.2, 0.2, -0.5],
+	    	"end_pos": [-0.2, 0.2, 1.2],
+			"start_time": 0.05,
+			"end_time": 0.25,
+			"joint": "Tool_L",
+			"item_skin_hand": "off_hand",
+			"texture_path": "wom:textures/particle/ender_blaster/weapon_trail/basic.png"
+		}
+	]
+}

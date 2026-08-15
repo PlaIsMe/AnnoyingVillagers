@@ -1,0 +1,11 @@
+{
+	"type": "annoyingvillagers:ender_aegis",
+	"attributes": {
+		"common": {
+			"armor_negation": 15.0,
+			"impact": 2.7,
+			"max_strikes": 7,
+			"speed_bonus": 0.4
+		}
+	}
+}

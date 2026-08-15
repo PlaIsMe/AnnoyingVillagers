@@ -1,8 +1,11 @@
 package com.pla.annoyingvillagers.item;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.EnderAegisProjectile;
 import com.pla.annoyingvillagers.event.ShieldRendererEvent;
+import com.pla.annoyingvillagers.gameasset.AVSkills;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundEnderAegisSparkFx;
@@ -10,41 +13,69 @@ import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 public class EnderAegisItem extends ShieldItem {
+    private static final double ATTACK_DAMAGE_MODIFIER = 7.0D;
+    private static final double ATTACK_SPEED_MODIFIER = -2.8D;
     public static final String SECOND_FORM_TAG = "SecondForm";
-    public static final String SECOND_FORM_TICKS_TAG = "SecondFormTicks";
-    public static final String CHARGE_TAG = "EnderAegisCharge";
-    public static final float MAX_CHARGE = 100.0F;
-    public static final int SECOND_FORM_DURATION_TICKS = 20 * 20;
-    private static final int CHARGE_METER_STEPS = 18;
-    private static final int CHARGE_COLOR = 0xA66BFF;
-    private static final int CHARGE_DIM_COLOR = 0x4C435C;
-    private static final int CHARGE_TEXT_COLOR = 0xE2D1FF;
-    private static final int CHARGE_FULL_COLOR = 0xC28CFF;
+    public static final String AWAKEN_SOUND_PLAYED_TAG = "PlaySound";
+    private static final String LEGACY_SECOND_FORM_TICKS_TAG = "SecondFormTicks";
+    private static final String LEGACY_CHARGE_TAG = "EnderAegisCharge";
+    private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
     public EnderAegisItem() {
         super(new Properties()
                 .stacksTo(1)
                 .durability(1561)
+                .fireResistant()
         );
+
+        ImmutableMultimap.Builder<Attribute, AttributeModifier> modifiers = ImmutableMultimap.builder();
+        modifiers.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(
+                BASE_ATTACK_DAMAGE_UUID,
+                "Weapon modifier",
+                ATTACK_DAMAGE_MODIFIER,
+                AttributeModifier.Operation.ADDITION
+        ));
+        modifiers.put(Attributes.ATTACK_SPEED, new AttributeModifier(
+                BASE_ATTACK_SPEED_UUID,
+                "Weapon modifier",
+                ATTACK_SPEED_MODIFIER,
+                AttributeModifier.Operation.ADDITION
+        ));
+        this.defaultModifiers = modifiers.build();
+    }
+
+    @Override
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+        return slot == EquipmentSlot.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(slot);
     }
 
     @Override
@@ -61,32 +92,13 @@ public class EnderAegisItem extends ShieldItem {
         return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean(SECOND_FORM_TAG);
     }
 
-    public static float getCharge(ItemStack stack) {
-        return stack.hasTag() && stack.getTag() != null ? stack.getTag().getFloat(CHARGE_TAG) : 0.0F;
-    }
-
-    public static void addBlockedDamageCharge(ItemStack stack, float blockedDamage) {
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putFloat(CHARGE_TAG, Mth.clamp(tag.getFloat(CHARGE_TAG) + blockedDamage, 0.0F, MAX_CHARGE));
-    }
-
-    public static boolean activateSecondForm(Player player, ItemStack stack) {
-        if (!(stack.getItem() instanceof EnderAegisItem
-                && !isSecondForm(stack)
-                && getCharge(stack) >= MAX_CHARGE)) {
-            return false;
+    private static void setSecondForm(ItemStack stack, boolean secondForm) {
+        if (secondForm) {
+            stack.getOrCreateTag().putBoolean(SECOND_FORM_TAG, true);
+        } else if (stack.hasTag() && stack.getTag() != null) {
+            stack.getTag().remove(SECOND_FORM_TAG);
+            stack.getTag().remove(AWAKEN_SOUND_PLAYED_TAG);
         }
-
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putBoolean(SECOND_FORM_TAG, true);
-        tag.putInt(SECOND_FORM_TICKS_TAG, SECOND_FORM_DURATION_TICKS);
-        tag.putFloat(CHARGE_TAG, 0.0F);
-        player.getCooldowns().addCooldown(stack.getItem(), SECOND_FORM_DURATION_TICKS);
-        return true;
-    }
-
-    public static boolean isFullyCharged(ItemStack stack) {
-        return getCharge(stack) >= MAX_CHARGE;
     }
 
     public static void shieldShoot(Level level, Entity entity) {
@@ -130,19 +142,19 @@ public class EnderAegisItem extends ShieldItem {
             Vec3 spawnPos = eye.add(forward.scale(spawnForward)).add(off.scale(0.15D));
             Vec3 dir = forward.add(off.scale(spread)).normalize();
 
-            EnderAegisProjectile proj = new EnderAegisProjectile(
+            EnderAegisProjectile projectile = new EnderAegisProjectile(
                     AnnoyingVillagersModEntities.ENDER_AEGIS_PROJECTILE.get(), level
             );
-            proj.setOwner(entity);
-            proj.setBaseDamage(15.0F);
-            proj.setKnockback(5);
-            proj.setSilent(true);
-            proj.setPierceLevel((byte) 5);
+            projectile.setOwner(entity);
+            projectile.setBaseDamage(15.0F);
+            projectile.setKnockback(5);
+            projectile.setSilent(true);
+            projectile.setPierceLevel((byte) 5);
 
-            proj.setPos(spawnPos.x, spawnPos.y, spawnPos.z);
-            proj.shoot(dir.x, dir.y, dir.z, velocity, inaccuracy);
+            projectile.setPos(spawnPos.x, spawnPos.y, spawnPos.z);
+            projectile.shoot(dir.x, dir.y, dir.z, velocity, inaccuracy);
 
-            serverLevel.addFreshEntity(proj);
+            serverLevel.addFreshEntity(projectile);
         }
 
         Vec3 sparkFrom = eye.add(0.0D, -1.0D, 0.0D);
@@ -158,76 +170,36 @@ public class EnderAegisItem extends ShieldItem {
     }
 
     @Override
-    public boolean isFoil(@NotNull ItemStack stack) {
-        return super.isFoil(stack) || isFullyCharged(stack);
-    }
+    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, level, entity, slot, selected);
+        if (level.isClientSide() || !(entity instanceof Player player)) {
+            return;
+        }
 
-    public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
-        super.inventoryTick(itemstack, level, entity, i, flag);
-        if (flag) {
-            CompoundTag tag = itemstack.getTag();
-            if (tag != null && tag.getBoolean(SECOND_FORM_TAG)) {
-                HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
+        CompoundTag tag = stack.getTag();
+        if (tag != null) {
+            tag.remove(LEGACY_CHARGE_TAG);
+            tag.remove(LEGACY_SECOND_FORM_TICKS_TAG);
+        }
 
-                if (!level.isClientSide()) {
-                    int ticks = tag.getInt(SECOND_FORM_TICKS_TAG);
-                    if (ticks > 0) {
-                        tag.putInt(SECOND_FORM_TICKS_TAG, ticks - 1);
-                    } else {
-                        tag.putBoolean(SECOND_FORM_TAG, false);
-                        tag.remove(SECOND_FORM_TICKS_TAG);
-                    }
-                }
+        boolean secondForm = false;
+        if (selected) {
+            PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
+            if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
+                SkillContainer container = serverPlayerPatch.getSkill(AVSkills.ENDER_AEGIS);
+                secondForm = container != null && container.getStack() >= 1;
             }
+        }
+
+        setSecondForm(stack, secondForm);
+        if (secondForm) {
+            HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
         }
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, @Nullable Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        float charge = getCharge(itemstack);
-        list.add(Component.translatable("tooltip.annoyingvillagers.ender_aegis"));
-        addChargeTooltip(list, charge);
-    }
-
-    private static void addChargeTooltip(List<Component> tooltip, float charge) {
-        int displayCharge = Mth.clamp(Mth.floor(charge), 0, (int) MAX_CHARGE);
-        tooltip.add(
-                Component.literal("Shield Charge")
-                        .withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(CHARGE_COLOR)))
-        );
-        tooltip.add(
-                Component.literal(displayCharge + " / " + (int) MAX_CHARGE)
-                        .withStyle(style -> style.withColor(TextColor.fromRgb(CHARGE_TEXT_COLOR)))
-        );
-        tooltip.add(buildChargeMeter(charge));
-
-        if (charge >= MAX_CHARGE) {
-            tooltip.add(
-                    Component.literal("Fully Charged")
-                            .withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(CHARGE_FULL_COLOR)))
-            );
-        }
-    }
-
-    private static Component buildChargeMeter(float charge) {
-        int filledSteps = Math.round((charge / MAX_CHARGE) * CHARGE_METER_STEPS);
-        filledSteps = Mth.clamp(filledSteps, 0, CHARGE_METER_STEPS);
-
-        MutableComponent meter = Component.empty();
-        meter.append(
-                Component.literal("🛡 ")
-                        .withStyle(style -> style.withColor(TextColor.fromRgb(CHARGE_COLOR)))
-        );
-
-        for (int i = 0; i < CHARGE_METER_STEPS; i++) {
-            boolean filled = i < filledSteps;
-            meter.append(
-                    Component.literal(filled ? "▰" : "▱")
-                            .withStyle(style -> style.withColor(TextColor.fromRgb(filled ? CHARGE_COLOR : CHARGE_DIM_COLOR)))
-            );
-        }
-
-        return meter;
+    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        tooltip.add(Component.translatable("tooltip.annoyingvillagers.ender_aegis"));
     }
 }

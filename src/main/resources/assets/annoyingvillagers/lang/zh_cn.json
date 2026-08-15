@@ -375,7 +375,7 @@
   "skill.annoyingvillagers.blackscratcher": "除尘器 Rend",
   "skill.annoyingvillagers.bedrock_weapon.tooltip": "进入自动招架（15 秒），完全格挡所有伤害，每次格挡恢复 2 点生命值。§r",
   "skill.annoyingvillagers.demoniac_voltage_reaver.tooltip": "攻击附近的实体，并在命中时§7消耗耐力§r§8。§r\n\n§5蛇刃防御§r§8（固有防御）§r\n§8格挡所有受到的伤害并对附近的实体造成伤害。§r\n\n§7用蛇刃攻击敌人会为你的固有技能充能。§r",
-  "skill.annoyingvillagers.ender_aegis.tooltip": "进入第二形态（10秒）\n普通攻击会释放一道§7冲击波§r§8，§r§6击倒§r§8路径上的实体。§r\n§8格挡伤害也会释放一道§r§7冲击波§r§8，并§r§6延长持续时间§r。\n\n§7格挡伤害会为你的固有技能充能。§r",
+  "skill.annoyingvillagers.ender_aegis.tooltip": "使用末影神盾格挡伤害会为固有技能充能。\n充能完成后会自动进入§5第二形态§r§8，直到消耗充能。§r\n\n§5固有技能§r\n§8释放一道§7冲击波§r§8，§r§6击倒§r§8路径上的实体，并在动画期间格挡正面攻击。§r",
   "skill.annoyingvillagers.ender_glaive.tooltip": "发射一道§5紫色爆炸冲击波§r§8，§r§6击倒§r§8被击中的敌人并将你向前推进。§r\n特殊固有技能（§7特殊攻击§r§8 + §7固有技能§r§8）发射一道§5紫色爆炸冲击波§r§8并将你向后拉。§r\n\n§7爆炸击中敌人会为你的固有技能充能。§r",
   "skill.annoyingvillagers.ender_slayer_scythe.tooltip": "进入第二形态（20秒）\n\n§5普通攻击§r\n§8命令巨龙发射§r§7闪电§r§8，造成§6中等伤害，锁定目标移动并消耗耐力§r\n\n§5右键点击§r\n§8命令巨龙发射§r§7流星§r§8，造成§6高额伤害§r。\n\n§5特殊攻击§r\n§8召唤巨龙降落并§r§6骑乘§r§8你。§r\n\n§7成功闪避会充能你的固有技能并延长持续时间。§r",
   "skill.annoyingvillagers.great_sword.tooltip": "召唤盾牌并自动格挡（8秒）\n§7完全格挡所有伤害§r§8，并且§r§7延长持续时间§r§8每次格挡。§r",

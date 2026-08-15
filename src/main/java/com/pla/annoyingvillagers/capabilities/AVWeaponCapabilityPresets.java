@@ -30,6 +30,31 @@ import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 @SuppressWarnings({"deprecation", "removal"})
 public class AVWeaponCapabilityPresets {
+    public static final Function<Item, CapabilityItem.Builder> ENDER_AEGIS = (item) ->
+            WeaponCapability.builder().category(WeaponCategories.SWORD)
+                    .styleProvider((livingEntityPatch) -> Styles.TWO_HAND)
+                    .collider(ColliderPreset.SWORD)
+                    .hitSound(EpicFightSounds.BLADE_HIT.get())
+                    .canBePlacedOffhand(false)
+                    .newStyleCombo(Styles.TWO_HAND,
+                            AnimsEnderAegis.ENDER_AEGIS_AUTO1,
+                            AnimsEnderAegis.ENDER_AEGIS_AUTO2,
+                            AnimsEnderAegis.ENDER_AEGIS_AUTO3,
+                            AnimsEnderAegis.ENDER_AEGIS_AUTO4,
+                            AnimsEnderAegis.ENDER_AEGIS_AUTO5,
+                            AnimsEnderAegis.ENDER_AEGIS_DASH,
+                            AnimsEnderAegis.ENDER_AEGIS_AIRSLASH)
+                    .newStyleCombo(Styles.MOUNT,
+                            Animations.SPEAR_MOUNT_ATTACK)
+                    .innateSkill(Styles.TWO_HAND,
+                            (itemstack) -> AVSkills.ENDER_AEGIS)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.IDLE, AnimsEnderAegis.ENDER_AEGIS_IDLE)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, EFNDualSwordAnimations.NF_DUAL_WALK)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, AVAnimations.HOLD_ONEHAND_RUN)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, AVAnimations.HOLD_ONEHAND_RUN)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, AnimsEnderAegis.ENDER_AEGIS_GUARD)
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK_SHIELD, AnimsEnderAegis.ENDER_AEGIS_GUARD);
+
     public static final Function<Item, CapabilityItem.Builder> ENDER_GLAIVE = (item) ->
             WeaponCapability.builder().category(WeaponCategories.SPEAR)
                     .styleProvider((livingEntityPatch) -> Styles.TWO_HAND)
@@ -278,8 +303,8 @@ public class AVWeaponCapabilityPresets {
                             (itemstack) -> AVSkills.LEGENDARY_SWORD)
                     .livingMotionModifier(Styles.COMMON, LivingMotions.IDLE, AnimsLegendarySword.LEGENDARY_SWORD_IDLE)
                     .livingMotionModifier(Styles.COMMON, LivingMotions.WALK, WOMAnimations.TORMENT_BERSERK_WALK)
-                    .livingMotionModifier(Styles.COMMON, LivingMotions.RUN, AnimsLegendarySword.LEGENDARY_SWORD_RUN)
-                    .livingMotionModifier(Styles.COMMON, LivingMotions.CHASE, AnimsLegendarySword.LEGENDARY_SWORD_RUN)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.RUN, WOMAnimations.TORMENT_RUN)
+                    .livingMotionModifier(Styles.COMMON, LivingMotions.CHASE, WOMAnimations.TORMENT_RUN)
                     .livingMotionModifier(Styles.COMMON, LivingMotions.BLOCK, AnimsLegendarySword.LEGENDARY_SWORD_GUARD)
                     .weaponCombinationPredicator(
                             (livingentitypatch) -> livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof BlueDemonTridentItem || livingentitypatch.getOriginal().getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof WoopieTheSwordItem);
@@ -772,6 +797,7 @@ public class AVWeaponCapabilityPresets {
                     .constructor(AVBowCapability::new);
 
     public static void register(WeaponCapabilityPresetRegistryEvent weaponcapabilitypresetregistryevent) {
+        weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "ender_aegis"), AVWeaponCapabilityPresets.ENDER_AEGIS);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "ender_glaive"), AVWeaponCapabilityPresets.ENDER_GLAIVE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "demoniac_voltage_reaver"), AVWeaponCapabilityPresets.DEMONIAC_VOLTAGE_REAVER);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "obsidian_sledgehammer"), AVWeaponCapabilityPresets.OBSIDIAN_SLEDGEHAMMER);

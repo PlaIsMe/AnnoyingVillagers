@@ -217,18 +217,7 @@ public class SpecialAttackOnKeyPressedEvent {
             }
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.ENDER_AEGIS.get())) {
                 if (entity.level() instanceof ServerLevel) {
-                    if (EnderAegisItem.isSecondForm(holdingItem)) {
-                        livingEntityPatch.playAnimationSynchronized(AVAnimations.AEGIS_SHIELD_SHOOT_MAINHAND, 0.0F);
-                    } else {
-                        livingEntityPatch.playAnimationSynchronized(AVAnimations.ENDER_AEGIS_PUSH, 0.0F);
-                    }
-                    return;
-                }
-            }
-            if (offHandItem.getItem().equals(AnnoyingVillagersModItems.ENDER_AEGIS.get())
-                    && EnderAegisItem.isSecondForm(offHandItem)) {
-                if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AVAnimations.AEGIS_SHIELD_SHOOT_OFFHAND, 0.0F);
+                    livingEntityPatch.playAnimationSynchronized(AnimsEnderAegis.ENDER_AEGIS_SPECIAL, 0.0F);
                     return;
                 }
             }

@@ -56,7 +56,7 @@ public class MobClashBladeMixin {
 
         // Auto clash while playing animation
         if (defender instanceof AegisHerobrineEntity
-                && defenderDynamicAnimation == AVAnimations.AEGIS_SHIELD_SHOOT_MAINHAND
+                && defenderDynamicAnimation == AnimsEnderAegis.ENDER_AEGIS_INNATE
                 && defenderEntityState.getLevel() == 3) {
             cir.setReturnValue(true);
             return;

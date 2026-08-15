@@ -27,6 +27,7 @@ import java.util.Set;
 
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Bus.MOD)
 public class AVSkills {
+    public static Skill ENDER_AEGIS;
     public static Skill ENDER_GLAIVE;
     public static Skill DEMONIAC_VOLTAGE_REAVER;
     public static Skill OBSIDIAN_SLEDGEHAMMER;
@@ -79,6 +80,7 @@ public class AVSkills {
     @SubscribeEvent
     public static void buildSkillEvent(SkillBuildEvent skillbuildevent) {
         SkillBuildEvent.ModRegistryWorker modRegistry = skillbuildevent.createRegistryWorker(AnnoyingVillagers.MODID);
+        ENDER_AEGIS = modRegistry.build("ender_aegis", EnderAegisSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());
         ENDER_GLAIVE = modRegistry.build("ender_glaive", EnderGlaiveSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());
         DEMONIAC_VOLTAGE_REAVER = modRegistry.build("demoniac_voltage_reaver", DemoniacVoltageReaverSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());
         OBSIDIAN_SLEDGEHAMMER = modRegistry.build("obsidian_sledgehammer", ObsidianSledgeHammerSkill::new, WeaponInnateSkill.createWeaponInnateBuilder());

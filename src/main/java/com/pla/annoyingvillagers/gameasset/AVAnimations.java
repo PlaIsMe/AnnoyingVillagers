@@ -62,10 +62,6 @@ public class AVAnimations {
     public static AnimationManager.AnimationAccessor<StaticAnimation> LAYING_DEATH;
     public static AnimationManager.AnimationAccessor<LongHitAnimation> LAYING_DEATH_DEAD;
     public static AnimationManager.AnimationAccessor<ActionAnimation> HOOK_GUN;
-    public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> ENDER_AEGIS_PUSH;
-    public static AnimationManager.AnimationAccessor<ActionAnimation> AEGIS_SHIELD_SHOOT_MAINHAND;
-    public static AnimationManager.AnimationAccessor<ActionAnimation> AEGIS_SHIELD_SHOOT_OFFHAND;
-    public static AnimationManager.AnimationAccessor<StaticAnimation> SHIELD_MAINHAND;
 
     @SubscribeEvent
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
@@ -88,6 +84,7 @@ public class AVAnimations {
         AnimsAVAxe.build(builder);
         AnimsAVSpear.build(builder);
         AnimsAVFist.build(builder);
+        AnimsEnderAegis.build(builder);
         AnimsBow.build(builder);
         AnimsAVExecute.build(builder);
 
@@ -171,92 +168,6 @@ public class AVAnimations {
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
         HOOK_HAND_RIGHT_TOP = builder.nextAccessor("biped/living/right_hand_hook_top",
                 accessor -> new StaticAnimation(true, accessor, humanoidArmature));
-        ENDER_AEGIS_PUSH = builder.nextAccessor("biped/pla/ender_aegis_push",
-                accessor -> new BasicMultipleAttackAnimation(0.2F, accessor, humanoidArmature, new AttackAnimation.Phase(0.0F, 0.2F, 0.25F, 0.29F, 0.29F,
-                        humanoidArmature.get().rootJoint, WOMWeaponColliders.SHOULDER_BUMP),
-                        new AttackAnimation.Phase(0.29F, 0.3F, 0.35F, 0.39F, 0.39F,
-                                humanoidArmature.get().rootJoint, WOMWeaponColliders.SHOULDER_BUMP),
-                        new AttackAnimation.Phase(0.39F, 0.4F, 0.45F, 0.49F, 0.49F,
-                                humanoidArmature.get().rootJoint, WOMWeaponColliders.SHOULDER_BUMP),
-                        new AttackAnimation.Phase(0.49F, 0.5F, 0.55F, 0.59F, 0.59F,
-                                humanoidArmature.get().rootJoint, WOMWeaponColliders.SHOULDER_BUMP),
-                        new AttackAnimation.Phase(0.59F, 0.6F, 0.65F, 0.69F, 0.69F,
-                                humanoidArmature.get().rootJoint, WOMWeaponColliders.SHOULDER_BUMP),
-                        new AttackAnimation.Phase(0.69F, 0.7F, 0.75F, 0.79F, 0.79F,
-                                humanoidArmature.get().rootJoint, WOMWeaponColliders.SHOULDER_BUMP),
-                        new AttackAnimation.Phase(0.79F, 0.8F, 0.85F, 0.89F, 0.89F,
-                                humanoidArmature.get().rootJoint, WOMWeaponColliders.SHOULDER_BUMP),
-                        new AttackAnimation.Phase(0.89F, 1.0F, 1.1F, 1.3F, Float.MAX_VALUE,
-                                humanoidArmature.get().rootJoint, WOMWeaponColliders.SHOULDER_BUMP))
-                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(1.0F))
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(1.5F))
-                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(10.0F))
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get())
-                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(1.0F), 1)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(1.5F), 1)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(10.0F), 1)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE, 1)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get(), 1)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT, 1)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(1.0F), 2)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(1.5F), 2)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(10.0F), 2)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE, 2)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get(), 2)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT, 2)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(1.0F), 3)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(1.5F), 3)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(10.0F), 3)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE, 3)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get(), 3)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT, 3)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(1.0F), 4)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(1.5F), 4)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(10.0F), 4)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE, 4)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get(), 4)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT, 4)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(1.0F), 5)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(1.5F), 5)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(10.0F), 5)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE, 5)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get(), 5)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT, 5)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(1.0F), 6)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(1.5F), 6)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(10.0F), 6)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.NONE, 6)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT.get(), 6)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT, 6)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(2.0F), 7)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(3.0F), 7)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(10.0F), 7)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL, 7)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get(), 7)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLUNT, 7)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.ATTACK_SPEED_FACTOR, 0.0F)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.0F)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
-                        .addProperty(AnimationProperty.StaticAnimationProperty.POSE_MODIFIER, null));
-        AEGIS_SHIELD_SHOOT_MAINHAND = builder.nextAccessor("biped/living/aegis_shield_shoot_mainhand",
-                accessor -> new ActionAnimation(0.35F, accessor, humanoidArmature)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.5F, (livingEntityPatch, self, p) -> {
-                                    EnderAegisItem.shieldShoot(livingEntityPatch.getOriginal().level(), livingEntityPatch.getOriginal());
-                                }, AnimationEvent.Side.SERVER)
-                        ));
-        AEGIS_SHIELD_SHOOT_OFFHAND = builder.nextAccessor("biped/living/aegis_shield_shoot_offhand",
-                accessor -> new ActionAnimation(0.35F, accessor, humanoidArmature)
-                        .addEvents(
-                                AnimationEvent.InTimeEvent.create(0.5F, (livingEntityPatch, self, p) -> {
-                                    EnderAegisItem.shieldShoot(livingEntityPatch.getOriginal().level(), livingEntityPatch.getOriginal());
-                                }, AnimationEvent.Side.SERVER)
-                        ));
-        SHIELD_MAINHAND = builder.nextAccessor("biped/living/shield_mainhand",
-                accessor -> new StaticAnimation(0.35F, true, accessor, humanoidArmature));
         IDLE_BREAK = builder.nextAccessor("biped/living/idle_break",
                 accessor -> new StaticAnimation(false, accessor, humanoidArmature));
         PLACE_BLOCK = builder.nextAccessor("biped/living/place_block",
