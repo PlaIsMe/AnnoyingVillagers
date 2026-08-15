@@ -8,19 +8,12 @@ import com.pla.annoyingvillagers.util.*;
 import net.minecraft.world.entity.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import reascer.wom.animation.attacks.BasicMultipleAttackAnimation;
-import reascer.wom.gameasset.colliders.WOMWeaponColliders;
 import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.*;
-import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.model.armature.HumanoidArmature;
-import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.world.damagesource.StunType;
 
 @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AVAnimations {
@@ -85,7 +78,6 @@ public class AVAnimations {
         AnimsAVSpear.build(builder);
         AnimsAVFist.build(builder);
         AnimsEnderAegis.build(builder);
-        AnimsBow.build(builder);
         AnimsAVExecute.build(builder);
 
         Armatures.ArmatureAccessor<HumanoidArmature> humanoidArmature = Armatures.BIPED;

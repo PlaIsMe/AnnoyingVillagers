@@ -193,11 +193,7 @@ public class EnderSlayerScytheSkill extends WeaponInnateSkill {
                             && player.getVehicle() != null
                             && player.getVehicle() instanceof HerobrineDragonEntity) {
                         event.setCanceled(true);
-                        if (player.getMainHandItem().getItem() instanceof BowItem) {
-                            skillContainer.getExecutor().playAnimationSynchronized(AnimsBow.BOW_AUTO_1, 0.0F);
-                        } else {
-                            skillContainer.getExecutor().playAnimationSynchronized(Animations.SPEAR_MOUNT_ATTACK, 0.0F);
-                        }
+                        skillContainer.getExecutor().playAnimationSynchronized(Animations.SPEAR_MOUNT_ATTACK, 0.0F);
                     }
                 }
         );

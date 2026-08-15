@@ -425,12 +425,6 @@ public class SpecialAttackOnKeyPressedEvent {
                     return;
                 }
             }
-            if (holdingItem.getItem() instanceof BowItem) {
-                if (entity.level() instanceof ServerLevel) {
-                    livingEntityPatch.playAnimationSynchronized(AnimsBow.BOW_AUTO_2, 0.0F);
-                    return;
-                }
-            }
             if (holdingItem.getItem().equals(AnnoyingVillagersModItems.LEGENDARY_SWORD.get())) {
                 if (entity.level() instanceof ServerLevel) {
                     boolean success = false;

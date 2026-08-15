@@ -777,25 +777,6 @@ public class AVWeaponCapabilityPresets {
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, Animations.BIPED_RUN)
             .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, Animations.BIPED_WALK);
 
-    public static final Function<Item, CapabilityItem.Builder> BOW = (item) ->
-            WeaponCapability.builder()
-                    .category(CapabilityItem.WeaponCategories.BOW)
-                    .styleProvider((patch) -> CapabilityItem.Styles.ONE_HAND)
-                    .zoomInType(CapabilityItem.ZoomInType.USE_TICK)
-                    .swingSound(SoundEvents.ARROW_SHOOT)
-                    .hitSound(SoundEvents.ARROW_HIT)
-                    .canBePlacedOffhand(false)
-                    .newStyleCombo(CapabilityItem.Styles.ONE_HAND,
-                            AnimsBow.BOW_AUTO_1,
-                            AnimsBow.BOW_AUTO_3,
-                            AnimsBow.BOW_AUTO_5)
-                    .livingMotionModifier(CapabilityItem.Styles.ONE_HAND, LivingMotions.IDLE, Animations.BIPED_IDLE)
-                    .livingMotionModifier(CapabilityItem.Styles.ONE_HAND, LivingMotions.WALK, Animations.BIPED_WALK)
-                    .livingMotionModifier(CapabilityItem.Styles.ONE_HAND, LivingMotions.RUN,  Animations.BIPED_RUN)
-                    .livingMotionModifier(CapabilityItem.Styles.ONE_HAND, LivingMotions.AIM,  Animations.BIPED_BOW_AIM)
-                    .livingMotionModifier(CapabilityItem.Styles.ONE_HAND, LivingMotions.SHOT, Animations.BIPED_BOW_SHOT)
-                    .constructor(AVBowCapability::new);
-
     public static void register(WeaponCapabilityPresetRegistryEvent weaponcapabilitypresetregistryevent) {
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "ender_aegis"), AVWeaponCapabilityPresets.ENDER_AEGIS);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "ender_glaive"), AVWeaponCapabilityPresets.ENDER_GLAIVE);
@@ -842,9 +823,5 @@ public class AVWeaponCapabilityPresets {
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "sickle"), AVWeaponCapabilityPresets.SICKLE);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "bolt"), AVWeaponCapabilityPresets.BOLT);
         weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "blackscratcher"), AVWeaponCapabilityPresets.BLACK_SCRATCHER);
-
-        if (!ModList.get().isLoaded("p1nero_bow")) {
-            weaponcapabilitypresetregistryevent.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath("epicfight", "bow"), AVWeaponCapabilityPresets.BOW);
-        }
     }
 }

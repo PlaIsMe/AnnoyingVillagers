@@ -8,14 +8,21 @@ import com.merlin204.avalon.util.AvalonAnimationUtils;
 import com.merlin204.avalon.util.AvalonEventUtils;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.skill.EnderSlayerScytheSkill;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import reascer.wom.animation.WomAnimationProperty;
 import reascer.wom.animation.attacks.BasicMultipleAttackAnimation;
+import reascer.wom.animation.attacks.SpecialAttackAnimation;
+import reascer.wom.gameasset.ReuseableEvents;
+import reascer.wom.gameasset.WOMSounds;
 import reascer.wom.gameasset.colliders.WOMWeaponColliders;
 import reascer.wom.particle.WOMParticles;
 import reascer.wom.world.damagesources.WOMExtraDamageInstance;
@@ -24,6 +31,7 @@ import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.*;
+import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.collider.MultiOBBCollider;
 import yesman.epicfight.api.collider.OBBCollider;
 import yesman.epicfight.api.utils.TimePairList;
@@ -51,7 +59,7 @@ public class AnimsEnderSlayerScythe {
     public static AnimationManager.AnimationAccessor<BasicMultipleAttackAnimation> ENDER_SLAYER_SCYTHE_AUTO5;
     public static AnimationManager.AnimationAccessor<DashAttackAnimation> ENDER_SLAYER_SCYTHE_DASH;
     public static AnimationManager.AnimationAccessor<AirSlashAnimation> ENDER_SLAYER_SCYTHE_AIRSLASH;
-    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> ENDER_SLAYER_SCYTHE_SPECIAL;
+    public static AnimationManager.AnimationAccessor<SpecialAttackAnimation> ENDER_SLAYER_SCYTHE_SPECIAL;
     public static AnimationManager.AnimationAccessor<AvalonAttackAnimation> ENDER_SLAYER_SCYTHE_INNATE;
     public static AnimationManager.AnimationAccessor<StaticAnimation> ENDER_SLAYER_SCYTHE_SPECIAL_INNATE;
 
@@ -129,16 +137,28 @@ public class AnimsEnderSlayerScythe {
                         .addStateRemoveOld(EntityState.CAN_BASIC_ATTACK, false));
 
         ENDER_SLAYER_SCYTHE_SPECIAL = builder.nextAccessor("biped/ender_slayer_scythe/ender_slayer_scythe_special",
-                animationaccessor -> new BasicAttackAnimation(0.06F, animationaccessor, humanoidArmature, (new AttackAnimation.Phase(0.0F, 0.45F, 0.5F, 0.5F, 0.5F, InteractionHand.MAIN_HAND, humanoidArmature.get().toolR, SCYTHE_COLLIDER))
-                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.5F)),
-                        (new AttackAnimation.Phase(0.5F, 0.5F, 0.59F, 0.59F, 0.59F, InteractionHand.MAIN_HAND, humanoidArmature.get().toolR, null))
-                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.5F)),
-                        (new AttackAnimation.Phase(0.59F, 0.59F, 0.7F, 0.85F, Float.MAX_VALUE, InteractionHand.MAIN_HAND, humanoidArmature.get().toolR, null))
-                                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(1.0F)))
-                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.SHORT)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 2.0F)
-                        .addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false)
-                        .addProperty(AnimationProperty.AttackAnimationProperty.ATTACK_SPEED_FACTOR, 0.2F));
+                (accessor) -> (SpecialAttackAnimation)(new SpecialAttackAnimation(0.1F, accessor, humanoidArmature,
+                        new AttackAnimation.Phase(0.0F, 0.15F, 0.25F, 0.29F, 0.29F, humanoidArmature.get().toolR, null),
+                        new AttackAnimation.Phase(0.29F, 0.3F, 0.4F, 0.44F, 0.44F, humanoidArmature.get().toolR, null),
+                        new AttackAnimation.Phase(0.44F, 0.45F, 0.55F, 0.59F, 0.59F, humanoidArmature.get().toolR, null),
+                        new AttackAnimation.Phase(0.59F, 0.6F, 0.7F, 0.74F, 0.74F, humanoidArmature.get().toolR, null),
+                        new AttackAnimation.Phase(0.74F, 0.75F, 0.85F, 1.15F, Float.MAX_VALUE, humanoidArmature.get().toolR, null)))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.25F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.0F))
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.25F), 1)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.0F), 1)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD, 1)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.25F), 2)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.0F), 2)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD, 2)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.25F), 3)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.0F), 3).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD, 3)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.25F), 4)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(1.0F), 4).
+                        addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD, 4)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.3F)
+                        .addProperty(WomAnimationProperty.ANTI_STUN_MULTIPLYER, 1.0F));
 
         ENDER_SLAYER_SCYTHE_INNATE = builder.nextAccessor("biped/ender_slayer_scythe/ender_slayer_scythe_innate",
                 (accessor) -> (AvalonAttackAnimation)(new AvalonAttackAnimation(0.1F, accessor, Armatures.BIPED, 1.0F, 1.0F, AvalonAnimationUtils.createSimplePhase(59, 70, 100, InteractionHand.MAIN_HAND, 1.0F, 2.0F, Armatures.BIPED.get().rootJoint, MEEN_LANCE_CHARGE3)))
