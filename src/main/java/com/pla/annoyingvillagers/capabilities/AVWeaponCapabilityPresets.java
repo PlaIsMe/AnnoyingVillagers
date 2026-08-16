@@ -719,16 +719,16 @@ public class AVWeaponCapabilityPresets {
                 .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, AnimsAVSpear.AV_SPEAR_WALK);
     }
 
-    public static final Function<Item, Builder> AV_SPEAR = (item) -> avAxeTemplate()
-            .innateSkill(Styles.ONE_HAND,
+    public static final Function<Item, Builder> AV_SPEAR = (item) -> avSpearTemplate()
+            .innateSkill(Styles.TWO_HAND,
                     (itemstack) -> AVSkills.SPEAR);
 
-    public static final Function<Item, Builder> STAFF = (item) -> avAxeTemplate()
-            .innateSkill(Styles.ONE_HAND,
+    public static final Function<Item, Builder> STAFF = (item) -> avSpearTemplate()
+            .innateSkill(Styles.TWO_HAND,
                     (itemstack) -> AVSkills.STAFF);
 
-    public static final Function<Item, Builder> SICKLE = (item) -> avAxeTemplate()
-            .innateSkill(Styles.ONE_HAND,
+    public static final Function<Item, Builder> SICKLE = (item) -> avSpearTemplate()
+            .innateSkill(Styles.TWO_HAND,
                     (itemstack) -> AVSkills.SICKLE);
 
     public static final Function<Item, CapabilityItem.Builder> BOLT = (item) -> WeaponCapability.builder()

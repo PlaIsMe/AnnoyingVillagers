@@ -139,7 +139,7 @@ public class AnimsAVSpear {
                         new AttackAnimation.Phase(0.75F, 0.75F, 0.81F, 1.05F, Float.MAX_VALUE, humanoidArmature.get().toolR, ColliderPreset.SPEAR))
                         .addProperty(AnimationProperty.AttackAnimationProperty.BASIS_ATTACK_SPEED, 1.2F));
 
-        AV_SPEAR_INNATE = builder.nextAccessor("biped/falchion/av_spear_innate",
+        AV_SPEAR_INNATE = builder.nextAccessor("biped/av_spear/av_spear_innate",
                 (animationaccessor) -> (new AttackAnimation(0.1F, 0.25F, 0.58F, 0.667F, 1.0F, null, humanoidArmature.get().toolR, animationaccessor, humanoidArmature))
                         .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(EpicFightDamageTypeTags.WEAPON_INNATE))
                         .addProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE, Set.of(ExtraDamageInstance.SWEEPING_EDGE_ENCHANTMENT.create()))
