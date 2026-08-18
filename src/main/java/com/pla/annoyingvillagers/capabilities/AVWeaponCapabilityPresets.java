@@ -468,9 +468,7 @@ public class AVWeaponCapabilityPresets {
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.WALK, EFNTachiAnimations.NF_TACHI_WALK)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.RUN, EFNTachiAnimations.NF_TACHI_RUN)
                     .livingMotionModifier(Styles.TWO_HAND, LivingMotions.CHASE, EFNTachiAnimations.NF_TACHI_RUN)
-                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD)
-                    .weaponCombinationPredicator(
-                            (livingentitypatch) -> livingentitypatch.getHoldingItemCapability(InteractionHand.OFF_HAND).getWeaponCategory() == WeaponCategories.TACHI);
+                    .livingMotionModifier(Styles.TWO_HAND, LivingMotions.BLOCK, Animations.LONGSWORD_GUARD);
 
     public static final Function<Item, Builder> AV_LONGSWORD = (item) ->
             WeaponCapability.builder()
