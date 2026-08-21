@@ -1,12 +1,13 @@
 package com.pla.annoyingvillagers.entity.goal;
 
+import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigAnimationSpec;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
+import com.pla.annoyingvillagers.rig.RigColliderSystem;
 import com.pla.annoyingvillagers.rig.RigCombatProfile;
 import com.pla.annoyingvillagers.rig.RigCombatProfiles;
-import com.pla.annoyingvillagers.rig.RigRootMotion;
 import com.pla.annoyingvillagers.util.RidingUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -20,7 +21,6 @@ import java.util.EnumSet;
 
 public class RigAnimatedMeleeAttackGoal extends Goal {
     private static final int PATH_RECALCULATION_BASE_TICKS = 4;
-    private static final int MIN_CLOSING_ATTACK_DISTANCE_BLOCKS = 6;
 
     private final PathfinderMob mob;
     private final double speedModifier;
@@ -44,30 +44,23 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     @Override
     public boolean canUse() {
         LivingEntity target = this.mob.getTarget();
-        if (!isValidMeleeState(target) || RigAnimationController.hasActiveAnimation(this.mob)) {
-            return false;
-        }
-
+        if (!isValidMeleeState(target) || isAttackLocked() || RigAnimationController.hasActiveAnimation(this.mob)) return false;
+        RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
         this.path = RidingUtil.createNavigationPath(this.mob, target);
-        return this.path != null || isWithinMeleeReach(target);
+        return this.path != null || canStartAnyAttack(target, profile);
     }
 
     @Override
     public boolean canContinueToUse() {
         LivingEntity target = this.mob.getTarget();
-        if (!isValidMeleeState(target)) {
-            return false;
-        }
-
-        return this.followingTargetEvenIfNotSeen || !RidingUtil.isNavigationDone(this.mob) || this.activeAnimationTicks > 0 || isWithinMeleeReach(target);
+        if (!isValidMeleeState(target) || isAttackLocked()) return false;
+        RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
+        return this.followingTargetEvenIfNotSeen || !RidingUtil.isNavigationDone(this.mob) || this.activeAnimationTicks > 0 || canStartAnyAttack(target, profile);
     }
 
     @Override
     public void start() {
-        if (this.path != null) {
-            RidingUtil.moveToPath(this.mob, this.path, this.speedModifier);
-        }
-
+        if (this.path != null) RidingUtil.moveToPath(this.mob, this.path, this.speedModifier);
         this.mob.setAggressive(true);
         this.ticksUntilNextPathRecalculation = 0;
         this.attackCooldownTicks = 0;
@@ -96,16 +89,15 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     @Override
     public void tick() {
         LivingEntity target = this.mob.getTarget();
-        if (target == null) {
+        if (target == null) return;
+        if (isAttackLocked()) {
+            RidingUtil.stopNavigation(this.mob);
             return;
         }
 
         updateWeaponComboState();
         RidingUtil.lookAtTarget(this.mob, target, 60.0F, 60.0F);
-
-        if (this.attackCooldownTicks > 0) {
-            this.attackCooldownTicks--;
-        }
+        if (this.attackCooldownTicks > 0) this.attackCooldownTicks--;
 
         if (this.activeAnimationTicks > 0) {
             this.activeAnimationTicks--;
@@ -113,45 +105,32 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
             return;
         }
 
-        if (this.attackCooldownTicks > 0 && isWithinMeleeReach(target)) {
+        RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
+        if (this.attackCooldownTicks > 0 && canStartNormalAttack(target, profile)) {
             RidingUtil.stopNavigation(this.mob);
             return;
         }
 
-        RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
         RigAnimationId selectedAnimation = selectAnimation(target, profile);
-
         if (selectedAnimation != null) {
             playAnimationAttack(target, selectedAnimation);
             return;
         }
-
         repathToTarget(target);
     }
 
     private RigAnimationId selectAnimation(LivingEntity target, RigCombatProfile profile) {
-        if (this.attackCooldownTicks > 0) {
-            return null;
-        }
+        if (this.attackCooldownTicks > 0) return null;
+        if (this.mob.isPassenger()) return canStartAttack(target, RigAnimationId.BASIC_MOUNT_ATTACK) ? RigAnimationId.BASIC_MOUNT_ATTACK : null;
 
-        if (this.mob.isPassenger()) {
-            return isWithinMeleeReach(target) ? RigAnimationId.SWORD_MOUNT_ATTACK : null;
-        }
-
-        if (!isWithinMeleeReach(target)) {
-            if (profile.hasClosingAttack() && this.mob.distanceTo(target) <= maxClosingAttackDistance(profile, target)) {
-                return profile.pickClosingAttack(this.mob.getRandom(), this.previousAnimation);
-            }
-
-            return null;
+        RigAnimationId normal = profile.normalAt(this.normalComboIndex);
+        if (!canStartAttack(target, normal)) {
+            RigAnimationId closing = profile.pickClosingAttack(this.mob.getRandom(), this.previousAnimation);
+            return closing != null && canStartAttack(target, closing) ? closing : null;
         }
 
         RigAnimationId interrupt = profile.pickInterrupt(this.mob.getRandom(), this.previousAnimation);
-        if (interrupt != null) {
-            return interrupt;
-        }
-
-        RigAnimationId normal = profile.normalAt(this.normalComboIndex);
+        if (interrupt != null) return interrupt;
         this.normalComboIndex = (this.normalComboIndex + 1) % profile.normalAttacks().size();
         return normal;
     }
@@ -166,10 +145,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     }
 
     private void repathToTarget(LivingEntity target) {
-        if (--this.ticksUntilNextPathRecalculation > 0 && !RidingUtil.isNavigationDone(this.mob)) {
-            return;
-        }
-
+        if (--this.ticksUntilNextPathRecalculation > 0 && !RidingUtil.isNavigationDone(this.mob)) return;
         this.ticksUntilNextPathRecalculation = PATH_RECALCULATION_BASE_TICKS + this.mob.getRandom().nextInt(7);
         RidingUtil.moveTo(this.mob, target, this.speedModifier);
     }
@@ -177,40 +153,35 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     private void updateWeaponComboState() {
         ItemStack mainHand = this.mob.getMainHandItem();
         Item currentWeapon = mainHand.isEmpty() ? null : mainHand.getItem();
-        if (currentWeapon == this.lastWeaponItem) {
-            return;
-        }
-
+        if (currentWeapon == this.lastWeaponItem) return;
         this.lastWeaponItem = currentWeapon;
         this.normalComboIndex = 0;
         this.previousAnimation = null;
     }
 
+    private boolean isAttackLocked() {
+        return this.mob instanceof LockableRigAttackAnimation lockable && lockable.isLocked();
+    }
+
     private boolean isValidMeleeState(LivingEntity target) {
-        return !this.mob.level().isClientSide
-                && this.mob.isAlive()
-                && !this.mob.isRemoved()
-                && !this.mob.isDeadOrDying()
-                && !this.mob.isNoAi()
-                && !(this.mob.getMainHandItem().getItem() instanceof BowItem)
-                && target != null
-                && target.isAlive()
-                && !target.isRemoved()
-                && !target.isDeadOrDying();
+        return !this.mob.level().isClientSide && this.mob.isAlive() && !this.mob.isRemoved() && !this.mob.isDeadOrDying() && !this.mob.isNoAi()
+                && !(this.mob.getMainHandItem().getItem() instanceof BowItem) && target != null && target.isAlive() && !target.isRemoved() && !target.isDeadOrDying();
     }
 
-    private boolean isWithinMeleeReach(LivingEntity target) {
-        double reach = this.mob.getBbWidth() * 2.0D + target.getBbWidth() + 1.0D;
-        return this.mob.distanceToSqr(target) <= reach * reach;
+    private boolean canStartNormalAttack(LivingEntity target, RigCombatProfile profile) {
+        return canStartAttack(target, profile.normalAt(this.normalComboIndex));
     }
 
-    private double maxClosingAttackDistance(RigCombatProfile profile, LivingEntity target) {
-        double distance = 0.0D;
-        for (RigAnimationId animationId : profile.specialAttacks()) {
-            RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
-            distance = Math.max(distance, spec.attackReachBlocks() + RigRootMotion.maxHorizontalDistanceBlocks(animationId));
-        }
+    private boolean canStartAnyAttack(LivingEntity target, RigCombatProfile profile) {
+        if (this.mob.isPassenger()) return canStartAttack(target, RigAnimationId.BASIC_MOUNT_ATTACK);
+        for (RigAnimationId animationId : profile.normalAttacks()) if (canStartAttack(target, animationId)) return true;
+        for (RigAnimationId animationId : profile.specialAttacks()) if (canStartAttack(target, animationId)) return true;
+        for (RigAnimationId animationId : profile.ultimateAttacks()) if (canStartAttack(target, animationId)) return true;
+        return false;
+    }
 
-        return Math.max(distance + this.mob.getBbWidth() + target.getBbWidth(), MIN_CLOSING_ATTACK_DISTANCE_BLOCKS);
+    private boolean canStartAttack(LivingEntity target, RigAnimationId animationId) {
+        RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
+        return spec.damagesTarget() && RigColliderSystem.canStartAttack(this.mob, target, spec);
     }
 }

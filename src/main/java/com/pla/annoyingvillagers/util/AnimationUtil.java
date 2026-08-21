@@ -1,8 +1,7 @@
 package com.pla.annoyingvillagers.util;
 
-import com.pla.annoyingvillagers.client.animation.rig_animation.RigIdleAnimations;
-import com.pla.annoyingvillagers.client.animation.rig_animation.RigRunAnimations;
-import com.pla.annoyingvillagers.client.animation.rig_animation.RigWalkAnimations;
+import com.pla.annoyingvillagers.client.animation.rig_animation.living.LivingAnimations;
+import com.pla.annoyingvillagers.client.animation.rig_animation.living.RunAnimations;
 import com.pla.annoyingvillagers.entity.AlexEntity;
 import com.pla.annoyingvillagers.entity.ElectricPhaseEntity;
 import net.minecraft.client.animation.AnimationDefinition;
@@ -14,30 +13,44 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.phys.Vec3;
 
 public class AnimationUtil {
-    private static final float RUN_LIMB_SWING_AMOUNT = 0.52F;
     private static final double MIN_FAST_HORIZONTAL_SPEED = 0.09D;
     private static final double FAST_SPEED_ATTRIBUTE_RATIO = 0.38D;
+    private static final double MIN_HORIZONTAL_MOVEMENT_SPEED = 0.01D;
 
-    public static boolean shouldUseRunAnimation(Mob mob, float limbSwingAmount) {
-        if (mob.isInWaterOrBubble()) {
-            return false;
-        }
-
-        return mob.isSprinting()
-                || mob.isAggressive()
-                || isMovingFasterThanRegularSpeed(mob, limbSwingAmount);
+    public static boolean shouldUseRunAnimation(Mob mob) {
+        if (mob.isInWaterOrBubble()) return false;
+        return mob.isSprinting() || isMovingFasterThanRegularSpeed(mob);
     }
 
-    private static boolean isMovingFasterThanRegularSpeed(Mob mob, float limbSwingAmount) {
-        if (limbSwingAmount >= RUN_LIMB_SWING_AMOUNT) {
-            return true;
-        }
-
+    private static boolean isMovingFasterThanRegularSpeed(Mob mob) {
         Vec3 motion = mob.getDeltaMovement();
-        double horizontalSpeed = Math.sqrt(motion.x * motion.x + motion.z * motion.z);
+        double velocitySpeed = Math.sqrt(motion.x * motion.x + motion.z * motion.z);
+        double tickX = mob.getX() - mob.xo;
+        double tickZ = mob.getZ() - mob.zo;
+        double positionSpeed = Math.sqrt(tickX * tickX + tickZ * tickZ);
         double movementAttribute = mob.getAttributeValue(Attributes.MOVEMENT_SPEED);
         double fastSpeed = Math.max(MIN_FAST_HORIZONTAL_SPEED, movementAttribute * FAST_SPEED_ATTRIBUTE_RATIO);
-        return horizontalSpeed > fastSpeed;
+        return Math.max(velocitySpeed, positionSpeed) > fastSpeed;
+    }
+
+    public static boolean isMovingHorizontally(Mob mob) {
+        Vec3 motion = mob.getDeltaMovement();
+
+        double velocitySpeed = Math.sqrt(
+                motion.x * motion.x +
+                        motion.z * motion.z
+        );
+
+        double tickX = mob.getX() - mob.xo;
+        double tickZ = mob.getZ() - mob.zo;
+
+        double positionSpeed = Math.sqrt(
+                tickX * tickX +
+                        tickZ * tickZ
+        );
+
+        return Math.max(velocitySpeed, positionSpeed)
+                > MIN_HORIZONTAL_MOVEMENT_SPEED;
     }
 
     public static AnimationDefinition getRunAnimation(Mob mob) {
@@ -46,12 +59,12 @@ public class AnimationUtil {
 
         if (holdingItem.getItem() instanceof SwordItem) {
            if (offHandItem.getItem() instanceof SwordItem) {
-               return RigRunAnimations.RUN_HOLDING_DUAL_WEAPON;
+               return RunAnimations.RUN_HOLDING_DUAL_WEAPON;
            } else {
-               return RigRunAnimations.RUN_HOLDING_WEAPON;
+               return RunAnimations.RUN_HOLDING_WEAPON;
            }
         } else {
-            return RigRunAnimations.RUN;
+            return RunAnimations.RUN;
         }
     }
 
@@ -59,14 +72,14 @@ public class AnimationUtil {
         ItemStack holdingItem = mob.getMainHandItem();
         ItemStack offHandItem = mob.getOffhandItem();
 
-        return RigWalkAnimations.WALK;
+        return LivingAnimations.WALK;
     }
 
     public static AnimationDefinition getIdleAnimation(Mob mob) {
         ItemStack holdingItem = mob.getMainHandItem();
         ItemStack offHandItem = mob.getOffhandItem();
 
-        return RigIdleAnimations.IDLE;
+        return LivingAnimations.IDLE;
     }
 
     public static void moreSweepingEdgeLogic(Mob mob) {

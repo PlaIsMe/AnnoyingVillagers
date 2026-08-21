@@ -14,9 +14,25 @@ I don't know from the provided session knowledge
 
 Do not make unsupported guesses, do not fill gaps with likely behavior, and do not cite files other than the allowed knowledge files.
 
-Do not read, list, summarize, cite, or modify files under `src/main/java/com/pla/annoyingvillagers/client/animation/rig_animation/` unless the user explicitly names that directory or a file inside it for the current task. Those generated animation files are large and should be treated as out of scope by default. When animation context is needed, prefer `.codex/knowledge/rig/*.md` and shared rig metadata. Do not inspect generated animation holder source just to confirm animation names, mappings, or values.
+The project contains hundreds of generated/authored rig animations. Do not maintain or recite giant moveset/id lists in knowledge. Explain architecture and registry flow instead. New animation integration follows: authored AnimationDefinition -> append RigAnimationId -> add client RigAnimationResolver mapping -> add common RigAnimationSpecs metadata -> regenerate common pose clips for directories that need server collider/root-motion sampling.
 
-Do not mechanically refactor generated animation holder files. In particular, do not change inline `public static final AnimationDefinition ... = AnimationDefinition.Builder...build();` fields into private creator methods unless the user explicitly asks for that code-shape change.
+Do not read, list, summarize, cite, or modify files under `src/main/java/com/pla/annoyingvillagers/client/animation/rig_animation/` unless the user explicitly names that directory or a file inside it for the current task. Those generated animation files are large and out of scope by default. Do not inspect them merely to enumerate animation names already represented by shared metadata.
 
-Rig attack movement is root-motion based. Do not recommend reintroducing `RigMovementType`, lunge distance fields, silent server-only movement shortcuts, or a custom `ClientboundRigAnimationPosition` packet unless the user explicitly asks to redesign the system.
+Do not mechanically refactor generated animation holder files. Preserve inline `public static final AnimationDefinition ... = AnimationDefinition.Builder...build();` fields unless the user explicitly asks for a code-shape refactor.
+
+Treat RigAnimationSpecs as the authoritative attack/non-attack and timing registry. Do not create a second giant `RigAnimationId.isAttack()` switch. Existing RigAnimationId ordinal order is network-facing; append new ids rather than inserting/reordering old ids.
+
+Attack windows may intentionally contain zero colliders when imported timing corresponds to a broad/custom/root collision area that has not yet been authored for this rig. Preserve that timing and do not invent a huge body collider automatically. Tool, hand, and leg phases should use reusable part-following collider presets.
+
+When importing reference `InTimeEvent` timing, placeholder RigTimedAnimationHook entries may keep the timestamp with an empty action. Do not copy the reference gameplay event body automatically; project logic must be implemented deliberately.
+
+Imported attack `jumpOnStart` defaults to false unless project code explicitly opts in.
+
+Rig attack movement is generated-pose/root-motion based. Do not recommend reintroducing `RigMovementType`, lunge distance fields, a separate hand-maintained `RigRootMotion` keyframe table, per-move fake collider sweeps, silent server-only movement shortcuts, or a custom `ClientboundRigAnimationPosition` packet unless explicitly redesigning the system.
+
+Treat `LockableRigAttackAnimation` as a narrow combat-profile attack gate, not a global rig-animation lock. `lock()`, `unlock()`, and `isLocked()` block only ids that `RigCombatProfiles.isProfileAttack(...)` recognizes. Preserve lock-count semantics so independent systems can overlap safely.
+
+When adding a hand-action system that must not overlap melee attacks, first refuse to start while `RigAnimationController.hasActiveProfileAttack(mob)` is true, then acquire one profile-attack lock for that action's overlap interval and release that system's token on completion or abort.
+
+For locomotion rendering, do not use `Mob#isAggressive()` or stale/damped `limbSwingAmount` as the RUN classifier. RUN should reflect sprinting/current horizontal movement; limbSwingAmount may still gate moving vs idle.
 """

@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,6 +43,7 @@ public class UseLiquidBucketGoal extends Goal {
     private int pickupTicks;
     private boolean pickupLiquid;
     private boolean finished;
+    private boolean rigAttackLocked;
 
     public UseLiquidBucketGoal(AVNpc avNpc) {
         this.avNpc = avNpc;
@@ -60,6 +62,7 @@ public class UseLiquidBucketGoal extends Goal {
                 || this.avNpc.isNoAi()
                 || this.avNpc.isPassenger()
                 || this.avNpc.isHealing()
+                || RigAnimationController.hasActiveProfileAttack(this.avNpc)
                 || !this.avNpc.onGround()
                 || this.avNpc.getWaterBucketCooldown() > 0
                 || !InventoryUtils.hasItem(this.avNpc, InventoryUtils::isLiquidBucketStack)) {
@@ -139,6 +142,7 @@ public class UseLiquidBucketGoal extends Goal {
             return;
         }
 
+        this.lockRigAttack();
         this.restoreOffhand = this.avNpc.getItemInHand(InteractionHand.OFF_HAND).copy();
         this.avNpc.getNavigation().stop();
         this.avNpc.getLookControl().setLookAt(this.placePos.getX() + 0.5D, this.placePos.getY() + 0.5D, this.placePos.getZ() + 0.5D, 40.0F, 40.0F);
@@ -335,7 +339,20 @@ public class UseLiquidBucketGoal extends Goal {
         }
     }
 
+    private void lockRigAttack() {
+        if (this.rigAttackLocked) return;
+        this.avNpc.lock();
+        this.rigAttackLocked = true;
+    }
+
+    private void unlockRigAttack() {
+        if (!this.rigAttackLocked) return;
+        this.avNpc.unlock();
+        this.rigAttackLocked = false;
+    }
+
     private void reset() {
+        this.unlockRigAttack();
         this.placePos = null;
         this.placedLiquidPos = null;
         this.bucketItem = Items.AIR;

@@ -1,9 +1,0 @@
-{
-	"type": "annoyingvillagers:shadow_obsidian_pillar",
-	"attributes": {
-		"common": {
-			"armor_negation":30.0,
-			"impact": 2.7
-		}
-	}
-}

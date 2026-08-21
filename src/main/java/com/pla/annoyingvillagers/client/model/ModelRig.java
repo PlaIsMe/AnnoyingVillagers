@@ -4,14 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.animation.RigAnimationResolver;
 import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
-import com.pla.annoyingvillagers.client.animation.rig_animation.RigDeathAnimations;
-import com.pla.annoyingvillagers.client.animation.rig_animation.RigIdleAnimations;
-import com.pla.annoyingvillagers.client.animation.rig_animation.RigSneakAnimations;
+import com.pla.annoyingvillagers.client.animation.rig_animation.living.LivingAnimations;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigAnimationPlaybackType;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigBowAnimationSelector;
-import com.pla.annoyingvillagers.rig.RigRootMotion;
+import com.pla.annoyingvillagers.rig.pose.RigPoseLibrary;
 import com.pla.annoyingvillagers.util.AnimationUtil;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.KeyframeAnimations;
@@ -223,7 +221,7 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         if (entity.isDeadOrDying() || entity.deathTime > 0) {
             float partialTick = Math.max(0.0F, Math.min(1.0F, ageInTicks - entity.tickCount));
             float deathElapsedTicks = Math.max(0.0F, entity.deathTime - 1.0F + partialTick);
-            this.applyAnimationFromStart(RigDeathAnimations.DEATH, deathElapsedTicks, 1.0F, 1.0F);
+            this.applyAnimationFromStart(LivingAnimations.DEATH, deathElapsedTicks, 1.0F, 1.0F);
         } else {
             activeWeight = activeRigAnimation == null ? 0.0F : activeRigAnimation.weight(ageInTicks);
             float baseWeight = 1.0F - activeWeight;
@@ -237,8 +235,7 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         }
 
         this.flattenAnimatedRootIntoTopLevelParts();
-        this.compensateServerRootMotion(activeRigAnimation, activeWeight, ageInTicks);
-        this.blendHeadLookDuringAttack(activeRigAnimation, activeWeight, netHeadYaw, headPitch);
+        this.compensateServerMotion(activeRigAnimation, activeWeight, ageInTicks);
         this.hat.copyFrom(this.head);
     }
 
@@ -274,6 +271,7 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         Map<ModelPart, ModelPartPose> basePose = this.capturePose();
 
         this.restorePose(baselinePose);
+        if (active.animationId().isAttack()) this.head.getAllParts().forEach(ModelPart::resetPose);
         this.applyActiveRigAnimation(active, ageInTicks, 1.0F);
         Map<ModelPart, ModelPartPose> activePose = this.capturePose();
 
@@ -287,7 +285,12 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
 
     private void applyBaseRigAnimation(T entity, float limbSwingAmount, float ageInTicks, float weight, boolean forceWalk) {
         if (entity.isPassenger()) {
-            this.applyLoopingAnimation(RigIdleAnimations.MOUNT, ageInTicks, 1.0F, weight);
+            this.applyLoopingAnimation(LivingAnimations.MOUNT, ageInTicks, 1.0F, weight);
+            return;
+        }
+
+        if (entity.hurtTime > 0) {
+            this.applyLoopingAnimation(AnimationUtil.getIdleAnimation(entity), ageInTicks, 1.0F, weight);
             return;
         }
 
@@ -297,10 +300,13 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         }
 
         if (entity.isShiftKeyDown()) {
-            this.applyLoopingAnimation(RigSneakAnimations.SNEAK, ageInTicks, 1.0F, weight);
-        } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD && AnimationUtil.shouldUseRunAnimation(entity, limbSwingAmount)) {
+            this.applyLoopingAnimation(LivingAnimations.SNEAK, ageInTicks, 1.0F, weight);
+        } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD
+                && AnimationUtil.isMovingHorizontally(entity)
+                && AnimationUtil.shouldUseRunAnimation(entity)) {
             this.applyLoopingAnimation(AnimationUtil.getRunAnimation(entity), ageInTicks, 1.15F, weight);
-        } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD) {
+        } else if (Math.abs(limbSwingAmount) > MOVEMENT_THRESHOLD
+                && AnimationUtil.isMovingHorizontally(entity)) {
             this.applyLoopingAnimation(AnimationUtil.getWalkAnimation(entity), ageInTicks, 1.0F, weight);
         } else {
             this.applyLoopingAnimation(AnimationUtil.getIdleAnimation(entity), ageInTicks, 1.0F, weight);
@@ -337,18 +343,6 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
 
     private static float bowAimWeight(Mob entity) {
         return Math.min(1.0F, Math.max(0.0F, entity.getTicksUsingItem() / 2.0F));
-    }
-
-    private void blendHeadLookDuringAttack(RigClientAnimationState.Active active, float weight, float netHeadYaw, float headPitch) {
-        if (active == null || !active.animationId().isAttack() || weight <= 0.0F) {
-            return;
-        }
-
-        float targetXRot = headPitch * ((float) Math.PI / 180.0F);
-        float targetYRot = netHeadYaw * ((float) Math.PI / 180.0F);
-        this.head.xRot = Mth.lerp(weight, this.head.xRot, targetXRot);
-        this.head.yRot = Mth.lerp(weight, this.head.yRot, targetYRot);
-        this.head.zRot = Mth.lerp(weight, this.head.zRot, 0.0F);
     }
 
     public void applyLoopingAnimation(AnimationDefinition animation, float ageInTicks, float speed, float weight) {
@@ -424,12 +418,12 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         this.modelRoot.resetPose();
     }
 
-    private void compensateServerRootMotion(RigClientAnimationState.Active active, float activeWeight, float ageInTicks) {
+    private void compensateServerMotion(RigClientAnimationState.Active active, float activeWeight, float ageInTicks) {
         if (active == null || activeWeight <= 0.0F) {
             return;
         }
 
-        Vec3 offset = RigRootMotion.modelOffset(active.animationId(), active.sampleTicks(ageInTicks));
+        Vec3 offset = RigPoseLibrary.modelMotion(active.animationId(), active.sampleTicks(ageInTicks));
         if (offset.lengthSqr() < 1.0E-8D) {
             return;
         }
@@ -666,9 +660,11 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
             part.x = Mth.lerp(weight, this.x, target.x);
             part.y = Mth.lerp(weight, this.y, target.y);
             part.z = Mth.lerp(weight, this.z, target.z);
-            part.xRot = lerpAngleRadians(weight, this.xRot, target.xRot);
-            part.yRot = lerpAngleRadians(weight, this.yRot, target.yRot);
-            part.zRot = lerpAngleRadians(weight, this.zRot, target.zRot);
+
+            Quaternionf rotation = new Quaternionf().rotationZYX(this.zRot, this.yRot, this.xRot);
+            rotation.slerp(new Quaternionf().rotationZYX(target.zRot, target.yRot, target.xRot), weight);
+            setEulerZYX(part, rotation);
+
             part.xScale = Mth.lerp(weight, this.xScale, target.xScale);
             part.yScale = Mth.lerp(weight, this.yScale, target.yScale);
             part.zScale = Mth.lerp(weight, this.zScale, target.zScale);
@@ -692,10 +688,6 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
             );
         }
 
-        private static float lerpAngleRadians(float weight, float start, float end) {
-            float delta = Mth.wrapDegrees((end - start) * 180.0F / (float) Math.PI) * ((float) Math.PI / 180.0F);
-            return start + delta * weight;
-        }
     }
 
     private static final class AnimationView extends HierarchicalModel<Entity> {

@@ -604,7 +604,7 @@ public class DragonBeamEntity extends Entity {
         if (this.isRenderable() && this.tickCount >= 50) {
             if (!playSound) {
                 playSound = true;
-                this.playSound(AnnoyingVillagersModSounds.DRAGON_BREATH.get(), 5.0F, 1.0F);
+                this.playSound(AnnoyingVillagersModSounds.BEAM_BREATH.get(), 5.0F, 1.0F);
             }
             List<LivingEntity> hit = this.raytraceEntities(this.level(), new Vec3(this.getX(), this.getY(), this.getZ()), new Vec3(this.endPosX, this.endPosY, this.endPosZ), true).entities;
             if (!this.level().isClientSide) {

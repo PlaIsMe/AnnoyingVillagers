@@ -13,24 +13,17 @@ import net.minecraftforge.fml.common.Mod;
 public class AnnoyingVillagersModParticles {
     @SubscribeEvent
     public static void registerParticles(RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.RED_SPARK.get(), RedSparkParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(), ElectricSparkParticle::provider);
-        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.DRAGON_SPARK.get(), DragonSparkParticle::provider);
-        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK_2.get(), ElectricSpark2Particle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.SPARK.get(), SparkParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.PE.get(), PeParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.GLOWINGEYES.get(), GlowingEyesParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.LIGHT.get(), LightParticle::provider);
-        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.BLUESPARK.get(), BlueSparkParticle::provider);
-        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.GREENSPARK.get(), GreenSparkParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.ENDER.get(), EnderParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.NULL.get(), SmokeParticle.Provider::new);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.FULL_COWL.get(), FullCowlParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.METEORITE_TRAIL.get(), MeteoriteTrailParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.BIG_SPLASH.get(), BigSplashParticle::provider);
-        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.ELECTRIC_LITE.get(), ElectricLiteParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.HIT_BLUNT.get(), HitBluntParticle::provider);
-        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.BLADE_RUSH.get(), BladeRushParticle::provider);
         event.registerSpecial(AnnoyingVillagersModParticleTypes.GROUND_SLAM.get(), new GroundSlamParticle.Provider());
     }
 }

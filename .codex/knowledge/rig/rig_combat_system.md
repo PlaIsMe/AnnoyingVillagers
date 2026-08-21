@@ -1,147 +1,111 @@
 # Rig Combat System
 
-## Common ids and metadata
+## Registry flow
 
-Common server-safe rig combat metadata lives in `src/main/java/com/pla/annoyingvillagers/rig`.
+Common server-safe rig animation metadata lives under `src/main/java/com/pla/annoyingvillagers/rig`.
 
-`RigAnimationId` defines shared ids for sword attacks, rolling, and side-step animations. Current attack ids are:
-- `SWORD_AUTO1`, `SWORD_AUTO2`, `SWORD_AUTO3`, `SWORD_AUTO4`
-- `SWORD_DASH`
-- `SWORD_AIRSLASH`
-- `SWEEPING_EDGE`
-- `SWORD_DUAL_AUTO1`, `SWORD_DUAL_AUTO2`, `SWORD_DUAL_AUTO3`
-- `SWORD_DUAL_DASH`
-- `SWORD_DUAL_AIRSLASH`
-- `DANCING_EDGE`
+The project has many authored/generated animations. Knowledge files should describe the integration flow rather than maintain a duplicate list of animation names.
 
-`RigAnimationId.isAttack()` is true for those ids. Damage is only allowed for attack ids.
+Every one-shot animation that may be addressed by common gameplay code follows this path:
 
-`RigAnimationId.isUltimateAttack()` is true only for `DANCING_EDGE`. `SWEEPING_EDGE` is a normal attack even though it used to be treated as an ultimate.
-`RigAnimationId.isRollAnimation()` is true for `ROLL_FORWARD` and `ROLL_BACKWARD`.
-`RigAnimationId.isStepAnimation()` is true for `STEP_FORWARD`, `STEP_BACKWARD`, `STEP_LEFT`, and `STEP_RIGHT`.
-`RigAnimationId.isUtilityAnimation()` is true for `EAT_OFFHAND`, `EAT_MAINHAND`, and `THROW_ENDER_PEARL`.
+```text
+client/animation/rig_animation/** AnimationDefinition
+        ↓
+RigAnimationId
+        ↓
+RigAnimationResolver (client only)
+        ↓
+RigAnimationSpecs (common/server metadata)
+        ↓
+generated RigPoseClip data when server pose sampling is required
+```
 
-`RigAnimationSpec` defines logic metadata:
-- `durationTicks`
-- `attackWindows`
-- `attackReachBlocks`
-- `playbackType`
-- `damagesTarget`
+`RigAnimationId` is the network-safe shared identifier registry. Existing enum constants must keep their ordinal order; new ids are appended so old packet ids do not silently change.
 
-`RigAnimationSpec` no longer stores movement metadata. Do not reintroduce `RigMovementType`, `lungeDistanceBlocks`, or `jumpStrength`; animation movement comes from `RigRootMotion`.
+`RigAnimationResolver` is client-only and maps each common id to the authored `AnimationDefinition`. Do not import client animation holders into common/server code.
 
-`RigAnimationPlaybackType` controls which model parts a one-shot animation is allowed to override during client blending:
-- `DEFAULT`: whole body
-- `LEFT_HAND`: full left arm tree
-- `MAIN_HAND`: full right arm tree
-- `BOTH_HAND`: both arm trees
+`RigAnimationSpecs` is the authoritative common registry for duration, attack/non-attack classification, attack windows, playback mask, optional jump-on-start flag, and timed hooks. `RigAnimationId.isAttack()` delegates to registered spec metadata instead of duplicating hundreds of attack ids in another switch.
 
-The playback type is a client render mask. It is not sent in the network packet because the client resolves it from `RigAnimationSpecs.get(animationId)`.
+When adding a new authored animation, update the id, resolver, and spec together, then regenerate common pose clips for the animation directories that need collider/root-motion sampling.
 
-`attackWindows` is an array of `RigAttackWindow(startTickInclusive, endTickExclusive)` values. A window represents the active sword-swing state for that phase. Simple attacks have one window. Multi-phase attacks define multiple windows.
+## Animation specs and timed hooks
 
-Factory methods enforce intended construction:
-- `normalAttack(id, durationTicks, attackStartTickInclusive, attackEndTickExclusive)`
-- `normalAttack(id, durationTicks, attackStartTickInclusive, attackEndTickExclusive, attackReachBlocks)`
-- `ultimateAttack(id, durationTicks, attackWindows...)`
-- `rolling(id, durationTicks)`
-- `nonDamaging(id, durationTicks)`
+`RigAnimationSpec.attack(...)` represents a damaging animation. `RigAnimationSpec.nonDamaging(...)` represents living, utility, movement, pose, hit, knockdown, or other non-damaging playback. Rolling/step helpers are still available for locomotion actions where their special sound/category behavior is desired.
 
-`dashAttack`, `jumpAttack`, `jumpTowardAttack`, and `movementOnly` were removed. Dash attacks and single-window former ultimate attacks are normal attacks. Use `ultimateAttack` only when an animation needs multiple `RigAttackWindow` entries; currently this means `DANCING_EDGE`.
+Attack timing is represented by one or more `RigAttackWindow(startTickInclusive, endTickExclusive, colliders...)` values. Multi-phase attacks use multiple windows; a dual-hit phase can contain multiple colliders in one window.
 
-`RigAnimationSpecs` is the central spec registry. It assigns server duration, hit windows, and reach for each id. Current timings:
-- `SWORD_AUTO1`: duration `12`, windows `[0 -> 2]`
-- `SWORD_AUTO2`: duration `12`, windows `[1 -> 3]`
-- `SWORD_AUTO3`: duration `12`, windows `[1 -> 3]`
-- `SWORD_AUTO4`: duration `12`, windows `[1 -> 3]`
-- `SWORD_DASH`: duration `13`, windows `[3 -> 5]`, reach `3.4`
-- `SWORD_AIRSLASH`: duration `13`, windows `[7 -> 10]`, reach `3.2`
-- `SWEEPING_EDGE`: duration `20`, windows `[3 -> 6]`, reach `4.0`
-- `SWORD_DUAL_AUTO1`: duration `12`, windows `[2 -> 4]`
-- `SWORD_DUAL_AUTO2`: duration `12`, windows `[2 -> 4]`
-- `SWORD_DUAL_AUTO3`: duration `15`, windows `[5 -> 7]`
-- `SWORD_DUAL_DASH`: duration `15`, windows `[1 -> 6]`, reach `3.4`
-- `SWORD_DUAL_AIRSLASH`: duration `13`, windows `[7 -> 10]`, reach `3.2`
-- `DANCING_EDGE`: duration `25`, windows `[5 -> 8]`, `[8 -> 10]`, `[12 -> 14]`
-- `ROLL_FORWARD`: duration `13`
-- `ROLL_BACKWARD`: duration `13`
-- `STEP_FORWARD`: duration `7`
-- `STEP_BACKWARD`: duration `7`
-- `STEP_LEFT`: duration `7`
-- `STEP_RIGHT`: duration `7`
-- `JUMP`: duration `10`
-- `EAT_OFFHAND`: duration `32`, playback type `LEFT_HAND`
-- `EAT_MAINHAND`: duration `32`, playback type `MAIN_HAND`
-- `THROW_ENDER_PEARL`: duration `10`, playback type `BOTH_HAND`
+A window may intentionally have zero colliders while a broad/custom collision phase is awaiting a project-specific collider definition. Empty windows preserve the imported timing but deal no collider-based damage until colliders are assigned.
 
-Attack windows correspond to the active swing state. Before a window is anticipation/preparation. After a window is recovery. Among current shared ids, only `DANCING_EDGE` is multi-phase and has three separate windows. `SWORD_DUAL_AUTO3` and `SWORD_DUAL_DASH` use both weapon colliders in one phase, so each remains a single server damage window.
+`RigTimedAnimationHook` is the common event hook mechanism. When timing is imported from a reference `InTimeEvent`, placeholder hooks may be created at the corresponding server tick with an empty action. The gameplay logic inside those hooks must be authored explicitly for this project; do not automatically transplant reference event logic.
 
-## Root motion
+`jumpOnStart` is metadata owned by this project. Imported attack specs default it to `false` unless the project explicitly decides the animation should invoke vanilla jump control.
 
-`RigRootMotion` stores root-motion curves extracted from generated animation body position tracks. It is common/server-safe and keyed by `RigAnimationId`.
+## Collider architecture
 
-The server samples root motion with previous and current elapsed ticks, converts model units to blocks, rotates the local delta by the mob's attack-facing direction, and moves the real entity with `mob.move(MoverType.SELF, delta)`. This is the authoritative movement path for dash attacks, sweeping attacks, rolls, steps, and other moving rig animations.
+The attack collider is a temporary animated combat volume; the target keeps Minecraft's normal entity bounding box. `RigColliderSystem` tests animated attack shapes against `LivingEntity#getBoundingBox()`.
 
-Clients receive `ClientboundRigAnimation` for playback and vanilla entity tracking for the real server position. This project intentionally avoids a custom `ClientboundRigAnimationPosition` packet and avoids writing client `lerpX`, `lerpY`, `lerpZ`, or `lerpSteps` directly for rig root motion. A separate position packet would add a second sync path and can create jitter or disagreement with vanilla tracking.
+Reusable concepts are:
+- `RigColliderAnchor`: rig part to follow
+- `RigColliderPreset`: reusable dimensions/local center for a weapon or body category
+- `RigCollider`: anchor + preset
+- `RigAttackWindow`: active timing and colliders
+- `RigPoseClip` / `RigPoseLibrary`: common-side sampled transforms
+- `RigColliderSystem`: world-space collision generation and intersection
 
-## Server-side playback API
+Tool colliders normally follow `RIGHT_TOOL` / `LEFT_TOOL`; unarmed attacks may follow hand anchors; kicks follow lower-leg anchors. Dual attacks use both relevant colliders rather than a special duplicated movement path.
 
-`RigAnimationController.play(Mob mob, RigAnimationSpec spec, LivingEntity target)` is the common API for `AVNpc`, `HerobrineMob`, and other rig-capable mobs.
+Weapon families use centralized collider presets such as fist, dagger, sword/longsword/greatsword, spear/polearm, axe, tachi, glaive, scythe, sledgehammer, and foot. Preset dimensions are tuning data shared by all moves in that family. Do not hardcode a separate collider trajectory for each animation when the generated pose already contains the tool/hand/leg trajectory.
 
-It runs only server-side. It:
-1. faces the target when present
-2. swings the main hand only for attack animations
-3. marks the mob aggressive
-4. sends `ClientboundRigAnimation` to tracking clients and self
-5. schedules rig sound events
-6. schedules server-authoritative root motion from `RigRootMotion`
-7. schedules one damage window task group for each value in `attackWindows` for damaging attack specs
+Broad/root/body colliders from external reference systems are not assumed to map cleanly to this rig. Leave those windows collider-empty or deliberately assign the held-weapon collider until a project-specific area shape is authored.
 
-Movement behavior is no longer controlled by movement types. `RigAnimationController` schedules `RigRootMotion.worldDelta(animationId, previousElapsedTicks, elapsedTicks, forward)` for each animation tick and applies nonzero deltas with `mob.move(MoverType.SELF, delta)`.
+## Generated pose and server movement
 
-Hit timing uses `DelayedTask`. During every attack window tick, the target must still be alive, attackable, non-allied, and inside reach. Each window can hit once; if the target enters reach during the window, the hit can still connect. Multi-window attacks temporarily clear the target hurt cooldown for each window so each phase can deal damage.
+Generated pose clips are the common source of truth for animated rig-part transforms and authored root/body translation:
 
-Sound timing also uses `DelayedTask` from the server. The controller calls `level.playSound(null, x, y, z, sound, SoundSource.HOSTILE, volume, pitch)`, so no player is excluded and nearby players hear the sound through normal Minecraft sound broadcasting.
+```text
+authored AnimationDefinition
+        ↓ generate_rig_pose_clips.py
+common RigPoseClip
+        ├─ tool / hand / leg transforms → collider placement
+        └─ body/root translation → server entity movement
+```
 
-Rig sound rules:
-- normal attacks, including dash and former single-window ultimate attacks, play `AnnoyingVillagersModSounds.SWORD_WHOOSH` when each attack window starts
-- `DANCING_EDGE` plays `AnnoyingVillagersModSounds.WHOOSH_SHARP` when each attack window starts
-- successful rig damage plays `AnnoyingVillagersModSounds.BLADE_HIT` at the target position
-- `ROLL_FORWARD` and `ROLL_BACKWARD` play `AnnoyingVillagersModSounds.ROLL` at animation start
-- utility animations do not play attack, roll, or fallback step sounds
-- step animations play the current block-under-feet hit sound at animation start instead of using a custom step asset
+The server samples previous/current body movement, converts model units to blocks, rotates the local delta by the animation-facing direction, and moves the real mob with normal entity movement. Vanilla entity tracking synchronizes that authoritative position to clients. Do not reintroduce a second hand-maintained root-motion keyframe table or a separate position packet.
 
-## Weapon profiles
+The client compensates the same sampled movement in the rendered model so visual root translation and real entity translation are not applied twice.
 
-`RigCombatProfile` stores categorized animation sets:
-- normal attack chain
-- special attacks for dash, airslash, or other non-combo interrupts
-- rolling/root-motion interrupts
-- ultimate interrupts
-- chances for special, rolling, and ultimate interrupts
+After adding ids/resolver/spec entries, rerun the pose generator over all animation directories that need common-side sampling. A registered attack can play without a generated pose clip, but its part-following collider/root motion will not have the authored transform data until generation is updated.
 
-Normal attacks are deterministic and sequential. A profile with normal attacks `[1, 2, 3, 4]` plays `1 -> 2 -> 3 -> 4 -> 1` unless interrupted. Interrupts do not advance the normal combo index.
+## Server playback
 
-Closing attacks are selected from special attacks with movement distance. A closing attack may open distance, but it should not immediately repeat the same single closing animation; if the only available closing option was just played, the goal should keep pathing toward melee range so the normal combo can resume.
+`RigAnimationController.play(...)` is the common server-side playback entry point. It validates state/locks, records active playback, sends the id/duration packet, schedules hooks/sounds, applies generated-pose movement, and evaluates attack windows.
 
-Closing attack distance is derived from `attackReachBlocks + RigRootMotion.maxHorizontalDistanceBlocks(animationId)`, not from lunge fields.
+Actual damage comes from collider intersection, not a fixed global melee range. AI may estimate whether an attack is worth starting from the sampled collider reach plus authored root movement.
 
-`RigCombatProfiles.getCombatProfile` returns `DUAL_SWORD` when the mob has a `SwordItem` in both main hand and off hand. `DUAL_SWORD` uses `SWORD_DUAL_AUTO1`, `SWORD_DUAL_AUTO2`, and `SWORD_DUAL_AUTO3` as the deterministic normal combo, `SWORD_DUAL_DASH` and `SWORD_DUAL_AIRSLASH` as non-combo interrupts, and `DANCING_EDGE` as the rare ultimate interrupt.
+A target may be hit once per attack window; later windows may hit it again when the move is intentionally multi-phase.
 
-Other mobs use `DEFAULT_SWORD`. `DEFAULT_SWORD` includes `SWEEPING_EDGE` in the deterministic normal combo, uses `SWORD_DASH` and `SWORD_AIRSLASH` as special interrupts, and has no current ultimate interrupt.
+## Combat-profile attack lock
 
-This class is the extension point for exact custom weapon chains. When weapon-specific profiles are reintroduced, keep normal attacks deterministic, keep dash/root-motion attacks as normal or special attacks, and reserve ultimate lists for genuine multi-window ultimate attacks.
+`LockableRigAttackAnimation` is a narrow gate for combat-profile attacks. It exposes `lock()`, `unlock()`, and `isLocked()` and uses lock-count semantics so independent action systems can overlap safely.
 
-## Combat goal
+Only ids selected by `RigCombatProfiles.isProfileAttack(...)` are blocked. This is not a global animation lock: utility, living, roll/step, bow, shield, hand-action, and other playback can remain available.
 
-`RigAnimatedMeleeAttackGoal` replaces vanilla melee only for rig-capable mobs selected by `CommonGoals.supportsRigCombat`: `AVNpc` and `HerobrineMob`.
+A hand-action system that must not overlap melee should first refuse to begin while `RigAnimationController.hasActiveProfileAttack(mob)` is true, then acquire one lock token for its own conflicting interval and release that token on completion or abort.
 
-The goal ignores mobs holding bows. It moves toward the target, starts root-motion closing attacks from farther range, and starts normal/interruption attacks from melee range. While an active rig animation is playing, it stops path navigation so scheduled root motion and hit timing drive the action.
+## Combat profiles and melee goal
 
-`CommonGoals.createMeleeAttackGoal` returns:
-- `RigAnimatedMeleeAttackGoal` for `AVNpc` and `HerobrineMob`
-- vanilla `MeleeAttackGoal` for other mobs, including vanilla mobs that receive shared goals through mixins
+`RigCombatProfile` chooses subsets of registered attacks for a particular equipment/combat style. The profile is selection policy; it is not the master animation registry. Do not duplicate every registered attack in project knowledge.
 
-## Client rendering
+`RigAnimatedMeleeAttackGoal` paths while no rig attack is active, uses collider/motion-derived attack-start distance, and lets active animation movement/collision drive the action once playback begins.
 
-Server attack selection never imports client `AnimationDefinition`. It sends only `RigAnimationId` and duration. The client model resolves the id through `RigAnimationResolver` and applies the active one-shot animation before locomotion.
+## Sounds and locomotion separation
+
+Starting a rig animation must not set `Mob#setAggressive(true)` as a generic animation side effect. AI goals own aggression state.
+
+Run rendering must be based on sprinting/current horizontal movement rather than `isAggressive()` or stale damped limb-swing amplitude. This prevents attacks, rolls, and steps from causing a false RUN phase after one-shot playback.
+
+## Debug and client separation
+
+F3+B does not register arbitrary temporary melee volumes as vanilla entity hitboxes. The custom debug renderer draws the same oriented boxes used by `RigColliderSystem`.
+
+Common/server classes must not import `AnimationDefinition`, `ModelPart`, or renderer classes. Client playback resolves `RigAnimationId` through `RigAnimationResolver`; common gameplay uses ids, specs, and generated pose data only.

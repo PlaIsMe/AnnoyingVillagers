@@ -33,11 +33,11 @@ public class ShadowObsidianBlock extends HerobrineObsidianBlock implements Entit
     public ShadowObsidianBlock() {
         super(Properties.of()
                 .sound(new ForgeSoundType(1.0F, 1.0F,
-                        AnnoyingVillagersModSounds.LOST,
-                        () -> SoundEvents.DEEPSLATE_STEP,
-                        () -> SoundEvents.DEEPSLATE_PLACE,
+                        () -> SoundEvents.STONE_BREAK,
+                        () -> SoundEvents.STONE_STEP,
+                        () -> SoundEvents.STONE_PLACE,
                         () -> SoundEvents.STONE_HIT,
-                        AnnoyingVillagersModSounds.SILENT
+                        () -> SoundEvents.STONE_FALL
                 ))
                 .strength(30.0F, 40.0F)
                 .lightLevel((blockstate) -> 4)

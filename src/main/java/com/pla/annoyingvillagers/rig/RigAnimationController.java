@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.rig;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundRigAnimation;
+import com.pla.annoyingvillagers.rig.pose.RigPoseLibrary;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public final class RigAnimationController {
@@ -34,14 +37,23 @@ public final class RigAnimationController {
     }
 
     public static void play(Mob mob, RigAnimationSpec spec, LivingEntity target) {
-        if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) {
-            return;
-        }
-        if (!canPlayWhileMounted(mob, spec)) {
-            return;
-        }
-
+        if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
         playNow(mob, spec, target);
+    }
+
+    public static void lockProfileAttacksFor(Mob mob, int ticks) {
+        if (mob.level().isClientSide || !(mob instanceof LockableRigAttackAnimation lockable) || ticks <= 0) return;
+        lockable.lock();
+        new DelayedTask(ticks) {
+            @Override
+            public void run() {
+                lockable.unlock();
+            }
+        };
+    }
+
+    public static void lockProfileAttacksFor(Mob mob, RigAnimationId animationId) {
+        lockProfileAttacksFor(mob, RigAnimationSpecs.get(animationId).durationTicks());
     }
 
     public static int animationPlaybackTicks(RigAnimationSpec spec) {
@@ -49,48 +61,26 @@ public final class RigAnimationController {
     }
 
     private static void playNow(Mob mob, RigAnimationSpec spec, LivingEntity target) {
-        if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) {
-            return;
-        }
-        if (!canPlayWhileMounted(mob, spec)) {
-            return;
-        }
+        if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
+        if (target != null && target.isAlive()) faceTarget(mob, target);
+        if (spec.animationId().isAttack()) mob.swing(InteractionHand.MAIN_HAND, true);
+        if (spec.jumpOnStart() && mob.onGround()) mob.getJumpControl().jump();
 
-        if (target != null && target.isAlive()) {
-            faceTarget(mob, target);
-        }
-
-        if (spec.animationId().isAttack()) {
-            mob.swing(InteractionHand.MAIN_HAND, true);
-        }
-        mob.setAggressive(true);
         ActiveAnimationState state = recordActiveAnimation(mob, spec);
         runHooks(mob, spec, RigAnimationSpec.RigTimedAnimationHook.START);
         scheduleTimedHooks(mob, spec, state);
         scheduleAnimationEnd(mob, spec, state);
         sendAnimation(mob, spec.animationId(), spec.durationTicks());
         scheduleRigSounds(mob, spec);
-        scheduleRootMotion(mob, target, spec);
-
-        if (spec.damagesTarget() && target != null) {
-            scheduleImpacts(mob, target, spec);
-        }
+        scheduleAnimationMotion(mob, target, spec, state);
+        if (spec.damagesTarget()) scheduleCollisions(mob, spec, state);
     }
 
     public static boolean isInActiveAttackWindow(Mob mob) {
         ActiveAnimationState state = getActiveAnimationState(mob);
-        if (state == null || !state.spec().damagesTarget()) {
-            return false;
-        }
-
+        if (state == null || !state.spec().damagesTarget()) return false;
         int elapsedTicks = state.elapsedTicks(mob);
-        for (RigAttackWindow attackWindow : state.spec().attackWindows()) {
-            if (elapsedTicks >= attackWindow.startTickInclusive()
-                    && elapsedTicks < attackWindow.endTickExclusive()) {
-                return true;
-            }
-        }
-
+        for (RigAttackWindow attackWindow : state.spec().attackWindows()) if (attackWindow.contains(elapsedTicks)) return true;
         return false;
     }
 
@@ -98,14 +88,21 @@ public final class RigAnimationController {
         return getActiveAnimationState(mob) != null;
     }
 
+    public static boolean hasActiveProfileAttack(Mob mob) {
+        ActiveAnimationState state = getActiveAnimationState(mob);
+        return state != null && RigCombatProfiles.isProfileAttack(state.spec().animationId());
+    }
+
     public static void clearActiveAnimations() {
         ACTIVE_ANIMATIONS.clear();
     }
 
+    private static boolean isProfileAttackLocked(Mob mob, RigAnimationId animationId) {
+        return RigCombatProfiles.isProfileAttack(animationId) && mob instanceof LockableRigAttackAnimation lockable && lockable.isLocked();
+    }
+
     private static boolean canPlayWhileMounted(Mob mob, RigAnimationSpec spec) {
-        return !mob.isPassenger()
-                || !spec.animationId().isAttack()
-                || spec.animationId().isMountedAttack();
+        return !mob.isPassenger() || !spec.animationId().isAttack() || spec.animationId().isMountedAttack();
     }
 
     private static ActiveAnimationState recordActiveAnimation(Mob mob, RigAnimationSpec spec) {
@@ -116,16 +113,12 @@ public final class RigAnimationController {
 
     private static ActiveAnimationState getActiveAnimationState(Mob mob) {
         ActiveAnimationState state = ACTIVE_ANIMATIONS.get(mob.getUUID());
-        if (state == null) {
-            return null;
-        }
-
+        if (state == null) return null;
         int elapsedTicks = state.elapsedTicks(mob);
         if (elapsedTicks < 0 || elapsedTicks > state.spec().durationTicks()) {
             ACTIVE_ANIMATIONS.remove(mob.getUUID(), state);
             return null;
         }
-
         return state;
     }
 
@@ -140,10 +133,7 @@ public final class RigAnimationController {
     }
 
     private static void sendAnimation(Mob mob, RigAnimationId animationId, int durationTicks) {
-        AnnoyingVillagers.PACKET_HANDLER.send(
-                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
-                new ClientboundRigAnimation(mob.getId(), animationId, durationTicks)
-        );
+        AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundRigAnimation(mob.getId(), animationId, durationTicks));
     }
 
     private static void scheduleAnimationEnd(Mob mob, RigAnimationSpec spec, ActiveAnimationState state) {
@@ -154,26 +144,18 @@ public final class RigAnimationController {
                     ACTIVE_ANIMATIONS.remove(mob.getUUID(), state);
                     return;
                 }
-
-                if (ACTIVE_ANIMATIONS.remove(mob.getUUID(), state)) {
-                    runHooks(mob, spec, RigAnimationSpec.RigTimedAnimationHook.END);
-                }
+                if (ACTIVE_ANIMATIONS.remove(mob.getUUID(), state)) runHooks(mob, spec, RigAnimationSpec.RigTimedAnimationHook.END);
             }
         };
     }
 
     private static void scheduleTimedHooks(Mob mob, RigAnimationSpec spec, ActiveAnimationState state) {
         for (RigAnimationSpec.RigTimedAnimationHook timedHook : spec.timedHooks()) {
-            if (!timedHook.isTimed()) {
-                continue;
-            }
+            if (!timedHook.isTimed()) continue;
             new DelayedTask(timedHook.tick()) {
                 @Override
                 public void run() {
-                    if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || !isCurrentAnimation(mob, state)) {
-                        return;
-                    }
-
+                    if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || !isCurrentAnimation(mob, state)) return;
                     runHook(mob, timedHook.action());
                 }
             };
@@ -181,11 +163,7 @@ public final class RigAnimationController {
     }
 
     private static void runHooks(Mob mob, RigAnimationSpec spec, int tick) {
-        for (RigAnimationSpec.RigTimedAnimationHook timedHook : spec.timedHooks()) {
-            if (timedHook.tick() == tick) {
-                runHook(mob, timedHook.action());
-            }
-        }
+        for (RigAnimationSpec.RigTimedAnimationHook timedHook : spec.timedHooks()) if (timedHook.tick() == tick) runHook(mob, timedHook.action());
     }
 
     private static void runHook(Mob mob, RigAnimationSpec.RigAnimationHook hook) {
@@ -206,31 +184,21 @@ public final class RigAnimationController {
             playSound(mob, AnnoyingVillagersModSounds.ROLL.get(), 0.9F, randomPitch(mob, 0.95F, 0.1F));
             return;
         }
-        if (animationId.isUtilityAnimation()) {
-            return;
-        }
-
-        playStepSound(mob);
+        if (!animationId.isUtilityAnimation()) playStepSound(mob);
     }
 
     private static void scheduleAttackSwingSounds(Mob mob, RigAnimationSpec spec) {
         RigAttackWindow[] attackWindows = spec.attackWindows();
-        SoundEvent sound = spec.animationId().isUltimateAttack()
-                ? AnnoyingVillagersModSounds.WHOOSH_SHARP.get()
-                : AnnoyingVillagersModSounds.SWORD_WHOOSH.get();
-
+        SoundEvent sound = attackWindows.length > 1 ? AnnoyingVillagersModSounds.WHOOSH_SHARP.get() : AnnoyingVillagersModSounds.SWORD_WHOOSH.get();
         if (attackWindows.length == 0) {
             playSound(mob, sound, 0.9F, randomPitch(mob, 0.95F, 0.1F));
             return;
         }
-
         for (RigAttackWindow attackWindow : attackWindows) {
             new DelayedTask(attackWindow.startTickInclusive()) {
                 @Override
                 public void run() {
-                    if (mob.isAlive() && !mob.isRemoved() && !mob.isDeadOrDying()) {
-                        playSound(mob, sound, 0.9F, randomPitch(mob, 0.95F, 0.1F));
-                    }
+                    if (mob.isAlive() && !mob.isRemoved() && !mob.isDeadOrDying()) playSound(mob, sound, 0.9F, randomPitch(mob, 0.95F, 0.1F));
                 }
             };
         }
@@ -252,40 +220,26 @@ public final class RigAnimationController {
     }
 
     private static void playSound(Entity entity, SoundEvent sound, float volume, float pitch) {
-        entity.level().playSound(
-                null,
-                entity.getX(),
-                entity.getY(),
-                entity.getZ(),
-                sound,
-                SoundSource.HOSTILE,
-                volume,
-                pitch
-        );
+        entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), sound, SoundSource.HOSTILE, volume, pitch);
     }
 
-    private static void scheduleImpacts(Mob mob, LivingEntity target, RigAnimationSpec spec) {
+    private static void scheduleCollisions(Mob mob, RigAnimationSpec spec, ActiveAnimationState state) {
         RigAttackWindow[] attackWindows = spec.attackWindows();
         boolean forceDamageThroughHurtCooldown = attackWindows.length > 1;
-
-        for (RigAttackWindow attackWindow : attackWindows) {
-            scheduleAttackWindow(mob, target, spec, attackWindow, forceDamageThroughHurtCooldown);
-        }
+        for (RigAttackWindow attackWindow : attackWindows) scheduleAttackWindow(mob, attackWindow, state, forceDamageThroughHurtCooldown);
     }
 
-    private static void scheduleAttackWindow(Mob mob, LivingEntity target, RigAnimationSpec spec, RigAttackWindow attackWindow, boolean forceDamageThroughHurtCooldown) {
-        boolean[] attemptedHit = new boolean[1];
-        for (int delayTicks = attackWindow.startTickInclusive(); delayTicks < attackWindow.endTickExclusive(); delayTicks++) {
-            new DelayedTask(delayTicks) {
+    private static void scheduleAttackWindow(Mob mob, RigAttackWindow attackWindow, ActiveAnimationState state, boolean forceDamageThroughHurtCooldown) {
+        Set<UUID> hitEntities = new HashSet<>();
+        for (int elapsedTick = attackWindow.startTickInclusive(); elapsedTick < attackWindow.endTickExclusive(); elapsedTick++) {
+            final int sampleTick = elapsedTick;
+            new DelayedTask(sampleTick) {
                 @Override
                 public void run() {
-                    if (attemptedHit[0] || !canDamageTarget(mob, target, spec)) {
-                        return;
-                    }
-
-                    attemptedHit[0] = true;
-                    if (hurtTarget(mob, target, forceDamageThroughHurtCooldown)) {
-                        playHitSound(target);
+                    if (!isCurrentAnimation(mob, state) || !mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return;
+                    for (LivingEntity target : RigColliderSystem.findHits(mob, state.spec(), attackWindow, sampleTick)) {
+                        if (!canDamageTarget(mob, target) || !hitEntities.add(target.getUUID())) continue;
+                        if (hurtTarget(mob, target, forceDamageThroughHurtCooldown)) playHitSound(target);
                     }
                 }
             };
@@ -295,72 +249,41 @@ public final class RigAnimationController {
     private static boolean hurtTarget(Mob mob, LivingEntity target, boolean forceDamageThroughHurtCooldown) {
         if (!forceDamageThroughHurtCooldown) {
             boolean hurt = mob.doHurtTarget(target);
-            if (hurt) {
-                spawnHitParticle(mob, target);
-            }
+            if (hurt) spawnHitParticle(mob, target);
             return hurt;
         }
-
         int previousInvulnerableTime = target.invulnerableTime;
         target.invulnerableTime = 0;
         boolean hurt = mob.doHurtTarget(target);
         target.invulnerableTime = previousInvulnerableTime;
-        if (hurt) {
-            spawnHitParticle(mob, target);
-        }
+        if (hurt) spawnHitParticle(mob, target);
         return hurt;
     }
 
     private static void spawnHitParticle(Mob mob, LivingEntity target) {
-        if (!(mob.level() instanceof ServerLevel serverLevel)) {
-            return;
-        }
-
-//        AnnoyingVillagersModParticleTypes.BLADE_RUSH.get().spawnParticleWithArgument(
-//                serverLevel,
-//                HitParticleType.RANDOM_WITHIN_BOUNDING_BOX,
-//                HitParticleType.ZERO,
-//                target,
-//                mob
-//        );
+        if (!(mob.level() instanceof ServerLevel)) return;
+//        AnnoyingVillagersModParticleTypes.BLADE_RUSH.get().spawnParticleWithArgument(...);
     }
 
-    private static boolean canDamageTarget(Mob mob, LivingEntity target, RigAnimationSpec spec) {
-        if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) {
-            return false;
-        }
-        if (!target.isAlive() || target.isRemoved() || target.isDeadOrDying()) {
-            return false;
-        }
-        if (mob.isAlliedTo(target) || target.isAlliedTo(mob) || !mob.canAttack(target)) {
-            return false;
-        }
-
-        double reach = Math.max(spec.attackReachBlocks(), mob.getBbWidth() * 2.0D + target.getBbWidth());
-        return mob.distanceToSqr(target) <= reach * reach;
+    private static boolean canDamageTarget(Mob mob, LivingEntity target) {
+        if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return false;
+        if (!target.isAlive() || target.isRemoved() || target.isDeadOrDying()) return false;
+        if (target == mob.getVehicle()) return false;
+        return !mob.isAlliedTo(target) && !target.isAlliedTo(mob) && mob.canAttack(target);
     }
 
-    private static void scheduleRootMotion(Mob mob, LivingEntity target, RigAnimationSpec spec) {
+    private static void scheduleAnimationMotion(Mob mob, LivingEntity target, RigAnimationSpec spec, ActiveAnimationState state) {
         RigAnimationId animationId = spec.animationId();
-        if (!RigRootMotion.has(animationId)) {
-            return;
-        }
-
+        if (!RigPoseLibrary.hasMotion(animationId)) return;
         Vec3 forward = horizontalDirection(mob, target);
         for (int elapsedTick = 1; elapsedTick <= spec.durationTicks(); elapsedTick++) {
             final int currentElapsedTick = elapsedTick;
             new DelayedTask(currentElapsedTick - 1) {
                 @Override
                 public void run() {
-                    if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) {
-                        return;
-                    }
-
-                    Vec3 delta = RigRootMotion.worldDelta(animationId, currentElapsedTick - 1.0F, currentElapsedTick, forward);
-                    if (delta.lengthSqr() < 1.0E-8D) {
-                        return;
-                    }
-
+                    if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || !isCurrentAnimation(mob, state)) return;
+                    Vec3 delta = RigPoseLibrary.worldMotionDelta(animationId, currentElapsedTick - 1.0F, currentElapsedTick, forward);
+                    if (delta.lengthSqr() < 1.0E-8D) return;
                     mob.move(MoverType.SELF, delta);
                     mob.hasImpulse = true;
                 }
@@ -378,23 +301,12 @@ public final class RigAnimationController {
     }
 
     private static Vec3 horizontalDirection(Mob mob, Entity target) {
-        Vec3 direction;
-        if (target != null) {
-            direction = target.position().subtract(mob.position());
-        } else {
-            direction = mob.getLookAngle();
-        }
-
+        Vec3 direction = target != null ? target.position().subtract(mob.position()) : mob.getLookAngle();
         direction = new Vec3(direction.x, 0.0D, direction.z);
         if (direction.lengthSqr() < 1.0E-6D) {
             direction = Vec3.directionFromRotation(0.0F, mob.getYRot());
             direction = new Vec3(direction.x, 0.0D, direction.z);
         }
-
-        if (direction.lengthSqr() < 1.0E-6D) {
-            return new Vec3(0.0D, 0.0D, 1.0D);
-        }
-
-        return direction.normalize();
+        return direction.lengthSqr() < 1.0E-6D ? new Vec3(0.0D, 0.0D, 1.0D) : direction.normalize();
     }
 }

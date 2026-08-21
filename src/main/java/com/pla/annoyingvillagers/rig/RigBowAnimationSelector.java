@@ -22,13 +22,13 @@ public final class RigBowAnimationSelector {
 
     public static RigAnimationId shotForPitch(float pitchDegrees) {
         if (pitchDegrees >= DOWN_PITCH_DEGREES) {
-            return RigAnimationId.BOW_SHOT_DOWN;
+            return RigAnimationId.BOW_ATTACK_DOWN;
         }
         if (pitchDegrees <= UP_PITCH_DEGREES) {
-            return RigAnimationId.BOW_SHOT_UP;
+            return RigAnimationId.BOW_ATTACK_UP;
         }
 
-        return RigAnimationId.BOW_SHOT_MID;
+        return RigAnimationId.BOW_ATTACK_MID;
     }
 
     public static RigAnimationId shotForTarget(LivingEntity shooter, LivingEntity target) {

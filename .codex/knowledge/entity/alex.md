@@ -8,7 +8,14 @@ Session facts in this file come from the current workspace code and the edits di
 
 - `src/main/java/com/pla/annoyingvillagers/entity/AlexEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/JevEntity.java`
-- `src/main/java/com/pla/annoyingvillagers/combatbehaviour/AlexJevHookCombat.java`
+- `src/main/java/com/pla/annoyingvillagers/util/HookGunCombatUtil.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/LockableRigAttackAnimation.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/RigAnimationController.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/RigCombatProfiles.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/ThrowEnderPearlToTargetGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/RandomEnderPearlEscapeGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/WaterEnderPearlEscapeGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/UseLiquidBucketGoal.java`
 - `src/main/java/com/pla/annoyingvillagers/item/HookGunItem.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/HookGunHookEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/util/HookUtil.java`
@@ -51,7 +58,7 @@ Alex saves and loads:
 - `SpawnJev`
 - `CurrentBoundHook`
 
-If no `CurrentBoundHook` exists on load, it defaults to `AlexJevHookCombat.createAlexDefaultPickaxe()`.
+If no `CurrentBoundHook` exists on load, it defaults to `HookGunCombatUtil.createAlexDefaultPickaxe()`.
 
 ## Hook Gun Inventory State
 
@@ -97,7 +104,7 @@ Alex has ender pearl counter behavior enabled. `doEnderPearlCounterPattern` call
 
 ## Death And Drops
 
-When Alex dies server-side, `AlexJevHookCombat.onAlexDeath(this)` runs before normal death handling. If Jev is alive, Jev enters a run-away window and shoots a pickaxe hook at Alex's death position.
+When Alex dies server-side, `HookGunCombatUtil.onAlexDeath(this)` runs before normal death handling. If Jev is alive, Jev enters a run-away window and shoots a pickaxe hook at Alex's death position.
 
 Alex custom death loot includes:
 
@@ -110,7 +117,7 @@ Food, block items, arrows, ender pearls, buckets, and carried materials drop onl
 
 ## Shared Combat Constants
 
-Alex/Jev hook combat lives in `AlexJevHookCombat`.
+Alex/Jev hook combat lives in `HookGunCombatUtil`.
 
 Important constants:
 
@@ -131,18 +138,19 @@ Important constants:
 
 ## Alex Hook Combat Tick
 
-`tickAlex(MobPatch<?>)` is the primary Alex hook combat scheduler.
+`HookGunCombatUtil.tickAlex(AlexEntity alex, ServerLevel serverLevel)` is the primary Alex hook combat scheduler. `AlexEntity.tick()` calls it server-side after `super.tick()`.
 
 It returns unless:
 
-- the patched entity is an alive `AlexEntity`
-- the level is a `ServerLevel`
+- Alex is alive
+- Alex's hook cooldown has expired
 - Alex has an alive target
-- the target is within 34 blocks squared
+- the target is within 34 blocks
 - Alex is not already in a hook session
 - Alex has no active hook
-- `CombatCommon.canPerformNormalAttackLogic(mobPatch)` allows it
-- Alex's hook cooldown has expired
+- Alex does not currently have an active combat-profile rig attack
+
+The active-profile check is important because Alex's hook scheduler runs after normal AI goal ticking. If melee AI started a rig attack earlier in the same tick, hook logic must not start another hand action over that attack.
 
 Before combat decisions, Alex syncs target with Jev and cleans up stale hook sessions. Combat no longer creates or syncs a hook gun in Alex's inventory.
 
@@ -157,6 +165,25 @@ Decision order:
 7. If bound item is not a pickaxe, shoot it at the target as an item hook.
 
 When a hook fires, Alex gets cooldown `90 + random(0..80)` ticks unless the specific branch sets a different cooldown.
+
+## Rig Attack Animation Locking
+
+Alex inherits `LockableRigAttackAnimation` from `AVNpc`. The API is:
+
+- `lock()`
+- `unlock()`
+- `isLocked()`
+
+The implementation uses a lock count rather than one boolean, so independent systems can safely overlap lock/unlock pairs. The lock is transient runtime state and is not a general animation lock. It blocks only attack animations present in `RigCombatProfiles` normal, special, or ultimate attack lists. Roll, step, utility, bow, shield, and other non-profile rig animations are not blocked by this API.
+
+Hook sessions acquire one rig attack lock when the temporary hook-gun hand session begins. The lock remains held during the 7-tick shooting wind-up and is released immediately after the actual `HookGunItem.launchHookAt(...)` call. Early hook-session failure/restore also releases the hook-owned lock. A persistent-data marker records whether the hook system owns a lock token, so later restore logic cannot accidentally unlock a token owned by another goal.
+
+This gives both directions of protection:
+
+- if a combat-profile attack is already active, Alex hook logic refuses to start
+- if hook-gun shooting starts first, the melee rig goal/controller cannot start a combat-profile attack until the hook shot is fired or the session aborts
+
+Ender-pearl and bucket goals use the same lock API around their hand actions so those actions do not begin on top of a combat-profile attack and melee attacks cannot begin while the utility action owns its lock.
 
 ## Alex Default Hook Items
 
@@ -238,7 +265,7 @@ The hook target is Jev's eye position. Since the bound item is a pickaxe, `HookG
 
 ## Hook Session Flow For Alex
 
-Alex's NPC hook use is not a normal player right click. `AlexJevHookCombat.shootHook` and `shootDualHook` create a temporary hook session:
+Alex's NPC hook use is not a normal player right click. `HookGunCombatUtil.shootHook` and `shootDualHook` create a temporary hook session:
 
 - save original hand item(s)
 - put hook gun(s) bound to the desired item in hand

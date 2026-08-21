@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.rig;
 
+import com.pla.annoyingvillagers.rig.pose.RigPoseLibrary;
 import net.minecraft.util.RandomSource;
 
 import java.util.ArrayList;
@@ -22,6 +23,10 @@ public record RigCombatProfile(
         if (normalAttacks.isEmpty()) {
             throw new IllegalArgumentException("normalAttacks cannot be empty");
         }
+    }
+
+    public boolean containsAttack(RigAnimationId animationId) {
+        return this.normalAttacks.contains(animationId) || this.specialAttacks.contains(animationId) || this.ultimateAttacks.contains(animationId);
     }
 
     public RigAnimationId normalAt(int comboIndex) {
@@ -51,7 +56,7 @@ public record RigCombatProfile(
 
         List<RigAnimationId> movingAttacks = new ArrayList<>();
         for (RigAnimationId animationId : this.specialAttacks) {
-            if (RigRootMotion.maxHorizontalDistanceBlocks(animationId) > 0.0D) {
+            if (RigPoseLibrary.maxHorizontalMotionBlocks(animationId) > 0.0D) {
                 movingAttacks.add(animationId);
             }
         }

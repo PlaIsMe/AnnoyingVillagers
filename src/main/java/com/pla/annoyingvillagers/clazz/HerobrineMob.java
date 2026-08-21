@@ -10,6 +10,7 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.init.*;
+import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.network.ClientboundHerobrineAssistanceFx;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
@@ -67,7 +68,7 @@ import java.util.*;
 
 import static com.pla.annoyingvillagers.util.HerobrinePortalUtil.*;
 
-public class HerobrineMob extends Monster implements BurstProtectEntity, CombatVoiceLineEntity {
+public class HerobrineMob extends Monster implements BurstProtectEntity, CombatVoiceLineEntity, LockableRigAttackAnimation {
     private boolean renderPortal = false;
     private int recallTicks = 0;
     private String chatName;
@@ -87,6 +88,22 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
     private int efnGuardHitState = 0;
     private int efnGuardHitCooldown = 0;
     private int voiceCooldown = 0;
+    private int rigAttackAnimationLockCount;
+
+    @Override
+    public void lock() {
+        this.rigAttackAnimationLockCount++;
+    }
+
+    @Override
+    public void unlock() {
+        if (this.rigAttackAnimationLockCount > 0) this.rigAttackAnimationLockCount--;
+    }
+
+    @Override
+    public boolean isLocked() {
+        return this.rigAttackAnimationLockCount > 0;
+    }
 
     @Override
     public int getVoiceCooldown() {

@@ -115,9 +115,7 @@ public class EnderAegisItem extends SwordItem {
                 new ClientboundEnderAegisSparkFx(sparkFrom, sparkTo)
         );
 
-        level.playSound(null, entity.blockPosition(), AnnoyingVillagersModSounds.COOL_DOWN.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
         level.playSound(null, entity.blockPosition(), AnnoyingVillagersModSounds.ENDER_SHOT.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-        level.playSound(null, entity.blockPosition(), AnnoyingVillagersModSounds.BLOOM.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
 
 //        Add this mixin to AV_EFM
 //        LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);

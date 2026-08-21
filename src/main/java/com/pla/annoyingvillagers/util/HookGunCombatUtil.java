@@ -4,6 +4,8 @@ import com.pla.annoyingvillagers.entity.AlexEntity;
 import com.pla.annoyingvillagers.entity.JevEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.HookGunItem;
+import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -46,6 +48,7 @@ public final class HookGunCombatUtil {
     private static final String KEY_ORIGINAL_OFFHAND = "AlexJevHookOriginalOffhand";
     private static final String KEY_SAVED_MAINHAND = "AlexJevHookSavedMainhand";
     private static final String KEY_SAVED_OFFHAND = "AlexJevHookSavedOffhand";
+    private static final String KEY_RIG_ATTACK_LOCKED = "AlexJevHookRigAttackLocked";
     private static final String KEY_ALEX_COOLDOWN_UNTIL = "AlexHookCooldownUntil";
     private static final String KEY_JEV_COOLDOWN_UNTIL = "JevHookCooldownUntil";
     private static final String KEY_JEV_RUN_AWAY_UNTIL = "JevAlexDeathRunAwayUntil";
@@ -95,11 +98,6 @@ public final class HookGunCombatUtil {
     }
 
     public static void tickAlex(AlexEntity alex, ServerLevel serverLevel) {
-//      ADD THIS CODE IN AV_EFM
-//        if (!CombatCommon.canPerformNormalAttackLogic(mobPatch)) {
-//            return;
-//        }
-
         if (!alex.isAlive() || serverLevel.getGameTime() < alex.getPersistentData().getLong(KEY_ALEX_COOLDOWN_UNTIL)) {
             return;
         }
@@ -112,7 +110,7 @@ public final class HookGunCombatUtil {
             return;
         }
 
-        if (isHookSessionActive(alex) || HookGunItem.hasActiveHook(alex.level(), alex)) {
+        if (isHookSessionActive(alex) || HookGunItem.hasActiveHook(alex.level(), alex) || RigAnimationController.hasActiveProfileAttack(alex)) {
             return;
         }
 
@@ -525,8 +523,8 @@ public final class HookGunCombatUtil {
             rightTarget = () -> Vec3.atCenterOf(support.relative(Direction.Plane.HORIZONTAL.getRandomDirection(alex.getRandom())));
         }
 
-        return shootDualHook(alex, leftBound, leftTarget, rightBound, rightTarget,
-                GRAPPLE_RETRIEVE_DELAY_TICKS, GRAPPLE_RESTORE_DELAY_TICKS);
+        return shootDualHook(alex, leftBound, leftTarget, rightBound, rightTarget
+        );
     }
 
     private static boolean performAlexFlintHook(AlexEntity alex, LivingEntity target) {
@@ -799,7 +797,8 @@ public final class HookGunCombatUtil {
         if (boundItem.isEmpty()
                 || shooter.level().isClientSide
                 || isHookSessionActive(shooter)
-                || HookGunItem.hasActiveHook(shooter.level(), shooter)) {
+                || HookGunItem.hasActiveHook(shooter.level(), shooter)
+                || hasActiveRigProfileAttack(shooter)) {
             return false;
         }
 
@@ -833,6 +832,7 @@ public final class HookGunCombatUtil {
                 aimAt(shooter, target);
                 ItemStack currentBound = HookGunItem.getBoundItem(hookGun);
                 HookGunItem.launchHookAt(shooter.level(), shooter, target, false, hand == InteractionHand.MAIN_HAND, currentBound);
+                releaseHookRigAttackLock(shooter);
                 shooter.level().playSound(null, shooter.getX(), shooter.getY(), shooter.getZ(),
                         SoundEvents.ARROW_SHOOT, SoundSource.HOSTILE, 0.9F, 1.35F);
             }
@@ -847,15 +847,14 @@ public final class HookGunCombatUtil {
             ItemStack leftBoundItem,
             Supplier<Vec3> leftTargetSupplier,
             ItemStack rightBoundItem,
-            Supplier<Vec3> rightTargetSupplier,
-            int retrieveDelayTicks,
-            int restoreDelayTicks
+            Supplier<Vec3> rightTargetSupplier
     ) {
         if (leftBoundItem.isEmpty()
                 || rightBoundItem.isEmpty()
                 || shooter.level().isClientSide
                 || isHookSessionActive(shooter)
-                || HookGunItem.hasActiveHook(shooter.level(), shooter)) {
+                || HookGunItem.hasActiveHook(shooter.level(), shooter)
+                || hasActiveRigProfileAttack(shooter)) {
             return false;
         }
 
@@ -894,6 +893,7 @@ public final class HookGunCombatUtil {
                 aimAt(shooter, rightTarget);
                 HookGunItem.launchHookAt(shooter.level(), shooter, leftTarget, true, false, HookGunItem.getBoundItem(leftHookGun));
                 HookGunItem.launchHookAt(shooter.level(), shooter, rightTarget, true, true, HookGunItem.getBoundItem(rightHookGun));
+                releaseHookRigAttackLock(shooter);
                 shooter.level().playSound(null, shooter.getX(), shooter.getY(), shooter.getZ(),
                         SoundEvents.ARROW_SHOOT, SoundSource.HOSTILE, 1.0F, 1.25F);
             }
@@ -984,6 +984,7 @@ public final class HookGunCombatUtil {
             if (entity instanceof Mob mob) {
                 mob.getNavigation().stop();
             }
+            acquireHookRigAttackLock(entity);
             if (saveMainHand) {
                 data.putBoolean(KEY_SAVED_MAINHAND, true);
                 saveHand(entity, InteractionHand.MAIN_HAND, KEY_ORIGINAL_MAINHAND);
@@ -1025,6 +1026,7 @@ public final class HookGunCombatUtil {
     private static void restoreHookSession(LivingEntity entity) {
         CompoundTag data = entity.getPersistentData();
         if (!data.getBoolean(KEY_SESSION_ACTIVE)) {
+            releaseHookRigAttackLock(entity);
             return;
         }
 
@@ -1047,6 +1049,26 @@ public final class HookGunCombatUtil {
         data.remove(KEY_ORIGINAL_OFFHAND);
         data.remove(KEY_SAVED_MAINHAND);
         data.remove(KEY_SAVED_OFFHAND);
+        releaseHookRigAttackLock(entity);
+    }
+
+    private static boolean hasActiveRigProfileAttack(LivingEntity entity) {
+        return entity instanceof Mob mob && entity instanceof LockableRigAttackAnimation && RigAnimationController.hasActiveProfileAttack(mob);
+    }
+
+    private static void acquireHookRigAttackLock(LivingEntity entity) {
+        if (!(entity instanceof LockableRigAttackAnimation lockable)) return;
+        CompoundTag data = entity.getPersistentData();
+        if (data.getBoolean(KEY_RIG_ATTACK_LOCKED)) return;
+        lockable.lock();
+        data.putBoolean(KEY_RIG_ATTACK_LOCKED, true);
+    }
+
+    private static void releaseHookRigAttackLock(LivingEntity entity) {
+        CompoundTag data = entity.getPersistentData();
+        if (!data.getBoolean(KEY_RIG_ATTACK_LOCKED)) return;
+        if (entity instanceof LockableRigAttackAnimation lockable) lockable.unlock();
+        data.remove(KEY_RIG_ATTACK_LOCKED);
     }
 
     private static InteractionHand getHookSessionHand(LivingEntity entity) {

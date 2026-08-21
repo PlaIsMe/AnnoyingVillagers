@@ -31,6 +31,10 @@ public final class RigClientAnimationState {
         ACTIVE_ANIMATIONS.put(entityId, active);
     }
 
+    public static Map<Integer, Active> snapshot() {
+        return Map.copyOf(ACTIVE_ANIMATIONS);
+    }
+
     public static Active getActive(Entity entity, float ageInTicks) {
         Active active = ACTIVE_ANIMATIONS.get(entity.getId());
         if (active == null) {

@@ -18,6 +18,7 @@ import com.pla.annoyingvillagers.entity.goal.ThrowEnderPearlToTargetGoal;
 import com.pla.annoyingvillagers.entity.goal.UseLiquidBucketGoal;
 import com.pla.annoyingvillagers.entity.goal.WaterEnderPearlEscapeGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigBowAnimationSelector;
@@ -53,7 +54,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoiceLineEntity {
+public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoiceLineEntity, LockableRigAttackAnimation {
     private static final int PLACE_BLOCK_PARRY_COOLDOWN_TICKS = 60;
     private static final float VILLAGER_ARMOR_DROP_CHANCE = 0.12F;
     private static final float VILLAGER_WEAPON_DROP_CHANCE = 0.16F;
@@ -98,6 +99,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private boolean useBow = true;
     private Entity blockDamage = null;
     private double placeBlockToParryChance;
+    private int rigAttackAnimationLockCount;
     private int placeBlockParryCooldown = 0;
     private boolean swapBackToBow = false;;
     private int stunEscapeCooldown = 0;
@@ -373,6 +375,21 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     public void setOffWeaponItem(ItemStack offWeaponItem) {
         this.offWeaponItem = offWeaponItem;
+    }
+
+    @Override
+    public void lock() {
+        this.rigAttackAnimationLockCount++;
+    }
+
+    @Override
+    public void unlock() {
+        if (this.rigAttackAnimationLockCount > 0) this.rigAttackAnimationLockCount--;
+    }
+
+    @Override
+    public boolean isLocked() {
+        return this.rigAttackAnimationLockCount > 0;
     }
 
     public SimpleContainer getInventory() {

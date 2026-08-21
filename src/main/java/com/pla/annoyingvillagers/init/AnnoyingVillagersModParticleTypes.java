@@ -11,14 +11,8 @@ import net.minecraftforge.registries.RegistryObject;
 public class AnnoyingVillagersModParticleTypes {
 
     public static final DeferredRegister<ParticleType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, AnnoyingVillagers.MODID);
-    public static final RegistryObject<SimpleParticleType> RED_SPARK =
-            REGISTRY.register("red_spark", () -> new SimpleParticleType(true));
-    public static final RegistryObject<SimpleParticleType> DRAGON_SPARK =
-            REGISTRY.register("dragon_spark", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> ELECTRIC_SPARK =
             REGISTRY.register("electric_spark", () -> new SimpleParticleType(true));
-    public static final RegistryObject<SimpleParticleType> ELECTRIC_SPARK_2 =
-            REGISTRY.register("electric_spark_2", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> SPARK =
             REGISTRY.register("spark", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> PE =
@@ -27,10 +21,6 @@ public class AnnoyingVillagersModParticleTypes {
             REGISTRY.register("glowing_eyes", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> LIGHT =
             REGISTRY.register("light", () -> new SimpleParticleType(true));
-    public static final RegistryObject<SimpleParticleType> BLUESPARK =
-            REGISTRY.register("blue_spark", () -> new SimpleParticleType(true));
-    public static final RegistryObject<SimpleParticleType> GREENSPARK =
-            REGISTRY.register("green_spark", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> ENDER =
             REGISTRY.register("ender", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> NULL =
@@ -41,14 +31,8 @@ public class AnnoyingVillagersModParticleTypes {
             REGISTRY.register("meteorite_trail", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> BIG_SPLASH =
             REGISTRY.register("big_splash", () -> new SimpleParticleType(true));
-    public static final RegistryObject<SimpleParticleType> FIREBALL =
-        REGISTRY.register("fireball", () -> new SimpleParticleType(true));
-    public static final RegistryObject<SimpleParticleType> ELECTRIC_LITE =
-            REGISTRY.register("electric_lite", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> GROUND_SLAM =
             REGISTRY.register("ground_slam", () -> new SimpleParticleType(true));
     public static final RegistryObject<HitParticleType> HIT_BLUNT =
             REGISTRY.register("hit_blunt", () -> new HitParticleType(true, HitParticleType.RANDOM_WITHIN_BOUNDING_BOX, HitParticleType.ZERO));
-    public static final RegistryObject<HitParticleType> BLADE_RUSH =
-            REGISTRY.register("blade_rush", () -> new HitParticleType(true, HitParticleType.RANDOM_WITHIN_BOUNDING_BOX, HitParticleType.ZERO));
 }

@@ -54,6 +54,7 @@ public class WaterEnderPearlEscapeGoal extends Goal {
                 || this.mob.isPassenger()
                 || !this.mob.isInWater()
                 || !this.canUsePearl()
+                || RigAnimationController.hasActiveProfileAttack(this.mob)
                 || this.isEpicFightLongHitAnimation()) {
             return false;
         }
@@ -78,6 +79,7 @@ public class WaterEnderPearlEscapeGoal extends Goal {
 //        if (this.getLivingEntityPatch() != null) {
 //            this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
 //        }
+        RigAnimationController.lockProfileAttacksFor(this.mob, RigAnimationId.THROW_ENDER_PEARL);
         RigAnimationController.play(this.mob, RigAnimationId.THROW_ENDER_PEARL);
     }
 

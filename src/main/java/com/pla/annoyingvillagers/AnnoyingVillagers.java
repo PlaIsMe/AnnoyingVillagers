@@ -103,12 +103,6 @@ public class AnnoyingVillagers {
         @SubscribeEvent
         public static void init(FMLCommonSetupEvent fmlCommonSetupEvent) {
             AnnoyingVillagers.addNetworkMessage(
-                    ClientboundGlaiveExplosionFx.class,
-                    ClientboundGlaiveExplosionFx::encode,
-                    ClientboundGlaiveExplosionFx::decode,
-                    ClientboundGlaiveExplosionFx::handle
-            );
-            AnnoyingVillagers.addNetworkMessage(
                     ClientboundMuteExplosionAtPos.class,
                     ClientboundMuteExplosionAtPos::encode,
                     ClientboundMuteExplosionAtPos::decode,

@@ -38,6 +38,7 @@ public class RandomEnderPearlEscapeGoal extends Goal {
                 || this.avNpc.isNoAi()
                 || this.avNpc.isPassenger()
                 || this.avNpc.isHealing()
+                || RigAnimationController.hasActiveProfileAttack(this.avNpc)
                 || this.avNpc.isInWater()
                 || this.avNpc.getEnderPearlCooldown() > 0
                 || !InventoryUtils.hasItem(this.avNpc, Items.ENDER_PEARL)) {
@@ -78,6 +79,7 @@ public class RandomEnderPearlEscapeGoal extends Goal {
 
         this.avNpc.getNavigation().stop();
         this.avNpc.getLookControl().setLookAt(this.pearlTarget.x, this.pearlTarget.y, this.pearlTarget.z, 60.0F, 60.0F);
+        RigAnimationController.lockProfileAttacksFor(this.avNpc, RigAnimationId.THROW_ENDER_PEARL);
         RigAnimationController.play(this.avNpc, RigAnimationId.THROW_ENDER_PEARL);
         if (CombatBehaviour.throwEnderPearlAt(this.avNpc, this.pearlTarget)) {
             this.avNpc.setEnderPearlCooldown();

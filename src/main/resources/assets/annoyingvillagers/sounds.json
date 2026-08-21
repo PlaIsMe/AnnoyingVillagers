@@ -154,15 +154,15 @@
   "ob_place": {
     "sounds": [
       {
-        "name": "annoyingvillagers:metal1",
+        "name": "annoyingvillagers:ob_place1",
         "stream": false
       },
       {
-        "name": "annoyingvillagers:metal2",
+        "name": "annoyingvillagers:ob_place2",
         "stream": false
       },
       {
-        "name": "annoyingvillagers:metal3",
+        "name": "annoyingvillagers:ob_place3",
         "stream": false
       }
     ]
@@ -179,38 +179,6 @@
       },
       {
         "name": "annoyingvillagers:metal_hit_3",
-        "stream": false
-      }
-    ]
-  },
-  "target_block_hit": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:target_block_hit_1",
-        "stream": false
-      },
-      {
-        "name": "annoyingvillagers:target_block_hit_2",
-        "stream": false
-      },
-      {
-        "name": "annoyingvillagers:target_block_hit_3",
-        "stream": false
-      },
-      {
-        "name": "annoyingvillagers:target_block_hit_4",
-        "stream": false
-      },
-      {
-        "name": "annoyingvillagers:target_block_hit_5",
-        "stream": false
-      },
-      {
-        "name": "annoyingvillagers:target_block_hit_6",
-        "stream": false
-      },
-      {
-        "name": "annoyingvillagers:target_block_hit_7",
         "stream": false
       }
     ]
@@ -351,14 +319,6 @@
       }
     ]
   },
-  "lost": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:lost",
-        "stream": false
-      }
-    ]
-  },
   "silent": {
     "sounds": [
       {
@@ -370,7 +330,7 @@
   "obsidian_place": {
     "sounds": [
       {
-        "name": "annoyingvillagers:block_place",
+        "name": "annoyingvillagers:obsidian_place",
         "stream": false
       }
     ]
@@ -394,15 +354,7 @@
   "heavy_hit": {
     "sounds": [
       {
-        "name": "annoyingvillagers:break",
-        "stream": false
-      }
-    ]
-  },
-  "cooldown": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:roll_cooldown_ready",
+        "name": "annoyingvillagers:heavy_hit",
         "stream": false
       }
     ]
@@ -418,39 +370,7 @@
   "ender_shot": {
     "sounds": [
       {
-        "name": "annoyingvillagers:laser_blast",
-        "stream": false
-      }
-    ]
-  },
-  "bloom": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:neutralize_mobs",
-        "stream": false
-      }
-    ]
-  },
-  "dragon_breath": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:dragon_breath",
-        "stream": false
-      }
-    ]
-  },
-  "big_boom": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:neutralize_bosses",
-        "stream": false
-      }
-    ]
-  },
-  "dragon_breath_finale": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:dragon_breath_finale",
+        "name": "annoyingvillagers:ender_shot",
         "stream": false
       }
     ]
@@ -1174,6 +1094,14 @@
     "sounds": [
       {
         "name": "annoyingvillagers:entity/skill/roll"
+      }
+    ]
+  },
+  "beam_breath": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:beam_breath",
+        "stream": false
       }
     ]
   }
