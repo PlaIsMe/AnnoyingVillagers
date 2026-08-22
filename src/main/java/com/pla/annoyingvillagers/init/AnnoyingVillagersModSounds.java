@@ -58,7 +58,9 @@ public class AnnoyingVillagersModSounds {
     public static final RegistryObject<SoundEvent> CLASH = register("clash");
     public static final RegistryObject<SoundEvent> SWORD_WHOOSH = register("sword_whoosh");
     public static final RegistryObject<SoundEvent> WHOOSH_SHARP = register("whoosh_sharp");
+    public static final RegistryObject<SoundEvent> WHOOSH = register("whoosh");
     public static final RegistryObject<SoundEvent> BLADE_HIT = register("blade_hit");
+    public static final RegistryObject<SoundEvent> BLUNT_HIT = register("blunt_hit");
     public static final RegistryObject<SoundEvent> ROLL = register("roll");
     public static final RegistryObject<SoundEvent> HEAVY_ATTACK_LEGENDARY_SWORD = register("heavy_attack_legendary_sword");
     public static final RegistryObject<SoundEvent> HEAVY_ATTACK_LEGENDARY_SWORD_2 = register("heavy_attack_legendary_sword_2");

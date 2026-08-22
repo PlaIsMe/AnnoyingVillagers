@@ -189,11 +189,13 @@ public final class RigAnimationController {
 
     private static void scheduleAttackSwingSounds(Mob mob, RigAnimationSpec spec) {
         RigAttackWindow[] attackWindows = spec.attackWindows();
-        SoundEvent sound = attackWindows.length > 1 ? AnnoyingVillagersModSounds.WHOOSH_SHARP.get() : AnnoyingVillagersModSounds.SWORD_WHOOSH.get();
+        SoundEvent sound = getAttackSwingSound(spec.animationId(), attackWindows.length);
+
         if (attackWindows.length == 0) {
             playSound(mob, sound, 0.9F, randomPitch(mob, 0.95F, 0.1F));
             return;
         }
+
         for (RigAttackWindow attackWindow : attackWindows) {
             new DelayedTask(attackWindow.startTickInclusive()) {
                 @Override
@@ -204,6 +206,32 @@ public final class RigAnimationController {
         }
     }
 
+    private static SoundEvent getAttackSwingSound(RigAnimationId animationId, int attackWindowCount) {
+        if (usesUnarmedSound(animationId)) return AnnoyingVillagersModSounds.WHOOSH.get();
+        return attackWindowCount > 1 ? AnnoyingVillagersModSounds.WHOOSH_SHARP.get() : AnnoyingVillagersModSounds.SWORD_WHOOSH.get();
+    }
+
+    private static boolean usesUnarmedSound(RigAnimationId animationId) {
+        return switch (animationId) {
+            case FIST_ATTACK1,
+                 FIST_ATTACK2,
+                 FIST_ATTACK3,
+                 FIST_ATTACK4,
+                 FIST_ATTACK5,
+                 FIST_DASH_ATTACK,
+                 FIST_JUMP_ATTACK,
+                 FIST_ULT,
+                 FIST_EXTRA_ATTACK,
+                 KICK_ATTACK1,
+                 KICK_ATTACK2,
+                 KICK_ATTACK3,
+                 KICK_ATTACK4,
+                 KICK_COMBO_ATTACK,
+                 KICK_DASH_ATTACK -> true;
+            default -> false;
+        };
+    }
+
     private static void playStepSound(Mob mob) {
         BlockPos onPos = mob.getOnPos();
         BlockState state = mob.level().getBlockState(onPos);
@@ -211,8 +239,9 @@ public final class RigAnimationController {
         playSound(mob, soundType.getHitSound(), soundType.getVolume() * 0.35F, soundType.getPitch());
     }
 
-    private static void playHitSound(LivingEntity target) {
-        playSound(target, AnnoyingVillagersModSounds.BLADE_HIT.get(), 0.9F, randomPitch(target, 0.95F, 0.1F));
+    private static void playHitSound(LivingEntity target, RigAnimationId animationId) {
+        SoundEvent sound = usesUnarmedSound(animationId) ? AnnoyingVillagersModSounds.BLUNT_HIT.get() : AnnoyingVillagersModSounds.BLADE_HIT.get();
+        playSound(target, sound, 0.9F, randomPitch(target, 0.95F, 0.1F));
     }
 
     private static float randomPitch(Entity entity, float basePitch, float variance) {
@@ -239,7 +268,7 @@ public final class RigAnimationController {
                     if (!isCurrentAnimation(mob, state) || !mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return;
                     for (LivingEntity target : RigColliderSystem.findHits(mob, state.spec(), attackWindow, sampleTick)) {
                         if (!canDamageTarget(mob, target) || !hitEntities.add(target.getUUID())) continue;
-                        if (hurtTarget(mob, target, forceDamageThroughHurtCooldown)) playHitSound(target);
+                        if (hurtTarget(mob, target, forceDamageThroughHurtCooldown)) playHitSound(target, state.spec().animationId());
                     }
                 }
             };

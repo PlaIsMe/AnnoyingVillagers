@@ -2,18 +2,6 @@
   "sword_whoosh": {
     "sounds": [
       {
-        "name": "annoyingvillagers:entity/weapon/whoosh",
-        "stream": true
-      },
-      {
-        "name": "annoyingvillagers:entity/weapon/whoosh1",
-        "stream": true
-      },
-      {
-        "name": "annoyingvillagers:entity/weapon/whoosh2",
-        "stream": true
-      },
-      {
         "name": "annoyingvillagers:entity/weapon/sword_swing1",
         "stream": true
       },
@@ -99,6 +87,58 @@
       }
     ]
   },
+  "whoosh": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh1",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh2",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh3",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh4",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh5",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh6",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh7",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh8",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh9",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh10",
+        "stream": false
+      },
+      {
+        "name": "annoyingvillagers:entity/weapon/whoosh11",
+        "stream": false
+      }
+    ]
+  },
   "blade_hit": {
     "sounds": [
       {
@@ -115,6 +155,26 @@
       },
       {
         "name": "annoyingvillagers:entity/hit/blade_hit4",
+        "stream": true
+      }
+    ]
+  },
+  "blunt_hit": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:entity/hit/blunt_hit1",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/blunt_hit2",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/blunt_hit3",
+        "stream": true
+      },
+      {
+        "name": "annoyingvillagers:entity/hit/blunt_hit_hard",
         "stream": true
       }
     ]

@@ -116,17 +116,4 @@ public class AnimationUtil {
 
         return LivingAnimations.IDLE;
     }
-
-    public static void moreSweepingEdgeLogic(Mob mob) {
-        if (mob instanceof AlexEntity alexEntity && alexEntity.level() instanceof ServerLevel serverLevel) {
-            ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, alexEntity);
-        }
-    }
-
-    public static void moreDancingEdgeLogic(Mob mob) {
-        if (mob instanceof AlexEntity alexEntity && alexEntity.level() instanceof ServerLevel serverLevel) {
-            ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, alexEntity);
-            ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, alexEntity, true);
-        }
-    }
 }
