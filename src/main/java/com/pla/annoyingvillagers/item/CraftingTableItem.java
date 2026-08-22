@@ -48,6 +48,6 @@ public class CraftingTableItem extends SwordItem implements RigCombatProfileProv
 
     @Override
     public RigCombatStyle getRigCombatStyle(ItemStack stack) {
-        return RigCombatStyle.GREATSWORD;
+        return RigCombatStyle.CRAFTING_TABLE;
     }
 }

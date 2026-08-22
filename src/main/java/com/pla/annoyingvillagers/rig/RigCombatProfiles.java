@@ -209,44 +209,46 @@ public final class RigCombatProfiles {
                 0.0D,
                 RigLocomotionStyle.CRAFTING_TABLE
         ));
+
+        PROFILES.put(RigCombatStyle.LONGSWORD, new RigCombatProfile(
+                List.of(RigAnimationId.LONGSWORD_ATTACK1, RigAnimationId.LONGSWORD_ATTACK2, RigAnimationId.LONGSWORD_ATTACK3,
+                        RigAnimationId.LONGSWORD_ATTACK4, RigAnimationId.LONGSWORD_ATTACK5),
+                List.of(RigAnimationId.LONGSWORD_DASH_ATTACK, RigAnimationId.LONGSWORD_JUMP_ATTACK, RigAnimationId.LONGSWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.LONGSWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.DUAL_LONGSWORD, new RigCombatProfile(
+                List.of(RigAnimationId.DUAL_LONGSWORD_ATTACK1, RigAnimationId.DUAL_LONGSWORD_ATTACK2, RigAnimationId.DUAL_LONGSWORD_ATTACK3,
+                        RigAnimationId.DUAL_LONGSWORD_ATTACK4, RigAnimationId.DUAL_LONGSWORD_ATTACK5),
+                List.of(RigAnimationId.DUAL_LONGSWORD_DASH_ATTACK, RigAnimationId.DUAL_LONGSWORD_JUMP_ATTACK, RigAnimationId.DUAL_LONGSWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.DUAL_LONGSWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
     }
 
-
-//    private static final RigCombatProfile LONGSWORD = new RigCombatProfile(
-//            List.of(RigAnimationId.LONGSWORD_ATTACK1, RigAnimationId.LONGSWORD_ATTACK2, RigAnimationId.LONGSWORD_ATTACK3,
-//                    RigAnimationId.LONGSWORD_ATTACK4, RigAnimationId.LONGSWORD_ATTACK5),
-//            List.of(RigAnimationId.LONGSWORD_DASH_ATTACK, RigAnimationId.LONGSWORD_JUMP_ATTACK, RigAnimationId.LONGSWORD_EXTRA_ATTACK),
-//            List.of(
-//                    RigAnimationId.ROLL_FORWARD,
-//                    RigAnimationId.ROLL_BACKWARD,
-//                    RigAnimationId.STEP_FORWARD,
-//                    RigAnimationId.STEP_BACKWARD,
-//                    RigAnimationId.STEP_LEFT,
-//                    RigAnimationId.STEP_RIGHT
-//            ),
-//            List.of(RigAnimationId.LONGSWORD_ULT),
-//            0.18D,
-//            0.06D,
-//            0.0D
-//    );
-//
-//    private static final RigCombatProfile DUAL_LONGSWORD = new RigCombatProfile(
-//            List.of(RigAnimationId.DUAL_LONGSWORD_ATTACK1, RigAnimationId.DUAL_LONGSWORD_ATTACK2, RigAnimationId.DUAL_LONGSWORD_ATTACK3,
-//                    RigAnimationId.DUAL_LONGSWORD_ATTACK4, RigAnimationId.DUAL_LONGSWORD_ATTACK5),
-//            List.of(RigAnimationId.DUAL_LONGSWORD_DASH_ATTACK, RigAnimationId.DUAL_LONGSWORD_JUMP_ATTACK, RigAnimationId.DUAL_LONGSWORD_EXTRA_ATTACK),
-//            List.of(
-//                    RigAnimationId.ROLL_FORWARD,
-//                    RigAnimationId.ROLL_BACKWARD,
-//                    RigAnimationId.STEP_FORWARD,
-//                    RigAnimationId.STEP_BACKWARD,
-//                    RigAnimationId.STEP_LEFT,
-//                    RigAnimationId.STEP_RIGHT
-//            ),
-//            List.of(RigAnimationId.DUAL_LONGSWORD_ULT),
-//            0.18D,
-//            0.06D,
-//            0.0D
-//    );
 //
 //    private static final RigCombatProfile SWORD = new RigCombatProfile(
 //            List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,

@@ -42,6 +42,7 @@ public final class RigAnimationSpecs {
     private static final RigCollider RIGHT_SLEDGEHAMMER = RigCollider.of(RIGHT_TOOL, SLEDGEHAMMER);
     private static final RigCollider LEFT_SLEDGEHAMMER = RigCollider.of(LEFT_TOOL, SLEDGEHAMMER);
     private static final RigCollider RIGHT_FOOT = RigCollider.of(RIGHT_LOWER_LEG, FOOT);
+    private static final RigCollider RIGHT_KNEE = RigCollider.of(RIGHT_LEG, FOOT);
     private static final RigCollider LEFT_FOOT = RigCollider.of(LEFT_LOWER_LEG, FOOT);
 
     static {
@@ -232,50 +233,51 @@ public final class RigAnimationSpecs {
                 groundSlamHook(28, RigAnimationId.GREATAXE_ULT, 1.4D, 1.0D, 50, 1.0D, 3.5D),
                 RigAttackWindow.of(20, 28, RIGHT_GREATSWORD)));
 
-        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK1, 33, false,
-                RigAttackWindow.of(10, 13, RIGHT_LONGSWORD, LEFT_LONGSWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK2, 47, false,
-                RigAttackWindow.of(10, 13, RIGHT_LONGSWORD),
-                RigAttackWindow.of(14, 16, LEFT_LONGSWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK3, 37, false,
-                RigAttackWindow.of(13, 14, RIGHT_LONGSWORD),
-                RigAttackWindow.of(14, 16, LEFT_LONGSWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK4, 31, false,
-                RigAttackWindow.of(14, 16, RIGHT_LONGSWORD),
-                RigAttackWindow.of(14, 16, LEFT_LONGSWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK5, 42, false,
-                RigAttackWindow.of(14, 16, RIGHT_LONGSWORD),
-                RigAttackWindow.of(14, 16, LEFT_LONGSWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_DASH_ATTACK, 42, false,
-                RigAttackWindow.of(14, 16, RIGHT_LONGSWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_JUMP_ATTACK, 37, false,
-                RigAttackWindow.of(2, 4, RIGHT_LONGSWORD, LEFT_LONGSWORD),
-                RigAttackWindow.of(9, 11, RIGHT_LONGSWORD, LEFT_LONGSWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_EXTRA_ATTACK, 36, false,
-                RigAttackWindow.of(10, 14, RIGHT_LONGSWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ULT, 35, false,
-                emptyHooks(5),
-                RigAttackWindow.of(5, 7, RIGHT_LONGSWORD, LEFT_LONGSWORD)));
-
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_ATTACK1, 28, false,
-                RigAttackWindow.of(5, 8, RIGHT_LONGSWORD)));
+                RigAttackWindow.of(5, 12, RIGHT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_ATTACK2, 31, false,
-                RigAttackWindow.of(3, 7, RIGHT_LONGSWORD)));
+                RigAttackWindow.of(3, 12, RIGHT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_ATTACK3, 38, false,
-                RigAttackWindow.of(5, 11, RIGHT_LONGSWORD)));
+                RigAttackWindow.of(5, 12, RIGHT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_ATTACK4, 37, false,
-                RigAttackWindow.of(8, 10, RIGHT_LONGSWORD)));
+                RigAttackWindow.of(8, 18, RIGHT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_ATTACK5, 33, false,
-                RigAttackWindow.of(6, 8, RIGHT_LONGSWORD)));
+                RigAttackWindow.of(6, 15, RIGHT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_DASH_ATTACK, 43, false,
-                RigAttackWindow.of(12, 15, RIGHT_LONGSWORD)));
+                RigAttackWindow.of(12, 25, RIGHT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_JUMP_ATTACK, 23, true,
                 emptyHooks(2),
-                RigAttackWindow.of(2, 5, RIGHT_LONGSWORD)));
+                RigAttackWindow.of(2, 8, RIGHT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_EXTRA_ATTACK, 28, false,
-                RigAttackWindow.of(3, 7, RIGHT_LONGSWORD)));
+                RigAttackWindow.of(5, 9, RIGHT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_ULT, 32, false,
-                RigAttackWindow.of(7, 10, RIGHT_LONGSWORD)));
+                RigAttackWindow.of(7, 15, RIGHT_LONGSWORD)));
+
+        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK1, 33, false,
+                RigAttackWindow.of(10, 20, RIGHT_LONGSWORD, LEFT_LONGSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK2, 47, false,
+                RigAttackWindow.of(12, 20, RIGHT_LONGSWORD),
+                RigAttackWindow.of(16, 25, LEFT_LONGSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK3, 37, false,
+                RigAttackWindow.of(13, 20, RIGHT_LONGSWORD),
+                RigAttackWindow.of(14, 20, LEFT_LONGSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK4, 31, false,
+                RigAttackWindow.of(14, 20, RIGHT_LONGSWORD),
+                RigAttackWindow.of(14, 20, LEFT_LONGSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK5, 42, false,
+                RigAttackWindow.of(14, 20, RIGHT_LONGSWORD),
+                RigAttackWindow.of(14, 20, LEFT_LONGSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_DASH_ATTACK, 42, false,
+                RigAttackWindow.of(14, 24, RIGHT_KNEE)));
+        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_JUMP_ATTACK, 37, false,
+                RigAttackWindow.of(2, 4, RIGHT_LONGSWORD, LEFT_LONGSWORD),
+                RigAttackWindow.of(9, 20, RIGHT_LONGSWORD, LEFT_LONGSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_EXTRA_ATTACK, 36, false,
+                RigAttackWindow.of(10, 20, RIGHT_LONGSWORD),
+                RigAttackWindow.of(10, 20, LEFT_LONGSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ULT, 35, false,
+                emptyHooks(5),
+                RigAttackWindow.of(5, 15, RIGHT_LONGSWORD, LEFT_LONGSWORD)));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.SPEAR_IDLE, 60));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.SPEAR_WALK, 13));

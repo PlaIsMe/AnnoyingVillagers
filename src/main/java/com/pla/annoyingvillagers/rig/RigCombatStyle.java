@@ -14,11 +14,9 @@ public enum RigCombatStyle {
     GREATAXE,
     CRAFTING_TABLE,
 
-    SWORD,
-    DUAL_SWORD,
-
-
-
     LONGSWORD,
-    DUAL_LONGSWORD
+    DUAL_LONGSWORD,
+
+    SWORD,
+    DUAL_SWORD
 }
