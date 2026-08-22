@@ -1,10 +1,12 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class IronDoubleBladedHalberdItem extends SwordItem {
+public class IronDoubleBladedHalberdItem extends SwordItem implements RigCombatProfileProvider {
 
     public IronDoubleBladedHalberdItem() {
         super(new Tier() {
@@ -32,5 +34,10 @@ public class IronDoubleBladedHalberdItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.IRON_INGOT));
             }
         }, 3, -2.4F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.HALBERD;
     }
 }

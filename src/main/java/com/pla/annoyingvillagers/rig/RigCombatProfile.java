@@ -13,7 +13,8 @@ public record RigCombatProfile(
         List<RigAnimationId> ultimateAttacks,
         double specialAttackChance,
         double rollingChance,
-        double ultimateAttackChance
+        double ultimateAttackChance,
+        RigLocomotionStyle locomotionStyle
 ) {
     public RigCombatProfile {
         normalAttacks = List.copyOf(normalAttacks);

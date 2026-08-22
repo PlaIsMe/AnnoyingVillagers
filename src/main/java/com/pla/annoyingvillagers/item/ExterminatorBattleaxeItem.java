@@ -1,10 +1,13 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
+import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class ExterminatorBattleaxeItem extends SwordItem {
+public class ExterminatorBattleaxeItem extends SwordItem implements RigCombatProfileProvider {
 
     public ExterminatorBattleaxeItem() {
         super(new Tier() {
@@ -32,5 +35,20 @@ public class ExterminatorBattleaxeItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.DIAMOND));
             }
         }, 3, -3.0F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.SWORD;
+    }
+
+    @Override
+    public RigDualWieldGroup getDualWieldGroup(ItemStack stack) {
+        return RigDualWieldGroup.AXE;
+    }
+
+    @Override
+    public RigCombatStyle getDualRigCombatStyle(ItemStack self, ItemStack other) {
+        return RigCombatStyle.DUAL_AXE;
     }
 }

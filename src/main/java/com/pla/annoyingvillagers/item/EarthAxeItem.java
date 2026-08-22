@@ -1,7 +1,8 @@
 package com.pla.annoyingvillagers.item;
 
-import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.FloatingLookBlockEntity;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.*;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class EarthAxeItem extends SwordItem {
+public class EarthAxeItem extends SwordItem implements RigCombatProfileProvider {
     private static final int WALL_WIDTH = 5;
     private static final int WALL_HEIGHT = 4;
     private static final int WALL_DISTANCE = 2;
@@ -320,5 +321,10 @@ public class EarthAxeItem extends SwordItem {
         }
 
         return blockEntity.saveWithFullMetadata();
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.EARTH_AXE;
     }
 }

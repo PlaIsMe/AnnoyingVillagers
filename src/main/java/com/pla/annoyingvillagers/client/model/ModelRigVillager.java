@@ -236,20 +236,24 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
         return transitionPose;
     }
 
-    private void applyBlendedRigAnimation(T entity, float limbSwingAmount, float ageInTicks, RigClientAnimationState.Active active, float activeWeight, TransitionPose transitionPose, boolean forceWalkBase) {
-        Map<ModelPart, ModelPartPose> baselinePose = this.capturePose();
+    private void applyBlendedRigAnimation(T entity, float limbSwingAmount, float ageInTicks, RigClientAnimationState.Active active, float activeWeight, ModelRigVillager.TransitionPose transitionPose, boolean forceWalkBase) {
+        Map<ModelPart, ModelRigVillager.ModelPartPose> baselinePose = this.capturePose();
+        RigAnimationPlaybackType playbackType = RigAnimationSpecs.get(active.animationId()).playbackType();
+        if (playbackType == RigAnimationPlaybackType.DEFAULT && !forceWalkBase) {
+            this.applyLoopingAnimation(AnimationUtil.getIdleAnimation(entity), ageInTicks, 1.0F, 1.0F);
+        } else {
+            this.applyBaseRigAnimation(entity, limbSwingAmount, ageInTicks, 1.0F, forceWalkBase);
+        }
 
-        this.applyBaseRigAnimation(entity, limbSwingAmount, ageInTicks, 1.0F, forceWalkBase);
-        Map<ModelPart, ModelPartPose> basePose = this.capturePose();
-
+        Map<ModelPart, ModelRigVillager.ModelPartPose> basePose = this.capturePose();
         this.restorePose(baselinePose);
-        if (active.animationId().isAttack()) this.head.getAllParts().forEach(ModelPart::resetPose);
         this.applyActiveRigAnimation(active, ageInTicks, 1.0F);
-        Map<ModelPart, ModelPartPose> activePose = this.capturePose();
 
+        Map<ModelPart, ModelRigVillager.ModelPartPose> activePose = this.capturePose();
         this.restorePose(basePose);
-        this.blendPose(basePose, activePose, activeWeight, transitionPose, RigAnimationSpecs.get(active.animationId()).playbackType());
+        this.blendPose(basePose, activePose, activeWeight, transitionPose, playbackType);
     }
+
 
     private void applyBaseRigAnimation(T entity, float limbSwingAmount, float ageInTicks, float weight) {
         this.applyBaseRigAnimation(entity, limbSwingAmount, ageInTicks, weight, false);
@@ -391,15 +395,9 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
     }
 
     private void compensateServerMotion(RigClientAnimationState.Active active, float activeWeight, float ageInTicks) {
-        if (active == null || activeWeight <= 0.0F) {
-            return;
-        }
-
+        if (active == null || activeWeight <= 0.0F) return;
         Vec3 offset = RigPoseLibrary.modelMotion(active.animationId(), active.sampleTicks(ageInTicks));
-        if (offset.lengthSqr() < 1.0E-8D) {
-            return;
-        }
-
+        if (offset.lengthSqr() < 1.0E-8D) return;
         float x = (float) (-offset.x * activeWeight);
         float z = (float) (-offset.z * activeWeight);
         translateTopLevelPart(this.head, x, z);

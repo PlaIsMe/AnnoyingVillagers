@@ -1,9 +1,13 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.client.animation.rig_animation.greatsword.GreatswordAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.LivingAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.RunAnimations;
+import com.pla.annoyingvillagers.client.animation.rig_animation.spear.SpearAnimations1;
 import com.pla.annoyingvillagers.entity.AlexEntity;
 import com.pla.annoyingvillagers.entity.ElectricPhaseEntity;
+import com.pla.annoyingvillagers.rig.RigCombatProfiles;
+import com.pla.annoyingvillagers.rig.RigLocomotionStyle;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
@@ -34,50 +38,80 @@ public class AnimationUtil {
     }
 
     public static boolean isMovingHorizontally(Mob mob) {
-        Vec3 motion = mob.getDeltaMovement();
+        Vec3 movement = mob.getDeltaMovement();
+        return movement.x * movement.x + movement.z * movement.z > 0.0004D;
+    }
 
-        double velocitySpeed = Math.sqrt(
-                motion.x * motion.x +
-                        motion.z * motion.z
-        );
+    private static AnimationDefinition getCustomIdleAnimation(RigLocomotionStyle style) {
+        return switch (style) {
+            case SPEAR -> SpearAnimations1.SPEAR_IDLE;
+            case GREATSWORD -> GreatswordAnimations1.GREATSWORD_IDLE;
+            default -> LivingAnimations.IDLE;
+        };
+    }
 
-        double tickX = mob.getX() - mob.xo;
-        double tickZ = mob.getZ() - mob.zo;
+    private static AnimationDefinition getCustomWalkAnimation(RigLocomotionStyle style) {
+        return switch (style) {
+            case SPEAR -> SpearAnimations1.SPEAR_WALK;
+            case GREATSWORD -> GreatswordAnimations1.GREATSWORD_WALK;
+            default -> LivingAnimations.WALK;
+        };
+    }
 
-        double positionSpeed = Math.sqrt(
-                tickX * tickX +
-                        tickZ * tickZ
-        );
-
-        return Math.max(velocitySpeed, positionSpeed)
-                > MIN_HORIZONTAL_MOVEMENT_SPEED;
+    private static AnimationDefinition getCustomRunAnimation(RigLocomotionStyle style) {
+        return switch (style) {
+            case DEFAULT -> RunAnimations.RUN_HOLDING_WEAPON;
+            case SPEAR -> SpearAnimations1.SPEAR_RUN;
+            case GREATSWORD -> GreatswordAnimations1.GREATSWORD_RUN;
+            default -> RunAnimations.RUN;
+        };
     }
 
     public static AnimationDefinition getRunAnimation(Mob mob) {
-        ItemStack holdingItem = mob.getMainHandItem();
-        ItemStack offHandItem = mob.getOffhandItem();
-
-        if (holdingItem.getItem() instanceof SwordItem) {
-           if (offHandItem.getItem() instanceof SwordItem) {
-               return RunAnimations.RUN_HOLDING_DUAL_WEAPON;
-           } else {
-               return RunAnimations.RUN_HOLDING_WEAPON;
-           }
-        } else {
-            return RunAnimations.RUN;
+        ItemStack mainHand = mob.getMainHandItem();
+        ItemStack offHand = mob.getOffhandItem();
+        if (mainHand.getItem() instanceof SwordItem && offHand.getItem() instanceof SwordItem) {
+            return RunAnimations.RUN_HOLDING_DUAL_WEAPON;
         }
+
+        RigLocomotionStyle style = RigCombatProfiles.getLocomotionStyle(mob);
+        AnimationDefinition customRun = getCustomRunAnimation(style);
+
+        if (customRun != null) {
+            return customRun;
+        }
+
+        if (mainHand.getItem() instanceof SwordItem) {
+            return RunAnimations.RUN_HOLDING_WEAPON;
+        }
+
+        return RunAnimations.RUN;
     }
 
     public static AnimationDefinition getWalkAnimation(Mob mob) {
-        ItemStack holdingItem = mob.getMainHandItem();
-        ItemStack offHandItem = mob.getOffhandItem();
+        RigLocomotionStyle style = RigCombatProfiles.getLocomotionStyle(mob);
+        AnimationDefinition customWalk = getCustomWalkAnimation(style);
+
+        if (customWalk != null) {
+            return customWalk;
+        }
 
         return LivingAnimations.WALK;
     }
 
     public static AnimationDefinition getIdleAnimation(Mob mob) {
-        ItemStack holdingItem = mob.getMainHandItem();
-        ItemStack offHandItem = mob.getOffhandItem();
+        ItemStack mainHand = mob.getMainHandItem();
+        ItemStack offHand = mob.getOffhandItem();
+        if (mainHand.getItem() instanceof SwordItem && offHand.getItem() instanceof SwordItem) {
+            return LivingAnimations.IDLE_DUAL;
+        }
+
+        RigLocomotionStyle style = RigCombatProfiles.getLocomotionStyle(mob);
+        AnimationDefinition customIdle = getCustomIdleAnimation(style);
+
+        if (customIdle != null) {
+            return customIdle;
+        }
 
         return LivingAnimations.IDLE;
     }

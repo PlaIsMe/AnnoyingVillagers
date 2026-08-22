@@ -1,10 +1,12 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class RedAxeItem extends SwordItem {
+public class RedAxeItem extends SwordItem implements RigCombatProfileProvider {
     public RedAxeItem() {
         super(new Tier() {
             public int getUses() {
@@ -36,5 +38,10 @@ public class RedAxeItem extends SwordItem {
     @Override
     public boolean isFoil(@NotNull ItemStack pStack) {
         return true;
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.RED_AXE;
     }
 }

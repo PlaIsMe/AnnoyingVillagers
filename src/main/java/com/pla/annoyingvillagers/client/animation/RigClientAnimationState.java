@@ -21,13 +21,7 @@ public final class RigClientAnimationState {
     public static void start(int entityId, RigAnimationId animationId, int durationTicks) {
         Entity entity = Minecraft.getInstance().level == null ? null : Minecraft.getInstance().level.getEntity(entityId);
         int startTick = entity == null ? 0 : entity.tickCount;
-        Active active = new Active(
-                animationId,
-                startTick,
-                durationTicks,
-                DEFAULT_BLEND_IN_TICKS,
-                DEFAULT_BLEND_OUT_TICKS
-        );
+        Active active = new Active(animationId, startTick, durationTicks, DEFAULT_BLEND_IN_TICKS, DEFAULT_BLEND_OUT_TICKS);
         ACTIVE_ANIMATIONS.put(entityId, active);
     }
 
@@ -49,13 +43,7 @@ public final class RigClientAnimationState {
         return active;
     }
 
-    public record Active(
-            RigAnimationId animationId,
-            int startedAtTick,
-            int durationTicks,
-            int blendInTicks,
-            int blendOutTicks
-    ) {
+    public record Active(RigAnimationId animationId, int startedAtTick, int durationTicks, int blendInTicks, int blendOutTicks) {
         public float elapsedTicks(float ageInTicks) {
             return Math.max(0.0F, ageInTicks - this.startedAtTick);
         }

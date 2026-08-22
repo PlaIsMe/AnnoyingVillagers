@@ -1,14 +1,13 @@
 package com.pla.annoyingvillagers.item;
 
-import net.minecraft.network.chat.Component;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
+import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
-public class GoldenMaceItem extends SwordItem {
+public class GoldenMaceItem extends SwordItem implements RigCombatProfileProvider {
     public GoldenMaceItem() {
         super(new Tier() {
             public int getUses() {
@@ -35,5 +34,20 @@ public class GoldenMaceItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.GOLD_INGOT));
             }
         }, 3, -28F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.SWORD;
+    }
+
+    @Override
+    public RigDualWieldGroup getDualWieldGroup(ItemStack stack) {
+        return RigDualWieldGroup.AXE;
+    }
+
+    @Override
+    public RigCombatStyle getDualRigCombatStyle(ItemStack self, ItemStack other) {
+        return RigCombatStyle.DUAL_AXE;
     }
 }

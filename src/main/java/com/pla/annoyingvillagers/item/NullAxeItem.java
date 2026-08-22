@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
@@ -11,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class NullAxeItem extends AxeItem {
+public class NullAxeItem extends AxeItem implements RigCombatProfileProvider {
 
     public NullAxeItem() {
         super(new Tier() {
@@ -45,5 +47,10 @@ public class NullAxeItem extends AxeItem {
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.null_weapon"));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.AXE;
     }
 }

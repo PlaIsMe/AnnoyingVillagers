@@ -28,6 +28,11 @@ public final class RigPoseClip {
         return track == null ? Pose.ZERO : track.sample(Math.max(0.0F, elapsedTicks) / TICKS_PER_SECOND);
     }
 
+    public Pose sampleNonReversingRootMotion(RigColliderAnchor anchor, float elapsedTicks) {
+        Track track = this.tracks.get(anchor);
+        return track == null ? Pose.ZERO : track.sampleNonReversingRootMotion(Math.max(0.0F, elapsedTicks) / TICKS_PER_SECOND);
+    }
+
     public boolean has(RigColliderAnchor anchor) {
         return this.tracks.containsKey(anchor);
     }
@@ -57,6 +62,24 @@ public final class RigPoseClip {
             Vec position = sampleVec(this.position, timeSeconds);
             Vec rotation = sampleVec(this.rotation, timeSeconds);
             return new Pose(position.x, -position.y, position.z, rotation.x * DEG_TO_RAD, rotation.y * DEG_TO_RAD, rotation.z * DEG_TO_RAD);
+        }
+
+        private Pose sampleNonReversingRootMotion(float timeSeconds) {
+            Vec position = sampleVec(this.position, timeSeconds);
+            return new Pose(position.x, -position.y, nonReversingZ(timeSeconds), 0.0F, 0.0F, 0.0F);
+        }
+
+        private float nonReversingZ(float timeSeconds) {
+            if (this.position.length == 0) return 0.0F;
+            float startZ = this.position[3];
+            float minZ = startZ;
+            float maxZ = startZ;
+            for (int i = 3; i < this.position.length; i += 4) { minZ = Math.min(minZ, this.position[i]); maxZ = Math.max(maxZ, this.position[i]); }
+            boolean forward = startZ - minZ >= maxZ - startZ;
+            float effectiveZ = startZ;
+            for (int i = 0; i + 3 < this.position.length && this.position[i] <= timeSeconds; i += 4) effectiveZ = forward ? Math.min(effectiveZ, this.position[i + 3]) : Math.max(effectiveZ, this.position[i + 3]);
+            float sampledZ = sampleVec(this.position, timeSeconds).z;
+            return forward ? Math.min(effectiveZ, sampledZ) : Math.max(effectiveZ, sampledZ);
         }
 
         private static Vec sampleVec(float[] data, float timeSeconds) {
