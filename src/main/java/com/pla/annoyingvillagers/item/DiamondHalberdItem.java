@@ -38,6 +38,6 @@ public class DiamondHalberdItem extends SwordItem implements RigCombatProfilePro
 
     @Override
     public RigCombatStyle getRigCombatStyle(ItemStack stack) {
-        return RigCombatStyle.HALBERD;
+        return RigCombatStyle.AXE;
     }
 }

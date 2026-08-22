@@ -5,11 +5,7 @@
 Credit to Epic Fight for sound and particle behavior used as references.
 
 - Source: https://github.com/Antikythera-Studios/epicfight
-- Local paths include hit and ground-slam particle code/data and hit sound:
-  `com/pla/annoyingvillagers/client/particle/HitParticleType.java`,
-  `com/pla/annoyingvillagers/client/particle/HitParticle.java`,
-  `com/pla/annoyingvillagers/client/particle/HitBluntParticle.java`,
-  `com/pla/annoyingvillagers/client/particle/GroundSlamParticle.java`,
+- Local paths include hit and ground-slam particle code and Fracture Block logic.
 
 ## Epic Fight Sound Overhaul - William_Ashenhart - Authorized Use
 

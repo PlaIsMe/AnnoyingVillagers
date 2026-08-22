@@ -30,6 +30,7 @@ public final class RigColliderRenderer {
     @SubscribeEvent
     public static void onRenderLevel(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
+
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || !mc.getEntityRenderDispatcher().shouldRenderHitBoxes()) return;
 
@@ -40,48 +41,56 @@ public final class RigColliderRenderer {
 
         poseStack.pushPose();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
+
         for (var entry : RigClientAnimationState.snapshot().entrySet()) {
             Entity entity = mc.level.getEntity(entry.getKey());
             if (!(entity instanceof Mob mob)) continue;
+
             float ageInTicks = mob.tickCount + event.getPartialTick();
             RigClientAnimationState.Active active = RigClientAnimationState.getActive(mob, ageInTicks);
             if (active == null) continue;
+
             RigAnimationSpec spec = RigAnimationSpecs.get(active.animationId());
             if (!spec.damagesTarget()) continue;
 
             float elapsed = active.sampleTicks(ageInTicks);
             float bodyYaw = Mth.rotLerp(event.getPartialTick(), mob.yBodyRotO, mob.yBodyRot);
+
             for (RigAttackWindow window : spec.attackWindows()) {
+                boolean attackTime = window.contains(elapsed);
+                float red = 1.0F;
+                float green = attackTime ? 0.0F : 1.0F;
+                float blue = attackTime ? 0.0F : 1.0F;
+
                 for (RigOrientedBox box : RigColliderSystem.collisionBoxes(mob, spec, window, elapsed, bodyYaw)) {
-                    renderBox(poseStack, lines, box);
+                    renderBox(poseStack, lines, box, red, green, blue);
                 }
             }
         }
+
         poseStack.popPose();
         buffer.endBatch(RenderType.lines());
     }
 
-    private static void renderBox(PoseStack poseStack, VertexConsumer consumer, RigOrientedBox box) {
+    private static void renderBox(PoseStack poseStack, VertexConsumer consumer, RigOrientedBox box, float red, float green, float blue) {
         Vec3[] corners = box.corners();
         PoseStack.Pose pose = poseStack.last();
 
-        for (int[] edge : EDGES) {
-            renderLine(pose, consumer, corners[edge[0]], corners[edge[1]]);
-        }
+        for (int[] edge : EDGES) renderLine(pose, consumer, corners[edge[0]], corners[edge[1]], red, green, blue);
     }
 
-    private static void renderLine(PoseStack.Pose pose, VertexConsumer consumer, Vec3 start, Vec3 end) {
+    private static void renderLine(PoseStack.Pose pose, VertexConsumer consumer, Vec3 start, Vec3 end, float red, float green, float blue) {
         Vec3 normal = end.subtract(start);
         if (normal.lengthSqr() < 1.0E-8D) return;
         normal = normal.normalize();
 
         consumer.vertex(pose.pose(), (float) start.x, (float) start.y, (float) start.z)
-                .color(1.0F, 1.0F, 1.0F, 1.0F)
+                .color(red, green, blue, 1.0F)
                 .normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z)
                 .endVertex();
 
         consumer.vertex(pose.pose(), (float) end.x, (float) end.y, (float) end.z)
-                .color(1.0F, 1.0F, 1.0F, 1.0F)
+                .color(red, green, blue, 1.0F)
                 .normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z)
                 .endVertex();
     }

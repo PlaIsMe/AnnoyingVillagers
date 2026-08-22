@@ -153,10 +153,10 @@ public final class RigCombatProfiles {
                 RigLocomotionStyle.DEFAULT
         ));
 
-        PROFILES.put(RigCombatStyle.HALBERD, new RigCombatProfile(
-                List.of(RigAnimationId.SPEAR_ATTACK1, RigAnimationId.SPEAR_ATTACK2, RigAnimationId.SPEAR_ATTACK3,
-                        RigAnimationId.SPEAR_ATTACK4, RigAnimationId.SPEAR_ATTACK5),
-                List.of(RigAnimationId.AXE_DASH_ATTACK, RigAnimationId.AXE_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+        PROFILES.put(RigCombatStyle.GREATSWORD, new RigCombatProfile(
+                List.of(RigAnimationId.GREATSWORD_ATTACK1, RigAnimationId.GREATSWORD_ATTACK2, RigAnimationId.GREATSWORD_ATTACK3,
+                        RigAnimationId.GREATSWORD_ATTACK4, RigAnimationId.GREATSWORD_ATTACK5),
+                List.of(RigAnimationId.GREATSWORD_DASH_ATTACK, RigAnimationId.GREATSWORD_JUMP_ATTACK, RigAnimationId.GREATSWORD_EXTRA_ATTACK),
                 List.of(
                         RigAnimationId.ROLL_FORWARD,
                         RigAnimationId.ROLL_BACKWARD,
@@ -165,50 +165,53 @@ public final class RigCombatProfiles {
                         RigAnimationId.STEP_LEFT,
                         RigAnimationId.STEP_RIGHT
                 ),
-                List.of(RigAnimationId.AXE_ULT),
+                List.of(RigAnimationId.GREATSWORD_ULT),
                 0.18D,
                 0.06D,
-                0.02D,
-                RigLocomotionStyle.SPEAR
+                0.0D,
+                RigLocomotionStyle.GREATSWORD
+        ));
+
+        PROFILES.put(RigCombatStyle.GREATAXE, new RigCombatProfile(
+                List.of(RigAnimationId.GREATSWORD_ATTACK1, RigAnimationId.GREATSWORD_ATTACK2, RigAnimationId.GREATSWORD_ATTACK3,
+                        RigAnimationId.GREATAXE_ATTACK4, RigAnimationId.GREATAXE_ATTACK5),
+                List.of(RigAnimationId.GREATAXE_DASH_ATTACK, RigAnimationId.GREATAXE_JUMP_ATTACK, RigAnimationId.GREATSWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.GREATAXE_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.GREATSWORD
+        ));
+
+        PROFILES.put(RigCombatStyle.CRAFTING_TABLE, new RigCombatProfile(
+                List.of(RigAnimationId.TACHI_ATTACK1, RigAnimationId.TACHI_ATTACK2, RigAnimationId.TACHI_ATTACK3,
+                        RigAnimationId.TACHI_ATTACK4, RigAnimationId.TACHI_ATTACK5),
+                List.of(RigAnimationId.GREATSWORD_DASH_ATTACK, RigAnimationId.GREATSWORD_JUMP_ATTACK, RigAnimationId.GREATSWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.TACHI_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.CRAFTING_TABLE
         ));
     }
 
-//    private static final RigCombatProfile GREATSWORD = new RigCombatProfile(
-//            List.of(RigAnimationId.GREATSWORD_ATTACK1, RigAnimationId.GREATSWORD_ATTACK2, RigAnimationId.GREATSWORD_ATTACK3,
-//                    RigAnimationId.GREATSWORD_ATTACK4, RigAnimationId.GREATSWORD_ATTACK5),
-//            List.of(RigAnimationId.GREATSWORD_DASH_ATTACK, RigAnimationId.GREATSWORD_JUMP_ATTACK, RigAnimationId.GREATSWORD_EXTRA_ATTACK),
-//            List.of(
-//                    RigAnimationId.ROLL_FORWARD,
-//                    RigAnimationId.ROLL_BACKWARD,
-//                    RigAnimationId.STEP_FORWARD,
-//                    RigAnimationId.STEP_BACKWARD,
-//                    RigAnimationId.STEP_LEFT,
-//                    RigAnimationId.STEP_RIGHT
-//            ),
-//            List.of(RigAnimationId.GREATSWORD_ULT),
-//            0.18D,
-//            0.06D,
-//            0.0D
-//    );
-//
-//    private static final RigCombatProfile GREATAXE = new RigCombatProfile(
-//            List.of(RigAnimationId.GREATSWORD_ATTACK1, RigAnimationId.GREATSWORD_ATTACK2, RigAnimationId.GREATSWORD_ATTACK3,
-//                    RigAnimationId.GREATAXE_ATTACK4, RigAnimationId.GREATAXE_ATTACK5),
-//            List.of(RigAnimationId.GREATAXE_DASH_ATTACK, RigAnimationId.GREATAXE_JUMP_ATTACK, RigAnimationId.GREATSWORD_EXTRA_ATTACK),
-//            List.of(
-//                    RigAnimationId.ROLL_FORWARD,
-//                    RigAnimationId.ROLL_BACKWARD,
-//                    RigAnimationId.STEP_FORWARD,
-//                    RigAnimationId.STEP_BACKWARD,
-//                    RigAnimationId.STEP_LEFT,
-//                    RigAnimationId.STEP_RIGHT
-//            ),
-//            List.of(RigAnimationId.GREATAXE_ULT),
-//            0.18D,
-//            0.06D,
-//            0.0D
-//    );
-//
+
 //    private static final RigCombatProfile LONGSWORD = new RigCombatProfile(
 //            List.of(RigAnimationId.LONGSWORD_ATTACK1, RigAnimationId.LONGSWORD_ATTACK2, RigAnimationId.LONGSWORD_ATTACK3,
 //                    RigAnimationId.LONGSWORD_ATTACK4, RigAnimationId.LONGSWORD_ATTACK5),

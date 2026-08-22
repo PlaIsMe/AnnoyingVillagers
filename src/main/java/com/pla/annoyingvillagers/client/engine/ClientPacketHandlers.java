@@ -287,6 +287,10 @@ public final class ClientPacketHandlers {
                 SoundSource.NEUTRAL, 1.0F, 1.0F, false);
     }
 
+    public static void handleGroundFracture(ClientboundGroundFracture msg) {
+        GroundFractureClient.handle(msg);
+    }
+
     public static void handleRigAnimation(ClientboundRigAnimation msg) {
         if (Minecraft.getInstance().level == null) {
             return;

@@ -174,6 +174,12 @@ public class AnnoyingVillagers {
                     ClientboundRigAnimation::decode,
                     ClientboundRigAnimation::handle
             );
+            AnnoyingVillagers.addNetworkMessage(
+                    ClientboundGroundFracture.class,
+                    ClientboundGroundFracture::encode,
+                    ClientboundGroundFracture::decode,
+                    ClientboundGroundFracture::handle
+            );
         }
     }
 

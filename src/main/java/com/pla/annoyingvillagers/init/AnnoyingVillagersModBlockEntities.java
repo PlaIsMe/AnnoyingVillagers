@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.blockentity.CryingObsidianBlockEntity;
+import com.pla.annoyingvillagers.blockentity.FractureBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianLongPillarBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
@@ -16,6 +17,7 @@ public final class AnnoyingVillagersModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> REGISTRY =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, AnnoyingVillagers.MODID);
 
+    public static final RegistryObject<BlockEntityType<FractureBlockEntity>> FRACTURE_BLOCK = REGISTRY.register("fracture_block", () -> BlockEntityType.Builder.of(FractureBlockEntity::new, AnnoyingVillagersModBlocks.FRACTURE_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<ShadowObsidianLongPillarBlockEntity>> SHADOW_OBSIDIAN_SHORT_PILLAR =
             REGISTRY.register("shadow_obsidian_short_pillar",
                     () -> BlockEntityType.Builder.of(

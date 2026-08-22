@@ -4,5 +4,6 @@ public enum RigLocomotionStyle {
     DEFAULT,
     UNARMED,
     SPEAR,
-    GREATSWORD
+    GREATSWORD,
+    CRAFTING_TABLE
 }

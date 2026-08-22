@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -9,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class CraftingTableItem extends SwordItem {
+public class CraftingTableItem extends SwordItem implements RigCombatProfileProvider {
 
     public CraftingTableItem() {
         super(new Tier() {
@@ -42,5 +44,10 @@ public class CraftingTableItem extends SwordItem {
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.crafting_table"));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.GREATSWORD;
     }
 }

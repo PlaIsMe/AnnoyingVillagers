@@ -38,6 +38,6 @@ public class IronDoubleBladedHalberdItem extends SwordItem implements RigCombatP
 
     @Override
     public RigCombatStyle getRigCombatStyle(ItemStack stack) {
-        return RigCombatStyle.HALBERD;
+        return RigCombatStyle.AXE;
     }
 }

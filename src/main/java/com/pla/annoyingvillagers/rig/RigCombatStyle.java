@@ -9,13 +9,15 @@ public enum RigCombatStyle {
     DUAL_AXE,
     EARTH_AXE,
     RED_AXE,
-    HALBERD,
+
+    GREATSWORD,
+    GREATAXE,
+    CRAFTING_TABLE,
 
     SWORD,
     DUAL_SWORD,
 
-    GREATSWORD,
-    GREATAXE,
+
 
     LONGSWORD,
     DUAL_LONGSWORD

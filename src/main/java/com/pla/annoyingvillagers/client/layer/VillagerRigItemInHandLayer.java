@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.client.layer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.pla.annoyingvillagers.client.model.ModelRigVillager;
+import com.pla.annoyingvillagers.client.renderer.RigItemVisualResolver;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -37,7 +38,7 @@ public class VillagerRigItemInHandLayer<T extends Mob> extends ItemInHandLayer<T
 
         boolean leftHand = arm == HumanoidArm.LEFT;
         poseStack.translate(leftHand ? -ITEM_X_OFFSET : ITEM_X_OFFSET, ITEM_DEPTH_OFFSET, 0.0F);
-        this.itemInHandRenderer.renderItem(entity, itemStack, displayContext, leftHand, poseStack, buffer, packedLight);
+        this.itemInHandRenderer.renderItem(entity, RigItemVisualResolver.resolve(entity, itemStack), displayContext, leftHand, poseStack, buffer, packedLight);
         poseStack.popPose();
     }
 }

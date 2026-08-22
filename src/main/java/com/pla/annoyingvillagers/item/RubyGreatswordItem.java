@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -9,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class RubyGreatswordItem extends SwordItem {
+public class RubyGreatswordItem extends SwordItem implements RigCombatProfileProvider {
 
     public RubyGreatswordItem() {
         super(new Tier() {
@@ -37,5 +39,10 @@ public class RubyGreatswordItem extends SwordItem {
                 return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.RUBY.get()));
             }
         }, 3, -2.5F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.GREATSWORD;
     }
 }

@@ -37,6 +37,6 @@ public class IronHalberdItem extends SwordItem implements RigCombatProfileProvid
 
     @Override
     public RigCombatStyle getRigCombatStyle(ItemStack stack) {
-        return RigCombatStyle.HALBERD;
+        return RigCombatStyle.AXE;
     }
 }

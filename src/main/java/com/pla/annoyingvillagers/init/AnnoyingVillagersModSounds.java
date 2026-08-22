@@ -89,6 +89,7 @@ public class AnnoyingVillagersModSounds {
     public static final RegistryObject<SoundEvent> BLACK_FIRE = register("black_fire");
     public static final RegistryObject<SoundEvent> DIAMOND_ATTRACTOR = register("diamond_attractor");
     public static final RegistryObject<SoundEvent> REAPER_FIRE = register("reaper_fire");
+    public static final RegistryObject<SoundEvent> GROUND_SLAM = register("ground_slam");
 
     private static RegistryObject<SoundEvent> register(String name) {
         return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, name)));

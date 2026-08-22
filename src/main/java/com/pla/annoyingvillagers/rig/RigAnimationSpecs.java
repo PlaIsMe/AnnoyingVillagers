@@ -1,6 +1,12 @@
 package com.pla.annoyingvillagers.rig;
 
+import com.pla.annoyingvillagers.item.EarthAxeItem;
 import com.pla.annoyingvillagers.util.AnimationUtil;
+import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.RigPoseUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -47,22 +53,21 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_ATTACK_UP, 2, RigAnimationPlaybackType.UPPER_BODY));
 
         put(RigAnimationSpec.attack(RigAnimationId.AXE_ATTACK1, 25, false,
-                RigAttackWindow.of(5, 8, RIGHT_AXE)));
+                RigAttackWindow.of(5, 16, RIGHT_AXE)));
         put(RigAnimationSpec.attack(RigAnimationId.AXE_ATTACK2, 26, false,
-                RigAttackWindow.of(6, 8, RIGHT_AXE)));
+                RigAttackWindow.of(6, 16, RIGHT_AXE)));
         put(RigAnimationSpec.attack(RigAnimationId.AXE_ATTACK3, 22, false,
-                RigAttackWindow.of(5, 11, RIGHT_AXE)));
+                RigAttackWindow.of(5, 12, RIGHT_AXE)));
         put(RigAnimationSpec.attack(RigAnimationId.AXE_ATTACK4, 20, false,
-                RigAttackWindow.of(5, 8, RIGHT_AXE)));
+                RigAttackWindow.of(5, 12, RIGHT_AXE)));
         put(RigAnimationSpec.attack(RigAnimationId.AXE_ATTACK5, 28, false,
-                RigAttackWindow.of(5, 8, RIGHT_AXE)));
+                RigAttackWindow.of(5, 18, RIGHT_AXE)));
         put(RigAnimationSpec.attack(RigAnimationId.AXE_DASH_ATTACK, 32, false,
-                RigAttackWindow.of(11, 15, RIGHT_AXE)));
+                RigAttackWindow.of(11, 24, RIGHT_AXE)));
         put(RigAnimationSpec.attack(RigAnimationId.AXE_JUMP_ATTACK, 32, true,
-                RigAttackWindow.of(4, 8, RIGHT_AXE)));
+                RigAttackWindow.of(4, 24, RIGHT_AXE)));
         put(RigAnimationSpec.attack(RigAnimationId.AXE_ULT, 46, false,
                 RigAttackWindow.of(18, 30, RIGHT_AXE)));
-
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_AXE_ULT, 60, false,
                 RigAttackWindow.of(3, 5, RIGHT_AXE),
                 RigAttackWindow.of(5, 8, LEFT_AXE),
@@ -81,36 +86,47 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(36, 38, RIGHT_AXE),
                 RigAttackWindow.of(40, 44, LEFT_AXE)));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EARTH_AXE_ULT, 33, RigAnimationPlaybackType.DEFAULT,
-                emptyHooks(4)));
+                hookAt(4, mob -> {
+                    if (mob.level() instanceof ServerLevel serverLevel) {
+                        EarthAxeItem.summonEarthWall(serverLevel, mob);
+                    }
+                })));
         put(RigAnimationSpec.attack(RigAnimationId.EARTH_AXE_EXTRA_ATTACK, 33, false,
-                emptyHooks(20),
+                hookAt(20, mob -> {
+                    if (mob.level() instanceof ServerLevel serverLevel) {
+                        Vec3 bladePos = RigPoseUtil.getPartPosition(mob, RigAnimationId.EARTH_AXE_EXTRA_ATTACK, 20.0F, RigPart.RIGHT_WEAPON, Vec3.ZERO, 0.5D, 0.0D);
+                        BlockPos liftPos = EarthAxeItem.findLiftableBlockUnderPoint(serverLevel, bladePos, 6, 1);
+                        if (liftPos != null) {
+                            EarthAxeItem.liftBlockAt(serverLevel, liftPos, mob);
+                        }
+                    }
+                }),
                 RigAttackWindow.of(6, 8, RIGHT_AXE)));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.GREATSWORD_IDLE, 60));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.GREATSWORD_RUN, 10));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.GREATSWORD_WALK, 14));
-        put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_EXTRA_ATTACK, 50, false,
-                emptyHooks(16),
-                RigAttackWindow.of(13, 16, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.CARRY, 54));
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_ATTACK1, 42, false,
-                RigAttackWindow.of(12, 16, RIGHT_GREATSWORD)));
+                RigAttackWindow.of(12, 20, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_ATTACK2, 38, false,
                 RigAttackWindow.of(10, 17, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_ATTACK3, 39, false,
-                RigAttackWindow.of(9, 15, RIGHT_GREATSWORD)));
+                RigAttackWindow.of(9, 20, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_ATTACK4, 32, false,
-                RigAttackWindow.of(3, 6, RIGHT_GREATSWORD)));
+                RigAttackWindow.of(3, 12, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_ATTACK5, 38, false,
-                emptyHooks(11),
+                groundSlamHook(18, RigAnimationId.GREATSWORD_ATTACK5, 1.4D, 0.7D, 35, 0.7D, 2.0D),
                 RigAttackWindow.of(3, 6, RIGHT_GREATSWORD),
-                RigAttackWindow.of(8, 11, RIGHT_GREATSWORD)));
+                RigAttackWindow.of(8, 22, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_DASH_ATTACK, 40, false,
-                RigAttackWindow.of(11, 15, RIGHT_GREATSWORD)));
+                RigAttackWindow.of(11, 20, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_JUMP_ATTACK, 48, true,
-                emptyHooks(11),
-                RigAttackWindow.of(9, 11, RIGHT_GREATSWORD),
-                RigAttackWindow.of(10, 13)));
+                groundSlamHook(12, RigAnimationId.GREATSWORD_JUMP_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
+                RigAttackWindow.of(9, 12, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_EXTRA_ATTACK, 50, false,
+                groundSlamHook(23, RigAnimationId.GREATSWORD_EXTRA_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
+                RigAttackWindow.of(15, 25, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_ULT, 47, false,
                 RigAttackWindow.of(2, 5, RIGHT_GREATSWORD),
                 RigAttackWindow.of(5, 8, RIGHT_GREATSWORD),
@@ -126,20 +142,20 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(30, 32, RIGHT_GREATSWORD),
                 RigAttackWindow.of(32, 34, RIGHT_GREATSWORD),
                 RigAttackWindow.of(34, 36, RIGHT_GREATSWORD),
-                RigAttackWindow.of(37, 44, RIGHT_GREATSWORD)));
+                RigAttackWindow.of(37, 40, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATAXE_ATTACK4, 42, false,
-                RigAttackWindow.of(3, 10, RIGHT_AXE)));
+                RigAttackWindow.of(9, 20, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATAXE_ATTACK5, 31, false,
-                RigAttackWindow.of(3, 10, RIGHT_AXE)));
+                RigAttackWindow.of(6, 15, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATAXE_DASH_ATTACK, 48, false,
-                emptyHooks(9),
-                RigAttackWindow.of(3, 7, RIGHT_AXE)));
+                groundSlamHook(18, RigAnimationId.GREATAXE_DASH_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
+                RigAttackWindow.of(9, 18, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATAXE_JUMP_ATTACK, 42, true,
-                emptyHooks(2, 18),
+                groundSlamHook(18, RigAnimationId.GREATAXE_JUMP_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
                 RigAttackWindow.of(16, 23, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATAXE_ULT, 67, false,
-                emptyHooks(7, 23),
-                RigAttackWindow.of(20, 24, RIGHT_GREATSWORD)));
+                groundSlamHook(28, RigAnimationId.GREATAXE_ULT, 1.4D, 1.0D, 50, 1.0D, 3.5D),
+                RigAttackWindow.of(20, 28, RIGHT_GREATSWORD)));
 
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK1, 33, false,
                 RigAttackWindow.of(10, 13, RIGHT_LONGSWORD, LEFT_LONGSWORD)));
@@ -909,6 +925,23 @@ public final class RigAnimationSpecs {
 
     private static List<RigAnimationSpec.RigTimedAnimationHook> startHook(RigAnimationSpec.RigAnimationHook hook) {
         return List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, hook));
+    }
+
+    private static List<RigAnimationSpec.RigTimedAnimationHook> endHook(RigAnimationSpec.RigAnimationHook hook) {
+        return List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.END, hook));
+    }
+
+    private static List<RigAnimationSpec.RigTimedAnimationHook> hookAt(int tick, RigAnimationSpec.RigAnimationHook hook) {
+        return List.of(RigAnimationSpec.RigTimedAnimationHook.at(tick, hook));
+    }
+
+    private static List<RigAnimationSpec.RigTimedAnimationHook> groundSlamHook(int tick, RigAnimationId animationId, double forwardOffset, double particleRadius, int particleCount, double spread, double fractureRadius) {
+        return hookAt(tick, mob -> {
+            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+            Vec3 impactPos = RigPoseUtil.getRightWeaponPosition(mob, animationId, tick, forwardOffset);
+            CommonUtil.spawnGroundSlamFracture(mob, serverLevel, impactPos, particleRadius, particleCount, spread, fractureRadius);
+        });
     }
 
     private static List<RigAnimationSpec.RigTimedAnimationHook> emptyHooks(int... ticks) {

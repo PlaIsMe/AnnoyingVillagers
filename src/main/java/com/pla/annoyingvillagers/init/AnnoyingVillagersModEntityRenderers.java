@@ -13,6 +13,7 @@ public class AnnoyingVillagersModEntityRenderers {
 
     @SubscribeEvent
     public static void registerEntityRenderers(RegisterRenderers registerrenderers) {
+        registerrenderers.registerBlockEntityRenderer(AnnoyingVillagersModBlockEntities.FRACTURE_BLOCK.get(), FractureBlockRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_CLONE.get(), HerobrineCloneRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLUE_DEMON.get(), BlueDemonRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE.get(), ShadowHerobrineRenderer::new);

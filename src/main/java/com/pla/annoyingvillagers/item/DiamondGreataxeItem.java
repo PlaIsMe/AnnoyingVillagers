@@ -1,10 +1,12 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class DiamondGreataxeItem extends SwordItem {
+public class DiamondGreataxeItem extends SwordItem implements RigCombatProfileProvider {
 
     public DiamondGreataxeItem() {
         super(new Tier() {
@@ -32,5 +34,10 @@ public class DiamondGreataxeItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.DIAMOND));
             }
         }, 3, -2.9F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.GREATAXE;
     }
 }

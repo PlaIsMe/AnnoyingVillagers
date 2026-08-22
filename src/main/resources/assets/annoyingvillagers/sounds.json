@@ -1104,5 +1104,15 @@
         "stream": false
       }
     ]
+  },
+  "ground_slam": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:ground_slam1"
+      },
+      {
+        "name": "annoyingvillagers:ground_slam2"
+      }
+    ]
   }
 }

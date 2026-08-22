@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.HookDisarmLaunch;
@@ -8,6 +9,7 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.network.ClientboundGroundFracture;
 import com.pla.annoyingvillagers.client.particle.HitParticleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,6 +34,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -186,19 +189,41 @@ public class CommonUtil {
             return false;
         }
 
-        if (!noSound) {
-            playCircleSlamSound(level, center, radius);
-        }
-
-        if (!noParticle) {
-            spawnCircleSlamParticles(level, center, radius, affectedBlocks);
-        }
-
-        if (!level.isClientSide && hurtEntities) {
-            damageCircleSlamEntities(caster, level, center, radius);
+        if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
+            Vec3 fractureCenter = new Vec3(center.x, origin.getY(), center.z);
+            double fractureRadius = radius;
+            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_CHUNK.with(() -> serverLevel.getChunkAt(origin)), new ClientboundGroundFracture(fractureCenter, fractureRadius, noSound, noParticle));
+            if (hurtEntities) damageCircleSlamEntities(caster, level, fractureCenter, radius);
         }
 
         return true;
+    }
+
+
+    public static void spawnGroundSlam(ServerLevel level, Vec3 position, double particleRadius, int particleCount, double spread) {
+        if (level == null || position == null) return;
+        BlockPos surface = findSlamSurface(level, Mth.floor(position.x), Mth.floor(position.y), Mth.floor(position.z));
+        if (surface == null) return;
+        level.sendParticles(AnnoyingVillagersModParticleTypes.GROUND_SLAM.get(), position.x, surface.getY() + 1.0D, position.z, 0, particleRadius, particleCount, spread, 1.0D);
+    }
+
+    public static void spawnGroundSlamFracture(@Nullable LivingEntity caster, ServerLevel level, Vec3 particlePosition, Vec3 fracturePosition, double particleRadius, int particleCount, double spread, double fractureRadius) {
+        if (level == null || particlePosition == null || fracturePosition == null) return;
+        BlockPos surface = findSlamSurface(level, Mth.floor(particlePosition.x), Mth.floor(particlePosition.y), Mth.floor(particlePosition.z));
+        if (surface == null) return;
+        Vec3 particlePos = new Vec3(particlePosition.x, surface.getY() + 1.0D, particlePosition.z);
+        Vec3 fractureCenter = new Vec3(fracturePosition.x, surface.getY(), fracturePosition.z);
+        level.sendParticles(AnnoyingVillagersModParticleTypes.GROUND_SLAM.get(), particlePos.x, particlePos.y, particlePos.z, 0, particleRadius, particleCount, spread, 1.0D);
+        level.playSound(null,
+                fractureCenter.x, fractureCenter.y, fractureCenter.z,
+                AnnoyingVillagersModSounds.GROUND_SLAM.get(),
+                SoundSource.BLOCKS,
+                0.8F, 1.0F);
+        circleSlamFracture(caster, level, fractureCenter, fractureRadius, true, true, false);
+    }
+
+    public static void spawnGroundSlamFracture(@Nullable LivingEntity caster, ServerLevel level, Vec3 position, double particleRadius, int particleCount, double spread, double fractureRadius) {
+        spawnGroundSlamFracture(caster, level, position, position, particleRadius, particleCount, spread, fractureRadius);
     }
 
     public static boolean canTransferShockWave(Level level, BlockPos blockPos, BlockState blockState) {

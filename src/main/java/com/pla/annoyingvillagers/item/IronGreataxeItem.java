@@ -1,10 +1,12 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class IronGreataxeItem extends SwordItem {
+public class IronGreataxeItem extends SwordItem implements RigCombatProfileProvider {
     public IronGreataxeItem() {
         super(new Tier() {
             public int getUses() {
@@ -31,5 +33,10 @@ public class IronGreataxeItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.IRON_INGOT));
             }
         }, 3, -3.0F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.GREATAXE;
     }
 }

@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.client.particle;
 
+import com.pla.annoyingvillagers.block.FractureBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.NoRenderParticle;
@@ -32,12 +33,16 @@ public class GroundSlamParticle extends NoRenderParticle {
         this.lifetime = 1;
 
         if (blockState.isAir()) {
-            blockState = level.getBlockState(blockPos.below());
+            blockPos = blockPos.below();
+            blockState = level.getBlockState(blockPos);
         }
 
-        if (!blockState.shouldSpawnParticlesOnBreak()) {
-            return;
+        if (blockState instanceof FractureBlockState fractureBlockState) {
+            BlockState originalState = fractureBlockState.getOriginalBlockState(blockPos);
+            if (originalState != null) blockState = originalState;
         }
+
+        if (!blockState.shouldSpawnParticlesOnBreak()) return;
 
         Minecraft minecraft = Minecraft.getInstance();
         int count = Math.max(0, (int) particleCount);
@@ -69,6 +74,7 @@ public class GroundSlamParticle extends NoRenderParticle {
             if (smokeParticle != null) {
                 smokeParticle.setParticleSpeed(sin * spread * 0.1D, this.random.nextDouble() * 0.05D, cos * spread * 0.1D);
                 smokeParticle.scale(3.0F);
+                smokeParticle.setAlpha(0.33F);
                 minecraft.particleEngine.add(smokeParticle);
             }
         }

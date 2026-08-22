@@ -1,13 +1,15 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class NetheriteGreataxeItem extends SwordItem {
+public class NetheriteGreataxeItem extends SwordItem implements RigCombatProfileProvider {
 
     public NetheriteGreataxeItem() {
         super(new Tier() {
@@ -35,5 +37,10 @@ public class NetheriteGreataxeItem extends SwordItem {
                 return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.DARK_NETHERITE.get()));
             }
         }, 3, -2.7F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.GREATAXE;
     }
 }

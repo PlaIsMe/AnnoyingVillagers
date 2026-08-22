@@ -46,6 +46,7 @@ public class AnimationUtil {
         return switch (style) {
             case SPEAR -> SpearAnimations1.SPEAR_IDLE;
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_IDLE;
+            case CRAFTING_TABLE -> GreatswordAnimations1.CARRY;
             default -> LivingAnimations.IDLE;
         };
     }
