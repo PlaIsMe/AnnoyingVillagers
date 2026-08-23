@@ -1,16 +1,15 @@
 package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.client.particle.*;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.SmokeParticle;
-import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = {Dist.CLIENT})
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class AnnoyingVillagersModParticles {
+
     @SubscribeEvent
     public static void registerParticles(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(), ElectricSparkParticle::provider);
@@ -25,5 +24,6 @@ public class AnnoyingVillagersModParticles {
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.BIG_SPLASH.get(), BigSplashParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.HIT_BLUNT.get(), HitBluntParticle::provider);
         event.registerSpecial(AnnoyingVillagersModParticleTypes.GROUND_SLAM.get(), new GroundSlamParticle.Provider());
+        event.registerSpecial(AnnoyingVillagersModParticleTypes.WHITE_AFTERIMAGE.get(), new WhiteAfterimageParticle.Provider());
     }
 }

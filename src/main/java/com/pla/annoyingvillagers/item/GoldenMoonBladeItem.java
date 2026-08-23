@@ -1,10 +1,12 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class GoldenMoonBladeItem extends SwordItem {
+public class GoldenMoonBladeItem extends SwordItem implements RigCombatProfileProvider {
     public GoldenMoonBladeItem() {
         super(new Tier() {
             public int getUses() {
@@ -31,5 +33,10 @@ public class GoldenMoonBladeItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.GOLD_INGOT));
             }
         }, 3, 0.8F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.DAGGER;
     }
 }

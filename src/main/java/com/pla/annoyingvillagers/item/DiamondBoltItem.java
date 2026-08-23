@@ -2,6 +2,8 @@ package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.clazz.ThrowableSpearItem;
 import com.pla.annoyingvillagers.entity.DiamondBoltProjectileEntity;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -12,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DiamondBoltItem extends ThrowableSpearItem {
+public class DiamondBoltItem extends ThrowableSpearItem implements RigCombatProfileProvider {
 
     public DiamondBoltItem() {
         super(new Tier() {
@@ -50,5 +52,10 @@ public class DiamondBoltItem extends ThrowableSpearItem {
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.diamond_bolt"));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.STAFF;
     }
 }

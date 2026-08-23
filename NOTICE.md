@@ -5,7 +5,7 @@
 Credit to Epic Fight for sound and particle behavior used as references.
 
 - Source: https://github.com/Antikythera-Studios/epicfight
-- Local paths include hit and ground-slam particle code and Fracture Block logic.
+- Local paths include Fracture Block logic and White afterimage particles.
 
 ## Epic Fight Sound Overhaul - William_Ashenhart - Authorized Use
 

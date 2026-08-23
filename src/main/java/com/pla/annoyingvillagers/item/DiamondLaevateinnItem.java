@@ -1,14 +1,12 @@
 package com.pla.annoyingvillagers.item;
 
-import net.minecraft.network.chat.Component;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
-public class DiamondLaevateinnItem extends SwordItem {
+public class DiamondLaevateinnItem extends SwordItem implements RigCombatProfileProvider {
 
     public DiamondLaevateinnItem() {
         super(new Tier() {
@@ -36,5 +34,10 @@ public class DiamondLaevateinnItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.DIAMOND));
             }
         }, 3, -2.5F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.TACHI;
     }
 }

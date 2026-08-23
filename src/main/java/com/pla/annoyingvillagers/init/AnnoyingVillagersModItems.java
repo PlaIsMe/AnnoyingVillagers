@@ -193,7 +193,6 @@ public class AnnoyingVillagersModItems {
     public static final RegistryObject<Item> IRON_SICKLE = AnnoyingVillagersModItems.REGISTRY.register("iron_sickle", IronSickleItem::new);
     public static final RegistryObject<Item> NETHERITE_SPEAR = AnnoyingVillagersModItems.REGISTRY.register("netherite_spear", NetheriteSpearItem::new);
     public static final RegistryObject<Item> TWIN_DIAMOND_SPEAR = AnnoyingVillagersModItems.REGISTRY.register("twin_diamond_spear", TwinDiamondSpearItem::new);
-    public static final RegistryObject<Item> DUAL_TWIN_DIAMOND_SPEAR = AnnoyingVillagersModItems.REGISTRY.register("dual_twin_diamond_spear", DualTwinDiamondSpearItem::new);
     public static final RegistryObject<Item> GOLDEN_MACE = AnnoyingVillagersModItems.REGISTRY.register("golden_mace", GoldenMaceItem::new);
     public static final RegistryObject<Item> DIAMOND_MACE = AnnoyingVillagersModItems.REGISTRY.register("diamond_mace", DiamondMaceItem::new);
     // ------------------------------

@@ -33,6 +33,8 @@ public class AnnoyingVillagersModParticleTypes {
             REGISTRY.register("big_splash", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> GROUND_SLAM =
             REGISTRY.register("ground_slam", () -> new SimpleParticleType(true));
+    public static final RegistryObject<SimpleParticleType> WHITE_AFTERIMAGE =
+            REGISTRY.register("white_afterimage", () -> new SimpleParticleType(true));
     public static final RegistryObject<HitParticleType> HIT_BLUNT =
             REGISTRY.register("hit_blunt", () -> new HitParticleType(true, HitParticleType.RANDOM_WITHIN_BOUNDING_BOX, HitParticleType.ZERO));
 }

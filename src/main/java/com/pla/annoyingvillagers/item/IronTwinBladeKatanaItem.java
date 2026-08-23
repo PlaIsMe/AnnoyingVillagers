@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -8,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class IronTwinBladeKatanaItem extends SwordItem {
+public class IronTwinBladeKatanaItem extends SwordItem implements RigCombatProfileProvider {
     public IronTwinBladeKatanaItem() {
         super(new Tier() {
             public int getUses() {
@@ -35,5 +37,10 @@ public class IronTwinBladeKatanaItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.IRON_INGOT));
             }
         }, 3, -2.5F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.STAFF;
     }
 }

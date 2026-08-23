@@ -69,6 +69,7 @@ public final class RigGeneratedPoseRegistry {
         RigSwordsmanHerobrinePoseData2.register(clips);
         RigTachiPoseData1.register(clips);
         RigTachiPoseData2.register(clips);
+        RigTachiPoseData3.register(clips);
         RigFistPoseData.register(clips);
         RigKickPoseData.register(clips);
     }

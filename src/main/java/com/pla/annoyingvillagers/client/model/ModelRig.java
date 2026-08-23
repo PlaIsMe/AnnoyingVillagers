@@ -202,6 +202,31 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         }
     }
 
+    public boolean isSlim() {
+        return this.slim;
+    }
+
+    public void copyPoseTo(ModelRig<?> target) {
+        target.modelRoot.copyFrom(this.modelRoot);
+        target.head.copyFrom(this.head);
+        target.hat.copyFrom(this.hat);
+        target.body.copyFrom(this.body);
+
+        target.right_arm.copyFrom(this.right_arm);
+        target.right_hand.copyFrom(this.right_hand);
+        target.right_tool.copyFrom(this.right_tool);
+
+        target.left_arm.copyFrom(this.left_arm);
+        target.left_hand.copyFrom(this.left_hand);
+        target.left_tool.copyFrom(this.left_tool);
+
+        target.right_leg.copyFrom(this.right_leg);
+        target.right_lower_leg.copyFrom(this.right_lower_leg);
+
+        target.left_leg.copyFrom(this.left_leg);
+        target.left_lower_leg.copyFrom(this.left_lower_leg);
+    }
+
     @Override
     public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         Map<ModelPart, ModelPartPose> previousRenderedPose = this.capturePose();

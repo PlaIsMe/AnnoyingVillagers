@@ -4,12 +4,10 @@ import com.pla.annoyingvillagers.client.animation.rig_animation.greatsword.Great
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.LivingAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.RunAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.spear.SpearAnimations1;
-import com.pla.annoyingvillagers.entity.AlexEntity;
-import com.pla.annoyingvillagers.entity.ElectricPhaseEntity;
+import com.pla.annoyingvillagers.client.animation.rig_animation.tachi.TachiAnimations1;
 import com.pla.annoyingvillagers.rig.RigCombatProfiles;
 import com.pla.annoyingvillagers.rig.RigLocomotionStyle;
 import net.minecraft.client.animation.AnimationDefinition;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +17,6 @@ import net.minecraft.world.phys.Vec3;
 public class AnimationUtil {
     private static final double MIN_FAST_HORIZONTAL_SPEED = 0.09D;
     private static final double FAST_SPEED_ATTRIBUTE_RATIO = 0.38D;
-    private static final double MIN_HORIZONTAL_MOVEMENT_SPEED = 0.01D;
 
     public static boolean shouldUseRunAnimation(Mob mob) {
         if (mob.isInWaterOrBubble()) return false;
@@ -47,6 +44,7 @@ public class AnimationUtil {
             case SPEAR -> SpearAnimations1.SPEAR_IDLE;
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_IDLE;
             case CRAFTING_TABLE -> GreatswordAnimations1.CARRY;
+            case TACHI -> TachiAnimations1.TACHI_IDLE;
             default -> LivingAnimations.IDLE;
         };
     }
@@ -55,6 +53,7 @@ public class AnimationUtil {
         return switch (style) {
             case SPEAR -> SpearAnimations1.SPEAR_WALK;
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_WALK;
+            case TACHI -> TachiAnimations1.TACHI_WALK;
             default -> LivingAnimations.WALK;
         };
     }
@@ -64,6 +63,7 @@ public class AnimationUtil {
             case DEFAULT -> RunAnimations.RUN_HOLDING_WEAPON;
             case SPEAR -> SpearAnimations1.SPEAR_RUN;
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_RUN;
+            case TACHI -> TachiAnimations1.TACHI_RUN;
             default -> RunAnimations.RUN;
         };
     }

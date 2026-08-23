@@ -176,9 +176,9 @@ public final class RigAnimationResolver {
             case TACHI_ATTACK3 -> TachiAnimations2.TACHI_ATTACK3;
             case TACHI_ATTACK4 -> TachiAnimations2.TACHI_ATTACK4;
             case TACHI_ATTACK5 -> TachiAnimations2.TACHI_ATTACK5;
-            case TACHI_DASH_ATTACK -> TachiAnimations1.TACHI_DASH_ATTACK;
-            case TACHI_JUMP_ATTACK -> TachiAnimations1.TACHI_JUMP_ATTACK;
-            case TACHI_EXTRA_ATTACK -> TachiAnimations1.TACHI_EXTRA_ATTACK;
+            case TACHI_EXTRA_ATTACK -> TachiAnimations3.TACHI_EXTRA_ATTACK;
+            case TACHI_DASH_ATTACK -> TachiAnimations3.TACHI_DASH_ATTACK;
+            case TACHI_JUMP_ATTACK -> TachiAnimations3.TACHI_JUMP_ATTACK;
             case TACHI_ULT -> TachiAnimations1.TACHI_ULT;
 
             case FIST_ATTACK1 -> FistAnimations.FIST_ATTACK1;
