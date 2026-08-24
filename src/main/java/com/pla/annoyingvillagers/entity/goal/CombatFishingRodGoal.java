@@ -39,14 +39,15 @@ public class CombatFishingRodGoal extends Goal {
     private static final int MIN_COOLDOWN_TICKS = 60;
     private static final int RANDOM_COOLDOWN_TICKS = 60;
     private static final int MAX_WAIT_TICKS = 55;
-    private static final int NEXT_HOOK_MIN_DELAY_TICKS = 8;
-    private static final int NEXT_HOOK_RANDOM_DELAY_TICKS = 10;
+    private static final int NEXT_HOOK_MIN_DELAY_TICKS = 30;
+    private static final int NEXT_HOOK_RANDOM_DELAY_TICKS = 20;
     private static final int AROUND_SEARCH_RADIUS = 12;
-    private static final int START_CHECK_INTERVAL_TICKS = 3;
-    private static final int MIN_SESSION_HOOKS_BEFORE_RESTORE = 4;
+    private static final int START_CHECK_INTERVAL_TICKS = 20;
+    private static final int MIN_SESSION_HOOKS_BEFORE_RESTORE = 2;
+    private static final int MAX_SESSION_HOOKS = 3;
     private static final double START_CHANCE = 0.15D;
-    private static final double RESTORE_CHANCE_PER_EXTRA_HOOK = 0.15D;
-    private static final double MAX_RESTORE_CHANCE = 0.45D;
+    private static final double RESTORE_CHANCE_PER_EXTRA_HOOK = 0.50D;
+    private static final double MAX_RESTORE_CHANCE = 0.75D;
     private static final double CLOSE_ESCAPE_DISTANCE_SQR = 25.0D;
     private static final double LOW_HEALTH_RATIO = 0.45D;
     private static final double LOW_HEALTH_ESCAPE_CHANCE = 0.40D;
@@ -73,7 +74,7 @@ public class CombatFishingRodGoal extends Goal {
 
         this.mob = mob;
         this.fishingRodUser = fishingRodUser;
-        this.setFlags(EnumSet.noneOf(Flag.class));
+        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
     @Override
@@ -136,7 +137,8 @@ public class CombatFishingRodGoal extends Goal {
         RidingUtil.stopNavigation(this.mob);
         this.mob.swing(InteractionHand.OFF_HAND, true);
         this.mob.playSound(SoundEvents.FISHING_BOBBER_THROW, 1.0F, 1.0F);
-        RigAnimationController.play(this.mob, RigAnimationId.THROW_ENDER_PEARL);
+        RigAnimationController.lockProfileAttacksFor(this.mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
+        RigAnimationController.play(this.mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
 
         if (castTarget != null) {
             RidingUtil.lookAtTarget(this.mob, castTarget, 70.0F, 70.0F);
@@ -193,6 +195,9 @@ public class CombatFishingRodGoal extends Goal {
         if (RigShieldGuardController.isGuarding(this.mob)) {
             return false;
         }
+        if (RigAnimationController.hasActiveProfileAttack(this.mob)) {
+            return false;
+        }
         if (this.mob instanceof AVNpc avNpc && avNpc.isHealing()) {
             return false;
         }
@@ -219,12 +224,13 @@ public class CombatFishingRodGoal extends Goal {
     }
 
     private boolean tryRestoreBeforeNextHook() {
-        if (this.getStickyTarget() != null) {
-            return false;
+        int useCount = Math.max(0, this.fishingRodUser.getCombatFishingRodState().getUseCount());
+        if (useCount >= MAX_SESSION_HOOKS) {
+            this.fishingRodUser.restoreCombatFishingRodSession(this.mob, true, MIN_COOLDOWN_TICKS, RANDOM_COOLDOWN_TICKS);
+            return true;
         }
 
-        int useCount = Math.max(0, this.fishingRodUser.getCombatFishingRodState().getUseCount());
-        if (useCount < MIN_SESSION_HOOKS_BEFORE_RESTORE) {
+        if (this.getStickyTarget() != null || useCount < MIN_SESSION_HOOKS_BEFORE_RESTORE) {
             return false;
         }
 

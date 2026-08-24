@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -98,7 +99,7 @@ public final class HookGunCombatUtil {
     }
 
     public static void tickAlex(AlexEntity alex, ServerLevel serverLevel) {
-        if (!alex.isAlive() || serverLevel.getGameTime() < alex.getPersistentData().getLong(KEY_ALEX_COOLDOWN_UNTIL)) {
+        if (RigStunController.isStunned(alex) || !alex.isAlive() || serverLevel.getGameTime() < alex.getPersistentData().getLong(KEY_ALEX_COOLDOWN_UNTIL)) {
             return;
         }
 
@@ -179,7 +180,7 @@ public final class HookGunCombatUtil {
     }
 
     public static void tickJev(JevEntity jev, ServerLevel serverLevel) {
-        if (!jev.isAlive()) {
+        if (RigStunController.isStunned(jev) || !jev.isAlive()) {
             return;
         }
 

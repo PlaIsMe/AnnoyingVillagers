@@ -15,7 +15,7 @@ public final class RigStunPoseData1 {
         clips.put(RigAnimationId.HIT_BACKWARD, hit_backward());
         clips.put(RigAnimationId.HIT_LEFT, hit_left());
         clips.put(RigAnimationId.HIT_RIGHT, hit_right());
-        clips.put(RigAnimationId.KNOCKDOWN_TOWARD, knockdown_toward());
+        clips.put(RigAnimationId.KNOCKDOWN_BACKWARD, knockdown_backward());
         clips.put(RigAnimationId.KNOCKDOWN_FORWARD, knockdown_forward());
         clips.put(RigAnimationId.KNOCKDOWN_LEFT, knockdown_left());
         clips.put(RigAnimationId.KNOCKDOWN_RIGHT, knockdown_right());
@@ -66,7 +66,7 @@ public final class RigStunPoseData1 {
         );
     }
 
-    private static RigPoseClip knockdown_toward() {
+    private static RigPoseClip knockdown_backward() {
         return RigPoseClip.of(
                 part(BODY, new float[]{0F, 0F, -3.96F, 4.161F, 0.05F, 0F, -4.985F, 10.316F, 0.1F, 0F, -7.514F, 16.322F, 0.15F, 0F, -10.818F, 21.166F, 0.2F, 0F, -13.812F, 24.368F, 0.25F, 0F, -17.368F, 26.912F, 0.3F, 0F, -20.376F, 28.31F, 0.35F, 0F, -21.334F, 28.397F, 0.4F, 0F, -21.909F, 28.329F, 0.5F, 0F, -21.087F, 28.342F, 0.6F, 0F, -21.911F, 28.399F, 1.15F, 0F, -21.949F, 28.4F, 1.2F, -0.008F, -21.718F, 28.393F, 1.5F, -0.071F, -18.866F, 27.84F, 1.55F, -0.301F, -17.36F, 27.237F, 1.65F, -0.88F, -14.739F, 25.406F, 1.75F, -1.587F, -12.838F, 22.915F, 1.85F, -2.979F, -10.942F, 20.744F, 1.95F, -4.411F, -9.55F, 18.559F, 2.05F, -2.528F, -6.748F, 16.691F, 2.15F, -0.608F, -4.629F, 14.743F, 2.2F, -0.042F, -3.778F, 14.153F, 2.35F, -0.13F, -1.27F, 14.371F}, new float[]{0F, 22.044F, 0F, 0F, 0.15F, -26.397F, 0F, 0F, 0.3F, -81.085F, 0F, 0F, 0.4F, -97.775F, 0F, 0F, 0.5F, -81.827F, 0F, 0F, 0.6F, -88.293F, 0F, 0F, 1.15F, -88.606F, 0F, 0F, 1.5F, -66.943F, -0.38F, -0.023F, 1.75F, -20.657F, 3.069F, -11.78F, 1.95F, 2.799F, 5.811F, -24.16F, 2.2F, 22.838F, 1.645F, 0.176F, 2.35F, 13.55F, 15.552F, 1.727F}),
                 part(HEAD, new float[]{0F, 0F, -3.913F, 4.226F, 0.05F, 0F, -4.957F, 10.391F, 0.1F, 0F, -7.507F, 16.402F, 0.15F, 0F, -10.835F, 21.246F, 0.2F, 0F, -13.856F, 24.443F, 0.25F, 0F, -17.438F, 26.973F, 0.3F, 0F, -20.458F, 28.347F, 0.35F, 0F, -21.398F, 28.409F, 0.4F, 0F, -21.952F, 28.33F, 0.5F, 0F, -21.101F, 28.345F, 0.6F, 0F, -21.921F, 28.401F, 1.15F, 0F, -21.959F, 28.401F, 1.2F, -0.011F, -21.734F, 28.395F, 1.5F, -0.104F, -18.93F, 27.892F, 1.55F, -0.337F, -17.421F, 27.307F, 1.65F, -0.921F, -14.78F, 25.512F, 1.75F, -1.635F, -12.841F, 23.047F, 1.85F, -3.022F, -10.931F, 20.855F, 1.95F, -4.445F, -9.535F, 18.642F, 2.05F, -2.546F, -6.73F, 16.743F, 2.15F, -0.613F, -4.618F, 14.764F, 2.2F, -0.042F, -3.772F, 14.164F, 2.35F, -0.131F, -1.272F, 14.362F}, new float[]{0F, 42.659F, 0F, 0F, 0.15F, -5.325F, 0F, 0F, 0.35F, -75.345F, 0F, 0F, 0.4F, -86.662F, 0F, 0F, 0.5F, -77.962F, 0F, 0F, 0.6F, -85.483F, 0F, 0F, 1.2F, -82.797F, 0.547F, 0.323F, 1.5F, -45.331F, 4.425F, 7.039F, 1.75F, 13.801F, -1.488F, 1.776F, 1.95F, 25.287F, 0.701F, -17.119F, 2.05F, 26.197F, 2.3F, -9.094F, 2.2F, 25.886F, 0.177F, -0.624F, 2.35F, 10.625F, 0.422F, -2.73F}),

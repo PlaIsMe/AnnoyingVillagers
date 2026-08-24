@@ -38,25 +38,26 @@ public final class RigPoseLibrary {
         RigPoseClip clip = CLIPS.get(animationId);
         if (clip == null) return Vec3.ZERO;
         RigPoseClip.Pose body = clip.sample(RigColliderAnchor.BODY, elapsedTicks);
-        return new Vec3(body.x(), 0.0D, body.z());
+        return new Vec3(body.x(), body.y(), body.z());
     }
 
-    public static Vec3 worldMotionDelta(RigAnimationId animationId, float previousElapsedTicks, float elapsedTicks, Vec3 forward) {
+    public static Vec3 worldMotionDelta(RigAnimationId animationId, float previousElapsedTicks, float elapsedTicks, Vec3 forward, boolean moveVertical) {
         Vec3 previous = serverMotion(animationId, previousElapsedTicks);
         Vec3 current = serverMotion(animationId, elapsedTicks);
         double sideBlocks = (previous.x - current.x) / MODEL_UNITS_PER_BLOCK;
+        double verticalBlocks = moveVertical ? (previous.y - current.y) / MODEL_UNITS_PER_BLOCK : 0.0D;
         double forwardBlocks = (previous.z - current.z) / MODEL_UNITS_PER_BLOCK;
-        if (Math.abs(sideBlocks) < EPSILON && Math.abs(forwardBlocks) < EPSILON) return Vec3.ZERO;
+        if (Math.abs(sideBlocks) < EPSILON && Math.abs(verticalBlocks) < EPSILON && Math.abs(forwardBlocks) < EPSILON) return Vec3.ZERO;
         Vec3 horizontalForward = horizontalForward(forward);
         Vec3 right = new Vec3(-horizontalForward.z, 0.0D, horizontalForward.x);
-        return right.scale(sideBlocks).add(horizontalForward.scale(forwardBlocks));
+        return right.scale(sideBlocks).add(0.0D, verticalBlocks, 0.0D).add(horizontalForward.scale(forwardBlocks));
     }
 
     private static Vec3 serverMotion(RigAnimationId animationId, float elapsedTicks) {
         RigPoseClip clip = CLIPS.get(animationId);
         if (clip == null) return Vec3.ZERO;
         RigPoseClip.Pose body = animationId.isAttack() ? clip.sampleNonReversingRootMotion(RigColliderAnchor.BODY, elapsedTicks) : clip.sample(RigColliderAnchor.BODY, elapsedTicks);
-        return new Vec3(body.x(), 0.0D, body.z());
+        return new Vec3(body.x(), body.y(), body.z());
     }
 
     public static double maxHorizontalMotionBlocks(RigAnimationId animationId) {

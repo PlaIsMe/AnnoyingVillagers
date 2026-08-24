@@ -138,20 +138,16 @@ public final class RigAnimationResolver {
             case BLACK_FIRE_SWORD_ULT -> SwordAnimations5.BLACK_FIRE_SWORD_ULT;
             case DIAMOND_ATTRACTOR_ULT -> SwordAnimations5.DIAMOND_ATTRACTOR_ULT;
             case DIAMOND_BLASTER_ULT -> SwordAnimations5.DIAMOND_BLASTER_ULT;
-            case DNAX_HOOK_SWORD_DUAL_ULT -> SwordAnimations5.DNAX_HOOK_SWORD_DUAL_ULT;
-            case DNAX_HOOK_SWORD_ULT -> SwordAnimations5.DNAX_HOOK_SWORD_ULT;
             case FLANKER_HOOK_SWORD_ULT -> SwordAnimations5.FLANKER_HOOK_SWORD_ULT;
             case GREAT_SWORD_ULT -> SwordAnimations5.GREAT_SWORD_ULT;
-            case THUNDER_DIAMOND_BLADE_DUAL_ULT -> SwordAnimations5.THUNDER_DIAMOND_BLADE_DUAL_ULT;
-            case THUNDER_DIAMOND_BLADE_ULT -> SwordAnimations5.THUNDER_DIAMOND_BLADE_ULT;
             case HOOK_SWORD_ULT1 -> SwordAnimations6.HOOK_SWORD_ULT1;
             case HOOK_SWORD_ULT2 -> SwordAnimations6.HOOK_SWORD_ULT2;
-            case HOOK_SWORD_DUAL_ULT -> SwordAnimations6.HOOK_SWORD_DUAL_ULT;
+            case HOOK_SWORD_DUAL_ULT -> SwordAnimations5.HOOK_SWORD_DUAL_ULT;
             case HACKER_SWORD_ULT -> SwordAnimations6.HACKER_SWORD_ULT;
-            case WOOPIE_EXTRA_ULT -> SwordAnimations6.WOOPIE_EXTRA_ULT;
-            case WOOPIE_EXTRA_ULT_LEGENDARY -> SwordAnimations6.WOOPIE_EXTRA_ULT_LEGENDARY;
-            case WOOPIE_FLY -> SwordAnimations6.WOOPIE_FLY;
-            case WOOPIE_ULT -> SwordAnimations6.WOOPIE_ULT;
+            case WOOPIE_THE_SWORD_EXTRA_ULT -> SwordAnimations6.WOOPIE_THE_SWORD_EXTRA_ULT;
+            case WOOPIE_THE_SWORD_EXTRA_ULT_LEGENDARY -> SwordAnimations6.WOOPIE_THE_SWORD_EXTRA_ULT_LEGENDARY;
+            case WOOPIE_THE_SWORD_FLY -> SwordAnimations6.WOOPIE_THE_SWORD_FLY;
+            case WOOPIE_THE_SWORD_ULT -> SwordAnimations6.WOOPIE_THE_SWORD_ULT;
 
             case BASIC_ATTACK1 -> BasicAttackAnimations1.BASIC_ATTACK1;
             case BASIC_ATTACK2 -> BasicAttackAnimations1.BASIC_ATTACK2;
@@ -210,7 +206,7 @@ public final class RigAnimationResolver {
             case JUMP -> LivingAnimations.JUMP;
             case EAT_OFFHAND -> LivingAnimations.EAT_OFFHAND;
             case EAT_MAINHAND -> LivingAnimations.EAT_MAINHAND;
-            case THROW_ENDER_PEARL -> LivingAnimations.THROW_ENDER_PEARL;
+
             case DEATH -> LivingAnimations.DEATH;
             case LAYING_DEATH -> LivingAnimations.LAYING_DEATH;
             case LAYING_DEATH_DEAD -> LivingAnimations.LAYING_DEATH_DEAD;
@@ -221,13 +217,16 @@ public final class RigAnimationResolver {
             case SWIM -> LivingAnimations.SWIM;
             case WALK -> LivingAnimations.WALK;
             case IDLE_DUAL -> LivingAnimations.IDLE_DUAL;
+            case POINT_LEFT_HAND_TOWARD -> LivingAnimations.POINT_LEFT_HAND_TOWARD;
+            case POINT_LEFT_HAND_MIDDLE -> LivingAnimations.POINT_LEFT_HAND_MIDDLE;
+            case POINT_LEFT_HAND_UP -> LivingAnimations.POINT_LEFT_HAND_UP;
 
             case RUN -> RunAnimations.RUN;
             case RUN_HOLDING_DUAL_WEAPON -> RunAnimations.RUN_HOLDING_DUAL_WEAPON;
             case RUN_HOLDING_WEAPON -> RunAnimations.RUN_HOLDING_WEAPON;
 
             case SHIELD_OFFHAND -> ShieldAnimations.SHIELD_OFFHAND;
-            case HIT_SHIELD_OFFHAND -> ShieldAnimations.BLOCK_SHIELD_OFFHAND;
+            case BLOCK_SHIELD_OFFHAND -> ShieldAnimations.BLOCK_SHIELD_OFFHAND;
             case SHIELD_MAINHAND -> ShieldAnimations.SHIELD_MAINHAND;
             case BLOCK_SHIELD_MAINHAND -> ShieldAnimations.BLOCK_SHIELD_MAINHAND;
 
@@ -241,7 +240,7 @@ public final class RigAnimationResolver {
             case HIT_LEFT -> StunAnimations1.HIT_LEFT;
             case HIT_RIGHT -> StunAnimations1.HIT_RIGHT;
             case KNOCKDOWN_FORWARD -> StunAnimations1.KNOCKDOWN_FORWARD;
-            case KNOCKDOWN_TOWARD -> StunAnimations1.KNOCKDOWN_TOWARD;
+            case KNOCKDOWN_BACKWARD -> StunAnimations1.KNOCKDOWN_BACKWARD;
             case KNOCKDOWN_LEFT -> StunAnimations1.KNOCKDOWN_LEFT;
             case KNOCKDOWN_RIGHT -> StunAnimations1.KNOCKDOWN_RIGHT;
             case STUN_BACK -> StunAnimations2.STUN_BACK;

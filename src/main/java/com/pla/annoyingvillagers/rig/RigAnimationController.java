@@ -17,6 +17,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.scores.Team;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -37,8 +38,14 @@ public final class RigAnimationController {
     }
 
     public static void play(Mob mob, RigAnimationSpec spec, LivingEntity target) {
-        if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
+        if (RigStunController.isStunned(mob) || mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
         playNow(mob, spec, target);
+    }
+
+    static void playStunAnimation(Mob mob, RigAnimationId animationId) {
+        RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
+        if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) return;
+        playNow(mob, spec, null);
     }
 
     public static void lockProfileAttacksFor(Mob mob, int ticks) {
@@ -86,6 +93,11 @@ public final class RigAnimationController {
 
     public static boolean hasActiveAnimation(Mob mob) {
         return getActiveAnimationState(mob) != null;
+    }
+
+    public static RigAnimationId getActiveAnimationId(Mob mob) {
+        ActiveAnimationState state = getActiveAnimationState(mob);
+        return state == null ? null : state.spec().animationId();
     }
 
     public static boolean hasActiveProfileAttack(Mob mob) {
@@ -171,6 +183,14 @@ public final class RigAnimationController {
             hook.run(mob);
         } catch (Exception e) {
             AnnoyingVillagers.LOGGER.error("[AV MOD DEBUG] Rig animation hook failed for {}", mob.getName().getString(), e);
+        }
+    }
+
+    private static void runHitHook(Mob mob, LivingEntity target, boolean critical, RigAnimationSpec.RigHitHook hitHook) {
+        try {
+            hitHook.onHit(mob, target, critical);
+        } catch (Exception e) {
+            AnnoyingVillagers.LOGGER.error("[AV MOD DEBUG] Rig hit hook failed for {} -> {}", mob.getName().getString(), target.getName().getString(), e);
         }
     }
 
@@ -268,25 +288,39 @@ public final class RigAnimationController {
                     if (!isCurrentAnimation(mob, state) || !mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return;
                     for (LivingEntity target : RigColliderSystem.findHits(mob, state.spec(), attackWindow, sampleTick)) {
                         if (!canDamageTarget(mob, target) || !hitEntities.add(target.getUUID())) continue;
-                        if (hurtTarget(mob, target, forceDamageThroughHurtCooldown)) playHitSound(target, state.spec().animationId());
+                        boolean critical = mob.getRandom().nextFloat() < state.spec().criticalChance();
+                        if (!hurtTarget(mob, target, state.spec(), critical, forceDamageThroughHurtCooldown)) continue;
+                        target.setLastHurtByMob(mob);
+                        mob.setLastHurtMob(target);
+                        playHitSound(target, state.spec().animationId());
+                        runHitHook(mob, target, critical, state.spec().hitHook());
                     }
                 }
             };
         }
     }
 
-    private static boolean hurtTarget(Mob mob, LivingEntity target, boolean forceDamageThroughHurtCooldown) {
-        if (!forceDamageThroughHurtCooldown) {
-            boolean hurt = mob.doHurtTarget(target);
-            if (hurt) spawnHitParticle(mob, target);
-            return hurt;
+    private static boolean hurtTarget(Mob mob, LivingEntity target, RigAnimationSpec spec, boolean critical, boolean forceDamageThroughHurtCooldown) {
+        RigDamageContext.push(mob, target, spec.damageMultiplier(), critical);
+        try {
+            if (!forceDamageThroughHurtCooldown) {
+                boolean hurt = mob.doHurtTarget(target);
+                if (hurt) spawnHitParticle(mob, target);
+                return hurt;
+            }
+
+            int previousInvulnerableTime = target.invulnerableTime;
+            target.invulnerableTime = 0;
+            try {
+                boolean hurt = mob.doHurtTarget(target);
+                if (hurt) spawnHitParticle(mob, target);
+                return hurt;
+            } finally {
+                target.invulnerableTime = previousInvulnerableTime;
+            }
+        } finally {
+            RigDamageContext.pop();
         }
-        int previousInvulnerableTime = target.invulnerableTime;
-        target.invulnerableTime = 0;
-        boolean hurt = mob.doHurtTarget(target);
-        target.invulnerableTime = previousInvulnerableTime;
-        if (hurt) spawnHitParticle(mob, target);
-        return hurt;
     }
 
     private static void spawnHitParticle(Mob mob, LivingEntity target) {
@@ -298,7 +332,15 @@ public final class RigAnimationController {
         if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return false;
         if (!target.isAlive() || target.isRemoved() || target.isDeadOrDying()) return false;
         if (target == mob.getVehicle()) return false;
-        return !mob.isAlliedTo(target) && !target.isAlliedTo(mob) && mob.canAttack(target);
+        if (areAllied(mob, target)) return false;
+        return mob.canAttack(target);
+    }
+
+    private static boolean areAllied(Mob mob, LivingEntity target) {
+        Team mobTeam = mob.getTeam();
+        Team targetTeam = target.getTeam();
+        if (mobTeam != null && targetTeam != null && (mobTeam == targetTeam || mobTeam.isAlliedTo(targetTeam) || targetTeam.isAlliedTo(mobTeam))) return true;
+        return mob.isAlliedTo(target) || target.isAlliedTo(mob);
     }
 
     private static void scheduleAnimationMotion(Mob mob, LivingEntity target, RigAnimationSpec spec, ActiveAnimationState state) {
@@ -311,10 +353,17 @@ public final class RigAnimationController {
                 @Override
                 public void run() {
                     if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || !isCurrentAnimation(mob, state)) return;
-                    Vec3 delta = RigPoseLibrary.worldMotionDelta(animationId, currentElapsedTick - 1.0F, currentElapsedTick, forward);
+                    Vec3 delta = RigPoseLibrary.worldMotionDelta(animationId, currentElapsedTick - 1.0F, currentElapsedTick, forward, spec.moveVertical());
                     if (delta.lengthSqr() < 1.0E-8D) return;
+                    if (spec.moveVertical()) {
+                        Vec3 currentMotion = mob.getDeltaMovement();
+                        delta = delta.add(0.0D, -currentMotion.y, 0.0D);
+                        mob.setDeltaMovement(currentMotion.x, 0.0D, currentMotion.z);
+                        mob.fallDistance = 0.0F;
+                    }
                     mob.move(MoverType.SELF, delta);
                     mob.hasImpulse = true;
+                    mob.hurtMarked = true;
                 }
             };
         }

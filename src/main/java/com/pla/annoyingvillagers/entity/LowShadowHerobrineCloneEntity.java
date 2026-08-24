@@ -9,6 +9,7 @@ import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -48,7 +49,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
-public class LowShadowHerobrineCloneEntity extends Monster {
+public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnableEntity {
     private boolean summoned = false;
     private boolean initialSpawn = true;
     private EliteHerobrineKnockedEntity protectEntity;

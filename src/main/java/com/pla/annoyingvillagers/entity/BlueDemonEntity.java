@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
+import com.pla.annoyingvillagers.rig.RigStunEscapeEntity;
 import com.pla.annoyingvillagers.spawnhandler.BluedemonData;
 import com.pla.annoyingvillagers.util.*;
 import net.minecraft.core.BlockPos;
@@ -57,7 +58,7 @@ import java.util.*;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 
-public class BlueDemonEntity extends Monster implements BurstProtectEntity, CombatVoiceLineEntity {
+public class BlueDemonEntity extends Monster implements BurstProtectEntity, CombatVoiceLineEntity, RigStunEscapeEntity {
     private static final float WATER_SWIM_ACCELERATION = 0.08F;
     private static final double WATER_SWIM_HORIZONTAL_SPEED = 0.42D;
 

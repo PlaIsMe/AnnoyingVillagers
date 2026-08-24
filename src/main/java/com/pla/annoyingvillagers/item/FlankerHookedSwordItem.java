@@ -1,10 +1,13 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
+import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class FlankerHookedSwordItem extends SwordItem {
+public class FlankerHookedSwordItem extends SwordItem implements RigCombatProfileProvider {
     public FlankerHookedSwordItem() {
         super(new Tier() {
             public int getUses() {
@@ -31,5 +34,20 @@ public class FlankerHookedSwordItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.GOLD_INGOT));
             }
         }, 3, -2.6F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.FLANKER_HOOKED_SWORD;
+    }
+
+    @Override
+    public RigDualWieldGroup getDualWieldGroup(ItemStack stack) {
+        return RigDualWieldGroup.SWORD;
+    }
+
+    @Override
+    public RigCombatStyle getDualRigCombatStyle(ItemStack self, ItemStack other) {
+        return RigCombatStyle.DUAL_HOOKED_SWORD;
     }
 }

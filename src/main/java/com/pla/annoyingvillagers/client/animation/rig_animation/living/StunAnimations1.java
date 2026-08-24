@@ -558,7 +558,7 @@ public class StunAnimations1 {
 			))
 			.build();
 
-	public static final AnimationDefinition KNOCKDOWN_TOWARD = AnimationDefinition.Builder.withLength(2.35F)
+	public static final AnimationDefinition KNOCKDOWN_BACKWARD = AnimationDefinition.Builder.withLength(2.35F)
 			.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(22.044F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.15F, KeyframeAnimations.degreeVec(-26.397F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),

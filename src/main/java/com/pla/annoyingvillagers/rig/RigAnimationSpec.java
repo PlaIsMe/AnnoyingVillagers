@@ -1,18 +1,14 @@
 package com.pla.annoyingvillagers.rig;
 
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 
 import java.util.List;
 
-public record RigAnimationSpec(
-        RigAnimationId animationId,
-        int durationTicks,
-        RigAttackWindow[] attackWindows,
-        RigAnimationPlaybackType playbackType,
-        boolean damagesTarget,
-        boolean jumpOnStart,
-        List<RigTimedAnimationHook> timedHooks
-) {
+public record RigAnimationSpec(RigAnimationId animationId, int durationTicks, RigAttackWindow[] attackWindows, RigAnimationPlaybackType playbackType, boolean damagesTarget, boolean jumpOnStart, boolean moveVertical, List<RigTimedAnimationHook> timedHooks, float damageMultiplier, float criticalChance, RigHitHook hitHook) {
+    public static final float DEFAULT_DAMAGE_MULTIPLIER = 1.0F;
+    public static final float DEFAULT_CRITICAL_CHANCE = 0.10F;
+
     public RigAnimationSpec {
         if (animationId == null) throw new IllegalArgumentException("animationId cannot be null");
         if (durationTicks <= 0) throw new IllegalArgumentException("durationTicks must be > 0");
@@ -29,9 +25,13 @@ public record RigAnimationSpec(
             if (timedHook.isTimed() && timedHook.tick() > durationTicks) throw new IllegalArgumentException("timed hook tick must be within animation duration");
         }
         timedHooks = List.copyOf(timedHooks);
+        if (!Float.isFinite(damageMultiplier) || damageMultiplier < 0.0F) throw new IllegalArgumentException("damageMultiplier must be finite and >= 0");
+        if (!Float.isFinite(criticalChance) || criticalChance < 0.0F || criticalChance > 1.0F) throw new IllegalArgumentException("criticalChance must be between 0 and 1");
+        if (hitHook == null) throw new IllegalArgumentException("hitHook cannot be null");
         if (damagesTarget && attackWindows.length == 0) throw new IllegalArgumentException("Damaging attack specs require at least one attack window");
         if (!damagesTarget && attackWindows.length > 0) throw new IllegalArgumentException("Non-damaging specs cannot define attack windows");
         if (!damagesTarget && jumpOnStart) throw new IllegalArgumentException("jumpOnStart is only valid for attack specs");
+        if (!damagesTarget && criticalChance != 0.0F) throw new IllegalArgumentException("criticalChance is only valid for attack specs");
     }
 
     public static RigAnimationSpec attack(RigAnimationId animationId, int durationTicks, boolean jumpOnStart, RigAttackWindow... attackWindows) {
@@ -39,7 +39,7 @@ public record RigAnimationSpec(
     }
 
     public static RigAnimationSpec attack(RigAnimationId animationId, int durationTicks, boolean jumpOnStart, List<RigTimedAnimationHook> timedHooks, RigAttackWindow... attackWindows) {
-        return new RigAnimationSpec(animationId, durationTicks, attackWindows, RigAnimationPlaybackType.DEFAULT, true, jumpOnStart, timedHooks);
+        return new RigAnimationSpec(animationId, durationTicks, attackWindows, RigAnimationPlaybackType.DEFAULT, true, jumpOnStart, false, timedHooks, DEFAULT_DAMAGE_MULTIPLIER, DEFAULT_CRITICAL_CHANCE, RigHitHook.NO_OP);
     }
 
     public static RigAnimationSpec rolling(RigAnimationId animationId, int durationTicks) {
@@ -56,7 +56,30 @@ public record RigAnimationSpec(
     }
 
     public static RigAnimationSpec nonDamaging(RigAnimationId animationId, int durationTicks, RigAnimationPlaybackType playbackType, List<RigTimedAnimationHook> timedHooks) {
-        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], playbackType, false, false, timedHooks);
+        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], playbackType, false, false, false, timedHooks, DEFAULT_DAMAGE_MULTIPLIER, 0.0F, RigHitHook.NO_OP);
+    }
+
+    public RigAnimationSpec withVerticalMotion() {
+        return moveVertical(true);
+    }
+
+    public RigAnimationSpec moveVertical(boolean moveVertical) {
+        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, moveVertical, this.timedHooks, this.damageMultiplier, this.criticalChance, this.hitHook);
+    }
+
+    public RigAnimationSpec damageMultiplier(float damageMultiplier) {
+        if (!this.damagesTarget) throw new IllegalStateException("damageMultiplier is only valid for attack specs");
+        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, this.timedHooks, damageMultiplier, this.criticalChance, this.hitHook);
+    }
+
+    public RigAnimationSpec criticalChance(float criticalChance) {
+        if (!this.damagesTarget) throw new IllegalStateException("criticalChance is only valid for attack specs");
+        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, this.timedHooks, this.damageMultiplier, criticalChance, this.hitHook);
+    }
+
+    public RigAnimationSpec onHit(RigHitHook hitHook) {
+        if (!this.damagesTarget) throw new IllegalStateException("onHit is only valid for attack specs");
+        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, this.timedHooks, this.damageMultiplier, this.criticalChance, hitHook);
     }
 
     @Override
@@ -74,6 +97,12 @@ public record RigAnimationSpec(
     public interface RigAnimationHook {
         RigAnimationHook NO_OP = mob -> {};
         void run(Mob mob);
+    }
+
+    @FunctionalInterface
+    public interface RigHitHook {
+        RigHitHook NO_OP = (attacker, target, critical) -> {};
+        void onHit(Mob attacker, LivingEntity target, boolean critical);
     }
 
     public record RigTimedAnimationHook(int tick, RigAnimationHook action) {

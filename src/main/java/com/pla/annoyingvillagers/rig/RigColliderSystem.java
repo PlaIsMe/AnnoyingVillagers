@@ -4,6 +4,7 @@ import com.pla.annoyingvillagers.rig.pose.RigPoseLibrary;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.scores.Team;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -59,6 +60,10 @@ public final class RigColliderSystem {
     }
 
     public static boolean canStartAttack(Mob mob, LivingEntity target, RigAnimationSpec spec) {
+        Team mobTeam = mob.getTeam();
+        Team targetTeam = target.getTeam();
+        if (mob.isAlliedTo(target) || target.isAlliedTo(mob)) return false;
+        if (mobTeam != null && targetTeam != null && (mobTeam == targetTeam || mobTeam.isAlliedTo(targetTeam) || targetTeam.isAlliedTo(mobTeam))) return false;
         double range = MAX_REACH_CACHE.computeIfAbsent(spec.animationId(), ignored -> calculateMaxReach(spec));
         range += RigPoseLibrary.maxHorizontalMotionBlocks(spec.animationId()) + target.getBbWidth() * 0.5D + mob.getBbWidth() * 0.5D;
         double dx = target.getX() - mob.getX();

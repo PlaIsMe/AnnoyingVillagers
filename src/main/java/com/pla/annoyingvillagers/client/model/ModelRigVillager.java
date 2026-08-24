@@ -420,17 +420,19 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
         Vec3 offset = RigPoseLibrary.modelMotion(active.animationId(), active.sampleTicks(ageInTicks));
         if (offset.lengthSqr() < 1.0E-8D) return;
         float x = (float) (-offset.x * activeWeight);
+        float y = RigAnimationSpecs.get(active.animationId()).moveVertical() ? (float) (-offset.y * activeWeight) : 0.0F;
         float z = (float) (-offset.z * activeWeight);
-        translateTopLevelPart(this.head, x, z);
-        translateTopLevelPart(this.body, x, z);
-        translateTopLevelPart(this.rightArm, x, z);
-        translateTopLevelPart(this.leftArm, x, z);
-        translateTopLevelPart(this.rightLeg, x, z);
-        translateTopLevelPart(this.leftLeg, x, z);
+        translateTopLevelPart(this.head, x, y, z);
+        translateTopLevelPart(this.body, x, y, z);
+        translateTopLevelPart(this.rightArm, x, y, z);
+        translateTopLevelPart(this.leftArm, x, y, z);
+        translateTopLevelPart(this.rightLeg, x, y, z);
+        translateTopLevelPart(this.leftLeg, x, y, z);
     }
 
-    private static void translateTopLevelPart(ModelPart part, float x, float z) {
+    private static void translateTopLevelPart(ModelPart part, float x, float y, float z) {
         part.x += x;
+        part.y += y;
         part.z += z;
     }
 

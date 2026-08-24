@@ -11,6 +11,7 @@ import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
+import com.pla.annoyingvillagers.rig.RigStunEscapeEntity;
 import com.pla.annoyingvillagers.network.ClientboundHerobrineAssistanceFx;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
@@ -68,7 +69,7 @@ import java.util.*;
 
 import static com.pla.annoyingvillagers.util.HerobrinePortalUtil.*;
 
-public class HerobrineMob extends Monster implements BurstProtectEntity, CombatVoiceLineEntity, LockableRigAttackAnimation {
+public class HerobrineMob extends Monster implements BurstProtectEntity, CombatVoiceLineEntity, LockableRigAttackAnimation, RigStunEscapeEntity {
     private boolean renderPortal = false;
     private int recallTicks = 0;
     private String chatName;

@@ -2,6 +2,8 @@ package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.BlackFireEntity;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -25,7 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class BlackFireSwordItem extends SwordItem {
+public class BlackFireSwordItem extends SwordItem implements RigCombatProfileProvider {
     private static final int BLACK_FIRE_FALLBACK_LOOKUP_TICKS = 80;
     private static final Map<Integer, Long> ACTIVE_BLACK_FIRE_FALLBACKS = new HashMap<>();
     private static Level blackFireFallbackLevel;
@@ -60,6 +62,11 @@ public class BlackFireSwordItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.DIAMOND));
             }
         }, 3, -2.1F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.BLACK_FIRE_SWORD;
     }
 
     public static Vec3 getSwordOrBodyPosition(Entity entity) {

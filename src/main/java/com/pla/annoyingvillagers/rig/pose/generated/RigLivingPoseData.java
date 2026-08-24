@@ -25,7 +25,7 @@ public final class RigLivingPoseData {
         clips.put(RigAnimationId.SNEAK, sneak());
         clips.put(RigAnimationId.SPINNING_WEAPON, spinning_weapon());
         clips.put(RigAnimationId.SWIM, swim());
-        clips.put(RigAnimationId.THROW_ENDER_PEARL, throw_ender_pearl());
+        clips.put(RigAnimationId.POINT_LEFT_HAND_TOWARD, throw_ender_pearl());
         clips.put(RigAnimationId.WALK, walk());
     }
 

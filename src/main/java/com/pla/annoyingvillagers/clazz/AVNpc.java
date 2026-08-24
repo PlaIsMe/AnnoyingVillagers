@@ -22,14 +22,13 @@ import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigBowAnimationSelector;
-import com.pla.annoyingvillagers.task.DelayedTask;
+import com.pla.annoyingvillagers.rig.RigStunEscapeEntity;
 import com.pla.annoyingvillagers.util.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -54,7 +53,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoiceLineEntity, LockableRigAttackAnimation {
+public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoiceLineEntity, LockableRigAttackAnimation, RigStunEscapeEntity {
     private static final int PLACE_BLOCK_PARRY_COOLDOWN_TICKS = 60;
     private static final float VILLAGER_ARMOR_DROP_CHANCE = 0.12F;
     private static final float VILLAGER_WEAPON_DROP_CHANCE = 0.16F;

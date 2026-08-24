@@ -3,10 +3,15 @@ package com.pla.annoyingvillagers.item;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.ItemProjectile;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -19,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiamondAttractorSwordItem extends SwordItem {
+public class DiamondAttractorSwordItem extends SwordItem implements RigCombatProfileProvider {
 
     public DiamondAttractorSwordItem() {
         super(new Tier() {
@@ -47,6 +52,11 @@ public class DiamondAttractorSwordItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.DIAMOND));
             }
         }, 3, -2.8F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.DIAMOND_ATTRACTOR;
     }
 
     public static void pullWeapons(LivingEntity owner) {
@@ -108,6 +118,11 @@ public class DiamondAttractorSwordItem extends SwordItem {
 //                targetPatch.playAnimationSynchronized(AnimsPugilistSteve.KNOCKDOWN_FORWARD, 0.0F);
 //            }
 //        }
+
+        if (!(target instanceof Mob mob)) return;
+        if (!RigStunController.supports(mob)) return;
+
+        RigStunController.applyKnockdown(mob, RigAnimationId.KNOCKDOWN_FORWARD);
     }
 
     private static void pullHeldWeapons(ServerLevel level, LivingEntity owner, AABB area) {

@@ -752,6 +752,12 @@ public class CommonUtil {
 
     }
 
+    public static void applyHookClashDisarmLogic(LivingEntity defender, LivingEntity attacker, ServerLevel serverLevel, HookDisarmLaunch launch) {
+        if (defender == null || attacker == null || !attacker.isAlive()) return;
+        forceRotate(attacker, defender);
+        tryDisarmAndLaunchWeapon(serverLevel, defender, attacker, launch);
+    }
+
     private static void tryDisarmAndLaunchWeapon(
             ServerLevel serverLevel,
             LivingEntity livingEntity,

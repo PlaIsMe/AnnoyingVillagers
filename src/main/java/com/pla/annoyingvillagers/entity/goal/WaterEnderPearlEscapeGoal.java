@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.Items;
@@ -79,8 +78,8 @@ public class WaterEnderPearlEscapeGoal extends Goal {
 //        if (this.getLivingEntityPatch() != null) {
 //            this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
 //        }
-        RigAnimationController.lockProfileAttacksFor(this.mob, RigAnimationId.THROW_ENDER_PEARL);
-        RigAnimationController.play(this.mob, RigAnimationId.THROW_ENDER_PEARL);
+        RigAnimationController.lockProfileAttacksFor(this.mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
+        RigAnimationController.play(this.mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
     }
 
     @Override

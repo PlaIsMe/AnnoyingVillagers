@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.rig.pose;
 
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigColliderAnchor;
+import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -28,6 +29,7 @@ public final class RigPoseSampler {
         RigPoseClip clip = RigPoseLibrary.get(animationId);
         Matrix4f matrix = new Matrix4f();
         Vec3 motion = RigPoseLibrary.modelMotion(animationId, elapsedTicks);
+        boolean moveVertical = RigAnimationSpecs.get(animationId).moveVertical();
         Deque<RigColliderAnchor> chain = new ArrayDeque<>();
         for (RigColliderAnchor part = anchor; part != null; part = part.parent()) chain.push(part);
 
@@ -40,6 +42,7 @@ public final class RigPoseSampler {
             float z = part.pivotZ() + pose.z();
             if (part.isTopLevel()) {
                 x -= (float) motion.x;
+                if (moveVertical) y -= (float) motion.y;
                 z -= (float) motion.z;
             }
             matrix.translate(x / MODEL_UNITS_PER_BLOCK, y / MODEL_UNITS_PER_BLOCK, z / MODEL_UNITS_PER_BLOCK);

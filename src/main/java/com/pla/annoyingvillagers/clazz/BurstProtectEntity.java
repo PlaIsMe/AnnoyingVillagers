@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.clazz;
 
+import com.pla.annoyingvillagers.rig.RigCriticalUtil;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -25,23 +27,13 @@ public interface BurstProtectEntity {
 //
 //        AssetAccessor<? extends StaticAnimation> anim = player.getRealAnimation();
 //        return EpicfightUtil.isDamagableHitAnimation(anim, patch);
-
-        return false;
+        return RigStunController.isStunned(self) || RigCriticalUtil.isCriticalDamage(self, source);
     }
 
     default float applyBurstProtection(LivingEntity self, DamageSource source, float damage) {
-        if (shouldIgnoreBurstProtection(self, source)) {
-            return damage;
-        }
-
-        if (damage <= 0.0F) {
-            return 0.0F;
-        }
-
-        if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            return damage;
-        }
-
+        if (shouldIgnoreBurstProtection(self, source)) return damage;
+        if (damage <= 0.0F) return 0.0F;
+        if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return damage;
         float cap = self.getMaxHealth() * getBurstProtectCapRatio();
         return Mth.clamp(damage, 0.0F, cap);
     }

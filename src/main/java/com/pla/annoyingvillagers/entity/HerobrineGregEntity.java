@@ -20,6 +20,7 @@ import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.spawnhandler.GregData;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -76,7 +77,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 
-public class HerobrineGregEntity extends Monster {
+public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
     private static final int MAX_COMBAT_LOW_CLONE_SUPPORT = 5;
     private static final float FISHING_HOOK_ESCAPE_CANCEL_CHANCE = 0.8F;
     private static final double SECOND_FORM_SUPPORT_SEARCH_RADIUS_SQR = 48.0D * 48.0D;

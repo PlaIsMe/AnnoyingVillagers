@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.TeamUtil;
+import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -27,7 +28,7 @@ import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
-public class InfectedTheMostMoistBurrit0Entity extends PathfinderMob {
+public class InfectedTheMostMoistBurrit0Entity extends PathfinderMob implements RigStunnableEntity {
     private boolean initialSpawn = false;
     public InfectedTheMostMoistBurrit0Entity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.INFECTED_THEMOSTMOISTBURRIT0.get(), level);

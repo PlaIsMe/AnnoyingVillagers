@@ -1,5 +1,8 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
+import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -7,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
-public class ClowSwordItem extends SwordItem {
+public class ClowSwordItem extends SwordItem implements RigCombatProfileProvider {
     private static boolean conditionToSpawnLapis(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
 //        Add this in AV_EFM
 //        if (!pAttacker.level().isClientSide) {
@@ -21,6 +24,21 @@ public class ClowSwordItem extends SwordItem {
 //        }
 //        ci.cancel here
         return new Random().nextFloat() < 0.3F;
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.SPECIAL_SWORD;
+    }
+
+    @Override
+    public RigDualWieldGroup getDualWieldGroup(ItemStack stack) {
+        return RigDualWieldGroup.SWORD;
+    }
+
+    @Override
+    public RigCombatStyle getDualRigCombatStyle(ItemStack self, ItemStack other) {
+        return RigCombatStyle.DUAL_SPECIAL_SWORD;
     }
 
     @Override

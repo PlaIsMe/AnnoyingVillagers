@@ -66,7 +66,7 @@ public final class RigShieldGuardController {
             mob.lookAt(attacker, 70.0F, 70.0F);
         }
 
-        RigAnimationSpec hitSpec = RigAnimationSpecs.get(RigAnimationId.HIT_SHIELD_OFFHAND);
+        RigAnimationSpec hitSpec = RigAnimationSpecs.get(RigAnimationId.BLOCK_SHIELD_OFFHAND);
         RigAnimationController.play(mob, hitSpec, animationTarget);
         mob.setAggressive(false);
         damageShield(mob, blockedAmount);

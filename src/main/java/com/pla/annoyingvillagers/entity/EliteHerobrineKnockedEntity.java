@@ -4,6 +4,7 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.core.BlockPos;
@@ -45,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class EliteHerobrineKnockedEntity extends PathfinderMob {
+public class EliteHerobrineKnockedEntity extends PathfinderMob implements RigStunnableEntity {
     private int wardenCallingCooldown;
     private int eatCount = 0;
     private boolean initialSpawn = false;

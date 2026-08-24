@@ -342,44 +342,254 @@ public final class RigCombatProfiles {
                 0.0D,
                 RigLocomotionStyle.TACHI
         ));
-    }
 
-//
-//    private static final RigCombatProfile SWORD = new RigCombatProfile(
-//            List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
-//                    RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
-//            List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
-//            List.of(
-//                    RigAnimationId.ROLL_FORWARD,
-//                    RigAnimationId.ROLL_BACKWARD,
-//                    RigAnimationId.STEP_FORWARD,
-//                    RigAnimationId.STEP_BACKWARD,
-//                    RigAnimationId.STEP_LEFT,
-//                    RigAnimationId.STEP_RIGHT
-//            ),
-//            List.of(RigAnimationId.SWORD_ULT),
-//            0.18D,
-//            0.06D,
-//            0.0D
-//    );
-//
-//    private static final RigCombatProfile DUAL_SWORD = new RigCombatProfile(
-//            List.of(RigAnimationId.DUAL_SWORD_ATTACK1, RigAnimationId.DUAL_SWORD_ATTACK2, RigAnimationId.DUAL_SWORD_ATTACK3,
-//                    RigAnimationId.DUAL_SWORD_ATTACK4, RigAnimationId.DUAL_SWORD_ATTACK5),
-//            List.of(RigAnimationId.DUAL_SWORD_DASH_ATTACK, RigAnimationId.DUAL_SWORD_JUMP_ATTACK, RigAnimationId.DUAL_SWORD_EXTRA_ATTACK),
-//            List.of(
-//                    RigAnimationId.ROLL_FORWARD,
-//                    RigAnimationId.ROLL_BACKWARD,
-//                    RigAnimationId.STEP_FORWARD,
-//                    RigAnimationId.STEP_BACKWARD,
-//                    RigAnimationId.STEP_LEFT,
-//                    RigAnimationId.STEP_RIGHT
-//            ),
-//            List.of(RigAnimationId.DUAL_SWORD_ULT),
-//            0.18D,
-//            0.06D,
-//            0.0D
-//    );
+        PROFILES.put(RigCombatStyle.SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
+                        RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
+                List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.DUAL_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.DUAL_SWORD_ATTACK1, RigAnimationId.DUAL_SWORD_ATTACK2, RigAnimationId.DUAL_SWORD_ATTACK3,
+                        RigAnimationId.DUAL_SWORD_ATTACK4, RigAnimationId.DUAL_SWORD_ATTACK5),
+                List.of(RigAnimationId.DUAL_SWORD_DASH_ATTACK, RigAnimationId.DUAL_SWORD_JUMP_ATTACK, RigAnimationId.DUAL_SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.DUAL_SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.SPECIAL_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
+                        RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
+                List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.BASIC_ULT, RigAnimationId.SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.DUAL_SPECIAL_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.DUAL_SWORD_ATTACK1, RigAnimationId.DUAL_SWORD_ATTACK2, RigAnimationId.DUAL_SWORD_ATTACK3,
+                        RigAnimationId.DUAL_SWORD_ATTACK4, RigAnimationId.DUAL_SWORD_ATTACK5),
+                List.of(RigAnimationId.DUAL_SWORD_DASH_ATTACK, RigAnimationId.DUAL_SWORD_JUMP_ATTACK, RigAnimationId.DUAL_SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.DUAL_BASIC_ULT, RigAnimationId.DUAL_SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.BLACK_FIRE_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
+                        RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
+                List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.BLACK_FIRE_SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.DIAMOND_ATTRACTOR, new RigCombatProfile(
+                List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
+                        RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
+                List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.DIAMOND_ATTRACTOR_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.DIAMOND_BLASTER, new RigCombatProfile(
+                List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
+                        RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
+                List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.DIAMOND_BLASTER_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.HACKER_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
+                        RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
+                List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.HACKER_SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.HOOKED_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
+                        RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
+                List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.HOOK_SWORD_ULT1, RigAnimationId.HOOK_SWORD_ULT2, RigAnimationId.SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.FLANKER_HOOKED_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
+                        RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
+                List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.FLANKER_HOOK_SWORD_ULT, RigAnimationId.SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.DUAL_HOOKED_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.DUAL_SWORD_ATTACK1, RigAnimationId.DUAL_SWORD_ATTACK2, RigAnimationId.DUAL_SWORD_ATTACK3,
+                        RigAnimationId.DUAL_SWORD_ATTACK4, RigAnimationId.DUAL_SWORD_ATTACK5),
+                List.of(RigAnimationId.DUAL_SWORD_DASH_ATTACK, RigAnimationId.DUAL_SWORD_JUMP_ATTACK, RigAnimationId.DUAL_SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.HOOK_SWORD_DUAL_ULT, RigAnimationId.DUAL_SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.GREAT_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
+                        RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
+                List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.GREAT_SWORD_ULT, RigAnimationId.SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.WOOPIE_THE_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.SWORD_ATTACK1, RigAnimationId.SWORD_ATTACK2, RigAnimationId.SWORD_ATTACK3,
+                        RigAnimationId.SWORD_ATTACK4, RigAnimationId.SWORD_ATTACK5),
+                List.of(RigAnimationId.SWORD_DASH_ATTACK, RigAnimationId.SWORD_JUMP_ATTACK, RigAnimationId.SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.WOOPIE_THE_SWORD_ULT, RigAnimationId.SWORD_ULT),
+                0.18D,
+                0.06D,
+                0.0D,
+                RigLocomotionStyle.DEFAULT
+        ));
+    }
 
     public static boolean isProfileAttack(RigAnimationId animationId) {
         return PROFILES.values().stream()

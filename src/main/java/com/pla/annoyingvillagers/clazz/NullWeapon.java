@@ -12,6 +12,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.NullWeaponItem;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.TeamUtil;
+import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -49,7 +50,7 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
-public class NullWeapon extends Monster {
+public class NullWeapon extends Monster implements RigStunnableEntity {
     protected UUID nullUUID;
     protected NullEntity nullEntity;
 

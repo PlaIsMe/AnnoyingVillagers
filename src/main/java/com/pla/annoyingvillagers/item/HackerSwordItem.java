@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SwordItem;
@@ -7,7 +9,7 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class HackerSwordItem extends SwordItem {
+public class HackerSwordItem extends SwordItem implements RigCombatProfileProvider {
 
     public HackerSwordItem() {
         super(new Tier() {
@@ -35,5 +37,10 @@ public class HackerSwordItem extends SwordItem {
                 return Ingredient.of(new ItemStack(Items.IRON_INGOT));
             }
         }, 3, -2.4F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.HACKER_SWORD;
     }
 }

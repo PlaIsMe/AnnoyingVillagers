@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigColliderSystem;
 import com.pla.annoyingvillagers.rig.RigCombatProfile;
 import com.pla.annoyingvillagers.rig.RigCombatProfiles;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.RidingUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -160,7 +161,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     }
 
     private boolean isAttackLocked() {
-        return this.mob instanceof LockableRigAttackAnimation lockable && lockable.isLocked();
+        return RigStunController.isStunned(this.mob) || this.mob instanceof LockableRigAttackAnimation lockable && lockable.isLocked();
     }
 
     private boolean isValidMeleeState(LivingEntity target) {

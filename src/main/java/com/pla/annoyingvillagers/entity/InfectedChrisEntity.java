@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
+import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -24,7 +25,7 @@ import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
-public class InfectedChrisEntity extends PathfinderMob {
+public class InfectedChrisEntity extends PathfinderMob implements RigStunnableEntity {
     public InfectedChrisEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(), level);
     }
