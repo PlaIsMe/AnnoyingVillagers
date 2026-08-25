@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.item.TonyTheFishingRod;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigShieldGuardController;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.RidingUtil;
 import net.minecraft.core.BlockPos;
@@ -186,7 +187,7 @@ public class CombatFishingRodGoal extends Goal {
         if (this.mob.isDeadOrDying()) {
             return false;
         }
-        if (this.mob.isNoAi()) {
+        if (this.mob.isNoAi() || RigStunController.isStunned(this.mob)) {
             return false;
         }
         if (this.mob.isPassenger()) {
@@ -381,7 +382,8 @@ public class CombatFishingRodGoal extends Goal {
                 && this.mob.isAlive()
                 && !this.mob.isRemoved()
                 && !this.mob.isDeadOrDying()
-                && !this.mob.isNoAi();
+                && !this.mob.isNoAi()
+                && !RigStunController.isStunned(this.mob);
     }
 
     private void resolveAction(@Nullable LivingEntity castTarget, Action castAction, @Nullable Vec3 castAnchor, ItemStack stuckItem) {

@@ -93,6 +93,13 @@ public record RigAnimationSpec(RigAnimationId animationId, int durationTicks, Ri
         return impactDelayTicks;
     }
 
+    public int lastAttackWindowEndTick() {
+        if (!this.damagesTarget || this.attackWindows.length == 0) return this.durationTicks;
+        int lastEndTick = 0;
+        for (RigAttackWindow attackWindow : this.attackWindows) lastEndTick = Math.max(lastEndTick, attackWindow.endTickExclusive());
+        return lastEndTick;
+    }
+
     @FunctionalInterface
     public interface RigAnimationHook {
         RigAnimationHook NO_OP = mob -> {};

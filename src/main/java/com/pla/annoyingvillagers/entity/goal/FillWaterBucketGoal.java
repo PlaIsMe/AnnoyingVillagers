@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -41,6 +42,7 @@ public class FillWaterBucketGoal extends Goal {
         if (!this.mob.isAlive()
                 || this.mob.isPassenger()
                 || this.mob.isNoAi()
+                || RigStunController.isStunned(this.mob)
                 || this.mob.getTarget() != null
                 || this.isHealing()
                 || !InventoryUtils.hasItem(this.mob, Items.BUCKET)) {
@@ -62,6 +64,7 @@ public class FillWaterBucketGoal extends Goal {
         return this.waterPos != null
                 && this.useTicks < MAX_USE_TICKS
                 && this.mob.getTarget() == null
+                && !RigStunController.isStunned(this.mob)
                 && InventoryUtils.hasItem(this.mob, Items.BUCKET)
                 && this.mob.level() instanceof ServerLevel serverLevel
                 && this.isSourceWater(serverLevel, this.waterPos);

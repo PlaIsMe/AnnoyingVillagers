@@ -29,8 +29,6 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
     private Path path;
     private int ticksUntilNextPathRecalculation;
-    private int attackCooldownTicks;
-    private int activeAnimationTicks;
     private int normalComboIndex;
     private Item lastWeaponItem;
     private RigAnimationId previousAnimation;
@@ -45,8 +43,9 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     @Override
     public boolean canUse() {
         LivingEntity target = this.mob.getTarget();
-        if (!isValidMeleeState(target) || isAttackLocked() || RigAnimationController.hasActiveAnimation(this.mob)) return false;
+        if (!isValidMeleeState(target) || isAttackLocked()) return false;
         RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
+        if (hasBlockingAnimation(profile)) return false;
         this.path = RidingUtil.createNavigationPath(this.mob, target);
         return this.path != null || canStartAnyAttack(target, profile);
     }
@@ -56,7 +55,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         LivingEntity target = this.mob.getTarget();
         if (!isValidMeleeState(target) || isAttackLocked()) return false;
         RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
-        return this.followingTargetEvenIfNotSeen || !RidingUtil.isNavigationDone(this.mob) || this.activeAnimationTicks > 0 || canStartAnyAttack(target, profile);
+        return this.followingTargetEvenIfNotSeen || !RidingUtil.isNavigationDone(this.mob) || RigAnimationController.hasActiveAnimation(this.mob) || canStartAnyAttack(target, profile);
     }
 
     @Override
@@ -64,8 +63,6 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         if (this.path != null) RidingUtil.moveToPath(this.mob, this.path, this.speedModifier);
         this.mob.setAggressive(true);
         this.ticksUntilNextPathRecalculation = 0;
-        this.attackCooldownTicks = 0;
-        this.activeAnimationTicks = 0;
     }
 
     @Override
@@ -73,8 +70,6 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         this.mob.setAggressive(false);
         RidingUtil.stopNavigation(this.mob);
         this.path = null;
-        this.activeAnimationTicks = 0;
-        this.attackCooldownTicks = 0;
     }
 
     @Override
@@ -84,7 +79,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
     @Override
     public boolean isInterruptable() {
-        return this.activeAnimationTicks <= 0;
+        return !RigAnimationController.hasActiveAnimation(this.mob);
     }
 
     @Override
@@ -98,21 +93,14 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
         updateWeaponComboState();
         RidingUtil.lookAtTarget(this.mob, target, 60.0F, 60.0F);
-        if (this.attackCooldownTicks > 0) this.attackCooldownTicks--;
-
-        if (this.activeAnimationTicks > 0) {
-            this.activeAnimationTicks--;
-            RidingUtil.stopNavigation(this.mob);
-            return;
-        }
 
         RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
-        if (this.attackCooldownTicks > 0 && canStartNormalAttack(target, profile)) {
+        if (hasBlockingAnimation(profile)) {
             RidingUtil.stopNavigation(this.mob);
             return;
         }
 
-        RigAnimationId selectedAnimation = selectAnimation(target, profile);
+        RigAnimationId selectedAnimation = isNormalAttackChainReady(profile) ? selectQueuedNormalAttack(target, profile) : selectAnimation(target, profile);
         if (selectedAnimation != null) {
             playAnimationAttack(target, selectedAnimation);
             return;
@@ -121,7 +109,6 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     }
 
     private RigAnimationId selectAnimation(LivingEntity target, RigCombatProfile profile) {
-        if (this.attackCooldownTicks > 0) return null;
         if (this.mob.isPassenger()) return canStartAttack(target, RigAnimationId.BASIC_MOUNT_ATTACK) ? RigAnimationId.BASIC_MOUNT_ATTACK : null;
 
         RigAnimationId normal = profile.normalAt(this.normalComboIndex);
@@ -136,13 +123,28 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         return normal;
     }
 
+    private RigAnimationId selectQueuedNormalAttack(LivingEntity target, RigCombatProfile profile) {
+        RigAnimationId normal = profile.normalAt(this.normalComboIndex);
+        if (!canStartAttack(target, normal)) return null;
+        this.normalComboIndex = (this.normalComboIndex + 1) % profile.normalAttacks().size();
+        return normal;
+    }
+
     private void playAnimationAttack(LivingEntity target, RigAnimationId animationId) {
         RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
         RigAnimationController.play(this.mob, spec, target);
         this.previousAnimation = animationId;
-        int animationPlaybackTicks = RigAnimationController.animationPlaybackTicks(spec);
-        this.activeAnimationTicks = animationPlaybackTicks;
-        this.attackCooldownTicks = animationPlaybackTicks + 4 + this.mob.getRandom().nextInt(5);
+    }
+
+    private boolean hasBlockingAnimation(RigCombatProfile profile) {
+        if (!RigAnimationController.hasActiveAnimation(this.mob)) return false;
+        return !isNormalAttackChainReady(profile);
+    }
+
+    private boolean isNormalAttackChainReady(RigCombatProfile profile) {
+        if (!RigAnimationController.isAttackChainReady(this.mob)) return false;
+        RigAnimationId activeAnimation = RigAnimationController.getActiveAnimationId(this.mob);
+        return activeAnimation != null && profile.normalAttacks().contains(activeAnimation);
     }
 
     private void repathToTarget(LivingEntity target) {

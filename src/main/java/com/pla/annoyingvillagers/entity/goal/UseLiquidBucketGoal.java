@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -60,6 +61,7 @@ public class UseLiquidBucketGoal extends Goal {
         if (!(this.avNpc.level() instanceof ServerLevel serverLevel)
                 || !this.avNpc.isAlive()
                 || this.avNpc.isNoAi()
+                || RigStunController.isStunned(this.avNpc)
                 || this.avNpc.isPassenger()
                 || this.avNpc.isHealing()
                 || RigAnimationController.hasActiveProfileAttack(this.avNpc)
@@ -127,6 +129,7 @@ public class UseLiquidBucketGoal extends Goal {
                 && this.pickupTicks < MAX_PICKUP_TICKS
                 && this.avNpc.isAlive()
                 && !this.avNpc.isNoAi()
+                && !RigStunController.isStunned(this.avNpc)
                 && !this.avNpc.isPassenger()
                 && this.avNpc.level() instanceof ServerLevel;
     }

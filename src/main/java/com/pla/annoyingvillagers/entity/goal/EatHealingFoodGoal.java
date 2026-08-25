@@ -4,6 +4,7 @@ import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.CombatBehaviour;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.server.level.ServerLevel;
@@ -40,6 +41,7 @@ public class EatHealingFoodGoal extends Goal {
         return this.avNpc.level() instanceof ServerLevel
                 && this.avNpc.isAlive()
                 && !this.avNpc.isNoAi()
+                && !RigStunController.isStunned(this.avNpc)
                 && !this.avNpc.isPassenger()
                 && !this.avNpc.isHealing()
                 && this.avNpc.getGapCooldown() <= 0
@@ -53,6 +55,7 @@ public class EatHealingFoodGoal extends Goal {
                 && this.avNpc.level() instanceof ServerLevel
                 && this.avNpc.isAlive()
                 && !this.avNpc.isNoAi()
+                && !RigStunController.isStunned(this.avNpc)
                 && !this.avNpc.isPassenger()
                 && !this.foodStack.isEmpty()
                 && !this.finishedEating;

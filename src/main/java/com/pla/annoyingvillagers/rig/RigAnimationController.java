@@ -100,6 +100,18 @@ public final class RigAnimationController {
         return state == null ? null : state.spec().animationId();
     }
 
+    public static boolean isAttackChainReady(Mob mob) {
+        ActiveAnimationState state = getActiveAnimationState(mob);
+        return state != null && state.spec().damagesTarget() && state.elapsedTicks(mob) >= state.spec().lastAttackWindowEndTick();
+    }
+
+    public static int remainingTicksUntilAttackChainReady(Mob mob) {
+        ActiveAnimationState state = getActiveAnimationState(mob);
+        if (state == null) return 0;
+        int releaseTick = state.spec().damagesTarget() ? state.spec().lastAttackWindowEndTick() : state.spec().durationTicks();
+        return Math.max(0, releaseTick - state.elapsedTicks(mob));
+    }
+
     public static boolean hasActiveProfileAttack(Mob mob) {
         ActiveAnimationState state = getActiveAnimationState(mob);
         return state != null && RigCombatProfiles.isProfileAttack(state.spec().animationId());
