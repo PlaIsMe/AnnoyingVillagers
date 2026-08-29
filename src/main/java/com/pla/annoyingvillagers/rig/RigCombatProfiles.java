@@ -591,6 +591,67 @@ public final class RigCombatProfiles {
                 ULTIMATE_CHANCE,
                 RigLocomotionStyle.DEFAULT
         ));
+
+        PROFILES.put(RigCombatStyle.BLUE_DEMON, new RigCombatProfile(
+                List.of(RigAnimationId.BLUE_DEMON_ATTACK1, RigAnimationId.BLUE_DEMON_ATTACK2, RigAnimationId.BLUE_DEMON_ATTACK3,
+                        RigAnimationId.BLUE_DEMON_ATTACK4, RigAnimationId.BLUE_DEMON_ATTACK5, RigAnimationId.BLUE_DEMON_ATTACK6),
+                List.of(RigAnimationId.BLUE_DEMON_DASH_ATTACK, RigAnimationId.BLUE_DEMON_JUMP_ATTACK, RigAnimationId.BLUE_DEMON_EXTRA_ATTACK,
+                        RigAnimationId.BLUE_DEMON_THROW_ATTACK1, RigAnimationId.BLUE_DEMON_THROW_ATTACK2, RigAnimationId.BLUE_DEMON_THROW_ATTACK3,
+                        RigAnimationId.BLUE_DEMON_THROW_ATTACK4, RigAnimationId.BLUE_DEMON_THROW_ATTACK5, RigAnimationId.BLUE_DEMON_THROW_DASH_ATTACK, RigAnimationId.BLUE_DEMON_THROW_JUMP_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.BLUE_DEMON_ULT, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                SPECIAL_ATTACK_CHANCE,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE,
+                RigLocomotionStyle.DEFAULT
+        ));
+
+        PROFILES.put(RigCombatStyle.BLUE_DEMON_LEGENDARY_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.LEGENDARY_SWORD_ATTACK1, RigAnimationId.LEGENDARY_SWORD_ATTACK2, RigAnimationId.LEGENDARY_SWORD_ATTACK3,
+                        RigAnimationId.LEGENDARY_SWORD_ATTACK4, RigAnimationId.LEGENDARY_SWORD_ATTACK5),
+                List.of(RigAnimationId.LEGENDARY_SWORD_DASH_ATTACK, RigAnimationId.LEGENDARY_SWORD_JUMP_ATTACK,
+                        RigAnimationId.LEGENDARY_SWORD_EXTRA_ATTACK, RigAnimationId.BLUE_DEMON_EXTRA_ATTACK_LEGENDARY),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.LEGENDARY_SWORD_ULT, RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT, RigAnimationId.BLUE_DEMON_ULT),
+                SPECIAL_ATTACK_CHANCE,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE,
+                RigLocomotionStyle.LEGENDARY_SWORD
+        ));
+
+        PROFILES.put(RigCombatStyle.LEGENDARY_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.LEGENDARY_SWORD_ATTACK1, RigAnimationId.LEGENDARY_SWORD_ATTACK2, RigAnimationId.LEGENDARY_SWORD_ATTACK3,
+                        RigAnimationId.LEGENDARY_SWORD_ATTACK4, RigAnimationId.LEGENDARY_SWORD_ATTACK5),
+                List.of(RigAnimationId.LEGENDARY_SWORD_DASH_ATTACK, RigAnimationId.LEGENDARY_SWORD_JUMP_ATTACK,
+                        RigAnimationId.LEGENDARY_SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.LEGENDARY_SWORD_ULT, RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT),
+                SPECIAL_ATTACK_CHANCE,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE,
+                RigLocomotionStyle.LEGENDARY_SWORD
+        ));
     }
 
     public static boolean isProfileAttack(RigAnimationId animationId) {

@@ -439,9 +439,9 @@ public class JevEntity extends AVNpc implements BurstProtectEntity {
     @Override
     public void tick() {
         super.tick();
-        if (!level().isClientSide) {
+        if (this.level() instanceof ServerLevel serverLevel) {
             if (followTarget == null && followTargetUUID != null) {
-                Entity entity = ((ServerLevel) level()).getEntity(followTargetUUID);
+                Entity entity = serverLevel.getEntity(followTargetUUID);
                 if (entity instanceof AlexEntity alex) {
                     followTarget = alex;
                 } else {
@@ -463,6 +463,8 @@ public class JevEntity extends AVNpc implements BurstProtectEntity {
                     );
                 }
             }
+
+            HookGunCombatUtil.tickJev(this, serverLevel);
         }
     }
 

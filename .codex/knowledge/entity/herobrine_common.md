@@ -36,3 +36,8 @@ Portal movement is not implemented in `HerobrineCommon`; it is implemented throu
 - `CommonGoals.registerGoalForHostileNpc` adds `PortalApproachGoal`
 - `HerobrinePortalCombatUtil` finds routes and support portals
 - projectile animation events call `HerobrinePortalCombatUtil.getProjectilePortalAim`
+
+
+## Removed EFN guard-hit state
+
+The non-EpicFight `HerobrineMob` no longer carries `efnGuardHitState` or `efnGuardHitCooldown`. The old getters/update method and tick decrement/reset logic were unused after EpicFight guard-hit behavior was removed. Do not use those fields as a vanilla rig stun/guard state; rig animations and stun behavior should use the current rig systems directly.

@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.core.BlockPos;
@@ -1149,13 +1150,15 @@ public final class HookGunCombatUtil {
     }
 
     private static void playHookGunAnimation(LivingEntity entity) {
-//      ADD THIS CODE IN AV_EFM
+        if (entity instanceof Mob mob && !entity.level().isClientSide()) {
+            RigAnimationController.play(mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
+        }
+
+        // add this in AV_EFM
 //        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 //        if (patch != null && !entity.level().isClientSide()) {
-//            patch.playAnimationSynchronized(AnimsPugilistSteve.HOOK_GUN, 0.0F);
+//            patch.playAnimationSynchronized(AVAnimations.HOOK_GUN, 0.0F);
 //        }
-
-//        Add VANILLA_ANIMATION
     }
 
     private static void aimAt(LivingEntity entity, Vec3 target) {

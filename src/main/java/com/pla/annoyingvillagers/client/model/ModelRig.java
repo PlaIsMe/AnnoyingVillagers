@@ -317,11 +317,6 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
             return;
         }
 
-        if (entity.hurtTime > 0) {
-            this.applyLoopingAnimation(AnimationUtil.getIdleAnimation(entity), ageInTicks, 1.0F, weight);
-            return;
-        }
-
         if (forceWalk) {
             this.applyLoopingAnimation(AnimationUtil.getWalkAnimation(entity), ageInTicks, 1.0F, weight);
             return;

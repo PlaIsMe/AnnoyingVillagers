@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.rig;
 
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 
@@ -112,17 +113,62 @@ public record RigAnimationSpec(RigAnimationId animationId, int durationTicks, Ri
         void onHit(Mob attacker, LivingEntity target, boolean critical);
     }
 
-    public record RigTimedAnimationHook(int tick, RigAnimationHook action) {
+    public boolean isToolHidden(HumanoidArm arm, float elapsedTicks) {
+        boolean hidden = false;
+        for (RigTimedAnimationHook timedHook : this.timedHooks) {
+            if (!timedHook.isTimed() || timedHook.tick() > elapsedTicks) continue;
+            RigToolVisibilityChange change = timedHook.toolVisibilityChange();
+            if (arm == HumanoidArm.RIGHT) {
+                if (change == RigToolVisibilityChange.HIDE_RIGHT) hidden = true;
+                if (change == RigToolVisibilityChange.SHOW_RIGHT) hidden = false;
+            } else {
+                if (change == RigToolVisibilityChange.HIDE_LEFT) hidden = true;
+                if (change == RigToolVisibilityChange.SHOW_LEFT) hidden = false;
+            }
+        }
+        return hidden;
+    }
+
+    public enum RigToolVisibilityChange {
+        NONE,
+        HIDE_RIGHT,
+        SHOW_RIGHT,
+        HIDE_LEFT,
+        SHOW_LEFT
+    }
+
+    public record RigTimedAnimationHook(int tick, RigAnimationHook action, RigToolVisibilityChange toolVisibilityChange) {
         public static final int START = -1;
         public static final int END = -2;
+
+        public RigTimedAnimationHook(int tick, RigAnimationHook action) {
+            this(tick, action, RigToolVisibilityChange.NONE);
+        }
 
         public RigTimedAnimationHook {
             if (tick < 0 && tick != START && tick != END) throw new IllegalArgumentException("tick must be >= 0, START, or END");
             if (action == null) throw new IllegalArgumentException("action cannot be null");
+            if (toolVisibilityChange == null) throw new IllegalArgumentException("toolVisibilityChange cannot be null");
         }
 
         public static RigTimedAnimationHook at(int tick, RigAnimationHook action) {
             return new RigTimedAnimationHook(tick, action);
+        }
+
+        public static RigTimedAnimationHook hideRightToolAt(int tick) {
+            return new RigTimedAnimationHook(tick, RigAnimationHook.NO_OP, RigToolVisibilityChange.HIDE_RIGHT);
+        }
+
+        public static RigTimedAnimationHook hideLeftToolAt(int tick) {
+            return new RigTimedAnimationHook(tick, RigAnimationHook.NO_OP, RigToolVisibilityChange.HIDE_LEFT);
+        }
+
+        public static RigTimedAnimationHook showRightToolAt(int tick) {
+            return new RigTimedAnimationHook(tick, RigAnimationHook.NO_OP, RigToolVisibilityChange.SHOW_RIGHT);
+        }
+
+        public static RigTimedAnimationHook showLeftToolAt(int tick) {
+            return new RigTimedAnimationHook(tick, RigAnimationHook.NO_OP, RigToolVisibilityChange.SHOW_LEFT);
         }
 
         public boolean isStart() {

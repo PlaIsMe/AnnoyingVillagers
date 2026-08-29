@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
+import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -52,5 +53,10 @@ public class WoopieTheSwordItem extends SwordItem implements RigCombatProfilePro
     @Override
     public RigCombatStyle getRigCombatStyle(ItemStack stack) {
         return RigCombatStyle.WOOPIE_THE_SWORD;
+    }
+
+    @Override
+    public RigDualWieldGroup getDualWieldGroup(ItemStack stack) {
+        return RigDualWieldGroup.LEGENDARY_SWORD;
     }
 }

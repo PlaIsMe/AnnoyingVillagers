@@ -3,6 +3,8 @@ package com.pla.annoyingvillagers.item;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.renderer.HookGunItemRenderer;
 import com.pla.annoyingvillagers.entity.HookGunHookEntity;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.CompoundTag;
@@ -15,6 +17,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -800,23 +803,33 @@ public class HookGunItem extends Item {
         }
 
         String tagName = getHookHandAnimationTag(rightHand);
+        RigAnimationId nextAnimation = getHookHandAnimation(rightHand, nextState);
+        if (!(owner instanceof Mob mob) || nextAnimation == null) {
+            owner.getPersistentData().remove(tagName);
+            return;
+        }
+
         byte currentState = owner.getPersistentData().getByte(tagName);
-        if (currentState == nextState) {
+        if (currentState == nextState && RigAnimationController.getActiveAnimationId(mob) != null) {
+            return;
+        }
+
+        // Do not replace a profile melee animation just to change/restore the held hook pose.
+        // If another animation replaced this pose, it is restored after that animation ends.
+        if (RigAnimationController.hasActiveProfileAttack(mob)) {
             return;
         }
 
         stopHookHandAnimations(owner, rightHand);
+        owner.getPersistentData().putByte(tagName, nextState);
+        RigAnimationController.playHeldPose(mob, nextAnimation);
 
-//        AV_EFM code
+        // add this in AV_EFM
 //        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(owner, LivingEntityPatch.class);
-//        AssetAccessor<? extends StaticAnimation> nextAnimation = getHookHandAnimation(rightHand, nextState);
-//        if (livingEntityPatch == null || nextAnimation == null) {
-//            owner.getPersistentData().remove(tagName);
-//            return;
+//        AssetAccessor<? extends StaticAnimation> nextEpicFightAnimation = getEpicFightHookHandAnimation(rightHand, nextState);
+//        if (livingEntityPatch != null && nextEpicFightAnimation != null) {
+//            livingEntityPatch.playAnimationSynchronized(nextEpicFightAnimation, 0.0F);
 //        }
-//
-//        owner.getPersistentData().putByte(tagName, nextState);
-//        livingEntityPatch.playAnimationSynchronized(nextAnimation, 0.0F);
     }
 
     public static void cancelHookHandAnimations(LivingEntity owner) {
@@ -830,17 +843,32 @@ public class HookGunItem extends Item {
     }
 
     private static void stopHookHandAnimations(LivingEntity owner, boolean rightHand) {
-//        Add this in AV_EFM
-//        EpicfightUtil.stopAnimationSynchronized(owner, getHookHandAnimation(rightHand, HOOK_ANIMATION_NORMAL));
-//        EpicfightUtil.stopAnimationSynchronized(owner, getHookHandAnimation(rightHand, HOOK_ANIMATION_TOP));
+        if (owner instanceof Mob mob) {
+            RigAnimationController.stop(mob, getHookHandAnimation(rightHand, HOOK_ANIMATION_NORMAL));
+            RigAnimationController.stop(mob, getHookHandAnimation(rightHand, HOOK_ANIMATION_TOP));
+        }
+
+        // add this in AV_EFM
+//        EpicfightUtil.stopAnimationSynchronized(owner, getEpicFightHookHandAnimation(rightHand, HOOK_ANIMATION_NORMAL));
+//        EpicfightUtil.stopAnimationSynchronized(owner, getEpicFightHookHandAnimation(rightHand, HOOK_ANIMATION_TOP));
     }
 
     private static String getHookHandAnimationTag(boolean rightHand) {
         return rightHand ? TAG_RIGHT_HOOK_ANIMATION : TAG_LEFT_HOOK_ANIMATION;
     }
 
-//    AV_EFM
-//    private static AssetAccessor<? extends StaticAnimation> getHookHandAnimation(boolean rightHand, byte state) {
+    private static RigAnimationId getHookHandAnimation(boolean rightHand, byte state) {
+        if (state == HOOK_ANIMATION_NORMAL) {
+            return rightHand ? RigAnimationId.RIGHT_HAND_HOOK : RigAnimationId.LEFT_HAND_HOOK;
+        }
+        if (state == HOOK_ANIMATION_TOP) {
+            return rightHand ? RigAnimationId.RIGHT_HAND_HOOK_TOP : RigAnimationId.LEFT_HAND_HOOK_TOP;
+        }
+        return null;
+    }
+
+    // add this in AV_EFM
+//    private static AssetAccessor<? extends StaticAnimation> getEpicFightHookHandAnimation(boolean rightHand, byte state) {
 //        if (state == HOOK_ANIMATION_NORMAL) {
 //            return rightHand ? AVAnimations.HOOK_HAND_RIGHT : AVAnimations.HOOK_HAND_LEFT;
 //        }

@@ -38,6 +38,10 @@ A window may intentionally have zero colliders while a broad/custom collision ph
 
 `RigTimedAnimationHook` is the common event hook mechanism. When timing is imported from a reference `InTimeEvent`, placeholder hooks may be created at the corresponding server tick with an empty action. The gameplay logic inside those hooks must be authored explicitly for this project; do not automatically transplant reference event logic.
 
+Timed hooks may also carry reusable tool-visibility metadata. `hideRightToolAt(...)` / `hideLeftToolAt(...)` hide only the rendered rig tool from that tick until the animation ends or a matching show hook occurs. Visibility is client-derived from the active `RigAnimationSpec`; do not remove or clear the real `ItemStack`, and do not hardcode visibility into projectile/throw hooks.
+
+For EpicFight-to-vanilla ports, translate `InTimeEvent` seconds to rig ticks using `seconds * 20`, then verify each action against the source animation. Preserve separate concerns: particle/effect hooks, sound hooks, projectile spawn hooks, tool-visibility hooks, and state-transition hooks should remain independently reusable even when they execute at the same tick.
+
 `jumpOnStart` is metadata owned by this project. Imported attack specs default it to `false` unless the project explicitly decides the animation should invoke vanilla jump control.
 
 ## Collider architecture
@@ -98,6 +102,13 @@ A hand-action system that must not overlap melee should first refuse to begin wh
 
 `RigAnimatedMeleeAttackGoal` paths while no rig attack is active, uses collider/motion-derived attack-start distance, and lets active animation movement/collision drive the action once playback begins.
 
+
+### Blue Demon profile integration
+
+`CommonGoals.createMeleeAttackGoal(...)` only chooses `RigAnimatedMeleeAttackGoal` for mobs accepted by `supportsRigCombat(...)`. Blue Demon must remain included there; otherwise `registerGoalForBlueDemonNpc(...)` silently falls back to vanilla `MeleeAttackGoal`.
+
+Blue Demon Trident implements `RigCombatProfileProvider`, so equipment resolution must use the provider path before the generic `SwordItem` fallback. Dual tridents resolve `BLUE_DEMON`; phase-two Legendary Sword + Blue Demon Trident resolves `BLUE_DEMON_LEGENDARY_SWORD`.
+
 ## Sounds and locomotion separation
 
 Starting a rig animation must not set `Mob#setAggressive(true)` as a generic animation side effect. AI goals own aggression state.
@@ -109,3 +120,29 @@ Run rendering must be based on sprinting/current horizontal movement rather than
 F3+B does not register arbitrary temporary melee volumes as vanilla entity hitboxes. The custom debug renderer draws the same oriented boxes used by `RigColliderSystem`.
 
 Common/server classes must not import `AnimationDefinition`, `ModelPart`, or renderer classes. Client playback resolves `RigAnimationId` through `RigAnimationResolver`; common gameplay uses ids, specs, and generated pose data only.
+
+### Dual-profile pair resolution
+
+`RigCombatProfiles.getCombatProfile(...)` asks the main-hand provider for `getDualRigCombatStyle(...)` only when both providers have the same non-`NONE` `RigDualWieldGroup`. Item implementations that support mixed pairs must therefore make the result symmetric with respect to which item is in the main hand.
+
+Current mixed Legendary Sword pairs:
+- Legendary Sword + Woopie the Sword -> `WOOPIE_THE_SWORD`
+- Legendary Sword + Blue Demon Trident -> `BLUE_DEMON_LEGENDARY_SWORD`
+- Legendary Sword + Legendary Sword -> `LEGENDARY_SWORD`
+- Blue Demon Trident + Blue Demon Trident -> `BLUE_DEMON`
+
+`LegendarySwordItem`, `WoopieTheSwordItem`, and `BlueDemonTridentItem` each participate in `RigDualWieldGroup.LEGENDARY_SWORD` and override dual style as needed so swapping hands does not silently change the profile.
+
+Blue Demon phase two uses `LEGENDARY_SWORD` main hand + `BLUE_DEMON_TRIDENT` offhand, so the normal matching `LEGENDARY_SWORD` dual-wield group selects `BLUE_DEMON_LEGENDARY_SWORD`. Keep the pair-sensitive overrides symmetric in `LegendarySwordItem` and `BlueDemonTridentItem`.
+
+## RollItemGoal integration
+
+Weapon-switch methods such as `BlueDemonEntity.rollItem()` are executed through `RollItemGoal` when the mob implements `RollItemUser`. `RollItemGoal` owns the roll/step-back animation and calls `rollItem()` after the interface-provided switch delay. Mobs that extend `AVNpc` get the goal conditionally from `AVNpc.registerGoals()`, but standalone mobs such as `BlueDemonEntity` must register the goal explicitly.
+
+For Blue Demon, priority 1 is intentional so the weapon-switch roll can preempt shield/melee goals when its long cooldown expires. `canRollItem()` must remain the behavior gate; do not call `rollItem()` directly from `tick()`.
+
+## Totem guard-break recovery animation
+
+The old EpicFight `TotemUsingEvent` played `AVAnimations.STUN_BACK` after Steve, Alex, or Chris consumed a Totem and switched into their upgraded state. The vanilla rig port keeps the commented AV_EFM block and then calls `RigAnimationController.play(mob, RigAnimationId.STUN_BACK)`. The current rig registry has `STUN_BACK`; it does not have a separate `STUN_FORWARD` id/clip, so do not invent one or substitute a knockdown animation unless that asset is explicitly ported later.
+
+The old `efnGuardHitState`/`efnGuardHitCooldown` cycle is unrelated to this Totem animation and is dead in the non-EpicFight rig implementation. It has been removed from `AVNpc`, `HerobrineMob`, and `BlueDemonEntity`.

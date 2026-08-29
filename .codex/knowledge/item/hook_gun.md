@@ -14,8 +14,11 @@ Session facts in this file come from the current workspace code and the edits di
 - `src/main/java/com/pla/annoyingvillagers/client/renderer/HookItemRenderTransforms.java`
 - `src/main/java/com/pla/annoyingvillagers/client/renderer/HookGunCrosshairRenderer.java`
 - `src/main/java/com/pla/annoyingvillagers/client/renderer/ItemProjectileRenderer.java`
-- `src/main/java/com/pla/annoyingvillagers/mixin/client/PatchedItemInHandLayerMixin.java`
 - `src/main/java/com/pla/annoyingvillagers/event/SpecialAttackOnKeyPressedEvent.java`
+- `src/main/java/com/pla/annoyingvillagers/util/HookGunCombatUtil.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/RigAnimationController.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/RigAnimationId.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/RigAnimationSpecs.java`
 
 Hook gun motor constants, double-hook behavior, hook and rope rendering, and dual crosshair logic are adapted from the local `Grappling-Hook-Mod-Reforged-main` source by yyonne, GPL-3.0. The session explicitly used the local fixed source, not the old GitHub link.
 
@@ -59,7 +62,7 @@ Player binding is triggered from `SpecialAttackOnKeyPressedEvent` before the res
 Server-side:
 
 - `HookGunItem.tryBindFromSpecialAttack(player)` is called
-- if it returns true, `AnimsPugilistSteve.HOOK_GUN` is played after a 2 tick delayed hand refresh
+- if it returns true, a 2 tick delayed `playHookGunAnimation(player)` hook is invoked; in the current non-EpicFight repo that player animation helper is still a vanilla-animation TODO, while the commented `// Add this in AV_EFM` block preserves the old Epic Fight animation reminder
 
 Binding rules:
 
@@ -125,12 +128,9 @@ Aim target is raycast from the owner's eye to `HOOK_DESPAWN_DISTANCE` using bloc
 
 ## Hook Start Position
 
-`HookGunItem.getHookStartPosition(LivingEntity owner, boolean rightHand)` tries Epic Fight joint placement first:
+In the current non-EpicFight repository, `HookGunItem.getHookStartPosition(LivingEntity owner, boolean rightHand)` uses the vanilla/entity-space fallback directly. The old Epic Fight joint placement is retained only as commented compatibility code under the `// Add this is AV_EFM` reminder (`toolR` / `toolL`, translation `(0.0F, -0.3F, 0.0F)`).
 
-- joint: `toolR` for right hand, `toolL` for left hand
-- translation: `(0.0F, -0.3F, 0.0F)`
-
-If the Epic Fight joint lookup fails, it falls back to:
+Current non-EpicFight start position:
 
 - owner eye position
 - forward by `0.45`
@@ -188,7 +188,6 @@ Pickaxe recognition includes:
 
 - vanilla `PickaxeItem`
 - Forge pickaxe dig tool action
-- Epic Fight weapon category `PICKAXE`
 
 When a pickaxe hook hits a block:
 
@@ -251,14 +250,14 @@ Entity hit item effects:
 - water bucket: clears fire on burning target and becomes empty bucket
 - snowball: clears fire, applies Slowness 100 ticks amplifier 1, consumes one snowball
 - shield: deals 15 thrown damage, applies long stun through Epic Fight if possible, damages shield, plays blunt hit sound
-- weapon-like item: deals calculated item attack damage plus enchantment damage, applies fire aspect and post damage enchant effects, damages tool, plays Epic Fight blade hit sound
+- weapon-like item: deals calculated item attack damage plus enchantment damage using a normal thrown damage source, applies fire aspect and post-damage enchant effects, damages the tool, and plays the AV clash sound
 - armor: equips target if target slot is empty, blacklisting `NullWeapon`, `BlueDemonEntity`, and `ArmoredHerobrineEntity`
 - potion: applies all potion effects, instant effects use projectile and owner, flash potions spawn flash particles, consumes potion
 - food: heals normal targets by nutrition and can apply food effects; inverted-heal targets take magic damage instead; consumes food
 - fire charge: sets target on fire for 8 seconds and consumes one
 - flint and steel: sets target on fire for 8 seconds and damages the tool
 
-Weapon-like recognition includes swords, axes, hoes, shovels, pickaxes, Forge tool actions, and Epic Fight melee weapon categories.
+Weapon-like recognition includes swords, axes, hoes, shovels, pickaxes, and Forge tool actions. Epic Fight weapon categories are not required in the non-EpicFight repository.
 
 ## Block Hit Item Behavior
 
@@ -426,7 +425,6 @@ Sharp alignment recognizes:
 - shovels
 - pickaxes
 - Forge tool actions
-- Epic Fight melee weapon categories
 
 Sharp item alignment constants:
 
@@ -453,18 +451,11 @@ For sharp item projectiles, the renderer points the blade toward movement direct
 
 For non-sharp loose projectiles, it applies randomized spin. For block items attached to hooks, it avoids spin.
 
-## Offhand Epic Fight Rendering
+## AV_EFM Rendering Compatibility
 
-`PatchedItemInHandLayerMixin` forces Epic Fight offhand rendering for utility items when Epic Fight would normally hide them.
+The non-EpicFight repository no longer depends on `PatchedItemInHandLayerMixin`. `HookGunItemRenderer` still exposes `setRenderedHandContext(...)` / `clearRenderedHandContext()` for hand-aware rendering, and it also has player-hand fallbacks when no explicit render context is set.
 
-Forced offhand utility items include:
-
-- fishing rod grapple items
-- hook gun
-- transporter fragment
-- buckets and bucket-like items
-
-The mixin also wraps `RenderItemBase.renderItemInHand` to set `HookGunItemRenderer` hand context. This lets the hook gun item renderer know whether the stack being rendered is the main hand or off hand, so it can hide the attached bound item only for the hand that has an active hook.
+If AV_EFM later needs Epic Fight's patched hand layer again, add that integration in the compatibility module and keep the core renderer usable without Epic Fight. Preserve compatibility comments with the project reminder style rather than reintroducing a hard dependency.
 
 ## Dual Crosshair
 
@@ -483,7 +474,12 @@ Normal angle is 20 degrees. Crouching angle is 10 degrees.
 
 ## Hook Hand Animations
 
-Hook gun hand animations are updated server-side on living tick.
+Hook hand animation state is owned by `HookGunItem` and updated server-side on living tick. This is shared by players and NPC hook sessions and avoids duplicating hook pose selection in Alex/Jev combat logic.
+
+Persistent owner tags:
+
+- `HookGunLeftHookAnimation`
+- `HookGunRightHookAnimation`
 
 Animation states:
 
@@ -491,33 +487,31 @@ Animation states:
 - normal
 - top
 
-Top is selected when hook direction has Y over `0.55` or dot with look direction below `-0.20`, meaning the hook is high or behind the owner.
+Top is selected when hook direction Y is greater than `0.55` or the direction dot owner look is below `-0.20`, meaning the hook is high or behind the owner.
 
-Animation mapping:
+`getHookHandAnimation(boolean rightHand, byte state)` is the authoritative non-EpicFight mapping:
 
-- left normal: `AVAnimations.HOOK_HAND_LEFT`
-- left top: `AVAnimations.HOOK_HAND_LEFT_TOP`
-- right normal: `AVAnimations.HOOK_HAND_RIGHT`
-- right top: `AVAnimations.HOOK_HAND_RIGHT_TOP`
+- left normal -> `RigAnimationId.LEFT_HAND_HOOK`
+- left top -> `RigAnimationId.LEFT_HAND_HOOK_TOP`
+- right normal -> `RigAnimationId.RIGHT_HAND_HOOK`
+- right top -> `RigAnimationId.RIGHT_HAND_HOOK_TOP`
 
-Animations are canceled when:
+The four poses are static/repeating-equivalent hook poses. The non-EpicFight rig system uses `RigAnimationController.playHeldPose(...)` so the pose remains active until an explicit stop instead of expiring after the ordinary 20-tick animation spec. The held implementation sends a long-lived client duration and `RigAnimationController.stop(...)` sends duration `0` to explicitly remove the active pose.
 
-- owner is no longer holding hook gun
-- hook is missing
-- hook is removed
-- hook is returning
-- active hooks are returned
+`LEFT_HAND_HOOK` and `LEFT_HAND_HOOK_TOP` use `RigAnimationPlaybackType.LEFT_HAND`. `RIGHT_HAND_HOOK` and `RIGHT_HAND_HOOK_TOP` use `RigAnimationPlaybackType.MAIN_HAND`.
 
-`EpicfightUtil.stopAnimationSynchronized` is used to stop both normal and top animations for the relevant hand.
+The hook pose is canceled when the owner stops holding that hook gun, the hook is missing/removed/returning, or active hooks are returned. If a combat-profile rig attack temporarily replaces the pose, `HookGunItem` does not interrupt that profile attack just to change the held pose; it can restore the proper hook pose afterward.
+
+Keep Epic Fight equivalents only in the commented AV_EFM compatibility block beside `getHookHandAnimation(...)` and the stop logic.
 
 ## NPC Hook Session Behavior
 
-NPCs do not right click hook guns directly. `AlexJevHookCombat` temporarily places hook guns in their hands.
+NPCs do not right click hook guns directly. `HookGunCombatUtil` temporarily places hook guns in their hands.
 
 Shared flow:
 
 - reject if bound item is empty, level is client, session is active, or owner has active hook
-- decide whether to play hook gun animation based on last bound item and consumable status
+- decide whether to play the hook-gun draw/aim animation based on last bound item and consumable status; for NPCs this uses `RigAnimationId.POINT_LEFT_HAND_TOWARD`
 - save original main/off hand items
 - equip hook gun bound to selected item
 - swing hand(s)
@@ -553,4 +547,31 @@ Jev uses hook gun for:
 - cover and distraction block placement
 - bone meal on visible saplings only
 - hook to Alex's death position
+
+## Non-EpicFight Alex/Jev Port Notes
+
+The old EpicFight branch executed Jev hook support from `JevPatch.tick()`. In the non-EpicFight repository, both NPCs must enter the shared helper from their entity ticks:
+
+- `AlexEntity.tick()` -> `HookGunCombatUtil.tickAlex(this, serverLevel)`
+- `JevEntity.tick()` -> `HookGunCombatUtil.tickJev(this, serverLevel)`
+
+The Jev call is essential. Porting the helper without restoring this tick entry point leaves Jev able to follow Alex but unable to run hook support.
+
+`HookGunCombatUtil.playHookGunAnimation(...)` uses `RigAnimationId.POINT_LEFT_HAND_TOWARD` for the current non-EpicFight NPC draw/aim animation. Do not add a new `POINT_HAND_TOWARD` enum value.
+
+Keep the persistent hook rope poses in `HookGunItem.getHookHandAnimation(...)`; do not duplicate the four-way mapping in `HookGunCombatUtil`, `AlexEntity`, or `JevEntity`.
+
+## AV_EFM Compatibility Reminder
+
+Keep compatibility placeholders in source using the established reminder, for example:
+
+```java
+// add this in AV_EFM
+```
+
+Future AV_EFM code should restore Epic Fight joint positioning, `HOOK_GUN`, and `HOOK_HAND_*` equivalents beside the vanilla rig implementation. The core non-EpicFight hook gun must continue to compile and work without Epic Fight classes.
+
+## Knowledge Maintenance Rule
+
+When future work ports hook-gun or related Alex/Jev logic from the Epic Fight branch into the non-EpicFight repository, read `knowledge/item/hook_gun.md`, `knowledge/entity/alex.md`, `knowledge/entity/jev.md`, plus any other knowledge files for touched systems before editing. After the port, update all relevant knowledge files with the resulting non-EpicFight behavior and compatibility decisions.
 

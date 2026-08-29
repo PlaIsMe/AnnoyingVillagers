@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.client.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
 import com.pla.annoyingvillagers.client.model.ModelRig;
 import com.pla.annoyingvillagers.client.renderer.RigItemVisualResolver;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -28,6 +29,10 @@ public class RigItemInHandLayer<T extends Mob> extends ItemInHandLayer<T, ModelR
     @Override
     protected void renderArmWithItem(@NotNull LivingEntity entity, ItemStack itemStack, @NotNull ItemDisplayContext displayContext, @NotNull HumanoidArm arm, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight) {
         if (itemStack.isEmpty()) {
+            return;
+        }
+
+        if (RigClientAnimationState.isToolHidden(entity, arm)) {
             return;
         }
 

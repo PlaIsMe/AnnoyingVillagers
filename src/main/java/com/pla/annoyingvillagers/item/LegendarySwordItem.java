@@ -2,6 +2,9 @@ package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.entity.ShockWaveBlockEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
+import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import com.pla.annoyingvillagers.util.ArmorUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -17,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Random;
 
-public class LegendarySwordItem extends SwordItem {
+public class LegendarySwordItem extends SwordItem implements RigCombatProfileProvider {
 
     public LegendarySwordItem() {
         super(new Tier() {
@@ -100,5 +103,22 @@ public class LegendarySwordItem extends SwordItem {
         );
         blockEntity.setOwnerUuid(owner.getUUID());
         level.addFreshEntity(blockEntity);
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.LEGENDARY_SWORD;
+    }
+
+    @Override
+    public RigDualWieldGroup getDualWieldGroup(ItemStack stack) {
+        return RigDualWieldGroup.LEGENDARY_SWORD;
+    }
+
+    @Override
+    public RigCombatStyle getDualRigCombatStyle(ItemStack self, ItemStack other) {
+        if (other.getItem() instanceof WoopieTheSwordItem) return RigCombatStyle.LEGENDARY_SWORD;
+        if (other.getItem() instanceof BlueDemonTridentItem) return RigCombatStyle.BLUE_DEMON_LEGENDARY_SWORD;
+        return RigCombatStyle.LEGENDARY_SWORD;
     }
 }

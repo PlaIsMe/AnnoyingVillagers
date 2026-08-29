@@ -8,7 +8,7 @@ Session facts in this file come from the current workspace code and the edits di
 
 - `src/main/java/com/pla/annoyingvillagers/entity/JevEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/AlexEntity.java`
-- `src/main/java/com/pla/annoyingvillagers/combatbehaviour/AlexJevHookCombat.java`
+- `src/main/java/com/pla/annoyingvillagers/util/HookGunCombatUtil.java`
 - `src/main/java/com/pla/annoyingvillagers/item/HookGunItem.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/HookGunHookEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/util/HookUtil.java`
@@ -46,7 +46,7 @@ Jev overrides `seedInventory()` and does not call `super.seedInventory()`. It se
 
 The Jev-specific seed adds golden apples, enchanted golden apples, two regular food stacks, poisonous potatoes, pufferfish, 2-4 stacks from `JEV_HOOKABLE_BLOCKS`, one water bucket, one flint and steel, bone meal, and eight full splash potion stacks. The potion seed always gives four good potion types and four bad potion types, each with count 16.
 
-The item factory methods for Jev random blocks, food, and potions now live in `JevEntity`; `AlexJevHookCombat` consumes whatever remains in Jev's inventory instead of generating those items during combat.
+The item factory methods for Jev random blocks, food, and potions now live in `JevEntity`; `HookGunCombatUtil` consumes whatever remains in Jev's inventory instead of generating those items during combat.
 
 Jev goals include:
 
@@ -63,7 +63,7 @@ If Jev is more than 600 distance squared from Alex during server tick, he telepo
 
 ## Passive Movement Around Alex
 
-`AlexJevHookCombat.moveJevAroundPartner` runs before Jev hook combat gating. It lets Jev move around Alex even when Alex is not in combat.
+`HookGunCombatUtil.moveJevAroundPartner` runs before Jev hook combat gating. It lets Jev move around Alex even when Alex is not in combat.
 
 It returns if:
 
@@ -88,7 +88,7 @@ After this combat gate, `syncAlexAndJevTarget` may copy Alex's target to Jev if 
 
 ## Jev Hook Combat Constants
 
-Important constants from `AlexJevHookCombat`:
+Important constants from `HookGunCombatUtil`:
 
 - `JEV_MIN_COOLDOWN_TICKS = 25`
 - `JEV_RANDOM_COOLDOWN_TICKS = 35`
@@ -102,7 +102,7 @@ Jev's pickaxe hook item is `createJevPickaxe()`, a non-enchanted iron pickaxe.
 
 ## Jev Hook Combat Tick
 
-`tickJev(MobPatch<?>)` is Jev's support hook scheduler.
+`HookGunCombatUtil.tickJev(JevEntity jev, ServerLevel serverLevel)` is Jev's support hook scheduler. `JevEntity.tick()` calls it directly on the server after resolving/validating Alex from `followTargetUUID`.
 
 It returns unless:
 
@@ -198,7 +198,7 @@ The hook gun item behavior is supplied by `HookUtil`: weapons deal item damage, 
 
 When Alex's enemy holds a bow or crossbow, Jev tries to shoot a cover block near Alex, two blocks toward the enemy.
 
-Jev block hooks scan his inventory for any block item that can be placed on a valid support near the target area. This means picked-up blocks can be used too. Jev's starting block inventory comes from `JEV_HOOKABLE_BLOCKS` in `JevEntity`, not from `AlexJevHookCombat`.
+Jev block hooks scan his inventory for any block item that can be placed on a valid support near the target area. This means picked-up blocks can be used too. Jev's starting block inventory comes from `JEV_HOOKABLE_BLOCKS` in `JevEntity`, not from `HookGunCombatUtil`.
 
 `JEV_HOOKABLE_BLOCKS`:
 
@@ -242,7 +242,7 @@ Hook anchor search prefers distant anchors, with search radius 30 and ideal dist
 
 ## Alex Death Response
 
-When Alex dies server-side, `AlexJevHookCombat.onAlexDeath` runs.
+When Alex dies server-side, `HookGunCombatUtil.onAlexDeath` runs.
 
 If Jev exists and is alive:
 
@@ -253,7 +253,7 @@ This is intended to make Jev hook to Alex's death location and then run away. Lo
 
 ## Jev Death Response
 
-When Jev dies server-side, `AlexJevHookCombat.onJevDeath` runs.
+When Jev dies server-side, `HookGunCombatUtil.onJevDeath` runs.
 
 If Alex exists and is alive, Alex shoots a default enchanted pickaxe hook at Jev's eye position. This lets Alex quickly approach Jev's death position. Loot pickup is left to normal `AVNpc` pickup behavior.
 
@@ -286,14 +286,14 @@ Jev implements `BurstProtectEntity` with `getBurstProtectCapRatio() == 0.15F` an
 
 ## Hook Session Flow For Jev
 
-Jev's hook usage is implemented through `AlexJevHookCombat.shootHook`, not normal player right click.
+Jev's hook usage is implemented through the shared `HookGunCombatUtil.shootHook` session path, not normal player right click.
 
 The flow:
 
 - save original hand item
 - put a hook gun bound to the desired item into off hand
 - swing off hand
-- optionally play `AnimsPugilistSteve.HOOK_GUN`
+- when the hook-gun draw animation is allowed, play `RigAnimationId.POINT_LEFT_HAND_TOWARD` through `RigAnimationController`
 - wait 7 ticks
 - aim at target
 - launch hook
@@ -302,3 +302,53 @@ The flow:
 - restore the saved hand item
 
 Jev only plays hook gun animation when the bound item differs from the last remembered hook item for that hand, or when the item is food or potion-like.
+
+## Non-EpicFight Port Entry Point
+
+The old Annoying Villagers x EpicFight branch started Jev hook support from `JevPatch.tick()` by calling the old shared hook combat helper. Removing the Epic Fight mob patch removed that entry point even though most Jev hook-support logic had already been ported.
+
+The non-EpicFight repository must therefore keep this direct server-side call in `JevEntity.tick()`:
+
+```java
+HookGunCombatUtil.tickJev(this, serverLevel);
+```
+
+Keep the call after Jev resolves and validates `followTarget` / `followTargetUUID`. Do not depend on an Epic Fight patch class to tick Jev combat in the non-EpicFight repository. This was the reason Jev could follow Alex but did not shoot support hooks while Alex still worked.
+
+`HookGunCombatUtil.tickJev` also returns immediately while Jev is rig-stunned, dead, already in a hook session, has an active hook, or is still on hook cooldown.
+
+## Jev Hook Gun Rig Animations
+
+NPC hook shooting uses the non-EpicFight rig system. When `shouldPlayHookGunAnimationForHand(...)` allows the draw/aim animation, the shared helper calls:
+
+```java
+RigAnimationController.play(mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
+```
+
+The current rig ID is `POINT_LEFT_HAND_TOWARD`; do not invent or reorder a `POINT_HAND_TOWARD` enum entry. `RigAnimationId` ordinals are network-facing.
+
+While a hook remains out and is not returning, `HookGunItem` owns the persistent hand pose. The mapping is centralized in `getHookHandAnimation(boolean rightHand, byte state)`:
+
+- left + normal -> `RigAnimationId.LEFT_HAND_HOOK`
+- left + top -> `RigAnimationId.LEFT_HAND_HOOK_TOP`
+- right + normal -> `RigAnimationId.RIGHT_HAND_HOOK`
+- right + top -> `RigAnimationId.RIGHT_HAND_HOOK_TOP`
+
+Top pose is selected when the hook direction has Y greater than `0.55` or its dot product with owner look is below `-0.20`. The hook poses are played with `RigAnimationController.playHeldPose(...)` and explicitly stopped when the hook disappears, returns, is canceled, or the owner stops holding the hook gun.
+
+The four hook poses intentionally remain selected inside `HookGunItem.getHookHandAnimation(...)` so Alex/Jev/player hook code does not duplicate left/right/top animation choice.
+
+## AV_EFM Compatibility Reminder
+
+Keep compatibility placeholders in source in the existing style:
+
+```java
+// add this in AV_EFM
+```
+
+For a future Annoying Villagers EpicFight compatibility module, restore Epic Fight animation calls beside the vanilla rig implementation instead of replacing the non-EpicFight code. In particular, the old Epic Fight hook-shot and repeating hook-hand animations should remain compatibility-layer behavior.
+
+## Knowledge Maintenance Rule
+
+For future ports from the Annoying Villagers x EpicFight branch into the non-EpicFight repository, read this file and the other knowledge files for every class/system touched before changing code. After the port, update those relevant knowledge files with the new non-EpicFight behavior, compatibility comments, removed Epic Fight dependencies, and any discovered porting pitfalls.
+

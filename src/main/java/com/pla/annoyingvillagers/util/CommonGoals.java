@@ -43,7 +43,7 @@ public class CommonGoals {
     }
 
     private static boolean supportsRigCombat(Mob mob) {
-        return mob instanceof AVNpc || mob instanceof HerobrineMob;
+        return mob instanceof AVNpc || mob instanceof HerobrineMob || mob instanceof BlueDemonEntity;
     }
 
     public static void registerGoalForHostileNpc(PathfinderMob monster) {

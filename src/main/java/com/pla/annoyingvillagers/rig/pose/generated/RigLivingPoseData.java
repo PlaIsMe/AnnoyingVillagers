@@ -22,10 +22,12 @@ public final class RigLivingPoseData {
         clips.put(RigAnimationId.LAYING_DEATH, laying_death());
         clips.put(RigAnimationId.LAYING_DEATH_DEAD, laying_death_dead());
         clips.put(RigAnimationId.MOUNT, mount());
+        clips.put(RigAnimationId.POINT_LEFT_HAND_MIDDLE, point_left_hand_middle());
+        clips.put(RigAnimationId.POINT_LEFT_HAND_TOWARD, point_left_hand_toward());
+        clips.put(RigAnimationId.POINT_LEFT_HAND_UP, point_left_hand_up());
         clips.put(RigAnimationId.SNEAK, sneak());
         clips.put(RigAnimationId.SPINNING_WEAPON, spinning_weapon());
         clips.put(RigAnimationId.SWIM, swim());
-        clips.put(RigAnimationId.POINT_LEFT_HAND_TOWARD, throw_ender_pearl());
         clips.put(RigAnimationId.WALK, walk());
     }
 
@@ -195,6 +197,51 @@ public final class RigLivingPoseData {
         );
     }
 
+    private static RigPoseClip point_left_hand_middle() {
+        return RigPoseClip.of(
+                part(RIGHT_ARM, new float[]{0F, 0F, 0F, 0.001F}, new float[]{0F, 0.263F, 0F, 0F, 0.4F, 0.258F, 0F, 0F}),
+                part(RIGHT_HAND, new float[]{0F, 0F, -0.005F, 0.06F}, new float[]{0F, -6.816F, 0F, 0F, 0.4F, -6.804F, 0F, 0F}),
+                part(RIGHT_TOOL, new float[]{0F, 0F, 0.048F, 0.514F}, new float[]{0F, 2.74F, 0F, 0F}),
+                part(LEFT_ARM, new float[]{0F, 0.594F, -0.643F, -2.008F, 0.1F, 0.371F, -0.336F, -2.747F, 0.2F, 0.418F, -0.172F, -2.934F, 0.4F, 0.403F, -0.286F, -2.833F}, new float[]{0F, -112.586F, 26.654F, -72.247F, 0.05F, -90.822F, 8.112F, -52.107F, 0.1F, -76.034F, -15.449F, -39.6F, 0.2F, -72.741F, -28.894F, -30.956F, 0.3F, -73.054F, -21.51F, -37.365F, 0.4F, -73.054F, -21.51F, -37.365F}),
+                part(LEFT_HAND, new float[]{0F, 0F, -0.296F, 0.443F, 0.1F, 0F, -0.015F, 0.109F, 0.4F, 0F, -0.005F, 0.056F}, new float[]{0F, -63.921F, 0F, 0F, 0.1F, -12.547F, 0F, 0F, 0.15F, -6.37F, 0F, 0F, 0.4F, -6.37F, 0F, 0F}),
+                part(LEFT_TOOL, new float[]{0F, 0.745F, -0.187F, 0.222F}, new float[]{0F, 32.2F, -55.764F, -21.119F}),
+                part(RIGHT_LEG, new float[]{0F, 0F, 0F, -0.001F}, new float[]{0F, -0.342F, 0F, 0F, 0.4F, -0.344F, 0F, 0F}),
+                part(RIGHT_LOWER_LEG, new float[]{0F, 0F, 0F, 0.002F}, new float[]{0F, 0.684F, 0F, 0F, 0.4F, 0.689F, 0F, 0F}),
+                part(LEFT_LEG, new float[]{0F, 0F, 0F, -0.001F}, new float[]{0F, -0.34F, 0F, 0F, 0.4F, -0.345F, 0F, 0F}),
+                part(LEFT_LOWER_LEG, new float[]{0F, 0F, 0F, 0.002F}, new float[]{0F, 0.681F, 0F, 0F, 0.4F, 0.69F, 0F, 0F})
+        );
+    }
+
+    private static RigPoseClip point_left_hand_toward() {
+        return RigPoseClip.of(
+                part(RIGHT_ARM, new float[]{0F, -0.001F, -0.004F, -0.003F}, new float[]{0F, 0.051F, 0.178F, 0.228F}),
+                part(RIGHT_HAND, new float[]{0F, 0F, -0.005F, 0.056F}, new float[]{0F, -6.369F, 0F, 0F}),
+                part(RIGHT_TOOL, new float[]{0F, 0F, 0.048F, 0.514F}, new float[]{0F, 2.74F, 0F, 0F}),
+                part(LEFT_ARM, new float[]{0F, 0F, 0.529F, -0.201F, 0.15F, 0F, 0.287F, -0.312F, 0.4F, 0F, 0.28F, -0.312F}, new float[]{0F, -144.325F, 0F, 0F, 0.1F, -99.574F, 0F, 0F, 0.15F, -90.992F, 0F, 0F, 0.4F, -89.605F, 0F, 0F}),
+                part(LEFT_HAND, new float[]{0F, 0F, -0.536F, 0.487F, 0.1F, 0F, -0.307F, 0.449F, 0.15F, 0F, -0.007F, 0.071F, 0.4F, 0F, -0.005F, 0.056F}, new float[]{0F, -92.055F, 0F, 0F, 0.05F, -89.774F, 0F, 0F, 0.1F, -65.381F, 0F, 0F, 0.15F, -8.133F, 0F, 0F, 0.4F, -6.37F, 0F, 0F}),
+                part(LEFT_TOOL, new float[]{0F, 0F, 0.048F, 0.514F}, new float[]{0F, 2.74F, 0F, 0F}),
+                part(RIGHT_LEG, new float[]{0F, 0F, 0F, -0.001F}, new float[]{0F, -0.434F, 0F, 0F, 0.4F, -0.469F, 0F, 0F}),
+                part(RIGHT_LOWER_LEG, new float[]{0F, 0F, 0F, 0.003F}, new float[]{0F, 0.868F, 0F, 0F, 0.4F, 0.938F, 0F, 0F}),
+                part(LEFT_LEG, new float[]{0F, 0F, 0F, -0.001F}, new float[]{0F, -0.358F, 0F, 0F, 0.4F, -0.361F, 0F, 0F}),
+                part(LEFT_LOWER_LEG, new float[]{0F, 0F, 0F, 0.002F}, new float[]{0F, 0.715F, 0F, 0F, 0.4F, 0.723F, 0F, 0F})
+        );
+    }
+
+    private static RigPoseClip point_left_hand_up() {
+        return RigPoseClip.of(
+                part(RIGHT_ARM, new float[]{0F, 0F, 0F, 0.001F}, new float[]{0F, 0.263F, 0F, 0F, 0.4F, 0.262F, 0F, 0F}),
+                part(RIGHT_HAND, new float[]{0F, 0F, -0.005F, 0.06F}, new float[]{0F, -6.815F, 0F, 0F, 0.4F, -6.814F, 0F, 0F}),
+                part(RIGHT_TOOL, new float[]{0F, 0F, 0.048F, 0.514F}, new float[]{0F, 2.74F, 0F, 0F}),
+                part(LEFT_ARM, new float[]{0F, 0.058F, 0.568F, -0.371F, 0.1F, 0.124F, 0.146F, -0.561F, 0.4F, 0.126F, 0.158F, -0.567F}, new float[]{0F, -124.024F, -5.903F, 7.021F, 0.05F, -86.887F, -14.193F, 4.39F, 0.1F, -61.269F, -17.767F, 0.35F, 0.2F, -48.504F, -17.841F, 0.305F, 0.3F, -63.827F, -17.751F, 0.357F, 0.4F, -63.827F, -17.751F, 0.357F}),
+                part(LEFT_HAND, new float[]{0F, 0F, -0.196F, 0.384F, 0.1F, 0F, -0.687F, 0.454F, 0.2F, 0F, -0.721F, 0.439F, 0.4F, 0F, -0.679F, 0.456F}, new float[]{0F, -50.693F, 0F, 0F, 0.05F, -87.008F, 0F, 0F, 0.1F, -109.634F, 0F, 0F, 0.2F, -113.947F, 0F, 0F, 0.3F, -108.77F, 0F, 0F, 0.4F, -108.77F, 0F, 0F}),
+                part(LEFT_TOOL, new float[]{0F, 0F, 0.048F, 0.514F}, new float[]{0F, 2.74F, 0F, 0F}),
+                part(RIGHT_LEG, new float[]{0F, 0F, 0F, -0.001F}, new float[]{0F, -0.336F, 0F, 0F, 0.4F, -0.342F, 0F, 0F}),
+                part(RIGHT_LOWER_LEG, new float[]{0F, 0F, 0F, 0.002F}, new float[]{0F, 0.671F, 0F, 0F, 0.4F, 0.683F, 0F, 0F}),
+                part(LEFT_LEG, new float[]{0F, 0F, 0F, -0.001F}, new float[]{0F, -0.338F, 0F, 0F, 0.4F, -0.347F, 0F, 0F}),
+                part(LEFT_LOWER_LEG, new float[]{0F, 0F, 0F, 0.002F}, new float[]{0F, 0.676F, 0F, 0F, 0.4F, 0.693F, 0F, 0F})
+        );
+    }
+
     private static RigPoseClip sneak() {
         return RigPoseClip.of(
                 part(BODY, new float[]{0F, -2.055F, -4.22F, -7.808F, 0.15F, -1.505F, -5.163F, -6.861F, 0.2F, -1.443F, -5.359F, -6.946F, 0.3F, -1.618F, -5.158F, -7.956F, 0.35F, -1.618F, -4.532F, -7.949F, 0.4F, -1.587F, -4.361F, -7.775F, 0.55F, -1.396F, -5.307F, -6.657F, 0.65F, -1.61F, -5.426F, -7.92F, 0.75F, -2.055F, -4.22F, -7.808F}, new float[]{0F, 65.291F, 27.268F, 14.992F, 0.2F, 53.889F, 20.573F, 7.703F, 0.3F, 60.176F, 16.756F, 3.13F, 0.4F, 58.184F, 15.774F, 1.312F, 0.55F, 51.242F, 19.668F, 5.901F, 0.65F, 62.602F, 21.132F, 11.508F, 0.75F, 65.291F, 27.268F, 14.992F}),
@@ -242,21 +289,6 @@ public final class RigLivingPoseData {
                 part(RIGHT_LOWER_LEG, new float[]{0F, 0F, 0F, -0.03F, 0.25F, 0F, 0.004F, -0.056F, 0.75F, -0.002F, 0.135F, 0.163F, 1F, 0F, 0F, -0.03F}, new float[]{0F, -9.24F, 0.161F, -0.013F, 0.25F, -17.229F, 0.482F, -0.073F, 0.35F, -2.358F, 0.408F, -0.008F, 0.5F, 41.873F, 0F, 0F, 0.75F, 70.234F, -0.769F, -0.014F, 0.85F, 47.806F, -0.533F, 0.094F, 1F, -9.24F, 0.161F, -0.013F}),
                 part(LEFT_LEG, new float[]{0F, -0.013F, -5.845F, 6.017F, 0.5F, -0.007F, -6.011F, 6.051F, 1F, -0.013F, -5.845F, 6.017F}, new float[]{0F, 122.202F, -5.79F, 0.688F, 0.05F, 121.762F, -5.762F, 0.692F, 0.25F, 95.264F, -4.104F, 0.555F, 0.35F, 78.2F, -3.138F, 0.073F, 0.5F, 66.872F, -2.594F, -0.396F, 0.55F, 67.311F, -2.613F, -0.375F, 0.75F, 93.769F, -4.014F, 0.525F, 0.85F, 110.847F, -5.073F, 0.729F, 1F, 122.202F, -5.79F, 0.688F}),
                 part(LEFT_LOWER_LEG, new float[]{0F, 0F, 0.057F, 0.118F, 0.25F, 0.002F, 0.135F, 0.163F, 0.5F, 0F, 0F, -0.03F, 0.75F, 0F, 0.004F, -0.056F, 1F, 0F, 0.057F, 0.118F}, new float[]{0F, 41.873F, 0F, 0F, 0.25F, 70.234F, 0.769F, 0.014F, 0.35F, 47.806F, 0.533F, -0.094F, 0.5F, -9.24F, -0.161F, 0.013F, 0.75F, -17.229F, -0.482F, 0.073F, 0.85F, -2.358F, -0.408F, 0.008F, 1F, 41.873F, 0F, 0F})
-        );
-    }
-
-    private static RigPoseClip throw_ender_pearl() {
-        return RigPoseClip.of(
-                part(RIGHT_ARM, new float[]{0F, -0.001F, -0.004F, -0.003F}, new float[]{0F, 0.051F, 0.178F, 0.228F}),
-                part(RIGHT_HAND, new float[]{0F, 0F, -0.005F, 0.056F}, new float[]{0F, -6.369F, 0F, 0F}),
-                part(RIGHT_TOOL, new float[]{0F, 0F, 0.048F, 0.514F}, new float[]{0F, 2.74F, 0F, 0F}),
-                part(LEFT_ARM, new float[]{0F, 0F, 0.529F, -0.201F, 0.15F, 0F, 0.287F, -0.312F, 0.4F, 0F, 0.28F, -0.312F}, new float[]{0F, -144.325F, 0F, 0F, 0.1F, -99.574F, 0F, 0F, 0.15F, -90.992F, 0F, 0F, 0.4F, -89.605F, 0F, 0F}),
-                part(LEFT_HAND, new float[]{0F, 0F, -0.536F, 0.487F, 0.1F, 0F, -0.307F, 0.449F, 0.15F, 0F, -0.007F, 0.071F, 0.4F, 0F, -0.005F, 0.056F}, new float[]{0F, -92.055F, 0F, 0F, 0.05F, -89.774F, 0F, 0F, 0.1F, -65.381F, 0F, 0F, 0.15F, -8.133F, 0F, 0F, 0.4F, -6.37F, 0F, 0F}),
-                part(LEFT_TOOL, new float[]{0F, 0F, 0.048F, 0.514F}, new float[]{0F, 2.74F, 0F, 0F}),
-                part(RIGHT_LEG, new float[]{0F, 0F, 0F, -0.001F}, new float[]{0F, -0.434F, 0F, 0F, 0.4F, -0.469F, 0F, 0F}),
-                part(RIGHT_LOWER_LEG, new float[]{0F, 0F, 0F, 0.003F}, new float[]{0F, 0.868F, 0F, 0F, 0.4F, 0.938F, 0F, 0F}),
-                part(LEFT_LEG, new float[]{0F, 0F, 0F, -0.001F}, new float[]{0F, -0.358F, 0F, 0F, 0.4F, -0.361F, 0F, 0F}),
-                part(LEFT_LOWER_LEG, new float[]{0F, 0F, 0F, 0.002F}, new float[]{0F, 0.715F, 0F, 0F, 0.4F, 0.723F, 0F, 0F})
         );
     }
 

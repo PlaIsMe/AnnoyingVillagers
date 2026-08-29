@@ -5,6 +5,9 @@ import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
 import com.pla.annoyingvillagers.entity.ElectricAreaEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
+import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -28,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class BlueDemonTridentItem extends SwordItem {
+public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileProvider {
     private static final double OWNER_HALF_BOX = 50.0D;
 
     private static final int DAMAGE_ZONE_DURATION = 100;
@@ -659,5 +662,15 @@ public class BlueDemonTridentItem extends SwordItem {
         }
 
         return meter;
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.BLUE_DEMON;
+    }
+
+    @Override
+    public RigDualWieldGroup getDualWieldGroup(ItemStack stack) {
+        return RigDualWieldGroup.LEGENDARY_SWORD;
     }
 }

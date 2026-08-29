@@ -108,8 +108,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private boolean playingIdle;
     private int playingIdleCooldown = 1200;
     private boolean isStrolling;
-    private int efnGuardHitState = 0;
-    private int efnGuardHitCooldown = 0;
     private boolean mainWeaponDisarmed = false;
 
     public boolean isMainWeaponDisarmed() {
@@ -118,10 +116,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     public void setMainWeaponDisarmed(boolean mainWeaponDisarmed) {
         this.mainWeaponDisarmed = mainWeaponDisarmed;
-    }
-
-    public int getEfnGuardHitState() {
-        return efnGuardHitState;
     }
 
     private int voiceCooldown = 0;
@@ -135,16 +129,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     public void setVoiceCooldown(int cooldown) {
         this.voiceCooldown = cooldown;
     }
-
-    public void postPlayEfnGuardHit() {
-        if (efnGuardHitState == 2) {
-            efnGuardHitState = 0;
-        } else {
-            efnGuardHitState = efnGuardHitState + 1;
-        }
-        efnGuardHitCooldown = 100;
-    }
-
 
     public boolean isStrolling() {
         return isStrolling;
@@ -893,12 +877,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         if (stunEscapeCooldown > 0) stunEscapeCooldown--;
         if (this instanceof FishingRodUser fishingRodUser) fishingRodUser.tickCombatFishingRodCooldown();
         if (playingIdleCooldown > 0) playingIdleCooldown--;
-        if (efnGuardHitCooldown > 0) efnGuardHitCooldown--;
-
-        if (efnGuardHitCooldown == 0 && efnGuardHitState != 0) {
-            efnGuardHitState = 0;
-        }
-
 
         if ((tickCount + getId()) % 20 == 0) {
             if (!isInventoryFull()) {

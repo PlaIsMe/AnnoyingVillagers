@@ -28,6 +28,10 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class RigAnimationController {
+    // Held poses have no natural end; this packet duration only keeps the client pose alive
+    // until an explicit stop/replacement packet arrives. One day is effectively unbounded
+    // for a hook session without risking integer overflow in client blend calculations.
+    private static final int HELD_POSE_DURATION_TICKS = 20 * 60 * 60 * 24;
     private static final Map<UUID, ActiveAnimationState> ACTIVE_ANIMATIONS = new HashMap<>();
 
     private RigAnimationController() {
@@ -35,6 +39,39 @@ public final class RigAnimationController {
 
     public static void play(Mob mob, RigAnimationId animationId) {
         play(mob, RigAnimationSpecs.get(animationId), null);
+    }
+
+    public static void playHeldPose(Mob mob, RigAnimationId animationId) {
+        RigAnimationSpec baseSpec = RigAnimationSpecs.get(animationId);
+        if (baseSpec.damagesTarget()) {
+            throw new IllegalArgumentException("Held rig poses must be non-damaging: " + animationId);
+        }
+        if (RigStunController.isStunned(mob) || mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) {
+            return;
+        }
+
+        RigAnimationSpec heldSpec = RigAnimationSpec.nonDamaging(
+                animationId,
+                HELD_POSE_DURATION_TICKS,
+                baseSpec.playbackType()
+        );
+        recordActiveAnimation(mob, heldSpec);
+        sendAnimation(mob, animationId, HELD_POSE_DURATION_TICKS);
+    }
+
+    public static void stop(Mob mob, RigAnimationId animationId) {
+        if (animationId == null || mob.level().isClientSide) {
+            return;
+        }
+
+        ActiveAnimationState state = ACTIVE_ANIMATIONS.get(mob.getUUID());
+        if (state == null || state.spec().animationId() != animationId) {
+            return;
+        }
+
+        if (ACTIVE_ANIMATIONS.remove(mob.getUUID(), state)) {
+            sendAnimation(mob, animationId, 0);
+        }
     }
 
     public static void play(Mob mob, RigAnimationSpec spec, LivingEntity target) {

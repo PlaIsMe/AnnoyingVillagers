@@ -4,6 +4,8 @@ import com.pla.annoyingvillagers.entity.AlexEntity;
 import com.pla.annoyingvillagers.entity.ChrisEntity;
 import com.pla.annoyingvillagers.entity.SteveEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -11,6 +13,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -29,6 +32,9 @@ public class TotemUsingEvent {
 //        }
 
 //        CREATE VANILLA_ANIMATION
+        if (entity instanceof Mob mob && !entity.level().isClientSide() && entity.getServer() != null) {
+            RigAnimationController.play(mob, RigAnimationId.STUN_BACK);
+        }
     }
 
     @SubscribeEvent

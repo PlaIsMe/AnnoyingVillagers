@@ -86,8 +86,6 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
     private int stunEscapeCooldown = 0;
     private Entity blockDamage = null;
     private int swapWeaponCooldown;
-    private int efnGuardHitState = 0;
-    private int efnGuardHitCooldown = 0;
     private int voiceCooldown = 0;
     private int rigAttackAnimationLockCount;
 
@@ -114,19 +112,6 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
     @Override
     public void setVoiceCooldown(int cooldown) {
         this.voiceCooldown = cooldown;
-    }
-
-    public int getEfnGuardHitState() {
-        return efnGuardHitState;
-    }
-
-    public void postPlayEfnGuardHit() {
-        if (efnGuardHitState == 2) {
-            efnGuardHitState = 0;
-        } else {
-            efnGuardHitState = efnGuardHitState + 1;
-        }
-        efnGuardHitCooldown = 100;
     }
 
     public int getStunEscapeCooldown() {
@@ -515,7 +500,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
         }
         if (this instanceof ShadowHerobrineEntity shadowHerobrineEntity) {
-           shadowHerobrineEntity.clearDarkOb();
+            shadowHerobrineEntity.clearDarkOb();
         }
         CommonUtil.stunImmunity(this, 80, 2);
 
@@ -935,11 +920,6 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             this.tickVoiceCooldown();
             if (stunEscapeCooldown > 0) stunEscapeCooldown--;
             if (swapWeaponCooldown > 0) swapWeaponCooldown--;
-            if (efnGuardHitCooldown > 0) efnGuardHitCooldown--;
-
-            if (efnGuardHitCooldown == 0 && efnGuardHitState != 0) {
-                efnGuardHitState = 0;
-            }
 
             CommonUtil.dangerousReactionAi(this);
             CommonUtil.stunEscapeAi(this);
@@ -974,7 +954,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             }
 
             if (this.hasEffect(MobEffects.DAMAGE_BOOST) && this.hasEffect(MobEffects.MOVEMENT_SPEED) &&
-            this.hasEffect(MobEffects.JUMP) && this.hasEffect(MobEffects.DAMAGE_RESISTANCE)) {
+                    this.hasEffect(MobEffects.JUMP) && this.hasEffect(MobEffects.DAMAGE_RESISTANCE)) {
                 if (new Random().nextBoolean()) {
                     serverLevel.sendParticles(
                             AnnoyingVillagersModParticleTypes.FULL_COWL.get(),

@@ -5,9 +5,13 @@ import javax.annotation.Nullable;
 import com.pla.annoyingvillagers.clazz.*;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
+import com.pla.annoyingvillagers.entity.goal.RollItemGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigStunEscapeEntity;
 import com.pla.annoyingvillagers.spawnhandler.BluedemonData;
 import com.pla.annoyingvillagers.util.*;
@@ -58,7 +62,8 @@ import java.util.*;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 
-public class BlueDemonEntity extends Monster implements BurstProtectEntity, CombatVoiceLineEntity, RigStunEscapeEntity {
+public class BlueDemonEntity extends Monster implements BurstProtectEntity, CombatVoiceLineEntity,
+        LockableRigAttackAnimation, RigStunEscapeEntity, RollItemUser {
     private static final float WATER_SWIM_ACCELERATION = 0.08F;
     private static final double WATER_SWIM_HORIZONTAL_SPEED = 0.42D;
 
@@ -92,8 +97,6 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
     private int stunEscapeCooldown = 0;
     private Entity blockDamage = null;
     private int swapWeaponCooldown;
-    private int efnGuardHitState = 0;
-    private int efnGuardHitCooldown = 0;
     private static final EntityDataAccessor<Integer> STATE =
             SynchedEntityData.defineId(BlueDemonEntity.class, EntityDataSerializers.INT);
     private int stateTransformCooldown = -1;
@@ -110,6 +113,22 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
     private int leaveTicks = 0;
     private Vec3 leaveDirection = Vec3.ZERO;
     private int voiceCooldown = 0;
+    private int rigAttackAnimationLockCount;
+
+    @Override
+    public void lock() {
+        this.rigAttackAnimationLockCount++;
+    }
+
+    @Override
+    public void unlock() {
+        if (this.rigAttackAnimationLockCount > 0) this.rigAttackAnimationLockCount--;
+    }
+
+    @Override
+    public boolean isLocked() {
+        return this.rigAttackAnimationLockCount > 0;
+    }
 
     @Override
     public int getVoiceCooldown() {
@@ -152,19 +171,6 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 
     public float getSauceSquadAngle() {
         return this.sauceSquadAngle;
-    }
-
-    public int getEfnGuardHitState() {
-        return efnGuardHitState;
-    }
-
-    public void postPlayEfnGuardHit() {
-        if (efnGuardHitState == 2) {
-            efnGuardHitState = 0;
-        } else {
-            efnGuardHitState = efnGuardHitState + 1;
-        }
-        efnGuardHitCooldown = 100;
     }
 
     @Override
@@ -670,7 +676,14 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
     @Override
     protected void registerGoals() {
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
+        this.goalSelector.addGoal(1, new RollItemGoal(this));
         CommonGoals.registerGoalForBlueDemonNpc(this);
+    }
+
+    @Override
+    public boolean canRollItem() {
+        LivingEntity target = this.getTarget();
+        return target != null && target.isAlive() && this.getState() == 3 && this.swapWeaponCooldown == 0;
     }
 
     public boolean canBeAffected(MobEffectInstance mobeffectinstance) {
@@ -711,7 +724,11 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 //            }
 //        }
 
-//        Add VANILLA_ANIMATION
+        if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
+            RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_DIE);
+        } else {
+            RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_DIE_START);
+        }
     }
 
     private void playDeathAnimation() {
@@ -724,7 +741,13 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 //            }
 //        }
 
-//        Add VANILLA_ANIMATION
+        if (this.dieTick <= 180 && this.dieTick % 10 == 0) {
+            if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
+                RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_STATE_TRANSFORM);
+            } else {
+                RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_DIE_TICK);
+            }
+        }
     }
 
     private void startFinalDeathSequence(ServerLevel serverLevel, DamageSource damageSource) {
@@ -1375,7 +1398,9 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 //            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
 //        }
 
-//        CREATE VANILLA_ANIMATION
+        if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.BLUE_DEMON_STATE_TRANSFORM) {
+            RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_STATE_TRANSFORM);
+        }
     }
 
     private void playStateTransformEndAnimation() {
@@ -1384,7 +1409,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 //            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END, 0.0F);
 //        }
 
-//        CREATE VANILLA_ANIMATION
+        RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_STATE_TRANSFORM_END);
     }
 
     @Override
@@ -1403,7 +1428,6 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             }
             if (stunEscapeCooldown > 0) stunEscapeCooldown--;
             if (swapWeaponCooldown > 0) swapWeaponCooldown--;
-            if (efnGuardHitCooldown > 0) efnGuardHitCooldown--;
             if (healingCooldown > 0) healingCooldown--;
             if (stateTransformCooldown > 0) {
                 if (stateTransformCooldown > 20) {
@@ -1419,8 +1443,13 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
                     legendaryStack.enchant(Enchantments.SMITE, 5);
                     legendaryStack.enchant(Enchantments.SWEEPING_EDGE, 5);
 
+                    ItemStack tridentStack = new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get());
+                    tridentStack.enchant(Enchantments.SHARPNESS, 5);
+                    tridentStack.enchant(Enchantments.SMITE, 5);
+                    tridentStack.enchant(Enchantments.SWEEPING_EDGE, 5);
+
                     this.setItemInHand(InteractionHand.MAIN_HAND, legendaryStack);
-                    this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+                    this.setItemInHand(InteractionHand.OFF_HAND, tridentStack);
                     this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 4, 300));
                 }
                 if (stateTransformCooldown % 2 == 0) {
@@ -1480,10 +1509,6 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             }
 
             this.syncChestplateHealingFoil();
-
-            if (efnGuardHitCooldown == 0 && efnGuardHitState != 0) {
-                efnGuardHitState = 0;
-            }
 
             CommonUtil.dangerousReactionAi(this);
             CommonUtil.stunEscapeAi(this);
@@ -1582,6 +1607,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         voiceCooldown = tag.getInt("VoiceCooldown");
     }
 
+    @Override
     public void rollItem() {
         ItemStack legendaryStack = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
         legendaryStack.enchant(Enchantments.SHARPNESS, 5);
@@ -1594,7 +1620,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         tridentStack.enchant(Enchantments.SWEEPING_EDGE, 5);
         if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
             this.setItemInHand(InteractionHand.MAIN_HAND, legendaryStack);
-            this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+            this.setItemInHand(InteractionHand.OFF_HAND, tridentStack);
         } else {
             this.setItemInHand(InteractionHand.MAIN_HAND, tridentStack);
             this.setItemInHand(InteractionHand.OFF_HAND, tridentStack);
@@ -1704,6 +1730,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 //        }
 
 //        CREATE VANILLA_ANIMATION
+        RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL);
     }
 
     @Override

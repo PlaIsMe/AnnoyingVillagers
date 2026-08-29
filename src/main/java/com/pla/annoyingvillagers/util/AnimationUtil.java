@@ -1,10 +1,12 @@
 package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.client.animation.rig_animation.greatsword.GreatswordAnimations1;
+import com.pla.annoyingvillagers.client.animation.rig_animation.legendary_sword.LegendarySwordAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.LivingAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.RunAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.spear.SpearAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.tachi.TachiAnimations1;
+import com.pla.annoyingvillagers.item.LegendarySwordItem;
 import com.pla.annoyingvillagers.rig.RigCombatProfiles;
 import com.pla.annoyingvillagers.rig.RigLocomotionStyle;
 import net.minecraft.client.animation.AnimationDefinition;
@@ -45,6 +47,7 @@ public class AnimationUtil {
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_IDLE;
             case CRAFTING_TABLE -> GreatswordAnimations1.CARRY;
             case TACHI -> TachiAnimations1.TACHI_IDLE;
+            case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_IDLE;
             default -> LivingAnimations.IDLE;
         };
     }
@@ -54,6 +57,7 @@ public class AnimationUtil {
             case SPEAR -> SpearAnimations1.SPEAR_WALK;
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_WALK;
             case TACHI -> TachiAnimations1.TACHI_WALK;
+            case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_WALK;
             default -> LivingAnimations.WALK;
         };
     }
@@ -64,6 +68,7 @@ public class AnimationUtil {
             case SPEAR -> SpearAnimations1.SPEAR_RUN;
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_RUN;
             case TACHI -> TachiAnimations1.TACHI_RUN;
+            case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_RUN;
             default -> RunAnimations.RUN;
         };
     }
@@ -71,15 +76,16 @@ public class AnimationUtil {
     public static AnimationDefinition getRunAnimation(Mob mob) {
         ItemStack mainHand = mob.getMainHandItem();
         ItemStack offHand = mob.getOffhandItem();
-        if (mainHand.getItem() instanceof SwordItem && offHand.getItem() instanceof SwordItem) {
-            return RunAnimations.RUN_HOLDING_DUAL_WEAPON;
-        }
 
         RigLocomotionStyle style = RigCombatProfiles.getLocomotionStyle(mob);
         AnimationDefinition customRun = getCustomRunAnimation(style);
 
         if (customRun != null) {
             return customRun;
+        }
+
+        if (mainHand.getItem() instanceof SwordItem && offHand.getItem() instanceof SwordItem) {
+            return RunAnimations.RUN_HOLDING_DUAL_WEAPON;
         }
 
         if (mainHand.getItem() instanceof SwordItem) {
@@ -103,15 +109,17 @@ public class AnimationUtil {
     public static AnimationDefinition getIdleAnimation(Mob mob) {
         ItemStack mainHand = mob.getMainHandItem();
         ItemStack offHand = mob.getOffhandItem();
-        if (mainHand.getItem() instanceof SwordItem && offHand.getItem() instanceof SwordItem) {
-            return LivingAnimations.IDLE_DUAL;
-        }
 
         RigLocomotionStyle style = RigCombatProfiles.getLocomotionStyle(mob);
         AnimationDefinition customIdle = getCustomIdleAnimation(style);
 
         if (customIdle != null) {
             return customIdle;
+        }
+
+        if (mainHand.getItem() instanceof SwordItem
+                && offHand.getItem() instanceof SwordItem) {
+            return LivingAnimations.IDLE_DUAL;
         }
 
         return LivingAnimations.IDLE;

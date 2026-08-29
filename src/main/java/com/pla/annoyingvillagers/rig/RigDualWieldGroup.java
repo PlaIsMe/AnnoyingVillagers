@@ -4,5 +4,6 @@ public enum RigDualWieldGroup {
     NONE,
     AXE,
     SWORD,
-    LONGSWORD
+    LONGSWORD,
+    LEGENDARY_SWORD,
 }

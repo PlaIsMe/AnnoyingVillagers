@@ -6,5 +6,6 @@ public enum RigLocomotionStyle {
     GREATSWORD,
     CRAFTING_TABLE,
     SPEAR,
-    TACHI
+    TACHI,
+    LEGENDARY_SWORD
 }

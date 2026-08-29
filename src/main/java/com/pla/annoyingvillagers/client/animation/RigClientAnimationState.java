@@ -1,8 +1,10 @@
 package com.pla.annoyingvillagers.client.animation;
 
 import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -19,6 +21,11 @@ public final class RigClientAnimationState {
     }
 
     public static void start(int entityId, RigAnimationId animationId, int durationTicks) {
+        if (durationTicks <= 0) {
+            ACTIVE_ANIMATIONS.remove(entityId);
+            return;
+        }
+
         Entity entity = Minecraft.getInstance().level == null ? null : Minecraft.getInstance().level.getEntity(entityId);
         int startTick = entity == null ? 0 : entity.tickCount;
         Active active = new Active(animationId, startTick, durationTicks, DEFAULT_BLEND_IN_TICKS, DEFAULT_BLEND_OUT_TICKS);
@@ -41,6 +48,11 @@ public final class RigClientAnimationState {
         }
 
         return active;
+    }
+
+    public static boolean isToolHidden(Entity entity, HumanoidArm arm) {
+        Active active = getActive(entity, entity.tickCount);
+        return active != null && RigAnimationSpecs.get(active.animationId()).isToolHidden(arm, active.elapsedTicks(entity.tickCount));
     }
 
     public record Active(RigAnimationId animationId, int startedAtTick, int durationTicks, int blendInTicks, int blendOutTicks) {

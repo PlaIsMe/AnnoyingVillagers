@@ -55,6 +55,15 @@ The damped limb-swing value may still decide whether locomotion is visually acti
 
 `ModelRigArmor` is the segmented armor model used by `RigArmorLayer`. The base rig copies child hand/lower-leg poses into the armor rig so armor follows articulation. Slot visibility decides which upper/lower segments are rendered for chest, leg, and boot equipment.
 
+
+## Timed held-item visibility
+
+`RigItemInHandLayer` and `VillagerRigItemInHandLayer` may suppress a rendered left/right tool according to the active rig spec. `RigClientAnimationState` reads `RigTimedAnimationHook` visibility metadata and the item layer skips rendering that arm while hidden.
+
+This is visual-only. The mob keeps its actual main-hand/off-hand `ItemStack`, so gameplay logic, projectile creation, durability/state data, AI weapon checks, and later hooks still see the real weapon. Tool visibility automatically returns when the one-shot animation ends unless a spec explicitly schedules a show hook earlier.
+
+Keep throw/spawn behavior independent from visibility. A throw animation should normally schedule both a projectile hook and a `hideLeftToolAt(...)` / `hideRightToolAt(...)` hook at the throw timestamp rather than making the projectile helper manipulate rendering state.
+
 ## Generated animation source style
 
 Files under `client/animation/rig_animation/**` are generated/user-authored animation holders and can be very large. Preserve their generated inline `public static final AnimationDefinition ... = AnimationDefinition.Builder...build();` style. Do not mechanically split those fields into private creator methods unless explicitly requested.

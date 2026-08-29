@@ -270,7 +270,7 @@ Alex's NPC hook use is not a normal player right click. `HookGunCombatUtil.shoot
 - save original hand item(s)
 - put hook gun(s) bound to the desired item in hand
 - swing hand(s)
-- optionally play `AnimsPugilistSteve.HOOK_GUN`
+- when the hook-gun draw animation is allowed, play `RigAnimationId.POINT_LEFT_HAND_TOWARD` through `RigAnimationController`
 - wait `SHOOT_DELAY_TICKS`
 - aim the entity at the target
 - call `HookGunItem.launchHookAt`
@@ -285,3 +285,37 @@ The hook gun animation only plays when the bound item differs from the last reme
 `syncAlexAndJevTarget` makes Alex and Jev share targets. If Alex has an alive non-allied target and Jev has no alive target, Jev receives Alex's target. If Jev has an alive non-allied target and Alex has none, Alex receives Jev's target.
 
 For current Jev hook logic, Jev only starts hook support actions when Alex has an alive target. Outside Alex combat mode, Jev follows and moves around Alex instead of shooting hooks.
+
+## Hook Gun Rig Animation Backport
+
+Alex already had the non-EpicFight scheduler entry point: `AlexEntity.tick()` calls `HookGunCombatUtil.tickAlex(this, serverLevel)` directly. This is the pattern Jev must mirror; do not move Alex/Jev hook scheduling back into Epic Fight patch classes.
+
+For NPC hook sessions, `HookGunCombatUtil.playHookGunAnimation(...)` now uses:
+
+```java
+RigAnimationController.play(mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
+```
+
+The current ID is `POINT_LEFT_HAND_TOWARD`, not `POINT_HAND_TOWARD`. The call is shared by Alex and Jev and is only used when `shouldPlayHookGunAnimationForHand(...)` says the draw/aim animation should play.
+
+After the hook is launched, `HookGunItem` drives the persistent rope-hand pose for both Alex and Jev. Do not put left/right/top selection into Alex combat code. Keep it centralized in `HookGunItem.getHookHandAnimation(...)`:
+
+- `LEFT_HAND_HOOK` / `LEFT_HAND_HOOK_TOP` for the off/left hook
+- `RIGHT_HAND_HOOK` / `RIGHT_HAND_HOOK_TOP` for the main/right hook
+
+These are held poses via `RigAnimationController.playHeldPose(...)`, and `HookGunItem` explicitly stops them when the matching hook is gone or returning.
+
+## AV_EFM Compatibility Reminder
+
+Preserve source placeholders written as:
+
+```java
+// add this in AV_EFM
+```
+
+A future AV_EFM layer should add the Epic Fight animation equivalent beside the non-EpicFight rig behavior rather than making core Alex hook logic depend on Epic Fight again.
+
+## Knowledge Maintenance Rule
+
+For future ports involving Alex, Jev, hook combat, rig combat, or related items/goals, read the relevant `.codex/knowledge` files first. After implementing/analyzing the port, update every relevant knowledge file with new behavior, API choices, compatibility reminders, and important differences from the Epic Fight branch.
+

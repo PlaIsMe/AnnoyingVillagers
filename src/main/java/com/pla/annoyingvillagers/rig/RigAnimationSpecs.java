@@ -1,8 +1,14 @@
 package com.pla.annoyingvillagers.rig;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.clazz.TridentMode;
 import com.pla.annoyingvillagers.entity.BlackFireEntity;
+import com.pla.annoyingvillagers.entity.BlueDemonEntity;
+import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
+import com.pla.annoyingvillagers.entity.BlueDemonThunderBeamEntity;
 import com.pla.annoyingvillagers.entity.ElectricPhaseEntity;
+import com.pla.annoyingvillagers.entity.TridentLightningBolt;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -12,14 +18,26 @@ import com.pla.annoyingvillagers.network.ClientboundMuteExplosionAtPos;
 import com.pla.annoyingvillagers.network.ClientboundWoopieSwordWindFx;
 import com.pla.annoyingvillagers.potion.ObedienceMobEffect;
 import com.pla.annoyingvillagers.task.DelayedTask;
+import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.RigPoseUtil;
+import com.pla.annoyingvillagers.util.ScreenShakeUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -79,11 +97,11 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.BASIC_ATTACK4, 13, false,
                 RigAttackWindow.of(3, 5, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.BASIC_DASH_ATTACK, 13, false,
-                RigAttackWindow.of(3, 8, RIGHT_SWORD))
+                        RigAttackWindow.of(3, 8, RIGHT_SWORD))
                 .damageMultiplier(1.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.BASIC_JUMP_ATTACK, 13, true,
-                RigAttackWindow.of(3, 8, RIGHT_SWORD))
+                        RigAttackWindow.of(3, 8, RIGHT_SWORD))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.2F)
         );
@@ -112,11 +130,11 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_BASIC_ATTACK3, 15, false,
                 RigAttackWindow.of(5, 12, RIGHT_SWORD, LEFT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_BASIC_DASH_ATTACK, 15, false,
-                RigAttackWindow.of(3, 8, RIGHT_SWORD, LEFT_SWORD))
+                        RigAttackWindow.of(3, 8, RIGHT_SWORD, LEFT_SWORD))
                 .damageMultiplier(1.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_BASIC_JUMP_ATTACK, 13, true,
-                RigAttackWindow.of(3, 8, RIGHT_SWORD, LEFT_SWORD))
+                        RigAttackWindow.of(3, 8, RIGHT_SWORD, LEFT_SWORD))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.2F)
         );
@@ -156,23 +174,23 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.FIST_ATTACK5, 37, false,
                 RigAttackWindow.of(12, 20, LEFT_FIST)));
         put(RigAnimationSpec.attack(RigAnimationId.FIST_DASH_ATTACK, 27, false,
-                RigAttackWindow.of(6, 15, RIGHT_FIST))
+                        RigAttackWindow.of(6, 15, RIGHT_FIST))
                 .damageMultiplier(1.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.FIST_JUMP_ATTACK, 17, true,
-                RigAttackWindow.of(6, 12, RIGHT_FIST))
+                        RigAttackWindow.of(6, 12, RIGHT_FIST))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.FIST_ULT, 33, false,
-                RigAttackWindow.of(1, 2, LEFT_FIST),
-                RigAttackWindow.of(3, 4, RIGHT_FIST),
-                RigAttackWindow.of(5, 6, LEFT_FIST),
-                RigAttackWindow.of(7, 8, RIGHT_FIST),
-                RigAttackWindow.of(9, 10, LEFT_FIST),
-                RigAttackWindow.of(11, 12, RIGHT_FIST),
-                RigAttackWindow.of(13, 14, LEFT_FIST),
-                RigAttackWindow.of(15, 16, RIGHT_FIST))
+                        RigAttackWindow.of(1, 2, LEFT_FIST),
+                        RigAttackWindow.of(3, 4, RIGHT_FIST),
+                        RigAttackWindow.of(5, 6, LEFT_FIST),
+                        RigAttackWindow.of(7, 8, RIGHT_FIST),
+                        RigAttackWindow.of(9, 10, LEFT_FIST),
+                        RigAttackWindow.of(11, 12, RIGHT_FIST),
+                        RigAttackWindow.of(13, 14, LEFT_FIST),
+                        RigAttackWindow.of(15, 16, RIGHT_FIST))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
         );
@@ -188,16 +206,16 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.KICK_ATTACK4, 17, false,
                 RigAttackWindow.of(5, 12, LEFT_FOOT)));
         put(RigAnimationSpec.attack(RigAnimationId.KICK_COMBO_ATTACK, 28, false,
-                RigAttackWindow.of(8, 9, LEFT_FOOT),
-                RigAttackWindow.of(10, 11, LEFT_FOOT),
-                RigAttackWindow.of(12, 13, LEFT_FOOT),
-                RigAttackWindow.of(14, 15, LEFT_FOOT),
-                RigAttackWindow.of(16, 17, LEFT_FOOT))
+                        RigAttackWindow.of(8, 9, LEFT_FOOT),
+                        RigAttackWindow.of(10, 11, LEFT_FOOT),
+                        RigAttackWindow.of(12, 13, LEFT_FOOT),
+                        RigAttackWindow.of(14, 15, LEFT_FOOT),
+                        RigAttackWindow.of(16, 17, LEFT_FOOT))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.KICK_DASH_ATTACK, 19, false,
-                RigAttackWindow.of(2, 12, RIGHT_FOOT))
+                        RigAttackWindow.of(2, 12, RIGHT_FOOT))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.8F)
         );
@@ -213,37 +231,37 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.AXE_ATTACK5, 28, false,
                 RigAttackWindow.of(5, 18, RIGHT_AXE)));
         put(RigAnimationSpec.attack(RigAnimationId.AXE_DASH_ATTACK, 32, false,
-                RigAttackWindow.of(11, 24, RIGHT_AXE))
+                        RigAttackWindow.of(11, 24, RIGHT_AXE))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.AXE_JUMP_ATTACK, 32, true,
-                RigAttackWindow.of(4, 24, RIGHT_AXE))
+                        RigAttackWindow.of(4, 24, RIGHT_AXE))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.8F)
         );
-        put(RigAnimationSpec.attack(RigAnimationId.AXE_ULT, 46, false,
-                RigAttackWindow.of(18, 30, RIGHT_AXE))
+        put(RigAnimationSpec.attack(RigAnimationId.AXE_ULT, 30, false,
+                        RigAttackWindow.of(8, 25, RIGHT_AXE))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.4F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_AXE_ULT, 60, false,
-                RigAttackWindow.of(3, 5, RIGHT_AXE),
-                RigAttackWindow.of(5, 8, LEFT_AXE),
-                RigAttackWindow.of(10, 12, LEFT_AXE),
-                RigAttackWindow.of(12, 15, RIGHT_AXE),
-                RigAttackWindow.of(15, 16, LEFT_AXE),
-                RigAttackWindow.of(18, 20, LEFT_AXE),
-                RigAttackWindow.of(20, 22, RIGHT_AXE),
-                RigAttackWindow.of(22, 24, LEFT_AXE),
-                RigAttackWindow.of(24, 27, RIGHT_AXE),
-                RigAttackWindow.of(27, 28, LEFT_AXE),
-                RigAttackWindow.of(28, 30, RIGHT_AXE),
-                RigAttackWindow.of(30, 32, LEFT_AXE),
-                RigAttackWindow.of(32, 34, RIGHT_AXE),
-                RigAttackWindow.of(34, 36, LEFT_AXE),
-                RigAttackWindow.of(36, 38, RIGHT_AXE),
-                RigAttackWindow.of(40, 44, LEFT_AXE))
+                        RigAttackWindow.of(3, 5, RIGHT_AXE),
+                        RigAttackWindow.of(5, 8, LEFT_AXE),
+                        RigAttackWindow.of(10, 12, LEFT_AXE),
+                        RigAttackWindow.of(12, 15, RIGHT_AXE),
+                        RigAttackWindow.of(15, 16, LEFT_AXE),
+                        RigAttackWindow.of(18, 20, LEFT_AXE),
+                        RigAttackWindow.of(20, 22, RIGHT_AXE),
+                        RigAttackWindow.of(22, 24, LEFT_AXE),
+                        RigAttackWindow.of(24, 27, RIGHT_AXE),
+                        RigAttackWindow.of(27, 28, LEFT_AXE),
+                        RigAttackWindow.of(28, 30, RIGHT_AXE),
+                        RigAttackWindow.of(30, 32, LEFT_AXE),
+                        RigAttackWindow.of(32, 34, RIGHT_AXE),
+                        RigAttackWindow.of(34, 36, LEFT_AXE),
+                        RigAttackWindow.of(36, 38, RIGHT_AXE),
+                        RigAttackWindow.of(40, 44, LEFT_AXE))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
         );
@@ -278,19 +296,19 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_ATTACK4, 32, false,
                 RigAttackWindow.of(3, 12, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_ATTACK5, 38, false,
-                groundSlamHook(18, RigAnimationId.GREATSWORD_ATTACK5, 1.4D, 0.7D, 35, 0.7D, 2.0D),
-                RigAttackWindow.of(3, 6, RIGHT_GREATSWORD),
-                RigAttackWindow.of(8, 22, RIGHT_GREATSWORD))
+                        groundSlamHook(18, RigAnimationId.GREATSWORD_ATTACK5, 1.4D, 0.7D, 35, 0.7D, 2.0D),
+                        RigAttackWindow.of(3, 6, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(8, 22, RIGHT_GREATSWORD))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_DASH_ATTACK, 40, false,
-                RigAttackWindow.of(11, 20, RIGHT_GREATSWORD))
+                        RigAttackWindow.of(11, 20, RIGHT_GREATSWORD))
                 .damageMultiplier(1.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_JUMP_ATTACK, 48, true,
-                groundSlamHook(12, RigAnimationId.GREATSWORD_JUMP_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
-                RigAttackWindow.of(9, 12, RIGHT_GREATSWORD))
+                        groundSlamHook(12, RigAnimationId.GREATSWORD_JUMP_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
+                        RigAttackWindow.of(9, 12, RIGHT_GREATSWORD))
                 .damageMultiplier(1.8F)
                 .criticalChance(0.3F)
         );
@@ -298,21 +316,21 @@ public final class RigAnimationSpecs {
                 groundSlamHook(23, RigAnimationId.GREATSWORD_EXTRA_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
                 RigAttackWindow.of(15, 25, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATSWORD_ULT, 47, false,
-                RigAttackWindow.of(2, 5, RIGHT_GREATSWORD),
-                RigAttackWindow.of(5, 8, RIGHT_GREATSWORD),
-                RigAttackWindow.of(10, 12, RIGHT_GREATSWORD),
-                RigAttackWindow.of(12, 15, RIGHT_GREATSWORD),
-                RigAttackWindow.of(15, 16, RIGHT_GREATSWORD),
-                RigAttackWindow.of(18, 20, RIGHT_GREATSWORD),
-                RigAttackWindow.of(20, 22, RIGHT_GREATSWORD),
-                RigAttackWindow.of(22, 24, RIGHT_GREATSWORD),
-                RigAttackWindow.of(24, 27, RIGHT_GREATSWORD),
-                RigAttackWindow.of(27, 28, RIGHT_GREATSWORD),
-                RigAttackWindow.of(28, 30, RIGHT_GREATSWORD),
-                RigAttackWindow.of(30, 32, RIGHT_GREATSWORD),
-                RigAttackWindow.of(32, 34, RIGHT_GREATSWORD),
-                RigAttackWindow.of(34, 36, RIGHT_GREATSWORD),
-                RigAttackWindow.of(37, 40, RIGHT_GREATSWORD))
+                        RigAttackWindow.of(2, 5, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(5, 8, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(10, 12, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(12, 15, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(15, 16, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(18, 20, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(20, 22, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(22, 24, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(24, 27, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(27, 28, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(28, 30, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(30, 32, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(32, 34, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(34, 36, RIGHT_GREATSWORD),
+                        RigAttackWindow.of(37, 40, RIGHT_GREATSWORD))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.2F)
         );
@@ -321,20 +339,20 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.GREATAXE_ATTACK5, 31, false,
                 RigAttackWindow.of(6, 15, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.GREATAXE_DASH_ATTACK, 48, false,
-                groundSlamHook(18, RigAnimationId.GREATAXE_DASH_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
-                RigAttackWindow.of(9, 18, RIGHT_GREATSWORD))
+                        groundSlamHook(18, RigAnimationId.GREATAXE_DASH_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
+                        RigAttackWindow.of(9, 18, RIGHT_GREATSWORD))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.GREATAXE_JUMP_ATTACK, 42, true,
-                groundSlamHook(18, RigAnimationId.GREATAXE_JUMP_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
-                RigAttackWindow.of(16, 23, RIGHT_GREATSWORD))
+                        groundSlamHook(18, RigAnimationId.GREATAXE_JUMP_ATTACK, 1.4D, 0.7D, 35, 0.7D, 2.0D),
+                        RigAttackWindow.of(16, 23, RIGHT_GREATSWORD))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.4F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.GREATAXE_ULT, 67, false,
-                groundSlamHook(28, RigAnimationId.GREATAXE_ULT, 1.4D, 1.0D, 50, 1.0D, 3.5D),
-                RigAttackWindow.of(20, 28, RIGHT_GREATSWORD))
+                        groundSlamHook(28, RigAnimationId.GREATAXE_ULT, 1.4D, 1.0D, 50, 1.0D, 3.5D),
+                        RigAttackWindow.of(20, 28, RIGHT_GREATSWORD))
                 .damageMultiplier(2.5F)
                 .criticalChance(1.0F)
         );
@@ -348,21 +366,21 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_ATTACK4, 37, false,
                 RigAttackWindow.of(8, 18, RIGHT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_ATTACK5, 33, false,
-                RigAttackWindow.of(6, 15, RIGHT_LONGSWORD))
+                        RigAttackWindow.of(6, 15, RIGHT_LONGSWORD))
                 .damageMultiplier(1.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_DASH_ATTACK, 43, false,
-                RigAttackWindow.of(12, 25, RIGHT_LONGSWORD))
+                        RigAttackWindow.of(12, 25, RIGHT_LONGSWORD))
                 .damageMultiplier(1.5F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_JUMP_ATTACK, 23, true,
-                RigAttackWindow.of(2, 8, RIGHT_LONGSWORD))
+                        RigAttackWindow.of(2, 8, RIGHT_LONGSWORD))
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_EXTRA_ATTACK, 28, false,
                 RigAttackWindow.of(5, 9, RIGHT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LONGSWORD_ULT, 32, false,
-                RigAttackWindow.of(7, 15, RIGHT_LONGSWORD))
+                        RigAttackWindow.of(7, 15, RIGHT_LONGSWORD))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.5F)
         );
@@ -379,24 +397,24 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(14, 20, RIGHT_LONGSWORD),
                 RigAttackWindow.of(14, 20, LEFT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ATTACK5, 42, false,
-                RigAttackWindow.of(14, 20, RIGHT_LONGSWORD),
-                RigAttackWindow.of(14, 20, LEFT_LONGSWORD))
+                        RigAttackWindow.of(14, 20, RIGHT_LONGSWORD),
+                        RigAttackWindow.of(14, 20, LEFT_LONGSWORD))
                 .damageMultiplier(1.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_DASH_ATTACK, 42, false,
-                RigAttackWindow.of(14, 24, RIGHT_KNEE))
+                        RigAttackWindow.of(14, 24, RIGHT_KNEE))
                 .damageMultiplier(1.5F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_JUMP_ATTACK, 37, false,
-                RigAttackWindow.of(2, 4, RIGHT_LONGSWORD, LEFT_LONGSWORD),
-                RigAttackWindow.of(9, 20, RIGHT_LONGSWORD, LEFT_LONGSWORD))
+                        RigAttackWindow.of(2, 4, RIGHT_LONGSWORD, LEFT_LONGSWORD),
+                        RigAttackWindow.of(9, 20, RIGHT_LONGSWORD, LEFT_LONGSWORD))
                 .criticalChance(0.8F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_EXTRA_ATTACK, 36, false,
                 RigAttackWindow.of(10, 20, RIGHT_LONGSWORD),
                 RigAttackWindow.of(10, 20, LEFT_LONGSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_LONGSWORD_ULT, 35, false,
-                RigAttackWindow.of(5, 15, RIGHT_LONGSWORD, LEFT_LONGSWORD))
+                        RigAttackWindow.of(5, 15, RIGHT_LONGSWORD, LEFT_LONGSWORD))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.5F)
         );
@@ -414,16 +432,16 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(5, 10, RIGHT_SPEAR),
                 RigAttackWindow.of(11, 16, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.SPEAR_ATTACK5, 80, false,
-                RigAttackWindow.of(15, 30, RIGHT_SPEAR))
+                        RigAttackWindow.of(15, 30, RIGHT_SPEAR))
                 .damageMultiplier(1.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SPEAR_DASH_ATTACK, 40, false,
-                RigAttackWindow.of(10, 20, RIGHT_SPEAR))
+                        RigAttackWindow.of(10, 20, RIGHT_SPEAR))
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SPEAR_JUMP_ATTACK, 40, true,
-                RigAttackWindow.of(10, 15, RIGHT_SPEAR),
-                RigAttackWindow.of(16, 23, RIGHT_SPEAR))
+                        RigAttackWindow.of(10, 15, RIGHT_SPEAR),
+                        RigAttackWindow.of(16, 23, RIGHT_SPEAR))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
         );
@@ -432,20 +450,20 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(10, 13, RIGHT_SPEAR),
                 RigAttackWindow.of(15, 22, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.SPEAR_ULT, 33, false,
-                RigAttackWindow.of(12, 20, RIGHT_SPEAR))
+                        RigAttackWindow.of(12, 20, RIGHT_SPEAR))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.5F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.STAFF_ULT, 51, false,
-                RigAttackWindow.of(10, 15, RIGHT_SPEAR),
-                RigAttackWindow.of(33, 42, RIGHT_SPEAR))
+                        RigAttackWindow.of(10, 15, RIGHT_SPEAR),
+                        RigAttackWindow.of(33, 42, RIGHT_SPEAR))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.5F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SICKLE_ULT, 53, false,
-                RigAttackWindow.of(13, 16, RIGHT_SPEAR),
-                RigAttackWindow.of(16, 20, RIGHT_SPEAR),
-                RigAttackWindow.of(21, 28, RIGHT_SPEAR))
+                        RigAttackWindow.of(13, 16, RIGHT_SPEAR),
+                        RigAttackWindow.of(16, 20, RIGHT_SPEAR),
+                        RigAttackWindow.of(21, 28, RIGHT_SPEAR))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.5F)
         );
@@ -459,25 +477,25 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.DAGGER_ATTACK4, 20, false,
                 RigAttackWindow.of(2, 10, RIGHT_DAGGER)));
         put(RigAnimationSpec.attack(RigAnimationId.DAGGER_ATTACK5, 20, false,
-                RigAttackWindow.of(2, 3, RIGHT_DAGGER),
-                RigAttackWindow.of(4, 10, RIGHT_DAGGER))
+                        RigAttackWindow.of(2, 3, RIGHT_DAGGER),
+                        RigAttackWindow.of(4, 10, RIGHT_DAGGER))
                 .criticalChance(0.5F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DAGGER_DASH_ATTACK, 30, false,
-                RigAttackWindow.of(5, 7, RIGHT_DAGGER),
-                RigAttackWindow.of(8, 14, RIGHT_DAGGER))
+                        RigAttackWindow.of(5, 7, RIGHT_DAGGER),
+                        RigAttackWindow.of(8, 14, RIGHT_DAGGER))
                 .damageMultiplier(1.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DAGGER_JUMP_ATTACK, 17, true,
-                RigAttackWindow.of(3, 12, RIGHT_DAGGER))
+                        RigAttackWindow.of(3, 12, RIGHT_DAGGER))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DAGGER_EXTRA_ATTACK, 26, false,
                 RigAttackWindow.of(2, 12, RIGHT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.DAGGER_ULT, 34, false,
-                RigAttackWindow.of(4, 6, RIGHT_DAGGER),
-                RigAttackWindow.of(7, 15, RIGHT_DAGGER))
+                        RigAttackWindow.of(4, 6, RIGHT_DAGGER),
+                        RigAttackWindow.of(7, 15, RIGHT_DAGGER))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.5F)
         );
@@ -494,24 +512,24 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.TACHI_ATTACK4, 40, false,
                 RigAttackWindow.of(6, 15, RIGHT_TACHI)));
         put(RigAnimationSpec.attack(RigAnimationId.TACHI_ATTACK5, 50, false,
-                RigAttackWindow.of(6, 15, RIGHT_TACHI))
+                        RigAttackWindow.of(6, 15, RIGHT_TACHI))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.TACHI_DASH_ATTACK, 33, false,
-                RigAttackWindow.of(6, 15, RIGHT_TACHI))
+                        RigAttackWindow.of(6, 15, RIGHT_TACHI))
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.TACHI_JUMP_ATTACK, 38, true,
-                RigAttackWindow.of(6, 15, RIGHT_TACHI))
+                        RigAttackWindow.of(6, 15, RIGHT_TACHI))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.TACHI_EXTRA_ATTACK, 41, false,
                 RigAttackWindow.of(13, 22, RIGHT_TACHI)));
         put(RigAnimationSpec.attack(RigAnimationId.TACHI_ULT, 66, false,
-                RigAttackWindow.of(10, 18, RIGHT_TACHI),
-                RigAttackWindow.of(26, 38, RIGHT_TACHI))
+                        RigAttackWindow.of(10, 18, RIGHT_TACHI),
+                        RigAttackWindow.of(26, 38, RIGHT_TACHI))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.5F)
         );
@@ -525,15 +543,15 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.SWORD_ATTACK4, 33, false,
                 RigAttackWindow.of(5, 16, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.SWORD_ATTACK5, 30, false,
-                RigAttackWindow.of(3, 15, RIGHT_SWORD))
+                        RigAttackWindow.of(3, 15, RIGHT_SWORD))
                 .damageMultiplier(1.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SWORD_DASH_ATTACK, 37, false,
-                RigAttackWindow.of(11, 20, RIGHT_SWORD))
+                        RigAttackWindow.of(11, 20, RIGHT_SWORD))
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SWORD_JUMP_ATTACK, 27, true,
-                RigAttackWindow.of(7, 15, RIGHT_SWORD))
+                        RigAttackWindow.of(7, 15, RIGHT_SWORD))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.3F)
         );
@@ -541,7 +559,7 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(8, 13, RIGHT_SWORD),
                 RigAttackWindow.of(14, 20, RIGHT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.SWORD_ULT, 27, false,
-                RigAttackWindow.of(1, 16, RIGHT_SWORD))
+                        RigAttackWindow.of(1, 16, RIGHT_SWORD))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.5F)
         );
@@ -560,28 +578,28 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(11, 15, LEFT_SWORD),
                 RigAttackWindow.of(16, 22, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_SWORD_ATTACK5, 40, false,
-                RigAttackWindow.of(6, 10, RIGHT_SWORD),
-                RigAttackWindow.of(10, 16, LEFT_SWORD))
+                        RigAttackWindow.of(6, 10, RIGHT_SWORD),
+                        RigAttackWindow.of(10, 16, LEFT_SWORD))
                 .damageMultiplier(1.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_SWORD_DASH_ATTACK, 33, false,
-                RigAttackWindow.of(5, 8, LEFT_SWORD),
-                RigAttackWindow.of(9, 15, RIGHT_SWORD))
+                        RigAttackWindow.of(5, 8, LEFT_SWORD),
+                        RigAttackWindow.of(9, 15, RIGHT_SWORD))
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_SWORD_JUMP_ATTACK, 30, true,
-                RigAttackWindow.of(5, 9, RIGHT_SWORD),
-                RigAttackWindow.of(11, 20, LEFT_SWORD))
+                        RigAttackWindow.of(5, 9, RIGHT_SWORD),
+                        RigAttackWindow.of(11, 20, LEFT_SWORD))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_SWORD_EXTRA_ATTACK, 38, false,
                 RigAttackWindow.of(10, 20, RIGHT_SWORD, LEFT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_SWORD_ULT, 33, false,
-                RigAttackWindow.of(2, 4, RIGHT_SWORD, LEFT_SWORD),
-                RigAttackWindow.of(4, 6, RIGHT_SWORD, LEFT_SWORD),
-                RigAttackWindow.of(6, 7, RIGHT_SWORD, LEFT_SWORD),
-                RigAttackWindow.of(9, 18, RIGHT_SWORD, LEFT_SWORD))
+                        RigAttackWindow.of(2, 4, RIGHT_SWORD, LEFT_SWORD),
+                        RigAttackWindow.of(4, 6, RIGHT_SWORD, LEFT_SWORD),
+                        RigAttackWindow.of(6, 7, RIGHT_SWORD, LEFT_SWORD),
+                        RigAttackWindow.of(9, 18, RIGHT_SWORD, LEFT_SWORD))
                 .damageMultiplier(2.5F)
                 .criticalChance(0.5F)
         );
@@ -602,7 +620,7 @@ public final class RigAnimationSpecs {
                     }
                 })));
         put(RigAnimationSpec.attack(RigAnimationId.DIAMOND_BLASTER_ULT, 17, false,
-                RigAttackWindow.of(1, 15, RIGHT_SWORD))
+                        RigAttackWindow.of(1, 15, RIGHT_SWORD))
                 .onHit((attacker, target, critical) -> {
                     if (target instanceof Mob targetMob && RigStunController.supports(targetMob)) {
                         RigStunController.applyStun(targetMob, RigAnimationId.SUPER_KNOCK_BACK);
@@ -617,9 +635,9 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.HOOK_SWORD_ULT2, 40, false,
                 RigAttackWindow.of(8, 15, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.HOOK_SWORD_DUAL_ULT, 33, false,
-                        RigAttackWindow.of(5, 8, RIGHT_SWORD),
-                        RigAttackWindow.of(8, 13, LEFT_SWORD),
-                        RigAttackWindow.of(13, 18, RIGHT_SWORD))
+                RigAttackWindow.of(5, 8, RIGHT_SWORD),
+                RigAttackWindow.of(8, 13, LEFT_SWORD),
+                RigAttackWindow.of(13, 18, RIGHT_SWORD))
         );
         put(RigAnimationSpec.attack(RigAnimationId.FLANKER_HOOK_SWORD_ULT, 33, false,
                 RigAttackWindow.of(8, 18, RIGHT_SWORD)));
@@ -705,10 +723,10 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.POINT_LEFT_HAND_UP, 10, RigAnimationPlaybackType.LEFT_HAND));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HOOK_GUN, 23));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.LEFT_HAND_HOOK, 20));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.LEFT_HAND_HOOK_TOP, 20));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.RIGHT_HAND_HOOK, 20));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.RIGHT_HAND_HOOK_TOP, 20));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.LEFT_HAND_HOOK, 20, RigAnimationPlaybackType.LEFT_HAND));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.LEFT_HAND_HOOK_TOP, 20, RigAnimationPlaybackType.LEFT_HAND));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.RIGHT_HAND_HOOK, 20, RigAnimationPlaybackType.MAIN_HAND));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.RIGHT_HAND_HOOK_TOP, 20, RigAnimationPlaybackType.MAIN_HAND));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EATING_ELITE_1, 27));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EATING_ELITE_2, 27));
@@ -745,69 +763,235 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM, 1117));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM_END, 20));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 100, RigAnimationPlaybackType.DEFAULT,
-                emptyHooks(2, 4, 6, 10, 16, 24, 36, 44, 56, 64, 70, 76)));
+                List.of(
+                        RigAnimationSpec.RigTimedAnimationHook.at(2, mob -> {
+                            if (!(mob.level() instanceof ServerLevel)) return;
+                            if (!(mob instanceof BlueDemonEntity blueDemonEntity)) return;
+                            blueDemonEntity.setState(1);
+                            blueDemonEntity.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_TRIDENT_FESTIVAL.get(), 1.0F, 1.0F);
+                        }),
+                        blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                        RigAnimationSpec.RigTimedAnimationHook.at(6, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                            if (mob instanceof BlueDemonEntity) BlueDemonTridentItem.summonMissingTridentAndAnimate(serverLevel, mob);
+                            ScreenShakeUtil.applyScreenShake(serverLevel, mob.blockPosition().getCenter(), 12.0D, 80, 8);
+                        }),
+                        RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                            BlueDemonTridentItem.spawnDamageZones(serverLevel, mob);
+                            BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob, true);
+                        }),
+                        blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                        RigAnimationSpec.RigTimedAnimationHook.at(24, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                            BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob, true);
+                            playBlueDemonTridentEffect(mob, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 24, RigPart.RIGHT_HAND);
+                            playBlueDemonTridentEffect(mob, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 24, RigPart.LEFT_HAND);
+                        }),
+                        blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                        blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                        blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                        blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                        RigAnimationSpec.RigTimedAnimationHook.at(70, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                            BlueDemonTridentItem.summonSuperLightningAtGroundedTridents(serverLevel, mob);
+                            BlueDemonTridentItem.setStormEnergy(mob.getMainHandItem(), 0);
+                            BlueDemonTridentItem.setStormEnergy(mob.getOffhandItem(), 0);
+                            if (mob instanceof BlueDemonEntity blueDemonEntity) {
+                                blueDemonEntity.beginStateTwoTransform();
+                                RigAnimationController.play(blueDemonEntity, RigAnimationId.BLUE_DEMON_STATE_TRANSFORM);
+                            }
+                        }),
+                        blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL))));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_EXTRA_ATTACK, 14, RigAnimationPlaybackType.DEFAULT,
-                emptyHooks(4, 5, 6, 7, 8, 10)));
+                List.of(
+                        blueDemonSpinHook(4),
+                        blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_EXTRA_ATTACK),
+                        blueDemonSpinHook(5),
+                        blueDemonSpinHook(6),
+                        blueDemonSpinHook(7),
+                        blueDemonBothHandEffectHook(7, RigAnimationId.BLUE_DEMON_EXTRA_ATTACK),
+                        blueDemonSpinHook(8),
+                        blueDemonSpinHook(10))));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_EXTRA_ATTACK_LEGENDARY, 47, false,
-                emptyHooks(2, 8),
+                List.of(
+                        blueDemonHandEffectHook(2, RigAnimationId.BLUE_DEMON_EXTRA_ATTACK_LEGENDARY, RigPart.LEFT_HAND),
+                        blueDemonThrowTridentHook(8, RigAnimationId.BLUE_DEMON_EXTRA_ATTACK_LEGENDARY, InteractionHand.OFF_HAND, TridentMode.DEFAULT),
+                        RigAnimationSpec.RigTimedAnimationHook.hideLeftToolAt(8)),
                 RigAttackWindow.of(10, 13, RIGHT_SPEAR),
                 RigAttackWindow.of(14, 16, LEFT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_ATTACK1, 23, false,
-                RigAttackWindow.of(4, 6, RIGHT_SPEAR)));
+                RigAttackWindow.of(5, 15, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_ATTACK2, 38, false,
                 RigAttackWindow.of(10, 13, RIGHT_SPEAR),
-                RigAttackWindow.of(14, 16, LEFT_SPEAR)));
+                RigAttackWindow.of(14, 25, LEFT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_ATTACK3, 32, false,
-                emptyHooks(2, 6, 10, 12),
-                RigAttackWindow.of(10, 12)));
+                List.of(
+                        blueDemonHandEffectHook(2, RigAnimationId.BLUE_DEMON_ATTACK3, RigPart.RIGHT_HAND),
+                        blueDemonHandEffectHook(6, RigAnimationId.BLUE_DEMON_ATTACK3, RigPart.RIGHT_HAND),
+                        blueDemonSoundHook(10, SoundEvents.TRIDENT_HIT_GROUND, 1.0F, 1.0F),
+                        blueDemonHandEffectHook(10, RigAnimationId.BLUE_DEMON_ATTACK3, RigPart.RIGHT_HAND),
+                        RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> blueDemonGroundFracture(mob, 2.0D, -0.24D, 1.2D))),
+                RigAttackWindow.of(10, 20, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_ATTACK4, 17, false,
-                RigAttackWindow.of(3, 8, LEFT_SPEAR)));
-        put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_ATTACK5, 33, false,
-                emptyHooks(4, 7, 20),
-                RigAttackWindow.of(15, 18, RIGHT_SPEAR)));
+                RigAttackWindow.of(5, 15, LEFT_SPEAR, RIGHT_SPEAR)));
+        put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_ATTACK5, 27, false,
+                List.of(
+                        blueDemonSoundHook(4, SoundEvents.TRIDENT_RETURN, 1.0F, 1.0F),
+                        blueDemonHandEffectHook(4, RigAnimationId.BLUE_DEMON_ATTACK5, RigPart.RIGHT_HAND),
+                        blueDemonSoundHook(7, SoundEvents.TRIDENT_RETURN, 1.0F, 1.0F),
+                        blueDemonHandEffectHook(7, RigAnimationId.BLUE_DEMON_ATTACK5, RigPart.RIGHT_HAND),
+                        RigAnimationSpec.RigTimedAnimationHook.at(16, mob -> spawnBlueDemonTridentLightningAtRightTool(mob, RigAnimationId.BLUE_DEMON_ATTACK5, 16))),
+                RigAttackWindow.of(15, 25, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_ATTACK6, 44, false,
-                emptyHooks(8, 14, 20),
+                List.of(
+                        blueDemonBothHandEffectHook(8, RigAnimationId.BLUE_DEMON_ATTACK6),
+                        blueDemonBothHandEffectHook(14, RigAnimationId.BLUE_DEMON_ATTACK6),
+                        blueDemonBothHandEffectHook(20, RigAnimationId.BLUE_DEMON_ATTACK6)),
                 RigAttackWindow.of(6, 8, RIGHT_SPEAR),
                 RigAttackWindow.of(8, 10, LEFT_SPEAR),
                 RigAttackWindow.of(10, 12, RIGHT_SPEAR),
                 RigAttackWindow.of(12, 14, LEFT_SPEAR),
                 RigAttackWindow.of(14, 16, RIGHT_SPEAR),
                 RigAttackWindow.of(16, 18, LEFT_SPEAR),
-                RigAttackWindow.of(25, 27)));
+                RigAttackWindow.of(25, 35, RIGHT_SPEAR, LEFT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_DASH_ATTACK, 29, false,
-                RigAttackWindow.of(7, 9)));
+                RigAttackWindow.of(7, 20, RIGHT_SPEAR, LEFT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_JUMP_ATTACK, 41, true,
-                RigAttackWindow.of(16, 18, RIGHT_SPEAR, LEFT_SPEAR),
-                RigAttackWindow.of(19, 21, RIGHT_SPEAR, LEFT_SPEAR),
-                RigAttackWindow.of(23, 25, RIGHT_SPEAR, LEFT_SPEAR)));
+                RigAttackWindow.of(5, 15, RIGHT_SPEAR, LEFT_SPEAR),
+                RigAttackWindow.of(18, 25, RIGHT_SPEAR, LEFT_SPEAR),
+                RigAttackWindow.of(28, 35, RIGHT_SPEAR, LEFT_SPEAR)));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_ULT, 100, RigAnimationPlaybackType.DEFAULT,
-                emptyHooks(4, 16, 20, 24, 36, 44, 56, 64, 76)));
+                List.of(
+                        blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_ULT),
+                        blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_ULT),
+                        RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> {
+                            if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.spawnDamageZones(serverLevel, mob);
+                        }),
+                        blueDemonBothHandEffectHook(24, RigAnimationId.BLUE_DEMON_ULT),
+                        blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_ULT),
+                        blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_ULT),
+                        blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_ULT),
+                        blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_ULT),
+                        blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_ULT))));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_THROW_ATTACK1, 28, false,
-                emptyHooks(0, 1),
+                List.of(
+                        blueDemonHandEffectHook(0, RigAnimationId.BLUE_DEMON_THROW_ATTACK1, RigPart.RIGHT_HAND),
+                        blueDemonThrowTridentHook(1, RigAnimationId.BLUE_DEMON_THROW_ATTACK1, InteractionHand.MAIN_HAND, TridentMode.DEFAULT),
+                        RigAnimationSpec.RigTimedAnimationHook.hideRightToolAt(1)),
                 RigAttackWindow.of(4, 6, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_THROW_ATTACK2, 43, false,
-                emptyHooks(2, 12),
+                List.of(
+                        blueDemonHandEffectHook(2, RigAnimationId.BLUE_DEMON_THROW_ATTACK2, RigPart.LEFT_HAND),
+                        blueDemonThrowTridentHook(12, RigAnimationId.BLUE_DEMON_THROW_ATTACK2, InteractionHand.OFF_HAND, TridentMode.DEFAULT),
+                        RigAnimationSpec.RigTimedAnimationHook.hideLeftToolAt(12)),
                 RigAttackWindow.of(10, 13, RIGHT_SPEAR),
                 RigAttackWindow.of(14, 16, LEFT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_THROW_ATTACK3, 23, false,
-                emptyHooks(2, 6, 10),
+                List.of(
+                        blueDemonHandEffectHook(2, RigAnimationId.BLUE_DEMON_THROW_ATTACK3, RigPart.RIGHT_WEAPON),
+                        RigAnimationSpec.RigTimedAnimationHook.at(6, mob -> {
+                            playBlueDemonTridentEffect(mob, RigAnimationId.BLUE_DEMON_THROW_ATTACK3, 6, RigPart.RIGHT_WEAPON);
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                            BlueDemonThunderBeamEntity beam = new BlueDemonThunderBeamEntity(AnnoyingVillagersModEntities.BLUE_DEMON_THUNDER_BEAM.get(), serverLevel, mob, 10, 6, 7.5F);
+                            beam.initSpawnState();
+                            serverLevel.addFreshEntity(beam);
+                        }),
+                        blueDemonHandEffectHook(10, RigAnimationId.BLUE_DEMON_THROW_ATTACK3, RigPart.RIGHT_WEAPON)),
                 RigAttackWindow.of(6, 10, RIGHT_FIST),
                 RigAttackWindow.of(10, 14, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_THROW_ATTACK4, 43, false,
-                emptyHooks(9),
+                List.of(
+                        blueDemonBothHandEffectHook(9, RigAnimationId.BLUE_DEMON_THROW_ATTACK4),
+                        blueDemonThrowTridentHook(9, RigAnimationId.BLUE_DEMON_THROW_ATTACK4, InteractionHand.OFF_HAND, TridentMode.LIGHTNING),
+                        RigAnimationSpec.RigTimedAnimationHook.hideLeftToolAt(9),
+                        blueDemonThrowTridentHook(9, RigAnimationId.BLUE_DEMON_THROW_ATTACK4, InteractionHand.MAIN_HAND, TridentMode.LIGHTNING),
+                        RigAnimationSpec.RigTimedAnimationHook.hideRightToolAt(9)),
                 RigAttackWindow.of(11, 24)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_THROW_ATTACK5, 40, false,
-                emptyHooks(4, 7, 8),
-                RigAttackWindow.of(15, 18, RIGHT_SPEAR)));
+                List.of(
+                        blueDemonSoundHook(4, SoundEvents.TRIDENT_RETURN, 1.0F, 1.0F),
+                        blueDemonHandEffectHook(4, RigAnimationId.BLUE_DEMON_THROW_ATTACK5, RigPart.RIGHT_HAND),
+                        blueDemonSoundHook(7, SoundEvents.TRIDENT_RETURN, 1.0F, 1.0F),
+                        blueDemonHandEffectHook(7, RigAnimationId.BLUE_DEMON_THROW_ATTACK5, RigPart.RIGHT_HAND),
+                        blueDemonHandEffectHook(6, RigAnimationId.BLUE_DEMON_THROW_ATTACK5, RigPart.RIGHT_HAND),
+                        blueDemonThrowTridentHook(14, RigAnimationId.BLUE_DEMON_THROW_ATTACK5, InteractionHand.MAIN_HAND, TridentMode.EXPLOSION),
+                        RigAnimationSpec.RigTimedAnimationHook.hideRightToolAt(15)),
+                RigAttackWindow.of(15, 25, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_THROW_DASH_ATTACK, 42, false,
-                emptyHooks(3, 5),
+                List.of(
+                        blueDemonHandEffectHook(3, RigAnimationId.BLUE_DEMON_THROW_DASH_ATTACK, RigPart.LEFT_HAND),
+                        blueDemonThrowTridentHook(3, RigAnimationId.BLUE_DEMON_THROW_DASH_ATTACK, InteractionHand.OFF_HAND, TridentMode.DEFAULT),
+                        RigAnimationSpec.RigTimedAnimationHook.hideLeftToolAt(3),
+                        blueDemonHandEffectHook(5, RigAnimationId.BLUE_DEMON_THROW_DASH_ATTACK, RigPart.RIGHT_HAND),
+                        blueDemonThrowTridentHook(5, RigAnimationId.BLUE_DEMON_THROW_DASH_ATTACK, InteractionHand.MAIN_HAND, TridentMode.DEFAULT),
+                        RigAnimationSpec.RigTimedAnimationHook.hideRightToolAt(5)),
                 RigAttackWindow.of(7, 27)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_THROW_JUMP_ATTACK, 30, true,
-                emptyHooks(4),
+                List.of(
+                        blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_THROW_JUMP_ATTACK),
+                        blueDemonThrowTridentHook(4, RigAnimationId.BLUE_DEMON_THROW_JUMP_ATTACK, InteractionHand.OFF_HAND, TridentMode.DEFAULT),
+                        RigAnimationSpec.RigTimedAnimationHook.hideLeftToolAt(4),
+                        blueDemonThrowTridentHook(4, RigAnimationId.BLUE_DEMON_THROW_JUMP_ATTACK, InteractionHand.MAIN_HAND, TridentMode.DEFAULT),
+                        RigAnimationSpec.RigTimedAnimationHook.hideRightToolAt(4)),
                 RigAttackWindow.of(7, 9, RIGHT_SPEAR, LEFT_SPEAR),
                 RigAttackWindow.of(9, 12, RIGHT_SPEAR, LEFT_SPEAR)));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_THROW_ULT, 100, RigAnimationPlaybackType.DEFAULT,
-                emptyHooks(4, 16, 20, 24, 36, 44, 56, 64, 76, 80)));
+                List.of(
+                        blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                        blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                        RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> {
+                            if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob);
+                        }),
+                        blueDemonBothHandEffectHook(24, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                        blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                        blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                        blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                        blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                        blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                        RigAnimationSpec.RigTimedAnimationHook.at(80, mob -> {
+                            if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.summonLightningAtGroundedTridents(serverLevel, mob);
+                        }))));
+
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.LEGENDARY_SWORD_IDLE, 54));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.LEGENDARY_SWORD_WALK, 17));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.LEGENDARY_SWORD_RUN, 11));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK1, 50, false,
+                RigAttackWindow.of(12, 20, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK2, 44, false,
+                RigAttackWindow.of(10, 18, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK3, 44, false,
+                RigAttackWindow.of(9, 19, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK4, 39, false,
+                RigAttackWindow.of(5, 15, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK5, 41, false,
+                emptyHooks(0),
+                RigAttackWindow.of(3, 15, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_EXTRA_ATTACK, 46, false,
+                RigAttackWindow.of(10, 20, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_JUMP_ATTACK, 53, true,
+                emptyHooks(3, 5, 7, 9, 15, 17, 18, 19, 21),
+                RigAttackWindow.of(2, 6, RIGHT_GREATSWORD),
+                RigAttackWindow.of(16, 18, RIGHT_GREATSWORD),
+                RigAttackWindow.of(19, 25, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DASH_ATTACK, 25, false,
+                emptyHooks(0, 2, 4, 6, 8),
+                RigAttackWindow.of(3, 16, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ULT, 40, false,
+                emptyHooks(0, 10),
+                RigAttackWindow.of(10, 20, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT, 45, false,
+                emptyHooks(11),
+                RigAttackWindow.of(11, 15, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO1, 49, false,
+                RigAttackWindow.of(10, 13, RIGHT_GREATSWORD),
+                RigAttackWindow.of(14, 16, LEFT_SWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO2, 42, false,
+                RigAttackWindow.of(7, 10, LEFT_SWORD),
+                RigAttackWindow.of(11, 18, RIGHT_GREATSWORD)));
+        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO3, 40, false,
+                RigAttackWindow.of(9, 13, RIGHT_GREATSWORD),
+                RigAttackWindow.of(14, 20, LEFT_SWORD)));
 
         put(RigAnimationSpec.attack(RigAnimationId.SWORDMAN_HEROBRINE_ATTACK1, 21, false,
                 RigAttackWindow.of(4, 12, RIGHT_GREATSWORD)));
@@ -929,47 +1113,6 @@ public final class RigAnimationSpecs {
                 emptyHooks(0, 4, 22),
                 RigAttackWindow.of(20, 23)));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.REAPER_HEROBRINE_EXTRA_ULT, 23));
-
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.LEGENDARY_SWORD_IDLE, 54));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.LEGENDARY_SWORD_WALK, 17));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.LEGENDARY_SWORD_RUN, 11));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK1, 50, false,
-                RigAttackWindow.of(12, 16, RIGHT_SWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK2, 44, false,
-                RigAttackWindow.of(10, 17, RIGHT_SWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK3, 44, false,
-                RigAttackWindow.of(9, 15, RIGHT_SWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK4, 39, false,
-                RigAttackWindow.of(5, 8, RIGHT_SWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK5, 41, false,
-                emptyHooks(0),
-                RigAttackWindow.of(2, 5, RIGHT_SWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_EXTRA_ATTACK, 46, false,
-                RigAttackWindow.of(10, 15, RIGHT_SWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_JUMP_ATTACK, 53, true,
-                emptyHooks(3, 5, 7, 9, 15, 17, 18, 19, 21),
-                RigAttackWindow.of(2, 6, RIGHT_SWORD),
-                RigAttackWindow.of(16, 18, RIGHT_SWORD),
-                RigAttackWindow.of(19, 22)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DASH_ATTACK, 25, false,
-                emptyHooks(0, 2, 4, 6, 8),
-                RigAttackWindow.of(3, 8, RIGHT_SWORD),
-                RigAttackWindow.of(10, 11, RIGHT_SWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ULT, 40, false,
-                emptyHooks(0, 10),
-                RigAttackWindow.of(10, 14)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT, 45, false,
-                emptyHooks(11),
-                RigAttackWindow.of(11, 13)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO1, 49, false,
-                RigAttackWindow.of(10, 13, RIGHT_SWORD),
-                RigAttackWindow.of(14, 16, LEFT_SWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO2, 42, false,
-                RigAttackWindow.of(7, 10, LEFT_SWORD),
-                RigAttackWindow.of(11, 14, RIGHT_SWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO3, 40, false,
-                RigAttackWindow.of(9, 13, RIGHT_SWORD),
-                RigAttackWindow.of(14, 18, LEFT_SWORD)));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.NULL_IDLE, 40));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.NULL_WALK, 20));
@@ -1212,6 +1355,108 @@ public final class RigAnimationSpecs {
                 };
             }
         });
+    }
+
+    private static RigAnimationSpec.RigTimedAnimationHook blueDemonHandEffectHook(int tick, RigAnimationId animationId, RigPart part) {
+        return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> playBlueDemonTridentEffect(mob, animationId, tick, part));
+    }
+
+    private static RigAnimationSpec.RigTimedAnimationHook blueDemonBothHandEffectHook(int tick, RigAnimationId animationId) {
+        return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {
+            playBlueDemonTridentEffect(mob, animationId, tick, RigPart.RIGHT_HAND);
+            playBlueDemonTridentEffect(mob, animationId, tick, RigPart.LEFT_HAND);
+        });
+    }
+
+    private static void playBlueDemonTridentEffect(Mob mob, RigAnimationId animationId, int tick, RigPart part) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+        if (!(mob.getMainHandItem().getItem() instanceof BlueDemonTridentItem)) return;
+
+        double forwardOffset = serverLevel.random.nextFloat() * 2.0F - 1.0F;
+        Vec3 effectPos = RigPoseUtil.getPartPosition(mob, animationId, tick, part, Vec3.ZERO, forwardOffset, 0.0D);
+        if (effectPos == null) return;
+
+        BlueDemonUtil.spawnBlueDemonEffect(serverLevel, mob, effectPos, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        float volume = (float)Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
+        float pitch = (float)Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
+        serverLevel.playSound(null, BlockPos.containing(effectPos), AnnoyingVillagersModSounds.ELECTRIFY.get(), SoundSource.NEUTRAL, volume, pitch);
+    }
+
+    private static RigAnimationSpec.RigTimedAnimationHook blueDemonSpinHook(int tick) {
+        return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {
+            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+            serverLevel.playSound(null, mob.blockPosition(), SoundEvents.TRIDENT_RETURN, SoundSource.NEUTRAL, 0.5F, 1.0F + serverLevel.random.nextFloat() * 0.2F);
+        });
+    }
+
+    private static RigAnimationSpec.RigTimedAnimationHook blueDemonSoundHook(int tick, SoundEvent soundEvent, float volume, float pitch) {
+        return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {
+            if (mob.level() instanceof ServerLevel serverLevel) serverLevel.playSound(null, mob.blockPosition(), soundEvent, SoundSource.NEUTRAL, volume, pitch);
+        });
+    }
+
+    private static RigAnimationSpec.RigTimedAnimationHook blueDemonThrowTridentHook(int tick, RigAnimationId animationId, InteractionHand hand, TridentMode mode) {
+        return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {
+            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+            ItemStack stack = mob.getItemInHand(hand);
+            if (!(stack.getItem() instanceof BlueDemonTridentItem)) return;
+
+            Vec3 spawnPos = hand == InteractionHand.MAIN_HAND
+                    ? RigPoseUtil.getRightHandPosition(mob, animationId, tick)
+                    : RigPoseUtil.getLeftHandPosition(mob, animationId, tick);
+            if (spawnPos == null) return;
+
+            Vec3 direction = BlueDemonTridentItem.getTridentThrowDirection(mob, spawnPos);
+            if (direction == null || direction.lengthSqr() < 1.0E-7D) return;
+
+            BlueDemonThrownTridentEntity trident = new BlueDemonThrownTridentEntity(serverLevel, mob, stack.copy());
+            trident.assignSpawnSequence(mob);
+            trident.trimOldGroundedTridentsAroundOwnerOnSpawn();
+            trident.setMode(mode);
+            trident.setPos(spawnPos.x, spawnPos.y, spawnPos.z);
+            trident.setYRot((float)(Mth.atan2(direction.x, direction.z) * (180.0D / Math.PI)));
+            trident.setXRot((float)(Mth.atan2(direction.y, Math.sqrt(direction.x * direction.x + direction.z * direction.z)) * (180.0D / Math.PI)));
+            trident.pickup = AbstractArrow.Pickup.DISALLOWED;
+            trident.shoot(direction.x, direction.y, direction.z, 2.5F, 1.0F);
+            serverLevel.addFreshEntity(trident);
+        });
+    }
+
+    private static void spawnBlueDemonTridentLightningAtRightTool(Mob mob, RigAnimationId animationId, int tick) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+        Vec3 tridentTip = RigPoseUtil.getRightWeaponPosition(mob, animationId, tick, 1.2D);
+        if (tridentTip == null) return;
+
+        BlockPos.MutableBlockPos checkPos = BlockPos.containing(tridentTip).mutable();
+        while (checkPos.getY() > serverLevel.getMinBuildHeight() && !serverLevel.getBlockState(checkPos).isSolidRender(serverLevel, checkPos)) checkPos.move(0, -1, 0);
+        if (!serverLevel.getBlockState(checkPos).isSolidRender(serverLevel, checkPos)) return;
+
+        TridentLightningBolt tridentLightningBolt = new TridentLightningBolt(AnnoyingVillagersModEntities.TRIDENT_LIGHTNING_BOLT.get(), serverLevel);
+        tridentLightningBolt.setOwner(mob);
+        tridentLightningBolt.moveTo(checkPos.getX() + 0.5D, checkPos.getY() + 1.0D, checkPos.getZ() + 0.5D);
+        serverLevel.addFreshEntity(tridentLightningBolt);
+    }
+
+    private static void blueDemonGroundFracture(Mob mob, double forwardOffset, double yOffset, double radius) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+        Vec3 forward = Vec3.directionFromRotation(0.0F, mob.yBodyRot).scale(forwardOffset);
+        Vec3 weaponEdge = mob.position().add(forward.x, forward.y + yOffset, forward.z);
+        BlockHitResult hitResult = serverLevel.clip(new ClipContext(mob.position().add(0.0D, 0.1D, 0.0D), weaponEdge, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mob));
+        Vec3 slamStartPos;
+
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            Direction direction = hitResult.getDirection();
+            BlockPos collidePos = hitResult.getBlockPos().offset(direction.getStepX(), direction.getStepY(), direction.getStepZ());
+            if (!CommonUtil.canTransferShockWave(serverLevel, collidePos, serverLevel.getBlockState(collidePos))) collidePos = collidePos.below();
+            slamStartPos = new Vec3(collidePos.getX(), collidePos.getY(), collidePos.getZ());
+        } else {
+            slamStartPos = weaponEdge.subtract(0.0D, 1.0D, 0.0D);
+        }
+
+        CommonUtil.circleSlamFracture(mob, serverLevel, slamStartPos, radius);
     }
 
     private static List<RigAnimationSpec.RigTimedAnimationHook> emptyHooks(int... ticks) {

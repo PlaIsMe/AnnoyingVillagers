@@ -425,7 +425,7 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity, RollItemUs
                     this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get()));
                     this.setOffWeaponItem(this.getOffWeaponItem().copy());
                     setWeapon = true;
-                } else if (this.level() instanceof ServerLevel serverLevel) {
+                } else if (this.level() instanceof ServerLevel) {
                     if (!this.sayLegendary) {
                         this.playSound(
                                 AnnoyingVillagersModSounds.STEVE_SAY_I_NOT_BELIEVE.get(),

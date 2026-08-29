@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
@@ -12,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class TrapdoorItem extends SwordItem {
+public class TrapdoorItem extends SwordItem implements RigCombatProfileProvider {
 
     public TrapdoorItem() {
         super(new Tier() {
@@ -45,6 +47,11 @@ public class TrapdoorItem extends SwordItem {
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.trapdoor"));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.TACHI;
     }
 }
 
