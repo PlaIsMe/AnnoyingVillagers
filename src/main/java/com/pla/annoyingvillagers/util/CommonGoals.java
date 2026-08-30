@@ -1,11 +1,14 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.clazz.VillagerArmyEntity;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.entity.goal.DangerousReactionGoal;
+import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
 import com.pla.annoyingvillagers.entity.goal.RigAnimatedMeleeAttackGoal;
 import com.pla.annoyingvillagers.entity.goal.PortalApproachGoal;
 import com.pla.annoyingvillagers.entity.goal.RigShieldGuardGoal;
@@ -46,6 +49,32 @@ public class CommonGoals {
         return mob instanceof AVNpc || mob instanceof HerobrineMob || mob instanceof BlueDemonEntity;
     }
 
+    private static Goal createRandomStrollGoal(PathfinderMob mob, double speedModifier) {
+        return new RandomStrollGoal(mob, speedModifier) {
+            @Override
+            public boolean canUse() {
+                return (!(mob instanceof DangerousReaction) || !DangerousReaction.hasDangerousTarget(mob)) && super.canUse();
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                return (!(mob instanceof DangerousReaction) || !DangerousReaction.hasDangerousTarget(mob)) && super.canContinueToUse();
+            }
+
+            @Override
+            public void stop() {
+                super.stop();
+                if (mob instanceof DangerousReaction && DangerousReaction.hasDangerousTarget(mob)) mob.getNavigation().stop();
+            }
+        };
+    }
+
+    public static void registerDangerousReactionGoals(Mob mob) {
+        if (!(mob instanceof DangerousReaction dangerousReaction)) return;
+        mob.goalSelector.addGoal(-7, new DangerousReactionGoal(mob, dangerousReaction));
+        mob.goalSelector.addGoal(-6, new KeepPositionGoal(mob));
+    }
+
     public static void registerGoalForHostileNpc(PathfinderMob monster) {
         monster.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
         monster.targetSelector.addGoal(1, new HurtByTargetGoal(monster));
@@ -72,7 +101,7 @@ public class CommonGoals {
             addRigShieldGuardGoal(monster, 1);
             monster.goalSelector.addGoal(2, createMeleeAttackGoal(monster, 1.2D, false));
         }
-        monster.goalSelector.addGoal(3, new RandomStrollGoal(monster, 1.0D));
+        monster.goalSelector.addGoal(3, createRandomStrollGoal(monster, 1.0D));
         monster.goalSelector.addGoal(4, new RandomLookAroundGoal(monster));
         monster.goalSelector.addGoal(5, new FloatGoal(monster));
     }
@@ -99,7 +128,7 @@ public class CommonGoals {
         monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, AbstractIllager.class, true, false));
         addRigShieldGuardGoal(monster, 2);
         monster.goalSelector.addGoal(3, createMeleeAttackGoal(monster, 1.2D, false));
-        monster.goalSelector.addGoal(4, new RandomStrollGoal(monster, 1.0D));
+        monster.goalSelector.addGoal(4, createRandomStrollGoal(monster, 1.0D));
         monster.goalSelector.addGoal(5, new RandomLookAroundGoal(monster));
         monster.goalSelector.addGoal(6, new FloatGoal(monster));
     }
@@ -214,7 +243,7 @@ public class CommonGoals {
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AbstractIllager.class, true, false));
         addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(3, createMeleeAttackGoal(mob, 1.2D, false));
-        mob.goalSelector.addGoal(4, new RandomStrollGoal(mob, 1.0D));
+        mob.goalSelector.addGoal(4, createRandomStrollGoal(mob, 1.0D));
         mob.goalSelector.addGoal(5, new OpenDoorGoal(mob, true));
         mob.targetSelector.addGoal(6, new HurtByTargetGoal(mob));
         mob.goalSelector.addGoal(7, new OpenDoorGoal(mob, false));
@@ -245,7 +274,7 @@ public class CommonGoals {
         mob.targetSelector.addGoal(21, new NearestAttackableTargetGoal<>(mob, Player.class, true, true));
         addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(22, createMeleeAttackGoal(mob, 1.2D, false));
-        mob.goalSelector.addGoal(23, new RandomStrollGoal(mob, 1.0D));
+        mob.goalSelector.addGoal(23, createRandomStrollGoal(mob, 1.0D));
         mob.goalSelector.addGoal(24, new RandomLookAroundGoal(mob));
         mob.goalSelector.addGoal(25, new FloatGoal(mob));
     }

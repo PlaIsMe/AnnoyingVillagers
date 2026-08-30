@@ -679,6 +679,7 @@ public final class RigAnimationSpecs {
                 ),
                 RigAttackWindow.of(0, 10, LEFT_SWORD)).withVerticalMotion()
                 .invulnerable()
+                .dangerous()
         );
         put(RigAnimationSpec.attack(RigAnimationId.WOOPIE_THE_SWORD_ULT, 39, false,
                         hookAt(15, mob -> {
@@ -768,8 +769,8 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE, 660).invulnerable());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE_START, 20).invulnerable());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE_TICK, 20).invulnerable());
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM, 1117).invulnerable());
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM_END, 20).invulnerable());
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM, 1117).invulnerable().dangerous());
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM_END, 20).invulnerable().dangerous());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 100, RigAnimationPlaybackType.DEFAULT,
                 List.of(
                         RigAnimationSpec.RigTimedAnimationHook.at(2, mob -> {
@@ -812,6 +813,7 @@ public final class RigAnimationSpecs {
                         }),
                         blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL)))
                 .invulnerable()
+                .dangerous()
         );
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_EXTRA_ATTACK, 14, RigAnimationPlaybackType.DEFAULT,
                 List.of(
@@ -885,6 +887,7 @@ public final class RigAnimationSpecs {
                         blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_ULT),
                         blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_ULT)))
                 .invulnerable()
+                .dangerous()
         );
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_THROW_ATTACK1, 28, false,
                 List.of(
@@ -965,6 +968,7 @@ public final class RigAnimationSpecs {
                             if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.summonLightningAtGroundedTridents(serverLevel, mob);
                         })))
                 .invulnerable()
+                .dangerous()
         );
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.LEGENDARY_SWORD_IDLE, 54));
@@ -1040,6 +1044,7 @@ public final class RigAnimationSpecs {
                         })),
                 RigAttackWindow.of(10, 20, RIGHT_GREATSWORD))
                 .invulnerable()
+                .dangerous()
         );
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT, 45, false,
                 List.of(
@@ -1048,6 +1053,7 @@ public final class RigAnimationSpecs {
                         })),
                 RigAttackWindow.of(11, 15, RIGHT_GREATSWORD))
                 .invulnerable()
+                .dangerous()
         );
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO1, 49, false,
                 RigAttackWindow.of(10, 13, RIGHT_GREATSWORD),

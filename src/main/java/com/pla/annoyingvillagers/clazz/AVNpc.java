@@ -54,7 +54,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoiceLineEntity, LockableRigAttackAnimation, RigStunEscapeEntity {
+public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoiceLineEntity, LockableRigAttackAnimation, RigStunEscapeEntity, DangerousReaction {
     private static final int PLACE_BLOCK_PARRY_COOLDOWN_TICKS = 60;
     private static final float VILLAGER_ARMOR_DROP_CHANCE = 0.12F;
     private static final float VILLAGER_WEAPON_DROP_CHANCE = 0.16F;
@@ -624,6 +624,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     protected void registerGoals() {
         super.registerGoals();
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
+        CommonGoals.registerDangerousReactionGoals(this);
         this.goalSelector.addGoal(-5, new ProjectileBlockGoal(this));
         this.goalSelector.addGoal(-4, new UseLiquidBucketGoal(this));
         this.goalSelector.addGoal(-3, new WaterEnderPearlEscapeGoal(this));
@@ -854,7 +855,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         super.tick();
         if (!(this.level() instanceof ServerLevel)) return;
         this.tickVoiceCooldown();
-        CommonUtil.dangerousReactionAi(this);
         CommonUtil.stunEscapeAi(this);
 
         if (this.tickCount == 1 && !this.initialSpawn) {

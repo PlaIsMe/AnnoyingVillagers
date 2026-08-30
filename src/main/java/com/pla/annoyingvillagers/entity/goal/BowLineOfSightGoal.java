@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
 import com.pla.annoyingvillagers.util.BowFunction;
@@ -87,6 +88,7 @@ public class BowLineOfSightGoal extends Goal {
                 && !this.mob.isNoAi()
                 && (!this.mob.isPassenger() || RidingUtil.hasUsableMountedMob(this.mob))
                 && this.mob.getMainHandItem().getItem() instanceof BowItem
+                && !DangerousReaction.hasDangerousTarget(this.mob)
                 && target != null
                 && target.isAlive()
                 && (!(this.mob instanceof AVNpc)

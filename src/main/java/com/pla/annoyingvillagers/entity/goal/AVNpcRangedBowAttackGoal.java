@@ -1,7 +1,9 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigAnimationSpec;
@@ -20,7 +22,9 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 
 public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
-    private static final double MOUNTED_MELEE_SWITCH_DISTANCE_BLOCKS = 6.0D;
+    private static final double MELEE_SWITCH_DISTANCE_BLOCKS = 6.0D;
+    private static final int MIN_BOW_SHOTS_BEFORE_MELEE_ROLL = 2;
+    private static final float MELEE_SWAP_CHANCE_PER_SHOT = 0.35F;
 
     private final AVNpc avNpc;
     private final double speedModifier;
@@ -35,6 +39,8 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
     private boolean strafingClockwise;
     private boolean strafingBackwards;
     private int strafingTime = -1;
+    private int shotsSinceMeleeRoll;
+    private boolean requestMeleeSwap;
 
     public AVNpcRangedBowAttackGoal(AVNpc avNpc, double speedModifier, int attackIntervalMin, float attackRadius) {
         super(avNpc, speedModifier, attackIntervalMin, attackRadius);
@@ -60,7 +66,8 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
 
     @Override
     public boolean canContinueToUse() {
-        return this.canUseBow()
+        return !this.requestMeleeSwap
+                && this.canUseBow()
                 && this.isHoldingBow()
                 && (this.avNpc.getTarget() != null || !RidingUtil.isNavigationDone(this.avNpc));
     }
@@ -80,6 +87,8 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
         this.attackTime = -1;
         this.seeTime = 0;
         this.strafingTime = -1;
+        this.shotsSinceMeleeRoll = 0;
+        this.requestMeleeSwap = false;
         if (equippedFromInventory && !this.avNpc.isPassenger()) {
             this.playSwapAnimationSequence();
         }
@@ -101,6 +110,8 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
         this.seeTime = 0;
         this.attackTime = -1;
         this.strafingTime = -1;
+        this.shotsSinceMeleeRoll = 0;
+        this.requestMeleeSwap = false;
     }
 
     @Override
@@ -131,6 +142,9 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
         if (distanceSqr <= this.attackRadiusSqr && this.seeTime >= 20) {
             RidingUtil.stopNavigation(this.avNpc);
             this.strafingTime++;
+        } else if (DangerousReaction.hasDangerousTarget(this.avNpc)) {
+            RidingUtil.stopNavigation(this.avNpc);
+            this.strafingTime = -1;
         } else {
             RidingUtil.moveTo(this.avNpc, target, this.speedModifier);
             this.strafingTime = -1;
@@ -176,6 +190,7 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
                     this.avNpc.stopUsingItem();
                     this.avNpc.performRangedAttack(target, BowItem.getPowerForTime(ticksUsingItem));
                     this.attackTime = this.attackIntervalMin;
+                    this.considerVoluntaryMeleeSwap(target);
                 }
             }
         } else if (--this.attackTime <= 0 && this.seeTime >= -60) {
@@ -199,13 +214,30 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
                 && target.isAlive()
                 && !target.isRemoved()
                 && !target.isDeadOrDying()
-                && !isMountedMeleeRange(target)
+                && !isMeleeSwitchRange(target)
                 && InventoryUtils.hasArrowAmmo(this.avNpc, target instanceof HerobrineMob);
     }
 
-    private boolean isMountedMeleeRange(LivingEntity target) {
-        return this.avNpc.isPassenger()
-                && this.avNpc.distanceToSqr(target) <= MOUNTED_MELEE_SWITCH_DISTANCE_BLOCKS * MOUNTED_MELEE_SWITCH_DISTANCE_BLOCKS;
+    private boolean isMeleeSwitchRange(LivingEntity target) {
+        if (target instanceof HerobrineDragonEntity) {
+            return false;
+        }
+        return this.avNpc.distanceToSqr(target) <= MELEE_SWITCH_DISTANCE_BLOCKS * MELEE_SWITCH_DISTANCE_BLOCKS;
+    }
+
+    private void considerVoluntaryMeleeSwap(LivingEntity target) {
+        if (target instanceof HerobrineDragonEntity) {
+            return;
+        }
+
+        this.shotsSinceMeleeRoll++;
+        if (this.shotsSinceMeleeRoll < MIN_BOW_SHOTS_BEFORE_MELEE_ROLL) {
+            return;
+        }
+
+        if (this.avNpc.getRandom().nextFloat() < MELEE_SWAP_CHANCE_PER_SHOT) {
+            this.requestMeleeSwap = true;
+        }
     }
 
     private boolean equipInventoryBow() {

@@ -6,7 +6,7 @@ import net.minecraft.world.entity.Mob;
 
 import java.util.List;
 
-public record RigAnimationSpec(RigAnimationId animationId, int durationTicks, RigAttackWindow[] attackWindows, RigAnimationPlaybackType playbackType, boolean damagesTarget, boolean jumpOnStart, boolean moveVertical, boolean invulnerableDuringAnimation, List<RigTimedAnimationHook> timedHooks, float damageMultiplier, float criticalChance, RigHitHook hitHook) {
+public record RigAnimationSpec(RigAnimationId animationId, int durationTicks, RigAttackWindow[] attackWindows, RigAnimationPlaybackType playbackType, boolean damagesTarget, boolean jumpOnStart, boolean moveVertical, boolean invulnerableDuringAnimation, boolean dangerousDuringAnimation, List<RigTimedAnimationHook> timedHooks, float damageMultiplier, float criticalChance, RigHitHook hitHook) {
     public static final float DEFAULT_DAMAGE_MULTIPLIER = 1.0F;
     public static final float DEFAULT_CRITICAL_CHANCE = 0.10F;
 
@@ -40,7 +40,7 @@ public record RigAnimationSpec(RigAnimationId animationId, int durationTicks, Ri
     }
 
     public static RigAnimationSpec attack(RigAnimationId animationId, int durationTicks, boolean jumpOnStart, List<RigTimedAnimationHook> timedHooks, RigAttackWindow... attackWindows) {
-        return new RigAnimationSpec(animationId, durationTicks, attackWindows, RigAnimationPlaybackType.DEFAULT, true, jumpOnStart, false, false, timedHooks, DEFAULT_DAMAGE_MULTIPLIER, DEFAULT_CRITICAL_CHANCE, RigHitHook.NO_OP);
+        return new RigAnimationSpec(animationId, durationTicks, attackWindows, RigAnimationPlaybackType.DEFAULT, true, jumpOnStart, false, false, false, timedHooks, DEFAULT_DAMAGE_MULTIPLIER, DEFAULT_CRITICAL_CHANCE, RigHitHook.NO_OP);
     }
 
     public static RigAnimationSpec rolling(RigAnimationId animationId, int durationTicks) {
@@ -57,7 +57,7 @@ public record RigAnimationSpec(RigAnimationId animationId, int durationTicks, Ri
     }
 
     public static RigAnimationSpec nonDamaging(RigAnimationId animationId, int durationTicks, RigAnimationPlaybackType playbackType, List<RigTimedAnimationHook> timedHooks) {
-        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], playbackType, false, false, false, false, timedHooks, DEFAULT_DAMAGE_MULTIPLIER, 0.0F, RigHitHook.NO_OP);
+        return new RigAnimationSpec(animationId, durationTicks, new RigAttackWindow[0], playbackType, false, false, false, false, false, timedHooks, DEFAULT_DAMAGE_MULTIPLIER, 0.0F, RigHitHook.NO_OP);
     }
 
     public RigAnimationSpec withVerticalMotion() {
@@ -65,7 +65,7 @@ public record RigAnimationSpec(RigAnimationId animationId, int durationTicks, Ri
     }
 
     public RigAnimationSpec moveVertical(boolean moveVertical) {
-        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, moveVertical, this.invulnerableDuringAnimation, this.timedHooks, this.damageMultiplier, this.criticalChance, this.hitHook);
+        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, moveVertical, this.invulnerableDuringAnimation, this.dangerousDuringAnimation, this.timedHooks, this.damageMultiplier, this.criticalChance, this.hitHook);
     }
 
     public RigAnimationSpec invulnerable() {
@@ -73,22 +73,30 @@ public record RigAnimationSpec(RigAnimationId animationId, int durationTicks, Ri
     }
 
     public RigAnimationSpec invulnerable(boolean invulnerableDuringAnimation) {
-        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, invulnerableDuringAnimation, this.timedHooks, this.damageMultiplier, this.criticalChance, this.hitHook);
+        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, invulnerableDuringAnimation, this.dangerousDuringAnimation, this.timedHooks, this.damageMultiplier, this.criticalChance, this.hitHook);
+    }
+
+    public RigAnimationSpec dangerous() {
+        return dangerous(true);
+    }
+
+    public RigAnimationSpec dangerous(boolean dangerousDuringAnimation) {
+        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, this.invulnerableDuringAnimation, dangerousDuringAnimation, this.timedHooks, this.damageMultiplier, this.criticalChance, this.hitHook);
     }
 
     public RigAnimationSpec damageMultiplier(float damageMultiplier) {
         if (!this.damagesTarget) throw new IllegalStateException("damageMultiplier is only valid for attack specs");
-        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, this.invulnerableDuringAnimation, this.timedHooks, damageMultiplier, this.criticalChance, this.hitHook);
+        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, this.invulnerableDuringAnimation, this.dangerousDuringAnimation, this.timedHooks, damageMultiplier, this.criticalChance, this.hitHook);
     }
 
     public RigAnimationSpec criticalChance(float criticalChance) {
         if (!this.damagesTarget) throw new IllegalStateException("criticalChance is only valid for attack specs");
-        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, this.invulnerableDuringAnimation, this.timedHooks, this.damageMultiplier, criticalChance, this.hitHook);
+        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, this.invulnerableDuringAnimation, this.dangerousDuringAnimation, this.timedHooks, this.damageMultiplier, criticalChance, this.hitHook);
     }
 
     public RigAnimationSpec onHit(RigHitHook hitHook) {
         if (!this.damagesTarget) throw new IllegalStateException("onHit is only valid for attack specs");
-        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, this.invulnerableDuringAnimation, this.timedHooks, this.damageMultiplier, this.criticalChance, hitHook);
+        return new RigAnimationSpec(this.animationId, this.durationTicks, this.attackWindows, this.playbackType, this.damagesTarget, this.jumpOnStart, this.moveVertical, this.invulnerableDuringAnimation, this.dangerousDuringAnimation, this.timedHooks, this.damageMultiplier, this.criticalChance, hitHook);
     }
 
     @Override

@@ -33,7 +33,7 @@ public class EatHealingFoodGoal extends Goal {
 
     public EatHealingFoodGoal(AVNpc avNpc) {
         this.avNpc = avNpc;
-        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+        this.setFlags(EnumSet.of(Flag.LOOK));
     }
 
     @Override
@@ -99,7 +99,6 @@ public class EatHealingFoodGoal extends Goal {
     @Override
     public void tick() {
         this.useTicks++;
-        this.avNpc.getNavigation().stop();
 
         LivingEntity target = this.avNpc.getTarget();
         if (target != null && target.isAlive()) {

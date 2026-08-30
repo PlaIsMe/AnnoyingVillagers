@@ -45,7 +45,7 @@ sound assets in this project.
 - Public distribution under GPLv3 should be reviewed because NonCommercial
   Creative Commons terms may not be GPL-compatible for a combined software work.
 
-## Project Credit List
+## Contributor for the project
 
 - MrFudgeMonkeyz - original animation author
 - MrLech - model, texture

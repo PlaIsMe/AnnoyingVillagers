@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity.goal;
 
+import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
@@ -46,6 +47,10 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         if (!isValidMeleeState(target) || isAttackLocked()) return false;
         RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
         if (hasBlockingAnimation(profile)) return false;
+        if (DangerousReaction.hasDangerousTarget(this.mob)) {
+            this.path = null;
+            return canStartAnyAttack(target, profile);
+        }
         this.path = RidingUtil.createNavigationPath(this.mob, target);
         return this.path != null || canStartAnyAttack(target, profile);
     }
@@ -55,12 +60,15 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         LivingEntity target = this.mob.getTarget();
         if (!isValidMeleeState(target) || isAttackLocked()) return false;
         RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
+        if (DangerousReaction.hasDangerousTarget(this.mob)) {
+            return RigAnimationController.hasActiveAnimation(this.mob) || canStartAnyAttack(target, profile);
+        }
         return this.followingTargetEvenIfNotSeen || !RidingUtil.isNavigationDone(this.mob) || RigAnimationController.hasActiveAnimation(this.mob) || canStartAnyAttack(target, profile);
     }
 
     @Override
     public void start() {
-        if (this.path != null) RidingUtil.moveToPath(this.mob, this.path, this.speedModifier);
+        if (this.path != null && !DangerousReaction.hasDangerousTarget(this.mob)) RidingUtil.moveToPath(this.mob, this.path, this.speedModifier);
         this.mob.setAggressive(true);
         this.ticksUntilNextPathRecalculation = 0;
     }
@@ -148,6 +156,10 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     }
 
     private void repathToTarget(LivingEntity target) {
+        if (DangerousReaction.hasDangerousTarget(this.mob)) {
+            RidingUtil.stopNavigation(this.mob);
+            return;
+        }
         if (--this.ticksUntilNextPathRecalculation > 0 && !RidingUtil.isNavigationDone(this.mob)) return;
         this.ticksUntilNextPathRecalculation = PATH_RECALCULATION_BASE_TICKS + this.mob.getRandom().nextInt(7);
         RidingUtil.moveTo(this.mob, target, this.speedModifier);

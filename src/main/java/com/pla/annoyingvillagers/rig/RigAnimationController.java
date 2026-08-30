@@ -138,6 +138,16 @@ public final class RigAnimationController {
         return state != null && state.spec().invulnerableDuringAnimation();
     }
 
+    public static boolean isDangerous(Mob mob) {
+        ActiveAnimationState state = getActiveAnimationState(mob);
+        return state != null && state.spec().dangerousDuringAnimation();
+    }
+
+    public static int getActiveAnimationStartTick(Mob mob) {
+        ActiveAnimationState state = getActiveAnimationState(mob);
+        return state == null ? -1 : state.startTick();
+    }
+
     public static RigAnimationId getActiveAnimationId(Mob mob) {
         ActiveAnimationState state = getActiveAnimationState(mob);
         return state == null ? null : state.spec().animationId();

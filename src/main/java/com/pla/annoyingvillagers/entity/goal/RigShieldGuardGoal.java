@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigShieldGuardController;
 import com.pla.annoyingvillagers.util.RidingUtil;
@@ -147,6 +148,10 @@ public class RigShieldGuardGoal extends Goal {
         }
 
         RidingUtil.lookAtTarget(this.mob, this.target, 70.0F, 70.0F);
+        if (DangerousReaction.hasDangerousTarget(this.mob)) {
+            RidingUtil.stopNavigation(this.mob);
+            return;
+        }
         if (this.mob.distanceToSqr(this.target) > APPROACH_DISTANCE_SQR) {
             RidingUtil.moveTo(this.mob, this.target, GUARD_MOVE_SPEED);
         } else {

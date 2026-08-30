@@ -11,13 +11,17 @@ import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigStunEscapeEntity;
 import com.pla.annoyingvillagers.network.ClientboundHerobrineAssistanceFx;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
+import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.*;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -69,7 +73,7 @@ import java.util.*;
 
 import static com.pla.annoyingvillagers.util.HerobrinePortalUtil.*;
 
-public class HerobrineMob extends Monster implements BurstProtectEntity, CombatVoiceLineEntity, LockableRigAttackAnimation, RigStunEscapeEntity {
+public class HerobrineMob extends Monster implements BurstProtectEntity, CombatVoiceLineEntity, LockableRigAttackAnimation, RigStunEscapeEntity, DangerousReaction {
     private boolean renderPortal = false;
     private int recallTicks = 0;
     private String chatName;
@@ -378,6 +382,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
     protected void registerGoals() {
         super.registerGoals();
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
+        CommonGoals.registerDangerousReactionGoals(this);
         this.goalSelector.addGoal(1, new Goal() {
             @Override
             public boolean canUse() {
@@ -430,7 +435,57 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             }
         });
         CommonGoals.registerGoalForHostileNpc(this);
-        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D) {
+            @Override
+            public boolean canUse() {
+                return !DangerousReaction.hasDangerousTarget(HerobrineMob.this) && super.canUse();
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                return !DangerousReaction.hasDangerousTarget(HerobrineMob.this) && super.canContinueToUse();
+            }
+        });
+    }
+
+    @Override
+    public RigAnimationId getDangerousReactionAnimation(Mob mob) {
+        return RigAnimationId.STEP_BACKWARD;
+    }
+
+    @Override
+    public void afterDangerousReaction(Mob mob, ServerLevel serverLevel) {
+        if (this.tickCount % 10 != 0) return;
+
+        new DelayedTask(1) {
+            @Override
+            public void run() {
+                if (!HerobrineMob.this.isAlive() || HerobrineMob.this.isRemoved()) return;
+
+                RigAnimationController.play(HerobrineMob.this, RigAnimationId.POINT_LEFT_HAND_MIDDLE);
+                LivingEntity target = HerobrineMob.this.getTarget();
+                Direction dir = target != null
+                        ? Direction.getNearest(target.getX() - HerobrineMob.this.getX(), 0.0D, target.getZ() - HerobrineMob.this.getZ())
+                        : HerobrineMob.this.getDirection();
+                int dist = 1 + HerobrineMob.this.getRandom().nextInt(3);
+                int rot = HerobrineMob.this.getRandom().nextInt(4);
+                java.util.function.BiFunction<Integer, Integer, int[]> toWorld = DangerousReaction.getIntegerIntegerBiFunction(HerobrineMob.this, rot);
+                int lateral = HerobrineMob.this.getRandom().nextInt(3) - 1;
+                int[] dxz = toWorld.apply(lateral, 0);
+                BlockPos baseXZ = HerobrineMob.this.blockPosition().relative(dir, dist).offset(dxz[0], 0, dxz[1]);
+                int surfaceY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, baseXZ).getY();
+                BlockPos spawnPos = new BlockPos(baseXZ.getX(), surfaceY, baseXZ.getZ());
+
+                LowShadowHerobrineCloneEntity clone = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), serverLevel);
+                clone.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, dir.toYRot(), 0.0F);
+                clone.setRenderPortal(false);
+                clone.setForEscaping(true);
+                clone.setNoAi(true);
+                clone.setPossessedByEntity(HerobrineMob.this);
+                clone.setPossessedByUuid(HerobrineMob.this.getUUID());
+                serverLevel.addFreshEntity(clone);
+            }
+        };
     }
 
     public @NotNull MobType getMobType() {
@@ -921,7 +976,6 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             if (stunEscapeCooldown > 0) stunEscapeCooldown--;
             if (swapWeaponCooldown > 0) swapWeaponCooldown--;
 
-            CommonUtil.dangerousReactionAi(this);
             CommonUtil.stunEscapeAi(this);
 
             if (this.state == 2 && (this instanceof AegisHerobrineEntity

@@ -102,6 +102,12 @@ A hand-action system that must not overlap melee should first refuse to begin wh
 
 `RigAnimatedMeleeAttackGoal` paths while no rig attack is active, uses collider/motion-derived attack-start distance, and lets active animation movement/collision drive the action once playback begins.
 
+## Healing food combat positioning
+
+`EatHealingFoodGoal` intentionally claims only the `LOOK` goal flag. It must not claim `MOVE` or stop navigation every eating tick, because `KeepPositionGoal` is responsible for defensive movement while an `AVNpc` is healing. The eating goal still stops navigation when it starts and stops, and retaining `LOOK` prevents normal melee/bow goals that claim `LOOK` from taking over during the hand-action animation.
+
+`KeepPositionGoal` stays flagless so it can run alongside `EatHealingFoodGoal`. It is active for the existing dangerous-target hold-position case and also while an `AVNpc` is healing with a live combat target. During healing it samples a retreat point with `DefaultRandomPos.getPosAway(avNpc, 6, 3, target.position())`, moves there at speed `1.0D`, and repaths every `8 + random.nextInt(8)` ticks or when navigation finishes. Outside the healing case, dangerous-target behavior remains unchanged and stops navigation while facing the target.
+
 
 ### Blue Demon profile integration
 

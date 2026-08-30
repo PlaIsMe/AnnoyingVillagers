@@ -63,7 +63,7 @@ import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 
 public class BlueDemonEntity extends Monster implements BurstProtectEntity, CombatVoiceLineEntity,
-        LockableRigAttackAnimation, RigStunEscapeEntity, RollItemUser {
+        LockableRigAttackAnimation, RigStunEscapeEntity, RollItemUser, DangerousReaction {
     private static final float WATER_SWIM_ACCELERATION = 0.08F;
     private static final double WATER_SWIM_HORIZONTAL_SPEED = 0.42D;
 
@@ -676,6 +676,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
     @Override
     protected void registerGoals() {
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
+        CommonGoals.registerDangerousReactionGoals(this);
         this.goalSelector.addGoal(1, new RollItemGoal(this));
         CommonGoals.registerGoalForBlueDemonNpc(this);
     }
@@ -1510,7 +1511,6 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 
             this.syncChestplateHealingFoil();
 
-            CommonUtil.dangerousReactionAi(this);
             CommonUtil.stunEscapeAi(this);
 
             if (this.getState() == 3) {
