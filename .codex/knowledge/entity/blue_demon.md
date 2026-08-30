@@ -1,40 +1,5 @@
 # Blue Demon
 
-## Trident animation port mapping
-
-The non-EpicFight rig names map to the old `AnimsBlueDemonTrident` names as follows:
-
-```text
-BLUE_DEMON_ATTACK1..6              <- BLUE_DEMON_TRIDENT_AUTO1..6
-BLUE_DEMON_EXTRA_ATTACK            <- BLUE_DEMON_TRIDENT_SPECIAL
-BLUE_DEMON_EXTRA_ATTACK_LEGENDARY  <- BLUE_DEMON_TRIDENT_SPECIAL_LEGENDARY
-BLUE_DEMON_TRIDENT_FESTIVAL        <- BLUE_DEMON_TRIDENT_FESTIVAL
-BLUE_DEMON_ULT                     <- BLUE_DEMON_TRIDENT_ELECTRIC_FIELD
-BLUE_DEMON_THROW_ATTACK1..5        <- BLUE_DEMON_TRIDENT_THROW_1..5
-BLUE_DEMON_THROW_DASH_ATTACK       <- BLUE_DEMON_TRIDENT_THROW_DASH
-BLUE_DEMON_THROW_JUMP_ATTACK       <- BLUE_DEMON_TRIDENT_THROW_AIRSLASH
-BLUE_DEMON_THROW_ULT               <- BLUE_DEMON_TRIDENT_THUNDER_ATTACK
-```
-
-When porting more Blue Demon trident behavior, read the exact `AnimsBlueDemonTrident` source first. Do not infer event behavior from animation names.
-
-## Ported timed hooks
-
-The vanilla rig specs reproduce the old timed trident effects/sounds and gameplay events using 20 ticks per second.
-
-Important behavior includes:
-- attack 3: right-hand electric effects, trident-ground sound, ground fracture
-- attack 5: trident-return sounds/effects and lightning under the animated right tool tip
-- attack 6: paired left/right electric effects
-- special: trident-spinning return sounds plus paired hand effects
-- special legendary: left-hand effect then left trident throw
-- Festival: state/voice, hand effects, summoned support tridents, screen shake, damage zones, relaunches, super lightning, storm-energy reset, and transition into state two
-- Electric Field (`BLUE_DEMON_ULT`): repeated paired hand effects plus `spawnDamageZones(...)`
-- Thunder Attack (`BLUE_DEMON_THROW_ULT`): repeated paired hand effects, grounded-trident relaunch, then lightning
-- throw attacks: the exact default/lightning/explosion projectile mode and animated hand spawn position from the rig pose
-
-`BlueDemonTridentItem` remains the source of truth for existing shared mechanics such as `spawnDamageZones`, grounded-trident relaunch, Festival support tridents, lightning, super lightning, storm energy, and throw targeting. Do not duplicate those systems when a rig hook can call the existing API.
-
 ## Trident throw visibility
 
 Projectile spawning and held-tool visibility are intentionally separate hooks.
@@ -116,3 +81,11 @@ The roll/switch animation is provided by `RollItemUser` defaults (`ROLL_BACKWARD
 ## Removed EFN guard-hit state
 
 `efnGuardHitState`, `efnGuardHitCooldown`, `getEfnGuardHitState()`, `postPlayEfnGuardHit()`, and their tick reset/decrement logic were dead in the non-EpicFight source and were removed from `BlueDemonEntity`, `AVNpc`, and `HerobrineMob`. Do not reintroduce that state machine for vanilla rig hit/stun playback.
+
+## Electrify ZAP rig port
+
+The old `AnimsBlueDemonTrident.ZAP` / `ZAP_LONG` reaction is represented by the vanilla rig stun clips `RigAnimationId.SHOCKED` / `SHOCKED_LONG`, resolved from `StunAnimations2`.
+
+`ElectrifyMobEffect` owns when the reaction is requested; Blue Demon combat animations do not schedule it themselves. Supported rig mobs route the reaction through `RigStunController.applyShock(...)` so movement/AI are locked for the authored stun duration and normal attack playback cannot immediately overwrite the shocked pose.
+
+Current durations are `SHOCKED = 17 ticks` (`0.85s`) and `SHOCKED_LONG = 30 ticks` (`1.5s`). Electrify amplifier greater than 1 selects the long version. Keep these ids appended at the end of `RigAnimationId` because the enum ordinal is used as the network id.

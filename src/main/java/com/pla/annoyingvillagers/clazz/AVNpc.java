@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.entity.goal.EatHealingFoodGoal;
 import com.pla.annoyingvillagers.entity.goal.FillWaterBucketGoal;
 import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
 import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
+import com.pla.annoyingvillagers.entity.goal.ProjectileBlockGoal;
 import com.pla.annoyingvillagers.entity.goal.AVNpcRangedBowAttackGoal;
 import com.pla.annoyingvillagers.entity.goal.RandomCombatJumpGoal;
 import com.pla.annoyingvillagers.entity.goal.RandomEnderPearlEscapeGoal;
@@ -100,7 +101,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private double placeBlockToParryChance;
     private int rigAttackAnimationLockCount;
     private int placeBlockParryCooldown = 0;
-    private boolean swapBackToBow = false;;
     private int stunEscapeCooldown = 0;
     @Nullable
     private IdleAnimation idleAnimationChoice;
@@ -222,14 +222,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     public Entity getBlockDamage() {
         return blockDamage;
-    }
-
-    public void setSwapBackToBow(boolean swapBackToBow) {
-        this.swapBackToBow = swapBackToBow;
-    }
-
-    public boolean isSwapBackToBow() {
-        return swapBackToBow;
     }
 
     public double getPlaceBlockToParryChance() {
@@ -632,6 +624,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     protected void registerGoals() {
         super.registerGoals();
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
+        this.goalSelector.addGoal(-5, new ProjectileBlockGoal(this));
         this.goalSelector.addGoal(-4, new UseLiquidBucketGoal(this));
         this.goalSelector.addGoal(-3, new WaterEnderPearlEscapeGoal(this));
         this.goalSelector.addGoal(-3, new ThrowEnderPearlToTargetGoal(this));

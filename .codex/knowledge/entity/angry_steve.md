@@ -18,7 +18,7 @@ Session facts in this file come from the current workspace code and the edits di
 
 ## Identity And State
 
-`AngrySteveEntity` extends `AVNpc` and implements `BurstProtectEntity`.
+`AngrySteveEntity` extends `AVNpc` and implements `BurstProtectEntity`, `RollItemUser`, and `FishingRodUser`.
 
 Angry Steve is added to team `"steve"` on spawn.
 
@@ -26,6 +26,10 @@ Saved state includes:
 
 - `NeverLeave`
 - `LeaveTicks`
+- `SwapWeaponCooldown`
+- `LegendaryAwakenTicks`
+
+`LEGENDARY_AWAKENED` is a synced integer entity-data value (`0` or `1`) used by client rendering. The remaining awakening time is saved separately in `LegendaryAwakenTicks`.
 
 Angry Steve is persistent, has custom-name visibility enabled, has `maxUpStep = 3.0F`, has `xpReward = 8`, and has place-block-parry chance `1.0`.
 
@@ -39,6 +43,8 @@ He also registers:
 - crazy NPC goals through `CommonGoals.registerGoalForCrazyNpc(this)`
 
 Because Angry Steve extends `AVNpc`, he also receives the common AVNpc goal set that includes closer-threat retargeting, weapon recovery, floating, line-of-sight bow handling, nearby item burning, idle look, and stroll behavior.
+
+Because he now implements `RollItemUser`, `AVNpc.registerGoals()` automatically installs `RollItemGoal`. Because he also implements `FishingRodUser`, it automatically installs `CombatFishingRodGoal`. Do not register duplicate copies of either goal in `AngrySteveEntity.registerGoals()`.
 
 ## Attributes
 
@@ -60,7 +66,7 @@ Angry Steve has high combat attributes:
 
 ## Spawn Equipment
 
-On finalized spawn, Angry Steve equips Legendary Sword in the main hand.
+On finalized spawn, Angry Steve equips Legendary Sword in the main hand, then calls `rollItem()` once to seed his off hand and initial swap cooldown.
 
 The Legendary Sword is enchanted with:
 
@@ -69,6 +75,12 @@ The Legendary Sword is enchanted with:
 - Sweeping Edge 5
 
 The same stack is stored as `mainWeaponItem`.
+
+The off hand is rolled 50/50 between:
+- Tony The Fishing Rod.
+- Woopie The Sword with Sharpness 5, Smite 5, and Sweeping Edge 5.
+
+`rollItem()` never replaces Angry Steve's Legendary Sword main hand. It only changes the off hand, updates the stored main/off weapon copies, then sets a 100-199 tick cooldown. `canRollItem()` requires a living target, no active block-damage action, no active combat-fishing-rod session, and cooldown `0`.
 
 `leaveTicks` is initialized from config min/max minutes, converted to ticks.
 
@@ -179,3 +191,42 @@ The flow:
 After each hook, restore chance is `min(0.6, useCount * 0.2)`, so the practical session restore chances are 20 percent, 40 percent, then 60 percent.
 
 When restore succeeds, Angry Steve starts the shared NPC rod cooldown of `120 + random(0..120)` ticks.
+
+
+## Legendary Sword combat profiles
+
+Angry Steve uses equipment-sensitive Legendary Sword profiles.
+
+- Legendary Sword + Tony/empty/non-matching off hand resolves `LEGENDARY_SWORD_ANGRY_STEVE`.
+- Legendary Sword + Woopie resolves `LEGENDARY_SWORD_WOOPIE` through the shared `RigDualWieldGroup.LEGENDARY_SWORD`.
+- `LEGENDARY_SWORD_WOOPIE` uses `LEGENDARY_SWORD_DUAL_AUTO1..3` for the first three normal combo attacks, then normal Legendary Sword attack 4/5. Its ultimate choices are `WOOPIE_THE_SWORD_FLY` and `WOOPIE_THE_SWORD_EXTRA_ULT`; it does not directly select `LEGENDARY_SWORD_ULT`.
+- `LEGENDARY_SWORD_ANGRY_STEVE` mirrors the normal Legendary Sword moveset but adds `LEGENDARY_SWORD_EXTRA_ULT` as an Angry-Steve-only awakening ultimate.
+
+`RigCombatProfiles.getCombatProfile(...)` applies the Angry Steve profile only after mixed dual-wield resolution, so Legendary + Woopie still wins over the Angry-Steve single-main-hand override.
+
+## Legendary Sword awakening
+
+The old `AnimsLegendarySword.LEGENDARY_SWORD_INNATE_SPECIAL` tick event was player-only and called `LegendarySwordSkill.startAwakening(...)` from a `ServerPlayerPatch`. The vanilla rig port adapts the same event timing for Angry Steve instead of trying to reuse the player skill container.
+
+`LEGENDARY_SWORD_EXTRA_ULT` keeps its current attack window unchanged. At tick `11` (`0.55s`), its timed hook calls `AngrySteveEntity.startLegendaryAwakening()`.
+
+Awakening behavior:
+- synced `LEGENDARY_AWAKENED = 1`;
+- duration `600` ticks / 30 seconds;
+- Speed III;
+- Jump Boost III;
+- Resistance III;
+- Strength III;
+- Regeneration I;
+- repeated Extra Ult use does not refresh the duration while already awakened;
+- attack-animation playback speed is intentionally unchanged.
+
+When the timer reaches zero, `LEGENDARY_AWAKENED` returns to `0`.
+
+## Awakened Legendary Sword visual
+
+`RigItemVisualResolver` checks Angry Steve's synced `LEGENDARY_AWAKENED` state before normal animation-specific Legendary Sword visual substitution.
+
+While awakened, it returns a client-only copy of the Legendary Sword stack with `CustomModelData = 1`. The normal Legendary Sword item model has a model override that selects `models/item/yellow_legendary_sword.json`, which uses the existing `custom/yellow_legendary_sword` geometry and `yellow_glow_legendary_sword` texture.
+
+Do not put the custom-model-data tag on Angry Steve's real server ItemStack; the yellow sword is a visual derived from synced entity state.

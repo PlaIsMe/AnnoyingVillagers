@@ -1,9 +1,12 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigCriticalUtil;
 import com.pla.annoyingvillagers.rig.RigDamageContext;
 import com.pla.annoyingvillagers.rig.RigStunController;
+import com.pla.annoyingvillagers.util.CommonUtil;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -39,6 +42,11 @@ public final class RigStunCombatEvent {
 
         DamageSource source = event.getSource();
         LivingEntity victim = event.getEntity();
+        if (victim instanceof Mob mobVictim && RigAnimationController.isInvulnerable(mobVictim)) {
+            event.setCanceled(true);
+            if (victim.level() instanceof ServerLevel serverLevel && (source.getEntity() != null || source.getDirectEntity() != null)) CommonUtil.damageBlocked(source, victim, serverLevel);
+            return;
+        }
         if (RigStunController.isKnockdown(victim) && blocksAttackDuringKnockdown(source)) {
             event.setCanceled(true);
             return;

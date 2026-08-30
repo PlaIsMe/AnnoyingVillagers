@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.potion;
 
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -9,6 +10,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import org.jetbrains.annotations.NotNull;
 
 public class ElectrifyMobEffect extends MobEffect {
@@ -43,6 +45,13 @@ public class ElectrifyMobEffect extends MobEffect {
 //                }
 //            }
 //        }
+
+        playShockAnimation(livingEntity, pAmplifier);
+    }
+
+    public static void playShockAnimation(LivingEntity livingEntity, int pAmplifier) {
+        if (!(livingEntity instanceof Mob mob) || !RigStunController.supports(mob)) return;
+        RigStunController.applyShock(mob, pAmplifier > 1);
     }
 
     @Override
@@ -84,12 +93,4 @@ public class ElectrifyMobEffect extends MobEffect {
     public boolean isDurationEffectTick(int i, int j) {
         return true;
     }
-
-//    Add this function in AV_EFM
-//    private static void playElectrifyAnimation(LivingEntityPatch<?> livingEntityPatch,
-//                                               AssetAccessor<? extends StaticAnimation> animation) {
-//        if (animation != null && animation.get() != null) {
-//            livingEntityPatch.playAnimationSynchronized(animation, 0.0F);
-//        }
-//    }
 }

@@ -117,7 +117,7 @@ public class LegendarySwordItem extends SwordItem implements RigCombatProfilePro
 
     @Override
     public RigCombatStyle getDualRigCombatStyle(ItemStack self, ItemStack other) {
-        if (other.getItem() instanceof WoopieTheSwordItem) return RigCombatStyle.LEGENDARY_SWORD;
+        if (other.getItem() instanceof WoopieTheSwordItem) return RigCombatStyle.LEGENDARY_SWORD_WOOPIE;
         if (other.getItem() instanceof BlueDemonTridentItem) return RigCombatStyle.BLUE_DEMON_LEGENDARY_SWORD;
         return RigCombatStyle.LEGENDARY_SWORD;
     }

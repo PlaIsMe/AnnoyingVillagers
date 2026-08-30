@@ -363,7 +363,9 @@ public enum RigAnimationId {
     TACHI_IDLE,
     TACHI_RUN,
     TACHI_WALK,
-    TACHI_ULT;
+    TACHI_ULT,
+    SHOCKED,
+    SHOCKED_LONG;
 
     private static final RigAnimationId[] VALUES = values();
 

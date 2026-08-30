@@ -31,13 +31,25 @@ public final class RigStunController {
         return state != null && state.knockdown && !state.recovering;
     }
 
+    public static boolean isLongHitAnimation(Mob mob) {
+        if (mob == null) return false;
+
+        StunState state = STUNNED.get(mob.getUUID());
+        if (state != null && (state.knockdown || isHurtStableAnimation(state.animationId))) {
+            return true;
+        }
+
+        RigAnimationId activeAnimation = RigAnimationController.getActiveAnimationId(mob);
+        return isKnockdownAnimation(activeAnimation) || isHurtStableAnimation(activeAnimation);
+    }
+
     public static RigAnimationId currentAnimation(Mob mob) {
         StunState state = STUNNED.get(mob.getUUID());
         return state == null ? null : state.animationId;
     }
 
     public static boolean applyStun(Mob mob) {
-        if (!canStun(mob)) return false;
+        if (!canStun(mob) || isHurtStable(mob)) return false;
         StunState previous = STUNNED.get(mob.getUUID());
         if (previous != null && previous.knockdown && !previous.recovering) return false;
 
@@ -68,6 +80,7 @@ public final class RigStunController {
         if (animationId == RigAnimationId.STUN_BACK) return applyStunBack(mob);
         if (isKnockdownAnimation(animationId)) return applyKnockdown(mob, animationId);
         if (isHitAnimation(animationId)) return applyHitAnimation(mob, animationId);
+        if (isShockAnimation(animationId)) return applyShock(mob, animationId);
         return false;
     }
 
@@ -75,8 +88,17 @@ public final class RigStunController {
         return applyStun(mob);
     }
 
+    public static boolean applyShock(Mob mob, boolean longShock) {
+        return applyShock(mob, longShock ? RigAnimationId.SHOCKED_LONG : RigAnimationId.SHOCKED);
+    }
+
+    public static boolean applyShock(Mob mob, RigAnimationId animationId) {
+        if (!isShockAnimation(animationId) || !canStun(mob) || isStunned(mob)) return false;
+        return applyInternal(mob, animationId, 1, null, false, false);
+    }
+
     public static boolean applyHitAnimation(Mob mob, RigAnimationId animationId) {
-        if (!isHitAnimation(animationId) || !canStun(mob)) return false;
+        if (!isHitAnimation(animationId) || !canStun(mob) || isHurtStable(mob)) return false;
         StunState previous = STUNNED.get(mob.getUUID());
         if (previous != null && previous.knockdown && !previous.recovering) return false;
         int chainStep = previous == null || previous.recovering ? 1 : previous.chainStep + 1;
@@ -169,7 +191,7 @@ public final class RigStunController {
     }
 
     private static boolean canStun(Mob mob) {
-        return mob != null && supports(mob) && !mob.level().isClientSide && mob.isAlive() && !mob.isRemoved() && !mob.isDeadOrDying();
+        return mob != null && supports(mob) && !mob.level().isClientSide && mob.isAlive() && !mob.isRemoved() && !mob.isDeadOrDying() && !RigAnimationController.isInvulnerable(mob);
     }
 
     private static void lockMob(Mob mob) {
@@ -201,12 +223,29 @@ public final class RigStunController {
         data.remove(NBT_STUN_ORIGINAL_NO_AI);
     }
 
+    private static boolean isHurtStable(Mob mob) {
+        StunState state = STUNNED.get(mob.getUUID());
+        return state != null && isHurtStableAnimation(state.animationId) || isHurtStableAnimation(RigAnimationController.getActiveAnimationId(mob));
+    }
+
+    private static boolean isHurtStableAnimation(RigAnimationId animationId) {
+        return animationId == RigAnimationId.STUN_BACK || animationId == RigAnimationId.SUPER_KNOCK_BACK || animationId == RigAnimationId.LEGENDARY_SWORD_KNOCKDOWN || animationId == RigAnimationId.SHOCKED || animationId == RigAnimationId.SHOCKED_LONG;
+    }
+
     private static boolean isHitAnimation(RigAnimationId animationId) {
         return animationId == RigAnimationId.HIT_BACKWARD || animationId == RigAnimationId.HIT_LEFT || animationId == RigAnimationId.HIT_RIGHT || animationId == RigAnimationId.STUN_BACK;
     }
 
     private static boolean isKnockdownAnimation(RigAnimationId animationId) {
         return animationId == RigAnimationId.KNOCKDOWN_FORWARD || animationId == RigAnimationId.KNOCKDOWN_BACKWARD || animationId == RigAnimationId.KNOCKDOWN_LEFT || animationId == RigAnimationId.KNOCKDOWN_RIGHT || animationId == RigAnimationId.SUPER_KNOCK_BACK || animationId == RigAnimationId.LEGENDARY_SWORD_KNOCKDOWN;
+    }
+
+    private static boolean isShockAnimation(RigAnimationId animationId) {
+        return animationId == RigAnimationId.SHOCKED || animationId == RigAnimationId.SHOCKED_LONG;
+    }
+
+    static boolean isStunAnimation(RigAnimationId animationId) {
+        return isHitAnimation(animationId) || isKnockdownAnimation(animationId) || isShockAnimation(animationId) || animationId == RigAnimationId.KNOCKDOWN_WAKEUP_LEFT || animationId == RigAnimationId.KNOCKDOWN_WAKEUP_RIGHT;
     }
 
     private static RigAnimationId randomKnockdown(Mob mob) {

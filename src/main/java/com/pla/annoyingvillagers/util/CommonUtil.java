@@ -10,7 +10,6 @@ import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundGroundFracture;
-import com.pla.annoyingvillagers.client.particle.HitParticleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -51,7 +50,7 @@ public class CommonUtil {
         if (!damagesource.is(DamageTypes.IN_WALL) && !damagesource.is(DamageTypes.IN_FIRE) && !damagesource.is(DamageTypes.ON_FIRE)) {
             livingentity.playSound(AnnoyingVillagersModSounds.CLASH.get(), 1.0F, 1.0F);
         }
-        AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(level, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, livingentity, damagesource.getEntity());
+        AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(level, livingentity, damagesource.getEntity());
         if (damagesource.getEntity() instanceof Player player) {
             ScreenShakeUtil.applyScreenShake(level, player.getOnPos().getCenter(), 1.0, 20, 4);
         }
@@ -59,7 +58,7 @@ public class CommonUtil {
 
     public static void damageBlockedForce(Entity defender, Entity attacker, ServerLevel level) {
         defender.playSound(AnnoyingVillagersModSounds.CLASH.get(), 1.0F, 1.0F);
-        AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(level, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, defender, attacker);
+        AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(level, defender, attacker);
         if (attacker instanceof Player player) {
             ScreenShakeUtil.applyScreenShake(level, player.getOnPos().getCenter(), 1.0, 20, 4);
         }

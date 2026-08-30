@@ -126,7 +126,7 @@ Common/server classes must not import `AnimationDefinition`, `ModelPart`, or ren
 `RigCombatProfiles.getCombatProfile(...)` asks the main-hand provider for `getDualRigCombatStyle(...)` only when both providers have the same non-`NONE` `RigDualWieldGroup`. Item implementations that support mixed pairs must therefore make the result symmetric with respect to which item is in the main hand.
 
 Current mixed Legendary Sword pairs:
-- Legendary Sword + Woopie the Sword -> `WOOPIE_THE_SWORD`
+- Legendary Sword + Woopie the Sword -> `LEGENDARY_SWORD_WOOPIE`
 - Legendary Sword + Blue Demon Trident -> `BLUE_DEMON_LEGENDARY_SWORD`
 - Legendary Sword + Legendary Sword -> `LEGENDARY_SWORD`
 - Blue Demon Trident + Blue Demon Trident -> `BLUE_DEMON`
@@ -134,6 +134,21 @@ Current mixed Legendary Sword pairs:
 `LegendarySwordItem`, `WoopieTheSwordItem`, and `BlueDemonTridentItem` each participate in `RigDualWieldGroup.LEGENDARY_SWORD` and override dual style as needed so swapping hands does not silently change the profile.
 
 Blue Demon phase two uses `LEGENDARY_SWORD` main hand + `BLUE_DEMON_TRIDENT` offhand, so the normal matching `LEGENDARY_SWORD` dual-wield group selects `BLUE_DEMON_LEGENDARY_SWORD`. Keep the pair-sensitive overrides symmetric in `LegendarySwordItem` and `BlueDemonTridentItem`.
+
+
+
+### Angry Steve Legendary Sword profiles
+
+Angry Steve extends `AVNpc`, so implementing `RollItemUser` automatically enables `RollItemGoal`; implementing `FishingRodUser` automatically enables `CombatFishingRodGoal`. His `rollItem()` keeps Legendary Sword in main hand and rolls the off hand between Tony The Fishing Rod and Woopie The Sword.
+
+Profile resolution order matters:
+1. matching dual-wield providers resolve first;
+2. therefore Legendary Sword + Woopie resolves `LEGENDARY_SWORD_WOOPIE`;
+3. otherwise, when the main provider returns `LEGENDARY_SWORD` and the mob is `AngrySteveEntity`, `RigCombatProfiles` substitutes `LEGENDARY_SWORD_ANGRY_STEVE`.
+
+`LEGENDARY_SWORD_WOOPIE` uses the three authored `LEGENDARY_SWORD_DUAL_AUTO*` attacks first and uses `WOOPIE_THE_SWORD_FLY` / `WOOPIE_THE_SWORD_EXTRA_ULT` as its ultimate choices.
+
+`LEGENDARY_SWORD_ANGRY_STEVE` owns the mob awakening path through `LEGENDARY_SWORD_EXTRA_ULT`. The tick-11 spec hook calls Angry Steve's synced awakening state; do not add player `SkillContainer` dependencies to common rig code.
 
 ## RollItemGoal integration
 
@@ -146,3 +161,42 @@ For Blue Demon, priority 1 is intentional so the weapon-switch roll can preempt 
 The old EpicFight `TotemUsingEvent` played `AVAnimations.STUN_BACK` after Steve, Alex, or Chris consumed a Totem and switched into their upgraded state. The vanilla rig port keeps the commented AV_EFM block and then calls `RigAnimationController.play(mob, RigAnimationId.STUN_BACK)`. The current rig registry has `STUN_BACK`; it does not have a separate `STUN_FORWARD` id/clip, so do not invent one or substitute a knockdown animation unless that asset is explicitly ported later.
 
 The old `efnGuardHitState`/`efnGuardHitCooldown` cycle is unrelated to this Totem animation and is dead in the non-EpicFight rig implementation. It has been removed from `AVNpc`, `HerobrineMob`, and `BlueDemonEntity`.
+
+
+## Electrify shock stun animations
+
+`StunAnimations2.SHOCKED` and `StunAnimations2.SHOCKED_LONG` are the vanilla-rig ports of the old Blue Demon `ZAP` / `ZAP_LONG` hit animations.
+
+Registration rules:
+- `RigAnimationId.SHOCKED` and `SHOCKED_LONG` are appended at the end of the enum so existing ordinal-based network ids are not shifted.
+- `RigAnimationResolver` maps them to `StunAnimations2.SHOCKED` / `SHOCKED_LONG`.
+- Specs are non-damaging stun clips: `SHOCKED = 17 ticks` (`0.85s`), `SHOCKED_LONG = 30 ticks` (`1.5s`).
+- `RigStunController.applyShock(...)` must use the stun controller path, not ordinary `RigAnimationController.play(...)`. This keeps the mob locked for the animation and prevents normal combat playback from immediately overwriting the shock pose.
+- Shock does not extend or replace an already active rig stun. This matches the old EpicFight Electrify check that only played ZAP when the patch was not already stunned.
+
+`ElectrifyMobEffect.customEffectTick(...)` calls the reusable `playShockAnimation(LivingEntity, int)` compatibility entry point every 20 ticks. It only routes `Mob` instances supported by `RigStunController`; player visuals are client-side and separate.
+
+## Electrify player POV effect
+
+The non-EpicFight player shock effect is client-only and derives from the synced `ELECTRIFY` mob effect, so no extra network packet is required.
+
+`ElectrifyScreenEffect`:
+- renders four independent spark sprites, one randomized inside each screen corner region;
+- chooses an independent `textures/particle/electric_spark_1.png` through `_27.png` frame, size, position, and alpha for each corner every two ticks;
+- keeps the sprites relatively small instead of stretching the 256x256 texture fullscreen, preserving the crisp pixel-lightning shape;
+- adds deterministic pitch/yaw/roll jitter through `ViewportEvent.ComputeCameraAngles`;
+- uses stronger overlay/camera values when amplifier `> 1`, matching the `SHOCKED_LONG` selection;
+- disables the vanilla POV effect when `av_epicfight` or `annoyingvillagers_epicfight` is loaded so the compatibility mod can own player animation/camera behavior.
+
+If the final AV_EFM addon uses a different mod id, update the two checks in `ElectrifyScreenEffect.useVanillaPlayerShockFx()`.
+
+## Hurt-stable stun animations
+
+The following stun/reaction animations must continue playing when the mob takes additional damage instead of entering the normal chained hit reaction:
+- `STUN_BACK`
+- `SUPER_KNOCK_BACK`
+- `LEGENDARY_SWORD_KNOCKDOWN`
+- `SHOCKED`
+- `SHOCKED_LONG`
+
+`RigStunController` checks both its tracked `StunState.animationId` and `RigAnimationController.getActiveAnimationId(mob)`. Checking the active animation is required because `STUN_BACK` can be started directly by systems such as `TotemUsingEvent` rather than by the stun-state map. Damage itself is not cancelled; only `applyStun(...)` / `applyHitAnimation(...)` refuse to replace one of these protected clips with the generic hit chain.

@@ -246,6 +246,8 @@ public final class RigAnimationResolver {
             case STUN_BACK -> StunAnimations2.STUN_BACK;
             case SUPER_KNOCK_BACK -> StunAnimations2.SUPER_KNOCK_BACK;
             case LEGENDARY_SWORD_KNOCKDOWN -> StunAnimations2.LEGENDARY_SWORD_KNOCKDOWN;
+            case SHOCKED -> StunAnimations2.SHOCKED;
+            case SHOCKED_LONG -> StunAnimations2.SHOCKED_LONG;
 
             case EATING_ELITE_1 -> HerobrineLivingAnimations.EATING_ELITE_1;
             case EATING_ELITE_2 -> HerobrineLivingAnimations.EATING_ELITE_2;

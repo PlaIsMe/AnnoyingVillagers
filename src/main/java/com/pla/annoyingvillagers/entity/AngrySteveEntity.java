@@ -2,16 +2,23 @@ package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
+import com.pla.annoyingvillagers.clazz.FishingRodUser;
+import com.pla.annoyingvillagers.clazz.RollItemUser;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.spawnhandler.SteveData;
 import com.pla.annoyingvillagers.util.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -26,9 +33,11 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -45,9 +54,15 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
+public class AngrySteveEntity extends AVNpc implements BurstProtectEntity, RollItemUser, FishingRodUser {
+    private static final int LEGENDARY_AWAKEN_DURATION = 20 * 30;
+    private static final EntityDataAccessor<Integer> LEGENDARY_AWAKENED =
+            SynchedEntityData.defineId(AngrySteveEntity.class, EntityDataSerializers.INT);
+    private final FishingRodUser.State combatFishingRodState = new FishingRodUser.State();
     private boolean neverLeave = false;
     private int leaveTicks = 0;
+    private int swapWeaponCooldown;
+    private int legendaryAwakenTicks;
 
     public void setLeaveTicks(int leaveTicks) {
         this.leaveTicks = leaveTicks;
@@ -80,6 +95,77 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(LEGENDARY_AWAKENED, 0);
+    }
+
+    public int getLegendaryAwakened() {
+        return this.entityData.get(LEGENDARY_AWAKENED);
+    }
+
+    public boolean isLegendaryAwakened() {
+        return this.getLegendaryAwakened() == 1;
+    }
+
+    public void setLegendaryAwakened(int legendaryAwakened) {
+        this.entityData.set(LEGENDARY_AWAKENED, legendaryAwakened);
+    }
+
+    public void startLegendaryAwakening() {
+        if (!(this.level() instanceof ServerLevel) || this.isLegendaryAwakened()) return;
+
+        this.setLegendaryAwakened(1);
+        this.legendaryAwakenTicks = LEGENDARY_AWAKEN_DURATION;
+    }
+
+    private void tickLegendaryAwakening() {
+        if (this.legendaryAwakenTicks <= 0) return;
+
+        this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 2, 2, false, false, true));
+        this.addEffect(new MobEffectInstance(MobEffects.JUMP, 2, 2, false, false, true));
+        this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 2, 2, false, false, true));
+        this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 2, 2, false, false, true));
+        this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 2, 0, false, false, true));
+
+        this.legendaryAwakenTicks--;
+        if (this.legendaryAwakenTicks == 0) this.setLegendaryAwakened(0);
+    }
+
+    @Override
+    public boolean canRollItem() {
+        LivingEntity target = this.getTarget();
+        return target != null && target.isAlive() && this.getBlockDamage() == null && !this.isCombatFishingRodSessionActive() && this.swapWeaponCooldown == 0;
+    }
+
+    @Override
+    public void rollItem() {
+        if (this.getRandom().nextBoolean()) {
+            this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get()));
+        } else {
+            ItemStack woopieTheSword = new ItemStack(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get());
+            woopieTheSword.enchant(Enchantments.SHARPNESS, 5);
+            woopieTheSword.enchant(Enchantments.SMITE, 5);
+            woopieTheSword.enchant(Enchantments.SWEEPING_EDGE, 5);
+            this.setItemInHand(InteractionHand.OFF_HAND, woopieTheSword);
+        }
+
+        this.setMainWeaponItem(this.getMainHandItem().copy());
+        this.setOffWeaponItem(this.getOffhandItem().copy());
+        this.swapWeaponCooldown = new Random().nextInt(100, 200);
+    }
+
+    @Override
+    public FishingRodUser.State getCombatFishingRodState() {
+        return this.combatFishingRodState;
+    }
+
+    @Override
+    public Item getCombatFishingRodItem() {
+        return AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get();
+    }
+
     protected void registerGoals() {
         super.registerGoals();
         CommonGoals.registerGoalForCrazyNpc(this);
@@ -90,6 +176,9 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         super.readAdditionalSaveData(pCompound);
         leaveTicks = pCompound.getInt("LeaveTicks");
         neverLeave = pCompound.getBoolean("NeverLeave");
+        swapWeaponCooldown = pCompound.getInt("SwapWeaponCooldown");
+        legendaryAwakenTicks = pCompound.getInt("LegendaryAwakenTicks");
+        this.setLegendaryAwakened(legendaryAwakenTicks > 0 && pCompound.getInt("LegendaryAwakened") != 0 ? 1 : 0);
     }
 
     @Override
@@ -97,6 +186,9 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         super.addAdditionalSaveData(pCompound);
         pCompound.putInt("LeaveTicks", leaveTicks);
         pCompound.putBoolean("NeverLeave", neverLeave);
+        pCompound.putInt("SwapWeaponCooldown", swapWeaponCooldown);
+        pCompound.putInt("LegendaryAwakenTicks", legendaryAwakenTicks);
+        pCompound.putInt("LegendaryAwakened", this.getLegendaryAwakened());
     }
 
     @Override
@@ -242,20 +334,24 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         }
     }
 
-    public static void playGuardBreakAttackAnimation() {
+    public void playGuardBreakAttackAnimation() {
 //      ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
 //            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
 //        }
 
-//        Create VANILLA_ANIMATION
+        if (!this.level().isClientSide) {
+            RigAnimationController.play(this, RigAnimationId.STUN_BACK);
+        }
     }
 
-    public static void playTriedAnimation() {
+    public void playTriedAnimation() {
 //      ADD THIS CODE IN AV_EFM
 //        Objects.requireNonNull(this.getLivingEntityPatch()).playAnimationSynchronized(AnimsPugilistSteve.TRIED, 0.0F);
 
-//        Create VANILLA_ANIMATION
+        if (!this.level().isClientSide) {
+            RigAnimationController.play(this, RigAnimationId.LEGENDARY_SWORD_KNOCKDOWN);
+        }
     }
 
     @Override
@@ -273,6 +369,8 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         super.tick();
         if (this.level() instanceof ServerLevel) {
             CommonUtil.stunImmunity(this, 3, 3);
+            if (swapWeaponCooldown > 0) swapWeaponCooldown--;
+            this.tickLegendaryAwakening();
             if (!neverLeave) {
                 this.leaveTicks = this.leaveTicks - 1;
                 int remaining = this.leaveTicks;
@@ -342,6 +440,7 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         this.setItemInHand(InteractionHand.MAIN_HAND, legendarySword);
         this.setItemSlot(EquipmentSlot.MAINHAND, legendarySword);
         this.setMainWeaponItem(legendarySword);
+        this.rollItem();
         TeamUtil.addOrJoinTeam(this, "steve");
         int min = AnnoyingVillagersConfig.ANGRY_STEVE_LEAVE_MIN_TIME.get();
         int max = AnnoyingVillagersConfig.ANGRY_STEVE_LEAVE_MAX_TIME.get();
@@ -357,6 +456,44 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
         if (!level().isClientSide && level() instanceof ServerLevel serverLevel &&
                 (reason == RemovalReason.KILLED || reason == RemovalReason.DISCARDED)) {
             SteveData.get(serverLevel).releaseIfMatches(serverLevel, this.getUUID());
+        }
+    }
+
+    @Override
+    protected boolean seedInventory() {
+        if (super.seedInventory()) {
+            Random random = new Random();
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.GOLDEN_APPLE, random.nextInt(16, 32)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, random.nextInt(16, 32)));
+
+            List<ItemLike> foods = new ArrayList<>(REGULAR_FOODS);
+            for (int i = 0; i < 2 && !foods.isEmpty(); i++) {
+                ItemLike food = foods.remove(random.nextInt(foods.size()));
+                InventoryUtils.addItem(this.inventory, new ItemStack(food, random.nextInt(16, 32)));
+            }
+
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ARROW, random.nextInt(64, 128)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ENDER_PEARL, random.nextInt(16, 32)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.WATER_BUCKET));
+            if (this.isVillagerKnight() && random.nextFloat() < 0.45F) {
+                InventoryUtils.addItem(this.inventory, new ItemStack(Items.LAVA_BUCKET));
+            }
+
+            List<ItemLike> blocks = new ArrayList<>(PLACEABLE_BLOCKS);
+            int blockStacks = random.nextInt(1, 2);
+            for (int i = 0; i < blockStacks && !blocks.isEmpty(); i++) {
+                ItemLike block = blocks.remove(random.nextInt(blocks.size()));
+                InventoryUtils.addItem(this.inventory, new ItemStack(block, random.nextInt(64, 128)));
+            }
+
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.REDSTONE, random.nextInt(0, 12)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.LAPIS_LAZULI, random.nextInt(0, 12)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.EMERALD, random.nextInt(0, 12)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.DIAMOND, random.nextInt(0, 8)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(), random.nextInt(0, 8)));
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -378,7 +515,7 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity {
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
-                .add(Attributes.ARMOR, 10.0D)
+                .add(Attributes.ARMOR, 80.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
         return addEpicFightAttributes(builder);

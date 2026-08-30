@@ -3,5 +3,13 @@
   "textures": {
     "0": "annoyingvillagers:item/legendary_sword",
     "particle": "annoyingvillagers:item/legendary_sword"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 1
+      },
+      "model": "annoyingvillagers:item/yellow_legendary_sword"
+    }
+  ]
 }

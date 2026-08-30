@@ -4,6 +4,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Random;
@@ -15,11 +16,11 @@ public class HitParticleType extends SimpleParticleType {
         return new Vec3(target.getX(), target.getY() + dimensions.height * 0.5D, target.getZ());
     };
     public static final BiFunction<Entity, Entity, Vec3> RANDOM_WITHIN_BOUNDING_BOX = (target, attacker) -> {
-        EntityDimensions dimensions = target.getDimensions(target.getPose());
+        AABB boundingBox = target.getBoundingBox();
         Random random = new Random();
-        double x = target.getX() + (random.nextDouble() - 0.5D) * dimensions.width;
-        double y = target.getY() + (random.nextDouble() + dimensions.height) * 0.5D;
-        double z = target.getZ() + (random.nextDouble() - 0.5D) * dimensions.width;
+        double x = boundingBox.minX + random.nextDouble() * boundingBox.getXsize();
+        double y = boundingBox.minY + random.nextDouble() * boundingBox.getYsize();
+        double z = boundingBox.minZ + random.nextDouble() * boundingBox.getZsize();
         return new Vec3(x, y, z);
     };
     public static final BiFunction<Entity, Entity, Vec3> FRONT_OF_EYES = (target, attacker) -> {

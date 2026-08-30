@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -12,9 +13,12 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -188,6 +192,21 @@ public class ShockWaveBlockEntity extends Entity {
 //            }
 //        }
 //        Create VANILLA_ANIMATION
+        if (target.level().isClientSide) {
+            return;
+        }
+
+        if (target instanceof Player player) {
+            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 0));
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 0));
+            return;
+        }
+
+        if (target instanceof Mob mob
+                && RigStunController.supports(mob)
+                && !RigStunController.isLongHitAnimation(mob)) {
+            RigStunController.applyLegendarySwordKnockdown(mob);
+        }
     }
 
     private void onHitLivingEntity(LivingEntity target) {

@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.rig;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.TridentMode;
+import com.pla.annoyingvillagers.entity.AngrySteveEntity;
 import com.pla.annoyingvillagers.entity.BlackFireEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
@@ -25,11 +26,14 @@ import com.pla.annoyingvillagers.util.ScreenShakeUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -673,7 +677,9 @@ public final class RigAnimationSpecs {
                         }),
                         RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> RigAnimationController.play(mob, RigAnimationId.LEGENDARY_SWORD_ULT))
                 ),
-                RigAttackWindow.of(0, 10, LEFT_SWORD)).withVerticalMotion());
+                RigAttackWindow.of(0, 10, LEFT_SWORD)).withVerticalMotion()
+                .invulnerable()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.WOOPIE_THE_SWORD_ULT, 39, false,
                         hookAt(15, mob -> {
                             if (!(mob.level() instanceof ServerLevel serverLevel)) return;
@@ -755,13 +761,15 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.STUN_BACK, 37));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.SUPER_KNOCK_BACK, 50));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.LEGENDARY_SWORD_KNOCKDOWN, 113));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.SHOCKED, 17));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.SHOCKED_LONG, 30));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_TWOHAND_RUN, 11));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE, 660));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE_START, 20));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE_TICK, 20));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM, 1117));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM_END, 20));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE, 660).invulnerable());
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE_START, 20).invulnerable());
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE_TICK, 20).invulnerable());
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM, 1117).invulnerable());
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM_END, 20).invulnerable());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 100, RigAnimationPlaybackType.DEFAULT,
                 List.of(
                         RigAnimationSpec.RigTimedAnimationHook.at(2, mob -> {
@@ -802,7 +810,9 @@ public final class RigAnimationSpecs {
                                 RigAnimationController.play(blueDemonEntity, RigAnimationId.BLUE_DEMON_STATE_TRANSFORM);
                             }
                         }),
-                        blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL))));
+                        blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL)))
+                .invulnerable()
+        );
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_EXTRA_ATTACK, 14, RigAnimationPlaybackType.DEFAULT,
                 List.of(
                         blueDemonSpinHook(4),
@@ -873,7 +883,9 @@ public final class RigAnimationSpecs {
                         blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_ULT),
                         blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_ULT),
                         blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_ULT),
-                        blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_ULT))));
+                        blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_ULT)))
+                .invulnerable()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_THROW_ATTACK1, 28, false,
                 List.of(
                         blueDemonHandEffectHook(0, RigAnimationId.BLUE_DEMON_THROW_ATTACK1, RigPart.RIGHT_HAND),
@@ -951,7 +963,9 @@ public final class RigAnimationSpecs {
                         blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_THROW_ULT),
                         RigAnimationSpec.RigTimedAnimationHook.at(80, mob -> {
                             if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.summonLightningAtGroundedTridents(serverLevel, mob);
-                        }))));
+                        })))
+                .invulnerable()
+        );
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.LEGENDARY_SWORD_IDLE, 54));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.LEGENDARY_SWORD_WALK, 17));
@@ -965,24 +979,76 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK4, 39, false,
                 RigAttackWindow.of(5, 15, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK5, 41, false,
-                emptyHooks(0),
+                List.of(
+                        RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
+                            mob.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 40, 2, false, false, false));
+                            CommonUtil.stunImmunity(mob, 30, 10);
+                        }),
+                        groundSlamTimedHook(14, RigAnimationId.LEGENDARY_SWORD_ATTACK5, 1.5D, 0.7D, 35, 0.7D, 2.5D),
+                        RigAnimationSpec.RigTimedAnimationHook.at(14, mob -> {
+                            if (mob.level() instanceof ServerLevel serverLevel) ScreenShakeUtil.applyScreenShake(serverLevel, mob.position(), 12.0D, 20, 2);
+                        })),
                 RigAttackWindow.of(3, 15, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_EXTRA_ATTACK, 46, false,
                 RigAttackWindow.of(10, 20, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_JUMP_ATTACK, 53, true,
-                emptyHooks(3, 5, 7, 9, 15, 17, 18, 19, 21),
+                List.of(
+                        whiteAfterimageHook(3),
+                        whiteAfterimageHook(5),
+                        whiteAfterimageHook(7),
+                        whiteAfterimageHook(9),
+                        whiteAfterimageHook(11),
+                        whiteAfterimageHook(13),
+                        whiteAfterimageHook(15),
+                        whiteAfterimageHook(17),
+                        groundSlamTimedHook(18, RigAnimationId.LEGENDARY_SWORD_JUMP_ATTACK, 1.5D, 0.8D, 45, 0.7D, 2.5D)),
                 RigAttackWindow.of(2, 6, RIGHT_GREATSWORD),
                 RigAttackWindow.of(16, 18, RIGHT_GREATSWORD),
                 RigAttackWindow.of(19, 25, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DASH_ATTACK, 25, false,
-                emptyHooks(0, 2, 4, 6, 8),
+                whiteAfterimageHooks(3, 5, 7, 9, 11),
                 RigAttackWindow.of(3, 16, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ULT, 40, false,
-                emptyHooks(0, 10),
-                RigAttackWindow.of(10, 20, RIGHT_GREATSWORD)));
+                List.of(
+                        RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                            serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_START.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                            serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                            serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                            serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mob.getX(), mob.getY(), mob.getZ(), 15, 0.0D, 0.0D, 0.0D, 0.2D);
+                            serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mob.getX(), mob.getEyeY(), mob.getZ(), 100, 0.0D, 0.0D, 0.0D, 0.5D);
+                        }),
+                        groundSlamTimedHook(10, RigAnimationId.LEGENDARY_SWORD_ULT, 2.0D, 0.8D, 50, 0.6D, 2.5D),
+                        RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                            Vec3 legendarySwordPos = RigPoseUtil.getRightWeaponPosition(mob, RigAnimationId.LEGENDARY_SWORD_ULT, 10, 1.5D);
+
+                            BlockPos centerPos = BlockPos.containing(legendarySwordPos);
+                            for (int radius = 1; radius <= 6; radius++) {
+                                int delayTicks = (radius - 1) * 2;
+                                int ringRadius = radius;
+                                new DelayedTask(delayTicks) {
+                                    @Override
+                                    public void run() {
+                                        if (mob.isRemoved()) return;
+                                        LegendarySwordItem.spawnCircleRing(serverLevel, centerPos, ringRadius, mob);
+                                    }
+                                };
+                            }
+                        })),
+                RigAttackWindow.of(10, 20, RIGHT_GREATSWORD))
+                .invulnerable()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT, 45, false,
-                emptyHooks(11),
-                RigAttackWindow.of(11, 15, RIGHT_GREATSWORD)));
+                List.of(
+                        RigAnimationSpec.RigTimedAnimationHook.at(11, mob -> {
+                            if (mob instanceof AngrySteveEntity angrySteve) angrySteve.startLegendaryAwakening();
+                        })),
+                RigAttackWindow.of(11, 15, RIGHT_GREATSWORD))
+                .invulnerable()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO1, 49, false,
                 RigAttackWindow.of(10, 13, RIGHT_GREATSWORD),
                 RigAttackWindow.of(14, 16, LEFT_SWORD)));
@@ -1290,7 +1356,11 @@ public final class RigAnimationSpecs {
     }
 
     private static List<RigAnimationSpec.RigTimedAnimationHook> groundSlamHook(int tick, RigAnimationId animationId, double forwardOffset, double particleRadius, int particleCount, double spread, double fractureRadius) {
-        return hookAt(tick, mob -> {
+        return List.of(groundSlamTimedHook(tick, animationId, forwardOffset, particleRadius, particleCount, spread, fractureRadius));
+    }
+
+    private static RigAnimationSpec.RigTimedAnimationHook groundSlamTimedHook(int tick, RigAnimationId animationId, double forwardOffset, double particleRadius, int particleCount, double spread, double fractureRadius) {
+        return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {
             if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
             Vec3 impactPos = RigPoseUtil.getRightWeaponPosition(mob, animationId, tick, forwardOffset);
@@ -1298,15 +1368,19 @@ public final class RigAnimationSpecs {
         });
     }
 
+    private static RigAnimationSpec.RigTimedAnimationHook whiteAfterimageHook(int tick) {
+        return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {
+            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+            serverLevel.sendParticles(AnnoyingVillagersModParticleTypes.WHITE_AFTERIMAGE.get(), mob.getX(), mob.getY(), mob.getZ(), 0, mob.getId(), 0.0D, 0.0D, 1.0D);
+        });
+    }
+
     private static List<RigAnimationSpec.RigTimedAnimationHook> whiteAfterimageHooks(int... ticks) {
         List<RigAnimationSpec.RigTimedAnimationHook> hooks = new ArrayList<>(ticks.length);
 
         for (int tick : ticks) {
-            hooks.add(RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {
-                if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-                serverLevel.sendParticles(AnnoyingVillagersModParticleTypes.WHITE_AFTERIMAGE.get(), mob.getX(), mob.getY(), mob.getZ(), 0, mob.getId(), 0.0D, 0.0D, 1.0D);
-            }));
+            hooks.add(whiteAfterimageHook(tick));
         }
 
         return List.copyOf(hooks);

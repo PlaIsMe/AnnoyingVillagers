@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.rig;
 
+import com.pla.annoyingvillagers.entity.AngrySteveEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
@@ -609,7 +610,7 @@ public final class RigCombatProfiles {
                 List.of(RigAnimationId.BLUE_DEMON_ULT, RigAnimationId.BLUE_DEMON_THROW_ULT),
                 SPECIAL_ATTACK_CHANCE,
                 ROLLING_CHANCE,
-                ULTIMATE_CHANCE,
+                ULTIMATE_CHANCE * 2,
                 RigLocomotionStyle.DEFAULT
         ));
 
@@ -629,7 +630,7 @@ public final class RigCombatProfiles {
                 List.of(RigAnimationId.LEGENDARY_SWORD_ULT, RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT, RigAnimationId.BLUE_DEMON_ULT),
                 SPECIAL_ATTACK_CHANCE,
                 ROLLING_CHANCE,
-                ULTIMATE_CHANCE,
+                ULTIMATE_CHANCE * 2,
                 RigLocomotionStyle.LEGENDARY_SWORD
         ));
 
@@ -646,10 +647,51 @@ public final class RigCombatProfiles {
                         RigAnimationId.STEP_LEFT,
                         RigAnimationId.STEP_RIGHT
                 ),
+                List.of(RigAnimationId.LEGENDARY_SWORD_ULT),
+                SPECIAL_ATTACK_CHANCE,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE * 2,
+                RigLocomotionStyle.LEGENDARY_SWORD
+        ));
+
+        PROFILES.put(RigCombatStyle.LEGENDARY_SWORD_WOOPIE, new RigCombatProfile(
+                List.of(RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO1, RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO2, RigAnimationId.LEGENDARY_SWORD_DUAL_AUTO3,
+                        RigAnimationId.LEGENDARY_SWORD_ATTACK4, RigAnimationId.LEGENDARY_SWORD_ATTACK5),
+                List.of(RigAnimationId.LEGENDARY_SWORD_DASH_ATTACK, RigAnimationId.LEGENDARY_SWORD_JUMP_ATTACK,
+                        RigAnimationId.LEGENDARY_SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.WOOPIE_THE_SWORD_FLY, RigAnimationId.WOOPIE_THE_SWORD_EXTRA_ULT,
+                        RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT),
+                SPECIAL_ATTACK_CHANCE,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE * 2,
+                RigLocomotionStyle.LEGENDARY_SWORD
+        ));
+
+        PROFILES.put(RigCombatStyle.LEGENDARY_SWORD_ANGRY_STEVE, new RigCombatProfile(
+                List.of(RigAnimationId.LEGENDARY_SWORD_ATTACK1, RigAnimationId.LEGENDARY_SWORD_ATTACK2, RigAnimationId.LEGENDARY_SWORD_ATTACK3,
+                        RigAnimationId.LEGENDARY_SWORD_ATTACK4, RigAnimationId.LEGENDARY_SWORD_ATTACK5),
+                List.of(RigAnimationId.LEGENDARY_SWORD_DASH_ATTACK, RigAnimationId.LEGENDARY_SWORD_JUMP_ATTACK,
+                        RigAnimationId.LEGENDARY_SWORD_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
                 List.of(RigAnimationId.LEGENDARY_SWORD_ULT, RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT),
                 SPECIAL_ATTACK_CHANCE,
                 ROLLING_CHANCE,
-                ULTIMATE_CHANCE,
+                ULTIMATE_CHANCE * 2,
                 RigLocomotionStyle.LEGENDARY_SWORD
         ));
     }
@@ -677,7 +719,11 @@ public final class RigCombatProfiles {
                 }
             }
 
-            return getProfile(mainProvider.getRigCombatStyle(mainHand));
+            RigCombatStyle mainStyle = mainProvider.getRigCombatStyle(mainHand);
+            if (mob instanceof AngrySteveEntity && mainStyle == RigCombatStyle.LEGENDARY_SWORD) {
+                return getProfile(RigCombatStyle.LEGENDARY_SWORD_ANGRY_STEVE);
+            }
+            return getProfile(mainStyle);
         }
 
         if (mainHand.getItem() instanceof SwordItem) {

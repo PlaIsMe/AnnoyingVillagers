@@ -75,13 +75,14 @@ public final class RigAnimationController {
     }
 
     public static void play(Mob mob, RigAnimationSpec spec, LivingEntity target) {
+        if (isInvulnerable(mob) && RigStunController.isStunAnimation(spec.animationId())) return;
         if (RigStunController.isStunned(mob) || mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
         playNow(mob, spec, target);
     }
 
     static void playStunAnimation(Mob mob, RigAnimationId animationId) {
         RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
-        if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) return;
+        if (isInvulnerable(mob) || mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) return;
         playNow(mob, spec, null);
     }
 
@@ -130,6 +131,11 @@ public final class RigAnimationController {
 
     public static boolean hasActiveAnimation(Mob mob) {
         return getActiveAnimationState(mob) != null;
+    }
+
+    public static boolean isInvulnerable(Mob mob) {
+        ActiveAnimationState state = getActiveAnimationState(mob);
+        return state != null && state.spec().invulnerableDuringAnimation();
     }
 
     public static RigAnimationId getActiveAnimationId(Mob mob) {
