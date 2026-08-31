@@ -1,11 +1,17 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.client.animation.rig_animation.aegis_herobrine.AegisHerobrineAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.greatsword.GreatswordAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.legendary_sword.LegendarySwordAnimations1;
+import com.pla.annoyingvillagers.client.animation.rig_animation.living.HerobrineLivingAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.LivingAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.RunAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.spear.SpearAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.tachi.TachiAnimations1;
+import com.pla.annoyingvillagers.entity.EliteHerobrineKnockedEntity;
+import com.pla.annoyingvillagers.entity.InfectedChrisEntity;
+import com.pla.annoyingvillagers.entity.InfectedPlayerNpcEntity;
+import com.pla.annoyingvillagers.entity.InfectedTheMostMoistBurrit0Entity;
 import com.pla.annoyingvillagers.item.LegendarySwordItem;
 import com.pla.annoyingvillagers.rig.RigCombatProfiles;
 import com.pla.annoyingvillagers.rig.RigLocomotionStyle;
@@ -48,6 +54,7 @@ public class AnimationUtil {
             case CRAFTING_TABLE -> GreatswordAnimations1.CARRY;
             case TACHI -> TachiAnimations1.TACHI_IDLE;
             case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_IDLE;
+            case AEGIS_HEROBRINE -> AegisHerobrineAnimations1.AEGIS_HEROBRINE_IDLE;
             default -> LivingAnimations.IDLE;
         };
     }
@@ -107,6 +114,14 @@ public class AnimationUtil {
     }
 
     public static AnimationDefinition getIdleAnimation(Mob mob) {
+        if (mob instanceof EliteHerobrineKnockedEntity) {
+            return HerobrineLivingAnimations.KNOCKED_ELITE;
+        } else if (mob instanceof InfectedPlayerNpcEntity
+                || mob instanceof InfectedChrisEntity
+                || mob instanceof InfectedTheMostMoistBurrit0Entity) {
+            return LivingAnimations.LAYING_DEATH;
+        }
+
         ItemStack mainHand = mob.getMainHandItem();
         ItemStack offHand = mob.getOffhandItem();
 

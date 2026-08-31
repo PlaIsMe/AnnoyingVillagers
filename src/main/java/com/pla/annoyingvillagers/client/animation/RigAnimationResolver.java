@@ -208,6 +208,8 @@ public final class RigAnimationResolver {
             case EAT_MAINHAND -> LivingAnimations.EAT_MAINHAND;
 
             case DEATH -> LivingAnimations.DEATH;
+            case FALL -> LivingAnimations.FALL;
+            case LANDING -> LivingAnimations.LANDING;
             case LAYING_DEATH -> LivingAnimations.LAYING_DEATH;
             case LAYING_DEATH_DEAD -> LivingAnimations.LAYING_DEATH_DEAD;
             case IDLE -> LivingAnimations.IDLE;

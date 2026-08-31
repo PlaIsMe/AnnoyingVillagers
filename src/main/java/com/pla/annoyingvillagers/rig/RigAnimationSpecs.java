@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.rig;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.TridentMode;
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
+import com.pla.annoyingvillagers.entity.AegisHerobrineEntity;
 import com.pla.annoyingvillagers.entity.BlackFireEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
@@ -662,22 +663,22 @@ public final class RigAnimationSpecs {
                 woopieRushStartHook(RigAnimationId.WOOPIE_THE_SWORD_EXTRA_ULT_LEGENDARY),
                 RigAttackWindow.of(5, 15, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.WOOPIE_THE_SWORD_FLY, 13, false,
-                List.of(
-                        RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                            mob.setDeltaMovement(Vec3.ZERO);
-                            mob.hasImpulse = true;
-                            mob.hurtMarked = true;
+                        List.of(
+                                RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                                    mob.setDeltaMovement(Vec3.ZERO);
+                                    mob.hasImpulse = true;
+                                    mob.hurtMarked = true;
 
-                            Vec3 offHandPos = RigPoseUtil.getLeftWeaponPosition(mob, RigAnimationId.WOOPIE_THE_SWORD_FLY, 0.0F);
-                            Vec3 windPos = new Vec3(offHandPos.x, mob.getY() + 0.05D, offHandPos.z);
-                            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
-                            serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-                            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundWoopieSwordWindFx(windPos));
-                        }),
-                        RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> RigAnimationController.play(mob, RigAnimationId.LEGENDARY_SWORD_ULT))
-                ),
-                RigAttackWindow.of(0, 10, LEFT_SWORD)).withVerticalMotion()
+                                    Vec3 offHandPos = RigPoseUtil.getLeftWeaponPosition(mob, RigAnimationId.WOOPIE_THE_SWORD_FLY, 0.0F);
+                                    Vec3 windPos = new Vec3(offHandPos.x, mob.getY() + 0.05D, offHandPos.z);
+                                    AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
+                                    serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
+                                    AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundWoopieSwordWindFx(windPos));
+                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> RigAnimationController.play(mob, RigAnimationId.LEGENDARY_SWORD_ULT))
+                        ),
+                        RigAttackWindow.of(0, 10, LEFT_SWORD)).withVerticalMotion()
                 .invulnerable()
                 .dangerous()
         );
@@ -708,6 +709,8 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EAT_OFFHAND, 32, RigAnimationPlaybackType.LEFT_HAND));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EAT_MAINHAND, 32, RigAnimationPlaybackType.MAIN_HAND));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.DEATH, 27));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.FALL, 167));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.LANDING, 17));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.LAYING_DEATH, 27));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.LAYING_DEATH_DEAD, 27));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.IDLE, 48));
@@ -772,46 +775,50 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM, 1117).invulnerable().dangerous());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM_END, 20).invulnerable().dangerous());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 100, RigAnimationPlaybackType.DEFAULT,
-                List.of(
-                        RigAnimationSpec.RigTimedAnimationHook.at(2, mob -> {
-                            if (!(mob.level() instanceof ServerLevel)) return;
-                            if (!(mob instanceof BlueDemonEntity blueDemonEntity)) return;
-                            blueDemonEntity.setState(1);
-                            blueDemonEntity.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_TRIDENT_FESTIVAL.get(), 1.0F, 1.0F);
-                        }),
-                        blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
-                        RigAnimationSpec.RigTimedAnimationHook.at(6, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                            if (mob instanceof BlueDemonEntity) BlueDemonTridentItem.summonMissingTridentAndAnimate(serverLevel, mob);
-                            ScreenShakeUtil.applyScreenShake(serverLevel, mob.blockPosition().getCenter(), 12.0D, 80, 8);
-                        }),
-                        RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                            BlueDemonTridentItem.spawnDamageZones(serverLevel, mob);
-                            BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob, true);
-                        }),
-                        blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
-                        RigAnimationSpec.RigTimedAnimationHook.at(24, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                            BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob, true);
-                            playBlueDemonTridentEffect(mob, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 24, RigPart.RIGHT_HAND);
-                            playBlueDemonTridentEffect(mob, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 24, RigPart.LEFT_HAND);
-                        }),
-                        blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
-                        blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
-                        blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
-                        blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
-                        RigAnimationSpec.RigTimedAnimationHook.at(70, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                            BlueDemonTridentItem.summonSuperLightningAtGroundedTridents(serverLevel, mob);
-                            BlueDemonTridentItem.setStormEnergy(mob.getMainHandItem(), 0);
-                            BlueDemonTridentItem.setStormEnergy(mob.getOffhandItem(), 0);
-                            if (mob instanceof BlueDemonEntity blueDemonEntity) {
-                                blueDemonEntity.beginStateTwoTransform();
-                                RigAnimationController.play(blueDemonEntity, RigAnimationId.BLUE_DEMON_STATE_TRANSFORM);
-                            }
-                        }),
-                        blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL)))
+                        List.of(
+                                new RigAnimationSpec.RigTimedAnimationHook(RigAnimationSpec.RigTimedAnimationHook.START, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel)) return;
+                                    if (!(mob instanceof BlueDemonEntity blueDemonEntity)) return;
+                                    blueDemonEntity.setState(1);
+                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(2, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel)) return;
+                                    if (!(mob instanceof BlueDemonEntity blueDemonEntity)) return;
+                                    blueDemonEntity.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_TRIDENT_FESTIVAL.get(), 1.0F, 1.0F);
+                                }),
+                                blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                                RigAnimationSpec.RigTimedAnimationHook.at(6, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                                    if (mob instanceof BlueDemonEntity) BlueDemonTridentItem.summonMissingTridentAndAnimate(serverLevel, mob);
+                                    ScreenShakeUtil.applyScreenShake(serverLevel, mob.blockPosition().getCenter(), 12.0D, 80, 8);
+                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                                    BlueDemonTridentItem.spawnDamageZones(serverLevel, mob);
+                                    BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob, true);
+                                }),
+                                blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                                RigAnimationSpec.RigTimedAnimationHook.at(24, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                                    BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob, true);
+                                    playBlueDemonTridentEffect(mob, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 24, RigPart.RIGHT_HAND);
+                                    playBlueDemonTridentEffect(mob, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 24, RigPart.LEFT_HAND);
+                                }),
+                                blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                                blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                                blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                                blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
+                                RigAnimationSpec.RigTimedAnimationHook.at(70, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                                    BlueDemonTridentItem.summonSuperLightningAtGroundedTridents(serverLevel, mob);
+                                    BlueDemonTridentItem.setStormEnergy(mob.getMainHandItem(), 0);
+                                    BlueDemonTridentItem.setStormEnergy(mob.getOffhandItem(), 0);
+                                    if (mob instanceof BlueDemonEntity blueDemonEntity) {
+                                        blueDemonEntity.beginStateTwoTransform();
+                                        RigAnimationController.play(blueDemonEntity, RigAnimationId.BLUE_DEMON_STATE_TRANSFORM);
+                                    }
+                                }),
+                                blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL)))
                 .invulnerable()
                 .dangerous()
         );
@@ -874,18 +881,18 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(18, 25, RIGHT_SPEAR, LEFT_SPEAR),
                 RigAttackWindow.of(28, 35, RIGHT_SPEAR, LEFT_SPEAR)));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_ULT, 100, RigAnimationPlaybackType.DEFAULT,
-                List.of(
-                        blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_ULT),
-                        blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_ULT),
-                        RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> {
-                            if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.spawnDamageZones(serverLevel, mob);
-                        }),
-                        blueDemonBothHandEffectHook(24, RigAnimationId.BLUE_DEMON_ULT),
-                        blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_ULT),
-                        blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_ULT),
-                        blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_ULT),
-                        blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_ULT),
-                        blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_ULT)))
+                        List.of(
+                                blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_ULT),
+                                blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_ULT),
+                                RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> {
+                                    if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.spawnDamageZones(serverLevel, mob);
+                                }),
+                                blueDemonBothHandEffectHook(24, RigAnimationId.BLUE_DEMON_ULT),
+                                blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_ULT),
+                                blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_ULT),
+                                blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_ULT),
+                                blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_ULT),
+                                blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_ULT)))
                 .invulnerable()
                 .dangerous()
         );
@@ -952,21 +959,21 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(7, 9, RIGHT_SPEAR, LEFT_SPEAR),
                 RigAttackWindow.of(9, 12, RIGHT_SPEAR, LEFT_SPEAR)));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_THROW_ULT, 100, RigAnimationPlaybackType.DEFAULT,
-                List.of(
-                        blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_THROW_ULT),
-                        blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_THROW_ULT),
-                        RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> {
-                            if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob);
-                        }),
-                        blueDemonBothHandEffectHook(24, RigAnimationId.BLUE_DEMON_THROW_ULT),
-                        blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_THROW_ULT),
-                        blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_THROW_ULT),
-                        blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_THROW_ULT),
-                        blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_THROW_ULT),
-                        blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_THROW_ULT),
-                        RigAnimationSpec.RigTimedAnimationHook.at(80, mob -> {
-                            if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.summonLightningAtGroundedTridents(serverLevel, mob);
-                        })))
+                        List.of(
+                                blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                                blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                                RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> {
+                                    if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob);
+                                }),
+                                blueDemonBothHandEffectHook(24, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                                blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                                blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                                blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                                blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                                blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_THROW_ULT),
+                                RigAnimationSpec.RigTimedAnimationHook.at(80, mob -> {
+                                    if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.summonLightningAtGroundedTridents(serverLevel, mob);
+                                })))
                 .invulnerable()
                 .dangerous()
         );
@@ -981,7 +988,10 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK3, 44, false,
                 RigAttackWindow.of(9, 19, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK4, 39, false,
-                RigAttackWindow.of(5, 15, RIGHT_GREATSWORD)));
+                RigAttackWindow.of(5, 15, RIGHT_GREATSWORD))
+                .onHit((attacker, target, critical) ->
+                        knockUpTarget(target, 2.85D))
+        );
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK5, 41, false,
                 List.of(
                         RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
@@ -1013,45 +1023,45 @@ public final class RigAnimationSpecs {
                 whiteAfterimageHooks(3, 5, 7, 9, 11),
                 RigAttackWindow.of(3, 16, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ULT, 40, false,
-                List.of(
-                        RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                        List.of(
+                                RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
-                            serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_START.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-                            serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-                            serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-                            serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mob.getX(), mob.getY(), mob.getZ(), 15, 0.0D, 0.0D, 0.0D, 0.2D);
-                            serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mob.getX(), mob.getEyeY(), mob.getZ(), 100, 0.0D, 0.0D, 0.0D, 0.5D);
-                        }),
-                        groundSlamTimedHook(10, RigAnimationId.LEGENDARY_SWORD_ULT, 2.0D, 0.8D, 50, 0.6D, 2.5D),
-                        RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                                    serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_START.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                                    serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                                    serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                                    serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mob.getX(), mob.getY(), mob.getZ(), 15, 0.0D, 0.0D, 0.0D, 0.2D);
+                                    serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mob.getX(), mob.getEyeY(), mob.getZ(), 100, 0.0D, 0.0D, 0.0D, 0.5D);
+                                }),
+                                groundSlamTimedHook(10, RigAnimationId.LEGENDARY_SWORD_ULT, 2.0D, 0.8D, 50, 0.6D, 2.5D),
+                                RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
-                            Vec3 legendarySwordPos = RigPoseUtil.getRightWeaponPosition(mob, RigAnimationId.LEGENDARY_SWORD_ULT, 10, 1.5D);
+                                    Vec3 legendarySwordPos = RigPoseUtil.getRightWeaponPosition(mob, RigAnimationId.LEGENDARY_SWORD_ULT, 10, 1.5D);
 
-                            BlockPos centerPos = BlockPos.containing(legendarySwordPos);
-                            for (int radius = 1; radius <= 6; radius++) {
-                                int delayTicks = (radius - 1) * 2;
-                                int ringRadius = radius;
-                                new DelayedTask(delayTicks) {
-                                    @Override
-                                    public void run() {
-                                        if (mob.isRemoved()) return;
-                                        LegendarySwordItem.spawnCircleRing(serverLevel, centerPos, ringRadius, mob);
+                                    BlockPos centerPos = BlockPos.containing(legendarySwordPos);
+                                    for (int radius = 1; radius <= 6; radius++) {
+                                        int delayTicks = (radius - 1) * 2;
+                                        int ringRadius = radius;
+                                        new DelayedTask(delayTicks) {
+                                            @Override
+                                            public void run() {
+                                                if (mob.isRemoved()) return;
+                                                LegendarySwordItem.spawnCircleRing(serverLevel, centerPos, ringRadius, mob);
+                                            }
+                                        };
                                     }
-                                };
-                            }
-                        })),
-                RigAttackWindow.of(10, 20, RIGHT_GREATSWORD))
+                                })),
+                        RigAttackWindow.of(10, 20, RIGHT_GREATSWORD))
                 .invulnerable()
                 .dangerous()
         );
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT, 45, false,
-                List.of(
-                        RigAnimationSpec.RigTimedAnimationHook.at(11, mob -> {
-                            if (mob instanceof AngrySteveEntity angrySteve) angrySteve.startLegendaryAwakening();
-                        })),
-                RigAttackWindow.of(11, 15, RIGHT_GREATSWORD))
+                        List.of(
+                                RigAnimationSpec.RigTimedAnimationHook.at(11, mob -> {
+                                    if (mob instanceof AngrySteveEntity angrySteve) angrySteve.startLegendaryAwakening();
+                                })),
+                        RigAttackWindow.of(11, 15, RIGHT_GREATSWORD))
                 .invulnerable()
                 .dangerous()
         );
@@ -1095,36 +1105,54 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.AEGIS_HEROBRINE_IDLE, 50));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.AEGIS_HEROBRINE_GUARD, 50));
         put(RigAnimationSpec.attack(RigAnimationId.AEGIS_HEROBRINE_ATTACK1, 33, false,
-                RigAttackWindow.of(2, 4, RIGHT_SWORD)));
+                RigAttackWindow.of(2, 10, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.AEGIS_HEROBRINE_ATTACK2, 23, false,
-                emptyHooks(6),
-                RigAttackWindow.of(2, 4, RIGHT_SWORD)));
+                RigAttackWindow.of(2, 12, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.AEGIS_HEROBRINE_ATTACK3, 23, false,
-                RigAttackWindow.of(4, 9, RIGHT_SWORD)));
+                RigAttackWindow.of(4, 15, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.AEGIS_HEROBRINE_ATTACK4, 40, false,
-                emptyHooks(16),
-                RigAttackWindow.of(6, 10, RIGHT_FIST),
-                RigAttackWindow.of(14, 17, RIGHT_SWORD)));
+                RigAttackWindow.of(6, 13, RIGHT_FIST),
+                RigAttackWindow.of(14, 22, RIGHT_SWORD))
+                .damageMultiplier(2.0F)
+                .criticalChance(0.5F)
+        );
         put(RigAnimationSpec.attack(RigAnimationId.AEGIS_HEROBRINE_ATTACK5, 80, false,
-                emptyHooks(11, 19, 21, 22),
-                RigAttackWindow.of(21, 23)));
+                        groundSlamHook(28, RigAnimationId.AEGIS_HEROBRINE_ATTACK5,
+                                1.4D, 1.0D, 50, 1.0D, 3.5D),
+                        RigAttackWindow.of(14, 28, RIGHT_SWORD))
+                .damageMultiplier(2.0F)
+                .criticalChance(0.5F)
+                .onHit((attacker, target, critical) ->
+                        knockUpTarget(target, 1.85D)));
         put(RigAnimationSpec.attack(RigAnimationId.AEGIS_HEROBRINE_DASH_ATTACK, 45, false,
-                RigAttackWindow.of(3, 4, LEFT_FOOT),
-                RigAttackWindow.of(9, 15, LEFT_FOOT)));
+                RigAttackWindow.of(3, 8, LEFT_FOOT),
+                RigAttackWindow.of(9, 20, LEFT_FOOT)));
         put(RigAnimationSpec.attack(RigAnimationId.AEGIS_HEROBRINE_JUMP_ATTACK, 70, true,
-                emptyHooks(13, 27, 53, 65, 69),
-                RigAttackWindow.of(13, 15)));
+                groundSlamHook(18, RigAnimationId.AEGIS_HEROBRINE_JUMP_ATTACK,
+                        1.4D, 1.0D, 50, 1.0D, 3.5D),
+                RigAttackWindow.of(12, 20, RIGHT_SWORD)));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.AEGIS_HEROBRINE_ULT, 13, RigAnimationPlaybackType.DEFAULT,
-                emptyHooks(2)));
+                hookAt(2, mob -> {
+                    if (!(mob.level() instanceof ServerLevel)) return;
+                    if (mob instanceof AegisHerobrineEntity aegisHerobrineEntity) {
+                        aegisHerobrineEntity.fireSecondFormShieldShot();
+                    }
+                })
+        ).dangerous().invulnerable());
         put(RigAnimationSpec.attack(RigAnimationId.AEGIS_HEROBRINE_EXTRA_ATTACK, 33, false,
-                RigAttackWindow.of(4, 5),
-                RigAttackWindow.of(6, 7),
-                RigAttackWindow.of(8, 9),
-                RigAttackWindow.of(10, 11),
-                RigAttackWindow.of(12, 13),
-                RigAttackWindow.of(14, 15),
-                RigAttackWindow.of(16, 17),
-                RigAttackWindow.of(20, 22)));
+                RigAttackWindow.of(4, 5, RIGHT_SWORD),
+                RigAttackWindow.of(6, 7, RIGHT_SWORD),
+                RigAttackWindow.of(8, 9, RIGHT_SWORD),
+                RigAttackWindow.of(10, 11, RIGHT_SWORD),
+                RigAttackWindow.of(12, 13, RIGHT_SWORD),
+                RigAttackWindow.of(14, 15, RIGHT_SWORD),
+                RigAttackWindow.of(16, 17, RIGHT_SWORD),
+                RigAttackWindow.of(20, 22, RIGHT_SWORD))
+                .damageMultiplier(1.2F)
+                .criticalChance(0.3F)
+                .dangerous()
+                .invulnerable()
+        );
 
         put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_ATTACK1, 42, false,
                 RigAttackWindow.of(3, 5, RIGHT_GLAIVE),
@@ -1547,5 +1575,13 @@ public final class RigAnimationSpecs {
 
     private static void put(RigAnimationSpec spec) {
         if (SPECS.put(spec.animationId(), spec) != null) throw new IllegalStateException("Duplicate rig animation spec for " + spec.animationId());
+    }
+
+    private static void knockUpTarget(LivingEntity target, double upwardVelocity) {
+        if (target == null || !target.isAlive()) return;
+
+        Vec3 movement = target.getDeltaMovement();
+        target.setDeltaMovement(movement.x, Math.max(movement.y, upwardVelocity), movement.z);
+        target.hurtMarked = true;
     }
 }

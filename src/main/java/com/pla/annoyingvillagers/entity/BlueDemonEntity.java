@@ -985,14 +985,25 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         if (damagesource.is(DamageTypes.TRIDENT)) return false;
         if (damagesource.is(DamageTypes.WITHER_SKULL)) return false;
         if (damagesource.getDirectEntity() instanceof ThrownPoisonEggEntity) return false;
-        if (damagesource.is(DamageTypes.FELL_OUT_OF_WORLD)
-                || damagesource.is(DamageTypes.GENERIC_KILL)) {
+
+        // Keep void damage as the one hard escape hatch. Everything else, including
+        // /kill (GENERIC_KILL), must respect rig-animation invulnerability and the
+        // Blue Demon phase-transition locks below.
+        if (damagesource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             boolean result = super.hurt(damagesource, f);
             if (result) {
                 this.sayHurtSound(this, damagesource);
             }
             return result;
         }
+
+        if (RigAnimationController.isInvulnerable(this)) {
+            if (this.level() instanceof ServerLevel serverLevel) {
+                CommonUtil.damageBlocked(damagesource, this, serverLevel);
+            }
+            return false;
+        }
+
         if (this.level() instanceof ServerLevel serverLevel && (this.getState() == 2 || this.getState() == 1)) {
             CommonUtil.damageBlocked(damagesource, this, serverLevel);
             return false;
@@ -1003,6 +1014,14 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
                 CommonUtil.damageBlocked(damagesource, this, serverLevel);
             }
             return false;
+        }
+
+        if (damagesource.is(DamageTypes.GENERIC_KILL)) {
+            boolean result = super.hurt(damagesource, f);
+            if (result) {
+                this.sayHurtSound(this, damagesource);
+            }
+            return result;
         }
         if (ignoreDamageForSomeEpicFightAnimation()) {
             boolean result = super.hurt(damagesource, f);
@@ -1637,6 +1656,7 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 
     public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
         SpawnGroupData data = super.finalizeSpawn(serverlevelaccessor, difficultyinstance, mobspawntype, spawngroupdata, compoundtag);
+        this.setLeftHanded(false);
         if (!this.level().isClientSide()) {
             TeamUtil.addOrJoinTeam(this, "blue_demon");
         }
@@ -1730,6 +1750,11 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 //        }
 
 //        CREATE VANILLA_ANIMATION
+        // Do not restart the festival and replace its ActiveAnimationState. Replacing
+        // that state cancels the old timed hooks, which can strand Blue Demon at 1 HP.
+        if (RigAnimationController.getActiveAnimationId(this) == RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL) {
+            return;
+        }
         RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL);
     }
 

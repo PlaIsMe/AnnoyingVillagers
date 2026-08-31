@@ -8,12 +8,14 @@ import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.entity.goal.HerobrineHealingGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigStunEscapeEntity;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.network.ClientboundHerobrineAssistanceFx;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
@@ -150,26 +152,77 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
     private Entity fourthPossessedHerobrine;
     private UUID fourthPossessedHerobrineUuid;
 
+    private static final int MIN_SECOND_FORM_COOLDOWN_TICKS = 600;
+    private static final int RANDOM_SECOND_FORM_COOLDOWN_TICKS = 601;
+
     // 0: normal
-    // 1: can trigger second form hit
+    // 1: limited second-form actions
     // 2: fully in second form
     private int state = 0;
     private int secondFormHitLeft;
+    private int secondFormCooldown;
 
     public int getState() {
-        return state;
+        return this.state;
     }
 
     public void setState(int state) {
         this.state = state;
     }
 
-    public void setSecondFormHitLeft(int secondFormHitLeft) {
-        this.secondFormHitLeft = secondFormHitLeft;
+    public int getSecondFormHitLeft() {
+        return this.secondFormHitLeft;
     }
 
-    public int getSecondFormHitLeft() {
-        return secondFormHitLeft;
+    public void setSecondFormHitLeft(int secondFormHitLeft) {
+        this.secondFormHitLeft = Math.max(0,secondFormHitLeft);
+    }
+
+    public int getSecondFormCooldown() {
+        return this.secondFormCooldown;
+    }
+
+    public void setSecondFormCooldown(int secondFormCooldown) {
+        this.secondFormCooldown = Math.max(0,secondFormCooldown);
+    }
+
+    public void resetSecondFormCooldown() {
+        this.secondFormCooldown = MIN_SECOND_FORM_COOLDOWN_TICKS + this.getRandom().nextInt(RANDOM_SECOND_FORM_COOLDOWN_TICKS);
+    }
+
+    public boolean canStartSecondFormAction() {
+        return switch (this.state) {
+            case 0 -> this.secondFormCooldown == 0 && this.secondFormHitLeft == 0;
+            case 1 -> this.secondFormHitLeft > 0;
+            case 2 -> true;
+            default -> false;
+        };
+    }
+
+    public boolean canUseSecondFormAction() {
+        return this.state == 2 || this.state == 1 && this.secondFormHitLeft > 0;
+    }
+
+    public boolean beginSecondFormActionWindow() {
+        if (this.state != 0) return false;
+        if (this.secondFormCooldown > 0 || this.secondFormHitLeft > 0) return false;
+        this.state = 1;
+        this.secondFormHitLeft = 2 + this.getRandom().nextInt(2);
+        this.onSecondFormActionWindowOpened();
+        return true;
+    }
+
+    public void consumeSecondFormAction() {
+        if (this.state != 1 || this.secondFormHitLeft <= 0) return;
+        this.secondFormHitLeft--;
+        if (this.secondFormHitLeft <= 0) {
+            this.secondFormHitLeft = 0;
+            this.state = 0;
+            this.resetSecondFormCooldown();
+        }
+    }
+
+    protected void onSecondFormActionWindowOpened() {
     }
 
     public void setHealingCooldown() {
@@ -194,6 +247,15 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
 
     public Entity getFourthPossessedHerobrine() {
         return fourthPossessedHerobrine;
+    }
+
+    public List<Entity> getAliveBoundPossessedHerobrines() {
+        List<Entity> bound = new ArrayList<>(4);
+        if (this.firstPossessedHerobrine != null && this.firstPossessedHerobrine.isAlive()) bound.add(this.firstPossessedHerobrine);
+        if (this.secondPossessedHerobrine != null && this.secondPossessedHerobrine.isAlive()) bound.add(this.secondPossessedHerobrine);
+        if (this.thirdPossessedHerobrine != null && this.thirdPossessedHerobrine.isAlive()) bound.add(this.thirdPossessedHerobrine);
+        if (this.fourthPossessedHerobrine != null && this.fourthPossessedHerobrine.isAlive()) bound.add(this.fourthPossessedHerobrine);
+        return bound;
     }
 
     public int getSacrificingAnimationCooldown() {
@@ -305,6 +367,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         this.setPathfindingMalus(BlockPathTypes.LAVA, 0.0F);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 0.0F);
         this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, 0.0F);
+        this.resetSecondFormCooldown();
     }
 
     public static class AnyFluidPathNavigation extends GroundPathNavigation {
@@ -383,6 +446,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         super.registerGoals();
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
         CommonGoals.registerDangerousReactionGoals(this);
+        this.goalSelector.addGoal(1, new HerobrineHealingGoal(this));
         this.goalSelector.addGoal(1, new Goal() {
             @Override
             public boolean canUse() {
@@ -668,7 +732,8 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         healing = pCompound.getBoolean("Healing");
         sacrificingAnimationCooldown = pCompound.getInt("SacrificingAnimationCooldown");
         state = pCompound.getInt("State");
-        secondFormHitLeft = pCompound.getInt("SecondFormHitLeft");
+        secondFormHitLeft = Math.max(0,pCompound.getInt("SecondFormHitLeft"));
+        if (pCompound.contains("SecondFormCooldown")) secondFormCooldown = Math.max(0,pCompound.getInt("SecondFormCooldown"));
         healingCooldown = pCompound.getInt("HealingCooldown");
         voiceCooldown = pCompound.getInt("VoiceCooldown");
     }
@@ -717,6 +782,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         pCompound.putInt("SacrificingAnimationCooldown", sacrificingAnimationCooldown);
         pCompound.putInt("State", state);
         pCompound.putInt("SecondFormHitLeft", secondFormHitLeft);
+        pCompound.putInt("SecondFormCooldown", secondFormCooldown);
         pCompound.putInt("HealingCooldown", healingCooldown);
         pCompound.putInt("VoiceCooldown", this.voiceCooldown);
     }
@@ -814,8 +880,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
 //        if (this.getLivingEntityPatch() != null) {
 //            this.getLivingEntityPatch().applyStun(StunType.FALL, 0.0F);
 //        }
-
-//        Create VANILLA_ANIMATION
+        RigStunController.applyLanding(this);
     }
 
     private void recoverAfterSacrificing() {
@@ -953,7 +1018,15 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
 //            }
 //        }
 
-//        Create VANILLA_ANIMATION
+        if (!this.level().isClientSide()) {
+            if (this instanceof ReaperHerobrineEntity || this instanceof GlaiveHerobrineEntity) {
+                RigAnimationController.play(this, RigAnimationId.SPINNING_WEAPON);
+            } else if (this instanceof TransporterHerobrineCloneEntity) {
+                RigAnimationController.play(this, RigAnimationId.PORTAL_SUMMON);
+            } else if (!(this instanceof SledgehammerHerobrineEntity) && !(this instanceof SwordsmanHerobrineEntity) && !(this instanceof AegisHerobrineEntity)) {
+                RigAnimationController.play(this, RigAnimationId.HEROBRINE_ANIMATE);
+            }
+        }
     }
 
     private void playStageChangeAnimation() {
@@ -963,7 +1036,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
 //            this.getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_STAGE_CHANGE, 0.0F);
 //        }
 
-//        Create VANILLA_ANIMATION
+        if (!this.level().isClientSide()) {
+            RigAnimationController.play(this, RigAnimationId.HEROBRINE_STAGE_CHANGE);
+        }
     }
 
     @Override
@@ -975,6 +1050,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             this.tickVoiceCooldown();
             if (stunEscapeCooldown > 0) stunEscapeCooldown--;
             if (swapWeaponCooldown > 0) swapWeaponCooldown--;
+            if (this.secondFormCooldown > 0) this.secondFormCooldown--;
 
             CommonUtil.stunEscapeAi(this);
 
@@ -1196,8 +1272,10 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                     nullEntity.setSpinningToAllWeaponsAvailableFor5seconds();
                 }
             }
-            if (this.secondFormHitLeft == 0 && this.state == 1) {
+            if (this.secondFormHitLeft <= 0 && this.state == 1) {
+                this.secondFormHitLeft = 0;
                 this.state = 0;
+                this.resetSecondFormCooldown();
             }
         }
     }
@@ -1337,6 +1415,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         }
 
         SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, compoundTag);
+        this.setLeftHanded(false);
         HerobrineUtil.initialSpawn(serverLevelAccessor, this, recallTicks, mobSpawnType);
         return returnSpawnGroupData;
     }
@@ -1347,3 +1426,4 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         this.heal(this.getMaxHealth() / 10);
     }
 }
+

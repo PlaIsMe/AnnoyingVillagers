@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.clazz;
 import com.pla.annoyingvillagers.client.layer.RigArmorLayer;
 import com.pla.annoyingvillagers.client.layer.RigArrowLayer;
 import com.pla.annoyingvillagers.client.layer.RigItemInHandLayer;
+import com.pla.annoyingvillagers.client.layer.HumanoidMobVanillaLayer;
 import com.pla.annoyingvillagers.client.model.ModelRig;
 import com.pla.annoyingvillagers.client.model.ModelRigArmor;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -38,6 +39,7 @@ public abstract class RigMobRenderer<T extends Mob> extends HumanoidMobRenderer<
         if (addArrowLayer) {
             this.addLayer(new RigArrowLayer<T>(context, this));
         }
+        this.addLayer(new HumanoidMobVanillaLayer<>(this));
     }
 
     @Override

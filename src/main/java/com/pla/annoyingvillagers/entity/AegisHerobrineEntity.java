@@ -5,7 +5,8 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.EnderAegisItem;
-import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
+import com.pla.annoyingvillagers.entity.goal.EliteHerobrineSecondFormGoal;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -43,24 +44,36 @@ public class AegisHerobrineEntity extends HerobrineMob {
         return AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY.get();
     }
 
-    private void playInitAnimation() {
-//      ADD THIS CODE IN AV_EFM
+    @Override
+    public boolean shouldIgnoreBurstProtection(LivingEntity self,DamageSource source) {
+        return false;
+    }
 
-//        final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
-//        if (livingentitypatch != null) {
-//            livingentitypatch.playAnimationSynchronized(AnimsEpicFight.SHIELD_MAINHAND, 0.0F);
-//        }
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(0,new EliteHerobrineSecondFormGoal<>(this,RigAnimationId.AEGIS_HEROBRINE_ULT,aegis -> aegis.getMainHandItem().getItem() instanceof EnderAegisItem));
+    }
 
-//        Create VANILLA_ANIMATION
+    @Override
+    protected void onSecondFormActionWindowOpened() {
+        this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_WEAPON_SCREAMING.get(),0.5F,1.0F);
+    }
+
+    /**
+     * Aegis-specific second-form effect used by the ULT hook and successful Aegis guards.
+     * HerobrineMob owns the state/budget; state 2 therefore remains unlimited.
+     */
+    public void fireSecondFormShieldShot() {
+        if (!this.canUseSecondFormAction()) return;
+        EnderAegisItem.shieldShoot(this.level(),this);
+        this.consumeSecondFormAction();
     }
 
     @Override
     public void tick() {
         super.tick();
         if (!this.level().isClientSide()) {
-            if (this.tickCount == 5 && this.getPersistentData().getBoolean("init_animation")) {
-                playInitAnimation();
-            }
             if (this.tickCount % 20 == 0) {
                 ItemStack itemStack = this.getMainHandItem();
                 if (this.getState() > 0) {
@@ -130,8 +143,8 @@ public class AegisHerobrineEntity extends HerobrineMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
-                .add(Attributes.ARMOR, 10.0D)
-                .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
+                .add(Attributes.ARMOR, 50.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 40.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
         return addEpicFightAttributes(builder);
     }

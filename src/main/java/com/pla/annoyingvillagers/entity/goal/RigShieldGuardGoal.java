@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigShieldGuardController;
 import com.pla.annoyingvillagers.util.RidingUtil;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -18,15 +19,16 @@ import java.util.EnumSet;
 public class RigShieldGuardGoal extends Goal {
     private static final double GUARD_MOVE_SPEED = 0.45D;
     private static final double APPROACH_DISTANCE_SQR = 7.0D * 7.0D;
-    private static final int MIN_GUARD_TICKS = 24;
-    private static final int RANDOM_GUARD_TICKS = 33;
-    private static final int MIN_COOLDOWN_TICKS = 80;
-    private static final int RANDOM_COOLDOWN_TICKS = 160;
-    private static final int MIN_HITS_BEFORE_CANCEL = 1;
+    private static final float BODY_TURN_SPEED_DEGREES = 20.0F;
+    private static final int MIN_GUARD_TICKS = 30;
+    private static final int RANDOM_GUARD_TICKS = 31;
+    private static final int MIN_COOLDOWN_TICKS = 60;
+    private static final int RANDOM_COOLDOWN_TICKS = 100;
+    private static final int MIN_HITS_BEFORE_CANCEL = 2;
     private static final int RANDOM_HITS_BEFORE_CANCEL = 2;
-    private static final int START_CHECK_INTERVAL_TICKS = 8;
-    private static final float RANGED_THREAT_GUARD_CHANCE = 0.62F;
-    private static final float REGULAR_GUARD_CHANCE = 0.18F;
+    private static final int START_CHECK_INTERVAL_TICKS = 6;
+    private static final float RANGED_THREAT_GUARD_CHANCE = 0.75F;
+    private static final float REGULAR_GUARD_CHANCE = 0.35F;
 
     private final PathfinderMob mob;
     private LivingEntity target;
@@ -48,7 +50,9 @@ public class RigShieldGuardGoal extends Goal {
         if (!this.canTryGuard()) {
             return false;
         }
-        if (this.mob.tickCount % START_CHECK_INTERVAL_TICKS != 0) {
+        boolean attackChainReady = RigAnimationController.hasActiveProfileAttack(this.mob)
+                && RigAnimationController.isAttackChainReady(this.mob);
+        if (!attackChainReady && this.mob.tickCount % START_CHECK_INTERVAL_TICKS != 0) {
             return false;
         }
 
@@ -73,7 +77,7 @@ public class RigShieldGuardGoal extends Goal {
                 && !this.mob.isRemoved()
                 && !this.mob.isDeadOrDying()
                 && !this.mob.isNoAi()
-                && RigShieldGuardController.hasOffhandShield(this.mob)
+                && RigShieldGuardController.hasGuardItem(this.mob)
                 && RigShieldGuardController.isGuarding(this.mob);
     }
 
@@ -84,7 +88,7 @@ public class RigShieldGuardGoal extends Goal {
 
     @Override
     public void start() {
-        if (this.target == null || !RigShieldGuardController.hasOffhandShield(this.mob)) {
+        if (this.target == null || !RigShieldGuardController.hasGuardItem(this.mob)) {
             this.target = null;
             return;
         }
@@ -133,12 +137,21 @@ public class RigShieldGuardGoal extends Goal {
                 && !this.mob.isOnFire()
                 && !(this.mob instanceof AVNpc avNpc && avNpc.isHealing())
                 && !RigShieldGuardController.isGuarding(this.mob)
-                && !RigAnimationController.hasActiveAnimation(this.mob)
-                && RigShieldGuardController.hasOffhandShield(this.mob)
+                && canInterruptForGuard()
+                && RigShieldGuardController.hasGuardItem(this.mob)
                 && currentTarget != null
                 && currentTarget.isAlive()
                 && !currentTarget.isRemoved()
                 && !currentTarget.isDeadOrDying();
+    }
+
+
+    private boolean canInterruptForGuard() {
+        if (!RigAnimationController.hasActiveAnimation(this.mob)) {
+            return true;
+        }
+        return RigAnimationController.hasActiveProfileAttack(this.mob)
+                && RigAnimationController.isAttackChainReady(this.mob);
     }
 
     private void updateMovement() {
@@ -147,7 +160,7 @@ public class RigShieldGuardGoal extends Goal {
             return;
         }
 
-        RidingUtil.lookAtTarget(this.mob, this.target, 70.0F, 70.0F);
+        this.faceTargetWithBody();
         if (DangerousReaction.hasDangerousTarget(this.mob)) {
             RidingUtil.stopNavigation(this.mob);
             return;
@@ -157,6 +170,19 @@ public class RigShieldGuardGoal extends Goal {
         } else {
             RidingUtil.stopNavigation(this.mob);
         }
+    }
+
+    private void faceTargetWithBody() {
+        RidingUtil.lookAtTarget(this.mob,this.target,70.0F,70.0F);
+
+        double dx = this.target.getX() - this.mob.getX();
+        double dz = this.target.getZ() - this.mob.getZ();
+        if (dx * dx + dz * dz < 1.0E-7D) return;
+
+        float targetYaw = (float)(Mth.atan2(dz,dx) * Mth.RAD_TO_DEG) - 90.0F;
+        float bodyYaw = Mth.approachDegrees(this.mob.getYRot(),targetYaw,BODY_TURN_SPEED_DEGREES);
+        this.mob.setYRot(bodyYaw);
+        this.mob.setYBodyRot(bodyYaw);
     }
 
     private boolean isRangedThreat(LivingEntity target) {

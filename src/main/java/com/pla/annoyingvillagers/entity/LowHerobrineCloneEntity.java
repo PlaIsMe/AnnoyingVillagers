@@ -2,9 +2,12 @@ package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
+import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import net.minecraft.nbt.CompoundTag;
@@ -19,7 +22,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -28,8 +30,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages;
@@ -42,7 +46,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
-public class LowHerobrineCloneEntity extends FakePlayer {
+public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectEntity {
     private boolean summoned = false;
     private boolean initialSpawn = true;
     private boolean autoKill = false;
@@ -111,6 +115,11 @@ public class LowHerobrineCloneEntity extends FakePlayer {
 
     public LowHerobrineCloneEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(), level);
+    }
+
+    @Override
+    public boolean shouldIgnoreBurstProtection(LivingEntity self,DamageSource source) {
+        return true;
     }
 
     public boolean hurt(@NotNull DamageSource damageSource, float f) {
@@ -320,14 +329,15 @@ public class LowHerobrineCloneEntity extends FakePlayer {
         pCompound.putBoolean("Healing", healing);
     }
 
-    private void playHerobrinePossessionAnimation() {
+    private void playHerobrineHealingAnimations() {
 //      ADD THIS CODE IN AV_EFM
 //        final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
 //        if (livingentitypatch != null && !this.level().isClientSide()) {
-//            livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.PLAYER_HEROBRINE_POSSESSION, 0.0F);
+//            livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_SACRIFICING, 0.0F);
 //        }
 
 //        Create VANILLA_ANIMATION
+        if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.HEROBRINE_SACRIFICING) RigAnimationController.play(this, RigAnimationId.HEROBRINE_SACRIFICING);
     }
 
     @Override
@@ -346,7 +356,6 @@ public class LowHerobrineCloneEntity extends FakePlayer {
                     if (this.summoned) {
                         this.setNoAi(true);
                     }
-
                     this.initialSpawn = false;
                 }
             }
@@ -415,7 +424,7 @@ public class LowHerobrineCloneEntity extends FakePlayer {
                     this.kill();
                 }
                 CommonUtil.stunImmunity(this, 3, 3);
-                playHerobrinePossessionAnimation();
+                playHerobrineHealingAnimations();
                 if (this.tickCount % 140 == 0 && this.possessedByEntity.getHealth() < this.possessedByEntity.getMaxHealth() * 0.8) {
                     if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
                         this.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);

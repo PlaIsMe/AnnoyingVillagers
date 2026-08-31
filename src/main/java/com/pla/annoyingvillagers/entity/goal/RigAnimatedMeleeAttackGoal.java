@@ -87,7 +87,11 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
     @Override
     public boolean isInterruptable() {
-        return !RigAnimationController.hasActiveAnimation(this.mob);
+        if (!RigAnimationController.hasActiveAnimation(this.mob)) {
+            return true;
+        }
+        return RigAnimationController.hasActiveProfileAttack(this.mob)
+                && RigAnimationController.isAttackChainReady(this.mob);
     }
 
     @Override

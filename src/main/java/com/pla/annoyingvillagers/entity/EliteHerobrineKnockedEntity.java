@@ -4,6 +4,8 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
@@ -129,6 +131,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements RigStu
     public boolean hurt(DamageSource pSource, float pAmount) {
         if (pSource.getEntity() instanceof HerobrineWardenEntity) {
             eatCount = eatCount + 1;
+            playBeingEatenAnimation();
             if (this.level() instanceof ServerLevel serverLevel) {
                 if (this.eatCount == 1) {
                     if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
@@ -206,6 +209,12 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements RigStu
 //        }
 
 //        Create VANILLA_ANIMATION
+        RigAnimationId animationId = this.eatCount <= 2 ? RigAnimationId.EATING_ELITE_1 : this.eatCount <= 4 ? RigAnimationId.EATING_ELITE_2 : this.eatCount <= 6 ? RigAnimationId.EATING_ELITE_3 : RigAnimationId.EATING_ELITE_4;
+        RigAnimationController.play(this,animationId);
+    }
+
+    private void ensureKnockedAnimation() {
+        if (!RigAnimationController.hasActiveAnimation(this)) RigAnimationController.playHeldPose(this,RigAnimationId.KNOCKED_ELITE);
     }
 
     @Override
@@ -223,7 +232,8 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements RigStu
                 this.wardenCallingCooldown = this.wardenCallingCooldown - 1;
             }
 
-            CommonUtil.stunImmunity(this, 3, 3);
+            CommonUtil.stunImmunity(this,3,3);
+            ensureKnockedAnimation();
             if (this.wardenCallingCooldown == 0) {
                 ServerLevel level = (ServerLevel) this.level();
                 HerobrineWardenEntity warden =

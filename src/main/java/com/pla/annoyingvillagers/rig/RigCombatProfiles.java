@@ -11,9 +11,9 @@ import java.util.Map;
 
 public final class RigCombatProfiles {
     private static final Map<RigCombatStyle, RigCombatProfile> PROFILES = new EnumMap<>(RigCombatStyle.class);
-    private static final double SPECIAL_ATTACK_CHANCE = 0.25D;
-    private static final double ROLLING_CHANCE = 0.20D;
-    private static final double ULTIMATE_CHANCE = 0.15D;
+    private static final double SPECIAL_ATTACK_CHANCE = 0.15D;
+    private static final double ROLLING_CHANCE = 0.15D;
+    private static final double ULTIMATE_CHANCE = 0.10D;
 
     public static RigLocomotionStyle getLocomotionStyle(Mob mob) {
         RigCombatProfile profile = getCombatProfile(mob);
@@ -610,7 +610,7 @@ public final class RigCombatProfiles {
                 List.of(RigAnimationId.BLUE_DEMON_ULT, RigAnimationId.BLUE_DEMON_THROW_ULT),
                 SPECIAL_ATTACK_CHANCE,
                 ROLLING_CHANCE,
-                ULTIMATE_CHANCE * 2,
+                ULTIMATE_CHANCE * 1.5,
                 RigLocomotionStyle.DEFAULT
         ));
 
@@ -630,7 +630,7 @@ public final class RigCombatProfiles {
                 List.of(RigAnimationId.LEGENDARY_SWORD_ULT, RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT, RigAnimationId.BLUE_DEMON_ULT),
                 SPECIAL_ATTACK_CHANCE,
                 ROLLING_CHANCE,
-                ULTIMATE_CHANCE * 2,
+                ULTIMATE_CHANCE * 1.5,
                 RigLocomotionStyle.LEGENDARY_SWORD
         ));
 
@@ -650,7 +650,7 @@ public final class RigCombatProfiles {
                 List.of(RigAnimationId.LEGENDARY_SWORD_ULT),
                 SPECIAL_ATTACK_CHANCE,
                 ROLLING_CHANCE,
-                ULTIMATE_CHANCE * 2,
+                ULTIMATE_CHANCE * 1.5,
                 RigLocomotionStyle.LEGENDARY_SWORD
         ));
 
@@ -671,7 +671,7 @@ public final class RigCombatProfiles {
                         RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT),
                 SPECIAL_ATTACK_CHANCE,
                 ROLLING_CHANCE,
-                ULTIMATE_CHANCE * 2,
+                ULTIMATE_CHANCE * 1.5,
                 RigLocomotionStyle.LEGENDARY_SWORD
         ));
 
@@ -691,8 +691,27 @@ public final class RigCombatProfiles {
                 List.of(RigAnimationId.LEGENDARY_SWORD_ULT, RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT),
                 SPECIAL_ATTACK_CHANCE,
                 ROLLING_CHANCE,
-                ULTIMATE_CHANCE * 2,
+                ULTIMATE_CHANCE * 1.5,
                 RigLocomotionStyle.LEGENDARY_SWORD
+        ));
+
+        PROFILES.put(RigCombatStyle.AEGIS_HEROBRINE, new RigCombatProfile(
+                List.of(RigAnimationId.AEGIS_HEROBRINE_ATTACK1, RigAnimationId.AEGIS_HEROBRINE_ATTACK2, RigAnimationId.AEGIS_HEROBRINE_ATTACK3,
+                        RigAnimationId.AEGIS_HEROBRINE_ATTACK4, RigAnimationId.AEGIS_HEROBRINE_ATTACK5),
+                List.of(RigAnimationId.AEGIS_HEROBRINE_DASH_ATTACK, RigAnimationId.AEGIS_HEROBRINE_JUMP_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.AEGIS_HEROBRINE_EXTRA_ATTACK),
+                SPECIAL_ATTACK_CHANCE,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE * 1.2,
+                RigLocomotionStyle.AEGIS_HEROBRINE
         ));
     }
 

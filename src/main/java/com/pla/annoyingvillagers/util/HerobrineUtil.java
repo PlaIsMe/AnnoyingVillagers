@@ -1240,8 +1240,8 @@ public class HerobrineUtil {
         if (!(world instanceof Level level) || level.isClientSide()) return;
 
         Item[] items = new Item[] {
-                Items.DIAMOND, Items.DIAMOND, Items.IRON_INGOT, Items.EMERALD, Items.EMERALD, Items.EMERALD, Items.EMERALD,
-                Items.NETHERITE_INGOT, Items.ENDER_PEARL, Items.GOLDEN_APPLE
+                Items.OBSIDIAN, Items.OBSIDIAN, Items.IRON_INGOT, Items.DIAMOND, Items.DIAMOND, Items.CRYING_OBSIDIAN, Items.CRYING_OBSIDIAN,
+                Items.NETHERITE_SCRAP, Items.ENDER_PEARL, Items.GOLDEN_APPLE
         };
 
         for (Item item : items) {

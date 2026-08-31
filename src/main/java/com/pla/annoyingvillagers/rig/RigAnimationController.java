@@ -312,7 +312,16 @@ public final class RigAnimationController {
                  KICK_ATTACK3,
                  KICK_ATTACK4,
                  KICK_COMBO_ATTACK,
-                 KICK_DASH_ATTACK -> true;
+                 KICK_DASH_ATTACK,
+                 AEGIS_HEROBRINE_ATTACK1,
+                 AEGIS_HEROBRINE_ATTACK2,
+                 AEGIS_HEROBRINE_ATTACK3,
+                 AEGIS_HEROBRINE_ATTACK4,
+                 AEGIS_HEROBRINE_ATTACK5,
+                 AEGIS_HEROBRINE_DASH_ATTACK,
+                 AEGIS_HEROBRINE_JUMP_ATTACK,
+                 AEGIS_HEROBRINE_EXTRA_ATTACK,
+                 AEGIS_HEROBRINE_ULT -> true;
             default -> false;
         };
     }

@@ -7,5 +7,6 @@ public enum RigLocomotionStyle {
     CRAFTING_TABLE,
     SPEAR,
     TACHI,
-    LEGENDARY_SWORD
+    LEGENDARY_SWORD,
+    AEGIS_HEROBRINE
 }

@@ -3,12 +3,15 @@ package com.pla.annoyingvillagers.entity;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
+import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -23,7 +26,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
@@ -34,9 +36,11 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
@@ -49,7 +53,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
-public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnableEntity {
+public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnableEntity, BurstProtectEntity {
     private boolean summoned = false;
     private boolean initialSpawn = true;
     private EliteHerobrineKnockedEntity protectEntity;
@@ -229,6 +233,11 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
         return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
     }
 
+    @Override
+    public boolean shouldIgnoreBurstProtection(LivingEntity self,DamageSource source) {
+        return true;
+    }
+
     public boolean hurt(@NotNull DamageSource damageSource, float f) {
         if (sacrificing || healing) {
             if (new Random().nextBoolean()
@@ -340,9 +349,10 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
 //        }
 
 //        Create VANILLA_ANIMATION
+        if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.PLAYER_HEROBRINE_POSSESSION) RigAnimationController.play(this,RigAnimationId.PLAYER_HEROBRINE_POSSESSION);
     }
 
-    private void playAssistanceOrSacrifyingAnimation() {
+    private void playAssistanceOrSacrificingAnimation() {
 //      ADD THIS CODE IN AV_EFM
 //        if (this.livingentitypatch != null && !this.isDeadOrDying() && this.isAlive()) {
 //            if (this.sacrificing) {
@@ -352,6 +362,8 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
 //            }
 //        }
 //        Create VANILLA_ANIMATION
+        RigAnimationId animationId = this.sacrificing ? RigAnimationId.HEROBRINE_ASSISTANCE : this.healing ? RigAnimationId.HEROBRINE_SACRIFICING : null;
+        if (animationId != null && RigAnimationController.getActiveAnimationId(this) != animationId) RigAnimationController.play(this,animationId);
     }
 
     @Override
@@ -451,7 +463,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                     this.kill();
                 }
                 CommonUtil.stunImmunity(this, 3, 3);
-                playAssistanceOrSacrifyingAnimation();
+                playAssistanceOrSacrificingAnimation();
                 if (this.tickCount % 140 == 0 && this.possessedByEntity.getHealth() < this.possessedByEntity.getMaxHealth() * 0.8) {
                     this.playSound(AnnoyingVillagersModSounds.HEROBRINE_UNDERSTOOD.get(), 0.5F, 1.0F);
                 }
@@ -543,19 +555,20 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                     this.kill();
                 }
 
-                CommonUtil.stunImmunity(this, 3 , 3);
-                playHerobrinePossessionAnimation();
+                CommonUtil.stunImmunity(this,3,3);
+                playLowCloneEscapeAnimation();
             }
         }
     }
 
-    private static void playLowCloneEscapeAnimation() {
+    private void playLowCloneEscapeAnimation() {
 //      ADD THIS CODE IN AV_EFM
 //        if (this.livingentitypatch != null) {
 //            this.livingentitypatch.playAnimationSynchronized(AVAnimations.LOW_CLONE_ESCAPE, 0.0F);
 //        }
 
 //        ADD VANILLA_ANIMATION
+        if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.LOW_CLONE_ESCAPE) RigAnimationController.play(this,RigAnimationId.LOW_CLONE_ESCAPE);
     }
 
     private static Vec3 getSacrificingArmPosition(Entity entity, @Nullable Vec3 translation, HumanoidArm arm) {

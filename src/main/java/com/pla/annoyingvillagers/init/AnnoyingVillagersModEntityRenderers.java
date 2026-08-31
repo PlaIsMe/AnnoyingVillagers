@@ -38,7 +38,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.ARMORED_HEROBRINE.get(), ArmoredHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.STEVE.get(), SteveRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.ANGRY_STEVE.get(), AngrySteveRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), FakePlayerRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), InfectedPlayerNpcRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.INFECTED_THEMOSTMOISTBURRIT0.get(), InfectedTheMostMoistBurrit0Renderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SHADOW_HEROBRINE.get(), ShadowHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.GLAIVE_HEROBRINE.get(), EliteHerobrineRenderer::new);
@@ -50,7 +50,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.AEGIS_HEROBRINE.get(), EliteHerobrineRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.DRAGON_BEAM.get(), DragonBeamRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.ELITE_HEROBRINE_KNOCKED.get(), EliteHerobrineKnockedRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(), FakePlayerRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(), LowHerobrineCloneRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), LowShadowHerobrineCloneRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.NULL.get(), NullRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.NULL_SWORD.get(), NullWeaponRenderer::new);

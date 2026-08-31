@@ -286,6 +286,11 @@ public class ModelRigVillager<T extends Mob> extends HumanoidModel<T> {
             return;
         }
 
+        if (entity.isNoAi()) {
+            this.applyLoopingAnimation(AnimationUtil.getIdleAnimation(entity), ageInTicks, 1.0F, weight);
+            return;
+        }
+
         if (forceWalk) {
             this.applyLoopingAnimation(LivingAnimations.WALK, ageInTicks, 1.0F, weight);
             return;

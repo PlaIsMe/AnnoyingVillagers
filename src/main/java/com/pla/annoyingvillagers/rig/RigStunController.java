@@ -77,6 +77,7 @@ public final class RigStunController {
     }
 
     public static boolean applyStun(Mob mob, RigAnimationId animationId) {
+        if (animationId == RigAnimationId.LANDING) return applyLanding(mob);
         if (animationId == RigAnimationId.STUN_BACK) return applyStunBack(mob);
         if (isKnockdownAnimation(animationId)) return applyKnockdown(mob, animationId);
         if (isHitAnimation(animationId)) return applyHitAnimation(mob, animationId);
@@ -86,6 +87,11 @@ public final class RigStunController {
 
     public static boolean applyStunBack(Mob mob) {
         return applyStun(mob);
+    }
+
+    public static boolean applyLanding(Mob mob) {
+        if (!canStun(mob) || isStunned(mob)) return false;
+        return applyInternal(mob, RigAnimationId.LANDING, 1, null, false, false);
     }
 
     public static boolean applyShock(Mob mob, boolean longShock) {
@@ -229,7 +235,7 @@ public final class RigStunController {
     }
 
     private static boolean isHurtStableAnimation(RigAnimationId animationId) {
-        return animationId == RigAnimationId.STUN_BACK || animationId == RigAnimationId.SUPER_KNOCK_BACK || animationId == RigAnimationId.LEGENDARY_SWORD_KNOCKDOWN || animationId == RigAnimationId.SHOCKED || animationId == RigAnimationId.SHOCKED_LONG;
+        return animationId == RigAnimationId.STUN_BACK || animationId == RigAnimationId.SUPER_KNOCK_BACK || animationId == RigAnimationId.LEGENDARY_SWORD_KNOCKDOWN || animationId == RigAnimationId.SHOCKED || animationId == RigAnimationId.SHOCKED_LONG || animationId == RigAnimationId.LANDING;
     }
 
     private static boolean isHitAnimation(RigAnimationId animationId) {
@@ -245,7 +251,7 @@ public final class RigStunController {
     }
 
     static boolean isStunAnimation(RigAnimationId animationId) {
-        return isHitAnimation(animationId) || isKnockdownAnimation(animationId) || isShockAnimation(animationId) || animationId == RigAnimationId.KNOCKDOWN_WAKEUP_LEFT || animationId == RigAnimationId.KNOCKDOWN_WAKEUP_RIGHT;
+        return isHitAnimation(animationId) || isKnockdownAnimation(animationId) || isShockAnimation(animationId) || animationId == RigAnimationId.LANDING || animationId == RigAnimationId.KNOCKDOWN_WAKEUP_LEFT || animationId == RigAnimationId.KNOCKDOWN_WAKEUP_RIGHT;
     }
 
     private static RigAnimationId randomKnockdown(Mob mob) {

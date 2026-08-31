@@ -5,6 +5,9 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.animation.RigAnimationResolver;
 import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.LivingAnimations;
+import com.pla.annoyingvillagers.entity.InfectedChrisEntity;
+import com.pla.annoyingvillagers.entity.InfectedPlayerNpcEntity;
+import com.pla.annoyingvillagers.entity.InfectedTheMostMoistBurrit0Entity;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigAnimationPlaybackType;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
@@ -246,7 +249,13 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         if (entity.isDeadOrDying() || entity.deathTime > 0) {
             float partialTick = Math.max(0.0F, Math.min(1.0F, ageInTicks - entity.tickCount));
             float deathElapsedTicks = Math.max(0.0F, entity.deathTime - 1.0F + partialTick);
-            this.applyAnimationFromStart(LivingAnimations.DEATH, deathElapsedTicks, 1.0F, 1.0F);
+            if (entity instanceof InfectedPlayerNpcEntity
+                    || entity instanceof InfectedChrisEntity
+                    || entity instanceof InfectedTheMostMoistBurrit0Entity) {
+                this.applyAnimationFromStart(LivingAnimations.LAYING_DEATH_DEAD, deathElapsedTicks, 1.0F, 1.0F);
+            } else {
+                this.applyAnimationFromStart(LivingAnimations.DEATH, deathElapsedTicks, 1.0F, 1.0F);
+            }
         } else {
             activeWeight = activeRigAnimation == null ? 0.0F : activeRigAnimation.weight(ageInTicks);
             float baseWeight = 1.0F - activeWeight;
@@ -314,6 +323,11 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
     private void applyBaseRigAnimation(T entity, float limbSwingAmount, float ageInTicks, float weight, boolean forceWalk) {
         if (entity.isPassenger()) {
             this.applyLoopingAnimation(LivingAnimations.MOUNT, ageInTicks, 1.0F, weight);
+            return;
+        }
+
+        if (entity.isNoAi()) {
+            this.applyLoopingAnimation(AnimationUtil.getIdleAnimation(entity), ageInTicks, 1.0F, weight);
             return;
         }
 

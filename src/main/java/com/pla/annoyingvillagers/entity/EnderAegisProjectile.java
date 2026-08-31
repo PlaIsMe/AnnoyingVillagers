@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.client.particle.HitParticleType;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -17,6 +18,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +38,12 @@ import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
 public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier {
-    private static final int SLAM_FX_INTERVAL_TICKS = 5;
+    // shieldShoot creates five projectiles at once. Ground-fracture is expensive on both
+    // server and client, so never run it every projectile tick.
+    private static final int SLAM_PULSE_INTERVAL_TICKS = 10;
+    private static final int CENTER_PARTICLE_INTERVAL_TICKS = 20;
+    private static final int ELITE_FX_INTERVAL_TICKS = 4;
+    private static final int MAX_LIFETIME_TICKS = 100;
 
     public EnderAegisProjectile(SpawnEntity spawnentity, Level level) {
         super(AnnoyingVillagersModEntities.ENDER_AEGIS_PROJECTILE.get(), level);
@@ -66,12 +76,19 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
 
     public void tick() {
         super.tick();
-        if (this.inGround) {
+        if (this.inGround || this.tickCount >= MAX_LIFETIME_TICKS) {
             this.discard();
+            return;
         }
         if (!this.level().isClientSide()) {
-            HerobrineUtil.spawnEliteEffect(this.level(), this.getX(), this.getY(), this.getZ(), this);
-            doGroundSlamAtSelf();
+            if (this.tickCount == 1 || this.tickCount % ELITE_FX_INTERVAL_TICKS == 0) {
+                HerobrineUtil.spawnEliteEffect(this.level(), this.getX(), this.getY(), this.getZ(), this);
+            }
+            // Stagger pulses by entity id so all five shield-shot projectiles do not
+            // generate their expensive fracture packet on the same server tick.
+            if (this.tickCount == 1 || (this.tickCount + this.getId()) % SLAM_PULSE_INTERVAL_TICKS == 0) {
+                doGroundSlamAtSelf();
+            }
         }
     }
 
@@ -82,8 +99,8 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
         Vec3 center = new Vec3(this.getX(), floor.getY(), this.getZ());
         Entity src = (this.getOwner() != null) ? this.getOwner() : this;
         if (src instanceof LivingEntity livingSrc) {
-            boolean spawnSlamParticle = this.tickCount == 1 || this.tickCount % SLAM_FX_INTERVAL_TICKS == 0;
-            CommonUtil.circleSlamFracture(livingSrc, serverLevel, center, 3.5D, true, !spawnSlamParticle, true);
+            boolean spawnCenterParticle = this.tickCount == 1 || this.tickCount % CENTER_PARTICLE_INTERVAL_TICKS == 0;
+            CommonUtil.circleSlamFracture(livingSrc, serverLevel, center, 3.5D, true, !spawnCenterParticle, true);
         }
     }
 
@@ -149,5 +166,17 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
 //            }
         }
         super.onHitEntity(pResult);
+
+        // Vanilla fallback for Epic Fight's LONGEST_HIT reaction. Do this after the
+        // projectile's normal hit so a real successful projectile impact owns the reaction.
+        if (!this.level().isClientSide && vicTim instanceof LivingEntity livingVictim && livingVictim.isAlive()) {
+            if (livingVictim instanceof Player player) {
+                player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 0));
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 2));
+                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 40, 0));
+            } else if (livingVictim instanceof Mob mob && RigStunController.supports(mob)) {
+                RigStunController.applySuperKnockback(mob);
+            }
+        }
     }
 }

@@ -1,23 +1,7 @@
 package com.pla.annoyingvillagers.clazz;
 
 import com.pla.annoyingvillagers.entity.*;
-import com.pla.annoyingvillagers.entity.goal.BowLineOfSightGoal;
-import com.pla.annoyingvillagers.entity.goal.BurnNearbyItemGoal;
-import com.pla.annoyingvillagers.entity.goal.EatHealingFoodGoal;
-import com.pla.annoyingvillagers.entity.goal.FillWaterBucketGoal;
-import com.pla.annoyingvillagers.entity.goal.LockedRandomStrollGoal;
-import com.pla.annoyingvillagers.entity.goal.PlayIdleAnimationGoal;
-import com.pla.annoyingvillagers.entity.goal.ProjectileBlockGoal;
-import com.pla.annoyingvillagers.entity.goal.AVNpcRangedBowAttackGoal;
-import com.pla.annoyingvillagers.entity.goal.RandomCombatJumpGoal;
-import com.pla.annoyingvillagers.entity.goal.RandomEnderPearlEscapeGoal;
-import com.pla.annoyingvillagers.entity.goal.RecoverWeaponInCombatGoal;
-import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
-import com.pla.annoyingvillagers.entity.goal.CombatFishingRodGoal;
-import com.pla.annoyingvillagers.entity.goal.RollItemGoal;
-import com.pla.annoyingvillagers.entity.goal.ThrowEnderPearlToTargetGoal;
-import com.pla.annoyingvillagers.entity.goal.UseLiquidBucketGoal;
-import com.pla.annoyingvillagers.entity.goal.WaterEnderPearlEscapeGoal;
+import com.pla.annoyingvillagers.entity.goal.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
@@ -30,6 +14,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -43,6 +28,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
@@ -625,6 +611,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         super.registerGoals();
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
         CommonGoals.registerDangerousReactionGoals(this);
+        this.goalSelector.addGoal(-6, new WaterFallGoal(this));
         this.goalSelector.addGoal(-5, new ProjectileBlockGoal(this));
         this.goalSelector.addGoal(-4, new UseLiquidBucketGoal(this));
         this.goalSelector.addGoal(-3, new WaterEnderPearlEscapeGoal(this));
@@ -747,6 +734,13 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         } else {
             itemEntity.setItem(remaining);
         }
+    }
+
+    @Override
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag tag) {
+        SpawnGroupData result = super.finalizeSpawn(level,difficulty,spawnType,spawnData,tag);
+        this.setLeftHanded(false);
+        return result;
     }
 
     protected void implementFirstTick(ServerLevel serverLevel) {

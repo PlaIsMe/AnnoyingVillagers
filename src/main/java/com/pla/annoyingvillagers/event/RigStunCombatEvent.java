@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigCriticalUtil;
 import com.pla.annoyingvillagers.rig.RigDamageContext;
 import com.pla.annoyingvillagers.rig.RigStunController;
@@ -67,6 +68,12 @@ public final class RigStunCombatEvent {
         LivingEntity victim = event.getEntity();
         DamageSource source = event.getSource();
         if (event.getAmount() <= 0.0F || !(victim instanceof Mob mobVictim) || !RigStunController.supports(mobVictim)) return;
+
+        if (source.is(DamageTypes.FALL) && event.getAmount() > 1.0F) {
+            RigAnimationController.stop(mobVictim, RigAnimationId.FALL);
+            RigStunController.applyLanding(mobVictim);
+            return;
+        }
 
         if (RigStunController.isStunned(mobVictim)) {
             RigStunController.applyStun(mobVictim);
