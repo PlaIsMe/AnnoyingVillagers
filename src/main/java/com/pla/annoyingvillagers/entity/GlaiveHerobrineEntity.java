@@ -1,8 +1,11 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.entity.goal.EliteHerobrineSecondFormGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.item.EnderGlaiveItem;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import net.minecraft.server.level.ServerLevel;
@@ -41,6 +44,12 @@ public class GlaiveHerobrineEntity extends HerobrineMob {
     }
 
     @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(0,new EliteHerobrineSecondFormGoal<>(this, RigAnimationId.GLAIVE_HEROBRINE_ULT, RigAnimationId.GLAIVE_HEROBRINE_EXTRA_ULT, glaiveHerobrine -> glaiveHerobrine.getMainHandItem().getItem() instanceof EnderGlaiveItem));
+    }
+
+    @Override
     public @Nullable SoundEvent getAttackVoiceSound() {
         return AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY.get();
     }
@@ -58,17 +67,6 @@ public class GlaiveHerobrineEntity extends HerobrineMob {
         return super.hurt(damagesource, f);
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-        if (!this.level().isClientSide()) {
-            if (this.tickCount % 20 == 0) {
-                if (this.getState() > 0) {
-                    HerobrineUtil.spawnEliteEffect(this.level(), this.getX(), this.getY(), this.getZ(), this);
-                }
-            }
-        }
-    }
 
     public void die(@NotNull DamageSource damageSource) {
         super.die(damageSource);
@@ -108,7 +106,7 @@ public class GlaiveHerobrineEntity extends HerobrineMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
-                .add(Attributes.ARMOR, 10.0D)
+                .add(Attributes.ARMOR, 50.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
         return addEpicFightAttributes(builder);

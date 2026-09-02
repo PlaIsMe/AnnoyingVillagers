@@ -9,6 +9,7 @@ import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonThunderBeamEntity;
 import com.pla.annoyingvillagers.entity.ElectricPhaseEntity;
+import com.pla.annoyingvillagers.entity.GlaiveHerobrineEntity;
 import com.pla.annoyingvillagers.entity.TridentLightningBolt;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -744,7 +745,6 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EATING_ELITE_4, 27));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.ELITE_HOLD_WEAPON, 68));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.ELITE_RUN_WEAPON, 68));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.ELITE_WALK_WEAPON, 68));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_ANIMATE, 100));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_ASSISTANCE, 54));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_RUN, 11));
@@ -1155,37 +1155,70 @@ public final class RigAnimationSpecs {
         );
 
         put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_ATTACK1, 42, false,
-                RigAttackWindow.of(3, 5, RIGHT_GLAIVE),
-                RigAttackWindow.of(11, 13, RIGHT_GLAIVE)));
+                RigAttackWindow.of(3, 9, RIGHT_GLAIVE),
+                RigAttackWindow.of(11, 18, RIGHT_GLAIVE)));
         put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_ATTACK2, 41, false,
-                RigAttackWindow.of(12, 15, RIGHT_GLAIVE)));
+                RigAttackWindow.of(12, 20, RIGHT_GLAIVE)));
         put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_ATTACK3, 50, false,
-                RigAttackWindow.of(13, 15, RIGHT_GLAIVE),
-                RigAttackWindow.of(20, 23, RIGHT_GLAIVE)));
+                RigAttackWindow.of(13, 18, RIGHT_GLAIVE),
+                RigAttackWindow.of(19, 27, RIGHT_GLAIVE)));
         put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_ATTACK4, 47, false,
-                RigAttackWindow.of(10, 12, RIGHT_GLAIVE),
-                RigAttackWindow.of(21, 23, RIGHT_GLAIVE)));
+                RigAttackWindow.of(10, 18, RIGHT_GLAIVE),
+                RigAttackWindow.of(21, 30, RIGHT_GLAIVE))
+                .damageMultiplier(1.2F)
+                .criticalChance(0.3F)
+        );
         put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_ATTACK5, 42, false,
                 RigAttackWindow.of(2, 4, RIGHT_GLAIVE),
-                RigAttackWindow.of(5, 7, RIGHT_GLAIVE),
-                RigAttackWindow.of(11, 14, RIGHT_GLAIVE)));
+                RigAttackWindow.of(5, 10, RIGHT_GLAIVE),
+                RigAttackWindow.of(11, 20, RIGHT_GLAIVE))
+                .damageMultiplier(1.2F)
+                .criticalChance(0.3F)
+        );
         put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_DASH_ATTACK, 44, false,
-                RigAttackWindow.of(10, 12, RIGHT_GLAIVE),
-                RigAttackWindow.of(14, 16, RIGHT_GLAIVE),
-                RigAttackWindow.of(22, 25, RIGHT_GLAIVE)));
-        put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_JUMP_ATTACK, 40, true,
-                emptyHooks(8, 13),
-                RigAttackWindow.of(1, 4, RIGHT_GLAIVE),
-                RigAttackWindow.of(6, 9, RIGHT_GLAIVE),
-                RigAttackWindow.of(10, 15, RIGHT_GLAIVE)));
-        put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_ULT, 49, false,
-                emptyHooks(23),
-                RigAttackWindow.of(17, 22, RIGHT_GLAIVE)));
-        put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_EXTRA_ULT, 54, false,
-                emptyHooks(27),
-                RigAttackWindow.of(23, 26, RIGHT_GLAIVE)));
+                RigAttackWindow.of(10, 13, RIGHT_GLAIVE),
+                RigAttackWindow.of(14, 20, RIGHT_GLAIVE),
+                RigAttackWindow.of(22, 28, RIGHT_GLAIVE)));
+        put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_JUMP_ATTACK,40,true,
+                List.of(RigAnimationSpec.RigTimedAnimationHook.at(8,mob -> {
+                    if (mob.onGround()) return;
+                    Vec3 motion = mob.getDeltaMovement();
+                    mob.setDeltaMovement(motion.x,Math.min(motion.y,-0.6D),motion.z);
+                    mob.hasImpulse = true;
+                    mob.hurtMarked = true;
+                }), groundSlamTimedHook(13,RigAnimationId.GLAIVE_HEROBRINE_JUMP_ATTACK,1.4D,0.8D,45,0.7D,2.5D)),
+                RigAttackWindow.of(1,5,RIGHT_GLAIVE),
+                RigAttackWindow.of(6,9,RIGHT_GLAIVE),
+                RigAttackWindow.of(10,18,RIGHT_GLAIVE))
+                .damageMultiplier(1.5F)
+                .criticalChance(0.5F)
+        );
+        put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_ULT,49,false,
+                hookAt(23,mob -> {
+                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                    EnderGlaiveItem.spawnVacumSlise(serverLevel, mob, EnderGlaiveItem.DEFAULT_DAMAGE);
+                    if (mob instanceof GlaiveHerobrineEntity glaiveHerobrineEntity && glaiveHerobrineEntity.getState() == 1) glaiveHerobrineEntity.consumeSecondFormAction();
+                }),
+                RigAttackWindow.of(17,22,RIGHT_GLAIVE))
+                .damageMultiplier(2.0F)
+                .criticalChance(0.7F)
+                .dangerous()
+                .invulnerable()
+        );
+        put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_EXTRA_ULT,54,false,
+                hookAt(27,mob -> {
+                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                    EnderGlaiveItem.spawnVacumSlise(serverLevel, mob, EnderGlaiveItem.DEFAULT_DAMAGE);
+                    if (mob instanceof GlaiveHerobrineEntity glaiveHerobrineEntity && glaiveHerobrineEntity.getState() == 1) glaiveHerobrineEntity.consumeSecondFormAction();
+                }),
+                RigAttackWindow.of(23,26,RIGHT_GLAIVE))
+                .damageMultiplier(2.0F)
+                .criticalChance(0.7F)
+                .dangerous()
+                .invulnerable()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_EXTRA_ATTACK, 31, false,
-                RigAttackWindow.of(1, 4, RIGHT_GLAIVE)));
+                RigAttackWindow.of(1, 8, RIGHT_GLAIVE)));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.REAPER_HEROBRINE_IDLE, 40));
         put(RigAnimationSpec.attack(RigAnimationId.REAPER_HEROBRINE_ATTACK1, 42, false,

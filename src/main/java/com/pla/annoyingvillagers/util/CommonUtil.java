@@ -48,11 +48,11 @@ public class CommonUtil {
     public static void damageBlocked(DamageSource damagesource, Entity livingentity, ServerLevel level) {
         if (livingentity == null) return;
         if (!damagesource.is(DamageTypes.IN_WALL) && !damagesource.is(DamageTypes.IN_FIRE) && !damagesource.is(DamageTypes.ON_FIRE)) {
-            livingentity.playSound(AnnoyingVillagersModSounds.CLASH.get(), 1.0F, 1.0F);
+            livingentity.playSound(AnnoyingVillagersModSounds.CLASH.get(), 0.5F, 1.0F);
         }
         AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(level, livingentity, damagesource.getEntity());
         if (damagesource.getEntity() instanceof Player player) {
-            ScreenShakeUtil.applyScreenShake(level, player.getOnPos().getCenter(), 1.0, 20, 4);
+            ScreenShakeUtil.applyScreenShake(level, player.getOnPos().getCenter(), 0.5F, 20, 4);
         }
     }
 

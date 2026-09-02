@@ -1,9 +1,0 @@
-{
-  "mod": "annoyingvillagers",
-  "fires": [
-    {
-      "fire": "end",
-      "damage": 3.0
-    }
-  ]
-}

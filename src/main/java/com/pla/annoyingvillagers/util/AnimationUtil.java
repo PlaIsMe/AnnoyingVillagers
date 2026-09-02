@@ -55,6 +55,7 @@ public class AnimationUtil {
             case TACHI -> TachiAnimations1.TACHI_IDLE;
             case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_IDLE;
             case AEGIS_HEROBRINE -> AegisHerobrineAnimations1.AEGIS_HEROBRINE_IDLE;
+            case ELITE_HEROBRINE -> HerobrineLivingAnimations.ELITE_HOLD_WEAPON;
             default -> LivingAnimations.IDLE;
         };
     }
@@ -64,7 +65,7 @@ public class AnimationUtil {
             case SPEAR -> SpearAnimations1.SPEAR_WALK;
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_WALK;
             case TACHI -> TachiAnimations1.TACHI_WALK;
-            case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_WALK;
+            case LEGENDARY_SWORD, ELITE_HEROBRINE -> LegendarySwordAnimations1.LEGENDARY_SWORD_WALK;
             default -> LivingAnimations.WALK;
         };
     }
@@ -76,6 +77,7 @@ public class AnimationUtil {
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_RUN;
             case TACHI -> TachiAnimations1.TACHI_RUN;
             case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_RUN;
+            case ELITE_HEROBRINE -> HerobrineLivingAnimations.ELITE_RUN_WEAPON;
             default -> RunAnimations.RUN;
         };
     }

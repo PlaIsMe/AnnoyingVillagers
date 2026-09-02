@@ -134,6 +134,11 @@ public final class ClientPacketHandlers {
         if (level == null) return;
 
         RandomSource rand = level.getRandom();
+        spawnSpreadParticle(level,AnnoyingVillagersModParticleTypes.PE.get(),msg.pos(),rand,0.4D,1.1D,0.4D,0.0D);
+        if (msg.extraParticle()) {
+            spawnSpreadParticle(level,AnnoyingVillagersModParticleTypes.PE.get(),msg.pos(),rand,0.45D,1.5D,0.3D,0.0D);
+        }
+
         ClientVfxRouter.run(
                 VfxEffect.ELITE_HEROBRINE,
                 () -> {
@@ -168,10 +173,6 @@ public final class ClientPacketHandlers {
                     return handled;
                 },
                 () -> {
-                    spawnSpreadParticle(level, AnnoyingVillagersModParticleTypes.PE.get(), msg.pos(), rand, 0.4D, 1.1D, 0.4D, 0.0D);
-                    if (msg.extraParticle()) {
-                        spawnSpreadParticle(level, AnnoyingVillagersModParticleTypes.PE.get(), msg.pos(), rand, 0.45D, 1.5D, 0.3D, 0.0D);
-                    }
                 });
     }
 

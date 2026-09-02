@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.entity;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
+import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -45,7 +46,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 
-public class AlexEntity extends AVNpc implements BurstProtectEntity {
+public class AlexEntity extends AVNpc implements BurstProtectEntity, DangerousReaction {
     private JevEntity jevToProtect;
     private UUID jevUUID;
     private boolean spawnJev = false;
@@ -119,6 +120,7 @@ public class AlexEntity extends AVNpc implements BurstProtectEntity {
                 && jevToProtect.isAlive()
                 && target != null
                 && target.getLastHurtMob() == jevToProtect));
+        CommonGoals.registerDangerousReactionGoals(this);
         CommonGoals.registerGoalForNeutralNpc(this);
     }
 

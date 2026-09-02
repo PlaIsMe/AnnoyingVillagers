@@ -192,9 +192,9 @@ public final class RigShieldGuardController {
 
     @Nullable
     private static GuardMode resolveGuardMode(Mob mob) {
-        // AegisHerobrine's Ender Aegis is a SwordItem, not a ShieldItem, so it must be
-        // recognized explicitly. Prefer its custom main-hand guard even if an offhand
-        // shield is present so the authored AEGIS_HEROBRINE_GUARD animation is used.
+        // Ender Aegis is a ShieldItem, but AegisHerobrine still needs its authored custom
+        // main-hand AEGIS_HEROBRINE_GUARD instead of the generic shield animation.
+        // Prefer that mode even if another shield is present in the offhand.
         if (hasAegisMainhand(mob)) {
             return GuardMode.AEGIS_MAINHAND;
         }

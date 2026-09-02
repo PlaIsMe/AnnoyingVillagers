@@ -70,7 +70,6 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
             if (this.tickCount % 20 == 0) {
                 ItemStack itemStack = this.getMainHandItem();
                 if (this.getState() > 0) {
-                    HerobrineUtil.spawnEliteEffect(this.level(), this.getX(), this.getY(), this.getZ(), this);
                     if (itemStack.getItem() instanceof DemoniacVoltageReaverItem
                             && itemStack.getTag() != null && !itemStack.getTag().getBoolean("SecondForm")) {
                         itemStack.getTag().putBoolean("SecondForm", true);

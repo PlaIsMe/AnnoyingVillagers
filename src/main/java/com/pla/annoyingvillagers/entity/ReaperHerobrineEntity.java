@@ -289,11 +289,6 @@ public class ReaperHerobrineEntity extends HerobrineMob {
                 }
             }
 
-            if (this.tickCount % 20 == 0) {
-                if (this.getState() > 0) {
-                    HerobrineUtil.spawnEliteEffect(this.level(), this.getX(), this.getY(), this.getZ(), this);
-                }
-            }
         }
     }
 

@@ -4,6 +4,8 @@
     import net.minecraft.core.Direction;
     import net.minecraft.server.level.ServerLevel;
     import net.minecraft.util.RandomSource;
+    import com.pla.annoyingvillagers.util.EndFireUtil;
+    import net.minecraft.world.entity.Entity;
     import net.minecraft.world.item.ItemStack;
     import net.minecraft.world.level.BlockGetter;
     import net.minecraft.world.level.Level;
@@ -44,6 +46,19 @@
         @Override
         protected boolean canBurn(BlockState pState) {
             return true;
+        }
+
+        @Override
+        public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+            if (!entity.fireImmune()) {
+                EndFireUtil.setEndFireBurning(entity, true);
+
+                if (!level.isClientSide && entity.getRemainingFireTicks() < 160) {
+                    entity.setSecondsOnFire(8);
+                }
+            }
+
+            super.entityInside(state, level, pos, entity);
         }
 
         private static int getEndFireTickDelay(RandomSource random) {

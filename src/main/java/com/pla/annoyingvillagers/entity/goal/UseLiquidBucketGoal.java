@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.entity.goal;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigStunController;
+import com.pla.annoyingvillagers.util.EndFireUtil;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -64,6 +65,7 @@ public class UseLiquidBucketGoal extends Goal {
                 || RigStunController.isStunned(this.avNpc)
                 || this.avNpc.isPassenger()
                 || this.avNpc.isHealing()
+                || EndFireUtil.isEndFireBurning(this.avNpc)
                 || RigAnimationController.hasActiveProfileAttack(this.avNpc)
                 || !this.avNpc.onGround()
                 || this.avNpc.getWaterBucketCooldown() > 0
@@ -125,6 +127,7 @@ public class UseLiquidBucketGoal extends Goal {
     public boolean canContinueToUse() {
         return this.pickupLiquid
                 && !this.finished
+                && !EndFireUtil.isEndFireBurning(this.avNpc)
                 && this.placedLiquidPos != null
                 && this.pickupTicks < MAX_PICKUP_TICKS
                 && this.avNpc.isAlive()
@@ -136,6 +139,11 @@ public class UseLiquidBucketGoal extends Goal {
 
     @Override
     public void start() {
+        if (EndFireUtil.isEndFireBurning(this.avNpc)) {
+            this.reset();
+            return;
+        }
+
         if (!(this.avNpc.level() instanceof ServerLevel serverLevel)
                 || this.placePos == null
                 || this.bucketItem == Items.AIR

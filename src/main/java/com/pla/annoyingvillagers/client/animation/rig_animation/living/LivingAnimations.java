@@ -1600,7 +1600,7 @@ public class LivingAnimations {
 			))
 			.build();
 
-	public static final AnimationDefinition SPINNING_WEAPON = AnimationDefinition.Builder.withLength(0.8F)
+	public static final AnimationDefinition SPINNING_WEAPON = AnimationDefinition.Builder.withLength(0.8F).looping()
 			.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(13.026F, 49.414F, 4.528F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.15F, KeyframeAnimations.degreeVec(6.737F, 15.474F, -1.34F), AnimationChannel.Interpolations.LINEAR),

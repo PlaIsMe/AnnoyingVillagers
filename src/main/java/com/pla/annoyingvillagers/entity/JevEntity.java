@@ -1,10 +1,12 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
+import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.clazz.AVNpc;
+import com.pla.annoyingvillagers.util.CommonGoals;
 import com.pla.annoyingvillagers.util.HookGunCombatUtil;
 import com.pla.annoyingvillagers.util.InventoryUtils;
 import com.pla.annoyingvillagers.util.TeamUtil;
@@ -49,7 +51,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class JevEntity extends AVNpc implements BurstProtectEntity {
+public class JevEntity extends AVNpc implements BurstProtectEntity, DangerousReaction {
     private static final int JEV_POTION_STACK_SIZE = 16;
     private static final List<ItemLike> JEV_HOOKABLE_BLOCKS = List.of(
             Blocks.OAK_PLANKS,
@@ -118,6 +120,7 @@ public class JevEntity extends AVNpc implements BurstProtectEntity {
 
     protected void registerGoals() {
         super.registerGoals();
+        CommonGoals.registerDangerousReactionGoals(this);
         this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, AlexEntity.class, 12.0F));
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Monster.class, 5.0F, 1.2D, 1.8D));
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Player.class, 5.0F, 1.2D, 1.8D));

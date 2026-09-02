@@ -222,16 +222,6 @@ public class AnnoyingVillagers {
                         }
                 );
                 ItemProperties.register(
-                        AnnoyingVillagersModItems.ENDER_AEGIS.get(),
-                        ResourceLocation.fromNamespaceAndPath(MODID, "second_form"),
-                        (stack, level, entity, seed) -> {
-                            if (stack.hasTag() && stack.getTag().getBoolean("SecondForm")) {
-                                return 1.0F;
-                            }
-                            return 0.0F;
-                        }
-                );
-                ItemProperties.register(
                         AnnoyingVillagersModItems.ADVANCED_FISHING_ROD.get(),
                         ResourceLocation.fromNamespaceAndPath("minecraft", "cast"),
                         (stack, level, entity, seed) -> FishingRodGrappleUtil.getCastProperty(stack, entity)

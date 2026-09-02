@@ -12,7 +12,9 @@ import org.spongepowered.asm.service.MixinService;
 
 public final class CompatMixinPlugin implements IMixinConfigPlugin {
     private static final String SMART_NPC_MOD_ID = "smart_npc";
+    private static final String SOUL_FIRE_D_MOD_ID = "soul_fire_d";
     private static final String SMART_NPC_COMPAT_PREFIX = "com.pla.annoyingvillagers.mixin.compat.smartnpc.";
+    private static final String END_FIRE_RENDER_MIXIN_PREFIX = "com.pla.annoyingvillagers.mixin.client.EndFire";
 
     private static boolean isModLoadedEarly(String modId) {
         LoadingModList list = FMLLoader.getLoadingModList();
@@ -45,6 +47,9 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (mixinClassName.startsWith(SMART_NPC_COMPAT_PREFIX)) {
             return canApplyCompat(SMART_NPC_MOD_ID, targetClassName);
+        }
+        if (mixinClassName.startsWith(END_FIRE_RENDER_MIXIN_PREFIX)) {
+            return !isModLoadedEarly(SOUL_FIRE_D_MOD_ID);
         }
         return true;
     }

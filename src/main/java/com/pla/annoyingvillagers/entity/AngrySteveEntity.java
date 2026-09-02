@@ -1,9 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
-import com.pla.annoyingvillagers.clazz.AVNpc;
-import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
-import com.pla.annoyingvillagers.clazz.FishingRodUser;
-import com.pla.annoyingvillagers.clazz.RollItemUser;
+import com.pla.annoyingvillagers.clazz.*;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -54,7 +51,8 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class AngrySteveEntity extends AVNpc implements BurstProtectEntity, RollItemUser, FishingRodUser {
+public class AngrySteveEntity extends AVNpc implements BurstProtectEntity, RollItemUser
+        , FishingRodUser, DangerousReaction {
     private static final int LEGENDARY_AWAKEN_DURATION = 20 * 30;
     private static final EntityDataAccessor<Integer> LEGENDARY_AWAKENED =
             SynchedEntityData.defineId(AngrySteveEntity.class, EntityDataSerializers.INT);
@@ -168,6 +166,7 @@ public class AngrySteveEntity extends AVNpc implements BurstProtectEntity, RollI
 
     protected void registerGoals() {
         super.registerGoals();
+        CommonGoals.registerDangerousReactionGoals(this);
         CommonGoals.registerGoalForCrazyNpc(this);
     }
 

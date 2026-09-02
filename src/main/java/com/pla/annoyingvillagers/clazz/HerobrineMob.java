@@ -94,6 +94,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
     private int swapWeaponCooldown;
     private int voiceCooldown = 0;
     private int rigAttackAnimationLockCount;
+    private boolean spinningWeaponInitActive;
 
     @Override
     public void lock() {
@@ -526,28 +527,30 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             public void run() {
                 if (!HerobrineMob.this.isAlive() || HerobrineMob.this.isRemoved()) return;
 
-                RigAnimationController.play(HerobrineMob.this, RigAnimationId.POINT_LEFT_HAND_MIDDLE);
-                LivingEntity target = HerobrineMob.this.getTarget();
-                Direction dir = target != null
-                        ? Direction.getNearest(target.getX() - HerobrineMob.this.getX(), 0.0D, target.getZ() - HerobrineMob.this.getZ())
-                        : HerobrineMob.this.getDirection();
-                int dist = 1 + HerobrineMob.this.getRandom().nextInt(3);
-                int rot = HerobrineMob.this.getRandom().nextInt(4);
-                java.util.function.BiFunction<Integer, Integer, int[]> toWorld = DangerousReaction.getIntegerIntegerBiFunction(HerobrineMob.this, rot);
-                int lateral = HerobrineMob.this.getRandom().nextInt(3) - 1;
-                int[] dxz = toWorld.apply(lateral, 0);
-                BlockPos baseXZ = HerobrineMob.this.blockPosition().relative(dir, dist).offset(dxz[0], 0, dxz[1]);
-                int surfaceY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, baseXZ).getY();
-                BlockPos spawnPos = new BlockPos(baseXZ.getX(), surfaceY, baseXZ.getZ());
+                if (HerobrineMob.this instanceof AegisHerobrineEntity || HerobrineMob.this instanceof SledgehammerHerobrineEntity || HerobrineMob.this instanceof SwordsmanHerobrineEntity || HerobrineMob.this instanceof GlaiveHerobrineEntity || HerobrineMob.this instanceof ReaperHerobrineEntity) {
+                    RigAnimationController.play(HerobrineMob.this, RigAnimationId.POINT_LEFT_HAND_MIDDLE);
+                    LivingEntity target = HerobrineMob.this.getTarget();
+                    Direction dir = target != null
+                            ? Direction.getNearest(target.getX() - HerobrineMob.this.getX(), 0.0D, target.getZ() - HerobrineMob.this.getZ())
+                            : HerobrineMob.this.getDirection();
+                    int dist = 1 + HerobrineMob.this.getRandom().nextInt(3);
+                    int rot = HerobrineMob.this.getRandom().nextInt(4);
+                    java.util.function.BiFunction<Integer, Integer, int[]> toWorld = DangerousReaction.getIntegerIntegerBiFunction(HerobrineMob.this, rot);
+                    int lateral = HerobrineMob.this.getRandom().nextInt(3) - 1;
+                    int[] dxz = toWorld.apply(lateral, 0);
+                    BlockPos baseXZ = HerobrineMob.this.blockPosition().relative(dir, dist).offset(dxz[0], 0, dxz[1]);
+                    int surfaceY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, baseXZ).getY();
+                    BlockPos spawnPos = new BlockPos(baseXZ.getX(), surfaceY, baseXZ.getZ());
 
-                LowShadowHerobrineCloneEntity clone = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), serverLevel);
-                clone.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, dir.toYRot(), 0.0F);
-                clone.setRenderPortal(false);
-                clone.setForEscaping(true);
-                clone.setNoAi(true);
-                clone.setPossessedByEntity(HerobrineMob.this);
-                clone.setPossessedByUuid(HerobrineMob.this.getUUID());
-                serverLevel.addFreshEntity(clone);
+                    LowShadowHerobrineCloneEntity clone = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), serverLevel);
+                    clone.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, dir.toYRot(), 0.0F);
+                    clone.setRenderPortal(false);
+                    clone.setForEscaping(true);
+                    clone.setNoAi(true);
+                    clone.setPossessedByEntity(HerobrineMob.this);
+                    clone.setPossessedByUuid(HerobrineMob.this.getUUID());
+                    serverLevel.addFreshEntity(clone);
+                }
             }
         };
     }
@@ -1020,12 +1023,27 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
 
         if (!this.level().isClientSide()) {
             if (this instanceof ReaperHerobrineEntity || this instanceof GlaiveHerobrineEntity) {
-                RigAnimationController.play(this, RigAnimationId.SPINNING_WEAPON);
+                this.spinningWeaponInitActive = true;
+                RigAnimationController.playHeldPose(this,RigAnimationId.SPINNING_WEAPON);
             } else if (this instanceof TransporterHerobrineCloneEntity) {
                 RigAnimationController.play(this, RigAnimationId.PORTAL_SUMMON);
             } else if (!(this instanceof SledgehammerHerobrineEntity) && !(this instanceof SwordsmanHerobrineEntity) && !(this instanceof AegisHerobrineEntity)) {
                 RigAnimationController.play(this, RigAnimationId.HEROBRINE_ANIMATE);
             }
+        }
+    }
+
+    private void tickSpinningWeaponInitAnimation() {
+        if (!this.spinningWeaponInitActive) return;
+
+        if (!this.isNoAi() || this.getTarget() != null) {
+            this.spinningWeaponInitActive = false;
+            RigAnimationController.stop(this,RigAnimationId.SPINNING_WEAPON);
+            return;
+        }
+
+        if (!RigAnimationController.hasActiveAnimation(this)) {
+            RigAnimationController.playHeldPose(this,RigAnimationId.SPINNING_WEAPON);
         }
     }
 
@@ -1053,6 +1071,10 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             if (this.secondFormCooldown > 0) this.secondFormCooldown--;
 
             CommonUtil.stunEscapeAi(this);
+
+            if (this.state > 0 && this.tickCount % 20 == 0) {
+                HerobrineUtil.spawnEliteEffect(this.level(),this.getX(),this.getY(),this.getZ(),this);
+            }
 
             if (this.state == 2 && (this instanceof AegisHerobrineEntity
                     || this instanceof SledgehammerHerobrineEntity
@@ -1110,6 +1132,8 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                     this.initialSpawn = false;
                 }
             }
+
+            this.tickSpinningWeaponInitAnimation();
 
             if (!neverRecall) {
                 this.recallTicks = this.recallTicks - 1;

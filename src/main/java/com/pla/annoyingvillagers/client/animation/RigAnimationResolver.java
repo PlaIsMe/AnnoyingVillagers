@@ -257,7 +257,6 @@ public final class RigAnimationResolver {
             case EATING_ELITE_4 -> HerobrineLivingAnimations.EATING_ELITE_4;
             case ELITE_HOLD_WEAPON -> HerobrineLivingAnimations.ELITE_HOLD_WEAPON;
             case ELITE_RUN_WEAPON -> HerobrineLivingAnimations.ELITE_RUN_WEAPON;
-            case ELITE_WALK_WEAPON -> HerobrineLivingAnimations.ELITE_WALK_WEAPON;
             case HEROBRINE_ANIMATE -> HerobrineLivingAnimations.HEROBRINE_ANIMATE;
             case HEROBRINE_ASSISTANCE -> HerobrineLivingAnimations.HEROBRINE_ASSISTANCE;
             case HEROBRINE_RUN -> HerobrineLivingAnimations.HEROBRINE_RUN;

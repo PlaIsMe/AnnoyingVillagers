@@ -1,7 +1,10 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.pla.annoyingvillagers.entity.EnderAegisProjectile;
+import com.pla.annoyingvillagers.event.ShieldRendererEvent;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -9,49 +12,70 @@ import com.pla.annoyingvillagers.network.ClientboundEnderAegisSparkFx;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-public class EnderAegisItem extends SwordItem implements RigCombatProfileProvider {
+public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvider {
+    private static final double ATTACK_DAMAGE_MODIFIER = 7.0D;
+    private static final double ATTACK_SPEED_MODIFIER = -2.8D;
+    public static final String SECOND_FORM_TAG = "SecondForm";
+    public static final String AWAKEN_SOUND_PLAYED_TAG = "PlaySound";
+    private static final String LEGACY_SECOND_FORM_TICKS_TAG = "SecondFormTicks";
+    private static final String LEGACY_CHARGE_TAG = "EnderAegisCharge";
+    private final Multimap<Attribute,AttributeModifier> defaultModifiers;
 
     public EnderAegisItem() {
-        super(new Tier() {
-            public int getUses() {
-                return 1561;
-            }
+        super(new Properties().stacksTo(1).durability(1561).fireResistant());
+        ImmutableMultimap.Builder<Attribute,AttributeModifier> modifiers = ImmutableMultimap.builder();
+        modifiers.put(Attributes.ATTACK_DAMAGE,new AttributeModifier(BASE_ATTACK_DAMAGE_UUID,"Weapon modifier",ATTACK_DAMAGE_MODIFIER,AttributeModifier.Operation.ADDITION));
+        modifiers.put(Attributes.ATTACK_SPEED,new AttributeModifier(BASE_ATTACK_SPEED_UUID,"Weapon modifier",ATTACK_SPEED_MODIFIER,AttributeModifier.Operation.ADDITION));
+        this.defaultModifiers = modifiers.build();
+    }
 
-            public float getSpeed() {
-                return 4.0F;
-            }
+    @Override
+    public Multimap<Attribute,AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+        return slot == EquipmentSlot.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(slot);
+    }
 
-            public float getAttackDamageBonus() {
-                return 2.0F;
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return ShieldRendererEvent.instance;
             }
+        });
+    }
 
-            public int getLevel() {
-                return 1;
-            }
+    public static boolean isSecondForm(ItemStack stack) {
+        return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean(SECOND_FORM_TAG);
+    }
 
-            public int getEnchantmentValue() {
-                return 2;
-            }
-
-            public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(AnnoyingVillagersModItems.ELITE_OBSIDIAN.get());
-            }
-        }, 3, -2.3F, (new Properties()).fireResistant());
+    private static void setSecondForm(ItemStack stack,boolean secondForm) {
+        if (secondForm) {
+            stack.getOrCreateTag().putBoolean(SECOND_FORM_TAG,true);
+        } else if (stack.hasTag() && stack.getTag() != null) {
+            stack.getTag().remove(SECOND_FORM_TAG);
+            stack.getTag().remove(AWAKEN_SOUND_PLAYED_TAG);
+        }
     }
 
     public static void shieldShoot(Level level, Entity entity) {
@@ -143,10 +167,17 @@ public class EnderAegisItem extends SwordItem implements RigCombatProfileProvide
 //        Handle vanilla code
     }
 
-    public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
-        super.inventoryTick(itemstack, level, entity, i, flag);
+    public void inventoryTick(@NotNull ItemStack itemstack,@NotNull Level level,@NotNull Entity entity,int i,boolean flag) {
+        super.inventoryTick(itemstack,level,entity,i,flag);
+        if (!level.isClientSide()) {
+            CompoundTag tag = itemstack.getTag();
+            if (tag != null) {
+                tag.remove(LEGACY_CHARGE_TAG);
+                tag.remove(LEGACY_SECOND_FORM_TICKS_TAG);
+            }
+        }
         if (flag) {
-            if (itemstack.getTag() != null && itemstack.getTag().getBoolean("SecondForm")) {
+            if (isSecondForm(itemstack)) {
                 HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
             }
         }
@@ -157,7 +188,7 @@ public class EnderAegisItem extends SwordItem implements RigCombatProfileProvide
 
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.literal(Component.translatable("tooltip.annoyingvillagers.ender_aegis").getString()));
+        list.add(Component.translatable("tooltip.annoyingvillagers.ender_aegis"));
     }
 
     @Override

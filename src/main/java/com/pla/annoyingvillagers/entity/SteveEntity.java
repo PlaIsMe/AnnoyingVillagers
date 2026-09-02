@@ -2,17 +2,13 @@ package com.pla.annoyingvillagers.entity;
 
 import javax.annotation.Nullable;
 
-import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
-import com.pla.annoyingvillagers.clazz.Difficulty;
-import com.pla.annoyingvillagers.clazz.FishingRodUser;
-import com.pla.annoyingvillagers.clazz.RollItemUser;
+import com.pla.annoyingvillagers.clazz.*;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.spawnhandler.SteveData;
 import com.pla.annoyingvillagers.util.*;
-import com.pla.annoyingvillagers.clazz.AVNpc;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -49,7 +45,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class SteveEntity extends AVNpc implements BurstProtectEntity, RollItemUser, FishingRodUser {
+public class SteveEntity extends AVNpc implements BurstProtectEntity, RollItemUser
+        , FishingRodUser, DangerousReaction {
     // 0: normal
     // 1: second
     private int state = 0;
@@ -92,6 +89,7 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity, RollItemUs
 
     protected void registerGoals() {
         super.registerGoals();
+        CommonGoals.registerDangerousReactionGoals(this);
         CommonGoals.registerGoalForNeutralNpc(this);
     }
 
@@ -396,6 +394,9 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity, RollItemUs
                     diamondGreatsword.enchant(Enchantments.SHARPNESS, 5);
                     diamondGreatsword.enchant(Enchantments.KNOCKBACK, 5);
                     this.setItemInHand(InteractionHand.MAIN_HAND, diamondGreatsword);
+
+                    this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+                    this.setOffWeaponItem(this.getOffWeaponItem().copy());
                     setWeapon = true;
                 } else if (chance < 0.6) {
                     ItemStack killerAxe = new ItemStack(AnnoyingVillagersModItems.SAMANTHA_THE_KILLER_AXE.get());
@@ -435,6 +436,8 @@ public class SteveEntity extends AVNpc implements BurstProtectEntity, RollItemUs
                     }
                     ItemStack legendarySword = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
                     this.setItemInHand(InteractionHand.MAIN_HAND, legendarySword);
+                    this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+                    this.setOffWeaponItem(this.getOffWeaponItem().copy());
                     setWeapon = true;
                 }
             }

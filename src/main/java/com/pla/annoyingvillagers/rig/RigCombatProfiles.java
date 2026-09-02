@@ -713,6 +713,24 @@ public final class RigCombatProfiles {
                 ULTIMATE_CHANCE * 1.2,
                 RigLocomotionStyle.AEGIS_HEROBRINE
         ));
+
+        PROFILES.put(RigCombatStyle.GLAIVE_HEROBRINE,new RigCombatProfile(
+                List.of(RigAnimationId.GLAIVE_HEROBRINE_ATTACK1, RigAnimationId.GLAIVE_HEROBRINE_ATTACK2, RigAnimationId.GLAIVE_HEROBRINE_ATTACK3,
+                        RigAnimationId.GLAIVE_HEROBRINE_ATTACK4, RigAnimationId.GLAIVE_HEROBRINE_ATTACK5),
+                List.of(RigAnimationId.GLAIVE_HEROBRINE_DASH_ATTACK, RigAnimationId.GLAIVE_HEROBRINE_JUMP_ATTACK, RigAnimationId.GLAIVE_HEROBRINE_EXTRA_ATTACK),
+            List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT),
+                List.of(RigAnimationId.GLAIVE_HEROBRINE_EXTRA_ATTACK),
+                SPECIAL_ATTACK_CHANCE,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE * 1.2,
+                RigLocomotionStyle.ELITE_HEROBRINE
+        ));
     }
 
     public static boolean isProfileAttack(RigAnimationId animationId) {

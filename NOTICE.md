@@ -45,6 +45,11 @@ sound assets in this project.
 - Public distribution under GPLv3 should be reviewed because NonCommercial
   Creative Commons terms may not be GPL-compatible for a combined software work.
 
+## EpicFight-Awaken - ShelMarow - GPL-3.0
+
+- Source: https://www.curseforge.com/members/shelmarow/projects
+- Vacuum Slice Entity logic
+
 ## Contributor for the project
 
 - MrFudgeMonkeyz - original animation author

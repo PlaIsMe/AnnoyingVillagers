@@ -45,11 +45,6 @@ public class AegisHerobrineEntity extends HerobrineMob {
     }
 
     @Override
-    public boolean shouldIgnoreBurstProtection(LivingEntity self,DamageSource source) {
-        return false;
-    }
-
-    @Override
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(0,new EliteHerobrineSecondFormGoal<>(this,RigAnimationId.AEGIS_HEROBRINE_ULT,aegis -> aegis.getMainHandItem().getItem() instanceof EnderAegisItem));
@@ -77,7 +72,6 @@ public class AegisHerobrineEntity extends HerobrineMob {
             if (this.tickCount % 20 == 0) {
                 ItemStack itemStack = this.getMainHandItem();
                 if (this.getState() > 0) {
-                    HerobrineUtil.spawnEliteEffect(this.level(), this.getX(), this.getY(), this.getZ(), this);
                     if (itemStack.getItem() instanceof EnderAegisItem
                             && itemStack.getTag() != null && !itemStack.getTag().getBoolean("SecondForm")) {
                         itemStack.getTag().putBoolean("SecondForm", true);

@@ -6,6 +6,7 @@
   "plugin": "com.pla.annoyingvillagers.mixin.plugin.CompatMixinPlugin",
   "mixins": [
     "MobMixin",
+    "EndFireEntityMixin",
     "SkeletonMixin",
     "ZombieMixin",
     "ExplosionMixin",
@@ -28,6 +29,8 @@
   ],
   "client": [
     "client.ModelPartMixin",
+    "client.EndFireEntityRenderDispatcherMixin",
+    "client.EndFireScreenEffectRendererMixin",
     "client.IllagerRendererMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ItemRendererMixin",

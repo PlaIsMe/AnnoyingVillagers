@@ -160,7 +160,7 @@ public final class HookUtil {
             }
         }
 
-        if (boundStack.is(Items.WATER_BUCKET) && target.isOnFire()) {
+        if (boundStack.is(Items.WATER_BUCKET) && target.isOnFire() && !EndFireUtil.isEndFireBurning(target)) {
             target.clearFire();
             level.playSound(null, target.getX(), target.getY(), target.getZ(),
                     SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS, 0.8F, 1.0F);

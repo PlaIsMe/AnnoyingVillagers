@@ -80,17 +80,6 @@ public class SledgehammerHerobrineEntity extends HerobrineMob {
         }
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-        if (!this.level().isClientSide()) {
-            if (this.tickCount % 20 == 0) {
-                if (this.getState() > 0) {
-                    HerobrineUtil.spawnEliteEffect(this.level(), this.getX(), this.getY(), this.getZ(), this);
-                }
-            }
-        }
-    }
 
     public static Builder addEpicFightAttributes(Builder builder) {
         //      ADD THIS CODE IN AV_EFM

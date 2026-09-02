@@ -8,5 +8,6 @@ public enum RigLocomotionStyle {
     SPEAR,
     TACHI,
     LEGENDARY_SWORD,
-    AEGIS_HEROBRINE
+    AEGIS_HEROBRINE,
+    ELITE_HEROBRINE
 }
