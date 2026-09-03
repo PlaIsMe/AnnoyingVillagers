@@ -12,11 +12,11 @@ public final class RigSwordsmanHerobrinePoseData1 {
     private RigSwordsmanHerobrinePoseData1() {}
 
     public static void register(Map<RigAnimationId, RigPoseClip> clips) {
-        clips.put(RigAnimationId.SWORDMAN_HEROBRINE_ATTACK1, swordman_herobrine_attack1());
-        clips.put(RigAnimationId.SWORDMAN_HEROBRINE_ATTACK2, swordman_herobrine_attack2());
-        clips.put(RigAnimationId.SWORDMAN_HEROBRINE_ATTACK3, swordman_herobrine_attack3());
-        clips.put(RigAnimationId.SWORDMAN_HEROBRINE_ATTACK4, swordman_herobrine_attack4());
-        clips.put(RigAnimationId.SWORDMAN_HEROBRINE_ATTACK5, swordman_herobrine_attack5());
+        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK1, swordman_herobrine_attack1());
+        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK2, swordman_herobrine_attack2());
+        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK3, swordman_herobrine_attack3());
+        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK4, swordman_herobrine_attack4());
+        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK5, swordman_herobrine_attack5());
     }
 
     private static RigPoseClip swordman_herobrine_attack1() {

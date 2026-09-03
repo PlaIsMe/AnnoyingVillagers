@@ -3,6 +3,9 @@ package com.pla.annoyingvillagers.entity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.entity.goal.EliteHerobrineSecondFormGoal;
+import com.pla.annoyingvillagers.item.ObsidianSledgehammerItem;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import net.minecraft.nbt.CompoundTag;
@@ -40,6 +43,17 @@ public class SledgehammerHerobrineEntity extends HerobrineMob {
         this.setPersistenceRequired();
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(AnnoyingVillagersModItems.OBSIDIAN_SLEDGEHAMMER.get()));
         this.setChatName(this.getDisplayName().getString());
+    }
+
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(0, new EliteHerobrineSecondFormGoal<>(
+                this,
+                RigAnimationId.SLEDGEHAMMER_HEROBRINE_ULT,
+                RigAnimationId.SLEDGEHAMMER_HEROBRINE_EXTRA_ULT,
+                sledgehammer -> sledgehammer.getMainHandItem().getItem() instanceof ObsidianSledgehammerItem
+        ));
     }
 
     @Override
@@ -99,8 +113,8 @@ public class SledgehammerHerobrineEntity extends HerobrineMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
-                .add(Attributes.ARMOR, 10.0D)
-                .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
+                .add(Attributes.ARMOR, 80.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 40.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
         return addEpicFightAttributes(builder);
     }

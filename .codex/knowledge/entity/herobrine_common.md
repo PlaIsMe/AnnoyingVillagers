@@ -2,42 +2,48 @@
 
 ## Source Scope
 
-- `src/main/java/com/pla/annoyingvillagers/combatbehaviour/HerobrineCommon.java`
-- `src/main/java/com/pla/annoyingvillagers/combatbehaviour/HerobrineDemoniacVoltageReaver.java`
-- `src/main/java/com/pla/annoyingvillagers/combatbehaviour/HerobrineEnderAegis.java`
-- `src/main/java/com/pla/annoyingvillagers/combatbehaviour/HerobrineObsidianSledgehammer.java`
 - `src/main/java/com/pla/annoyingvillagers/clazz/HerobrineMob.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/EliteHerobrineSecondFormGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/RigAnimationController.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/RigAnimationSpecs.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/RigCombatProfiles.java`
 
-## Common Second Form Hooks
+## Current Common Second-Form State
 
-`HerobrineCommon.canPlaySecondFormAnimation` prevents Swordsman Herobrine from starting another second-form animation while the Demoniac Voltage Reaver item still has `SnakeAnimation`.
+The old `combatbehaviour/HerobrineCommon.java` and weapon-specific Epic Fight combat-behavior builders are not part of the current normal AV source tree. Do not use their `playSecondFormAnimation` helpers as the live architecture.
 
-`HerobrineCommon.playSecondFormAnimation` handles the main special behavior:
+`HerobrineMob` now owns the shared second-form state/budget:
 
-- Swordsman Herobrine calls `DemoniacVoltageReaverItem.process` and sets `SnakeAnimation`
-- Reaper Herobrine uses the thunder dragon to shoot thunder breath at the target
+- state 0: normal state. A second-form window may open only when cooldown is zero and no action budget remains;
+- state 1: limited second-form window with `secondFormHitLeft` initialized to 2-3 actions;
+- state 2: fully transformed; second-form actions are unlimited.
 
-`HerobrineCommon.playSecondFormGuardAnimation` calls `DemoniacVoltageReaverItem.processGuard` for Swordsman guard mode and sets `SnakeAnimation`.
+`canStartSecondFormAction()` is the goal-level gate. `canUseSecondFormAction()` is the hook/effect-level gate. `consumeSecondFormAction()` decrements only state 1; once the count reaches zero it returns the mob to state 0 and rolls the shared 600-1200 tick cooldown. State 2 is never decremented.
 
-`HerobrineCommon.playSecondFormSpecialAnimation` handles Reaper special meteorite behavior through the meteorite dragon.
+## EliteHerobrineSecondFormGoal
 
-## Combat Behavior Builders
+`EliteHerobrineSecondFormGoal` is the common vanilla-AI launcher. It can be configured with one animation, two random animations, or a dynamic selector plus an entity-specific predicate.
 
-`HerobrineDemoniacVoltageReaver` wires Swordsman Herobrine's Demoniac Voltage Reaver behavior and snake blade animation calls.
+The goal checks the shared state gate, a live target, no active rig animation, no rig stun, and its entity-specific condition. Gameplay effects belong in `RigAnimationSpecs` timed/on-hit hooks rather than in a copied Epic Fight skill container.
 
-`HerobrineEnderAegis` wires Aegis Herobrine shield/projectile behavior.
+Current elite integrations include Aegis, Glaive, Reaper, Sledgehammer, and Swordsman. Their exact animation/effect mappings are documented in their entity knowledge files.
 
-`HerobrineObsidianSledgehammer` wires Sledgehammer Herobrine sledgehammer and projectile behavior.
+## Profile-Attack Locks
+
+`RigAnimationController.lockProfileAttacksFor(...)` uses `LockableRigAttackAnimation` lock-count semantics. It blocks only attacks recognized by `RigCombatProfiles.isProfileAttack(...)`; it is not a global animation lock.
+
+Hand actions that must not overlap combat should first refuse to start while an active rig animation/profile attack is present, then acquire their own profile-attack lock. Reaper dragon summon follows this pattern after successfully starting `REAPER_HEROBRINE_ULT`.
 
 ## Portal Additions
 
-Portal movement is not implemented in `HerobrineCommon`; it is implemented through goals and helpers:
+Portal movement/support remains separate from second-form ownership:
 
-- `CommonGoals.registerGoalForHostileNpc` adds `PortalApproachGoal`
-- `HerobrinePortalCombatUtil` finds routes and support portals
-- projectile animation events call `HerobrinePortalCombatUtil.getProjectilePortalAim`
+- portal approach is provided by common goals;
+- `HerobrinePortalCombatGoal` and `HerobrinePortalCombatUtil` choose support actions/routes;
+- item/projectile helpers may consume a preferred portal target.
 
+Do not reintroduce removed Epic Fight common combat-behavior classes merely to trigger a rig second-form animation.
 
-## Removed EFN guard-hit state
+## Removed EFN Guard-Hit State
 
-The non-EpicFight `HerobrineMob` no longer carries `efnGuardHitState` or `efnGuardHitCooldown`. The old getters/update method and tick decrement/reset logic were unused after EpicFight guard-hit behavior was removed. Do not use those fields as a vanilla rig stun/guard state; rig animations and stun behavior should use the current rig systems directly.
+The non-EpicFight `HerobrineMob` does not use the old `efnGuardHitState` / `efnGuardHitCooldown` cycle. Rig guard/stun state belongs to the current rig controllers.

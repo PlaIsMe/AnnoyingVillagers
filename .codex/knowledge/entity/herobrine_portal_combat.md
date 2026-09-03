@@ -106,12 +106,7 @@ Current users:
 
 `TransporterFragmentItem.canSpawnOwnedPortals(ServerLevel, LivingEntity, int)` checks whether the caster has enough remaining owned active portal capacity before multi-pair AI actions. Greg uses this before active support reposition because that action needs four portal slots.
 
-`HerobrinePortalCombatUtil.spawnSupportPortalPair` places one portal near an entrance entity and one near an exit entity, plays the one-hand top casting animation on the caster, and triggers nearby Swordsman Herobrine snake blade support.
-
-Animation split:
-
-- `playPortalPairSummon` plays `AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP` for linked two-portal support pairs
-- `playSixPortalSummon` plays `AnimsSculkSteve.PORTAL_SUMMON` for six-portal summons
+`HerobrinePortalCombatUtil.spawnSupportPortalPair` places one linked portal pair near the chosen entrance/exit entities. In the current non-EpicFight source, `playPortalPairSummon` / `playSixPortalSummon` play `PORTAL_NATURAL` and swing the caster's main hand; they do not call Epic Fight animation assets.
 
 Greg's support portal logic now requires a ground support Herobrine. It waits until Greg is within 10 blocks of the chosen support before casting support portals. If he is farther away, he pathfinds toward that support and retries soon. Greg's support selection now supports multiple nearby Herobrines:
 
@@ -122,7 +117,7 @@ Greg's support-position goal has higher priority than `PortalApproachGoal`, so w
 
 After a successful Greg portal support cast, `portalSupportCooldown` is randomized from 90 to 180 seconds. Failed/no-cast checks retry after 10 seconds.
 
-Greg's six-portal support is now separated from ordinary support. It only targets `SwordsmanHerobrineEntity`, requires `HerobrineCommon.canPlaySecondFormAnimation`, uses its own 60-120 second cooldown on Greg's side, and directly triggers that swordsman's snake blade after the six portals spawn.
+Greg's six-portal support is separated from ordinary support and is implemented by `HerobrinePortalCombatGoal`. It targets a live `SwordsmanHerobrineEntity` in `state > 0` with a live target, Demoniac Voltage Reaver equipped, no active `SnakeAnimation` tag, no nearby six-portal batch, and compatible Greg ownership. A successful batch stores the portal group as the Swordsman's preferred portal target; it does not directly start the snake animation. Greg's current six-portal cooldown is 30-60 seconds.
 
 Greg's support-position goal uses `HerobrinePortalCombatUtil.isEnemyOf` to avoid enemies during combat while staying near the supported Herobrine. It samples safe stand positions around the support Herobrine, favors positions farther from nearby enemies, rejects colliding positions, and stops movement once the current support spot is safe.
 
@@ -136,8 +131,6 @@ Greg also has a separate combat low-clone support cooldown in `HerobrineGregEnti
 
 `TransporterHerobrineCloneEntity` now uses the same multi-support portal plan logic through `tryTransporterPortalSupport`, so transporter clone portal casts can prefer an allied Herobrine that is far from its enemy, fall back to gather portals between spread-out Herobrines, or finally use self-to-enemy support if no ally plan is available.
 
-## Swordsman Trigger
+## Swordsman Preferred Portal Support
 
-When Greg, Transporter Herobrine Clone, or Aegis creates support portals, `triggerSwordsmanSnakeBladeNear` searches nearby `SwordsmanHerobrineEntity` instances with a live target and Demoniac Voltage Reaver equipped.
-
-If an Epic Fight patch exists, it plays `AVAnimations.SNAKE_BLADE`. Otherwise it calls `DemoniacVoltageReaverItem.process` directly and sets the `SnakeAnimation` tag.
+Current six-portal support does not call an Epic Fight patch or directly invoke `AVAnimations.SNAKE_BLADE`. `HerobrinePortalCombatGoal` stores the spawned portal group on the Swordsman's Demoniac Voltage Reaver with `DemoniacVoltageReaverItem.setPreferredPortalTarget(...)`. The normal rig second-form goal/ULT hook later calls `tryStartSnakeAnimation`, and `process()` consumes that preferred portal route first.

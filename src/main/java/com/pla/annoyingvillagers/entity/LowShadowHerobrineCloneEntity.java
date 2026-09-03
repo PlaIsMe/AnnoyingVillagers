@@ -482,7 +482,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                     } else {
                         this.setHealth(this.getHealth() - 2.0F);
                     }
-                    this.possessedByEntity.heal(this.possessedByEntity.getMaxHealth() * 0.01F);
+                    this.possessedByEntity.heal(this.possessedByEntity.getMaxHealth() * 0.02F);
                     if (this.healing) {
                         CombatBehaviour.forceLookAt(this, this.possessedByEntity, 60.0F, 60.0F);
                     }

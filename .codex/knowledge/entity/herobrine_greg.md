@@ -80,7 +80,7 @@ Portal support cooldown behavior:
 - `PORTAL_SUPPORT_COOLDOWN_MAX_TICKS = 180 * 20`
 - after a successful portal support cast, cooldown is randomized from 1 minute 30 seconds to 3 minutes
 - if no portal is cast, Greg uses `PORTAL_SUPPORT_RETRY_TICKS = 10 * 20` so he can retry conditions without spamming actual portals
-- six-portal support uses its own `sixPortalSupportCooldown`, randomized from 60 to 120 seconds after a successful cast
+- six-portal support uses its own `sixPortalSupportCooldown`, currently randomized from 30 to 60 seconds after a successful cast
 
 Greg support behavior:
 
@@ -88,18 +88,13 @@ Greg support behavior:
 - ordinary portal support first looks for a supported Herobrine whose enemy is at least 10 blocks away, then can fall back to a gather portal between two spread-out Herobrines if no one currently needs direct approach help
 - if the ground support Herobrine exists but Greg is more than 10 blocks away, Greg moves toward that support first and retries soon instead of casting from far away
 - if the supported Herobrine is already less than 10 blocks from that enemy, Greg normally does not cast approach portals and just stays in safe support position
-- the normal six-portal pattern is now reserved for `SwordsmanHerobrineEntity` support only, and only when `HerobrineCommon.canPlaySecondFormAnimation` is true for that swordsman
-- after a successful swordsman six-portal cast, Greg immediately triggers that swordsman's snake blade animation
+- the normal six-portal pattern is reserved for a valid `SwordsmanHerobrineEntity` with `state > 0`, live target, Demoniac Voltage Reaver, no active `SnakeAnimation`, and no nearby six-portal batch
+- after a successful Swordsman six-portal cast, Greg stores the new portal group as the Swordsman's preferred Demoniac Voltage Reaver portal target; the rig second-form ULT starts snake-blade logic later
 - otherwise he spawns one linked support pair either support-to-enemy or support-to-support, depending on the selected support plan
 
 If Greg only moves toward a support Herobrine, his cooldown retries soon. If portal support activates, the 90-180 second cooldown is used.
 
-Portal animation behavior:
-
-- rare six-portal support uses `AnimsSculkSteve.PORTAL_SUMMON`
-- one linked support pair uses `AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP`
-
-Portal creation can trigger nearby Swordsman Herobrine snake blade support.
+Portal summon feedback in the current non-EpicFight source is `PORTAL_NATURAL` plus a main-hand swing for both pair and six-portal helpers. Portal creation itself does not play Epic Fight animation assets.
 
 Greg also exposes targeted helper methods:
 

@@ -3,17 +3,25 @@ package com.pla.annoyingvillagers.entity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.entity.goal.EliteHerobrineSecondFormGoal;
+import com.pla.annoyingvillagers.entity.goal.MountOrDismountDragonGoal;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.util.TeamUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -23,10 +31,15 @@ import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -41,6 +54,11 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     private UUID healingHerobrineDragonUUID;
     private boolean spawnDragonInit = false;
     private int dragonSummonCooldown = 0;
+    private int pendingDragonSummonType = -1;
+
+    private static final int SUMMON_RISE_DURATION_TICKS = 120;
+    private static final double SUMMON_UNDERGROUND_DISTANCE = 5.0D;
+    private static final double SUMMON_RISE_DISTANCE = 15.0D;
 
     public ReaperHerobrineEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.REAPER_HEROBRINE.get(), level);
@@ -59,6 +77,17 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     }
 
     @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(0, new EliteHerobrineSecondFormGoal<>(
+                this,
+                ReaperHerobrineEntity::hasAvailableSecondFormDragon,
+                ReaperHerobrineEntity::selectAvailableSecondFormDragonAnimation
+        ));
+        this.goalSelector.addGoal(1, new MountOrDismountDragonGoal(this));
+    }
+
+    @Override
     public @Nullable SoundEvent getAttackVoiceSound() {
         return AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY.get();
     }
@@ -69,6 +98,16 @@ public class ReaperHerobrineEntity extends HerobrineMob {
 
     public UUID getThunderHerobrineDragonUUID() {
         return thunderHerobrineDragonUUID;
+    }
+
+    public boolean canRideSummonedDragon() {
+        return this.getState() == 2;
+    }
+
+    public boolean isSecondFormDragonRider() {
+        return this.getState() == 2
+                && this.isPassenger()
+                && this.getVehicle() instanceof HerobrineDragonEntity;
     }
 
     public HerobrineDragonEntity getMeteoriteHerobrineDragon() {
@@ -123,42 +162,195 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     // 1: meteorite dragon
     // 2: healing dragon
     public void summonEnderDragon(int type) {
-        if (this.level() instanceof ServerLevel serverLevel) {
-            HerobrineDragonEntity dragon = new HerobrineDragonEntity(AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get(), serverLevel);
-            dragon.moveTo(this.getX(), this.getY() + 20.0D, this.getZ(), this.getRandom().nextFloat() * 360.0F, 0.0F);
-            dragon.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(dragon.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+        if (!(this.level() instanceof ServerLevel) || type < 0 || type > 2) return;
+        if (this.pendingDragonSummonType >= 0 || RigAnimationController.hasActiveAnimation(this)) return;
 
-            dragon.setPersistenceRequired();
+        this.pendingDragonSummonType = type;
+        this.getNavigation().stop();
+        this.setAggressive(false);
+        this.playSound(AnnoyingVillagersModSounds.REAPER_SUMMON.get(), 2.0F, 1.0F);
 
-            dragon.setSummoner(this);
-            dragon.setSummonerUUID(this.getUUID());
+        RigAnimationController.play(this, RigAnimationSpecs.get(RigAnimationId.REAPER_HEROBRINE_ULT), this.getTarget());
+        if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.REAPER_HEROBRINE_ULT) {
+            this.pendingDragonSummonType = -1;
+            return;
+        }
 
-            serverLevel.addFreshEntity(dragon);
-            TeamUtil.addOrJoinTeam(dragon, "herobrine");
+        // Lock normal rig profile attacks for the entire summoning animation.
+        RigAnimationController.lockProfileAttacksFor(this, RigAnimationId.REAPER_HEROBRINE_ULT);
+    }
 
-            if (type == 0) {
-                this.thunderHerobrineDragonUUID = dragon.getUUID();
-                this.thunderHerobrineDragon = dragon;
-            } else if (type == 1) {
-                this.meteoriteHerobrineDragonUUID = dragon.getUUID();
-                this.meteoriteHerobrineDragon = dragon;
-            } else {
-                this.healingHerobrineDragonUUID = dragon.getUUID();
-                this.healingHerobrineDragon = dragon;
-                EndCrystal endCrystal = new EndCrystal(EntityType.END_CRYSTAL, serverLevel);
-                endCrystal.moveTo(dragon.getX(), dragon.getY(), dragon.getZ());
-                serverLevel.addFreshEntity(endCrystal);
-                endCrystal.startRiding(dragon, true);
-            }
+    public boolean isDragonSummonPending() {
+        return this.pendingDragonSummonType >= 0;
+    }
 
-            if (this.level().getServer() != null) {
-                Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(
-                        Component.literal("<" + this.getChatName() + "> " +
-                                Component.translatable("subtitles.herobrine_summon").getString()),
-                        false
-                );
+    /** Called only by the REAPER_HEROBRINE_ULT timed hook. */
+    public void completePendingDragonSummon() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
+        if (this.pendingDragonSummonType < 0) return;
+        if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.REAPER_HEROBRINE_ULT) return;
+
+        int type = this.pendingDragonSummonType;
+        this.pendingDragonSummonType = -1;
+        HerobrineDragonEntity dragon = spawnSummonedDragon(serverLevel);
+        if (dragon == null) return;
+
+        if (type == 0) {
+            this.thunderHerobrineDragonUUID = dragon.getUUID();
+            this.thunderHerobrineDragon = dragon;
+        } else if (type == 1) {
+            this.meteoriteHerobrineDragonUUID = dragon.getUUID();
+            this.meteoriteHerobrineDragon = dragon;
+        } else {
+            this.healingHerobrineDragonUUID = dragon.getUUID();
+            this.healingHerobrineDragon = dragon;
+            respawnHealingCrystal();
+        }
+    }
+
+    @Nullable
+    private HerobrineDragonEntity spawnSummonedDragon(ServerLevel serverLevel) {
+        if (!this.isAlive()) return null;
+
+        HerobrineDragonEntity dragon = new HerobrineDragonEntity(AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get(), serverLevel);
+        Vec3 spawnPos = findSummonSpawnPos(serverLevel);
+        dragon.setPos(spawnPos);
+        dragon.setYRot(this.getYRot());
+        dragon.setYHeadRot(this.getYRot());
+        dragon.setYBodyRot(this.getYRot());
+        dragon.setXRot(-85.0F);
+        dragon.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(BlockPos.containing(spawnPos)), MobSpawnType.MOB_SUMMONED, null, null);
+        dragon.setPos(spawnPos);
+        dragon.setYRot(this.getYRot());
+        dragon.setYHeadRot(this.getYRot());
+        dragon.setYBodyRot(this.getYRot());
+        dragon.setXRot(-85.0F);
+        dragon.setPersistenceRequired();
+        dragon.setSummoner(this);
+        dragon.setSummonerUUID(this.getUUID());
+        dragon.startSummonRise(findSummonRiseTarget(serverLevel, dragon), SUMMON_RISE_DURATION_TICKS, this.getY());
+
+        if (!serverLevel.addFreshEntity(dragon)) return null;
+        TeamUtil.addOrJoinTeam(dragon, "herobrine");
+        return dragon;
+    }
+
+    private Vec3 findSummonSpawnPos(ServerLevel serverLevel) {
+        double y = Mth.clamp(
+                this.getY() - SUMMON_UNDERGROUND_DISTANCE,
+                serverLevel.getMinBuildHeight() + 2.0D,
+                serverLevel.getMaxBuildHeight() - 8.0D
+        );
+        return new Vec3(this.getX(), y, this.getZ());
+    }
+
+    private Vec3 findSummonRiseTarget(ServerLevel serverLevel, HerobrineDragonEntity dragon) {
+        double minY = serverLevel.getMinBuildHeight() + 6.0D;
+        double maxY = serverLevel.getMaxBuildHeight() - 6.0D;
+
+        if (serverLevel.dimensionType().hasCeiling()) {
+            BlockPos column = BlockPos.containing(this.getX(), 0.0D, this.getZ());
+            int roofAirY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column).getY();
+            maxY = Math.min(maxY, roofAirY - dragon.getBbHeight() - 2.0D);
+        }
+
+        if (maxY < minY) maxY = minY;
+
+        double desiredY = Mth.clamp(this.getY() + SUMMON_RISE_DISTANCE, minY, maxY);
+        int start = Mth.floor(desiredY);
+        int end = Mth.floor(Math.max(minY, this.getY() + 8.0D));
+
+        for (int y = start; y >= end; y--) {
+            if (canDragonFitAt(serverLevel, dragon, this.getX(), y, this.getZ())) {
+                return new Vec3(this.getX(), y, this.getZ());
             }
         }
+
+        return new Vec3(this.getX(), desiredY, this.getZ());
+    }
+
+    private static boolean canDragonFitAt(ServerLevel serverLevel, HerobrineDragonEntity dragon, double x, double y, double z) {
+        AABB movedBox = dragon.getBoundingBox().move(
+                x - dragon.getX(),
+                y - dragon.getY(),
+                z - dragon.getZ()
+        );
+        return serverLevel.noCollision(dragon, movedBox) && !serverLevel.containsAnyLiquid(movedBox);
+    }
+
+    public boolean hasAvailableSecondFormDragon() {
+        return isThunderDragonAvailable() || isMeteoriteDragonAvailable() || isHealingDragonAvailable();
+    }
+
+    @Nullable
+    public RigAnimationId selectAvailableSecondFormDragonAnimation() {
+        List<RigAnimationId> available = new ArrayList<>(3);
+        if (isThunderDragonAvailable()) available.add(RigAnimationId.POINT_LEFT_HAND_TOWARD);
+        if (isHealingDragonAvailable()) available.add(RigAnimationId.POINT_LEFT_HAND_MIDDLE);
+        if (isMeteoriteDragonAvailable()) available.add(RigAnimationId.POINT_LEFT_HAND_UP);
+        return available.isEmpty() ? null : available.get(this.getRandom().nextInt(available.size()));
+    }
+
+    public boolean isThunderDragonAvailable() {
+        return isCommandDragonAvailable(this.thunderHerobrineDragon);
+    }
+
+    public boolean isMeteoriteDragonAvailable() {
+        return isCommandDragonAvailable(this.meteoriteHerobrineDragon);
+    }
+
+    public boolean isHealingDragonAvailable() {
+        return this.healingHerobrineDragon != null
+                && this.healingHerobrineDragon.isAlive()
+                && !this.healingHerobrineDragon.isRemoved()
+                && this.healingHerobrineDragon.getPassengers().isEmpty();
+    }
+
+    private boolean isCommandDragonAvailable(HerobrineDragonEntity dragon) {
+        if (dragon == null || !dragon.isAlive() || dragon.isRemoved()) {
+            return false;
+        }
+
+        /*
+         * Once Reaper is already riding a summoned dragon in state 2, the recall
+         * system must not disable his dragon-command attacks. A stale recallActive
+         * flag is only relevant while recalling/landing before the mount completes.
+         */
+        return this.isSecondFormDragonRider() || !dragon.isRecallActive();
+    }
+
+    public void castThunderFromSecondForm() {
+        if (!(this.level() instanceof ServerLevel) || !this.canUseSecondFormAction() || !isThunderDragonAvailable()) return;
+        LivingEntity target = this.getTarget();
+        if (target == null || !target.isAlive()) return;
+        this.playSound(AnnoyingVillagersModSounds.REAPER_FIRE.get(), 1.0F, 1.0F);
+        this.thunderHerobrineDragon.shootThunderBreathAtTarget(target);
+        this.consumeSecondFormAction();
+    }
+
+    public void castMeteoriteFromSecondForm() {
+        if (!(this.level() instanceof ServerLevel) || !this.canUseSecondFormAction() || !isMeteoriteDragonAvailable()) return;
+        LivingEntity target = this.getTarget();
+        if (target == null || !target.isAlive()) return;
+        this.meteoriteHerobrineDragon.shootMeteoriteAtTarget(target);
+        this.consumeSecondFormAction();
+    }
+
+    public void respawnHealingCrystalFromSecondForm() {
+        if (!(this.level() instanceof ServerLevel) || !this.canUseSecondFormAction() || !isHealingDragonAvailable()) return;
+        respawnHealingCrystal();
+        this.consumeSecondFormAction();
+    }
+
+    private void respawnHealingCrystal() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
+        if (this.healingHerobrineDragon == null || !this.healingHerobrineDragon.isAlive()
+                || !this.healingHerobrineDragon.getPassengers().isEmpty()) return;
+
+        EndCrystal endCrystal = new EndCrystal(EntityType.END_CRYSTAL, serverLevel);
+        endCrystal.moveTo(this.healingHerobrineDragon.getX(), this.healingHerobrineDragon.getY(), this.healingHerobrineDragon.getZ());
+        serverLevel.addFreshEntity(endCrystal);
+        endCrystal.startRiding(this.healingHerobrineDragon, true);
     }
 
     @Override
@@ -170,9 +362,34 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     public void tick() {
         super.tick();
         if (!level().isClientSide) {
+            // Reaper is only allowed to remain mounted during full second form.
+            if (this.isPassenger()
+                    && this.getVehicle() instanceof HerobrineDragonEntity
+                    && !this.canRideSummonedDragon()) {
+                this.stopRiding();
+            }
+
+            // Do not permanently consume the init summon flag just because another rig
+            // animation (or a stun) happened to be active on Reaper's first server tick.
+            // Keep retrying until the thunder summon request actually owns the ULT.
             if (!spawnDragonInit) {
-                this.spawnDragonInit = true;
-                summonEnderDragon(0);
+                if (thunderHerobrineDragon != null || thunderHerobrineDragonUUID != null) {
+                    this.spawnDragonInit = true;
+                } else {
+                    summonEnderDragon(0);
+                    if (this.pendingDragonSummonType == 0
+                            && RigAnimationController.getActiveAnimationId(this) == RigAnimationId.REAPER_HEROBRINE_ULT) {
+                        this.spawnDragonInit = true;
+                    }
+                }
+            }
+
+            // A pending request normally resolves at the ULT tick-22 hook. If another
+            // system ever interrupts/replaces the ULT first, release the request so the
+            // normal dragon progression logic can retry instead of becoming stuck forever.
+            if (this.pendingDragonSummonType >= 0
+                    && RigAnimationController.getActiveAnimationId(this) != RigAnimationId.REAPER_HEROBRINE_ULT) {
+                this.pendingDragonSummonType = -1;
             }
 
             if (dragonSummonCooldown <= 0) {
@@ -230,14 +447,6 @@ public class ReaperHerobrineEntity extends HerobrineMob {
             if (thunderHerobrineDragon != null && !thunderHerobrineDragon.isAlive()) {
                 thunderHerobrineDragon = null;
                 thunderHerobrineDragonUUID = null;
-
-                if (this.level().getServer() != null) {
-                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(
-                            Component.literal("<" + this.getChatName() + ">  " +
-                                    Component.translatable("subtitles.reaper_herobrine_return_dragon").getString()),
-                            false
-                    );
-                }
                 if (dragonSummonCooldown == 0) {
                     if (this.getState() < 2) {
                         dragonSummonCooldown = new Random().nextInt(4800, 7200);
@@ -250,15 +459,6 @@ public class ReaperHerobrineEntity extends HerobrineMob {
             if (meteoriteHerobrineDragon != null && !meteoriteHerobrineDragon.isAlive()) {
                 meteoriteHerobrineDragon = null;
                 meteoriteHerobrineDragonUUID = null;
-
-                if (this.level().getServer() != null) {
-                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(
-                            Component.literal("<" + this.getChatName() + ">  " +
-                                    Component.translatable("subtitles.reaper_herobrine_return_dragon").getString()),
-                            false
-                    );
-                }
-
                 if (dragonSummonCooldown == 0) {
                     if (this.getState() < 2) {
                         dragonSummonCooldown = new Random().nextInt(4800, 7200);
@@ -271,14 +471,6 @@ public class ReaperHerobrineEntity extends HerobrineMob {
             if (healingHerobrineDragon != null && !healingHerobrineDragon.isAlive()) {
                 healingHerobrineDragon = null;
                 healingHerobrineDragonUUID = null;
-
-                if (this.level().getServer() != null) {
-                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(
-                            Component.literal("<" + this.getChatName() + ">  " +
-                                    Component.translatable("subtitles.reaper_herobrine_return_dragon").getString()),
-                            false
-                    );
-                }
 
                 if (dragonSummonCooldown == 0) {
                     if (this.getState() < 2) {
@@ -363,9 +555,10 @@ public class ReaperHerobrineEntity extends HerobrineMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
-                .add(Attributes.ARMOR, 10.0D)
-                .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
+                .add(Attributes.ARMOR, 80.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 40.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
         return addEpicFightAttributes(builder);
     }
 }
+

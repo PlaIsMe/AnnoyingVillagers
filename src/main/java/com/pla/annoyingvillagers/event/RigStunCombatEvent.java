@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigCriticalUtil;
@@ -68,6 +69,10 @@ public final class RigStunCombatEvent {
         LivingEntity victim = event.getEntity();
         DamageSource source = event.getSource();
         if (event.getAmount() <= 0.0F || !(victim instanceof Mob mobVictim) || !RigStunController.supports(mobVictim)) return;
+
+        // Ground Stuck owns its reaction animation while active. This is the vanilla-rig
+        // equivalent of the old Epic Fight EntityStunEvent cancellation.
+        if (victim.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get())) return;
 
         if (source.is(DamageTypes.FALL) && event.getAmount() > 1.0F) {
             RigAnimationController.stop(mobVictim, RigAnimationId.FALL);

@@ -294,16 +294,16 @@ public final class RigAnimationResolver {
             case BLUE_DEMON_THROW_JUMP_ATTACK -> BlueDemonAnimations5.BLUE_DEMON_THROW_JUMP_ATTACK;
             case BLUE_DEMON_THROW_ULT -> BlueDemonAnimations5.BLUE_DEMON_THROW_ULT;
 
-            case SWORDMAN_HEROBRINE_ATTACK1 -> SwordsmanHerobrineAnimations1.SWORDMAN_HEROBRINE_ATTACK1;
-            case SWORDMAN_HEROBRINE_ATTACK2 -> SwordsmanHerobrineAnimations1.SWORDMAN_HEROBRINE_ATTACK2;
-            case SWORDMAN_HEROBRINE_ATTACK3 -> SwordsmanHerobrineAnimations1.SWORDMAN_HEROBRINE_ATTACK3;
-            case SWORDMAN_HEROBRINE_ATTACK4 -> SwordsmanHerobrineAnimations1.SWORDMAN_HEROBRINE_ATTACK4;
-            case SWORDMAN_HEROBRINE_ATTACK5 -> SwordsmanHerobrineAnimations1.SWORDMAN_HEROBRINE_ATTACK5;
-            case SWORDMAN_HEROBRINE_DASH_ATTACK -> SwordsmanHerobrineAnimations2.SWORDMAN_HEROBRINE_DASH_ATTACK;
-            case SWORDMAN_HEROBRINE_JUMP_ATTACK -> SwordsmanHerobrineAnimations2.SWORDMAN_HEROBRINE_JUMP_ATTACK;
-            case SWORDMAN_HEROBRINE_EXTRA_ATTACK -> SwordsmanHerobrineAnimations2.SWORDMAN_HEROBRINE_EXTRA_ATTACK;
-            case SWORDMAN_HEROBRINE_ULT -> SwordsmanHerobrineAnimations2.SWORDMAN_HEROBRINE_ULT;
-            case SWORDMAN_HEROBRINE_EXTRA_ULT -> SwordsmanHerobrineAnimations2.SWORDMAN_HEROBRINE_EXTRA_ULT;
+            case SWORDSMAN_HEROBRINE_ATTACK1 -> SwordsmanHerobrineAnimations1.SWORDSMAN_HEROBRINE_ATTACK1;
+            case SWORDSMAN_HEROBRINE_ATTACK2 -> SwordsmanHerobrineAnimations1.SWORDSMAN_HEROBRINE_ATTACK2;
+            case SWORDSMAN_HEROBRINE_ATTACK3 -> SwordsmanHerobrineAnimations1.SWORDSMAN_HEROBRINE_ATTACK3;
+            case SWORDSMAN_HEROBRINE_ATTACK4 -> SwordsmanHerobrineAnimations1.SWORDSMAN_HEROBRINE_ATTACK4;
+            case SWORDSMAN_HEROBRINE_ATTACK5 -> SwordsmanHerobrineAnimations1.SWORDSMAN_HEROBRINE_ATTACK5;
+            case SWORDSMAN_HEROBRINE_DASH_ATTACK -> SwordsmanHerobrineAnimations2.SWORDSMAN_HEROBRINE_DASH_ATTACK;
+            case SWORDSMAN_HEROBRINE_JUMP_ATTACK -> SwordsmanHerobrineAnimations2.SWORDSMAN_HEROBRINE_JUMP_ATTACK;
+            case SWORDSMAN_HEROBRINE_EXTRA_ATTACK -> SwordsmanHerobrineAnimations2.SWORDSMAN_HEROBRINE_EXTRA_ATTACK;
+            case SWORDSMAN_HEROBRINE_ULT -> SwordsmanHerobrineAnimations2.SWORDSMAN_HEROBRINE_ULT;
+            case SWORDSMAN_HEROBRINE_EXTRA_ULT -> SwordsmanHerobrineAnimations2.SWORDSMAN_HEROBRINE_EXTRA_ULT;
 
             case AEGIS_HEROBRINE_IDLE -> AegisHerobrineAnimations1.AEGIS_HEROBRINE_IDLE;
             case AEGIS_HEROBRINE_GUARD -> AegisHerobrineAnimations1.AEGIS_HEROBRINE_GUARD;

@@ -443,7 +443,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
                     } else {
                         this.setHealth(this.getHealth() - 2.0F);
                     }
-                    this.possessedByEntity.heal(this.possessedByEntity.getMaxHealth() * 0.01F);
+                    this.possessedByEntity.heal(this.possessedByEntity.getMaxHealth() * 0.02F);
                     CombatBehaviour.forceLookAt(this, this.possessedByEntity, 60.0F, 60.0F);
                 }
                 if (this.possessedByEntity != null && this.possessedByEntity.isAlive()) {

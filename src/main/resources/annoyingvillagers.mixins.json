@@ -29,6 +29,7 @@
   ],
   "client": [
     "client.ModelPartMixin",
+    "client.GroundStuckKnockoutRenderMixin",
     "client.EndFireEntityRenderDispatcherMixin",
     "client.EndFireScreenEffectRendererMixin",
     "client.IllagerRendererMixin",

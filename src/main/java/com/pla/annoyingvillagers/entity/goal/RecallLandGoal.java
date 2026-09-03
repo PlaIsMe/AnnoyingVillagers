@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
+import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -111,7 +112,9 @@ public class RecallLandGoal extends Goal {
             dragon.setDeltaMovement(Vec3.ZERO);
 
             if (dragon.isRecallAutoMount()) {
-                owner.startRiding(dragon, true);
+                if (!(owner instanceof ReaperHerobrineEntity reaper) || reaper.canRideSummonedDragon()) {
+                    owner.startRiding(dragon, true);
+                }
             }
 
             stop();

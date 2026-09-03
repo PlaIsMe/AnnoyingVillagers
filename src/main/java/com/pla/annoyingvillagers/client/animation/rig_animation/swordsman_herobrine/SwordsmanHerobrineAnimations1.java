@@ -6,7 +6,7 @@ import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.animation.KeyframeAnimations;
 
 public class SwordsmanHerobrineAnimations1 {
-	public static final AnimationDefinition SWORDMAN_HEROBRINE_ATTACK1 = AnimationDefinition.Builder.withLength(1.05F)
+	public static final AnimationDefinition SWORDSMAN_HEROBRINE_ATTACK1 = AnimationDefinition.Builder.withLength(1.05F)
 			.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-2.617F, 70.558F, 3.338F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.05F, KeyframeAnimations.degreeVec(13.935F, 22.165F, 18.749F), AnimationChannel.Interpolations.LINEAR),
@@ -316,7 +316,7 @@ public class SwordsmanHerobrineAnimations1 {
 			))
 			.build();
 
-	public static final AnimationDefinition SWORDMAN_HEROBRINE_ATTACK2 = AnimationDefinition.Builder.withLength(1.65F)
+	public static final AnimationDefinition SWORDSMAN_HEROBRINE_ATTACK2 = AnimationDefinition.Builder.withLength(1.65F)
 			.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(13.026F, 49.414F, 4.528F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.05F, KeyframeAnimations.degreeVec(36.986F, 72.905F, 20.622F), AnimationChannel.Interpolations.LINEAR),
@@ -762,7 +762,7 @@ public class SwordsmanHerobrineAnimations1 {
 			))
 			.build();
 
-	public static final AnimationDefinition SWORDMAN_HEROBRINE_ATTACK3 = AnimationDefinition.Builder.withLength(1.8F)
+	public static final AnimationDefinition SWORDSMAN_HEROBRINE_ATTACK3 = AnimationDefinition.Builder.withLength(1.8F)
 			.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(13.026F, 49.414F, 4.528F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.05F, KeyframeAnimations.degreeVec(1.268F, -22.907F, 20.404F), AnimationChannel.Interpolations.LINEAR),
@@ -1192,7 +1192,7 @@ public class SwordsmanHerobrineAnimations1 {
 			))
 			.build();
 
-	public static final AnimationDefinition SWORDMAN_HEROBRINE_ATTACK4 = AnimationDefinition.Builder.withLength(1.5F)
+	public static final AnimationDefinition SWORDSMAN_HEROBRINE_ATTACK4 = AnimationDefinition.Builder.withLength(1.5F)
 			.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(13.026F, 49.414F, 4.528F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.05F, KeyframeAnimations.degreeVec(12.85F, 66.458F, -10.443F), AnimationChannel.Interpolations.LINEAR),
@@ -1583,7 +1583,7 @@ public class SwordsmanHerobrineAnimations1 {
 			))
 			.build();
 
-	public static final AnimationDefinition SWORDMAN_HEROBRINE_ATTACK5 = AnimationDefinition.Builder.withLength(2.7F)
+	public static final AnimationDefinition SWORDSMAN_HEROBRINE_ATTACK5 = AnimationDefinition.Builder.withLength(2.7F)
 			.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(13.026F, 49.414F, -355.472F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.05F, KeyframeAnimations.degreeVec(50.594F, 57.291F, -331.546F), AnimationChannel.Interpolations.LINEAR),

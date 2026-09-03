@@ -1,5 +1,5 @@
 name = "herobrine_expert"
-description = "Project-scoped expert for Herobrine entities, combat behavior, portal support, transporter logic, and Demoniac Voltage Reaver session knowledge."
+description = "Project-scoped expert for current vanilla-rig Herobrine entities, second-form combat, dragon behavior, portal support, and Demoniac Voltage Reaver knowledge."
 sandbox_mode = "danger-full-access"
 
 instructions = """

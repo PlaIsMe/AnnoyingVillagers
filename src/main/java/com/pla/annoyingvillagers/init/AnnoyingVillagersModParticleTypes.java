@@ -2,11 +2,14 @@ package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.particle.HitParticleType;
+import com.pla.annoyingvillagers.client.particle.smoke_wave.SmokeWaveOptions;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 
 public class AnnoyingVillagersModParticleTypes {
 
@@ -35,6 +38,13 @@ public class AnnoyingVillagersModParticleTypes {
             REGISTRY.register("ground_slam", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> WHITE_AFTERIMAGE =
             REGISTRY.register("white_afterimage", () -> new SimpleParticleType(true));
+    public static final RegistryObject<ParticleType<SmokeWaveOptions>> SMOKE_WAVE =
+            REGISTRY.register("smoke_wave", () -> new ParticleType<SmokeWaveOptions>(false, SmokeWaveOptions.DESERIALIZER) {
+                @Override
+                public @NotNull Codec<SmokeWaveOptions> codec() {
+                    return SmokeWaveOptions.codec();
+                }
+            });
     public static final RegistryObject<HitParticleType> HIT_BLUNT =
             REGISTRY.register("hit_blunt", () -> new HitParticleType(true, HitParticleType.RANDOM_WITHIN_BOUNDING_BOX, HitParticleType.ZERO));
 }

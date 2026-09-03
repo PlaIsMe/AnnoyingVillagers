@@ -11,9 +11,14 @@ import com.pla.annoyingvillagers.entity.SwordsmanHerobrineEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModCapabilities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
-import com.pla.annoyingvillagers.util.HerobrineUtil;
+import com.pla.annoyingvillagers.util.RigPoseUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -32,9 +37,10 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DemoniacVoltageReaverItem extends SwordItem {
+public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatProfileProvider {
     private static final String TAG_PREFERRED_PORTAL_GROUP = "PreferredPortalGroup";
     private static final String TAG_PREFERRED_PORTAL_OWNER = "PreferredPortalOwner";
+    private static final String TAG_SNAKE_PROFILE_ATTACK_LOCK = "SnakeBladeProfileAttackLock";
     private static final double TARGET_SEARCH_RADIUS = 16.0D;
     private static final double PORTAL_TARGET_SEARCH_RADIUS = 64.0D;
 
@@ -105,12 +111,58 @@ public class DemoniacVoltageReaverItem extends SwordItem {
         boolean launched = guard ? processGuard(stack, livingEntity) : process(stack, livingEntity);
         if (launched || getLastFragment(livingEntity) != null) {
             stack.getOrCreateTag().putBoolean("SnakeAnimation", true);
+            acquireSnakeProfileAttackLock(livingEntity);
             return true;
         }
 
         clearSnakeAnimation(stack);
         setLastFragment(livingEntity, null);
+        releaseSnakeProfileAttackLock(livingEntity);
         return false;
+    }
+
+    private static void acquireSnakeProfileAttackLock(LivingEntity livingEntity) {
+        if (!(livingEntity instanceof LockableRigAttackAnimation lockable)) {
+            return;
+        }
+
+        if (livingEntity.getPersistentData().getBoolean(TAG_SNAKE_PROFILE_ATTACK_LOCK)) {
+            return;
+        }
+
+        lockable.lock();
+        livingEntity.getPersistentData().putBoolean(TAG_SNAKE_PROFILE_ATTACK_LOCK, true);
+    }
+
+    public static boolean hasSnakeProfileAttackLock(LivingEntity livingEntity) {
+        return livingEntity.getPersistentData().getBoolean(TAG_SNAKE_PROFILE_ATTACK_LOCK);
+    }
+
+    public static void releaseSnakeProfileAttackLock(LivingEntity livingEntity) {
+        if (!livingEntity.getPersistentData().getBoolean(TAG_SNAKE_PROFILE_ATTACK_LOCK)) {
+            return;
+        }
+
+        if (livingEntity instanceof LockableRigAttackAnimation lockable) {
+            lockable.unlock();
+        }
+        livingEntity.getPersistentData().remove(TAG_SNAKE_PROFILE_ATTACK_LOCK);
+    }
+
+    /**
+     * Clears transient snake-blade state when a mob entity is freshly loaded.
+     * The LockableRigAttackAnimation counter itself is runtime-only and is not
+     * persisted, while Forge persistent data is. Leaving the marker behind after
+     * a world unload would therefore make the next snake action think it already
+     * owns a lock even though the runtime lock count has reset to zero.
+     */
+    public static void resetSnakeAnimationAfterEntityLoad(LivingEntity livingEntity) {
+        ItemStack stack = livingEntity.getMainHandItem();
+        if (stack.getItem() instanceof DemoniacVoltageReaverItem) {
+            clearSnakeAnimation(stack);
+        }
+        setLastFragment(livingEntity, null);
+        livingEntity.getPersistentData().remove(TAG_SNAKE_PROFILE_ATTACK_LOCK);
     }
 
     public static void clearInterruptedSnakeAnimation(LivingEntity livingEntity) {
@@ -129,6 +181,7 @@ public class DemoniacVoltageReaverItem extends SwordItem {
 
         clearSnakeAnimation(stack);
         setLastFragment(livingEntity, null);
+        releaseSnakeProfileAttackLock(livingEntity);
     }
 
     private static boolean isPlayingSnakeBladeAnimation(LivingEntity livingEntity) {
@@ -147,6 +200,14 @@ public class DemoniacVoltageReaverItem extends SwordItem {
 //        var dynamicAnimation = animationPlayer.getRealAnimation();
 //        return dynamicAnimation == AVAnimations.SNAKE_BLADE
 //                || dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD;
+
+        // Vanilla rig fallback. Keep the Epic Fight block above intact so AV_EFM can
+        // restore its animator check later without removing this branch.
+        if (livingEntity instanceof Mob mob) {
+            RigAnimationId active = RigAnimationController.getActiveAnimationId(mob);
+            return active == RigAnimationId.SWORDSMAN_HEROBRINE_ULT
+                    || active == RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT;
+        }
 
         return false;
     }
@@ -490,6 +551,14 @@ public class DemoniacVoltageReaverItem extends SwordItem {
 //        );
 
 //        Add a fallback for vanilla weapon vec position
+        if (ent instanceof Mob mob) {
+            RigAnimationId active = RigAnimationController.getActiveAnimationId(mob);
+            int startTick = RigAnimationController.getActiveAnimationStartTick(mob);
+            if (active != null && startTick >= 0) {
+                float elapsedTicks = Math.max(0.0F, mob.tickCount - startTick + partialTicks);
+                return RigPoseUtil.getRightWeaponPosition(mob, active, elapsedTicks, handToTip);
+            }
+        }
         return CommonUtil.getVanillaSwordOrBodyPosition(ent, partialTicks);
     }
 
@@ -522,9 +591,15 @@ public class DemoniacVoltageReaverItem extends SwordItem {
         if (flag && entity instanceof Player player) {
             secondFormNbtTag(itemstack, level, player);
         }
-        if (entity instanceof Player && !flag && itemstack.hasTag() && itemstack.getTag().getBoolean("SnakeAnimation")) {
+        if (entity instanceof Player player && !flag && itemstack.hasTag() && itemstack.getTag().getBoolean("SnakeAnimation")) {
             clearSnakeAnimation(itemstack);
+            releaseSnakeProfileAttackLock(player);
         }
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.SWORDSMAN_HEROBRINE;
     }
 
     public static final class LocalSpace {

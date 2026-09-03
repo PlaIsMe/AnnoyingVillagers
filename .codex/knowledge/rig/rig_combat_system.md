@@ -102,12 +102,6 @@ A hand-action system that must not overlap melee should first refuse to begin wh
 
 `RigAnimatedMeleeAttackGoal` paths while no rig attack is active, uses collider/motion-derived attack-start distance, and lets active animation movement/collision drive the action once playback begins.
 
-## Healing food combat positioning
-
-`EatHealingFoodGoal` intentionally claims only the `LOOK` goal flag. It must not claim `MOVE` or stop navigation every eating tick, because `KeepPositionGoal` is responsible for defensive movement while an `AVNpc` is healing. The eating goal still stops navigation when it starts and stops, and retaining `LOOK` prevents normal melee/bow goals that claim `LOOK` from taking over during the hand-action animation.
-
-`KeepPositionGoal` stays flagless so it can run alongside `EatHealingFoodGoal`. It is active for the existing dangerous-target hold-position case and also while an `AVNpc` is healing with a live combat target. During healing it samples a retreat point with `DefaultRandomPos.getPosAway(avNpc, 6, 3, target.position())`, moves there at speed `1.0D`, and repaths every `8 + random.nextInt(8)` ticks or when navigation finishes. Outside the healing case, dangerous-target behavior remains unchanged and stops navigation while facing the target.
-
 
 ### Blue Demon profile integration
 
@@ -206,3 +200,19 @@ The following stun/reaction animations must continue playing when the mob takes 
 - `SHOCKED_LONG`
 
 `RigStunController` checks both its tracked `StunState.animationId` and `RigAnimationController.getActiveAnimationId(mob)`. Checking the active animation is required because `STUN_BACK` can be started directly by systems such as `TotemUsingEvent` rather than by the stun-state map. Damage itself is not cancelled; only `applyStun(...)` / `applyHitAnimation(...)` refuse to replace one of these protected clips with the generic hit chain.
+
+## Elite Herobrine rig second-form migration
+
+`EliteHerobrineSecondFormGoal` is the shared vanilla-AI launcher for elite Herobrine second-form actions. `HerobrineMob` remains authoritative for state and action budget: state 0 may open a limited window after cooldown, state 1 consumes `secondFormHitLeft`, and state 2 is unlimited. Goal implementations should select/start animations; gameplay effects should fire from `RigAnimationSpecs` hooks at authored timings.
+
+Current migrated users:
+
+- Aegis: `AEGIS_HEROBRINE_ULT`, whose hook calls the Ender Aegis shield shot.
+- Glaive: `GLAIVE_HEROBRINE_ULT` / `GLAIVE_HEROBRINE_EXTRA_ULT`, whose hooks spawn vacuum slices.
+- Swordsman: `SWORDMAN_HEROBRINE_ULT` / `SWORDMAN_HEROBRINE_EXTRA_ULT`, whose start hooks call `DemoniacVoltageReaverItem.tryStartSnakeAnimation(..., false/true)`.
+- Sledgehammer: `SLEDGEHAMMER_HEROBRINE_ULT` applies Ground Stuck on successful rig hits; EXTRA ULT emits four expanding smoke-wave rings.
+- Reaper: dynamic POINT_LEFT_HAND selection based on which thunder/healing/meteorite dragon is currently usable.
+
+Reaper dragon summoning is a separate locked hand-action path. `summonEnderDragon(type)` must refuse to start while another rig animation is active, start `REAPER_HEROBRINE_ULT`, then acquire a profile-attack lock for that animation duration. The tick-22 ULT hook performs the fracture and actual dragon spawn. The spawned dragon begins underground with temporary no-gravity/no-physics and `DragonSummonRiseGoal` carries it above the caster before normal physics is restored.
+
+Ground Stuck is now a normal AV mob effect rather than an Epic Fight stun event. Rig targets use `HIT_LEFT`/`HIT_RIGHT`; non-rig/player targets receive the short vanilla nausea/slowness/mining-fatigue fallback. Knockout spin uses an AV client packet plus a vanilla `LivingEntityRenderer` mixin. Keep this path free of active Epic Fight imports; compatibility-only code remains in explicitly commented `ADD THIS CODE IN AV_EFM` blocks.

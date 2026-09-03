@@ -3,8 +3,9 @@ package com.pla.annoyingvillagers.entity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.entity.goal.EliteHerobrineSecondFormGoal;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
-import com.pla.annoyingvillagers.util.HerobrineUtil;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -43,6 +44,18 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
     }
 
     @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(0, new EliteHerobrineSecondFormGoal<>(
+                this,
+                RigAnimationId.SWORDSMAN_HEROBRINE_ULT,
+                RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT,
+                swordsman -> swordsman.getMainHandItem().getItem() instanceof DemoniacVoltageReaverItem
+                        && !DemoniacVoltageReaverItem.hasSnakeAnimation(swordsman.getMainHandItem())
+        ));
+    }
+
+    @Override
     public @Nullable SoundEvent getAttackVoiceSound() {
         return AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY.get();
     }
@@ -62,10 +75,13 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
 
     @Override
     public void tick() {
-        super.tick();
-        if (this.tickCount == 1) {
-            DemoniacVoltageReaverItem.clearSnakeAnimation(this.getMainHandItem());
+        // tickCount is still 0 before the first super.tick() call. Clear any
+        // persisted snake marker/tag before AI goals get a chance to run.
+        if (!this.level().isClientSide() && this.tickCount == 0) {
+            DemoniacVoltageReaverItem.resetSnakeAnimationAfterEntityLoad(this);
         }
+
+        super.tick();
         if (!this.level().isClientSide()) {
             if (this.tickCount % 20 == 0) {
                 ItemStack itemStack = this.getMainHandItem();
@@ -122,8 +138,8 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
-                .add(Attributes.ARMOR, 10.0D)
-                .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
+                .add(Attributes.ARMOR, 80.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 40.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
         return addEpicFightAttributes(builder);
     }

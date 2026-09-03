@@ -2,6 +2,8 @@ package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
@@ -269,14 +271,13 @@ public class SnakeBladeEntity extends Entity {
         } else {
             updateLastFragment(null);
             clearSnakeAnimationTag(creator);
-
-
+            cancelAnimation(creator);
         }
 
         this.remove(RemovalReason.DISCARDED);
     }
 
-    private void cancelAnimation() {
+    private void cancelAnimation(Entity creator) {
 //      ADD THIS CODE IN AV_EFM
 //        LivingEntityPatch<?> creatorPatch = EpicFightCapabilities.getEntityPatch(creator, LivingEntityPatch.class);
 //        if (creatorPatch != null) {
@@ -287,6 +288,17 @@ public class SnakeBladeEntity extends Entity {
 //        }
 
 //        Add more logic to cover this
+        if (creator instanceof Mob mob && !mob.level().isClientSide) {
+            RigAnimationId activeAnimation = RigAnimationController.getActiveAnimationId(mob);
+            if (activeAnimation == RigAnimationId.SWORDSMAN_HEROBRINE_ULT
+                    || activeAnimation == RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT) {
+                RigAnimationController.stop(mob, activeAnimation);
+            }
+        }
+
+        if (creator instanceof LivingEntity livingEntity) {
+            DemoniacVoltageReaverItem.releaseSnakeProfileAttackLock(livingEntity);
+        }
     }
 
     private void clearSnakeAnimationTag(Entity creator) {
@@ -304,6 +316,7 @@ public class SnakeBladeEntity extends Entity {
     private void cleanupAndDiscard(Entity creator) {
         updateLastFragment(null);
         clearSnakeAnimationTag(creator);
+        cancelAnimation(creator);
         this.remove(RemovalReason.DISCARDED);
     }
 

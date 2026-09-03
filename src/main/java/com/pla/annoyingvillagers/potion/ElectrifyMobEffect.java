@@ -13,6 +13,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Random;
+
 public class ElectrifyMobEffect extends MobEffect {
 
     public ElectrifyMobEffect() {
@@ -46,7 +48,9 @@ public class ElectrifyMobEffect extends MobEffect {
 //            }
 //        }
 
-        playShockAnimation(livingEntity, pAmplifier);
+        if (livingEntity.tickCount % 20 == 0 && new Random().nextFloat() <= 0.3F) {
+            playShockAnimation(livingEntity, pAmplifier);
+        }
     }
 
     public static void playShockAnimation(LivingEntity livingEntity, int pAmplifier) {

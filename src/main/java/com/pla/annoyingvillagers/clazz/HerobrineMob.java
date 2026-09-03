@@ -888,6 +888,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
 
     private void recoverAfterSacrificing() {
         this.sacrificing = false;
+        this.sacrificingAnimationCooldown = 0;
         this.setNoAi(false);
         this.removeAllEffects();
         playFallAnimation();
@@ -1022,12 +1023,12 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
 //        }
 
         if (!this.level().isClientSide()) {
-            if (this instanceof ReaperHerobrineEntity || this instanceof GlaiveHerobrineEntity) {
+            if (this instanceof GlaiveHerobrineEntity) {
                 this.spinningWeaponInitActive = true;
                 RigAnimationController.playHeldPose(this,RigAnimationId.SPINNING_WEAPON);
             } else if (this instanceof TransporterHerobrineCloneEntity) {
                 RigAnimationController.play(this, RigAnimationId.PORTAL_SUMMON);
-            } else if (!(this instanceof SledgehammerHerobrineEntity) && !(this instanceof SwordsmanHerobrineEntity) && !(this instanceof AegisHerobrineEntity)) {
+            } else if (!(this instanceof SledgehammerHerobrineEntity) && !(this instanceof SwordsmanHerobrineEntity) && !(this instanceof AegisHerobrineEntity) && !(this instanceof ReaperHerobrineEntity)) {
                 RigAnimationController.play(this, RigAnimationId.HEROBRINE_ANIMATE);
             }
         }
@@ -1224,7 +1225,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             if (this.sacrificingAnimationCooldown > 0) {
                 this.sacrificingAnimationCooldown = this.sacrificingAnimationCooldown - 1;
             }
-            if (this.sacrificingAnimationCooldown == 60) {
+            if (this.sacrificing && this.sacrificingAnimationCooldown == 60) {
                 if (this instanceof NullEntity nullEntity) {
                     nullEntity.setSpinningToAllWeaponsAvailableFor5seconds();
                 } else {
@@ -1244,7 +1245,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 }
                 this.summonClonesForNextStage();
             }
-            if (this.sacrificingAnimationCooldown == 10) {
+            if (this.sacrificing && this.sacrificingAnimationCooldown == 10) {
                 this.setNoAi(true);
                 if (this.firstPossessedHerobrine != null) {
                     CommonUtil.stunImmunity(((Mob) firstPossessedHerobrine), 30, 3);

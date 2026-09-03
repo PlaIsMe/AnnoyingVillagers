@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.client.engine.MountControlsMessenger;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.entity.goal.DragonOrbitLeaderGoal;
+import com.pla.annoyingvillagers.entity.goal.DragonSummonRiseGoal;
 import com.pla.annoyingvillagers.entity.goal.RecallLandGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -98,6 +99,10 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
     private boolean recallAutoMount = false;
     private Vec3 recallLandPos = null;
 
+    private int summonRiseTimeToLiveTicks;
+    private double summonRisePhysicsReleaseY;
+    private Vec3 summonRiseTarget;
+
     public boolean isRecallAutoMount() {
         return recallAutoMount;
     }
@@ -117,6 +122,57 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
 
     public boolean isRecallActive() {
         return recallActive;
+    }
+
+    public boolean isSummonRising() {
+        return summonRiseTimeToLiveTicks > 0 && summonRiseTarget != null;
+    }
+
+    @Nullable
+    public Vec3 getSummonRiseTarget() {
+        return summonRiseTarget;
+    }
+
+    public void startSummonRise(Vec3 target, int durationTicks, double physicsReleaseY) {
+        if (this.level().isClientSide()) return;
+
+        this.summonRiseTarget = target;
+        this.summonRiseTimeToLiveTicks = Math.max(1, durationTicks);
+        this.summonRisePhysicsReleaseY = physicsReleaseY;
+
+        this.getNavigation().stop();
+        this.setNoGravity(true);
+        this.noPhysics = true;
+        if (!this.isFlying() && this.canFly()) this.liftOff();
+        this.setFlying(true);
+        this.setNavigation(true);
+    }
+
+    public void tickSummonRiseState(boolean reachedTarget) {
+        if (!isSummonRising()) {
+            stopSummonRise();
+            return;
+        }
+
+        summonRiseTimeToLiveTicks--;
+
+        // Allow the summoned dragon to pass through the ground until it reaches
+        // the caster's original Y level, then restore normal collision.
+        if (noPhysics && this.getY() >= summonRisePhysicsReleaseY) {
+            noPhysics = false;
+        }
+
+        if (reachedTarget || summonRiseTimeToLiveTicks <= 0) {
+            stopSummonRise();
+        }
+    }
+
+    public void stopSummonRise() {
+        summonRiseTimeToLiveTicks = 0;
+        summonRisePhysicsReleaseY = 0.0D;
+        summonRiseTarget = null;
+        noPhysics = false;
+        if (isNoGravity()) setNoGravity(false);
     }
 
     public void setRecallActive(boolean recallActive) {
@@ -151,6 +207,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
     @Override
     protected void registerGoals()
     {
+        goalSelector.addGoal(0, new DragonSummonRiseGoal(this));
         goalSelector.addGoal(1, new FloatGoal(this));
         goalSelector.addGoal(1, new RecallLandGoal(this));
         goalSelector.addGoal(2, new SitWhenOrderedToGoal(this));
@@ -233,6 +290,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
 
     public boolean shouldFly()
     {
+        if (isSummonRising()) return true;
         if (isFlying()) return !onGround();
         return canFly() && !isInWater() && !isNearGround();
     }
@@ -342,6 +400,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         if (target == null || !target.isAlive()) return;
 
+        stopSummonRise();
         this.breathHoverTarget = target;
 
         Vec3 position = this.position();
@@ -376,6 +435,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         if (target == null || !target.isAlive()) return;
 
+        stopSummonRise();
         this.breathHoverTarget = target;
 
         Vec3 position = this.position();
@@ -417,6 +477,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         if (this.level().isClientSide()) return;
         if (this.summoner == null || !this.summoner.isAlive()) return;
 
+        stopSummonRise();
         this.recallActive = true;
         this.recallAutoMount = autoMount;
         this.recallLandPos = null;
@@ -501,7 +562,9 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
                 this.nearestCrystal.setBeamTarget(this.blockPosition());
             }
 
-            if (breathHoverTimeToLiveTicks > 0) {
+            if (isSummonRising()) {
+                if (isControlLocked()) setControlLocked(false);
+            } else if (breathHoverTimeToLiveTicks > 0) {
                 if (shouldApplyControlLocked()) {
                     if (!isControlLocked()) setControlLocked(true);
                 } else {

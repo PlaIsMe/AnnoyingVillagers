@@ -5,30 +5,43 @@
 - `src/main/java/com/pla/annoyingvillagers/entity/SwordsmanHerobrineEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/item/DemoniacVoltageReaverItem.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/SnakeBladeEntity.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/EliteHerobrineSecondFormGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/RigAnimationSpecs.java`
+- `src/main/java/com/pla/annoyingvillagers/util/RigPoseUtil.java`
 - `src/main/java/com/pla/annoyingvillagers/util/HerobrinePortalCombatUtil.java`
 
-## Entity Role
+## Current Non-EpicFight Role
 
-`SwordsmanHerobrineEntity` extends `HerobrineMob`.
+`SwordsmanHerobrineEntity` extends `HerobrineMob`, equips `DEMONIAC_VOLTAGE_REAVER`, and uses the articulated vanilla rig combat system.
 
-It equips `DEMONIAC_VOLTAGE_REAVER` in the main hand in its constructor.
+It registers `EliteHerobrineSecondFormGoal` with two randomly selectable actions while the correct weapon is equipped and no snake animation is already active:
 
-On tick 1, it clears the `SnakeAnimation` tag from its main hand item.
+- `SWORDMAN_HEROBRINE_ULT`
+- `SWORDMAN_HEROBRINE_EXTRA_ULT`
 
-During state greater than 0, it spawns elite effects and sets the Demoniac Voltage Reaver `SecondForm` tag.
+These are the current equivalents of the old Demoniac Voltage Reaver innate and innate-special entries from the Epic Fight branch.
 
-## Snake Blade Portal Support
+## Rig ULT Hooks
 
-`DemoniacVoltageReaverItem.process()` prioritizes the closest valid portal before normal living targets.
+The behavior is implemented in `RigAnimationSpecs`, not by directly playing old `AVAnimations.SNAKE_BLADE` from `HerobrineCommon`.
 
-The session patch allows Swordsman Herobrine to use Herobrine-owned portals from Greg and Transporter Herobrine Clone through `HerobrinePortalCombatUtil.canUsePortalOwnedBy`.
+At animation start:
 
-When a support portal pair is created nearby, `HerobrinePortalCombatUtil.triggerSwordsmanSnakeBladeNear` can play `AVAnimations.SNAKE_BLADE` on the nearest valid Swordsman with a live target.
+- `SWORDMAN_HEROBRINE_ULT` calls `DemoniacVoltageReaverItem.tryStartSnakeAnimation(stack, swordsman, false)`;
+- `SWORDMAN_HEROBRINE_EXTRA_ULT` calls `DemoniacVoltageReaverItem.tryStartSnakeAnimation(stack, swordsman, true)`.
 
-## Portal Approach
+The hooks are explicitly restricted to `SwordsmanHerobrineEntity`, require the Demoniac Voltage Reaver, and use the shared `HerobrineMob` second-form action budget. Both specs are dangerous/invulnerable during playback.
 
-Because Swordsman extends `HerobrineMob`, it inherits common hostile goals and can run into a linked portal if the exit is near its target.
+## Snake Animation Compatibility
 
-## Snake Blade Details
+`DemoniacVoltageReaverItem.isPlayingSnakeBladeAnimation(...)` intentionally retains the commented `ADD THIS CODE IN AV_EFM` Epic Fight animator block. Do not delete that block; it is a future compatibility insertion point.
 
-Detailed Demoniac Voltage Reaver and SnakeBladeEntity behavior is stored in `.codex/knowledge/entity/demoniac_voltage_reaver.md` and `.codex/knowledge/entity/snake_blade.md`.
+The active non-EpicFight fallback treats `SWORDMAN_HEROBRINE_ULT` and `SWORDMAN_HEROBRINE_EXTRA_ULT` as the snake-blade animation state for rig mobs. This prevents the `SnakeAnimation` NBT flag from being cleared merely because Epic Fight is absent.
+
+`getToolTipPos(...)` likewise retains its commented Epic Fight joint-transform implementation. The current fallback samples the right-weapon position through `RigPoseUtil` when a rig animation is active, then falls back to `CommonUtil.getVanillaSwordOrBodyPosition(...)` for ordinary/non-rig entities.
+
+## Portal / Snake Blade Flow
+
+`DemoniacVoltageReaverItem.process()` still supports Herobrine portal targeting before ordinary living targets, and `SnakeBladeEntity` keeps its custom portal-chain flow. Those systems are independent from how the ULT animation itself is selected.
+
+Detailed snake-chain behavior remains in `.codex/knowledge/entity/demoniac_voltage_reaver.md` and `.codex/knowledge/entity/snake_blade.md`.

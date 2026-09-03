@@ -717,7 +717,7 @@ public final class RigCombatProfiles {
         PROFILES.put(RigCombatStyle.GLAIVE_HEROBRINE,new RigCombatProfile(
                 List.of(RigAnimationId.GLAIVE_HEROBRINE_ATTACK1, RigAnimationId.GLAIVE_HEROBRINE_ATTACK2, RigAnimationId.GLAIVE_HEROBRINE_ATTACK3,
                         RigAnimationId.GLAIVE_HEROBRINE_ATTACK4, RigAnimationId.GLAIVE_HEROBRINE_ATTACK5),
-                List.of(RigAnimationId.GLAIVE_HEROBRINE_DASH_ATTACK, RigAnimationId.GLAIVE_HEROBRINE_JUMP_ATTACK, RigAnimationId.GLAIVE_HEROBRINE_EXTRA_ATTACK),
+                List.of(RigAnimationId.GLAIVE_HEROBRINE_DASH_ATTACK, RigAnimationId.GLAIVE_HEROBRINE_JUMP_ATTACK),
             List.of(
                         RigAnimationId.ROLL_FORWARD,
                         RigAnimationId.ROLL_BACKWARD,
@@ -726,6 +726,60 @@ public final class RigCombatProfiles {
                         RigAnimationId.STEP_LEFT,
                         RigAnimationId.STEP_RIGHT),
                 List.of(RigAnimationId.GLAIVE_HEROBRINE_EXTRA_ATTACK),
+                SPECIAL_ATTACK_CHANCE,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE * 1.2,
+                RigLocomotionStyle.ELITE_HEROBRINE
+        ));
+
+        PROFILES.put(RigCombatStyle.REAPER_HEROBRINE,new RigCombatProfile(
+                List.of(RigAnimationId.REAPER_HEROBRINE_ATTACK1, RigAnimationId.REAPER_HEROBRINE_ATTACK2, RigAnimationId.REAPER_HEROBRINE_ATTACK3,
+                        RigAnimationId.REAPER_HEROBRINE_ATTACK4, RigAnimationId.REAPER_HEROBRINE_ATTACK5),
+                List.of(RigAnimationId.REAPER_HEROBRINE_DASH_ATTACK, RigAnimationId.REAPER_HEROBRINE_JUMP_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT),
+                List.of(RigAnimationId.REAPER_HEROBRINE_EXTRA_ATTACK),
+                SPECIAL_ATTACK_CHANCE,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE * 1.2,
+                RigLocomotionStyle.REAPER_HEROBRINE
+        ));
+
+        PROFILES.put(RigCombatStyle.SLEDGEHAMMER_HEROBRINE,new RigCombatProfile(
+                List.of(RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK1, RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK2, RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK3,
+                        RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK4, RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK5),
+                List.of(RigAnimationId.SLEDGEHAMMER_HEROBRINE_DASH_ATTACK, RigAnimationId.SLEDGEHAMMER_HEROBRINE_JUMP_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT),
+                List.of(RigAnimationId.SLEDGEHAMMER_HEROBRINE_EXTRA_ATTACK),
+                SPECIAL_ATTACK_CHANCE,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE * 1.2,
+                RigLocomotionStyle.ELITE_HEROBRINE
+        ));
+
+        PROFILES.put(RigCombatStyle.SWORDSMAN_HEROBRINE,new RigCombatProfile(
+                List.of(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK1, RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK2, RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK3,
+                        RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK4, RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK5),
+                List.of(RigAnimationId.SWORDSMAN_HEROBRINE_DASH_ATTACK, RigAnimationId.SWORDSMAN_HEROBRINE_JUMP_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT),
+                List.of(RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ATTACK),
                 SPECIAL_ATTACK_CHANCE,
                 ROLLING_CHANCE,
                 ULTIMATE_CHANCE * 1.2,

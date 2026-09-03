@@ -180,6 +180,12 @@ public class AnnoyingVillagers {
                     ClientboundGroundFracture::decode,
                     ClientboundGroundFracture::handle
             );
+            AnnoyingVillagers.addNetworkMessage(
+                    ClientboundGroundStuckKnockoutFx.class,
+                    ClientboundGroundStuckKnockoutFx::encode,
+                    ClientboundGroundStuckKnockoutFx::decode,
+                    ClientboundGroundStuckKnockoutFx::handle
+            );
         }
     }
 
@@ -242,40 +248,6 @@ public class AnnoyingVillagers {
                         (stack, level, entity, seed) -> entity != null
                                 && HookGunItem.hasAttachedHook(entity.level(), entity) ? 1.0F : 0.0F
                 );
-                for (Item item : ForgeRegistries.ITEMS.getValues()) {
-                    if (item instanceof BowItem) {
-                        ItemProperties.register(
-                                item,
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "pulling"),
-                                (stack, level, entity, seed) -> {
-                                    if (stack.hasTag() && stack.getTag() != null && stack.getTag().contains("Pulling")) {
-                                        return 1.0F;
-                                    }
-                                    if (entity == null) {
-                                        return 0.0F;
-                                    }
-                                    return entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F;
-                                }
-                        );
-                        ItemProperties.register(
-                                item,
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "pull"),
-                                (stack, level, entity, seed) -> {
-                                    if (stack.hasTag() && stack.getTag() != null && stack.getTag().contains("Pulling")) {
-                                        return stack.getTag().getFloat("Pulling");
-                                    }
-                                    if (entity == null) {
-                                        return 0.0F;
-                                    }
-                                    if (entity.getUseItem() != stack) {
-                                        return 0.0F;
-                                    }
-                                    float used = (float)(stack.getUseDuration() - entity.getUseItemRemainingTicks());
-                                    return used / 20.0F;
-                                }
-                        );
-                    }
-                }
             });
         }
     }

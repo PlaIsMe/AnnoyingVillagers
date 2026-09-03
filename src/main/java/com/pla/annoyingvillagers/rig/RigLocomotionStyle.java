@@ -9,5 +9,6 @@ public enum RigLocomotionStyle {
     TACHI,
     LEGENDARY_SWORD,
     AEGIS_HEROBRINE,
-    ELITE_HEROBRINE
+    ELITE_HEROBRINE,
+    REAPER_HEROBRINE
 }

@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.client.animation.rig_animation.legendary_sword.
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.HerobrineLivingAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.LivingAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.RunAnimations;
+import com.pla.annoyingvillagers.client.animation.rig_animation.reaper_herobrine.ReaperHerobrineAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.spear.SpearAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.tachi.TachiAnimations1;
 import com.pla.annoyingvillagers.entity.EliteHerobrineKnockedEntity;
@@ -56,13 +57,14 @@ public class AnimationUtil {
             case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_IDLE;
             case AEGIS_HEROBRINE -> AegisHerobrineAnimations1.AEGIS_HEROBRINE_IDLE;
             case ELITE_HEROBRINE -> HerobrineLivingAnimations.ELITE_HOLD_WEAPON;
+            case REAPER_HEROBRINE -> ReaperHerobrineAnimations1.REAPER_HEROBRINE_IDLE;
             default -> LivingAnimations.IDLE;
         };
     }
 
     private static AnimationDefinition getCustomWalkAnimation(RigLocomotionStyle style) {
         return switch (style) {
-            case SPEAR -> SpearAnimations1.SPEAR_WALK;
+            case SPEAR, REAPER_HEROBRINE -> SpearAnimations1.SPEAR_WALK;
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_WALK;
             case TACHI -> TachiAnimations1.TACHI_WALK;
             case LEGENDARY_SWORD, ELITE_HEROBRINE -> LegendarySwordAnimations1.LEGENDARY_SWORD_WALK;
@@ -73,7 +75,7 @@ public class AnimationUtil {
     private static AnimationDefinition getCustomRunAnimation(RigLocomotionStyle style) {
         return switch (style) {
             case DEFAULT -> RunAnimations.RUN_HOLDING_WEAPON;
-            case SPEAR -> SpearAnimations1.SPEAR_RUN;
+            case SPEAR, REAPER_HEROBRINE -> SpearAnimations1.SPEAR_RUN;
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_RUN;
             case TACHI -> TachiAnimations1.TACHI_RUN;
             case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_RUN;

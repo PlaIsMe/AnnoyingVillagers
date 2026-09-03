@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.DangerousReaction;
+import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
+import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
@@ -44,7 +46,14 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     @Override
     public boolean canUse() {
         LivingEntity target = this.mob.getTarget();
-        if (!isValidMeleeState(target) || isAttackLocked()) return false;
+        if (!isValidMeleeState(target) || isMovementLocked()) return false;
+
+        if (isProfileAttackLocked()) {
+            if (!canMoveWhileProfileAttackLocked()) return false;
+            this.path = RidingUtil.createNavigationPath(this.mob, target);
+            return true;
+        }
+
         RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
         if (hasBlockingAnimation(profile)) return false;
         if (DangerousReaction.hasDangerousTarget(this.mob)) {
@@ -58,7 +67,9 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     @Override
     public boolean canContinueToUse() {
         LivingEntity target = this.mob.getTarget();
-        if (!isValidMeleeState(target) || isAttackLocked()) return false;
+        if (!isValidMeleeState(target) || isMovementLocked()) return false;
+        if (isProfileAttackLocked()) return canMoveWhileProfileAttackLocked();
+
         RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
         if (DangerousReaction.hasDangerousTarget(this.mob)) {
             return RigAnimationController.hasActiveAnimation(this.mob) || canStartAnyAttack(target, profile);
@@ -98,13 +109,24 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     public void tick() {
         LivingEntity target = this.mob.getTarget();
         if (target == null) return;
-        if (isAttackLocked()) {
+        if (isMovementLocked()) {
             RidingUtil.stopNavigation(this.mob);
             return;
         }
 
         updateWeaponComboState();
         RidingUtil.lookAtTarget(this.mob, target, 60.0F, 60.0F);
+
+        // A profile attack lock only blocks attack selection. Keep closing the
+        // distance so snake-blade users do not freeze in place for the whole action.
+        if (isProfileAttackLocked()) {
+            if (canMoveWhileProfileAttackLocked()) {
+                repathToTargetWhileAttackLocked(target);
+            } else {
+                RidingUtil.stopNavigation(this.mob);
+            }
+            return;
+        }
 
         RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
         if (hasBlockingAnimation(profile)) {
@@ -169,6 +191,13 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         RidingUtil.moveTo(this.mob, target, this.speedModifier);
     }
 
+    private void repathToTargetWhileAttackLocked(LivingEntity target) {
+        if (this.mob.isPassenger()) return;
+        if (--this.ticksUntilNextPathRecalculation > 0 && !RidingUtil.isNavigationDone(this.mob)) return;
+        this.ticksUntilNextPathRecalculation = PATH_RECALCULATION_BASE_TICKS + this.mob.getRandom().nextInt(7);
+        RidingUtil.moveTo(this.mob, target, this.speedModifier);
+    }
+
     private void updateWeaponComboState() {
         ItemStack mainHand = this.mob.getMainHandItem();
         Item currentWeapon = mainHand.isEmpty() ? null : mainHand.getItem();
@@ -178,11 +207,22 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         this.previousAnimation = null;
     }
 
-    private boolean isAttackLocked() {
-        return RigStunController.isStunned(this.mob) || this.mob instanceof LockableRigAttackAnimation lockable && lockable.isLocked();
+    private boolean isMovementLocked() {
+        return RigStunController.isStunned(this.mob);
+    }
+
+    private boolean isProfileAttackLocked() {
+        return this.mob instanceof LockableRigAttackAnimation lockable && lockable.isLocked();
+    }
+
+    private boolean canMoveWhileProfileAttackLocked() {
+        return DemoniacVoltageReaverItem.hasSnakeProfileAttackLock(this.mob);
     }
 
     private boolean isValidMeleeState(LivingEntity target) {
+        if (this.mob instanceof ReaperHerobrineEntity reaper && reaper.isSecondFormDragonRider()) {
+            return false;
+        }
         return !this.mob.level().isClientSide && this.mob.isAlive() && !this.mob.isRemoved() && !this.mob.isDeadOrDying() && !this.mob.isNoAi()
                 && !(this.mob.getMainHandItem().getItem() instanceof BowItem) && target != null && target.isAlive() && !target.isRemoved() && !target.isDeadOrDying();
     }

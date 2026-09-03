@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.clazz;
 
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
+import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
 import com.pla.annoyingvillagers.entity.SteveEntity;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
@@ -119,6 +120,7 @@ public interface DangerousReaction {
                 && !mob.isRemoved()
                 && !mob.isDeadOrDying()
                 && !mob.isNoAi()
+                && !(mob instanceof ReaperHerobrineEntity reaper && reaper.isSecondFormDragonRider())
                 && !RigStunController.isStunned(mob)
                 && target instanceof Mob targetMob
                 && target.isAlive()

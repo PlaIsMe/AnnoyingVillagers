@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.entity.PortalEntity;
+import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
 import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -22,6 +23,7 @@ public class PortalApproachGoal extends Goal {
 
     @Override
     public boolean canUse() {
+        if (this.mob instanceof ReaperHerobrineEntity reaper && reaper.isSecondFormDragonRider()) return false;
         LivingEntity target = this.mob.getTarget();
         if (target == null || !target.isAlive()) {
             return false;
@@ -51,6 +53,7 @@ public class PortalApproachGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
+        if (this.mob instanceof ReaperHerobrineEntity reaper && reaper.isSecondFormDragonRider()) return false;
         LivingEntity target = this.mob.getTarget();
         if (target == null || !target.isAlive()) {
             return false;

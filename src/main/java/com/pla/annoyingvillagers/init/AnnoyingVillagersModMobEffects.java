@@ -12,6 +12,7 @@ public class AnnoyingVillagersModMobEffects {
     public static final DeferredRegister<MobEffect> REGISTRY = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, AnnoyingVillagers.MODID);
     public static final RegistryObject<MobEffect> ENCHANT_BED_EFFECT = AnnoyingVillagersModMobEffects.REGISTRY.register("enchant_bed_effect", EnchantBedEffectMobEffect::new);
     public static final RegistryObject<MobEffect> ELECTRIFY = AnnoyingVillagersModMobEffects.REGISTRY.register("electrify", ElectrifyMobEffect::new);
+    public static final RegistryObject<MobEffect> GROUND_STUCK = AnnoyingVillagersModMobEffects.REGISTRY.register("ground_stuck", GroundStuckMobEffect::new);
     public static final RegistryObject<MobEffect> CAPTIVE = AnnoyingVillagersModMobEffects.REGISTRY.register("captive", CaptiveMobEffect::new);
     public static final RegistryObject<MobEffect> HEROBRINE = AnnoyingVillagersModMobEffects.REGISTRY.register("herobrine", HerobrineMobEffect::new);
     public static final RegistryObject<MobEffect> OBEDIENCE = AnnoyingVillagersModMobEffects.REGISTRY.register("obedience", ObedienceMobEffect::new);

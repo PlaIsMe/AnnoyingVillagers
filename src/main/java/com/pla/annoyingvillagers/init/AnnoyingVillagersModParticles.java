@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.client.particle.*;
+import com.pla.annoyingvillagers.client.particle.smoke_wave.SmokeWaveParticle;
 import net.minecraft.client.particle.SmokeParticle;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
@@ -23,6 +24,7 @@ public class AnnoyingVillagersModParticles {
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.METEORITE_TRAIL.get(), MeteoriteTrailParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.BIG_SPLASH.get(), BigSplashParticle::provider);
         event.registerSpriteSet(AnnoyingVillagersModParticleTypes.HIT_BLUNT.get(), HitBluntParticle::provider);
+        event.registerSpriteSet(AnnoyingVillagersModParticleTypes.SMOKE_WAVE.get(), SmokeWaveParticle.Provider::new);
         event.registerSpecial(AnnoyingVillagersModParticleTypes.GROUND_SLAM.get(), new GroundSlamParticle.Provider());
         event.registerSpecial(AnnoyingVillagersModParticleTypes.WHITE_AFTERIMAGE.get(), new WhiteAfterimageParticle.Provider());
     }

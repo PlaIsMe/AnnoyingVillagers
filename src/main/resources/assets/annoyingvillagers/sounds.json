@@ -1100,6 +1100,20 @@
       }
     ]
   },
+  "reaper_summon": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:entity/elite_herobrine/reaper_summon"
+      }
+    ]
+  },
+  "sledge_hammer": {
+    "sounds": [
+      {
+        "name": "annoyingvillagers:entity/elite_herobrine/sledge_hammer"
+      }
+    ]
+  },
   "portal_enter": {
     "sounds": [
       {

@@ -1,6 +1,8 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -13,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class EnderSlayerScytheItem extends SwordItem {
+public class EnderSlayerScytheItem extends SwordItem implements RigCombatProfileProvider {
     public EnderSlayerScytheItem() {
         super(new Tier() {
             public int getUses() {
@@ -60,5 +62,10 @@ public class EnderSlayerScytheItem extends SwordItem {
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.literal(Component.translatable("tooltip.annoyingvillagers.ender_slayer_scythe").getString()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.REAPER_HEROBRINE;
     }
 }

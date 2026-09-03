@@ -37,7 +37,7 @@ import java.util.UUID;
 
 public class PortalEntity extends Entity {
     public static final float WIDTH = 2.2F;
-    public static final float HEIGHT = 3.0F;
+    public static final float HEIGHT = 2.2F;
     public static final int LIFETIME_TICKS = 20 * 10;
     private static final int AMBIENT_SOUND_INTERVAL_TICKS = 80;
 

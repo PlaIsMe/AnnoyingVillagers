@@ -11,6 +11,7 @@ import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigStunEscapeEntity;
 import com.pla.annoyingvillagers.spawnhandler.BluedemonData;
@@ -1441,6 +1442,15 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         }
 
         if (this.level() instanceof ServerLevel serverLevel) {
+            /*
+             * State 1 exists only for the Trident Festival transition. Keep the
+             * required rig animation alive so state 1 can never become a permanent
+             * damage-blocked 1 HP state.
+             */
+            if (this.getState() == 1) {
+                ensureTridentFestivalPhase();
+            }
+
             this.tickVoiceCooldown();
             if (!this.spawnedBbqSauce) {
                 this.ensureSauceExists(SauceType.BBQ_SAUCE);
@@ -1726,7 +1736,14 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
             this.setHealth(1.0F);
             BlueDemonTridentItem.addStormEnergy(this.getMainHandItem(), 100);
             BlueDemonTridentItem.addStormEnergy(this.getOffhandItem(), 100);
-            playTridentFestivalAnimation();
+
+            /*
+             * ForgeHooks.onLivingDamage(...) has already fired above. That event can
+             * apply a rig stun from the very same hit that pushed Blue Demon to 1 HP.
+             * A normal RigAnimationController.play(...) refuses to start while stunned,
+             * which used to leave him stranded at 1 HP.
+             */
+            beginTridentFestivalPhase();
             return;
         }
         if (this.level() instanceof ServerLevel serverLevel
@@ -1743,6 +1760,56 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
         this.gameEvent(GameEvent.ENTITY_DAMAGE);
     }
 
+    private void beginTridentFestivalPhase() {
+        if (!(this.level() instanceof ServerLevel)) {
+            return;
+        }
+
+        /*
+         * The lethal hit may already have entered RigStunController through
+         * ForgeHooks.onLivingDamage before the 1 HP phase check runs.
+         *
+         * Clear that stun first. Its delayed cleanup task is reference-checked, so
+         * clearing it here is safe and prevents the stun from restoring NoAI later.
+         */
+        RigStunController.clear(this);
+
+        RigAnimationId activeAnimation = RigAnimationController.getActiveAnimationId(this);
+        if (activeAnimation != null
+                && activeAnimation != RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL) {
+            RigAnimationController.stop(this, activeAnimation);
+        }
+
+        /*
+         * Enter the protected transition before giving normal AI another tick.
+         * NoAI remains true through state 1 and state 2; finishStateTwoTransform()
+         * restores it when Blue Demon reaches state 3.
+         */
+        this.setState(1);
+        this.setNoAi(true);
+
+        playTridentFestivalAnimation();
+    }
+
+    private void ensureTridentFestivalPhase() {
+        if (!(this.level() instanceof ServerLevel) || this.getState() != 1) {
+            return;
+        }
+
+        if (RigAnimationController.getActiveAnimationId(this)
+                == RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL) {
+            return;
+        }
+
+        /*
+         * Recovery path for an interrupted animation or a world reload.
+         * ACTIVE_ANIMATIONS is runtime-only, while Blue Demon's State is saved to NBT.
+         * Without this watchdog, loading a state-1 Blue Demon could make him
+         * permanently damage-blocked at 1 HP with no Festival hooks left to run.
+         */
+        beginTridentFestivalPhase();
+    }
+
     private void playTridentFestivalAnimation() {
 //        ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
@@ -1752,9 +1819,11 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 //        CREATE VANILLA_ANIMATION
         // Do not restart the festival and replace its ActiveAnimationState. Replacing
         // that state cancels the old timed hooks, which can strand Blue Demon at 1 HP.
-        if (RigAnimationController.getActiveAnimationId(this) == RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL) {
+        if (RigAnimationController.getActiveAnimationId(this)
+                == RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL) {
             return;
         }
+
         RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL);
     }
 
