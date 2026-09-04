@@ -141,6 +141,23 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
         return super.canHitEntity(entity);
     }
 
+    private void playStunAnimation(Entity victim) {
+//          ADD THIS CODE IN AV_EFM
+//            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(victim, LivingEntityPatch.class);
+//            if (livingEntityPatch != null) {
+//                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LONGEST_HIT, 0.0F);
+//            }
+        if (!this.level().isClientSide && victim instanceof LivingEntity livingVictim && livingVictim.isAlive()) {
+            if (livingVictim instanceof Player player) {
+                player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 0));
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 2));
+                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 40, 0));
+            } else if (livingVictim instanceof Mob mob && RigStunController.supports(mob)) {
+                RigStunController.applySuperKnockback(mob);
+            }
+        }
+    }
+
     @Override
     protected void onHitEntity(EntityHitResult pResult) {
         Entity vicTim = pResult.getEntity();
@@ -159,24 +176,8 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
                     5,
                     0, 0, 0,
                     0.1);
-//          ADD THIS CODE IN AV_EFM
-//            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(vicTim, LivingEntityPatch.class);
-//            if (livingEntityPatch != null) {
-//                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LONGEST_HIT, 0.0F);
-//            }
+            playStunAnimation(vicTim);
         }
         super.onHitEntity(pResult);
-
-        // Vanilla fallback for Epic Fight's LONGEST_HIT reaction. Do this after the
-        // projectile's normal hit so a real successful projectile impact owns the reaction.
-        if (!this.level().isClientSide && vicTim instanceof LivingEntity livingVictim && livingVictim.isAlive()) {
-            if (livingVictim instanceof Player player) {
-                player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 0));
-                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 2));
-                player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 40, 0));
-            } else if (livingVictim instanceof Mob mob && RigStunController.supports(mob)) {
-                RigStunController.applySuperKnockback(mob);
-            }
-        }
     }
 }

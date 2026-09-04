@@ -62,7 +62,7 @@ Player binding is triggered from `SpecialAttackOnKeyPressedEvent` before the res
 Server-side:
 
 - `HookGunItem.tryBindFromSpecialAttack(player)` is called
-- if it returns true, a 2 tick delayed `playHookGunAnimation(player)` hook is invoked; in the current non-EpicFight repo that player animation helper is still a vanilla-animation TODO, while the commented `// Add this in AV_EFM` block preserves the old Epic Fight animation reminder
+- if it returns true, a 2 tick delayed `playHookGunAnimation(player)` hook is invoked; in the current non-EpicFight repo that player animation helper is still a vanilla-animation TODO
 
 Binding rules:
 
@@ -128,7 +128,7 @@ Aim target is raycast from the owner's eye to `HOOK_DESPAWN_DISTANCE` using bloc
 
 ## Hook Start Position
 
-In the current non-EpicFight repository, `HookGunItem.getHookStartPosition(LivingEntity owner, boolean rightHand)` uses the vanilla/entity-space fallback directly. The old Epic Fight joint placement is retained only as commented compatibility code under the `// Add this is AV_EFM` reminder (`toolR` / `toolL`, translation `(0.0F, -0.3F, 0.0F)`).
+In the current non-EpicFight repository, `HookGunItem.getHookStartPosition(LivingEntity owner, boolean rightHand)` uses the vanilla/entity-space fallback directly.
 
 Current non-EpicFight start position:
 
@@ -451,12 +451,6 @@ For sharp item projectiles, the renderer points the blade toward movement direct
 
 For non-sharp loose projectiles, it applies randomized spin. For block items attached to hooks, it avoids spin.
 
-## AV_EFM Rendering Compatibility
-
-The non-EpicFight repository no longer depends on `PatchedItemInHandLayerMixin`. `HookGunItemRenderer` still exposes `setRenderedHandContext(...)` / `clearRenderedHandContext()` for hand-aware rendering, and it also has player-hand fallbacks when no explicit render context is set.
-
-If AV_EFM later needs Epic Fight's patched hand layer again, add that integration in the compatibility module and keep the core renderer usable without Epic Fight. Preserve compatibility comments with the project reminder style rather than reintroducing a hard dependency.
-
 ## Dual Crosshair
 
 `HookGunCrosshairRenderer` runs after the vanilla crosshair overlay.
@@ -501,8 +495,6 @@ The four poses are static/repeating-equivalent hook poses. The non-EpicFight rig
 `LEFT_HAND_HOOK` and `LEFT_HAND_HOOK_TOP` use `RigAnimationPlaybackType.LEFT_HAND`. `RIGHT_HAND_HOOK` and `RIGHT_HAND_HOOK_TOP` use `RigAnimationPlaybackType.MAIN_HAND`.
 
 The hook pose is canceled when the owner stops holding that hook gun, the hook is missing/removed/returning, or active hooks are returned. If a combat-profile rig attack temporarily replaces the pose, `HookGunItem` does not interrupt that profile attack just to change the held pose; it can restore the proper hook pose afterward.
-
-Keep Epic Fight equivalents only in the commented AV_EFM compatibility block beside `getHookHandAnimation(...)` and the stop logic.
 
 ## NPC Hook Session Behavior
 
@@ -560,16 +552,6 @@ The Jev call is essential. Porting the helper without restoring this tick entry 
 `HookGunCombatUtil.playHookGunAnimation(...)` uses `RigAnimationId.POINT_LEFT_HAND_TOWARD` for the current non-EpicFight NPC draw/aim animation. Do not add a new `POINT_HAND_TOWARD` enum value.
 
 Keep the persistent hook rope poses in `HookGunItem.getHookHandAnimation(...)`; do not duplicate the four-way mapping in `HookGunCombatUtil`, `AlexEntity`, or `JevEntity`.
-
-## AV_EFM Compatibility Reminder
-
-Keep compatibility placeholders in source using the established reminder, for example:
-
-```java
-// add this in AV_EFM
-```
-
-Future AV_EFM code should restore Epic Fight joint positioning, `HOOK_GUN`, and `HOOK_HAND_*` equivalents beside the vanilla rig implementation. The core non-EpicFight hook gun must continue to compile and work without Epic Fight classes.
 
 ## Knowledge Maintenance Rule
 

@@ -80,25 +80,6 @@ public class ShadowObsidianBlock extends HerobrineObsidianBlock implements Entit
         );
     }
 
-    public void increaseSkillPoint(Entity entity, float value) {
-        if (!(entity instanceof Player pEntity)) return;
-//      ADD THIS CODE IN AV_EFM
-
-//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(pEntity, PlayerPatch.class);
-//        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
-//
-//        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.OBSIDIAN_WEAPON);
-//        if (skillContainer == null) return;
-//
-//        ObsidianWeaponSkill skill = (ObsidianWeaponSkill) skillContainer.getSkill();
-//
-//        float currentResource = skillContainer.getResource();
-//        float neededResource = skillContainer.getNeededResource();
-//        float addResource = Math.min(value, neededResource);
-//
-//        skill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
-    }
-
     @Override
     public boolean conditionEveryTickEntityInside(Entity entity) {
         return entity.tickCount % 5 == 0;
@@ -118,7 +99,6 @@ public class ShadowObsidianBlock extends HerobrineObsidianBlock implements Entit
         if (owner != null) {
             if (owner instanceof Player player) {
                 entity.hurt(entity.level().damageSources().playerAttack(player), 1.0F);
-                increaseSkillPoint(player, 1.0F);
             } else {
                 entity.hurt(entity.level().damageSources().mobAttack((LivingEntity) owner), 1.0F);
             }

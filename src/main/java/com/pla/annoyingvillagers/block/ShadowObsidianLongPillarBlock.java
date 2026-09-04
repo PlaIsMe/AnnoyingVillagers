@@ -91,33 +91,6 @@ public class ShadowObsidianLongPillarBlock extends HerobrineObsidianBlock implem
         super.customTickSound(serverLevel, blockPos);
     }
 
-    public void increaseSkillPoint(Entity entity, float value) {
-        if (!(entity instanceof Player pEntity)) return;
-//      ADD THIS CODE IN AV_EFM
-
-//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(pEntity, PlayerPatch.class);
-//        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
-//
-//        SkillContainer skillContainer = null;
-//        WeaponInnateSkill skill = null;
-//        if (serverPlayerPatch.getSkill(AVSkills.SHADOW_OBSIDIAN_PILLAR) != null) {
-//            skillContainer = serverPlayerPatch.getSkill(AVSkills.SHADOW_OBSIDIAN_PILLAR);
-//            if (skillContainer == null) return;
-//            skill = (ShadowObsidianPillarSkill) skillContainer.getSkill();
-//        } else if (serverPlayerPatch.getSkill(AVSkills.SHADOW_OBSIDIAN_SWORD) != null) {
-//            skillContainer = serverPlayerPatch.getSkill(AVSkills.SHADOW_OBSIDIAN_SWORD);
-//            if (skillContainer == null) return;
-//            skill = (ShadowObsidianSwordSkill) skillContainer.getSkill();
-//        }
-//
-//        if (skillContainer == null || skill == null) return;
-//        float currentResource = skillContainer.getResource();
-//        float neededResource = skillContainer.getNeededResource();
-//        float addResource = Math.min(value, neededResource);
-//
-//        skill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
-    }
-
     @Override
     public void customHurtLogic(Entity entity, Entity owner, ServerLevel serverLevel, BlockPos blockPos) {
         super.customHurtLogic(entity, owner, serverLevel, blockPos);
@@ -130,12 +103,11 @@ public class ShadowObsidianLongPillarBlock extends HerobrineObsidianBlock implem
         );
         if (entity instanceof Mob mob) {
             mob.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 2, 8, false, false));
-            applyEpicFightRandomStun(entity);
+            applyEpicFightShortStun(entity);
         }
         if (owner != null) {
             if (owner instanceof Player player) {
                 entity.hurt(entity.level().damageSources().playerAttack(player), 1.0F);
-                increaseSkillPoint(player, 0.2F);
             } else {
                 entity.hurt(entity.level().damageSources().mobAttack((LivingEntity) owner), 1.0F);
             }

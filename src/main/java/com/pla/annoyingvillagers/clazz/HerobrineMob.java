@@ -10,6 +10,7 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.HerobrineHealingGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
+import com.pla.annoyingvillagers.entity.goal.RollItemGoal;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
@@ -448,6 +449,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
         CommonGoals.registerDangerousReactionGoals(this);
         this.goalSelector.addGoal(1, new HerobrineHealingGoal(this));
+        if (this instanceof RollItemUser) {
+            this.goalSelector.addGoal(1, new RollItemGoal(this));
+        }
         this.goalSelector.addGoal(1, new Goal() {
             @Override
             public boolean canUse() {
@@ -1106,7 +1110,7 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
             }
             if (this.healingCooldown > 0) this.healingCooldown = this.healingCooldown - 1;
 
-            if (this instanceof HerobrineCloneEntity || this instanceof HerobrineChrisEntity) {
+            if (this instanceof HerobrineCloneEntity) {
                 placeObsidianBlockWhenInWater(AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get());
             } else if (this instanceof ShadowHerobrineCloneEntity || this instanceof Herobrine7Entity
                     || this instanceof ArmoredHerobrineEntity || this instanceof ShadowHerobrineEntity) {

@@ -138,24 +138,6 @@ public class SnakeBladeEntity extends Entity {
         this.entityData.set(GUARD, direction != null);
     }
 
-    public void increaseSkillPoint(Entity entity, float value) {
-//      ADD THIS CODE IN AV_EFM
-//        if (!(entity instanceof Player player)) return;
-//
-//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-//        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
-//
-//        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.DEMONIAC_VOLTAGE_REAVER);
-//        if (skillContainer == null) return;
-//
-//        DemoniacVoltageReaverSkill skill = (DemoniacVoltageReaverSkill) skillContainer.getSkill();
-//        float current = skillContainer.getResource();
-//        float needed = skillContainer.getNeededResource();
-//        float add = Math.min(value, needed);
-//
-//        skill.setConsumptionSynchronize(skillContainer, current + add);
-    }
-
     @Override
     public void tick() {
         Entity creator = getCreatorEntity();
@@ -225,10 +207,6 @@ public class SnakeBladeEntity extends Entity {
                     : this.level().damageSources().generic();
             target.hurt(src, this.getDamage(owner) / 2);
             dealStaminaDamage(target, src);
-
-            if (creator != null) {
-                increaseSkillPoint(creator, 3.0F);
-            }
             knockBack(target);
         }
     }
@@ -287,7 +265,6 @@ public class SnakeBladeEntity extends Entity {
 //            }
 //        }
 
-//        Add more logic to cover this
         if (creator instanceof Mob mob && !mob.level().isClientSide) {
             RigAnimationId activeAnimation = RigAnimationController.getActiveAnimationId(mob);
             if (activeAnimation == RigAnimationId.SWORDSMAN_HEROBRINE_ULT
@@ -353,11 +330,8 @@ public class SnakeBladeEntity extends Entity {
         if (target instanceof PortalEntity) return;
 
         if (target.hurt(this.level().damageSources().indirectMagic(this, creator), this.getDamage(creator))) {
-            // Mark touched so child chains avoid bouncing back
             markTouched(target);
             this.postHitChainDelayTicks = Math.max(this.postHitChainDelayTicks, POST_HIT_CHAIN_DELAY_TICKS);
-
-            increaseSkillPoint(creator, 5.0F);
 
             if (this.level() instanceof ServerLevel serverLevel) {
                 serverLevel.sendParticles(

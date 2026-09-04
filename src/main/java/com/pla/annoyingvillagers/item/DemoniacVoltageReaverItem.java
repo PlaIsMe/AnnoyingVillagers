@@ -201,8 +201,6 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
 //        return dynamicAnimation == AVAnimations.SNAKE_BLADE
 //                || dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD;
 
-        // Vanilla rig fallback. Keep the Epic Fight block above intact so AV_EFM can
-        // restore its animator check later without removing this branch.
         if (livingEntity instanceof Mob mob) {
             RigAnimationId active = RigAnimationController.getActiveAnimationId(mob);
             return active == RigAnimationId.SWORDSMAN_HEROBRINE_ULT

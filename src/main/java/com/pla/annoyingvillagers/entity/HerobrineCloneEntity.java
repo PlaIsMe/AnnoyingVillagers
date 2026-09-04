@@ -29,6 +29,8 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Random;
+
 public class HerobrineCloneEntity extends HerobrineMob {
     public HerobrineCloneEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.HEROBRINE_CLONE.get(), level);
@@ -84,24 +86,34 @@ public class HerobrineCloneEntity extends HerobrineMob {
             if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
                 this.playSound(AnnoyingVillagersModSounds.HEROBRINE_CLONE_SAY_ON_DEATH.get(), 0.5F, 1.0F);
             }
-            InfectedPlayerNpcEntity corpse = new InfectedPlayerNpcEntity(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), serverLevel);
-            corpse.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-            String killedName = this.getPersistentData().getString("killed_name");
-            corpse.getPersistentData().putString("possessed_by", "herobrine_clone");
-            if (killedName.isEmpty()) {
-                killedName = FakePlayer.getRandomHardcodedName(this.getRandom());
+            if (new Random().nextFloat() < 0.2F) {
+                InfectedChrisEntity corpse = new InfectedChrisEntity(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(), serverLevel);
+                corpse.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+                corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
+                        MobSpawnType.MOB_SUMMONED, null, null);
+                this.setInvisible(true);
+                this.remove(RemovalReason.KILLED);
+                serverLevel.addFreshEntity(corpse);
+            } else {
+                InfectedPlayerNpcEntity corpse = new InfectedPlayerNpcEntity(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), serverLevel);
+                corpse.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+                String killedName = this.getPersistentData().getString("killed_name");
+                corpse.getPersistentData().putString("possessed_by", "herobrine_clone");
+                if (killedName.isEmpty()) {
+                    killedName = FakePlayer.getRandomHardcodedName(this.getRandom());
+                }
+                corpse.setUsername(killedName);
+                corpse.setCustomName(Component.literal(killedName));
+                corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
+                        MobSpawnType.MOB_SUMMONED, null, null);
+                this.setInvisible(true);
+                this.remove(RemovalReason.KILLED);
+                corpse.setItemSlot(EquipmentSlot.HEAD, this.getItemBySlot(EquipmentSlot.HEAD).copy());
+                corpse.setItemSlot(EquipmentSlot.CHEST, this.getItemBySlot(EquipmentSlot.CHEST).copy());
+                corpse.setItemSlot(EquipmentSlot.LEGS, this.getItemBySlot(EquipmentSlot.LEGS).copy());
+                corpse.setItemSlot(EquipmentSlot.FEET, this.getItemBySlot(EquipmentSlot.FEET).copy());
+                serverLevel.addFreshEntity(corpse);
             }
-            corpse.setUsername(killedName);
-            corpse.setCustomName(Component.literal(killedName));
-            corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                    MobSpawnType.MOB_SUMMONED, null, null);
-            this.setInvisible(true);
-            this.remove(RemovalReason.KILLED);
-            corpse.setItemSlot(EquipmentSlot.HEAD, this.getItemBySlot(EquipmentSlot.HEAD).copy());
-            corpse.setItemSlot(EquipmentSlot.CHEST, this.getItemBySlot(EquipmentSlot.CHEST).copy());
-            corpse.setItemSlot(EquipmentSlot.LEGS, this.getItemBySlot(EquipmentSlot.LEGS).copy());
-            corpse.setItemSlot(EquipmentSlot.FEET, this.getItemBySlot(EquipmentSlot.FEET).copy());
-            serverLevel.addFreshEntity(corpse);
         }
     }
 
@@ -134,7 +146,7 @@ public class HerobrineCloneEntity extends HerobrineMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 5.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
-                .add(Attributes.ARMOR, 10.0D)
+                .add(Attributes.ARMOR, 40.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
         return addEpicFightAttributes(builder);

@@ -11,21 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Random;
 
 public class ClowSwordItem extends SwordItem implements RigCombatProfileProvider {
-    private static boolean conditionToSpawnLapis(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
-//        Add this in AV_EFM
-//        if (!pAttacker.level().isClientSide) {
-//            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(pAttacker, LivingEntityPatch.class);
-//            if (livingEntityPatch != null) {
-//                AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-//                if (dynamicAnimation == AnimsHerrscher.HERRSCHER_BEFREIUNG) {
-//                    return true;
-//                }
-//            }
-//        }
-//        ci.cancel here
-        return new Random().nextFloat() < 0.3F;
-    }
-
     @Override
     public RigCombatStyle getRigCombatStyle(ItemStack stack) {
         return RigCombatStyle.SPECIAL_SWORD;
@@ -43,7 +28,7 @@ public class ClowSwordItem extends SwordItem implements RigCombatProfileProvider
 
     @Override
     public boolean hurtEnemy(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
-        if (conditionToSpawnLapis(pStack, pTarget, pAttacker)) {
+        if (new Random().nextFloat() < 0.2F) {
             pTarget.spawnAtLocation(new ItemStack(Items.LAPIS_LAZULI, new Random().nextInt(1, 3)));
         }
         return super.hurtEnemy(pStack, pTarget, pAttacker);

@@ -292,8 +292,6 @@ public class NullSkeletonEntity extends AbstractSkeleton {
                 this.kill();
             }
             if (player != null && player.isAlive()) {
-                increaseSkillPoint();
-
                 double distanceSq = this.distanceToSqr(player);
 
                 if (distanceSq > 600.0D) {
@@ -305,17 +303,6 @@ public class NullSkeletonEntity extends AbstractSkeleton {
                 }
             }
         }
-    }
-
-    private void increaseSkillPoint() {
-//      ADD THIS CODE IN AV_EFM
-//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-//        if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-//            SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.NULL_WEAPON);
-//            if (skillContainer != null && !skillContainer.isActivated()) {
-//                this.kill();
-//            }
-//        }
     }
 
     @Override

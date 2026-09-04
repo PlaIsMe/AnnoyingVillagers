@@ -1361,8 +1361,9 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 //            }
 //        }
 
-//        ADD VANILLA_ANIMATION & CUSTOM LOGIC TO CHECK THIS ANIMATION
-        return false;
+        RigAnimationId animationId = RigAnimationController.getActiveAnimationId(this);
+        return animationId != RigAnimationId.BLUE_DEMON_EXTRA_ATTACK
+                && animationId != RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL;
     }
 
     private void absorbNearbyGroundedOwnerTridents(ServerLevel serverLevel) {
@@ -1817,8 +1818,6 @@ public class BlueDemonEntity extends Monster implements BurstProtectEntity, Comb
 //        }
 
 //        CREATE VANILLA_ANIMATION
-        // Do not restart the festival and replace its ActiveAnimationState. Replacing
-        // that state cancels the old timed hooks, which can strand Blue Demon at 1 HP.
         if (RigAnimationController.getActiveAnimationId(this)
                 == RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL) {
             return;

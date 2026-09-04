@@ -814,8 +814,6 @@ public class HookGunItem extends Item {
             return;
         }
 
-        // Do not replace a profile melee animation just to change/restore the held hook pose.
-        // If another animation replaced this pose, it is restored after that animation ends.
         if (RigAnimationController.hasActiveProfileAttack(mob)) {
             return;
         }

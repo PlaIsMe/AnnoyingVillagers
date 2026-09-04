@@ -305,16 +305,6 @@ After the hook is launched, `HookGunItem` drives the persistent rope-hand pose f
 
 These are held poses via `RigAnimationController.playHeldPose(...)`, and `HookGunItem` explicitly stops them when the matching hook is gone or returning.
 
-## AV_EFM Compatibility Reminder
-
-Preserve source placeholders written as:
-
-```java
-// add this in AV_EFM
-```
-
-A future AV_EFM layer should add the Epic Fight animation equivalent beside the non-EpicFight rig behavior rather than making core Alex hook logic depend on Epic Fight again.
-
 ## Knowledge Maintenance Rule
 
 For future ports involving Alex, Jev, hook combat, rig combat, or related items/goals, read the relevant `.codex/knowledge` files first. After implementing/analyzing the port, update every relevant knowledge file with new behavior, API choices, compatibility reminders, and important differences from the Epic Fight branch.

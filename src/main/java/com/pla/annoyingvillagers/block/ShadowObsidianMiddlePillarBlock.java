@@ -93,25 +93,6 @@ public class ShadowObsidianMiddlePillarBlock extends HerobrineObsidianBlock impl
         super.customTickSound(serverLevel, blockPos);
     }
 
-    public void increaseSkillPoint(Entity entity, float value) {
-        if (!(entity instanceof Player pEntity)) return;
-//      ADD THIS CODE IN AV_EFM
-
-//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(pEntity, PlayerPatch.class);
-//        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
-//
-//        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.SHADOW_OBSIDIAN_PILLAR);
-//        if (skillContainer == null) return;
-//
-//        ShadowObsidianPillarSkill skill = (ShadowObsidianPillarSkill) skillContainer.getSkill();
-//
-//        float currentResource = skillContainer.getResource();
-//        float neededResource = skillContainer.getNeededResource();
-//        float addResource = Math.min(value, neededResource);
-//
-//        skill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
-    }
-
     @Override
     public void customHurtLogic(Entity entity, Entity owner, ServerLevel serverLevel, BlockPos blockPos) {
         super.customHurtLogic(entity, owner, serverLevel, blockPos);
@@ -124,12 +105,11 @@ public class ShadowObsidianMiddlePillarBlock extends HerobrineObsidianBlock impl
         );
         if (entity instanceof Mob mob) {
             mob.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 2, 8, false, false));
-            applyEpicFightRandomStun(entity);
+            applyEpicFightShortStun(entity);
         }
         if (owner != null) {
             if (owner instanceof Player player) {
                 entity.hurt(entity.level().damageSources().playerAttack(player), 1.0F);
-                increaseSkillPoint(player, 0.2F);
             } else {
                 entity.hurt(entity.level().damageSources().mobAttack((LivingEntity) owner), 1.0F);
             }

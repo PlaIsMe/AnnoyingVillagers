@@ -321,9 +321,6 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         });
 
         this.goalSelector.addGoal(2, new PortalApproachGoal(this));
-
-        // Restore the original AV_EFM feel: Null teleports the weapon separately every 10 ticks,
-        // while RandomStrollGoal keeps it gently drifting between teleports.
         this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.4D, 20) {
             @Override
             protected Vec3 getPosition() {
@@ -516,26 +513,6 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         this.setNoGravity(true);
     }
 
-    public void increaseSkillPoint(Entity entity, float value) {
-        if (!(entity instanceof Player pEntity)) return;
-
-//      ADD THIS CODE IN AV_EFM
-
-//        PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(pEntity, PlayerPatch.class);
-//        if (!(playerPatch instanceof ServerPlayerPatch serverPlayerPatch)) return;
-//
-//        SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.NULL_WEAPON);
-//        if (skillContainer == null) return;
-//
-//        NullWeaponSkill skill = (NullWeaponSkill) skillContainer.getSkill();
-//
-//        float currentResource = skillContainer.getResource();
-//        float neededResource = skillContainer.getNeededResource();
-//        float addResource = Math.min(value, neededResource);
-//
-//        skill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
-    }
-
     @Override
     public boolean doHurtTarget(@NotNull Entity pEntity) {
         if (pEntity instanceof Player hurtPlayer && this.playerUUID != null && this.playerUUID.equals(hurtPlayer.getUUID())) {
@@ -559,7 +536,6 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
             }
 
             boolean flag = pEntity.hurt(this.damageSources().playerAttack(this.player), f);
-            increaseSkillPoint(this.player, 5.0F);
             if (flag) {
                 if (f1 > 0.0F && pEntity instanceof LivingEntity) {
                     ((LivingEntity)pEntity).knockback(f1 * 0.5F, Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), -Mth.cos(this.getYRot() * ((float)Math.PI / 180F)));
@@ -741,10 +717,6 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         double x = anchor.getX() + (this.getRandom().nextDouble() * 2.0D - 1.0D) * horizontalRange;
         double y = anchor.getY() + minYOffset + this.getRandom().nextDouble() * (maxYOffset - minYOffset);
         double z = anchor.getZ() + (this.getRandom().nextDouble() * 2.0D - 1.0D) * horizontalRange;
-
-        // Intentionally do not stop navigation, clear velocity or set a self-position MoveControl target here.
-        // The old AV_EFM behavior teleported the weapon while its RandomStroll/target movement kept running,
-        // which is what creates the smooth little drift immediately after each snap.
         this.moveTo(x, y, z, this.getYRot(), this.getXRot());
     }
 

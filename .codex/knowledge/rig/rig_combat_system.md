@@ -158,8 +158,7 @@ For Blue Demon, priority 1 is intentional so the weapon-switch roll can preempt 
 
 ## Totem guard-break recovery animation
 
-The old EpicFight `TotemUsingEvent` played `AVAnimations.STUN_BACK` after Steve, Alex, or Chris consumed a Totem and switched into their upgraded state. The vanilla rig port keeps the commented AV_EFM block and then calls `RigAnimationController.play(mob, RigAnimationId.STUN_BACK)`. The current rig registry has `STUN_BACK`; it does not have a separate `STUN_FORWARD` id/clip, so do not invent one or substitute a knockdown animation unless that asset is explicitly ported later.
-
+The old EpicFight `TotemUsingEvent` played `AVAnimations.STUN_BACK` after Steve, Alex, or Chris consumed a Totem and switched into their upgraded state. 
 The old `efnGuardHitState`/`efnGuardHitCooldown` cycle is unrelated to this Totem animation and is dead in the non-EpicFight rig implementation. It has been removed from `AVNpc`, `HerobrineMob`, and `BlueDemonEntity`.
 
 
@@ -188,8 +187,6 @@ The non-EpicFight player shock effect is client-only and derives from the synced
 - uses stronger overlay/camera values when amplifier `> 1`, matching the `SHOCKED_LONG` selection;
 - disables the vanilla POV effect when `av_epicfight` or `annoyingvillagers_epicfight` is loaded so the compatibility mod can own player animation/camera behavior.
 
-If the final AV_EFM addon uses a different mod id, update the two checks in `ElectrifyScreenEffect.useVanillaPlayerShockFx()`.
-
 ## Hurt-stable stun animations
 
 The following stun/reaction animations must continue playing when the mob takes additional damage instead of entering the normal chained hit reaction:
@@ -215,4 +212,4 @@ Current migrated users:
 
 Reaper dragon summoning is a separate locked hand-action path. `summonEnderDragon(type)` must refuse to start while another rig animation is active, start `REAPER_HEROBRINE_ULT`, then acquire a profile-attack lock for that animation duration. The tick-22 ULT hook performs the fracture and actual dragon spawn. The spawned dragon begins underground with temporary no-gravity/no-physics and `DragonSummonRiseGoal` carries it above the caster before normal physics is restored.
 
-Ground Stuck is now a normal AV mob effect rather than an Epic Fight stun event. Rig targets use `HIT_LEFT`/`HIT_RIGHT`; non-rig/player targets receive the short vanilla nausea/slowness/mining-fatigue fallback. Knockout spin uses an AV client packet plus a vanilla `LivingEntityRenderer` mixin. Keep this path free of active Epic Fight imports; compatibility-only code remains in explicitly commented `ADD THIS CODE IN AV_EFM` blocks.
+Ground Stuck is now a normal AV mob effect rather than an Epic Fight stun event. Rig targets use `HIT_LEFT`/`HIT_RIGHT`; non-rig/player targets receive the short vanilla nausea/slowness/mining-fatigue fallback. Knockout spin uses an AV client packet plus a vanilla `LivingEntityRenderer` mixin. Keep this path free of active Epic Fight imports;

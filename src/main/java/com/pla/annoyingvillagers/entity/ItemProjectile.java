@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HookUtil;
 
@@ -515,6 +516,10 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
 //        if (targetPatch != null && !targetPatch.isStunned()) {
 //            targetPatch.applyStun(StunType.LONG, 0.0F);
 //        }
+
+        if (target instanceof Mob mob && RigStunController.supports(mob) && !RigStunController.isStunned(mob)) {
+            RigStunController.applyStun(mob);
+        }
     }
 
     protected void afterHookAttachedItemHit(LivingEntity target, Entity owner) {

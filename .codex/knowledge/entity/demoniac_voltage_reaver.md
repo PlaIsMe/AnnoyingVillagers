@@ -29,8 +29,6 @@ Do not document `HerobrineCommon.playSecondFormAnimation` or `AVAnimations.SNAKE
 
 ## Epic Fight Compatibility Comments / Rig Fallbacks
 
-The commented `ADD THIS CODE IN AV_EFM` blocks in this item are intentional and must be preserved for a future Epic Fight compatibility mixin/addon.
-
 `isPlayingSnakeBladeAnimation` currently falls back to `RigAnimationController.getActiveAnimationId(mob)` and recognizes the two Swordsman ULT ids.
 
 `getToolTipPos` currently uses `RigPoseUtil.getRightWeaponPosition(...)` for an active mob rig animation. If no usable rig pose exists it falls back to `CommonUtil.getVanillaSwordOrBodyPosition(...)`. The commented Epic Fight armature/joint calculation remains in place above this fallback.

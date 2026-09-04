@@ -57,7 +57,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-
 public class HerobrineUtil {
     private static final int HEROBRINE_ASSISTANCE_FALLBACK_TICKS = 34;
     private static final double HEROBRINE_ASSISTANCE_FALLBACK_HEIGHT = 3.25D;
@@ -309,7 +308,7 @@ public class HerobrineUtil {
             if (!(world instanceof ServerLevel serverLevel)) return;
             entity.getPersistentData().putBoolean("die_by_possess", true);
             Entity possessed;
-            if (herobrineEntity instanceof HerobrineCloneEntity || herobrineEntity instanceof HerobrineChrisEntity || herobrineEntity instanceof NullEntity
+            if (herobrineEntity instanceof HerobrineCloneEntity || herobrineEntity instanceof NullEntity
                     || herobrineEntity instanceof NullSwordEntity || herobrineEntity instanceof NullAxeEntity
                     || herobrineEntity instanceof NullPickaxeEntity || herobrineEntity instanceof NullShovelEntity
                     || herobrineEntity instanceof NullHoeEntity || herobrineEntity instanceof GlaiveHerobrineEntity
@@ -422,7 +421,6 @@ public class HerobrineUtil {
             if (entity.level() instanceof ServerLevel
                     && (entity instanceof HerobrineCloneEntity
                     || entity instanceof ShadowHerobrineCloneEntity
-                    || entity instanceof HerobrineChrisEntity
                     || entity instanceof Herobrine7Entity
                     || entity instanceof ArmoredHerobrineEntity)) {
                 entity.playSound(AnnoyingVillagersModSounds.HEROBRINE_CLONE_SAY_ON_SPAWN.get(), 0.5F, 1.0F);
@@ -614,6 +612,185 @@ public class HerobrineUtil {
                     placeIfReplaceable(level, BlockPos.containing(placeVec), obsidianState, caster);
                 }
             };
+        }
+    }
+
+    public static void summonObsidianBlocksFromPosition(ServerLevel level, LivingEntity caster, BlockState obsidianState, int amount, Vec3 startPosition) {
+        if (level == null || caster == null || obsidianState == null || startPosition == null || amount <= 0) return;
+
+        Vec3 look = caster.getLookAngle();
+        Vec3 forward = new Vec3(look.x, 0.0D, look.z);
+        if (forward.lengthSqr() < 1.0E-6D) {
+            Direction direction = caster.getDirection();
+            forward = new Vec3(direction.getStepX(), 0.0D, direction.getStepZ());
+        } else {
+            forward = forward.normalize();
+        }
+
+        final Vec3 lockedForward = forward;
+        final int anchorY = BlockPos.containing(startPosition).getY();
+        for (int i = 1; i <= amount; i++) {
+            final int step = i;
+            new DelayedTask(i) {
+                @Override public void run() {
+                    if (!caster.isAlive() || caster.level() != level) return;
+                    Vec3 raw = startPosition.add(lockedForward.scale(step));
+                    BlockPos pos = BlockPos.containing(raw.x, anchorY + 0.5D, raw.z);
+                    placeIfReplaceable(level, pos, obsidianState, caster);
+                }
+            };
+        }
+    }
+
+    public static void summonObsidianVerticalColumnInFront(ServerLevel level, LivingEntity caster, BlockState obsidianState, int height) {
+        if (level == null || caster == null || obsidianState == null || height <= 0) return;
+
+        Vec3 look = caster.getLookAngle();
+        Vec3 forward = new Vec3(look.x, 0.0D, look.z);
+        if (forward.lengthSqr() < 1.0E-6D) {
+            Direction direction = caster.getDirection();
+            forward = new Vec3(direction.getStepX(), 0.0D, direction.getStepZ());
+        } else {
+            forward = forward.normalize();
+        }
+
+        Vec3 ahead = new Vec3(caster.getX(), caster.getY(), caster.getZ()).add(forward.scale(2.5D));
+        final BlockPos base = BlockPos.containing(ahead.x, caster.getY() + 0.01D, ahead.z);
+        for (int y = 0; y < height; y++) {
+            final int yOffset = y;
+            new DelayedTask(y + 1) {
+                @Override public void run() {
+                    if (!caster.isAlive() || caster.level() != level) return;
+                    placeIfReplaceable(level, base.above(yOffset), obsidianState, caster);
+                }
+            };
+        }
+    }
+
+    public static void summonObsidianArcInFront(ServerLevel level, LivingEntity caster, BlockState obsidianState) {
+        if (level == null || caster == null || obsidianState == null) return;
+
+        Vec3 look = caster.getLookAngle();
+        Vec3 forward = new Vec3(look.x, 0.0D, look.z);
+        if (forward.lengthSqr() < 1.0E-6D) {
+            Direction direction = caster.getDirection();
+            forward = new Vec3(direction.getStepX(), 0.0D, direction.getStepZ());
+        } else {
+            forward = forward.normalize();
+        }
+
+        Vec3 right = new Vec3(-forward.z, 0.0D, forward.x).normalize();
+        final Vec3 lockedForward = forward;
+        final Vec3 lockedRight = right;
+        final Vec3 origin = new Vec3(caster.getX(), caster.getY(), caster.getZ());
+
+        final double[][] offsets = {
+                {-2.0D, 2.0D},
+                {-1.0D, 3.0D},
+                {0.0D, 3.5D},
+                {1.0D, 3.0D},
+                {2.0D, 2.0D}
+        };
+
+        for (int i = 0; i < offsets.length; i++) {
+            final int index = i;
+            new DelayedTask(i + 1) {
+                @Override public void run() {
+                    if (!caster.isAlive() || caster.level() != level) return;
+
+                    Vec3 target = origin.add(lockedRight.scale(offsets[index][0])).add(lockedForward.scale(offsets[index][1]));
+                    BlockPos pos = BlockPos.containing(target.x, caster.getY() + 1.01D, target.z);
+                    placeIfReplaceable(level, pos, obsidianState, caster);
+                }
+            };
+        }
+    }
+
+    public static void summonObsidianPillarAtTarget(ServerLevel level, LivingEntity caster, BlockState obsidianState) {
+        if (level == null || caster == null || obsidianState == null) return;
+
+        LivingEntity target = caster instanceof Mob mob ? mob.getTarget() : null;
+        Vec3 basePosition;
+        if (target != null && target.isAlive()) {
+            basePosition = new Vec3(target.getX(), target.getY(), target.getZ());
+        } else {
+            Vec3 look = caster.getLookAngle();
+            Vec3 forward = new Vec3(look.x, 0.0D, look.z);
+            if (forward.lengthSqr() < 1.0E-6D) {
+                Direction direction = caster.getDirection();
+                forward = new Vec3(direction.getStepX(), 0.0D, direction.getStepZ());
+            } else {
+                forward = forward.normalize();
+            }
+            basePosition = new Vec3(caster.getX(), caster.getY(), caster.getZ()).add(forward.scale(4.0D));
+        }
+
+        final BlockPos base = BlockPos.containing(basePosition.x, basePosition.y + 0.01D, basePosition.z);
+        for (int delay = 1; delay <= 12; delay++) {
+            final int yOffset = delay - 1;
+            new DelayedTask(delay) {
+                @Override public void run() {
+                    if (!caster.isAlive() || caster.level() != level) return;
+                    placeIfReplaceable(level, base.above(yOffset), obsidianState, caster);
+                }
+            };
+        }
+    }
+
+    public static void summonObsidianCube3x3x3(ServerLevel level, LivingEntity caster, BlockState obsidianState) {
+        if (level == null || caster == null || obsidianState == null) return;
+
+        Vec3 look = caster.getLookAngle();
+        Vec3 forward = new Vec3(look.x, 0.0D, look.z);
+
+        if (forward.lengthSqr() < 1.0E-6D) {
+            Direction direction = caster.getDirection();
+            forward = new Vec3(direction.getStepX(), 0.0D, direction.getStepZ());
+        } else {
+            forward = forward.normalize();
+        }
+
+        Vec3 right = new Vec3(-forward.z, 0.0D, forward.x).normalize();
+        Vec3 origin = new Vec3(caster.getX(), caster.getY(), caster.getZ()).add(forward.scale(2.0D));
+
+        for (int depth = 0; depth < 3; depth++) {
+            for (int y = 0; y < 3; y++) {
+                for (int side = -1; side <= 1; side++) {
+                    Vec3 target = origin
+                            .add(right.scale(side))
+                            .add(forward.scale(depth));
+
+                    BlockPos pos = BlockPos.containing(
+                            target.x,
+                            caster.getY() + y + 0.01D,
+                            target.z
+                    );
+
+                    placeIfReplaceable(level, pos, obsidianState, caster);
+                }
+            }
+        }
+    }
+
+    public static void summonObsidianWall3x3(ServerLevel level, LivingEntity caster, BlockState obsidianState) {
+        if (level == null || caster == null || obsidianState == null) return;
+
+        Vec3 look = caster.getLookAngle();
+        Vec3 forward = new Vec3(look.x, 0.0D, look.z);
+        if (forward.lengthSqr() < 1.0E-6D) {
+            Direction direction = caster.getDirection();
+            forward = new Vec3(direction.getStepX(), 0.0D, direction.getStepZ());
+        } else {
+            forward = forward.normalize();
+        }
+
+        Vec3 right = new Vec3(-forward.z, 0.0D, forward.x).normalize();
+        Vec3 center = new Vec3(caster.getX(), caster.getY(), caster.getZ()).add(forward.scale(3.0D));
+        for (int x = -1; x <= 1; x++) {
+            for (int y = 0; y <= 2; y++) {
+                Vec3 world = center.add(right.scale(x)).add(0.0D, y, 0.0D);
+                placeIfReplaceable(level, BlockPos.containing(world), obsidianState, caster);
+            }
         }
     }
 

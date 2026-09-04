@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.entity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -18,8 +19,10 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
@@ -47,6 +50,7 @@ public class BlackHoleEntity extends Entity {
     private static final String TAG_LIFETIME = "Lifetime";
     private static final String TAG_SIZE_MULTIPLIER = "SizeMultiplier";
     private static final String TAG_DAMAGE_MULTIPLIER = "DamageMultiplier";
+    private static final String TAG_SPAWN_BLOCKS_CLEARED = "SpawnBlocksCleared";
 
     private static final EntityDataAccessor<Integer> DATA_OWNER_ID = SynchedEntityData.defineId(BlackHoleEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_LIFETIME = SynchedEntityData.defineId(BlackHoleEntity.class, EntityDataSerializers.INT);
@@ -55,6 +59,7 @@ public class BlackHoleEntity extends Entity {
     @Nullable
     private UUID ownerUUID;
     private float damageMultiplier = 1.0F;
+    private boolean spawnBlocksCleared;
 
     public BlackHoleEntity(EntityType<? extends BlackHoleEntity> type, Level level) {
         super(type, level);
@@ -151,9 +156,36 @@ public class BlackHoleEntity extends Entity {
             this.level().playSound(null, this.blockPosition(), AnnoyingVillagersModSounds.BLACK_HOLE_AMBIENT.get(), SoundSource.HOSTILE, 1.5F, 1.0F);
         }
 
+        if (!this.spawnBlocksCleared) {
+            this.destroyBlocksAtSpawn(serverLevel);
+            this.spawnBlocksCleared = true;
+        }
+
         this.pullLivingEntities(serverLevel);
+        this.pullItemEntities(serverLevel);
 
         if (this.tickCount >= lifetime) this.discard();
+    }
+
+    private void destroyBlocksAtSpawn(ServerLevel serverLevel) {
+        double radius = BASE_EFFECT_RADIUS * this.getSizeMultiplier();
+        double radiusSqr = radius * radius;
+        int blockRadius = Mth.ceil(radius);
+        BlockPos center = this.blockPosition();
+        LivingEntity owner = this.getOwnerLiving();
+
+        BlockPos min = center.offset(-blockRadius, -blockRadius, -blockRadius);
+        BlockPos max = center.offset(blockRadius, blockRadius, blockRadius);
+        for (BlockPos mutablePos : BlockPos.betweenClosed(min, max)) {
+            BlockPos pos = mutablePos.immutable();
+            if (Vec3.atCenterOf(pos).distanceToSqr(this.position()) > radiusSqr) continue;
+
+            BlockState state = serverLevel.getBlockState(pos);
+            if (state.isAir()) continue;
+            if (state.getDestroySpeed(serverLevel, pos) < 0.0F) continue;
+
+            serverLevel.destroyBlock(pos, true, owner);
+        }
     }
 
     private void pullLivingEntities(ServerLevel serverLevel) {
@@ -187,6 +219,29 @@ public class BlackHoleEntity extends Entity {
                 DamageSource source = owner == null ? this.damageSources().magic() : this.damageSources().indirectMagic(this, owner);
                 target.hurt(source, BASE_DAMAGE * this.damageMultiplier);
             }
+        }
+    }
+
+    private void pullItemEntities(ServerLevel serverLevel) {
+        double radius = this.getSuctionRadius();
+        Vec3 centre = this.position();
+        AABB searchBox = new AABB(centre.x - radius, centre.y - radius, centre.z - radius, centre.x + radius, centre.y + radius, centre.z + radius);
+
+        for (ItemEntity item : serverLevel.getEntitiesOfClass(ItemEntity.class, searchBox, entity -> entity.isAlive() && !entity.getItem().isEmpty())) {
+            Vec3 pullVector = centre.subtract(item.position());
+            double distance = pullVector.length();
+            if (distance <= 1.0E-5D || distance > radius) continue;
+
+            double closeness = 1.0D - Mth.clamp(distance / radius, 0.0D, 1.0D);
+            double strength = SUCTION_STRENGTH * (1.15D + closeness);
+            Vec3 acceleration = pullVector.normalize().scale(strength);
+            Vec3 movement = item.getDeltaMovement().scale(0.965D).add(acceleration);
+
+            double maxSpeed = 1.35D;
+            if (movement.lengthSqr() > maxSpeed * maxSpeed) movement = movement.normalize().scale(maxSpeed);
+
+            item.setDeltaMovement(movement);
+            item.hasImpulse = true;
         }
     }
 
@@ -229,6 +284,7 @@ public class BlackHoleEntity extends Entity {
         if (tag.contains(TAG_LIFETIME)) this.setLifetime(tag.getInt(TAG_LIFETIME));
         if (tag.contains(TAG_SIZE_MULTIPLIER)) this.setSizeMultiplier(tag.getFloat(TAG_SIZE_MULTIPLIER));
         if (tag.contains(TAG_DAMAGE_MULTIPLIER)) this.damageMultiplier = tag.getFloat(TAG_DAMAGE_MULTIPLIER);
+        if (tag.contains(TAG_SPAWN_BLOCKS_CLEARED)) this.spawnBlocksCleared = tag.getBoolean(TAG_SPAWN_BLOCKS_CLEARED);
     }
 
     @Override
@@ -237,6 +293,7 @@ public class BlackHoleEntity extends Entity {
         tag.putInt(TAG_LIFETIME, this.getLifetime());
         tag.putFloat(TAG_SIZE_MULTIPLIER, this.getSizeMultiplier());
         tag.putFloat(TAG_DAMAGE_MULTIPLIER, this.damageMultiplier);
+        tag.putBoolean(TAG_SPAWN_BLOCKS_CLEARED, this.spawnBlocksCleared);
     }
 
     @Override

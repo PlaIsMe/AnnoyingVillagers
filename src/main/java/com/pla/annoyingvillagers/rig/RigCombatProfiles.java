@@ -800,6 +800,63 @@ public final class RigCombatProfiles {
                 ULTIMATE_CHANCE * 1.5D,
                 RigLocomotionStyle.NULL_HEROBRINE
         ));
+
+        PROFILES.put(RigCombatStyle.OBSIDIAN_WEAPON, new RigCombatProfile(
+                List.of(RigAnimationId.FIST_ATTACK1, RigAnimationId.FIST_ATTACK2, RigAnimationId.FIST_ATTACK3, RigAnimationId.FIST_ATTACK4, RigAnimationId.FIST_ATTACK5, RigAnimationId.FIST_EXTRA_ATTACK),
+                List.of(RigAnimationId.OBSIDIAN_DASH_ATTACK, RigAnimationId.OBSIDIAN_JUMP_ATTACK,
+                        RigAnimationId.OBSIDIAN_EXTRA_ATTACK, RigAnimationId.OBSIDIAN_PILLAR_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.OBSIDIAN_ULT1, RigAnimationId.OBSIDIAN_ULT2, RigAnimationId.OBSIDIAN_EXTRA_ULT),
+                SPECIAL_ATTACK_CHANCE * 1.5D,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE,
+                RigLocomotionStyle.HEROBRINE_CLONE
+        ));
+
+        PROFILES.put(RigCombatStyle.OBSIDIAN_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.OBSIDIAN_SWORD_ATTACK1, RigAnimationId.OBSIDIAN_SWORD_ATTACK2, RigAnimationId.OBSIDIAN_SWORD_ATTACK3, RigAnimationId.OBSIDIAN_SWORD_ATTACK4),
+                List.of(RigAnimationId.OBSIDIAN_SWORD_DASH_ATTACK, RigAnimationId.OBSIDIAN_SWORD_JUMP_ATTACK,
+                        RigAnimationId.OBSIDIAN_EXTRA_ATTACK, RigAnimationId.OBSIDIAN_PILLAR_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.OBSIDIAN_ULT1, RigAnimationId.OBSIDIAN_SWORD_ULT),
+                SPECIAL_ATTACK_CHANCE * 1.5D,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE,
+                RigLocomotionStyle.HEROBRINE_CLONE
+        ));
+
+        PROFILES.put(RigCombatStyle.DUAL_OBSIDIAN_SWORD, new RigCombatProfile(
+                List.of(RigAnimationId.DUAL_OBSIDIAN_SWORD_ATTACK1, RigAnimationId.DUAL_OBSIDIAN_SWORD_ATTACK2, RigAnimationId.DUAL_OBSIDIAN_SWORD_ATTACK3, RigAnimationId.DUAL_OBSIDIAN_SWORD_ATTACK4),
+                List.of(RigAnimationId.DUAL_OBSIDIAN_SWORD_DASH_ATTACK, RigAnimationId.DUAL_OBSIDIAN_SWORD_JUMP_ATTACK,
+                        RigAnimationId.DUAL_OBSIDIAN_SWORD_EXTRA_ATTACK, RigAnimationId.OBSIDIAN_PILLAR_EXTRA_ATTACK),
+                List.of(
+                        RigAnimationId.ROLL_FORWARD,
+                        RigAnimationId.ROLL_BACKWARD,
+                        RigAnimationId.STEP_FORWARD,
+                        RigAnimationId.STEP_BACKWARD,
+                        RigAnimationId.STEP_LEFT,
+                        RigAnimationId.STEP_RIGHT
+                ),
+                List.of(RigAnimationId.OBSIDIAN_ULT1, RigAnimationId.DUAL_OBSIDIAN_SWORD_ULT),
+                SPECIAL_ATTACK_CHANCE * 1.5D,
+                ROLLING_CHANCE,
+                ULTIMATE_CHANCE,
+                RigLocomotionStyle.HEROBRINE_CLONE
+        ));
     }
 
     public static boolean isProfileAttack(RigAnimationId animationId) {

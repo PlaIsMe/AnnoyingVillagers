@@ -6,14 +6,19 @@ import com.pla.annoyingvillagers.blockentity.*;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.rig.RigStunController;
+import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -88,6 +93,15 @@ public class HerobrineObsidianBlock extends Block {
 //        if (livingEntityPatch != null && !livingEntityPatch.isStunned()) {
 //            livingEntityPatch.applyStun(StunType.SHORT, 1.0F);
 //        }
+
+        if (entity instanceof Player player) {
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 2, false, false, true));
+            return;
+        }
+
+        if (entity instanceof Mob mob && RigStunController.supports(mob) && !RigStunController.isStunned(mob)) {
+            RigStunController.applyStun(mob);
+        }
     }
 
     protected void applyEpicFightRandomStun(Entity entity) {
@@ -120,6 +134,24 @@ public class HerobrineObsidianBlock extends Block {
 //                };
 //            }
 //        }
+
+        if (Math.random() > 0.5D) return;
+
+        new DelayedTask(1) {
+            @Override
+            public void run() {
+                if (!(entity.level() instanceof ServerLevel)) return;
+
+                if (entity instanceof Player player) {
+                    player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 2, false, false, true));
+                    return;
+                }
+
+                if (entity instanceof Mob mob && RigStunController.supports(mob) && !RigStunController.isStunned(mob)) {
+                    RigStunController.applyStun(mob);
+                }
+            }
+        };
     }
 
     @Override

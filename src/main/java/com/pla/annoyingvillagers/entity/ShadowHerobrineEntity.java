@@ -1,5 +1,9 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.clazz.RollItemUser;
+import com.pla.annoyingvillagers.entity.goal.ObsidianMachineGunGoal;
+import com.pla.annoyingvillagers.entity.goal.ShadowHerobrineShootDarkObGoal;
+import com.pla.annoyingvillagers.entity.goal.ShadowHerobrineSummonDarkObGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -37,7 +41,7 @@ import java.util.Random;
 import java.util.UUID;
 
 
-public class ShadowHerobrineEntity extends HerobrineMob {
+public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser {
     private BlockProjectileEntity darkObUp;
     private UUID darkObUpUUID;
 
@@ -68,6 +72,23 @@ public class ShadowHerobrineEntity extends HerobrineMob {
             darkObLeftUUID = null;
             darkObLeft = null;
         }
+    }
+
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(0, new ObsidianMachineGunGoal(this));
+        this.goalSelector.addGoal(1, new ShadowHerobrineShootDarkObGoal(this));
+        this.goalSelector.addGoal(1, new ShadowHerobrineSummonDarkObGoal(this));
+    }
+
+    @Override
+    public boolean canRollItem() {
+        LivingEntity target = this.getTarget();
+        return target != null
+                && target.isAlive()
+                && this.getSwapWeaponCooldown() == 0
+                && !this.isSacrificing();
     }
 
     public void setObsidianMachineGunTick() {
@@ -636,8 +657,8 @@ public class ShadowHerobrineEntity extends HerobrineMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
-                .add(Attributes.ARMOR, 10.0D)
-                .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
+                .add(Attributes.ARMOR, 80.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 40.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
         return addEpicFightAttributes(builder);
     }

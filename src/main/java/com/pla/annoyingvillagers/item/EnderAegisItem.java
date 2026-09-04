@@ -142,12 +142,6 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
         );
 
         level.playSound(null, entity.blockPosition(), AnnoyingVillagersModSounds.ENDER_SHOT.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-
-//        Add this mixin to AV_EFM
-//        LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-//        if (livingentitypatch != null) {
-//            livingentitypatch.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
-//        }
     }
 
     private void secondFormNbtTag(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity) {

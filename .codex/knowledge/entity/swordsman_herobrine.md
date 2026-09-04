@@ -34,8 +34,6 @@ The hooks are explicitly restricted to `SwordsmanHerobrineEntity`, require the D
 
 ## Snake Animation Compatibility
 
-`DemoniacVoltageReaverItem.isPlayingSnakeBladeAnimation(...)` intentionally retains the commented `ADD THIS CODE IN AV_EFM` Epic Fight animator block. Do not delete that block; it is a future compatibility insertion point.
-
 The active non-EpicFight fallback treats `SWORDMAN_HEROBRINE_ULT` and `SWORDMAN_HEROBRINE_EXTRA_ULT` as the snake-blade animation state for rig mobs. This prevents the `SnakeAnimation` NBT flag from being cleared merely because Epic Fight is absent.
 
 `getToolTipPos(...)` likewise retains its commented Epic Fight joint-transform implementation. The current fallback samples the right-weapon position through `RigPoseUtil` when a rig animation is active, then falls back to `CommonUtil.getVanillaSwordOrBodyPosition(...)` for ordinary/non-rig entities.

@@ -135,8 +135,6 @@ Because the physical hitbox is zero-size, released weapon attacks use explicit t
 
 `spinfor5seconds()` uses native `RigAnimationId.SPINNING_WEAPON` as a held pose and cancels it after 100 ticks.
 
-The old Epic Fight compatibility block inside `spinfor5seconds()` is intentionally preserved as commented code for future AV_EFM compatibility.
-
 Idle, non-released weapons also trigger the spinning animation at randomized intervals. Starting another spin invalidates the previous delayed cancellation through `spinAnimationSequence` so an old delayed task cannot cancel a newer spin.
 
 ## NULL_ATTACK5 / NULL_EXTRA_ATTACK Weapon Release Hooks

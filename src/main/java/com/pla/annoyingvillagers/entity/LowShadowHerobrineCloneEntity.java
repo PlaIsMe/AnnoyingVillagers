@@ -348,7 +348,6 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
 //            livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.PLAYER_HEROBRINE_POSSESSION, 0.0F);
 //        }
 
-//        Create VANILLA_ANIMATION
         if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.PLAYER_HEROBRINE_POSSESSION) RigAnimationController.play(this,RigAnimationId.PLAYER_HEROBRINE_POSSESSION);
     }
 
@@ -361,7 +360,6 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
 //                this.livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_SACRIFICING, 0.0F);
 //            }
 //        }
-//        Create VANILLA_ANIMATION
         RigAnimationId animationId = this.sacrificing ? RigAnimationId.HEROBRINE_ASSISTANCE : this.healing ? RigAnimationId.HEROBRINE_SACRIFICING : null;
         if (animationId != null && RigAnimationController.getActiveAnimationId(this) != animationId) RigAnimationController.play(this,animationId);
     }
@@ -566,8 +564,6 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
 //        if (this.livingentitypatch != null) {
 //            this.livingentitypatch.playAnimationSynchronized(AVAnimations.LOW_CLONE_ESCAPE, 0.0F);
 //        }
-
-//        ADD VANILLA_ANIMATION
         if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.LOW_CLONE_ESCAPE) RigAnimationController.play(this,RigAnimationId.LOW_CLONE_ESCAPE);
     }
 

@@ -8,22 +8,9 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class BlueFlameSwordItem extends SwordItem implements RigCombatProfileProvider {
-    private static boolean conditionToBurn(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
-//        Add this in AV_EFM
-//        if (pAttacker.level() instanceof ServerLevel) {
-//            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(pAttacker, LivingEntityPatch.class);
-//            if (livingEntityPatch != null) {
-//                AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-//                if (dynamicAnimation == AnimsHerrscher.HERRSCHER_AUSROTTUNG) {
-//                    return true;
-//                }
-//            }
-//        }
-//        ci.cancel here
-        return true;
-    }
+import java.util.Random;
 
+public class BlueFlameSwordItem extends SwordItem implements RigCombatProfileProvider {
     @Override
     public RigCombatStyle getRigCombatStyle(ItemStack stack) {
         return RigCombatStyle.SPECIAL_SWORD;
@@ -41,7 +28,7 @@ public class BlueFlameSwordItem extends SwordItem implements RigCombatProfilePro
 
     @Override
     public boolean hurtEnemy(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
-        if (conditionToBurn(pStack, pTarget, pAttacker)) {
+        if (new Random().nextFloat() < 0.2F) {
             pTarget.setSecondsOnFire(2);
         }
         return super.hurtEnemy(pStack, pTarget, pAttacker);

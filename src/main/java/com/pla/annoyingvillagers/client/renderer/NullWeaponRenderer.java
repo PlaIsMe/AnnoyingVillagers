@@ -4,6 +4,7 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.client.layer.RigItemInHandLayer;
 import com.pla.annoyingvillagers.client.model.ModelRig;
+import net.minecraft.core.BlockPos;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
@@ -27,6 +28,11 @@ public class NullWeaponRenderer extends HumanoidMobRenderer<NullWeapon, ModelRig
 
         AABB renderBounds = new AABB(entity.getX() - 2.0D, entity.getY() - 2.0D, entity.getZ() - 2.0D, entity.getX() + 2.0D, entity.getY() + 2.0D, entity.getZ() + 2.0D);
         return frustum.isVisible(renderBounds);
+    }
+
+    @Override
+    protected int getBlockLightLevel(@NotNull NullWeapon entity, @NotNull BlockPos pos) {
+        return 15;
     }
 
     @Override

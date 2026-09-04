@@ -39,25 +39,6 @@ public class EnderGlaiveItem extends SwordItem implements RigCombatProfileProvid
         super(TIER,3,-2.5F,new Properties().fireResistant());
     }
 
-    @Override
-    public boolean hurtEnemy(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
-//        Add this code in AV_EFM
-//        if (pAttacker instanceof Player player) {
-//            PlayerPatch<?> playerPatch = EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
-//            if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-//                SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_GLAIVE);
-//                if (skillContainer == null) return super.hurtEnemy(pStack, pTarget, pAttacker);
-//                EnderGlaiveSkill enderGlaiveSkill = (EnderGlaiveSkill) skillContainer.getSkill();
-//
-//                float currentResource = skillContainer.getResource();
-//                float neededResource = skillContainer.getNeededResource();
-//                float addResource = Math.min(2.0F, neededResource);
-//                enderGlaiveSkill.setConsumptionSynchronize(skillContainer, currentResource + addResource);
-//            }
-//        }
-        return super.hurtEnemy(pStack, pTarget, pAttacker);
-    }
-
     public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
         super.inventoryTick(itemstack, level, entity, i, flag);
 //        Add this in AV_EFM

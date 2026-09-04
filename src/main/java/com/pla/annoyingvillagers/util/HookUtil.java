@@ -611,14 +611,6 @@ public final class HookUtil {
         return new Vec3(target.getX(), target.getY() + target.getBbHeight() * 0.5D, target.getZ());
     }
 
-    private void applyLongStun(LivingEntity target) {
-//        Add this in AV_EFM
-//        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-//        if (targetPatch != null && !targetPatch.isStunned()) {
-//            targetPatch.applyStun(StunType.LONG, 0.0F);
-//        }
-    }
-
     private static HitResult hitWithShield(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
         DamageSource source = level.damageSources().thrown(projectile, owner);
         if (!target.hurt(source, 15.0F)) {

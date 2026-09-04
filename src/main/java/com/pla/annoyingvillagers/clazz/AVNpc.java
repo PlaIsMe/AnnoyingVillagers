@@ -162,7 +162,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.idleMessageBroadcast = false;
     }
 
-    // Vanilla-safe animation extension points. AV_EFM can mixin these methods for EpicFight-specific behavior.
     public boolean isIdleAnimationGoalAvailable() {
         return false;
     }

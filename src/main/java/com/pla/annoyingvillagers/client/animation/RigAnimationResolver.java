@@ -407,7 +407,6 @@ public final class RigAnimationResolver {
             case DUAL_OBSIDIAN_SWORD_DASH_ATTACK -> ObsidianAnimations4.DUAL_OBSIDIAN_SWORD_DASH_ATTACK;
             case DUAL_OBSIDIAN_SWORD_EXTRA_ATTACK -> ObsidianAnimations4.DUAL_OBSIDIAN_SWORD_EXTRA_ATTACK;
             case DUAL_OBSIDIAN_SWORD_ULT -> ObsidianAnimations4.DUAL_OBSIDIAN_SWORD_ULT;
-            case DUAL_OBSIDIAN_PILLAR_ULT -> ObsidianAnimations4.DUAL_OBSIDIAN_PILLAR_ULT;
         };
     }
 }

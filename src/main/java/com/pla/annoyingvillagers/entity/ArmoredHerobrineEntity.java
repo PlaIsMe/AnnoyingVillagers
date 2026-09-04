@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.clazz.Difficulty;
+import com.pla.annoyingvillagers.clazz.RollItemUser;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -30,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
-public class ArmoredHerobrineEntity extends HerobrineMob {
+public class ArmoredHerobrineEntity extends HerobrineMob implements RollItemUser {
     public ArmoredHerobrineEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.ARMORED_HEROBRINE.get(), level);
     }
@@ -60,6 +61,14 @@ public class ArmoredHerobrineEntity extends HerobrineMob {
                 && damagesource.getDirectEntity() instanceof AbstractArrow
                 && !(damagesource.getDirectEntity() instanceof BlueDemonThrownTridentEntity)) return false;
         return super.hurt(damagesource, f);
+    }
+
+    @Override
+    public boolean canRollItem() {
+        LivingEntity target = this.getTarget();
+        return target != null
+                && target.isAlive()
+                && this.getSwapWeaponCooldown() == 0;
     }
 
     @Override
@@ -132,7 +141,7 @@ public class ArmoredHerobrineEntity extends HerobrineMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
                 .add(Attributes.ATTACK_DAMAGE, 5.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
-                .add(Attributes.ARMOR, 10.0D)
+                .add(Attributes.ARMOR, 40.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
         return addEpicFightAttributes(builder);

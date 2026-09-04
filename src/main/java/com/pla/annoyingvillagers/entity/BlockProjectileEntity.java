@@ -9,6 +9,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.client.particle.HitParticleType;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -124,6 +125,10 @@ public class BlockProjectileEntity extends ThrowableProjectile {
 //        if (livingEntityPatch != null) {
 //            livingEntityPatch.applyStun(StunType.LONG, 20.0F);
 //        }
+
+        if (entity instanceof Mob mob && RigStunController.supports(mob) && !RigStunController.isStunned(mob)) {
+            RigStunController.applyStun(mob);
+        }
     }
 
     @Override

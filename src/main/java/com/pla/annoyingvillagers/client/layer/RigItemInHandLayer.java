@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -43,7 +44,7 @@ public class RigItemInHandLayer<T extends Mob> extends ItemInHandLayer<T, ModelR
 
         boolean leftHand = arm == HumanoidArm.LEFT;
         poseStack.translate(leftHand ? -ITEM_X_OFFSET : ITEM_X_OFFSET, ITEM_DEPTH_OFFSET, 0.0F);
-        this.itemInHandRenderer.renderItem(entity, RigItemVisualResolver.resolve(entity, itemStack), displayContext, leftHand, poseStack, buffer, packedLight);
+        this.itemInHandRenderer.renderItem(entity, RigItemVisualResolver.resolve(entity, itemStack, leftHand), displayContext, leftHand, poseStack, buffer, packedLight);
         poseStack.popPose();
     }
 }

@@ -31,7 +31,6 @@ public class TotemUsingEvent {
 //            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
 //        }
 
-//        CREATE VANILLA_ANIMATION
         if (entity instanceof Mob mob && !entity.level().isClientSide() && entity.getServer() != null) {
             RigAnimationController.play(mob, RigAnimationId.STUN_BACK);
         }

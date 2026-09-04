@@ -10,6 +10,8 @@ import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundGroundFracture;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -70,22 +72,6 @@ public class CommonUtil {
 //        mob.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), duration, pAmplifier));
     }
 
-    public static void dangerousReactionAi(Mob mob) {
-//      ADD THIS CODE IN AV_EFM
-
-//        if (this.getLivingEntityPatch() != null && CombatCommon.canEscape((MobPatch<?>) this.getLivingEntityPatch())) {
-//            mob.goalSelector.disableControlFlag(Goal.Flag.MOVE);
-//            mob.getNavigation().stop();
-//
-//            LivingEntity target = mob.getTarget();
-//            if (target != null) {
-//                mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
-//            }
-//        } else {
-//            mob.goalSelector.enableControlFlag(Goal.Flag.MOVE);
-//        }
-    }
-
     public static void stunEscapeAi(Mob mob) {
 //      ADD THIS CODE IN AV_EFM
 
@@ -128,16 +114,31 @@ public class CommonUtil {
     }
 
     public static Vec3 getVanillaSwordOrBodyPosition(Entity entity, float partialTick) {
+        if (entity instanceof Mob mob) {
+            RigAnimationId animationId = RigAnimationController.getActiveAnimationId(mob);
+            int startTick = RigAnimationController.getActiveAnimationStartTick(mob);
+
+            if (animationId != null && startTick >= 0) {
+                float elapsedTicks = mob.tickCount - startTick + partialTick;
+
+                Vec3 rigPosition = mob.getMainArm() == HumanoidArm.LEFT
+                        ? RigPoseUtil.getLeftWeaponPosition(mob, animationId, elapsedTicks)
+                        : RigPoseUtil.getRightWeaponPosition(mob, animationId, elapsedTicks);
+
+                if (rigPosition != null) return rigPosition;
+            }
+        }
+
         if (entity instanceof LivingEntity living) {
             int armSign = living.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
             float bodyYaw = Mth.lerp(partialTick, living.yBodyRotO, living.yBodyRot) * Mth.DEG_TO_RAD;
             double sinYaw = Mth.sin(bodyYaw);
             double cosYaw = Mth.cos(bodyYaw);
-            double armOffset = (double) armSign * 0.35D;
+            double armOffset = armSign * 0.35D;
             double crouchOffset = living.isCrouching() ? -0.1875D : 0.0D;
-            double x = Mth.lerp((double) partialTick, living.xo, living.getX());
-            double y = Mth.lerp((double) partialTick, living.yo, living.getY());
-            double z = Mth.lerp((double) partialTick, living.zo, living.getZ());
+            double x = Mth.lerp((double)partialTick, living.xo, living.getX());
+            double y = Mth.lerp((double)partialTick, living.yo, living.getY());
+            double z = Mth.lerp((double)partialTick, living.zo, living.getZ());
 
             return new Vec3(
                     x - cosYaw * armOffset - sinYaw * 0.8D,
@@ -147,9 +148,9 @@ public class CommonUtil {
         }
 
         return new Vec3(
-                Mth.lerp((double) partialTick, entity.xo, entity.getX()),
-                Mth.lerp((double) partialTick, entity.yo, entity.getY()) + entity.getBbHeight() * 0.65D,
-                Mth.lerp((double) partialTick, entity.zo, entity.getZ())
+                Mth.lerp((double)partialTick, entity.xo, entity.getX()),
+                Mth.lerp((double)partialTick, entity.yo, entity.getY()) + entity.getBbHeight() * 0.65D,
+                Mth.lerp((double)partialTick, entity.zo, entity.getZ())
         );
     }
 

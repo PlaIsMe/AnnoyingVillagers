@@ -37,8 +37,6 @@ Do not confuse the states: Festival begins while state is still 0, changes to st
 
 `BlueDemonEntity.playTridentFestivalAnimation()` is the bridge from the lethal-hit intercept into the rig timed-hook state machine. It must call `RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL)`; leaving only the old EpicFight compatibility comment makes the phase transition dead code.
 
-Keep the existing `// ADD THIS CODE IN AV_EFM` compatibility comments around EpicFight implementations when adding the vanilla rig path.
-
 ## Rig melee combat goal
 
 `BlueDemonEntity` participates in the vanilla rig combat system the same way as `AVNpc` and `HerobrineMob`:

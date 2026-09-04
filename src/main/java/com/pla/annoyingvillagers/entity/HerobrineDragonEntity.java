@@ -324,12 +324,6 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
     }
 
-    private static boolean isEnderHand(LivingEntity entity) {
-//      ADD THIS CODE IN AV_EFM
-//        return entity instanceof EnderHand;
-        return false;
-    }
-
     public static LivingEntity getNearestLivingEntity(Level level, Entity sourceEntity, double range) {
         AABB searchBox = sourceEntity.getBoundingBox().inflate(range);
 
@@ -337,7 +331,6 @@ public class HerobrineDragonEntity extends TamableAnimal implements FlyingAnimal
                 level.getEntitiesOfClass(LivingEntity.class, searchBox,
                         e -> e != sourceEntity
                                 && !(e instanceof HerobrineDragonEntity)
-                                && !(isEnderHand(e))
                                 && !e.isAlliedTo(sourceEntity)
                                 && e.isAlive()),
                 TargetingConditions.DEFAULT,

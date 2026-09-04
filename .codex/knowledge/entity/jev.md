@@ -338,14 +338,6 @@ Top pose is selected when the hook direction has Y greater than `0.55` or its do
 
 The four hook poses intentionally remain selected inside `HookGunItem.getHookHandAnimation(...)` so Alex/Jev/player hook code does not duplicate left/right/top animation choice.
 
-## AV_EFM Compatibility Reminder
-
-Keep compatibility placeholders in source in the existing style:
-
-```java
-// add this in AV_EFM
-```
-
 For a future Annoying Villagers EpicFight compatibility module, restore Epic Fight animation calls beside the vanilla rig implementation instead of replacing the non-EpicFight code. In particular, the old Epic Fight hook-shot and repeating hook-hand animations should remain compatibility-layer behavior.
 
 ## Knowledge Maintenance Rule

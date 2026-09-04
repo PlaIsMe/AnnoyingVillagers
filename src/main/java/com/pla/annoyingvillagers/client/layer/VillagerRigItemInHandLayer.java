@@ -43,7 +43,7 @@ public class VillagerRigItemInHandLayer<T extends Mob> extends ItemInHandLayer<T
 
         boolean leftHand = arm == HumanoidArm.LEFT;
         poseStack.translate(leftHand ? -ITEM_X_OFFSET : ITEM_X_OFFSET, ITEM_DEPTH_OFFSET, 0.0F);
-        this.itemInHandRenderer.renderItem(entity, RigItemVisualResolver.resolve(entity, itemStack), displayContext, leftHand, poseStack, buffer, packedLight);
+        this.itemInHandRenderer.renderItem(entity, RigItemVisualResolver.resolve(entity, itemStack, leftHand), displayContext, leftHand, poseStack, buffer, packedLight);
         poseStack.popPose();
     }
 }

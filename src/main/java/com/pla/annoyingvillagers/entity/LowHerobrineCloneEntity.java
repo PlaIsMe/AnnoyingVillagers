@@ -336,7 +336,6 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
 //            livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_SACRIFICING, 0.0F);
 //        }
 
-//        Create VANILLA_ANIMATION
         if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.HEROBRINE_SACRIFICING) RigAnimationController.play(this, RigAnimationId.HEROBRINE_SACRIFICING);
     }
 

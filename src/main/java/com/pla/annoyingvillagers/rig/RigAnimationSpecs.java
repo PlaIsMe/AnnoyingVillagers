@@ -2,20 +2,10 @@ package com.pla.annoyingvillagers.rig;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.clazz.TridentMode;
-import com.pla.annoyingvillagers.entity.AngrySteveEntity;
-import com.pla.annoyingvillagers.entity.AegisHerobrineEntity;
-import com.pla.annoyingvillagers.entity.BlackFireEntity;
-import com.pla.annoyingvillagers.entity.BlackHoleEntity;
-import com.pla.annoyingvillagers.entity.BlueDemonEntity;
-import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
-import com.pla.annoyingvillagers.entity.BlueDemonThunderBeamEntity;
-import com.pla.annoyingvillagers.entity.ElectricPhaseEntity;
-import com.pla.annoyingvillagers.entity.GlaiveHerobrineEntity;
-import com.pla.annoyingvillagers.entity.NullEntity;
-import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
-import com.pla.annoyingvillagers.entity.SledgehammerHerobrineEntity;
-import com.pla.annoyingvillagers.entity.TridentLightningBolt;
+import com.pla.annoyingvillagers.entity.*;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
@@ -29,6 +19,7 @@ import com.pla.annoyingvillagers.potion.ObedienceMobEffect;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import com.pla.annoyingvillagers.util.CommonUtil;
+import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.RigPoseUtil;
 import com.pla.annoyingvillagers.util.ScreenShakeUtil;
 import net.minecraft.core.BlockPos;
@@ -45,9 +36,12 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -171,14 +165,29 @@ public final class RigAnimationSpecs {
                 }));
 
         put(RigAnimationSpec.attack(RigAnimationId.FIST_ATTACK1, 17, false,
+                hookAt(4, mob -> summonObsidianHandBlocks(mob, RigAnimationId.FIST_ATTACK1, 2, true, 2)),
                 RigAttackWindow.of(3, 8, LEFT_FIST)));
         put(RigAnimationSpec.attack(RigAnimationId.FIST_ATTACK2, 17, false,
+                hookAt(4, mob -> summonObsidianHandBlocks(mob, RigAnimationId.FIST_ATTACK2, 2, false, 2)),
                 RigAttackWindow.of(3, 8, RIGHT_FIST)));
         put(RigAnimationSpec.attack(RigAnimationId.FIST_ATTACK3, 17, false,
+                hookAt(5, mob -> summonObsidianHandBlocks(mob, RigAnimationId.FIST_ATTACK3, 2, true, 3)),
                 RigAttackWindow.of(3, 8, LEFT_FIST)));
         put(RigAnimationSpec.attack(RigAnimationId.FIST_ATTACK4, 22, false,
+                hookAt(10, mob -> {
+                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                    BlockState state = getObsidianFistState(mob);
+                    if (state == null) return;
+                    HerobrineUtil.summonObsidianVerticalColumnInFront(serverLevel, mob, state, 3);
+                }),
                 RigAttackWindow.of(9, 17, RIGHT_FIST)));
         put(RigAnimationSpec.attack(RigAnimationId.FIST_ATTACK5, 37, false,
+                hookAt(12, mob -> {
+                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                    BlockState state = getObsidianFistState(mob);
+                    if (state == null) return;
+                    HerobrineUtil.summonObsidianArcInFront(serverLevel, mob, state);
+                }),
                 RigAttackWindow.of(12, 20, LEFT_FIST)));
         put(RigAnimationSpec.attack(RigAnimationId.FIST_DASH_ATTACK, 27, false,
                         RigAttackWindow.of(6, 15, RIGHT_FIST))
@@ -202,6 +211,10 @@ public final class RigAnimationSpecs {
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.FIST_EXTRA_ATTACK, 32, false,
+                hookAt(14, mob -> {
+                    Vec3 legPosition = RigPoseUtil.getPartPosition(mob, RigAnimationId.FIST_EXTRA_ATTACK, 14.0F, RigPart.RIGHT_LOWER_LEG);
+                    if (legPosition != null) throwObsidianProjectile(mob, legPosition);
+                }),
                 RigAttackWindow.of(9, 17, RIGHT_FOOT)));
 
         put(RigAnimationSpec.attack(RigAnimationId.KICK_ATTACK1, 25, false,
@@ -732,11 +745,19 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.SPINNING_WEAPON, 16, RigAnimationPlaybackType.MAIN_HAND));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.POINT_LEFT_HAND_TOWARD, 10, RigAnimationPlaybackType.LEFT_HAND,
                 hookAt(5, mob -> {
-                    if (mob instanceof ReaperHerobrineEntity reaper) reaper.castThunderFromSecondForm();
+                    if (mob instanceof ReaperHerobrineEntity reaper) {
+                        reaper.castThunderFromSecondForm();
+                    } else if (mob instanceof ShadowHerobrineEntity shadowHerobrine) {
+                        shadowHerobrine.shootDarkObsAtTarget(2.0D);
+                    }
                 })));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.POINT_LEFT_HAND_MIDDLE, 10, RigAnimationPlaybackType.LEFT_HAND,
                 hookAt(5, mob -> {
-                    if (mob instanceof ReaperHerobrineEntity reaper) reaper.respawnHealingCrystalFromSecondForm();
+                    if (mob instanceof ReaperHerobrineEntity reaper) {
+                        reaper.respawnHealingCrystalFromSecondForm();
+                    } else if (mob instanceof ShadowHerobrineEntity shadowHerobrine) {
+                        shadowHerobrine.spawnDarkObEntities();
+                    }
                 })));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.POINT_LEFT_HAND_UP, 10, RigAnimationPlaybackType.LEFT_HAND,
                 hookAt(5, mob -> {
@@ -860,7 +881,25 @@ public final class RigAnimationSpecs {
                         blueDemonHandEffectHook(6, RigAnimationId.BLUE_DEMON_ATTACK3, RigPart.RIGHT_HAND),
                         blueDemonSoundHook(10, SoundEvents.TRIDENT_HIT_GROUND, 1.0F, 1.0F),
                         blueDemonHandEffectHook(10, RigAnimationId.BLUE_DEMON_ATTACK3, RigPart.RIGHT_HAND),
-                        RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> blueDemonGroundFracture(mob, 2.0D, -0.24D, 1.2D))),
+                        RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                            Vec3 forward = Vec3.directionFromRotation(0.0F, mob.yBodyRot).scale(2.0D);
+                            Vec3 weaponEdge = mob.position().add(forward.x, forward.y - 0.24D, forward.z);
+                            BlockHitResult hitResult = serverLevel.clip(new ClipContext(mob.position().add(0.0D, 0.1D, 0.0D), weaponEdge, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mob));
+                            Vec3 slamStartPos;
+
+                            if (hitResult.getType() == HitResult.Type.BLOCK) {
+                                Direction direction = hitResult.getDirection();
+                                BlockPos collidePos = hitResult.getBlockPos().offset(direction.getStepX(), direction.getStepY(), direction.getStepZ());
+                                if (!CommonUtil.canTransferShockWave(serverLevel, collidePos, serverLevel.getBlockState(collidePos))) collidePos = collidePos.below();
+                                slamStartPos = new Vec3(collidePos.getX(), collidePos.getY(), collidePos.getZ());
+                            } else {
+                                slamStartPos = weaponEdge.subtract(0.0D, 1.0D, 0.0D);
+                            }
+
+                            CommonUtil.circleSlamFracture(mob, serverLevel, slamStartPos, 1.2D);
+                        })),
                 RigAttackWindow.of(10, 20, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_ATTACK4, 17, false,
                 RigAttackWindow.of(5, 15, LEFT_SPEAR, RIGHT_SPEAR)));
@@ -870,7 +909,21 @@ public final class RigAnimationSpecs {
                         blueDemonHandEffectHook(4, RigAnimationId.BLUE_DEMON_ATTACK5, RigPart.RIGHT_HAND),
                         blueDemonSoundHook(7, SoundEvents.TRIDENT_RETURN, 1.0F, 1.0F),
                         blueDemonHandEffectHook(7, RigAnimationId.BLUE_DEMON_ATTACK5, RigPart.RIGHT_HAND),
-                        RigAnimationSpec.RigTimedAnimationHook.at(16, mob -> spawnBlueDemonTridentLightningAtRightTool(mob, RigAnimationId.BLUE_DEMON_ATTACK5, 16))),
+                        RigAnimationSpec.RigTimedAnimationHook.at(16, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                            Vec3 tridentTip = RigPoseUtil.getRightWeaponPosition(mob, RigAnimationId.BLUE_DEMON_ATTACK5, 16, 1.2D);
+                            if (tridentTip == null) return;
+
+                            BlockPos.MutableBlockPos checkPos = BlockPos.containing(tridentTip).mutable();
+                            while (checkPos.getY() > serverLevel.getMinBuildHeight() && !serverLevel.getBlockState(checkPos).isSolidRender(serverLevel, checkPos)) checkPos.move(0, -1, 0);
+                            if (!serverLevel.getBlockState(checkPos).isSolidRender(serverLevel, checkPos)) return;
+
+                            TridentLightningBolt lightningBolt = new TridentLightningBolt(AnnoyingVillagersModEntities.TRIDENT_LIGHTNING_BOLT.get(), serverLevel);
+                            lightningBolt.setOwner(mob);
+                            lightningBolt.moveTo(checkPos.getX() + 0.5D, checkPos.getY() + 1.0D, checkPos.getZ() + 0.5D);
+                            serverLevel.addFreshEntity(lightningBolt);
+                        })),
                 RigAttackWindow.of(15, 25, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_ATTACK6, 44, false,
                 List.of(
@@ -1029,10 +1082,12 @@ public final class RigAnimationSpecs {
                         groundSlamTimedHook(18, RigAnimationId.LEGENDARY_SWORD_JUMP_ATTACK, 1.5D, 0.8D, 45, 0.7D, 2.5D)),
                 RigAttackWindow.of(2, 6, RIGHT_GREATSWORD),
                 RigAttackWindow.of(16, 18, RIGHT_GREATSWORD),
-                RigAttackWindow.of(19, 25, RIGHT_GREATSWORD)));
+                RigAttackWindow.of(19, 25, RIGHT_GREATSWORD))
+                .invulnerable()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_DASH_ATTACK, 25, false,
                 whiteAfterimageHooks(3, 5, 7, 9, 11),
-                RigAttackWindow.of(3, 16, RIGHT_GREATSWORD)));
+                RigAttackWindow.of(3, 16, RIGHT_GREATSWORD)).invulnerable());
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ULT, 40, false,
                         List.of(
                                 RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
@@ -1215,12 +1270,12 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(4, 11, RIGHT_SCYTHE),
                 RigAttackWindow.of(12, 20, RIGHT_SCYTHE)));
         put(RigAnimationSpec.attack(RigAnimationId.REAPER_HEROBRINE_ATTACK4, 64, false,
-                RigAttackWindow.of(12, 20, RIGHT_SCYTHE))
+                        RigAttackWindow.of(12, 20, RIGHT_SCYTHE))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.REAPER_HEROBRINE_ATTACK5, 40, false,
-                RigAttackWindow.of(10, 22, RIGHT_SCYTHE))
+                        RigAttackWindow.of(10, 22, RIGHT_SCYTHE))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.3F)
         );
@@ -1229,11 +1284,11 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.REAPER_HEROBRINE_JUMP_ATTACK, 43, true,
                 RigAttackWindow.of(11, 18, RIGHT_SCYTHE)));
         put(RigAnimationSpec.attack(RigAnimationId.REAPER_HEROBRINE_EXTRA_ATTACK, 32, false,
-                RigAttackWindow.of(3, 5, RIGHT_SCYTHE),
-                RigAttackWindow.of(6, 8, RIGHT_SCYTHE),
-                RigAttackWindow.of(9, 11, RIGHT_SCYTHE),
-                RigAttackWindow.of(12, 14, RIGHT_SCYTHE),
-                RigAttackWindow.of(15, 22, RIGHT_SCYTHE))
+                        RigAttackWindow.of(3, 5, RIGHT_SCYTHE),
+                        RigAttackWindow.of(6, 8, RIGHT_SCYTHE),
+                        RigAttackWindow.of(9, 11, RIGHT_SCYTHE),
+                        RigAttackWindow.of(12, 14, RIGHT_SCYTHE),
+                        RigAttackWindow.of(15, 22, RIGHT_SCYTHE))
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.REAPER_HEROBRINE_ULT, 58, false,
@@ -1249,12 +1304,12 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.REAPER_HEROBRINE_EXTRA_ULT, 23).invulnerable());
 
         put(RigAnimationSpec.attack(RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK1, 42, false,
-                RigAttackWindow.of(3, 15, RIGHT_SLEDGEHAMMER))
+                        RigAttackWindow.of(3, 15, RIGHT_SLEDGEHAMMER))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.1F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK2, 33, false,
-                RigAttackWindow.of(3, 14, RIGHT_SLEDGEHAMMER))
+                        RigAttackWindow.of(3, 14, RIGHT_SLEDGEHAMMER))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.1F)
         );
@@ -1265,25 +1320,25 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK4, 35, false,
                 RigAttackWindow.of(3, 18, RIGHT_SLEDGEHAMMER)));
         put(RigAnimationSpec.attack(RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK5, 32, false,
-                groundSlamHook(11, RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK5,
-                        1.4D, 0.7D, 35, 0.7D, 2.0D),
-                RigAttackWindow.of(3, 7, RIGHT_SLEDGEHAMMER),
-                RigAttackWindow.of(8, 16, RIGHT_SLEDGEHAMMER))
+                        groundSlamHook(11, RigAnimationId.SLEDGEHAMMER_HEROBRINE_ATTACK5,
+                                1.4D, 0.7D, 35, 0.7D, 2.0D),
+                        RigAttackWindow.of(3, 7, RIGHT_SLEDGEHAMMER),
+                        RigAttackWindow.of(8, 16, RIGHT_SLEDGEHAMMER))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SLEDGEHAMMER_HEROBRINE_EXTRA_ATTACK, 51, false,
-                List.of(
-                        groundSlamTimedHook(10, RigAnimationId.SLEDGEHAMMER_HEROBRINE_EXTRA_ATTACK,
-                                1.4D, 0.7D, 35, 0.7D, 2.0D),
-                        groundSlamTimedHook(17, RigAnimationId.SLEDGEHAMMER_HEROBRINE_EXTRA_ATTACK,
-                                1.4D, 0.7D, 35, 0.7D, 2.0D),
-                        groundSlamTimedHook(28, RigAnimationId.SLEDGEHAMMER_HEROBRINE_EXTRA_ATTACK,
-                                1.4D, 0.7D, 35, 0.7D, 2.0D)
-                ),
-                RigAttackWindow.of(9, 14, RIGHT_SLEDGEHAMMER),
-                RigAttackWindow.of(16, 25, RIGHT_SLEDGEHAMMER),
-                RigAttackWindow.of(27, 36, RIGHT_SLEDGEHAMMER))
+                        List.of(
+                                groundSlamTimedHook(10, RigAnimationId.SLEDGEHAMMER_HEROBRINE_EXTRA_ATTACK,
+                                        1.4D, 0.7D, 35, 0.7D, 2.0D),
+                                groundSlamTimedHook(17, RigAnimationId.SLEDGEHAMMER_HEROBRINE_EXTRA_ATTACK,
+                                        1.4D, 0.7D, 35, 0.7D, 2.0D),
+                                groundSlamTimedHook(28, RigAnimationId.SLEDGEHAMMER_HEROBRINE_EXTRA_ATTACK,
+                                        1.4D, 0.7D, 35, 0.7D, 2.0D)
+                        ),
+                        RigAttackWindow.of(9, 14, RIGHT_SLEDGEHAMMER),
+                        RigAttackWindow.of(16, 25, RIGHT_SLEDGEHAMMER),
+                        RigAttackWindow.of(27, 36, RIGHT_SLEDGEHAMMER))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
                 .dangerous()
@@ -1291,11 +1346,11 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.SLEDGEHAMMER_HEROBRINE_DASH_ATTACK, 38, false,
                 RigAttackWindow.of(11, 20, RIGHT_SLEDGEHAMMER)));
         put(RigAnimationSpec.attack(RigAnimationId.SLEDGEHAMMER_HEROBRINE_JUMP_ATTACK, 45, true,
-                List.of(
-                        groundSlamTimedHook(25, RigAnimationId.SLEDGEHAMMER_HEROBRINE_JUMP_ATTACK,
-                                1.4D, 0.8D, 45, 0.7D, 3.0D)
-                ),
-                RigAttackWindow.of(16, 25, RIGHT_SLEDGEHAMMER))
+                        List.of(
+                                groundSlamTimedHook(25, RigAnimationId.SLEDGEHAMMER_HEROBRINE_JUMP_ATTACK,
+                                        1.4D, 0.8D, 45, 0.7D, 3.0D)
+                        ),
+                        RigAttackWindow.of(16, 25, RIGHT_SLEDGEHAMMER))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.4F)
         );
@@ -1336,31 +1391,31 @@ public final class RigAnimationSpecs {
                 .invulnerable());
 
         put(RigAnimationSpec.attack(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK1, 21, false,
-                RigAttackWindow.of(4, 16, RIGHT_GREATSWORD))
+                        RigAttackWindow.of(4, 16, RIGHT_GREATSWORD))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.1F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK2, 33, false,
-                RigAttackWindow.of(4, 16, RIGHT_GREATSWORD))
+                        RigAttackWindow.of(4, 16, RIGHT_GREATSWORD))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.1F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK3, 36, false,
-                groundSlamHook(9, RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK3,
-                        1.4D, 1.0D, 50, 1.0D, 3.5D),
-                RigAttackWindow.of(4, 15, RIGHT_GREATSWORD))
+                        groundSlamHook(9, RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK3,
+                                1.4D, 1.0D, 50, 1.0D, 3.5D),
+                        RigAttackWindow.of(4, 15, RIGHT_GREATSWORD))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.1F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK4, 30, false,
-                RigAttackWindow.of(5, 20, RIGHT_GREATSWORD))
+                        RigAttackWindow.of(5, 20, RIGHT_GREATSWORD))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.1F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK5, 54, false,
-                groundSlamHook(16, RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK5,
-                        1.4D, 0.7D, 35, 0.7D, 2.0D),
-                RigAttackWindow.of(13, 25, RIGHT_GREATSWORD))
+                        groundSlamHook(16, RigAnimationId.SWORDSMAN_HEROBRINE_ATTACK5,
+                                1.4D, 0.7D, 35, 0.7D, 2.0D),
+                        RigAttackWindow.of(13, 25, RIGHT_GREATSWORD))
                 .damageMultiplier(1.2F)
                 .criticalChance(0.1F)
         );
@@ -1369,12 +1424,12 @@ public final class RigAnimationSpecs {
                         1.4D, 0.7D, 35, 0.7D, 2.0D),
                 RigAttackWindow.of(3, 15, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.SWORDSMAN_HEROBRINE_JUMP_ATTACK, 26, true,
-                List.of(
-                        RigAnimationSpec.RigTimedAnimationHook.at(5, mob -> {}),
-                        groundSlamTimedHook(10, RigAnimationId.SWORDSMAN_HEROBRINE_JUMP_ATTACK,
-                                1.4D, 0.8D, 45, 0.7D, 2.5D)
-                ),
-                RigAttackWindow.of(5, 17, RIGHT_GREATSWORD))
+                        List.of(
+                                RigAnimationSpec.RigTimedAnimationHook.at(5, mob -> {}),
+                                groundSlamTimedHook(10, RigAnimationId.SWORDSMAN_HEROBRINE_JUMP_ATTACK,
+                                        1.4D, 0.8D, 45, 0.7D, 2.5D)
+                        ),
+                        RigAttackWindow.of(5, 17, RIGHT_GREATSWORD))
                 .damageMultiplier(1.5F)
                 .criticalChance(0.3F)
         );
@@ -1414,44 +1469,44 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(8, 13, RIGHT_ELBOW),
                 RigAttackWindow.of(14, 20, LEFT_ELBOW, RIGHT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.NULL_ATTACK4, 40, false,
-                RigAttackWindow.of(2, 10, LEFT_ELBOW, RIGHT_ELBOW),
-                RigAttackWindow.of(18, 20, LEFT_ELBOW, RIGHT_ELBOW),
-                RigAttackWindow.of(20, 22, LEFT_ELBOW, RIGHT_ELBOW),
-                RigAttackWindow.of(22, 24, LEFT_ELBOW, RIGHT_ELBOW),
-                RigAttackWindow.of(24, 32, LEFT_ELBOW, RIGHT_ELBOW))
+                        RigAttackWindow.of(2, 10, LEFT_ELBOW, RIGHT_ELBOW),
+                        RigAttackWindow.of(18, 20, LEFT_ELBOW, RIGHT_ELBOW),
+                        RigAttackWindow.of(20, 22, LEFT_ELBOW, RIGHT_ELBOW),
+                        RigAttackWindow.of(22, 24, LEFT_ELBOW, RIGHT_ELBOW),
+                        RigAttackWindow.of(24, 32, LEFT_ELBOW, RIGHT_ELBOW))
                 .criticalChance(0.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.NULL_ATTACK5, 60, false,
-                List.of(
-                        RigAnimationSpec.RigTimedAnimationHook.at(1, mob -> {
-                            if (!(mob.level() instanceof ServerLevel)) return;
-                            mob.level().playSound(null, mob.blockPosition(), AnnoyingVillagersModSounds.BLACK_HOLE_CHARGE.get(), SoundSource.HOSTILE, 2.0F, 0.85F);
-                            spawnNullBlackHoleChargeParticles(mob, 1);
-                        }),
-                        RigAnimationSpec.RigTimedAnimationHook.at(4, mob -> spawnNullBlackHoleChargeParticles(mob, 4)),
-                        RigAnimationSpec.RigTimedAnimationHook.at(8, mob -> spawnNullBlackHoleChargeParticles(mob, 8)),
-                        RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> spawnNullBlackHoleChargeParticles(mob, 12)),
-                        RigAnimationSpec.RigTimedAnimationHook.at(16, mob -> spawnNullBlackHoleChargeParticles(mob, 16)),
-                        RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> spawnNullBlackHoleChargeParticles(mob, 20)),
-                        RigAnimationSpec.RigTimedAnimationHook.at(24, mob -> spawnNullBlackHoleChargeParticles(mob, 24)),
-                        RigAnimationSpec.RigTimedAnimationHook.at(28, mob -> {
-                            spawnNullBlackHoleChargeParticles(mob, 28);
-                            if (!(mob.level() instanceof ServerLevel)) return;
-                            mob.level().playSound(null, mob.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.HOSTILE, 0.7F, 0.7F);
-                            mob.level().playSound(null, mob.blockPosition(), AnnoyingVillagersModSounds.WHOOSH.get(), SoundSource.HOSTILE, 1.0F, 0.8F);
-                            spawnNullBlackHoleChargeParticles(mob, 28);
-                        }),
-                        RigAnimationSpec.RigTimedAnimationHook.at(30, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                            LivingEntity target = getNullCombatTarget(mob);
-                            Vec3 spawnPosition = getNullBlackHoleSpawnPosition(serverLevel, mob, target);
-                            serverLevel.addFreshEntity(new BlackHoleEntity(serverLevel, mob, spawnPosition));
-                            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, spawnPosition.x, spawnPosition.y, spawnPosition.z, 48, 0.8D, 0.8D, 0.8D, 0.18D);
-                            serverLevel.sendParticles(AnnoyingVillagersModParticleTypes.NULL.get(), spawnPosition.x, spawnPosition.y, spawnPosition.z, 64, 1.4D, 1.4D, 1.4D, 0.12D);
-                            serverLevel.playSound(null, BlockPos.containing(spawnPosition), SoundEvents.WITHER_BREAK_BLOCK, SoundSource.HOSTILE, 1.0F, 0.5F);
-                        })
-                ),
-                RigAttackWindow.of(22, 38, RIGHT_ELBOW))
+                        List.of(
+                                RigAnimationSpec.RigTimedAnimationHook.at(1, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel)) return;
+                                    mob.level().playSound(null, mob.blockPosition(), AnnoyingVillagersModSounds.BLACK_HOLE_CHARGE.get(), SoundSource.HOSTILE, 2.0F, 0.85F);
+                                    spawnNullBlackHoleChargeParticles(mob, 1);
+                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(4, mob -> spawnNullBlackHoleChargeParticles(mob, 4)),
+                                RigAnimationSpec.RigTimedAnimationHook.at(8, mob -> spawnNullBlackHoleChargeParticles(mob, 8)),
+                                RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> spawnNullBlackHoleChargeParticles(mob, 12)),
+                                RigAnimationSpec.RigTimedAnimationHook.at(16, mob -> spawnNullBlackHoleChargeParticles(mob, 16)),
+                                RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> spawnNullBlackHoleChargeParticles(mob, 20)),
+                                RigAnimationSpec.RigTimedAnimationHook.at(24, mob -> spawnNullBlackHoleChargeParticles(mob, 24)),
+                                RigAnimationSpec.RigTimedAnimationHook.at(28, mob -> {
+                                    spawnNullBlackHoleChargeParticles(mob, 28);
+                                    if (!(mob.level() instanceof ServerLevel)) return;
+                                    mob.level().playSound(null, mob.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.HOSTILE, 0.7F, 0.7F);
+                                    mob.level().playSound(null, mob.blockPosition(), AnnoyingVillagersModSounds.WHOOSH.get(), SoundSource.HOSTILE, 1.0F, 0.8F);
+                                    spawnNullBlackHoleChargeParticles(mob, 28);
+                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(30, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                                    LivingEntity target = getNullCombatTarget(mob);
+                                    Vec3 spawnPosition = getNullBlackHoleSpawnPosition(serverLevel, mob, target);
+                                    serverLevel.addFreshEntity(new BlackHoleEntity(serverLevel, mob, spawnPosition));
+                                    serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, spawnPosition.x, spawnPosition.y, spawnPosition.z, 48, 0.8D, 0.8D, 0.8D, 0.18D);
+                                    serverLevel.sendParticles(AnnoyingVillagersModParticleTypes.NULL.get(), spawnPosition.x, spawnPosition.y, spawnPosition.z, 64, 1.4D, 1.4D, 1.4D, 0.12D);
+                                    serverLevel.playSound(null, BlockPos.containing(spawnPosition), SoundEvents.WITHER_BREAK_BLOCK, SoundSource.HOSTILE, 1.0F, 0.5F);
+                                })
+                        ),
+                        RigAttackWindow.of(22, 38, RIGHT_ELBOW))
                 .criticalChance(0.3F)
                 .damageMultiplier(1.5F)
                 .dangerous()
@@ -1544,83 +1599,190 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(35, 42, RIGHT_ELBOW, LEFT_ELBOW)));
 
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_MACHINE_GUN, 50, false,
-                emptyHooks(2),
-                RigAttackWindow.of(0, 1)));
+                hookAt(2, mob -> {
+                    if (!(mob instanceof ShadowHerobrineEntity shadowHerobrine)) return;
+                    if (!(mob.level() instanceof ServerLevel)) return;
+
+                    shadowHerobrine.setObsidianMachineGunTick();
+                    shadowHerobrine.playSound(AnnoyingVillagersModSounds.SHADOW_HEROBRINE_SAY_OBSIDIAN_MACHINE_GUN.get(), 1.0F, 1.0F);
+                }),
+                RigAttackWindow.of(0, 12))
+                .invulnerable()
+                .dangerous()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_JUMP_ATTACK, 23, true,
-                emptyHooks(6, 10),
-                RigAttackWindow.of(6, 10, RIGHT_FOOT)));
+                List.of(
+                        smallGroundSlamTimedHook(10, 1.0D),
+                        RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                            Item item = mob.getMainHandItem().getItem();
+                            BlockState state;
+                            if (item instanceof ShadowObsidianWeaponItem) {
+                                state = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+                            } else if (item instanceof ShadowObsidianPillarItem) {
+                                state = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false).setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
+                            } else if (item instanceof ShadowObsidianSwordItem || mob.getOffhandItem().getItem() instanceof ShadowObsidianSwordItem) {
+                                state = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false).setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
+                            } else if (item instanceof ObsidianWeaponItem) {
+                                state = AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+                            } else {
+                                return;
+                            }
+
+                            HerobrineUtil.summonObsidianSmallCross(serverLevel, mob, state);
+                        })
+                ),
+                RigAttackWindow.of(6, 20, RIGHT_FOOT)));
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_DASH_ATTACK, 19, false,
-                emptyHooks(2),
-                RigAttackWindow.of(2, 3, LEFT_FIST)));
+                hookAt(3, mob -> summonObsidianHandBlocks(mob, RigAnimationId.OBSIDIAN_DASH_ATTACK, 2, true, 6)),
+                RigAttackWindow.of(2, 15, LEFT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_EXTRA_ULT, 30, false,
-                emptyHooks(1, 7, 9, 10, 11, 12),
-                RigAttackWindow.of(10, 11)));
+                hookAt(10, mob -> {
+                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                    Item item = mob.getMainHandItem().getItem();
+                    if (item instanceof ShadowObsidianPillarItem) {
+                        HerobrineUtil.summonShadowObsidianLongPillarDefenseWide(serverLevel, mob);
+                        return;
+                    }
+
+                    BlockState state;
+                    if (item instanceof ShadowObsidianWeaponItem) {
+                        state = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+                    } else if (item instanceof ObsidianWeaponItem) {
+                        state = AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+                    } else {
+                        return;
+                    }
+
+                    HerobrineUtil.summonObsidianCross(serverLevel, mob, state);
+                }),
+                RigAttackWindow.of(10, 18, RIGHT_ELBOW, LEFT_ELBOW))
+                .invulnerable()
+                .dangerous()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_EXTRA_ATTACK, 28, false,
-                emptyHooks(12),
-                RigAttackWindow.of(9, 14, RIGHT_SWORD)));
+                List.of(
+                        RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> throwObsidianProjectile(mob, RigAnimationId.OBSIDIAN_EXTRA_ATTACK, 12, false)),
+                        RigAnimationSpec.RigTimedAnimationHook.hideRightToolAt(12)
+                ),
+                RigAttackWindow.of(9, 18, RIGHT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_PILLAR_EXTRA_ATTACK, 23, false,
-                emptyHooks(2),
-                RigAttackWindow.of(2, 4, RIGHT_SWORD)));
+                hookAt(4, RigAnimationSpecs::summonObsidianWallForWeapon),
+                RigAttackWindow.of(2, 12, RIGHT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_ULT1, 51, false,
-                emptyHooks(2),
-                RigAttackWindow.of(0, 1)));
+                hookAt(2, mob -> {
+                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                    Item item = mob.getMainHandItem().getItem();
+                    if (item instanceof ShadowObsidianPillarItem || item instanceof ShadowObsidianSwordItem) {
+                        HerobrineUtil.summonShadowObsidianLongPillarShootToward(serverLevel, mob);
+                        return;
+                    }
+
+                    BlockState state;
+                    if (item instanceof ShadowObsidianWeaponItem) {
+                        state = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+                    } else if (item instanceof ObsidianWeaponItem) {
+                        state = AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+                    } else {
+                        return;
+                    }
+
+                    HerobrineUtil.summonObsidianPillarAtTarget(serverLevel, mob, state);
+                }),
+                RigAttackWindow.of(0, 12))
+                .invulnerable()
+                .dangerous()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_ULT2, 26, false,
-                emptyHooks(13),
-                RigAttackWindow.of(10, 12)));
+                hookAt(13, mob -> {
+                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                    BlockState state = getObsidianWallState(mob);
+                    if (state != null) HerobrineUtil.summonObsidianCube3x3x3(serverLevel, mob, state);
+                }),
+                RigAttackWindow.of(10, 22, RIGHT_ELBOW, LEFT_ELBOW))
+                .invulnerable()
+                .dangerous()
+        );
 
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_SWORD_ATTACK1, 35, false,
-                RigAttackWindow.of(4, 8, LEFT_SWORD),
-                RigAttackWindow.of(10, 14, RIGHT_SWORD)));
+                RigAttackWindow.of(4, 15, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_SWORD_ATTACK2, 37, false,
                 RigAttackWindow.of(7, 17, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_SWORD_ATTACK3, 42, false,
-                RigAttackWindow.of(4, 6, RIGHT_SWORD)));
+                RigAttackWindow.of(4, 15, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_SWORD_ATTACK4, 17, false,
-                RigAttackWindow.of(3, 5, RIGHT_SWORD)));
+                RigAttackWindow.of(3, 14, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_SWORD_JUMP_ATTACK, 46, true,
-                emptyHooks(11),
-                RigAttackWindow.of(9, 11, RIGHT_SWORD),
-                RigAttackWindow.of(10, 13, RIGHT_SWORD)));
+                List.of(smallGroundSlamTimedHook(11, 1.0D)),
+                RigAttackWindow.of(9, 15, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_SWORD_DASH_ATTACK, 36, false,
-                RigAttackWindow.of(5, 10, RIGHT_SWORD)));
+                RigAttackWindow.of(5, 15, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_SWORD_ULT, 50, false,
-                emptyHooks(10, 17, 28),
-                RigAttackWindow.of(9, 10, RIGHT_SWORD),
-                RigAttackWindow.of(16, 17, RIGHT_SWORD),
-                RigAttackWindow.of(27, 28, RIGHT_SWORD)));
-
+                        List.of(
+                                smallGroundSlamTimedHook(10, 1.4D),
+                                RigAnimationSpec.RigTimedAnimationHook.at(10, RigAnimationSpecs::summonObsidianWallForWeapon),
+                                smallGroundSlamTimedHook(17, 1.4D),
+                                RigAnimationSpec.RigTimedAnimationHook.at(17, RigAnimationSpecs::summonObsidianWallForWeapon),
+                                smallGroundSlamTimedHook(28, 1.4D),
+                                RigAnimationSpec.RigTimedAnimationHook.at(28, RigAnimationSpecs::summonObsidianWallForWeapon)
+                        ),
+                        RigAttackWindow.of(9, 14, RIGHT_SWORD),
+                        RigAttackWindow.of(16, 25, RIGHT_SWORD),
+                        RigAttackWindow.of(27, 36, RIGHT_SWORD))
+                .damageMultiplier(1.5F)
+                .criticalChance(0.3F)
+                .dangerous()
+        );
 
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_OBSIDIAN_SWORD_ATTACK1, 25, false,
                 emptyHooks(6),
-                RigAttackWindow.of(2, 4, LEFT_SWORD)));
+                RigAttackWindow.of(2, 12, LEFT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_OBSIDIAN_SWORD_ATTACK2, 43, false,
-                RigAttackWindow.of(14, 16, RIGHT_SWORD),
-                RigAttackWindow.of(14, 16, LEFT_SWORD)));
+                RigAttackWindow.of(10, 18, RIGHT_SWORD, LEFT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_OBSIDIAN_SWORD_ATTACK3, 48, false,
-                RigAttackWindow.of(14, 16, RIGHT_SWORD),
-                RigAttackWindow.of(14, 16, LEFT_SWORD)));
+                RigAttackWindow.of(10, 16, RIGHT_SWORD, LEFT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_OBSIDIAN_SWORD_ATTACK4, 44, false,
-                emptyHooks(17),
-                RigAttackWindow.of(7, 17, RIGHT_SWORD)));
+                List.of(smallGroundSlamTimedHook(18, 1.0D)),
+                RigAttackWindow.of(7, 20, RIGHT_SWORD, LEFT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_OBSIDIAN_SWORD_JUMP_ATTACK, 23, true,
-                emptyHooks(8),
-                RigAttackWindow.of(5, 8, RIGHT_SWORD)));
+                List.of(smallGroundSlamTimedHook(8, 1.0D)),
+                RigAttackWindow.of(5, 15, RIGHT_SWORD, LEFT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_OBSIDIAN_SWORD_DASH_ATTACK, 38, false,
-                emptyHooks(9),
-                RigAttackWindow.of(4, 8, RIGHT_SWORD),
-                RigAttackWindow.of(11, 14, LEFT_SWORD)));
+                        List.of(smallGroundSlamTimedHook(9, 1.0D)),
+                        RigAttackWindow.of(4, 12, RIGHT_SWORD),
+                        RigAttackWindow.of(13, 20, LEFT_SWORD))
+                .damageMultiplier(1.2F)
+                .criticalChance(0.1F)
+        );
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_OBSIDIAN_SWORD_EXTRA_ATTACK, 42, false,
-                emptyHooks(16),
-                RigAttackWindow.of(6, 10, LEFT_FIST),
-                RigAttackWindow.of(14, 17, LEFT_SWORD)));
+                List.of(
+                        RigAnimationSpec.RigTimedAnimationHook.at(16, mob -> throwObsidianProjectile(mob, RigAnimationId.DUAL_OBSIDIAN_SWORD_EXTRA_ATTACK, 16, true)),
+                        RigAnimationSpec.RigTimedAnimationHook.hideLeftToolAt(16)
+                ),
+                RigAttackWindow.of(6, 13, LEFT_FIST),
+                RigAttackWindow.of(14, 22, LEFT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_OBSIDIAN_SWORD_ULT, 42, false,
-                emptyHooks(25),
-                RigAttackWindow.of(22, 23, RIGHT_SWORD),
-                RigAttackWindow.of(26, 28, LEFT_SWORD)));
-        put(RigAnimationSpec.attack(RigAnimationId.DUAL_OBSIDIAN_PILLAR_ULT, 41, false,
-                emptyHooks(25),
-                RigAttackWindow.of(22, 23, RIGHT_SWORD),
-                RigAttackWindow.of(26, 28, LEFT_SWORD)));
+                List.of(
+                        smallGroundSlamTimedHook(25, 1.0D),
+                        RigAnimationSpec.RigTimedAnimationHook.at(25, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                            Item item = mob.getMainHandItem().getItem();
+                            if (item instanceof ShadowObsidianPillarItem) {
+                                HerobrineUtil.summonShadowObsidianLongPillarCircle(serverLevel, mob, mob.getOnPos());
+                                HerobrineUtil.summonShadowObsidianLongPillarShootToward(serverLevel, mob);
+                            } else if (item instanceof ShadowObsidianSwordItem) {
+                                HerobrineUtil.summonShadowObsidianLongPillarCircle(serverLevel, mob, mob.getOnPos());
+                            }
+                        })
+                ),
+                RigAttackWindow.of(22, 32, RIGHT_SWORD, LEFT_SWORD))
+                .invulnerable()
+                .dangerous()
+        );
     }
 
     private RigAnimationSpecs() {}
@@ -1634,14 +1796,6 @@ public final class RigAnimationSpecs {
     public static boolean isAttack(RigAnimationId animationId) {
         RigAnimationSpec spec = SPECS.get(animationId);
         return spec != null && spec.damagesTarget();
-    }
-
-    private static List<RigAnimationSpec.RigTimedAnimationHook> startHook(RigAnimationSpec.RigAnimationHook hook) {
-        return List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, hook));
-    }
-
-    private static List<RigAnimationSpec.RigTimedAnimationHook> endHook(RigAnimationSpec.RigAnimationHook hook) {
-        return List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.END, hook));
     }
 
     private static List<RigAnimationSpec.RigTimedAnimationHook> hookAt(int tick, RigAnimationSpec.RigAnimationHook hook) {
@@ -1659,6 +1813,136 @@ public final class RigAnimationSpecs {
             Vec3 impactPos = RigPoseUtil.getRightWeaponPosition(mob, animationId, tick, forwardOffset);
             CommonUtil.spawnGroundSlamFracture(mob, serverLevel, impactPos, particleRadius, particleCount, spread, fractureRadius);
         });
+    }
+
+    private static RigAnimationSpec.RigTimedAnimationHook smallGroundSlamTimedHook(int tick, double forwardOffset) {
+        return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {
+            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+            Vec3 look = mob.getLookAngle();
+            Vec3 forward = new Vec3(look.x, 0.0D, look.z);
+            if (forward.lengthSqr() < 1.0E-6D) {
+                Direction direction = mob.getDirection();
+                forward = new Vec3(direction.getStepX(), 0.0D, direction.getStepZ());
+            } else {
+                forward = forward.normalize();
+            }
+
+            Vec3 impactPos = new Vec3(mob.getX(), mob.getY(), mob.getZ()).add(forward.scale(forwardOffset));
+            CommonUtil.spawnGroundSlamFracture(mob, serverLevel, impactPos, 0.55D, 25, 0.5D, 1.5D);
+        });
+    }
+
+    private static BlockState getObsidianFistState(Mob mob) {
+        Item item = mob.getMainHandItem().getItem();
+        if (!(item instanceof ObsidianWeaponItem || item instanceof ShadowObsidianWeaponItem || item instanceof ShadowObsidianPillarItem)) return null;
+        if (item instanceof ShadowObsidianPillarItem) {
+            return AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_SHORT_PILLAR.get().defaultBlockState()
+                    .setValue(HerobrineObsidianBlock.FROM_PLAYER, false)
+                    .setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
+        }
+        if (item instanceof ShadowObsidianWeaponItem) {
+            return AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState()
+                    .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+        }
+        return AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState()
+                .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+    }
+
+    private static BlockState getObsidianWallState(Mob mob) {
+        Item item = mob.getMainHandItem().getItem();
+        if (item instanceof ShadowObsidianPillarItem || item instanceof ShadowObsidianSwordItem) {
+            return AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState()
+                    .setValue(HerobrineObsidianBlock.FROM_PLAYER, false)
+                    .setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
+        }
+        if (item instanceof ShadowObsidianWeaponItem) {
+            return AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState()
+                    .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+        }
+        if (item instanceof ObsidianWeaponItem) {
+            return AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState()
+                    .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+        }
+        return null;
+    }
+
+    private static BlockState getObsidianProjectileState(Mob mob) {
+        Item item = mob.getMainHandItem().getItem();
+        if (item instanceof ShadowObsidianWeaponItem) {
+            return AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState()
+                    .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+        }
+        if (item instanceof ShadowObsidianSwordItem) {
+            return AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get().defaultBlockState()
+                    .setValue(HerobrineObsidianBlock.FROM_PLAYER, false)
+                    .setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
+        }
+        if (item instanceof ShadowObsidianPillarItem) {
+            return AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState()
+                    .setValue(HerobrineObsidianBlock.FROM_PLAYER, false)
+                    .setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
+        }
+        if (item instanceof ObsidianWeaponItem) {
+            return AnnoyingVillagersModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState()
+                    .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+        }
+        return null;
+    }
+
+    private static void summonObsidianHandBlocks(Mob mob, RigAnimationId animationId, int tick, boolean leftHand, int amount) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+        BlockState state = getObsidianFistState(mob);
+        if (state == null) return;
+
+        Vec3 handPosition = leftHand
+                ? RigPoseUtil.getLeftHandPosition(mob, animationId, tick)
+                : RigPoseUtil.getRightHandPosition(mob, animationId, tick);
+        if (handPosition == null) return;
+
+        HerobrineUtil.summonObsidianBlocksFromPosition(serverLevel, mob, state, amount, handPosition);
+    }
+
+    private static void summonObsidianWallForWeapon(Mob mob) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+        Item item = mob.getMainHandItem().getItem();
+        if (item instanceof ShadowObsidianPillarItem || item instanceof ShadowObsidianSwordItem) {
+            HerobrineUtil.summonShadowObsidianLongPillarDefense(serverLevel, mob);
+            return;
+        }
+
+        BlockState state = getObsidianWallState(mob);
+        if (state != null) HerobrineUtil.summonObsidianWall3x3(serverLevel, mob, state);
+    }
+
+    private static void throwObsidianProjectile(Mob mob, RigAnimationId animationId, int tick, boolean offhand) {
+        Vec3 origin = offhand
+                ? RigPoseUtil.getLeftHandPosition(mob, animationId, tick)
+                : RigPoseUtil.getRightHandPosition(mob, animationId, tick);
+
+        throwObsidianProjectile(mob, origin);
+    }
+
+    private static void throwObsidianProjectile(Mob mob, Vec3 origin) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+        BlockState state = getObsidianProjectileState(mob);
+        if (state == null) return;
+
+        if (origin == null) origin = mob.getEyePosition(1.0F);
+
+        Vec3 destination = mob.getEyePosition(1.0F).add(mob.getLookAngle().scale(16.0D));
+        LivingEntity target = mob.getTarget();
+        if (target != null && target.isAlive()) destination = target.getEyePosition(1.0F);
+
+        BlockProjectileEntity projectile = new BlockProjectileEntity(serverLevel, mob, state);
+        projectile.setPos(origin.x, origin.y, origin.z);
+
+        Vec3 direction = destination.subtract(origin);
+        if (direction.lengthSqr() < 1.0E-6D) direction = mob.getLookAngle();
+
+        projectile.setDeltaMovement(direction.normalize().scale(2.0D));
+        serverLevel.addFreshEntity(projectile);
     }
 
     private static RigAnimationSpec.RigTimedAnimationHook whiteAfterimageHook(int tick) {
@@ -1680,7 +1964,7 @@ public final class RigAnimationSpecs {
     }
 
     private static List<RigAnimationSpec.RigTimedAnimationHook> woopieRushStartHook(RigAnimationId animationId) {
-        return startHook(mob -> {
+        return List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, mob -> {
             if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
             boolean mainHandWoopie = mob.getMainHandItem().is(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get());
@@ -1721,7 +2005,7 @@ public final class RigAnimationSpecs {
                     }
                 };
             }
-        });
+        }));
     }
 
     private static RigAnimationSpec.RigTimedAnimationHook blueDemonHandEffectHook(int tick, RigAnimationId animationId, RigPart part) {
@@ -1788,42 +2072,6 @@ public final class RigAnimationSpecs {
             trident.shoot(direction.x, direction.y, direction.z, 2.5F, 1.0F);
             serverLevel.addFreshEntity(trident);
         });
-    }
-
-    private static void spawnBlueDemonTridentLightningAtRightTool(Mob mob, RigAnimationId animationId, int tick) {
-        if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-        Vec3 tridentTip = RigPoseUtil.getRightWeaponPosition(mob, animationId, tick, 1.2D);
-        if (tridentTip == null) return;
-
-        BlockPos.MutableBlockPos checkPos = BlockPos.containing(tridentTip).mutable();
-        while (checkPos.getY() > serverLevel.getMinBuildHeight() && !serverLevel.getBlockState(checkPos).isSolidRender(serverLevel, checkPos)) checkPos.move(0, -1, 0);
-        if (!serverLevel.getBlockState(checkPos).isSolidRender(serverLevel, checkPos)) return;
-
-        TridentLightningBolt tridentLightningBolt = new TridentLightningBolt(AnnoyingVillagersModEntities.TRIDENT_LIGHTNING_BOLT.get(), serverLevel);
-        tridentLightningBolt.setOwner(mob);
-        tridentLightningBolt.moveTo(checkPos.getX() + 0.5D, checkPos.getY() + 1.0D, checkPos.getZ() + 0.5D);
-        serverLevel.addFreshEntity(tridentLightningBolt);
-    }
-
-    private static void blueDemonGroundFracture(Mob mob, double forwardOffset, double yOffset, double radius) {
-        if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-        Vec3 forward = Vec3.directionFromRotation(0.0F, mob.yBodyRot).scale(forwardOffset);
-        Vec3 weaponEdge = mob.position().add(forward.x, forward.y + yOffset, forward.z);
-        BlockHitResult hitResult = serverLevel.clip(new ClipContext(mob.position().add(0.0D, 0.1D, 0.0D), weaponEdge, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mob));
-        Vec3 slamStartPos;
-
-        if (hitResult.getType() == HitResult.Type.BLOCK) {
-            Direction direction = hitResult.getDirection();
-            BlockPos collidePos = hitResult.getBlockPos().offset(direction.getStepX(), direction.getStepY(), direction.getStepZ());
-            if (!CommonUtil.canTransferShockWave(serverLevel, collidePos, serverLevel.getBlockState(collidePos))) collidePos = collidePos.below();
-            slamStartPos = new Vec3(collidePos.getX(), collidePos.getY(), collidePos.getZ());
-        } else {
-            slamStartPos = weaponEdge.subtract(0.0D, 1.0D, 0.0D);
-        }
-
-        CommonUtil.circleSlamFracture(mob, serverLevel, slamStartPos, radius);
     }
 
     private static List<RigAnimationSpec.RigTimedAnimationHook> emptyHooks(int... ticks) {

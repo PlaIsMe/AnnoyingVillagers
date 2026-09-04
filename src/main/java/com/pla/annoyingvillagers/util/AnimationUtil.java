@@ -84,6 +84,7 @@ public class AnimationUtil {
             case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_RUN;
             case ELITE_HEROBRINE -> HerobrineLivingAnimations.ELITE_RUN_WEAPON;
             case NULL_HEROBRINE -> NullAnimations1.NULL_RUN;
+            case HEROBRINE_CLONE -> HerobrineLivingAnimations.HEROBRINE_RUN;
             default -> RunAnimations.RUN;
         };
     }
