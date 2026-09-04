@@ -1028,7 +1028,11 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 RigAnimationController.playHeldPose(this,RigAnimationId.SPINNING_WEAPON);
             } else if (this instanceof TransporterHerobrineCloneEntity) {
                 RigAnimationController.play(this, RigAnimationId.PORTAL_SUMMON);
-            } else if (!(this instanceof SledgehammerHerobrineEntity) && !(this instanceof SwordsmanHerobrineEntity) && !(this instanceof AegisHerobrineEntity) && !(this instanceof ReaperHerobrineEntity)) {
+            } else if (!(this instanceof SledgehammerHerobrineEntity)
+                    && !(this instanceof SwordsmanHerobrineEntity)
+                    && !(this instanceof AegisHerobrineEntity)
+                    && !(this instanceof ReaperHerobrineEntity)
+                    && !(this instanceof NullEntity)) {
                 RigAnimationController.play(this, RigAnimationId.HEROBRINE_ANIMATE);
             }
         }
@@ -1073,7 +1077,12 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
 
             CommonUtil.stunEscapeAi(this);
 
-            if (this.state > 0 && this.tickCount % 20 == 0) {
+            if (this.state > 0 && this.tickCount % 20 == 0
+                    && (this instanceof AegisHerobrineEntity
+                    || this instanceof SledgehammerHerobrineEntity
+                    || this instanceof SwordsmanHerobrineEntity
+                    || this instanceof ReaperHerobrineEntity
+                    || this instanceof GlaiveHerobrineEntity)) {
                 HerobrineUtil.spawnEliteEffect(this.level(),this.getX(),this.getY(),this.getZ(),this);
             }
 
@@ -1106,8 +1115,9 @@ public class HerobrineMob extends Monster implements BurstProtectEntity, CombatV
                 placeObsidianBlockWhenInWater(AnnoyingVillagersModBlocks.CRYING_OBSIDIAN_BLOCK.get());
             }
 
-            if (this.hasEffect(MobEffects.DAMAGE_BOOST) && this.hasEffect(MobEffects.MOVEMENT_SPEED) &&
-                    this.hasEffect(MobEffects.JUMP) && this.hasEffect(MobEffects.DAMAGE_RESISTANCE)) {
+            if (!(this instanceof NullEntity) && !(this instanceof ShadowHerobrineEntity)
+                    && this.hasEffect(MobEffects.DAMAGE_BOOST) && this.hasEffect(MobEffects.MOVEMENT_SPEED)
+                    && this.hasEffect(MobEffects.JUMP) && this.hasEffect(MobEffects.DAMAGE_RESISTANCE)) {
                 if (new Random().nextBoolean()) {
                     serverLevel.sendParticles(
                             AnnoyingVillagersModParticleTypes.FULL_COWL.get(),

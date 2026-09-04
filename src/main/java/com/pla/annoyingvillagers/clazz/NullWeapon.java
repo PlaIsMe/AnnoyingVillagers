@@ -12,6 +12,9 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.NullWeaponItem;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.TeamUtil;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -27,7 +30,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
@@ -59,8 +61,12 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
 
     protected String weapon;
     private boolean spinning = false;
-
+    private int spinAnimationSequence = 0;
+    private int randomSpinCooldown = 120;
+    private int weaponAttackCooldown = 0;
     private int releaseCooldown = 0;
+    private UUID releaseTargetUUID;
+    private LivingEntity releaseTarget;
 
     protected boolean released = false;
 
@@ -68,17 +74,113 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         return released;
     }
 
-    public void stopRelease() {
-        this.releaseCooldown = 1;
+    public LivingEntity getOrbitOwner() {
+        if (this.nullEntity != null && this.nullEntity.isAlive()) return this.nullEntity;
+        if (this.player != null && this.player.isAlive()) return this.player;
+        return null;
     }
 
-    public void releaseForAWhile() {
-        this.releaseCooldown = new Random().nextInt(300, 600);
+    public void stopRelease() {
+        this.released = false;
+        this.releaseCooldown = 0;
+        this.weaponAttackCooldown = 0;
+        this.releaseTargetUUID = null;
+        this.releaseTarget = null;
+        this.setTarget(null);
+    }
+
+    public void setReleaseTarget(@Nullable LivingEntity target) {
+        if (!this.isValidReleaseTarget(target)) {
+            this.releaseTargetUUID = null;
+            this.releaseTarget = null;
+            return;
+        }
+
+        this.releaseTargetUUID = target.getUUID();
+        this.releaseTarget = target;
+        this.setTarget(target);
+    }
+
+    @Nullable
+    public LivingEntity getReleaseTarget() {
+        if (this.isValidReleaseTarget(this.releaseTarget)) return this.releaseTarget;
+
+        this.releaseTarget = null;
+        if (this.releaseTargetUUID != null && this.level() instanceof ServerLevel serverLevel) {
+            Entity entity = serverLevel.getEntity(this.releaseTargetUUID);
+            if (entity instanceof LivingEntity livingEntity && this.isValidReleaseTarget(livingEntity)) {
+                this.releaseTarget = livingEntity;
+                return livingEntity;
+            }
+        }
+
+        return null;
+    }
+
+    public void returnToNullImmediately() {
+        this.stopRelease();
+        if (this.nullEntity == null || !this.nullEntity.isAlive()) return;
+
+        Vec3 returnPosition = this.nullEntity.position().add(0.0D, this.nullEntity.getBbHeight() * 0.65D, 0.0D);
+        this.moveTo(returnPosition.x, returnPosition.y, returnPosition.z, this.getYRot(), this.getXRot());
+        this.setDeltaMovement(Vec3.ZERO);
+    }
+
+    public void release() {
+        this.release(this.findReleaseTarget());
+    }
+
+    public void release(@Nullable LivingEntity target) {
+        LivingEntity releaseTarget = this.isValidReleaseTarget(target) ? target : this.findReleaseTarget();
+        this.setReleaseTarget(releaseTarget);
+        this.releaseCooldown = this.nullEntity != null && this.nullEntity.getState() >= 2 ? -1 : 300 + this.getRandom().nextInt(301);
+        this.weaponAttackCooldown = 0;
         this.released = true;
+        this.spinfor5seconds();
+    }
+
+    @Nullable
+    public LivingEntity findReleaseTarget() {
+        LivingEntity target = this.getReleaseTarget();
+        if (this.isValidReleaseTarget(target)) return target;
+
+        target = this.getTarget();
+        if (this.isValidReleaseTarget(target)) return target;
+
+        if (this.nullEntity != null && this.nullEntity.isAlive()) {
+            target = this.nullEntity.getTarget();
+            if (!this.isValidReleaseTarget(target)) target = this.nullEntity.getLastHurtMob();
+            if (!this.isValidReleaseTarget(target)) target = this.nullEntity.getLastHurtByMob();
+            if (this.isValidReleaseTarget(target)) return target;
+        }
+
+        if (this.player != null && this.player.isAlive()) {
+            target = this.player.getLastHurtMob();
+            if (!this.isValidReleaseTarget(target)) target = this.player.getLastHurtByMob();
+            if (this.isValidReleaseTarget(target)) return target;
+        }
+
+        return getNearestLivingEntity(this.level(), this, 18.0D);
+    }
+
+    private boolean isValidReleaseTarget(@Nullable LivingEntity target) {
+        if (target == null || !target.isAlive() || target.isRemoved() || target == this.nullEntity || target == this.player || target instanceof NullWeapon) return false;
+        if (this.nullEntity != null && (target.isAlliedTo(this.nullEntity) || this.nullEntity.isAlliedTo(target))) return false;
+        if (this.player != null && (target.isAlliedTo(this.player) || this.player.isAlliedTo(target))) return false;
+        return !target.isAlliedTo(this);
     }
 
     public void setSpinning(boolean spinning) {
+        if (this.spinning == spinning) return;
         this.spinning = spinning;
+        this.spinAnimationSequence++;
+
+        if (this.level().isClientSide) return;
+        if (spinning) {
+            RigAnimationController.playHeldPose(this, RigAnimationId.SPINNING_WEAPON);
+        } else {
+            RigAnimationController.stop(this, RigAnimationId.SPINNING_WEAPON);
+        }
     }
 
     public boolean isSpinning() {
@@ -86,9 +188,10 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
     }
 
     public void setReleased(boolean released) {
-        this.released = released;
         if (released) {
-            spinfor5seconds();
+            this.release();
+        } else {
+            this.stopRelease();
         }
     }
 
@@ -107,6 +210,23 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
 //        }
 
 //        Create VANILLA_ANIMATION
+        if (this.level().isClientSide || !this.isAlive() || this.isRemoved()) return;
+
+        if (this.spinning) {
+            this.spinning = false;
+            this.spinAnimationSequence++;
+            RigAnimationController.stop(this, RigAnimationId.SPINNING_WEAPON);
+        }
+        this.setSpinning(true);
+        final int sequence = this.spinAnimationSequence;
+        new DelayedTask(100) {
+            @Override
+            public void run() {
+                if (!NullWeapon.this.isAlive() || NullWeapon.this.isRemoved()) return;
+                if (sequence != NullWeapon.this.spinAnimationSequence) return;
+                NullWeapon.this.setSpinning(false);
+            }
+        };
     }
 
     public void setWeapon(String weapon) {
@@ -165,6 +285,9 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         this.setNoAi(false);
         this.setPersistenceRequired();
         this.moveControl = new FlyingMoveControl(this, 10, true);
+        this.noPhysics = true;
+        this.setNoGravity(true);
+        this.refreshDimensions();
     }
 
     public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
@@ -177,77 +300,117 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
 
     protected void registerGoals() {
         super.registerGoals();
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(
-                this,
-                LivingEntity.class,
-                10, true, false,
-                target -> {
-                    if (this.player == null || !this.player.isAlive()) return false;
-                    var lastHurtBy = this.player.getLastHurtByMob();
-                    var lastHurt = this.player.getLastHurtMob();
-                    return (target == lastHurtBy || target == lastHurt)
-                            && target.isAlive()
-                            && !target.isAlliedTo(this.player);
-                }
-        ));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, (target) -> nullEntity != null
-                && nullEntity.isAlive()
-                && target != null
-                && nullEntity.getTarget() == target));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, (target) -> nullEntity != null
-                && nullEntity.isAlive()
-                && target != null
-                && target.getLastHurtMob() == nullEntity));
-        this.goalSelector.addGoal(2, new PortalApproachGoal(this));
-        this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.4D, 20) {
-            protected Vec3 getPosition() {
-                Random random = new Random();
-                double d0 = NullWeapon.this.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F));
-                double d1 = NullWeapon.this.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F));
-                double d2 = NullWeapon.this.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F));
 
-                return new Vec3(d0, d1, d2);
+        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> {
+            if (!this.released || this.player == null || !this.player.isAlive()) return false;
+            LivingEntity lastHurtBy = this.player.getLastHurtByMob();
+            LivingEntity lastHurt = this.player.getLastHurtMob();
+            return (target == lastHurtBy || target == lastHurt) && target.isAlive() && !target.isAlliedTo(this.player);
+        }));
+        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> this.released
+                && this.nullEntity != null && this.nullEntity.isAlive() && target != null && this.nullEntity.getTarget() == target));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> this.released
+                && this.nullEntity != null && this.nullEntity.isAlive() && target != null && target.getLastHurtMob() == this.nullEntity));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
+                target -> this.released && this.isValidReleaseTarget(target)));
+        this.targetSelector.addGoal(6, new HurtByTargetGoal(this) {
+            @Override
+            public boolean canUse() {
+                return NullWeapon.this.isReleased() && super.canUse();
             }
         });
-        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, NullEntity.class, 6.0F));
-        this.goalSelector.addGoal(5, new FloatGoal(this));
-        this.targetSelector.addGoal(6, new HurtByTargetGoal(this));
-        this.goalSelector.addGoal(7, new Goal() {
-            {
-                this.setFlags(EnumSet.of(Flag.MOVE));
-            }
 
-            public boolean canUse() {
-                return NullWeapon.this.getTarget() != null && !NullWeapon.this.getMoveControl().hasWanted();
-            }
+        this.goalSelector.addGoal(2, new PortalApproachGoal(this));
 
-            public boolean canContinueToUse() {
-                return NullWeapon.this.getMoveControl().hasWanted() && NullWeapon.this.getTarget() != null && NullWeapon.this.getTarget().isAlive();
-            }
+        // Restore the original AV_EFM feel: Null teleports the weapon separately every 10 ticks,
+        // while RandomStrollGoal keeps it gently drifting between teleports.
+        this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.4D, 20) {
+            @Override
+            protected Vec3 getPosition() {
+                LivingEntity anchor = NullWeapon.this.released ? NullWeapon.this.getReleaseTarget() : NullWeapon.this.getOrbitOwner();
 
-            public void start() {
-                LivingEntity livingentity = NullWeapon.this.getTarget();
-                if (livingentity == null) return;
-                Vec3 vec3 = livingentity.getEyePosition(1.0F);
+                double x = NullWeapon.this.getX() + NullWeapon.this.getRandom().nextDouble() * 2.0D - 1.0D;
+                double y = NullWeapon.this.getY() + NullWeapon.this.getRandom().nextDouble() * 2.0D - 1.0D;
+                double z = NullWeapon.this.getZ() + NullWeapon.this.getRandom().nextDouble() * 2.0D - 1.0D;
 
-                NullWeapon.this.moveControl.setWantedPosition(vec3.x, vec3.y, vec3.z, 2.0D);
-            }
-
-            public void tick() {
-                LivingEntity livingentity = NullWeapon.this.getTarget();
-                if (livingentity == null) return;
-                if (NullWeapon.this.getBoundingBox().intersects(livingentity.getBoundingBox())) {
-                    NullWeapon.this.doHurtTarget(livingentity);
-                } else {
-                    double d0 = NullWeapon.this.distanceToSqr(livingentity);
-
-                    if (d0 < 16.0D) {
-                        Vec3 vec3 = livingentity.getEyePosition(1.0F);
-
-                        NullWeapon.this.moveControl.setWantedPosition(vec3.x, vec3.y, vec3.z, 2.0D);
-                    }
+                if (anchor != null && anchor.isAlive()) {
+                    y = Mth.clamp(y, anchor.getY() - 2.5D, anchor.getY() + 3.5D);
                 }
 
+                return new Vec3(x, y, z);
+            }
+        });
+
+        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, NullEntity.class, 6.0F));
+
+        // Restore the old target-approach behavior. The teleport is the chaotic reposition;
+        // FlyingMoveControl is the smooth movement that happens after each teleport.
+        this.goalSelector.addGoal(7, new Goal() {
+            {
+                this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+            }
+
+            @Override
+            public boolean canUse() {
+                LivingEntity target = NullWeapon.this.getReleaseTarget();
+                return NullWeapon.this.released && NullWeapon.this.isValidReleaseTarget(target);
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                LivingEntity target = NullWeapon.this.getReleaseTarget();
+                return NullWeapon.this.released && NullWeapon.this.isValidReleaseTarget(target);
+            }
+
+            @Override
+            public boolean requiresUpdateEveryTick() {
+                return true;
+            }
+
+            @Override
+            public void start() {
+                this.approachTarget();
+            }
+
+            @Override
+            public void tick() {
+                LivingEntity target = NullWeapon.this.getReleaseTarget();
+                if (!NullWeapon.this.isValidReleaseTarget(target)) {
+                    target = NullWeapon.this.findReleaseTarget();
+                    NullWeapon.this.setReleaseTarget(target);
+                }
+                if (target == null) return;
+
+                NullWeapon.this.getLookControl().setLookAt(target, 90.0F, 90.0F);
+                double distanceSqr = NullWeapon.this.distanceToSqr(target);
+
+                if (distanceSqr < 16.0D) {
+                    Vec3 targetPosition = target.getEyePosition(1.0F);
+                    NullWeapon.this.moveControl.setWantedPosition(targetPosition.x, targetPosition.y, targetPosition.z, 2.0D);
+                }
+
+                RigAnimationId activeAnimation = RigAnimationController.getActiveAnimationId(NullWeapon.this);
+                if (distanceSqr <= 12.25D && NullWeapon.this.weaponAttackCooldown <= 0
+                        && (activeAnimation == null || activeAnimation == RigAnimationId.SPINNING_WEAPON)) {
+                    if (NullWeapon.this.spinning) NullWeapon.this.setSpinning(false);
+
+                    RigAnimationId attack = switch (NullWeapon.this.getRandom().nextInt(3)) {
+                        case 0 -> RigAnimationId.SWORD_ATTACK1;
+                        case 1 -> RigAnimationId.SWORD_ATTACK2;
+                        default -> RigAnimationId.SWORD_ATTACK3;
+                    };
+
+                    RigAnimationController.play(NullWeapon.this, RigAnimationSpecs.get(attack), target);
+                    NullWeapon.this.weaponAttackCooldown = RigAnimationSpecs.get(attack).durationTicks() + 2;
+                }
+            }
+
+            private void approachTarget() {
+                LivingEntity target = NullWeapon.this.getReleaseTarget();
+                if (target == null) return;
+
+                Vec3 targetPosition = target.getEyePosition(1.0F);
+                NullWeapon.this.moveControl.setWantedPosition(targetPosition.x, targetPosition.y, targetPosition.z, 2.0D);
             }
         });
     }
@@ -264,6 +427,7 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         }
         tag.putBoolean("Released", released);
         tag.putInt("ReleaseCooldown", releaseCooldown);
+        if (releaseTargetUUID != null) tag.putUUID("ReleaseTargetUUID", releaseTargetUUID);
     }
 
     @Override
@@ -278,6 +442,32 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
         weapon = tag.getString("Weapon");
         released = tag.getBoolean("Released");
         releaseCooldown = tag.getInt("ReleaseCooldown");
+        if (tag.hasUUID("ReleaseTargetUUID")) releaseTargetUUID = tag.getUUID("ReleaseTargetUUID");
+    }
+
+    @Override
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+        return EntityDimensions.fixed(0.0F, 0.0F);
+    }
+
+    @Override
+    public boolean isPickable() {
+        return false;
+    }
+
+    @Override
+    public boolean isPushable() {
+        return false;
+    }
+
+    @Override
+    public boolean canBeCollidedWith() {
+        return false;
+    }
+
+    @Override
+    public boolean displayFireAnimation() {
+        return false;
     }
 
     public @NotNull MobType getMobType() {
@@ -310,11 +500,6 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
 
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
         TeamUtil.addOrJoinTeam(this, "herobrine");
-        this.setItemSlot(EquipmentSlot.LEGS, ItemStack.EMPTY);
-        this.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
-        this.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
-        this.setItemSlot(EquipmentSlot.FEET, ItemStack.EMPTY);
-        this.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
         this.setInvulnerable(true);
         return super.finalizeSpawn(serverlevelaccessor, difficultyinstance, mobspawntype, spawngroupdata, compoundtag);
     }
@@ -327,6 +512,7 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
 
     public void aiStep() {
         super.aiStep();
+        this.noPhysics = true;
         this.setNoGravity(true);
     }
 
@@ -468,21 +654,6 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
             }
             this.setItemSlot(EquipmentSlot.MAINHAND, check);
         }
-        if (this.getItemBySlot(EquipmentSlot.OFFHAND) != ItemStack.EMPTY) {
-            this.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
-        }
-        if (this.getItemBySlot(EquipmentSlot.HEAD) != ItemStack.EMPTY) {
-            this.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
-        }
-        if (this.getItemBySlot(EquipmentSlot.CHEST) != ItemStack.EMPTY) {
-            this.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
-        }
-        if (this.getItemBySlot(EquipmentSlot.LEGS) != ItemStack.EMPTY) {
-            this.setItemSlot(EquipmentSlot.LEGS, ItemStack.EMPTY);
-        }
-        if (this.getItemBySlot(EquipmentSlot.FEET) != ItemStack.EMPTY) {
-            this.setItemSlot(EquipmentSlot.FEET, ItemStack.EMPTY);
-        }
         if (!level().isClientSide) {
             if (nullEntity != null && !nullEntity.isAlive()) {
                 this.discard();
@@ -521,16 +692,30 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
             }
         }
 
-        if (this.getTarget() == null && this.released) {
-            this.released = false;
+        if (this.weaponAttackCooldown > 0) this.weaponAttackCooldown--;
+
+        if (!this.level().isClientSide) {
+            if (this.randomSpinCooldown > 0) this.randomSpinCooldown--;
+            if (!this.released && !this.spinning && this.randomSpinCooldown <= 0) {
+                this.randomSpinCooldown = 180 + this.getRandom().nextInt(321);
+                this.spinfor5seconds();
+            }
         }
 
-        if (this.releaseCooldown > 0) {
-            this.releaseCooldown = this.releaseCooldown - 1;
+        if (this.released) {
+            LivingEntity target = this.getReleaseTarget();
+            if (!this.isValidReleaseTarget(target)) {
+                target = this.findReleaseTarget();
+                this.setReleaseTarget(target);
+            } else if (this.getTarget() != target) {
+                this.setTarget(target);
+            }
         }
-        if (this.releaseCooldown == 0 && this.nullEntity != null && this.released) {
-            this.released = false;
-        }
+
+        if (!this.level().isClientSide) this.correctExcessiveVerticalDrift();
+
+        if (this.releaseCooldown > 0) this.releaseCooldown--;
+        if (this.releaseCooldown == 0 && this.released) this.stopRelease();
     }
 
     public static LivingEntity getNearestLivingEntity(Level level, Entity sourceEntity, double range) {
@@ -540,46 +725,67 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
                 level.getEntitiesOfClass(LivingEntity.class, searchBox,
                         e -> e != sourceEntity
                                 && !(e instanceof NullWeapon)
-                                && !e.isAlliedTo(sourceEntity)
-                                && e.isAlive()),
+                                && e.isAlive()
+                                && (sourceEntity instanceof NullWeapon weapon
+                                ? weapon.isValidReleaseTarget(e)
+                                : !e.isAlliedTo(sourceEntity))),
                 TargetingConditions.DEFAULT,
                 (LivingEntity) sourceEntity,
                 sourceEntity.getX(), sourceEntity.getY(), sourceEntity.getZ()
         );
     }
 
+    public void teleportRandomlyAround(LivingEntity anchor, double horizontalRange, double minYOffset, double maxYOffset) {
+        if (anchor == null || !anchor.isAlive()) return;
+
+        double x = anchor.getX() + (this.getRandom().nextDouble() * 2.0D - 1.0D) * horizontalRange;
+        double y = anchor.getY() + minYOffset + this.getRandom().nextDouble() * (maxYOffset - minYOffset);
+        double z = anchor.getZ() + (this.getRandom().nextDouble() * 2.0D - 1.0D) * horizontalRange;
+
+        // Intentionally do not stop navigation, clear velocity or set a self-position MoveControl target here.
+        // The old AV_EFM behavior teleported the weapon while its RandomStroll/target movement kept running,
+        // which is what creates the smooth little drift immediately after each snap.
+        this.moveTo(x, y, z, this.getYRot(), this.getXRot());
+    }
+
+    private void correctExcessiveVerticalDrift() {
+        LivingEntity anchor = this.released ? this.getReleaseTarget() : this.getOrbitOwner();
+        if (anchor == null || !anchor.isAlive()) anchor = this.getOrbitOwner();
+        if (anchor == null || !anchor.isAlive()) return;
+
+        double minY = anchor.getY() - 4.0D;
+        double maxY = anchor.getY() + 5.0D;
+        if (this.getY() >= minY && this.getY() <= maxY) return;
+
+        this.setPos(this.getX(), Mth.clamp(this.getY(), minY, maxY), this.getZ());
+        Vec3 movement = this.getDeltaMovement();
+        this.setDeltaMovement(movement.x, 0.0D, movement.z);
+    }
+
     public void processTeleportByPlayer() {
-        if (player == null) return;
-        if (!this.isReleased()) {
-            this.moveTo(player.getX() + new Random().nextDouble(-4, 4), player.getY() + new Random().nextDouble(-2, 2), player.getZ() + new Random().nextDouble(-4, 4));
-        } else if (this.isReleased() && (player.getLastHurtByMob() != null || player.getLastHurtMob() != null)) {
-            LivingEntity target = player.getLastHurtByMob() != null ? player.getLastHurtByMob() : (player.getLastHurtMob() != null ? player.getLastHurtMob() : null);
-            if (target == null) {
-                target = NullWeapon.getNearestLivingEntity(player.level(), player, 12.0D);
-            }
-            if (target != null && target.isAlive()) {
-                this.moveTo(target.getX() + new Random().nextDouble(-4, 4), target.getY() + new Random().nextDouble(-2, 2), target.getZ() + new Random().nextDouble(-4, 4));
-            } else {
-                this.released = false;
-            }
+        if (this.player == null || !this.player.isAlive()) return;
+
+        if (!this.released) {
+            this.teleportRandomlyAround(this.player, 4.0D, -2.0D, 2.0D);
+            return;
         }
+
+        LivingEntity target = this.findReleaseTarget();
+        this.setReleaseTarget(target);
+        if (target != null) this.teleportRandomlyAround(target, 4.0D, -2.0D, 2.0D);
     }
 
     public void processTeleportByNullEntity() {
-        if (nullEntity == null) return;
-        if (!this.isReleased()) {
-            this.moveTo(nullEntity.getX() + new Random().nextDouble(-4, 4), nullEntity.getY() + new Random().nextDouble(-2, 2), nullEntity.getZ() + new Random().nextDouble(-4, 4));
-        } else if (this.isReleased() && (nullEntity.getLastHurtByMob() != null || nullEntity.getLastHurtMob() != null)) {
-            LivingEntity target = nullEntity.getTarget() != null ? nullEntity.getTarget() : (nullEntity.getLastHurtByMob() != null ? nullEntity.getLastHurtByMob() : (nullEntity.getLastHurtMob() != null ? nullEntity.getLastHurtMob() : null));
-            if (target == null) {
-                target = NullWeapon.getNearestLivingEntity(nullEntity.level(), nullEntity, 12.0D);
-            }
-            if (target != null && target.isAlive()) {
-                this.moveTo(target.getX() + new Random().nextDouble(-4, 4), target.getY() + new Random().nextDouble(-2, 2), target.getZ() + new Random().nextDouble(-4, 4));
-            } else {
-                this.stopRelease();
-            }
+        if (this.nullEntity == null || !this.nullEntity.isAlive()) return;
+
+        if (!this.released) {
+            this.teleportRandomlyAround(this.nullEntity, 4.0D, -2.0D, 2.0D);
+            return;
         }
+
+        LivingEntity target = this.findReleaseTarget();
+        this.setReleaseTarget(target);
+        if (target != null) this.teleportRandomlyAround(target, 4.0D, -2.0D, 2.0D);
     }
 
     public void summonNullWeaponForPlayer(String uuidNbt, ServerLevel serverLevel, Player summoner) {
@@ -603,6 +809,7 @@ public class NullWeapon extends Monster implements RigStunnableEntity {
 
     @Override
     public void remove(@NotNull RemovalReason pReason) {
+        if (this.spinning && !this.level().isClientSide) this.setSpinning(false);
         if (this.level() instanceof ServerLevel serverLevel) {
             if (this.player != null) {
                 switch (this.weapon) {

@@ -17,6 +17,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.player.Player;
@@ -84,6 +85,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
     }
 
     protected void registerGoals() {
+        this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.2D, true));
         this.goalSelector.addGoal(1, new Goal() {
             @Override
             public boolean canUse() {

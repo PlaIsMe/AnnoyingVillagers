@@ -88,7 +88,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements RigStu
         this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(AnnoyingVillagersModItems.ELITE_OBSIDIAN_BODY.get()));
         this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
         this.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
-        this.setDropChance(EquipmentSlot.HEAD, 1.0F);
+        this.setDropChance(EquipmentSlot.HEAD, 0.0F);
     }
 
     @Override

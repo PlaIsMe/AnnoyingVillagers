@@ -1188,5 +1188,33 @@
         "name": "annoyingvillagers:ground_slam2"
       }
     ]
+  },
+  "entity.black_hole.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:block.portal.ambient",
+        "type": "event"
+      }
+    ]
+  },
+  "entity.black_hole.vanish": {
+    "sounds": [
+      {
+        "name": "minecraft:block.portal.trigger",
+        "type": "event"
+      }
+    ]
+  },
+  "entity.black_hole.charge": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.evoker.prepare_attack",
+        "type": "event"
+      },
+      {
+        "name": "minecraft:entity.evoker.prepare_summon",
+        "type": "event"
+      }
+    ]
   }
 }

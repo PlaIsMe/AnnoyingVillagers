@@ -94,6 +94,9 @@ public class AnnoyingVillagersModSounds {
     public static final RegistryObject<SoundEvent> REAPER_SUMMON = register("reaper_summon");
     public static final RegistryObject<SoundEvent> SLEDGE_HAMMER = register("sledge_hammer");
     public static final RegistryObject<SoundEvent> GROUND_SLAM = register("ground_slam");
+    public static final RegistryObject<SoundEvent> BLACK_HOLE_AMBIENT = register("entity.black_hole.ambient");
+    public static final RegistryObject<SoundEvent> BLACK_HOLE_VANISH = register("entity.black_hole.vanish");
+    public static final RegistryObject<SoundEvent> BLACK_HOLE_CHARGE = register("entity.black_hole.charge");
 
     private static RegistryObject<SoundEvent> register(String name) {
         return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, name)));

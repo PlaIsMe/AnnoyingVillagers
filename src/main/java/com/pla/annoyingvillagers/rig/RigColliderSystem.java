@@ -60,15 +60,38 @@ public final class RigColliderSystem {
     }
 
     public static boolean canStartAttack(Mob mob, LivingEntity target, RigAnimationSpec spec) {
+        if (!canAttackTarget(mob, target)) return false;
+        double range = getAttackStartRange(mob, target, spec);
+        double dx = target.getX() - mob.getX();
+        double dz = target.getZ() - mob.getZ();
+        return dx * dx + dz * dz <= range * range;
+    }
+
+    public static boolean canStartAttack3D(Mob mob, LivingEntity target, RigAnimationSpec spec) {
+        if (!canAttackTarget(mob, target)) return false;
+        double range = getAttackStartRange(mob, target, spec);
+        double dx = target.getX() - mob.getX();
+        double dy = target.getY() + target.getBbHeight() * 0.5D - (mob.getY() + mob.getBbHeight() * 0.5D);
+        double dz = target.getZ() - mob.getZ();
+        return dx * dx + dy * dy + dz * dz <= range * range;
+    }
+
+    public static boolean canStartAttackWithinDistance(Mob mob, LivingEntity target, double range) {
+        if (!canAttackTarget(mob, target)) return false;
+        return mob.distanceToSqr(target) <= range * range;
+    }
+
+    private static boolean canAttackTarget(Mob mob, LivingEntity target) {
         Team mobTeam = mob.getTeam();
         Team targetTeam = target.getTeam();
         if (mob.isAlliedTo(target) || target.isAlliedTo(mob)) return false;
         if (mobTeam != null && targetTeam != null && (mobTeam == targetTeam || mobTeam.isAlliedTo(targetTeam) || targetTeam.isAlliedTo(mobTeam))) return false;
+        return true;
+    }
+
+    private static double getAttackStartRange(Mob mob, LivingEntity target, RigAnimationSpec spec) {
         double range = MAX_REACH_CACHE.computeIfAbsent(spec.animationId(), ignored -> calculateMaxReach(spec));
-        range += RigPoseLibrary.maxHorizontalMotionBlocks(spec.animationId()) + target.getBbWidth() * 0.5D + mob.getBbWidth() * 0.5D;
-        double dx = target.getX() - mob.getX();
-        double dz = target.getZ() - mob.getZ();
-        return dx * dx + dz * dz <= range * range;
+        return range + RigPoseLibrary.maxHorizontalMotionBlocks(spec.animationId()) + target.getBbWidth() * 0.5D + mob.getBbWidth() * 0.5D;
     }
 
     private static double calculateMaxReach(RigAnimationSpec spec) {

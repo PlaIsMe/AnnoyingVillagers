@@ -1,10 +1,7 @@
 package com.pla.annoyingvillagers.item;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -14,31 +11,7 @@ import java.util.List;
 public class NullPickaxeItem extends PickaxeItem {
 
     public NullPickaxeItem() {
-        super(new Tier() {
-            public int getUses() {
-                return 100;
-            }
-
-            public float getSpeed() {
-                return 4.0F;
-            }
-
-            public float getAttackDamageBonus() {
-                return 2.0F;
-            }
-
-            public int getLevel() {
-                return 1;
-            }
-
-            public int getEnchantmentValue() {
-                return 2;
-            }
-
-            public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of();
-            }
-        }, 3, -3.0F, (new Properties()));
+        super(Tiers.DIAMOND, 1, -2.8F, new Item.Properties());
     }
 
     @Override

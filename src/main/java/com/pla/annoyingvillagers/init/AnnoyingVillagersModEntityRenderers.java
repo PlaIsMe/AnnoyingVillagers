@@ -67,6 +67,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.OBSIDIAN_SLEDGEHAMMER_PROJECTILE.get(), ObsidianSledgehammerProjectileRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SHOCKWAVE_BLOCK.get(), ShockWaveBlockRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.NULL_SKELETON.get(), WitherSkeletonRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLACK_HOLE.get(), BlackHoleRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLUE_DEMON_THUNDER_BEAM.get(), BlueDemonThunderBeamRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.TRIDENT_LIGHTNING_BOLT.get(), LightningBoltRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLUE_DEMON_THROWN_TRIDENT.get(), ThrownTridentRenderer::new);

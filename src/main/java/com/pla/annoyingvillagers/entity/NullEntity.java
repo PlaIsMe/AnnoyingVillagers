@@ -9,6 +9,7 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.entity.goal.NullSummonSkeletonGoal;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -55,6 +56,7 @@ public class NullEntity extends HerobrineMob {
 
     private NullSkeletonEntity secondWitherSkeleton;
     private UUID secondWitherSkeletonUuid;
+    private int nullSkeletonSummonCooldown = 0;
 
     public boolean isAvailableWitherSkeletonSlot() {
         return firstWitherSkeletonUuid == null || secondWitherSkeletonUuid == null;
@@ -76,6 +78,18 @@ public class NullEntity extends HerobrineMob {
             secondWitherSkeletonUuid = witherSkeleton.getUUID();
             secondWitherSkeleton = witherSkeleton;
         }
+    }
+
+    public boolean canSummonNullSkeleton() {
+        return this.getState() == 2 && this.isAvailableWitherSkeletonSlot() && this.nullSkeletonSummonCooldown <= 0;
+    }
+
+    public void resetNullSkeletonSummonCooldown() {
+        this.nullSkeletonSummonCooldown = 600 + this.getRandom().nextInt(601);
+    }
+
+    public int getNullSkeletonSummonCooldown() {
+        return this.nullSkeletonSummonCooldown;
     }
 
     @Override
@@ -149,21 +163,55 @@ public class NullEntity extends HerobrineMob {
         return new FlyingPathNavigation(this, level);
     }
 
-    public void releaseRandomWeapons(int stack) {
-        if (stack <= 0) return;
-        List<NullWeapon> weapons = new ArrayList<>(5);
+    public void releaseRandomNullWeapon(LivingEntity target) {
+        if (target == null || !target.isAlive()) return;
 
-        if (this.nullSwordEntity != null) weapons.add(this.nullSwordEntity);
-        if (this.nullAxeEntity != null) weapons.add(this.nullAxeEntity);
-        if (this.nullPickaxeEntity != null) weapons.add(this.nullPickaxeEntity);
-        if (this.nullShovelEntity != null) weapons.add(this.nullShovelEntity);
-        if (this.nullHoeEntity != null) weapons.add(this.nullHoeEntity);
+        List<NullWeapon> allWeapons = this.getAvailableNullWeapons();
+        if (allWeapons.isEmpty()) return;
 
-        if (weapons.isEmpty()) return;
-        Collections.shuffle(weapons, new Random());
-        for (int i = 0; i < Math.min(stack, weapons.size()); i++) {
-            weapons.get(i).releaseForAWhile();
+        if (this.getState() < 2) {
+            List<NullWeapon> previousWeapons = new ArrayList<>();
+            for (NullWeapon weapon : allWeapons) {
+                if (!weapon.isReleased()) continue;
+                previousWeapons.add(weapon);
+                weapon.returnToNullImmediately();
+            }
+
+            List<NullWeapon> candidates = new ArrayList<>(allWeapons);
+            if (candidates.size() > previousWeapons.size()) candidates.removeAll(previousWeapons);
+            NullWeapon chosen = candidates.get(this.getRandom().nextInt(candidates.size()));
+            chosen.release(target);
+            return;
         }
+
+        List<NullWeapon> candidates = new ArrayList<>();
+        for (NullWeapon weapon : allWeapons) {
+            if (!weapon.isReleased()) candidates.add(weapon);
+        }
+
+        if (candidates.isEmpty()) {
+            this.recallAllNullWeapons();
+            return;
+        }
+
+        NullWeapon chosen = candidates.get(this.getRandom().nextInt(candidates.size()));
+        chosen.release(target);
+    }
+
+    public void recallAllNullWeapons() {
+        for (NullWeapon weapon : this.getAvailableNullWeapons()) {
+            if (weapon.isReleased()) weapon.returnToNullImmediately();
+        }
+    }
+
+    private List<NullWeapon> getAvailableNullWeapons() {
+        List<NullWeapon> weapons = new ArrayList<>(5);
+        if (this.nullSwordEntity != null && this.nullSwordEntity.isAlive()) weapons.add(this.nullSwordEntity);
+        if (this.nullAxeEntity != null && this.nullAxeEntity.isAlive()) weapons.add(this.nullAxeEntity);
+        if (this.nullPickaxeEntity != null && this.nullPickaxeEntity.isAlive()) weapons.add(this.nullPickaxeEntity);
+        if (this.nullShovelEntity != null && this.nullShovelEntity.isAlive()) weapons.add(this.nullShovelEntity);
+        if (this.nullHoeEntity != null && this.nullHoeEntity.isAlive()) weapons.add(this.nullHoeEntity);
+        return weapons;
     }
 
     public void randomlyParryWithWeapon(ServerLevel serverLevel, Entity attacker) {
@@ -181,27 +229,12 @@ public class NullEntity extends HerobrineMob {
         chosen.spinfor5seconds();
     }
 
-
-    public void setSpinningToAllWeaponsAvailable(boolean spinning) {
-        setSpinningIfAvailable(this.nullSwordEntity, spinning);
-        setSpinningIfAvailable(this.nullAxeEntity, spinning);
-        setSpinningIfAvailable(this.nullPickaxeEntity, spinning);
-        setSpinningIfAvailable(this.nullShovelEntity, spinning);
-        setSpinningIfAvailable(this.nullHoeEntity, spinning);
-    }
-
     public void setSpinningToAllWeaponsAvailableFor5seconds() {
         setSpinningFor5SecondsIfAvailable(this.nullSwordEntity);
         setSpinningFor5SecondsIfAvailable(this.nullAxeEntity);
         setSpinningFor5SecondsIfAvailable(this.nullPickaxeEntity);
         setSpinningFor5SecondsIfAvailable(this.nullShovelEntity);
         setSpinningFor5SecondsIfAvailable(this.nullHoeEntity);
-    }
-
-    private static void setSpinningIfAvailable(NullWeapon weapon, boolean spinning) {
-        if (weapon == null) return;
-        if (weapon.isReleased()) return;
-        weapon.setSpinning(spinning);
     }
 
     private static void setSpinningFor5SecondsIfAvailable(NullWeapon weapon) {
@@ -235,6 +268,7 @@ public class NullEntity extends HerobrineMob {
             tag.putUUID("SecondWitherSkeletonUuid", secondWitherSkeletonUuid);
         }
         tag.putBoolean("SpawnNullWeapon", spawnNullWeapon);
+        tag.putInt("NullSkeletonSummonCooldown", this.nullSkeletonSummonCooldown);
     }
 
     @Override
@@ -262,6 +296,7 @@ public class NullEntity extends HerobrineMob {
             secondWitherSkeletonUuid = tag.getUUID("SecondWitherSkeletonUuid");
         }
         spawnNullWeapon = tag.getBoolean("SpawnNullWeapon");
+        this.nullSkeletonSummonCooldown = Math.max(0, tag.getInt("NullSkeletonSummonCooldown"));
     }
 
     private void initialSpawn() {
@@ -283,6 +318,50 @@ public class NullEntity extends HerobrineMob {
         }
     }
 
+    private void ensureNullWeapons(ServerLevel serverLevel) {
+        if (this.nullSwordEntity != null && !this.nullSwordEntity.isAlive()) {
+            this.nullSwordEntity = null;
+            this.nullSwordUUID = null;
+        }
+        if (this.nullAxeEntity != null && !this.nullAxeEntity.isAlive()) {
+            this.nullAxeEntity = null;
+            this.nullAxeUUID = null;
+        }
+        if (this.nullPickaxeEntity != null && !this.nullPickaxeEntity.isAlive()) {
+            this.nullPickaxeEntity = null;
+            this.nullPickaxeUUID = null;
+        }
+        if (this.nullShovelEntity != null && !this.nullShovelEntity.isAlive()) {
+            this.nullShovelEntity = null;
+            this.nullShovelUUID = null;
+        }
+        if (this.nullHoeEntity != null && !this.nullHoeEntity.isAlive()) {
+            this.nullHoeEntity = null;
+            this.nullHoeUUID = null;
+        }
+
+        if (this.nullSwordEntity == null && this.nullSwordUUID == null) {
+            NullWeapon weapon = new NullSwordEntity(AnnoyingVillagersModEntities.NULL_SWORD.get(), serverLevel);
+            weapon.summonNullWeaponForNullEntity(serverLevel, this, "sword");
+        }
+        if (this.nullAxeEntity == null && this.nullAxeUUID == null) {
+            NullWeapon weapon = new NullAxeEntity(AnnoyingVillagersModEntities.NULL_AXE.get(), serverLevel);
+            weapon.summonNullWeaponForNullEntity(serverLevel, this, "axe");
+        }
+        if (this.nullPickaxeEntity == null && this.nullPickaxeUUID == null) {
+            NullWeapon weapon = new NullPickaxeEntity(AnnoyingVillagersModEntities.NULL_PICKAXE.get(), serverLevel);
+            weapon.summonNullWeaponForNullEntity(serverLevel, this, "pickaxe");
+        }
+        if (this.nullShovelEntity == null && this.nullShovelUUID == null) {
+            NullWeapon weapon = new NullShovelEntity(AnnoyingVillagersModEntities.NULL_SHOVEL.get(), serverLevel);
+            weapon.summonNullWeaponForNullEntity(serverLevel, this, "shovel");
+        }
+        if (this.nullHoeEntity == null && this.nullHoeUUID == null) {
+            NullWeapon weapon = new NullHoeEntity(AnnoyingVillagersModEntities.NULL_HOE.get(), serverLevel);
+            weapon.summonNullWeaponForNullEntity(serverLevel, this, "hoe");
+        }
+    }
+
     private void playSpawningWeaponAnimation() {
 //      ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
@@ -294,7 +373,9 @@ public class NullEntity extends HerobrineMob {
 
     @Override
     public void tick() {
+        this.freezeDuringSecondFormTransformation();
         super.tick();
+        this.freezeDuringSecondFormTransformation();
 
         if (!this.level().isClientSide()) {
             if (!spawnNullWeapon) {
@@ -345,6 +426,19 @@ public class NullEntity extends HerobrineMob {
                 }
             }
 
+            if (this.tickCount % 20 == 0) this.ensureNullWeapons((ServerLevel) this.level());
+
+            // Original AV_EFM NullWeapon cadence: Null snaps every owned tool to a fresh random
+            // owner/target-relative position every 10 ticks. The weapon's own movement goals keep
+            // running after the teleport, so it drifts naturally instead of freezing in place.
+            if (this.tickCount % 10 == 0 && this.tickCount >= 20) {
+                if (this.nullSwordEntity != null) this.nullSwordEntity.processTeleportByNullEntity();
+                if (this.nullAxeEntity != null) this.nullAxeEntity.processTeleportByNullEntity();
+                if (this.nullPickaxeEntity != null) this.nullPickaxeEntity.processTeleportByNullEntity();
+                if (this.nullHoeEntity != null) this.nullHoeEntity.processTeleportByNullEntity();
+                if (this.nullShovelEntity != null) this.nullShovelEntity.processTeleportByNullEntity();
+            }
+
             if (firstWitherSkeleton == null && firstWitherSkeletonUuid != null) {
                 Entity entity = ((ServerLevel) this.level()).getEntity(firstWitherSkeletonUuid);
                 if (entity instanceof NullSkeletonEntity witherSkeleton) {
@@ -362,37 +456,32 @@ public class NullEntity extends HerobrineMob {
                 }
             }
 
+            boolean skeletonSlotOpened = false;
             if (firstWitherSkeleton != null && !firstWitherSkeleton.isAlive()) {
                 firstWitherSkeleton = null;
                 firstWitherSkeletonUuid = null;
+                skeletonSlotOpened = true;
             }
             if (secondWitherSkeleton != null && !secondWitherSkeleton.isAlive()) {
                 secondWitherSkeleton = null;
                 secondWitherSkeletonUuid = null;
+                skeletonSlotOpened = true;
             }
-
-            if (this.tickCount % 10 == 0 && this.tickCount >= 20) {
-                if (nullSwordEntity != null) {
-                    nullSwordEntity.processTeleportByNullEntity();
-                }
-                if (nullAxeEntity != null) {
-                    nullAxeEntity.processTeleportByNullEntity();
-                }
-                if (nullPickaxeEntity != null) {
-                    nullPickaxeEntity.processTeleportByNullEntity();
-                }
-                if (nullHoeEntity != null) {
-                    nullHoeEntity.processTeleportByNullEntity();
-                }
-                if (nullShovelEntity != null) {
-                    nullShovelEntity.processTeleportByNullEntity();
-                }
-            }
+            if (skeletonSlotOpened && this.getState() == 2) this.resetNullSkeletonSummonCooldown();
+            if (this.nullSkeletonSummonCooldown > 0) this.nullSkeletonSummonCooldown--;
         }
+    }
+
+    private void freezeDuringSecondFormTransformation() {
+        if (!this.isSacrificing()) return;
+        this.getNavigation().stop();
+        this.setDeltaMovement(Vec3.ZERO);
+        this.getMoveControl().setWantedPosition(this.getX(), this.getY(), this.getZ(), 0.0D);
     }
 
     protected void registerGoals() {
         super.registerGoals();
+        this.goalSelector.addGoal(0, new NullSummonSkeletonGoal(this));
         this.goalSelector.addGoal(24, new Goal() {
             {
                 this.setFlags(EnumSet.of(Flag.MOVE));
@@ -933,13 +1022,7 @@ public class NullEntity extends HerobrineMob {
                 double vz = (this.random.nextDouble() - 0.5D) * 0.18D;
 
                 this.level().addParticle(
-                        AnnoyingVillagersModParticleTypes.NULL.get(),
-                        x,
-                        this.getY() + 0.03D,
-                        z,
-                        vx,
-                        (this.random.nextDouble() - 0.5D) * 0.02D,
-                        vz
+                        AnnoyingVillagersModParticleTypes.NULL.get(), x, this.getY() + 0.03D, z, vx, (this.random.nextDouble() - 0.5D) * 0.02D, vz
                 );
             }
         }
@@ -989,10 +1072,11 @@ public class NullEntity extends HerobrineMob {
         Builder builder = Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 250.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.45D)
+                .add(Attributes.FLYING_SPEED, 0.70D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
                 .add(Attributes.FOLLOW_RANGE, 64.0D)
-                .add(Attributes.ARMOR, 10.0D)
-                .add(Attributes.ARMOR_TOUGHNESS, 20.0D)
+                .add(Attributes.ARMOR, 80.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 40.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
         return addEpicFightAttributes(builder);
     }

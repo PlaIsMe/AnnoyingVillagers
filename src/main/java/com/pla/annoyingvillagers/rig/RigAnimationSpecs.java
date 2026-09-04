@@ -6,11 +6,13 @@ import com.pla.annoyingvillagers.clazz.TridentMode;
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
 import com.pla.annoyingvillagers.entity.AegisHerobrineEntity;
 import com.pla.annoyingvillagers.entity.BlackFireEntity;
+import com.pla.annoyingvillagers.entity.BlackHoleEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonThunderBeamEntity;
 import com.pla.annoyingvillagers.entity.ElectricPhaseEntity;
 import com.pla.annoyingvillagers.entity.GlaiveHerobrineEntity;
+import com.pla.annoyingvillagers.entity.NullEntity;
 import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
 import com.pla.annoyingvillagers.entity.SledgehammerHerobrineEntity;
 import com.pla.annoyingvillagers.entity.TridentLightningBolt;
@@ -83,6 +85,7 @@ public final class RigAnimationSpecs {
     private static final RigCollider RIGHT_KNEE = RigCollider.of(RIGHT_LEG, FOOT);
     private static final RigCollider LEFT_FOOT = RigCollider.of(LEFT_LOWER_LEG, FOOT);
     private static final RigCollider RIGHT_ELBOW = RigCollider.of(RIGHT_ARM, BODY);
+    private static final RigCollider LEFT_ELBOW = RigCollider.of(LEFT_ARM, BODY);
 
     static {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_AIM_DOWN, 14, RigAnimationPlaybackType.UPPER_BODY));
@@ -1402,42 +1405,143 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.NULL_WALK, 20));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.NULL_RUN, 22));
         put(RigAnimationSpec.attack(RigAnimationId.NULL_ATTACK1, 20, false,
-                emptyHooks(1),
-                RigAttackWindow.of(6, 15)));
+                RigAttackWindow.of(6, 15, LEFT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.NULL_ATTACK2, 22, false,
-                emptyHooks(1),
-                RigAttackWindow.of(6, 11),
-                RigAttackWindow.of(12, 20)));
+                RigAttackWindow.of(6, 11, RIGHT_ELBOW),
+                RigAttackWindow.of(12, 20, LEFT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.NULL_ATTACK3, 34, false,
-                emptyHooks(1),
-                RigAttackWindow.of(4, 7),
-                RigAttackWindow.of(8, 13),
-                RigAttackWindow.of(14, 20)));
+                RigAttackWindow.of(4, 7, LEFT_ELBOW),
+                RigAttackWindow.of(8, 13, RIGHT_ELBOW),
+                RigAttackWindow.of(14, 20, LEFT_ELBOW, RIGHT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.NULL_ATTACK4, 40, false,
-                RigAttackWindow.of(2, 10),
-                RigAttackWindow.of(18, 20, LEFT_FIST),
-                RigAttackWindow.of(20, 22, LEFT_FIST),
-                RigAttackWindow.of(22, 24, LEFT_FIST),
-                RigAttackWindow.of(24, 32, LEFT_FIST)));
+                RigAttackWindow.of(2, 10, LEFT_ELBOW, RIGHT_ELBOW),
+                RigAttackWindow.of(18, 20, LEFT_ELBOW, RIGHT_ELBOW),
+                RigAttackWindow.of(20, 22, LEFT_ELBOW, RIGHT_ELBOW),
+                RigAttackWindow.of(22, 24, LEFT_ELBOW, RIGHT_ELBOW),
+                RigAttackWindow.of(24, 32, LEFT_ELBOW, RIGHT_ELBOW))
+                .criticalChance(0.2F)
+        );
         put(RigAnimationSpec.attack(RigAnimationId.NULL_ATTACK5, 60, false,
-                emptyHooks(1, 21, 29),
-                RigAttackWindow.of(29, 38)));
+                List.of(
+                        RigAnimationSpec.RigTimedAnimationHook.at(1, mob -> {
+                            if (!(mob.level() instanceof ServerLevel)) return;
+                            mob.level().playSound(null, mob.blockPosition(), AnnoyingVillagersModSounds.BLACK_HOLE_CHARGE.get(), SoundSource.HOSTILE, 2.0F, 0.85F);
+                            spawnNullBlackHoleChargeParticles(mob, 1);
+                        }),
+                        RigAnimationSpec.RigTimedAnimationHook.at(4, mob -> spawnNullBlackHoleChargeParticles(mob, 4)),
+                        RigAnimationSpec.RigTimedAnimationHook.at(8, mob -> spawnNullBlackHoleChargeParticles(mob, 8)),
+                        RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> spawnNullBlackHoleChargeParticles(mob, 12)),
+                        RigAnimationSpec.RigTimedAnimationHook.at(16, mob -> spawnNullBlackHoleChargeParticles(mob, 16)),
+                        RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> spawnNullBlackHoleChargeParticles(mob, 20)),
+                        RigAnimationSpec.RigTimedAnimationHook.at(24, mob -> spawnNullBlackHoleChargeParticles(mob, 24)),
+                        RigAnimationSpec.RigTimedAnimationHook.at(28, mob -> {
+                            spawnNullBlackHoleChargeParticles(mob, 28);
+                            if (!(mob.level() instanceof ServerLevel)) return;
+                            mob.level().playSound(null, mob.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.HOSTILE, 0.7F, 0.7F);
+                            mob.level().playSound(null, mob.blockPosition(), AnnoyingVillagersModSounds.WHOOSH.get(), SoundSource.HOSTILE, 1.0F, 0.8F);
+                            spawnNullBlackHoleChargeParticles(mob, 28);
+                        }),
+                        RigAnimationSpec.RigTimedAnimationHook.at(30, mob -> {
+                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+                            LivingEntity target = getNullCombatTarget(mob);
+                            Vec3 spawnPosition = getNullBlackHoleSpawnPosition(serverLevel, mob, target);
+                            serverLevel.addFreshEntity(new BlackHoleEntity(serverLevel, mob, spawnPosition));
+                            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, spawnPosition.x, spawnPosition.y, spawnPosition.z, 48, 0.8D, 0.8D, 0.8D, 0.18D);
+                            serverLevel.sendParticles(AnnoyingVillagersModParticleTypes.NULL.get(), spawnPosition.x, spawnPosition.y, spawnPosition.z, 64, 1.4D, 1.4D, 1.4D, 0.12D);
+                            serverLevel.playSound(null, BlockPos.containing(spawnPosition), SoundEvents.WITHER_BREAK_BLOCK, SoundSource.HOSTILE, 1.0F, 0.5F);
+                        })
+                ),
+                RigAttackWindow.of(22, 38, RIGHT_ELBOW))
+                .criticalChance(0.3F)
+                .damageMultiplier(1.5F)
+                .dangerous()
+                .invulnerable()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.NULL_DASH_ATTACK, 34, false,
-                RigAttackWindow.of(5, 9),
-                RigAttackWindow.of(9, 22)));
+                RigAttackWindow.of(5, 9, RIGHT_ELBOW),
+                RigAttackWindow.of(9, 16, LEFT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.NULL_JUMP_ATTACK, 30, true,
-                emptyHooks(1, 7, 9, 10, 11),
-                RigAttackWindow.of(10, 18)));
+                        List.of(
+                                RigAnimationSpec.RigTimedAnimationHook.at(1, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                                    serverLevel.playSound(null, mob.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.HOSTILE, 0.7F, 0.7F);
+                                    serverLevel.playSound(null, mob.blockPosition(), AnnoyingVillagersModSounds.WHOOSH.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
+                                }),
+
+                                RigAnimationSpec.RigTimedAnimationHook.at(7, Mob::resetFallDistance),
+                                RigAnimationSpec.RigTimedAnimationHook.at(9, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                                    serverLevel.playSound(null, mob.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.HOSTILE, 0.7F, 0.7F);
+                                    serverLevel.playSound(null, mob.blockPosition(), AnnoyingVillagersModSounds.WHOOSH.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
+
+                                    for (int i = 0; i < 24; i++) {
+                                        double x = mob.getX() + (mob.getRandom().nextDouble() - 0.5D);
+                                        double y = mob.getY() + 2.2D;
+                                        double z = mob.getZ() + (mob.getRandom().nextDouble() - 0.5D);
+
+                                        double velocityX = (mob.getRandom().nextDouble() - 0.5D) * 0.05D;
+                                        double velocityY = -0.02D - mob.getRandom().nextDouble() * 0.06D;
+                                        double velocityZ = (mob.getRandom().nextDouble() - 0.5D) * 0.05D;
+
+                                        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, x, y, z, 0, velocityX, velocityY, velocityZ, 1.0D);
+                                    }
+                                }),
+
+                                RigAnimationSpec.RigTimedAnimationHook.at(10, Mob::resetFallDistance),
+
+                                RigAnimationSpec.RigTimedAnimationHook.at(11, mob -> {
+                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+                                    mob.resetFallDistance();
+
+                                    serverLevel.playSound(null, mob.blockPosition(), SoundEvents.WITHER_SHOOT, SoundSource.HOSTILE, 0.7F, 0.5F);
+                                    serverLevel.playSound(null, mob.blockPosition(), AnnoyingVillagersModSounds.BLUNT_HIT.get(), SoundSource.HOSTILE, 0.7F, 0.7F);
+
+                                    for (int i = 0; i < 80; i++) {
+                                        double angle = Math.PI * 2.0D * mob.getRandom().nextDouble();
+                                        double radius = 0.6D * (mob.getRandom().nextDouble() + 0.4D);
+
+                                        double offsetX = Math.cos(angle) * radius;
+                                        double offsetZ = Math.sin(angle) * radius;
+                                        double offsetY = (mob.getRandom().nextDouble() - 0.5D) * 0.06D;
+
+                                        double x = mob.getX() + offsetX;
+                                        double y = mob.getY() + 0.02D + offsetY;
+                                        double z = mob.getZ() + offsetZ;
+
+                                        serverLevel.sendParticles(
+                                                ParticleTypes.LARGE_SMOKE,
+                                                x, y, z,
+                                                0,
+                                                offsetX,
+                                                offsetY,
+                                                offsetZ,
+                                                0.8D
+                                        );
+                                    }
+                                })
+                        ),
+                        RigAttackWindow.of(10, 18, RIGHT_ELBOW, LEFT_ELBOW))
+                .criticalChance(0.8F)
+                .damageMultiplier(2.5F)
+                .invulnerable()
+        );
         put(RigAnimationSpec.attack(RigAnimationId.NULL_EXTRA_ATTACK, 20, false,
+                List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, mob -> {
+                    if (!(mob instanceof NullEntity nullEntity)) return;
+                    LivingEntity target = getNullCombatTarget(nullEntity);
+                    if (target != null) nullEntity.releaseRandomNullWeapon(target);
+                })),
                 RigAttackWindow.of(1, 4, LEFT_FIST)));
         put(RigAnimationSpec.attack(RigAnimationId.NULL_EXTRA_ULT, 57, false,
-                emptyHooks(30),
-                RigAttackWindow.of(10, 22),
-                RigAttackWindow.of(35, 46)));
+                RigAttackWindow.of(10, 22, RIGHT_ELBOW, LEFT_ELBOW),
+                RigAttackWindow.of(35, 46, RIGHT_ELBOW, LEFT_ELBOW)));
         put(RigAnimationSpec.attack(RigAnimationId.NULL_SKELETON_SPAWN, 59, false,
-                RigAttackWindow.of(13, 20),
-                RigAttackWindow.of(26, 32),
-                RigAttackWindow.of(35, 42)));
+                RigAttackWindow.of(13, 20, RIGHT_ELBOW, LEFT_ELBOW),
+                RigAttackWindow.of(26, 32, RIGHT_ELBOW, LEFT_ELBOW),
+                RigAttackWindow.of(35, 42, RIGHT_ELBOW, LEFT_ELBOW)));
 
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_MACHINE_GUN, 50, false,
                 emptyHooks(2),
@@ -1726,6 +1830,54 @@ public final class RigAnimationSpecs {
         List<RigAnimationSpec.RigTimedAnimationHook> hooks = new ArrayList<>(ticks.length);
         for (int tick : ticks) hooks.add(RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {}));
         return List.copyOf(hooks);
+    }
+
+
+    private static void spawnNullBlackHoleChargeParticles(Mob mob, int tick) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)) return;
+
+        Vec3 handPosition = RigPoseUtil.getRightHandPosition(mob, RigAnimationId.NULL_ATTACK5, tick);
+        double progress = Mth.clamp(tick / 36.0D, 0.0D, 1.0D);
+        double radius = Mth.lerp(progress, 5.0D, 1.25D);
+        int particles = 12 + (int)(progress * 12.0D);
+
+        for (int i = 0; i < particles; i++) {
+            double theta = Math.PI * 2.0D * mob.getRandom().nextDouble();
+            double phi = Math.acos(2.0D * mob.getRandom().nextDouble() - 1.0D);
+            double sinPhi = Math.sin(phi);
+            Vec3 offset = new Vec3(radius * sinPhi * Math.cos(theta), radius * Math.cos(phi), radius * sinPhi * Math.sin(theta));
+            Vec3 velocity = offset.scale(-0.12D - progress * 0.08D);
+            Vec3 particlePosition = handPosition.add(offset);
+
+            serverLevel.sendParticles(AnnoyingVillagersModParticleTypes.NULL.get(), particlePosition.x, particlePosition.y, particlePosition.z, 0, velocity.x, velocity.y, velocity.z, 1.0D);
+        }
+    }
+
+    private static Vec3 getNullBlackHoleSpawnPosition(ServerLevel serverLevel, Mob mob, LivingEntity target) {
+        Vec3 origin = RigPoseUtil.getRightHandPosition(mob, RigAnimationId.NULL_ATTACK5, 36);
+        Vec3 desiredPosition;
+
+        if (target != null && target.isAlive() && mob.distanceToSqr(target) <= 100.0D) {
+            desiredPosition = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
+        } else {
+            Vec3 look = mob.getLookAngle();
+            if (look.lengthSqr() <= 1.0E-7D) look = Vec3.directionFromRotation(0.0F, mob.yBodyRot);
+            desiredPosition = origin.add(look.normalize().scale(4.0D));
+        }
+
+        BlockHitResult hitResult = serverLevel.clip(new ClipContext(origin, desiredPosition, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mob));
+        if (hitResult.getType() != HitResult.Type.BLOCK) return desiredPosition;
+
+        Vec3 direction = desiredPosition.subtract(origin);
+        if (direction.lengthSqr() <= 1.0E-7D) return hitResult.getLocation();
+        return hitResult.getLocation().subtract(direction.normalize().scale(0.35D));
+    }
+
+    private static LivingEntity getNullCombatTarget(Mob mob) {
+        LivingEntity target = mob.getTarget();
+        if (target == null || !target.isAlive()) target = mob.getLastHurtMob();
+        if (target == null || !target.isAlive()) target = mob.getLastHurtByMob();
+        return target != null && target.isAlive() ? target : null;
     }
 
     private static void put(RigAnimationSpec spec) {

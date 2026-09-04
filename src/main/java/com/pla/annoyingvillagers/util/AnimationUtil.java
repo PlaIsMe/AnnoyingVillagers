@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.client.animation.rig_animation.legendary_sword.
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.HerobrineLivingAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.LivingAnimations;
 import com.pla.annoyingvillagers.client.animation.rig_animation.living.RunAnimations;
+import com.pla.annoyingvillagers.client.animation.rig_animation.null_herobrine.NullAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.reaper_herobrine.ReaperHerobrineAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.spear.SpearAnimations1;
 import com.pla.annoyingvillagers.client.animation.rig_animation.tachi.TachiAnimations1;
@@ -56,6 +57,7 @@ public class AnimationUtil {
             case TACHI -> TachiAnimations1.TACHI_IDLE;
             case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_IDLE;
             case AEGIS_HEROBRINE -> AegisHerobrineAnimations1.AEGIS_HEROBRINE_IDLE;
+            case NULL_HEROBRINE -> NullAnimations1.NULL_IDLE;
             case ELITE_HEROBRINE -> HerobrineLivingAnimations.ELITE_HOLD_WEAPON;
             case REAPER_HEROBRINE -> ReaperHerobrineAnimations1.REAPER_HEROBRINE_IDLE;
             default -> LivingAnimations.IDLE;
@@ -68,6 +70,7 @@ public class AnimationUtil {
             case GREATSWORD -> GreatswordAnimations1.GREATSWORD_WALK;
             case TACHI -> TachiAnimations1.TACHI_WALK;
             case LEGENDARY_SWORD, ELITE_HEROBRINE -> LegendarySwordAnimations1.LEGENDARY_SWORD_WALK;
+            case NULL_HEROBRINE -> NullAnimations1.NULL_WALK;
             default -> LivingAnimations.WALK;
         };
     }
@@ -80,6 +83,7 @@ public class AnimationUtil {
             case TACHI -> TachiAnimations1.TACHI_RUN;
             case LEGENDARY_SWORD -> LegendarySwordAnimations1.LEGENDARY_SWORD_RUN;
             case ELITE_HEROBRINE -> HerobrineLivingAnimations.ELITE_RUN_WEAPON;
+            case NULL_HEROBRINE -> NullAnimations1.NULL_RUN;
             default -> RunAnimations.RUN;
         };
     }

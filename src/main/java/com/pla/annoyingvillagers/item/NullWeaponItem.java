@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
+import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
@@ -11,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class NullWeaponItem extends SwordItem {
+public class NullWeaponItem extends SwordItem implements RigCombatProfileProvider {
 
     public NullWeaponItem() {
         super(new Tier() {
@@ -40,6 +42,11 @@ public class NullWeaponItem extends SwordItem {
                 );
             }
         }, 3, -3.0F, (new Properties()));
+    }
+
+    @Override
+    public RigCombatStyle getRigCombatStyle(ItemStack stack) {
+        return RigCombatStyle.NULL_HEROBRINE;
     }
 
     @Override

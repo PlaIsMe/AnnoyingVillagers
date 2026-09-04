@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.DangerousReaction;
+import com.pla.annoyingvillagers.entity.NullEntity;
 import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
@@ -13,6 +14,7 @@ import com.pla.annoyingvillagers.rig.RigCombatProfile;
 import com.pla.annoyingvillagers.rig.RigCombatProfiles;
 import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.RidingUtil;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -20,6 +22,7 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
 
@@ -35,6 +38,16 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     private int normalComboIndex;
     private Item lastWeaponItem;
     private RigAnimationId previousAnimation;
+
+    private int nullFlightModeTicks;
+    private int nullFlightSpeedTicks;
+    private boolean nullOrbiting;
+    private double nullOrbitAngle;
+    private double nullOrbitRadius = 3.5D;
+    private double nullOrbitHeight = 1.5D;
+    private double nullOrbitAngularSpeed = 0.13D;
+    private double nullBaseFlightSpeed = 2.6D;
+    private int nullOrbitDirection = 1;
 
     public RigAnimatedMeleeAttackGoal(PathfinderMob mob, double speedModifier, boolean followingTargetEvenIfNotSeen) {
         this.mob = mob;
@@ -60,6 +73,10 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
             this.path = null;
             return canStartAnyAttack(target, profile);
         }
+        if (this.mob instanceof NullEntity) {
+            this.path = null;
+            return true;
+        }
         this.path = RidingUtil.createNavigationPath(this.mob, target);
         return this.path != null || canStartAnyAttack(target, profile);
     }
@@ -74,6 +91,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         if (DangerousReaction.hasDangerousTarget(this.mob)) {
             return RigAnimationController.hasActiveAnimation(this.mob) || canStartAnyAttack(target, profile);
         }
+        if (this.mob instanceof NullEntity) return true;
         return this.followingTargetEvenIfNotSeen || !RidingUtil.isNavigationDone(this.mob) || RigAnimationController.hasActiveAnimation(this.mob) || canStartAnyAttack(target, profile);
     }
 
@@ -82,6 +100,10 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         if (this.path != null && !DangerousReaction.hasDangerousTarget(this.mob)) RidingUtil.moveToPath(this.mob, this.path, this.speedModifier);
         this.mob.setAggressive(true);
         this.ticksUntilNextPathRecalculation = 0;
+        if (this.mob instanceof NullEntity) {
+            this.nullFlightModeTicks = 0;
+            this.nullFlightSpeedTicks = 0;
+        }
     }
 
     @Override
@@ -147,6 +169,8 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
         RigAnimationId normal = profile.normalAt(this.normalComboIndex);
         if (!canStartAttack(target, normal)) {
+            RigAnimationId nullExtraAttack = this.selectNullExtraAttackWithoutApproach(target, profile);
+            if (nullExtraAttack != null) return nullExtraAttack;
             RigAnimationId closing = profile.pickClosingAttack(this.mob.getRandom(), this.previousAnimation);
             return closing != null && canStartAttack(target, closing) ? closing : null;
         }
@@ -155,6 +179,14 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         if (interrupt != null) return interrupt;
         this.normalComboIndex = (this.normalComboIndex + 1) % profile.normalAttacks().size();
         return normal;
+    }
+
+    private RigAnimationId selectNullExtraAttackWithoutApproach(LivingEntity target, RigCombatProfile profile) {
+        if (!(this.mob instanceof NullEntity)) return null;
+        if (!profile.ultimateAttacks().contains(RigAnimationId.NULL_EXTRA_ATTACK)) return null;
+        if (this.previousAnimation == RigAnimationId.NULL_EXTRA_ATTACK) return null;
+        if (this.mob.getRandom().nextDouble() >= profile.ultimateAttackChance()) return null;
+        return canStartAttack(target, RigAnimationId.NULL_EXTRA_ATTACK) ? RigAnimationId.NULL_EXTRA_ATTACK : null;
     }
 
     private RigAnimationId selectQueuedNormalAttack(LivingEntity target, RigCombatProfile profile) {
@@ -186,9 +218,92 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
             RidingUtil.stopNavigation(this.mob);
             return;
         }
+        if (this.mob instanceof NullEntity) {
+            this.tickNullCombatFlight(target);
+            return;
+        }
         if (--this.ticksUntilNextPathRecalculation > 0 && !RidingUtil.isNavigationDone(this.mob)) return;
         this.ticksUntilNextPathRecalculation = PATH_RECALCULATION_BASE_TICKS + this.mob.getRandom().nextInt(7);
         RidingUtil.moveTo(this.mob, target, this.speedModifier);
+    }
+
+    private void tickNullCombatFlight(LivingEntity target) {
+        RidingUtil.stopNavigation(this.mob);
+
+        Vec3 targetPosition = target.getEyePosition(1.0F);
+        Vec3 targetMovement = target.getDeltaMovement();
+        double distance = this.mob.position().distanceTo(targetPosition);
+        double verticalToTarget = targetPosition.y - this.mob.getY();
+
+        if (--this.nullFlightSpeedTicks <= 0) {
+            this.nullBaseFlightSpeed = 2.2D + this.mob.getRandom().nextDouble() * 1.7D;
+            this.nullFlightSpeedTicks = 12 + this.mob.getRandom().nextInt(25);
+        }
+
+        if (--this.nullFlightModeTicks <= 0) this.chooseNullFlightMode(target, distance);
+
+        if (distance > 9.0D || verticalToTarget < -2.0D) {
+            this.nullOrbiting = false;
+            this.nullFlightModeTicks = Math.min(this.nullFlightModeTicks, 12);
+        }
+
+        if (this.nullOrbiting && distance > 2.5D && distance < 10.0D) {
+            this.tickNullTargetOrbit(target);
+            return;
+        }
+
+        Vec3 predictedTarget = targetPosition.add(targetMovement.x * 2.5D, targetMovement.y * 1.25D, targetMovement.z * 2.5D);
+        double desiredVertical = predictedTarget.y - this.mob.getY();
+        double flightSpeed = this.nullBaseFlightSpeed;
+
+        if (desiredVertical < -1.0D) {
+            flightSpeed = Math.max(3.6D, flightSpeed + 1.1D + this.mob.getRandom().nextDouble() * 0.45D);
+        } else if (desiredVertical > 1.0D) {
+            flightSpeed = Math.min(1.9D, flightSpeed * 0.62D);
+        } else if (distance > 10.0D) {
+            flightSpeed += 0.65D;
+        }
+
+        if (this.mob instanceof NullEntity nullEntity && nullEntity.getState() >= 2) flightSpeed *= 1.15D;
+        flightSpeed = Mth.clamp(flightSpeed, 1.25D, 5.0D);
+        this.mob.getMoveControl().setWantedPosition(predictedTarget.x, predictedTarget.y, predictedTarget.z, flightSpeed);
+    }
+
+    private void chooseNullFlightMode(LivingEntity target, double distance) {
+        boolean canOrbit = distance > 3.0D && distance < 9.0D;
+        this.nullOrbiting = canOrbit && this.mob.getRandom().nextFloat() < 0.42F;
+
+        if (this.nullOrbiting) {
+            double dx = this.mob.getX() - target.getX();
+            double dz = this.mob.getZ() - target.getZ();
+            this.nullOrbitAngle = Math.atan2(dz, dx);
+            this.nullOrbitRadius = 2.75D + this.mob.getRandom().nextDouble() * 2.25D;
+            this.nullOrbitHeight = 0.75D + this.mob.getRandom().nextDouble() * 2.75D;
+            this.nullOrbitAngularSpeed = 0.10D + this.mob.getRandom().nextDouble() * 0.09D;
+            this.nullOrbitDirection = this.mob.getRandom().nextBoolean() ? 1 : -1;
+            this.nullFlightModeTicks = 16 + this.mob.getRandom().nextInt(25);
+        } else {
+            this.nullFlightModeTicks = 10 + this.mob.getRandom().nextInt(19);
+        }
+    }
+
+    private void tickNullTargetOrbit(LivingEntity target) {
+        if (this.mob.getRandom().nextInt(55) == 0) this.nullOrbitDirection = -this.nullOrbitDirection;
+        if (this.mob.getRandom().nextInt(45) == 0) this.nullOrbitRadius = 2.75D + this.mob.getRandom().nextDouble() * 2.25D;
+
+        this.nullOrbitAngle += this.nullOrbitAngularSpeed * this.nullOrbitDirection;
+
+        double x = target.getX() + Math.cos(this.nullOrbitAngle) * this.nullOrbitRadius;
+        double z = target.getZ() + Math.sin(this.nullOrbitAngle) * this.nullOrbitRadius;
+        double y = target.getEyeY() + this.nullOrbitHeight + Math.sin((this.mob.tickCount + this.mob.getId()) * 0.18D) * 0.55D;
+        double verticalDelta = y - this.mob.getY();
+        double orbitSpeed = this.nullBaseFlightSpeed * 0.72D;
+
+        if (verticalDelta > 0.75D) orbitSpeed = Math.min(1.8D, orbitSpeed);
+        if (verticalDelta < -0.75D) orbitSpeed = Math.max(3.0D, orbitSpeed + 0.8D);
+        if (this.mob instanceof NullEntity nullEntity && nullEntity.getState() >= 2) orbitSpeed *= 1.12D;
+
+        this.mob.getMoveControl().setWantedPosition(x, y, z, Mth.clamp(orbitSpeed, 1.2D, 4.25D));
     }
 
     private void repathToTargetWhileAttackLocked(LivingEntity target) {
@@ -241,6 +356,11 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
     private boolean canStartAttack(LivingEntity target, RigAnimationId animationId) {
         RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
-        return spec.damagesTarget() && RigColliderSystem.canStartAttack(this.mob, target, spec);
+        if (!spec.damagesTarget()) return false;
+        if (this.mob instanceof NullEntity) {
+            if (animationId == RigAnimationId.NULL_EXTRA_ATTACK) return RigColliderSystem.canStartAttackWithinDistance(this.mob, target, 24.0D);
+            return RigColliderSystem.canStartAttack3D(this.mob, target, spec);
+        }
+        return RigColliderSystem.canStartAttack(this.mob, target, spec);
     }
 }

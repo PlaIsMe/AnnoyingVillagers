@@ -311,11 +311,11 @@
   "tooltip.annoyingvillagers.jev_glasses": "Right click to equip.",
   "tooltip.annoyingvillagers.villager_head": "A tool for disguising as a villager.",
   "tooltip.annoyingvillagers.enchanted_bed": "Right click the Enchanted Bed once to set your respawn point. Upon death, you won't drop your items. You must right click it again after each use to reactivate the effect. Conflicts with the Totem of Undying.",
-  "tooltip.annoyingvillagers.transporter_fragment": "When in offhand: \u00a76Special Attack\u00a7r to summon one portal. Portal links pair as 1 <-> 2, 3 <-> 4, 5 <-> 6.\nWhen in mainhand: \u00a76Special Attack\u00a7r to summon 6 portals around you.\nWhen in mainhand: Hold \u00a76Special Attack\u00a7r to summon a transporter portal that teleports you and nearby entities to the saved waypoint.\nWhen in mainhand: Right click to save a waypoint. Shift + Right click to clear it.",
+  "tooltip.annoyingvillagers.transporter_fragment": "When in offhand: §6Special Attack§r to summon one portal. Portal links pair as 1 <-> 2, 3 <-> 4, 5 <-> 6.\nWhen in mainhand: §6Special Attack§r to summon 6 portals around you.\nWhen in mainhand: Hold §6Special Attack§r to summon a transporter portal that teleports you and nearby entities to the saved waypoint.\nWhen in mainhand: Right click to save a waypoint. Shift + Right click to clear it.",
   "tooltip.annoyingvillagers.inventory_viewer": "Right-click an Annoying Villagers NPC to inspect equipment and inventory.",
   "container.annoyingvillagers.inventory_viewer": "%s Inventory",
   "message.annoyingvillagers.inventory_viewer.unsupported": "That entity has no Annoying Villagers inventory.",
-  "tooltip.annoyingvillagers.hook_gun": "Right click to fire or retrieve the hook.\nHold the Hook Gun in one hand and the item to bind in the other, then use \u00a76Special Attack\u00a7r.\nCan bind tools, weapons, blocks, food, potions, buckets, bones, flint and steel, and more.",
+  "tooltip.annoyingvillagers.hook_gun": "Right click to fire or retrieve the hook.\nHold the Hook Gun in one hand and the item to bind in the other, then use §6Special Attack§r.\nCan bind tools, weapons, blocks, food, potions, buckets, bones, flint and steel, and more.",
   "tooltip.annoyingvillagers.advanced_fishing_rod": "Hook a block to pull yourself forward.\nHook an entity to pull it to you.\nShift + Right click: retract the hook without pulling or plunging.",
   "tooltip.annoyingvillagers.tony_the_fishing_rod": "Stronger grapple and pull power.\nHook a block to launch yourself farther.\nHook an entity to pull it to you with greater force.\nThe hook can temporarily carry an item and may stick to entities on the way back.\nShift + Right click: retract the hook without pulling or plunging.",
   "tooltip.annoyingvillagers.obsidian": "Obsidian Fired by Herobrine's Clone",
@@ -490,5 +490,6 @@
   "advancements.annoyingvillagers.shadow_herobrine.title": "He was as rude as ever",
   "advancements.annoyingvillagers.shadow_herobrine.description": "Destroy the Shadow Herobrine vessel",
   "advancement.tellmegodsbleed.title": "Tell me... do gods bleed?",
-  "advancement.tellmegodsbleed.description": "Make a God bleed"
+  "advancement.tellmegodsbleed.description": "Make a God bleed",
+  "entity.annoyingvillagers.black_hole": "Black Hole"
 }

@@ -14,31 +14,7 @@ import java.util.List;
 public class NullSwordItem extends SwordItem implements RigCombatProfileProvider {
 
     public NullSwordItem() {
-        super(new Tier() {
-            public int getUses() {
-                return 100;
-            }
-
-            public float getSpeed() {
-                return 4.0F;
-            }
-
-            public float getAttackDamageBonus() {
-                return 3.0F;
-            }
-
-            public int getLevel() {
-                return 1;
-            }
-
-            public int getEnchantmentValue() {
-                return 2;
-            }
-
-            public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of();
-            }
-        }, 3, -3.0F, (new Properties()));
+        super(Tiers.DIAMOND, 3, -2.4F, new Item.Properties());
     }
 
     @Override
