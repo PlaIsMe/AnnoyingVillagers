@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
-import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
+import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -14,7 +14,7 @@ public class PortalApproachGoal extends Goal {
     private static final String PORTAL_APPROACH_COOLDOWN_TAG = "AnnoyingVillagersPortalApproachCooldown";
     private static final int PORTAL_APPROACH_COOLDOWN_TICKS = 10 * 20;
     private final Mob mob;
-    private HerobrinePortalCombatUtil.PortalRoute route;
+    private HerobrineUtil.PortalRoute route;
 
     public PortalApproachGoal(Mob mob) {
         this.mob = mob;
@@ -32,7 +32,7 @@ public class PortalApproachGoal extends Goal {
             return false;
         }
 
-        HerobrinePortalCombatUtil.PortalRoute foundRoute = HerobrinePortalCombatUtil.findRouteToTarget(this.mob, target);
+        HerobrineUtil.PortalRoute foundRoute = HerobrineUtil.findRouteToTarget(this.mob, target);
         if (foundRoute == null) {
             return false;
         }
@@ -62,7 +62,7 @@ public class PortalApproachGoal extends Goal {
             return false;
         }
 
-        HerobrinePortalCombatUtil.PortalRoute foundRoute = HerobrinePortalCombatUtil.findRouteToTarget(this.mob, target);
+        HerobrineUtil.PortalRoute foundRoute = HerobrineUtil.findRouteToTarget(this.mob, target);
         if (foundRoute == null) {
             return false;
         }

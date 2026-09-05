@@ -41,4 +41,4 @@ Aegis registers `EliteHerobrineSecondFormGoal` for `AEGIS_HEROBRINE_ULT` while h
 
 ## Death / Portal Behavior
 
-On death Aegis creates `EliteHerobrineKnockedEntity` with the Ender Aegis identity and can notify Greg through the existing protection flow. Because Aegis extends `HerobrineMob`, it also inherits common Herobrine portal-approach behavior.
+On death Aegis creates `EliteHerobrineKnockedEntity` with the Ender Aegis identity and can notify Greg through the existing protection flow. Aegis does not inherit a common `PortalApproachGoal`; Greg/Transporter support portals are placed into Aegis's existing combat movement when Aegis is a valid supported ally.

@@ -2,11 +2,18 @@ package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
-import com.pla.annoyingvillagers.entity.goal.HerobrinePortalCombatGoal;
+import com.pla.annoyingvillagers.clazz.HerobrinePortalSupportCaster;
+import com.pla.annoyingvillagers.entity.goal.HerobrineLowCloneSupportGoal;
+import com.pla.annoyingvillagers.entity.goal.HerobrineProjectileCounterPortalGoal;
+import com.pla.annoyingvillagers.entity.goal.HerobrineSupportApproachPortalGoal;
+import com.pla.annoyingvillagers.entity.goal.HerobrineSupportEscapePortalGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalUtil;
@@ -45,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumSet;
 import java.util.UUID;
 
-public class TransporterHerobrineCloneEntity extends HerobrineMob {
+public class TransporterHerobrineCloneEntity extends HerobrineMob implements HerobrinePortalSupportCaster {
     private static final int MAX_COMBAT_LOW_CLONE_SUPPORT = 3;
     private static final float TRANSPORTER_FRAGMENT_DROP_CHANCE = 0.1F;
     private static final float FISHING_HOOK_ESCAPE_CANCEL_CHANCE = 0.3F;
@@ -68,10 +75,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
     private int escapeRetryCooldown = 0;
     private int supportAvoidRepathCooldown = 0;
     private int lowCloneSupportCooldown = 0;
-    private int portalPairCooldown = 0;
-    private int rangedCounterPortalCooldown = 0;
-    private int supportEscapePortalCooldown = 0;
-    private int portalEscapeStepBackCooldown = 0;
+    private int portalActionCooldown = 0;
     private boolean fishingHookCancelledEscape = false;
     private boolean hookedWaitingForGround = false;
     private boolean hookedLeftGround = false;
@@ -91,6 +95,8 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
         this.setCustomNameVisible(false);
         this.setChatName(this.getDisplayName().getString());
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get()));
+        this.portalActionCooldown = randomCooldownSeconds(20, 45);
+        this.lowCloneSupportCooldown = randomCooldownSeconds(90, 180);
     }
 
     @Override
@@ -173,52 +179,29 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
         return minSeconds * 20 + this.getRandom().nextInt((maxSeconds - minSeconds) * 20 + 1);
     }
 
+    @Override
     public int getLowCloneSupportCooldown() {
-        return lowCloneSupportCooldown;
+        return this.lowCloneSupportCooldown;
     }
 
+    @Override
     public void setLowCloneSupportCooldown() {
         this.lowCloneSupportCooldown = randomCooldownSeconds(90, 180);
     }
 
-    public int getPortalPairCooldown() {
-        return portalPairCooldown;
+    @Override
+    public int getPortalActionCooldown() {
+        return this.portalActionCooldown;
     }
 
-    public void setPortalPairCooldown() {
-        this.portalPairCooldown = randomCooldownSeconds(30, 60);
-    }
-
-    public int getRangedCounterPortalCooldown() {
-        return rangedCounterPortalCooldown;
-    }
-
-    public void setRangedCounterPortalCooldown() {
-        this.rangedCounterPortalCooldown = randomCooldownSeconds(30, 60);
-    }
-
-    public int getSupportEscapePortalCooldown() {
-        return supportEscapePortalCooldown;
-    }
-
-    public void setSupportEscapePortalCooldown() {
-        this.supportEscapePortalCooldown = randomCooldownSeconds(30, 60);
-    }
-
-    public int getPortalEscapeStepBackCooldown() {
-        return portalEscapeStepBackCooldown;
-    }
-
-    public void setPortalEscapeStepBackCooldown() {
-        this.portalEscapeStepBackCooldown = randomCooldownSeconds(30, 60);
+    @Override
+    public void setPortalActionCooldown() {
+        this.portalActionCooldown = randomCooldownSeconds(20, 45);
     }
 
     private void tickCombatActionCooldowns() {
         if (this.lowCloneSupportCooldown > 0) this.lowCloneSupportCooldown--;
-        if (this.portalPairCooldown > 0) this.portalPairCooldown--;
-        if (this.rangedCounterPortalCooldown > 0) this.rangedCounterPortalCooldown--;
-        if (this.supportEscapePortalCooldown > 0) this.supportEscapePortalCooldown--;
-        if (this.portalEscapeStepBackCooldown > 0) this.portalEscapeStepBackCooldown--;
+        if (this.portalActionCooldown > 0) this.portalActionCooldown--;
     }
 
     @Override
@@ -239,7 +222,10 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(-1, new HerobrinePortalCombatGoal(this));
+        this.goalSelector.addGoal(-5, new HerobrineSupportEscapePortalGoal(this));
+        this.goalSelector.addGoal(-4, new HerobrineProjectileCounterPortalGoal(this));
+        this.goalSelector.addGoal(-3, new HerobrineSupportApproachPortalGoal(this));
+        this.goalSelector.addGoal(-2, new HerobrineLowCloneSupportGoal(this));
         this.goalSelector.addGoal(2, new SafeCombatPositionGoal());
     }
 
@@ -287,8 +273,29 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
         this.startEscape();
     }
 
+    @Override
     public boolean canUseSupportPortalAction() {
         return this.escapeTiming < 0 && !this.isNoAi();
+    }
+
+    @Override
+    public Mob getPortalSupportMob() {
+        return this;
+    }
+
+    @Override
+    public boolean canSupportPortalAlly(LivingEntity ally) {
+        return ally instanceof HerobrineMob || ally instanceof LowHerobrineCloneEntity || ally instanceof LowShadowHerobrineCloneEntity;
+    }
+
+    @Override
+    public void playPortalSupportAnimation(RigAnimationId animationId, @Nullable LivingEntity lookTarget) {
+//      ADD THIS CODE IN AV_EFM
+//        PORTAL_SUMMON -> AnimsSculkSteve.PORTAL_SUMMON
+//        POINT_LEFT_HAND_TOWARD -> AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP
+
+        if (lookTarget != null && lookTarget.isAlive()) this.getLookControl().setLookAt(lookTarget, 30.0F, 30.0F);
+        RigAnimationController.play(this, RigAnimationSpecs.get(animationId), lookTarget);
     }
 
     public boolean canSummonLowCloneSupport() {
@@ -305,10 +312,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
     }
 
     public void playSecondFormSupportCast(LivingEntity support) {
-        if (support != null && support.isAlive()) {
-            this.getLookControl().setLookAt(support, 30.0F, 30.0F);
-        }
-        this.playPortalSummonAnimation();
+        this.playPortalSupportAnimation(RigAnimationId.POINT_LEFT_HAND_MIDDLE, support);
     }
 
     public boolean canFishingHookCancelEscape() {
@@ -338,23 +342,6 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
 
     private void cancelPortalSummonAnimation() {
         // Vanilla portal feedback is instant, so there is no long-running animation state to cancel.
-    }
-
-    public void triggerRangedCounterRetreat(@Nullable LivingEntity threat) {
-        if (threat == null || !threat.isAlive()) {
-            return;
-        }
-
-        this.getLookControl().setLookAt(threat, 30.0F, 30.0F);
-        this.setTarget(null);
-        this.supportAvoidRepathCooldown = 0;
-        Vec3 retreatPos = this.findSupportRetreatPosition(threat);
-        if (retreatPos == null) {
-            return;
-        }
-
-        this.getNavigation().moveTo(retreatPos.x, retreatPos.y, retreatPos.z, SUPPORT_AVOID_MOVE_SPEED);
-        this.supportAvoidRepathCooldown = SUPPORT_AVOID_REPATH_TICKS;
     }
 
     @Nullable
@@ -630,11 +617,8 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
         this.escapeRetryCooldown = compoundTag.contains("TransporterEscapeRetryCooldown") ? compoundTag.getInt("TransporterEscapeRetryCooldown") : 0;
         this.supportAvoidRepathCooldown = compoundTag.contains("SupportAvoidRepathCooldown") ? compoundTag.getInt("SupportAvoidRepathCooldown") : 0;
         this.fishingHookCancelledEscape = compoundTag.getBoolean("FishingHookCancelledEscape");
-        this.lowCloneSupportCooldown = compoundTag.getInt("LowCloneSupportCooldown");
-        this.portalPairCooldown = compoundTag.getInt("PortalPairCooldown");
-        this.rangedCounterPortalCooldown = compoundTag.getInt("RangedCounterPortalCooldown");
-        this.supportEscapePortalCooldown = compoundTag.getInt("SupportEscapePortalCooldown");
-        this.portalEscapeStepBackCooldown = compoundTag.getInt("PortalEscapeStepBackCooldown");
+        this.lowCloneSupportCooldown = compoundTag.contains("LowCloneSupportCooldown") ? compoundTag.getInt("LowCloneSupportCooldown") : randomCooldownSeconds(90, 180);
+        this.portalActionCooldown = compoundTag.contains("PortalActionCooldown") ? compoundTag.getInt("PortalActionCooldown") : randomCooldownSeconds(20, 45);
         this.hookedWaitingForGround = compoundTag.getBoolean("HookedWaitingForGround");
         this.hookedLeftGround = compoundTag.getBoolean("HookedLeftGround");
         this.setHooked(compoundTag.getBoolean("Hooked"));
@@ -659,10 +643,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob {
         compoundTag.putInt("SupportAvoidRepathCooldown", this.supportAvoidRepathCooldown);
         compoundTag.putBoolean("FishingHookCancelledEscape", this.fishingHookCancelledEscape);
         compoundTag.putInt("LowCloneSupportCooldown", this.lowCloneSupportCooldown);
-        compoundTag.putInt("PortalPairCooldown", this.portalPairCooldown);
-        compoundTag.putInt("RangedCounterPortalCooldown", this.rangedCounterPortalCooldown);
-        compoundTag.putInt("SupportEscapePortalCooldown", this.supportEscapePortalCooldown);
-        compoundTag.putInt("PortalEscapeStepBackCooldown", this.portalEscapeStepBackCooldown);
+        compoundTag.putInt("PortalActionCooldown", this.portalActionCooldown);
         compoundTag.putBoolean("Hooked", this.isHooked());
         compoundTag.putBoolean("HookedWaitingForGround", this.hookedWaitingForGround);
         compoundTag.putBoolean("HookedLeftGround", this.hookedLeftGround);

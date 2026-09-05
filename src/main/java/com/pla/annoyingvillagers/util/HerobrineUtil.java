@@ -12,6 +12,21 @@ import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.init.*;
 import com.pla.annoyingvillagers.network.ClientboundEliteHerobrineFx;
 import com.pla.annoyingvillagers.task.DelayedTask;
+import com.pla.annoyingvillagers.clazz.DangerousReaction;
+import com.pla.annoyingvillagers.clazz.HerobrinePortalSupportCaster;
+import com.pla.annoyingvillagers.clazz.NullWeapon;
+import com.pla.annoyingvillagers.item.TransporterFragmentItem;
+import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -1533,4 +1548,788 @@ public class HerobrineUtil {
             level.addFreshEntity(entity);
         }
     }
+
+    // Portal routing helpers moved into HerobrineUtil from the legacy portal combat utility.
+    private static final double WALK_ENTRANCE_RADIUS = 32.0D;
+    private static final double WALK_EXIT_TARGET_RADIUS = 14.0D;
+    private static final double PROJECTILE_ENTRANCE_RADIUS = 24.0D;
+    private static final double PROJECTILE_EXIT_TARGET_RADIUS = 18.0D;
+    private static final double COUNTER_BOW_MIN_TARGET_DISTANCE_SQR = 4.0D * 4.0D;
+    private static final double COUNTER_BOW_AIM_DOT_THRESHOLD = 0.9D;
+
+    public record PortalRoute(PortalEntity entrance, PortalEntity exit) {
+    }
+
+    private record BowCounterThreat(LivingEntity attacker, LivingEntity target) {
+    }
+
+    public static boolean isHerobrineSide(Entity entity) {
+        return entity instanceof HerobrineMob
+                || entity instanceof HerobrineGregEntity
+                || entity instanceof LowHerobrineCloneEntity
+                || entity instanceof LowShadowHerobrineCloneEntity
+                || entity instanceof NullWeapon;
+    }
+
+    public static boolean isEnemyOf(LivingEntity caster, LivingEntity entity) {
+        return entity != caster
+                && entity.isAlive()
+                && !entity.isSpectator()
+                && !(entity instanceof Player player && player.isCreative())
+                && !entity.isAlliedTo(caster)
+                && !caster.isAlliedTo(entity)
+                && !isHerobrineSide(entity);
+    }
+
+    public static boolean canUsePortalApproach(Mob mob) {
+        if (!isHerobrineSide(mob)) {
+            return false;
+        }
+        if (mob instanceof HerobrineDragonEntity) {
+            return false;
+        }
+        if (mob.isPassenger() && mob.getVehicle() instanceof HerobrineDragonEntity) {
+            return false;
+        }
+        return !(mob instanceof NullWeapon nullWeapon) || nullWeapon.isReleased();
+    }
+
+    public static boolean canUsePortalOwnedBy(LivingEntity user, @Nullable UUID ownerUuid) {
+        if (ownerUuid == null || ownerUuid.equals(user.getUUID())) {
+            return true;
+        }
+        if (!(user.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+
+        Entity owner = serverLevel.getEntity(ownerUuid);
+        return owner != null && isHerobrineSide(user) && isHerobrineSide(owner);
+    }
+
+    @Nullable
+    public static PortalRoute findRouteToTarget(Mob mob, LivingEntity target) {
+        if (!canUsePortalApproach(mob)) {
+            return null;
+        }
+        return findRouteNearEntity(mob, target, WALK_ENTRANCE_RADIUS, WALK_EXIT_TARGET_RADIUS, true);
+    }
+
+    @Nullable
+    public static Vec3 getProjectilePortalAim(Entity shooter, LivingEntity target) {
+        PortalRoute route = findRouteNearEntity(shooter, target, PROJECTILE_ENTRANCE_RADIUS, PROJECTILE_EXIT_TARGET_RADIUS, false);
+        return route == null ? null : route.entrance().getPortalCenter();
+    }
+
+    @Nullable
+    private static PortalRoute findRouteNearEntity(Entity source, LivingEntity target, double entranceRadius, double exitRadius, boolean walkingRoute) {
+        if (!(source.level() instanceof ServerLevel) || target == null || !target.isAlive()) {
+            return null;
+        }
+        if (walkingRoute && source instanceof Mob mob && !canUsePortalApproach(mob)) {
+            return null;
+        }
+
+        AABB searchBox = source.getBoundingBox().inflate(entranceRadius);
+        Vec3 sourceCenter = source.position().add(0.0D, source.getBbHeight() * 0.5D, 0.0D);
+        Vec3 targetCenter = entityCenter(target);
+        double directTargetDistance = sourceCenter.distanceToSqr(targetCenter);
+        PortalRoute bestRoute = null;
+        double bestScore = Double.MAX_VALUE;
+
+        for (PortalEntity portal : source.level().getEntitiesOfClass(PortalEntity.class, searchBox)) {
+            if (!isUsablePortalFor(source, portal)) {
+                continue;
+            }
+
+            PortalEntity linkedPortal = portal.getLinkedPortal();
+            if (linkedPortal == null || !isUsablePortalFor(source, linkedPortal)) {
+                continue;
+            }
+
+            double exitDistance = linkedPortal.getPortalCenter().distanceToSqr(targetCenter);
+            if (exitDistance > exitRadius * exitRadius) {
+                continue;
+            }
+
+            double entranceDistance = portal.getPortalCenter().distanceToSqr(sourceCenter);
+            if (walkingRoute && entranceDistance >= directTargetDistance) {
+                continue;
+            }
+
+            double score = walkingRoute ? exitDistance + entranceDistance * 0.35D : entranceDistance + exitDistance * 0.35D;
+            if (score < bestScore) {
+                bestScore = score;
+                bestRoute = new PortalRoute(portal, linkedPortal);
+            }
+        }
+
+        return bestRoute;
+    }
+
+    private static boolean isUsablePortalFor(Entity user, PortalEntity portal) {
+        if (portal == null || portal.isRemoved() || !portal.isAlive()) {
+            return false;
+        }
+
+        UUID ownerUuid = portal.getOwnerUUID();
+        if (ownerUuid == null || ownerUuid.equals(user.getUUID())) {
+            return true;
+        }
+        if (!(user.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+
+        Entity owner = serverLevel.getEntity(ownerUuid);
+        if (owner == null) {
+            return false;
+        }
+        if (user instanceof HerobrineDragonEntity) {
+            return isHerobrineSide(owner);
+        }
+        return isHerobrineSide(user) && isHerobrineSide(owner);
+    }
+
+    public static List<LivingEntity> findSupportHerobrines(LivingEntity caster, double radius) {
+        AABB searchBox = caster.getBoundingBox().inflate(radius);
+        List<LivingEntity> candidates = caster.level().getEntitiesOfClass(LivingEntity.class, searchBox, entity ->
+                entity != caster
+                        && entity.isAlive()
+                        && isHerobrineSide(entity)
+                        && !(entity instanceof HerobrineGregEntity)
+        );
+
+        candidates.sort(Comparator.comparingDouble(caster::distanceToSqr));
+        return candidates;
+    }
+
+    public static boolean hasNearbyPortalGroup(LivingEntity anchor, @Nullable UUID ownerUuid, int requiredCount, double radius) {
+        if (requiredCount <= 0) return true;
+        return findNearbyPortalGroup(anchor, ownerUuid, requiredCount, radius) != null;
+    }
+
+    @Nullable
+    public static UUID findNearbyPortalGroup(LivingEntity anchor, @Nullable UUID ownerUuid, int requiredCount, double radius) {
+        if (anchor == null || requiredCount <= 0) return null;
+
+        Map<UUID, Integer> portalGroupCounts = new HashMap<>();
+        for (PortalEntity portal : anchor.level().getEntitiesOfClass(PortalEntity.class, anchor.getBoundingBox().inflate(radius))) {
+            if (portal.isRemoved() || !portal.isAlive() || portal.tickCount >= PortalEntity.LIFETIME_TICKS) continue;
+
+            UUID portalGroupUuid = portal.getPortalGroupUUID();
+            if (portalGroupUuid == null) continue;
+            if (ownerUuid != null && !ownerUuid.equals(portal.getOwnerUUID())) continue;
+
+            int count = portalGroupCounts.merge(portalGroupUuid, 1, Integer::sum);
+            if (count >= requiredCount) return portalGroupUuid;
+        }
+        return null;
+    }
+
+    @Nullable
+    public static LivingEntity findEnemyForSupport(LivingEntity support, @Nullable LivingEntity fallback, double radius) {
+        if (support instanceof Mob mob && mob.getTarget() != null && isEnemyOf(support, mob.getTarget())) {
+            return mob.getTarget();
+        }
+        if (fallback != null && isEnemyOf(support, fallback)) {
+            return fallback;
+        }
+        return findNearestEnemy(support, radius);
+    }
+
+    @Nullable
+    public static LivingEntity findThreateningEnemy(LivingEntity caster, @Nullable LivingEntity support, double radius) {
+        LivingEntity recentThreat = chooseNearestThreat(caster, support, radius,
+                caster.getLastHurtByMob(),
+                support != null ? support.getLastHurtByMob() : null);
+        if (recentThreat != null) {
+            return recentThreat;
+        }
+
+        LivingEntity targetedThreat = chooseNearestThreat(caster, support, radius,
+                caster instanceof Mob mob ? mob.getTarget() : null,
+                support instanceof Mob mob ? mob.getTarget() : null);
+        if (targetedThreat != null) {
+            return targetedThreat;
+        }
+
+        BowCounterThreat rangedThreat = findBowCounterThreat(caster, support, radius);
+        if (rangedThreat != null) {
+            return rangedThreat.attacker();
+        }
+
+        AABB searchBox = support == null
+                ? caster.getBoundingBox().inflate(radius)
+                : caster.getBoundingBox().minmax(support.getBoundingBox()).inflate(radius);
+        return caster.level().getEntitiesOfClass(LivingEntity.class, searchBox, entity -> isThreateningEnemy(caster, support, entity, radius))
+                .stream()
+                .min(Comparator.comparingDouble(entity -> threatDistanceSqr(caster, support, entity)))
+                .orElse(null);
+    }
+
+    @Nullable
+    private static LivingEntity findNearestEnemy(LivingEntity caster, double radius) {
+        if (caster instanceof Mob mob && mob.getTarget() != null && isEnemyOf(caster, mob.getTarget())) {
+            return mob.getTarget();
+        }
+
+        AABB searchBox = caster.getBoundingBox().inflate(radius);
+        return caster.level().getEntitiesOfClass(LivingEntity.class, searchBox, entity -> isEnemyOf(caster, entity))
+                .stream()
+                .min(Comparator.comparingDouble(caster::distanceToSqr))
+                .orElse(null);
+    }
+
+    @Nullable
+    private static LivingEntity chooseNearestThreat(LivingEntity caster, @Nullable LivingEntity support, double radius, @Nullable LivingEntity first, @Nullable LivingEntity second) {
+        LivingEntity best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (LivingEntity candidate : new LivingEntity[]{first, second}) {
+            if (candidate == null || !isThreatCandidate(caster, support, candidate, radius)) {
+                continue;
+            }
+            double distance = threatDistanceSqr(caster, support, candidate);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                best = candidate;
+            }
+        }
+        return best;
+    }
+
+    private static boolean isThreatCandidate(LivingEntity caster, @Nullable LivingEntity support, LivingEntity candidate, double radius) {
+        if (!(isEnemyOf(caster, candidate) || support != null && isEnemyOf(support, candidate))) {
+            return false;
+        }
+        double radiusSqr = radius * radius;
+        return threatDistanceSqr(caster, support, candidate) <= radiusSqr;
+    }
+
+    private static boolean isThreateningEnemy(LivingEntity caster, @Nullable LivingEntity support, LivingEntity candidate, double radius) {
+        if (!isThreatCandidate(caster, support, candidate, radius)) {
+            return false;
+        }
+        if (isBowCounterThreat(caster, support, candidate, radius)) {
+            return true;
+        }
+        if (candidate instanceof Mob mob) {
+            return mob.getTarget() == caster || support != null && mob.getTarget() == support;
+        }
+        return false;
+    }
+
+    private static double threatDistanceSqr(LivingEntity caster, @Nullable LivingEntity support, LivingEntity entity) {
+        double distance = caster.distanceToSqr(entity);
+        if (support != null) {
+            distance = Math.min(distance, support.distanceToSqr(entity));
+        }
+        return distance;
+    }
+
+    private static Vec3 entityCenter(Entity entity) {
+        return new Vec3(entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ());
+    }
+
+    @Nullable
+    private static BowCounterThreat findBowCounterThreat(LivingEntity caster, @Nullable LivingEntity support, double radius) {
+        AABB searchBox = caster.getBoundingBox().inflate(radius);
+        BowCounterThreat bestThreat = null;
+        double bestCasterDistance = Double.MAX_VALUE;
+        double bestTargetDistance = Double.MAX_VALUE;
+
+        for (LivingEntity attacker : caster.level().getEntitiesOfClass(LivingEntity.class, searchBox, entity -> isPotentialBowCounterAttacker(caster, entity))) {
+            LivingEntity target = resolveBowCounterTarget(caster, support, attacker, radius);
+            if (target == null) {
+                continue;
+            }
+
+            double casterDistance = caster.distanceToSqr(attacker);
+            double targetDistance = attacker.distanceToSqr(target);
+            if (bestThreat == null
+                    || casterDistance < bestCasterDistance
+                    || casterDistance == bestCasterDistance && targetDistance < bestTargetDistance) {
+                bestThreat = new BowCounterThreat(attacker, target);
+                bestCasterDistance = casterDistance;
+                bestTargetDistance = targetDistance;
+            }
+        }
+
+        return bestThreat;
+    }
+
+    private static boolean isPotentialBowCounterAttacker(LivingEntity caster, LivingEntity attacker) {
+        return attacker != caster
+                && attacker.isAlive()
+                && isEnemyOf(caster, attacker)
+                && hasBowReady(attacker);
+    }
+
+    private static boolean hasBowReady(LivingEntity attacker) {
+        return attacker.getMainHandItem().getItem() instanceof BowItem
+                || attacker.getOffhandItem().getItem() instanceof BowItem
+                || attacker.getUseItem().getItem() instanceof BowItem;
+    }
+
+    private static boolean isBowCounterThreat(LivingEntity caster, @Nullable LivingEntity support, LivingEntity attacker, double radius) {
+        return resolveBowCounterTarget(caster, support, attacker, radius) != null;
+    }
+
+    @Nullable
+    private static LivingEntity resolveBowCounterTarget(LivingEntity caster, @Nullable LivingEntity support, LivingEntity attacker, double radius) {
+        if (!isPotentialBowCounterAttacker(caster, attacker)) {
+            return null;
+        }
+
+        if (attacker instanceof Mob mob) {
+            LivingEntity mobTarget = mob.getTarget();
+            if (isValidBowCounterTarget(caster, support, attacker, mobTarget)) {
+                return mobTarget;
+            }
+        }
+
+        AABB searchBox = attacker.getBoundingBox().inflate(radius);
+        LivingEntity bestTarget = null;
+        double bestAim = COUNTER_BOW_AIM_DOT_THRESHOLD;
+        double bestDistance = Double.MAX_VALUE;
+        Vec3 look = attacker.getLookAngle();
+        if (look.lengthSqr() < 1.0E-4D) {
+            return null;
+        }
+        look = look.normalize();
+
+        for (LivingEntity candidate : attacker.level().getEntitiesOfClass(LivingEntity.class, searchBox, entity -> isValidBowCounterTarget(caster, support, attacker, entity))) {
+            Vec3 direction = entityCenter(candidate).subtract(attacker.getEyePosition());
+            if (direction.lengthSqr() < 1.0E-4D) {
+                continue;
+            }
+
+            double aimDot = look.dot(direction.normalize());
+            double distance = attacker.distanceToSqr(candidate);
+            if (aimDot > bestAim || aimDot == bestAim && distance < bestDistance) {
+                bestTarget = candidate;
+                bestAim = aimDot;
+                bestDistance = distance;
+            }
+        }
+
+        return bestTarget;
+    }
+
+    private static boolean isValidBowCounterTarget(LivingEntity caster, @Nullable LivingEntity support, LivingEntity attacker, @Nullable LivingEntity target) {
+        if (target == null || !target.isAlive()) {
+            return false;
+        }
+        if (!(target == caster
+                || target == support
+                || isSupportedPortalDefenseTarget(caster, target))) {
+            return false;
+        }
+        return attacker.hasLineOfSight(target)
+                && attacker.distanceToSqr(target) >= COUNTER_BOW_MIN_TARGET_DISTANCE_SQR;
+    }
+
+    private static boolean isSupportedPortalDefenseTarget(LivingEntity caster, LivingEntity target) {
+        return target == caster
+                || target instanceof HerobrineMob
+                || target instanceof LowHerobrineCloneEntity
+                || target instanceof LowShadowHerobrineCloneEntity;
+    }
+
+    // Greg/Transporter support helpers moved into HerobrineUtil from the legacy support portal utility.
+    public static final double SUPPORT_SEARCH_RADIUS = 48.0D;
+    public static final double APPROACH_MIN_DISTANCE = 12.0D;
+    private static final double COUNTER_SEARCH_RADIUS = SUPPORT_SEARCH_RADIUS + 24.0D;
+    private static final double COUNTER_MIN_ATTACK_DISTANCE = 6.0D;
+    private static final double COUNTER_AIM_DOT = 0.94D;
+
+    public static boolean canSpawnPortalPair(HerobrinePortalSupportCaster supportCaster) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        return caster.level() instanceof ServerLevel serverLevel && TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, caster, 2);
+    }
+
+    public static List<LivingEntity> findSupportedHerobrines(HerobrinePortalSupportCaster supportCaster, double radius) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        AABB searchBox = caster.getBoundingBox().inflate(radius);
+        return caster.level().getEntitiesOfClass(LivingEntity.class, searchBox, ally -> ally != caster && ally.isAlive() && !ally.isRemoved() && supportCaster.canSupportPortalAlly(ally) && !isRidingHerobrineDragon(ally)).stream().sorted(Comparator.comparingDouble(caster::distanceToSqr)).toList();
+    }
+
+    @Nullable
+    public static LivingEntity findDangerousReactionSupport(HerobrinePortalSupportCaster supportCaster) {
+        for (LivingEntity support : findSupportedHerobrines(supportCaster, SUPPORT_SEARCH_RADIUS)) {
+            if (support instanceof Mob mob && DangerousReaction.isPerformingDangerousReaction(mob)) return support;
+        }
+        return null;
+    }
+
+    public static boolean spawnDangerousReactionSupportPortal(HerobrinePortalSupportCaster supportCaster, LivingEntity support) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        if (!(caster.level() instanceof ServerLevel serverLevel) || support == null || !support.isAlive() || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, caster, 2)) return false;
+
+        Vec3 entrance = getMovementEntrancePosition(support, support instanceof Mob mob ? mob.getTarget() : null, 1.35D, true);
+        Vec3 exit = findSafeSurfaceAround(serverLevel, caster, caster, 2.5D, 5.0D, null);
+        if (entrance == null || exit == null) return false;
+        return TransporterFragmentItem.spawnLinkedPortalPair(serverLevel, caster, entrance, exit) > 0;
+    }
+
+    @Nullable
+    public static ApproachPortalPlan findApproachPortalPlan(HerobrinePortalSupportCaster supportCaster) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        if (!(caster.level() instanceof ServerLevel serverLevel)) return null;
+
+        ApproachPortalPlan best = null;
+        double bestDistance = APPROACH_MIN_DISTANCE * APPROACH_MIN_DISTANCE;
+        for (LivingEntity support : findSupportedHerobrines(supportCaster, SUPPORT_SEARCH_RADIUS)) {
+            if (!(support instanceof Mob supportMob) || DangerousReaction.isPerformingDangerousReaction(supportMob)) continue;
+            LivingEntity target = supportMob.getTarget();
+            if (target == null || !target.isAlive() || target.isRemoved() || !isEnemyOf(caster, target)) continue;
+
+            double distance = support.distanceToSqr(target);
+            if (distance < bestDistance) continue;
+
+            Vec3 entrance = getMovementEntrancePosition(support, target, 1.75D, false);
+            Vec3 exit = findSafeTargetPortalPosition(serverLevel, support, target);
+            if (entrance == null || exit == null) continue;
+
+            bestDistance = distance;
+            best = new ApproachPortalPlan(support, target, entrance, exit);
+        }
+        return best;
+    }
+
+    public static boolean spawnApproachPortal(HerobrinePortalSupportCaster supportCaster, ApproachPortalPlan plan) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        if (!(caster.level() instanceof ServerLevel serverLevel) || plan == null || !plan.support().isAlive() || !plan.target().isAlive() || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, caster, 2)) return false;
+        Vec3 entrance = getMovementEntrancePosition(plan.support(), plan.target(), 1.75D, false);
+        Vec3 exit = findSafeTargetPortalPosition(serverLevel, plan.support(), plan.target());
+        if (entrance == null || exit == null) return false;
+        return TransporterFragmentItem.spawnLinkedPortalPair(serverLevel, caster, entrance, exit) > 0;
+    }
+
+    @Nullable
+    public static ProjectileCounterPlan findProjectileCounterPlan(HerobrinePortalSupportCaster supportCaster) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        List<LivingEntity> supports = findSupportedHerobrines(supportCaster, SUPPORT_SEARCH_RADIUS);
+        if (supports.isEmpty()) return null;
+
+        ProjectileCounterPlan arrowPlan = findFlyingArrowCounterPlan(caster, supports);
+        if (arrowPlan != null) return arrowPlan;
+        return findBowAimCounterPlan(caster, supports);
+    }
+
+    public static boolean spawnProjectileCounterPortal(HerobrinePortalSupportCaster supportCaster, ProjectileCounterPlan plan) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        if (!(caster.level() instanceof ServerLevel serverLevel) || plan == null || !plan.attacker().isAlive() || !plan.support().isAlive() || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, caster, 2)) return false;
+
+        Vec3 entrance = plan.arrow() != null && plan.arrow().isAlive() ? getArrowEntrance(plan.arrow(), plan.support()) : getCounterEntrance(plan.attacker(), plan.support());
+        Vec3 exit = getCounterExitBehindAttacker(plan.attacker(), plan.support());
+        if (entrance == null || exit == null) return false;
+        return TransporterFragmentItem.spawnLinkedPortalPair(serverLevel, caster, entrance, exit) > 0;
+    }
+
+    public static boolean spawnSelfDangerousReactionPortal(HerobrinePortalSupportCaster supportCaster) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        if (!(caster.level() instanceof ServerLevel serverLevel) || !TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, caster, 2)) return false;
+
+        LivingEntity target = caster.getTarget();
+        Vec3 away = target == null ? backwardFromYaw(caster) : horizontalDirection(caster.position().subtract(target.position()));
+        if (away.lengthSqr() < 1.0E-6D) away = backwardFromYaw(caster);
+        Vec3 entrance = caster.position().add(away.scale(1.55D));
+        Vec3 exit = findSafeSurfaceAround(serverLevel, caster, caster, 14.0D, 24.0D, target);
+        if (exit == null) return false;
+        return TransporterFragmentItem.spawnLinkedPortalPair(serverLevel, caster, entrance, exit) > 0;
+    }
+
+    public static boolean canSummonLowCloneSupport(HerobrinePortalSupportCaster supportCaster) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        return supportCaster.canUseSupportPortalAction() && caster.onGround() && supportCaster.getLowCloneSupportCooldown() <= 0 && supportCaster.hasAvailableCombatLowCloneSupportSlot() && findLowCloneSupportPlan(supportCaster) != null;
+    }
+
+    public static boolean summonLowCloneSupport(HerobrinePortalSupportCaster supportCaster) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        if (!(caster.level() instanceof ServerLevel serverLevel)) return false;
+        LowCloneSupportPlan plan = findLowCloneSupportPlan(supportCaster);
+        if (plan == null) return false;
+
+        int available = supportCaster.getAvailableCombatLowCloneSupportSlotCount();
+        int count = Math.min(1 + caster.getRandom().nextInt(3), available);
+        int spawned = 0;
+        for (int i = 0; i < count && supportCaster.hasAvailableCombatLowCloneSupportSlot(); i++) {
+            if (spawnCombatLowClone(serverLevel, supportCaster, plan.anchor(), plan.enemy())) spawned++;
+        }
+        if (spawned <= 0) return false;
+
+        supportCaster.markPortalSupport();
+        supportCaster.setLowCloneSupportCooldown();
+        return true;
+    }
+
+
+
+    @Nullable
+    private static LowCloneSupportPlan findLowCloneSupportPlan(HerobrinePortalSupportCaster supportCaster) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        for (LivingEntity support : findSupportedHerobrines(supportCaster, SUPPORT_SEARCH_RADIUS)) {
+            if (!(support instanceof Mob supportMob)) continue;
+            LivingEntity enemy = supportMob.getTarget();
+            if (enemy != null && enemy.isAlive() && !enemy.isRemoved() && isEnemyOf(caster, enemy)) return new LowCloneSupportPlan(support, enemy);
+        }
+
+        if (caster instanceof TransporterHerobrineCloneEntity) {
+            LivingEntity ownTarget = caster.getTarget();
+            if (ownTarget != null && ownTarget.isAlive() && !ownTarget.isRemoved() && isEnemyOf(caster, ownTarget)) return new LowCloneSupportPlan(caster, ownTarget);
+
+            LivingEntity nearbyEnemy = findEnemyForSupport(caster, null, SUPPORT_SEARCH_RADIUS);
+            if (nearbyEnemy != null && nearbyEnemy.isAlive() && !nearbyEnemy.isRemoved() && isEnemyOf(caster, nearbyEnemy)) return new LowCloneSupportPlan(caster, nearbyEnemy);
+        }
+        return null;
+    }
+
+    private static boolean spawnCombatLowClone(ServerLevel serverLevel, HerobrinePortalSupportCaster supportCaster, LivingEntity anchor, LivingEntity enemy) {
+        Mob caster = supportCaster.getPortalSupportMob();
+        Vec3 spawn = findSafeSurfaceAround(serverLevel, caster, anchor, 2.5D, 8.0D, enemy);
+        if (spawn == null) return false;
+
+        Mob clone = caster.getRandom().nextBoolean() ? new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), serverLevel) : new LowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(), serverLevel);
+        clone.moveTo(spawn.x, spawn.y, spawn.z, caster.getYRot(), caster.getXRot());
+        if (!serverLevel.noCollision(clone)) return false;
+
+        configureCombatLowClone(clone);
+        equipLowCloneGear(clone, caster.getRandom());
+        clone.setTarget(enemy);
+        clone.lookAt(EntityAnchorArgument.Anchor.EYES, enemy.getEyePosition());
+        clone.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(clone.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+        if (!serverLevel.addFreshEntity(clone)) return false;
+        if (!supportCaster.claimCombatLowCloneSupportSlot(clone)) {
+            clone.discard();
+            return false;
+        }
+
+        TeamUtil.addOrJoinTeam(clone, "herobrine");
+        AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> clone), new ClientboundHerobrinePortalFx(spawn));
+        return true;
+    }
+
+    private static void configureCombatLowClone(Mob clone) {
+        if (clone instanceof LowHerobrineCloneEntity lowClone) {
+            lowClone.setSummoned(true);
+            lowClone.setRenderPortal(false);
+        } else if (clone instanceof LowShadowHerobrineCloneEntity lowShadowClone) {
+            lowShadowClone.setSummoned(true);
+            lowShadowClone.setRenderPortal(false);
+        }
+    }
+
+    private static void equipLowCloneGear(Mob clone, RandomSource random) {
+        if (random.nextFloat() < 0.3F) clone.setItemSlot(EquipmentSlot.HEAD, damageRandomly(new ItemStack(AnnoyingVillagersModItems.BROKEN_DIAMOND_HELMET.get()), random));
+        if (random.nextFloat() < 0.3F) clone.setItemSlot(EquipmentSlot.CHEST, damageRandomly(new ItemStack(AnnoyingVillagersModItems.BROKEN_DIAMOND_CHESTPLATE.get()), random));
+        if (random.nextFloat() < 0.3F) clone.setItemSlot(EquipmentSlot.LEGS, damageRandomly(new ItemStack(AnnoyingVillagersModItems.BROKEN_DIAMOND_LEGGINGS.get()), random));
+        if (random.nextFloat() < 0.3F) clone.setItemSlot(EquipmentSlot.FEET, damageRandomly(new ItemStack(AnnoyingVillagersModItems.BROKEN_DIAMOND_BOOTS.get()), random));
+        clone.setItemSlot(EquipmentSlot.MAINHAND, damageRandomly(new ItemStack(HerobrineGregEntity.listWeapons.get(random.nextInt(HerobrineGregEntity.listWeapons.size()))), random));
+    }
+
+    private static ItemStack damageRandomly(ItemStack stack, RandomSource random) {
+        if (!stack.isDamageableItem()) return stack;
+        int maxDamage = stack.getMaxDamage();
+        stack.setDamageValue(random.nextInt(Math.max(1, maxDamage / 3), Math.max(2, maxDamage * 3 / 4)));
+        return stack;
+    }
+
+    @Nullable
+    private static ProjectileCounterPlan findFlyingArrowCounterPlan(Mob caster, List<LivingEntity> supports) {
+        AABB searchBox = caster.getBoundingBox().inflate(COUNTER_SEARCH_RADIUS);
+        for (AbstractArrow arrow : caster.level().getEntitiesOfClass(AbstractArrow.class, searchBox, arrow -> arrow.isAlive() && arrow.getDeltaMovement().lengthSqr() > 1.0E-5D)) {
+            if (!(arrow.getOwner() instanceof LivingEntity attacker) || !isEnemyOf(caster, attacker)) continue;
+            Vec3 velocity = arrow.getDeltaMovement();
+            if (velocity.lengthSqr() < 1.0E-5D) continue;
+            Vec3 direction = velocity.normalize();
+            for (LivingEntity support : supports) {
+                Vec3 toSupport = supportEntityCenter(support).subtract(arrow.position());
+                double along = toSupport.dot(direction);
+                if (along <= 1.0D || along > 24.0D) continue;
+                Vec3 closest = arrow.position().add(direction.scale(along));
+                if (closest.distanceToSqr(supportEntityCenter(support)) <= 2.25D) return new ProjectileCounterPlan(attacker, support, arrow);
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private static ProjectileCounterPlan findBowAimCounterPlan(Mob caster, List<LivingEntity> supports) {
+        AABB searchBox = caster.getBoundingBox().inflate(COUNTER_SEARCH_RADIUS);
+        ProjectileCounterPlan best = null;
+        double bestDistance = Double.MAX_VALUE;
+
+        for (LivingEntity attacker : caster.level().getEntitiesOfClass(LivingEntity.class, searchBox, entity -> entity != caster && entity.isAlive() && isEnemyOf(caster, entity) && hasSupportBowReady(entity))) {
+            Vec3 look = attacker.getLookAngle();
+            if (look.lengthSqr() < 1.0E-5D) continue;
+            look = look.normalize();
+
+            for (LivingEntity support : supports) {
+                if (!attacker.hasLineOfSight(support) || attacker.distanceToSqr(support) < COUNTER_MIN_ATTACK_DISTANCE * COUNTER_MIN_ATTACK_DISTANCE) continue;
+                Vec3 direction = supportEntityCenter(support).subtract(attacker.getEyePosition());
+                if (direction.lengthSqr() < 1.0E-5D || look.dot(direction.normalize()) < COUNTER_AIM_DOT) continue;
+                double distance = attacker.distanceToSqr(support);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = new ProjectileCounterPlan(attacker, support, null);
+                }
+            }
+        }
+        return best;
+    }
+
+    private static boolean hasSupportBowReady(LivingEntity entity) {
+        return entity.getMainHandItem().getItem() instanceof BowItem || entity.getOffhandItem().getItem() instanceof BowItem || entity.getUseItem().getItem() instanceof BowItem;
+    }
+
+    @Nullable
+    private static Vec3 getArrowEntrance(AbstractArrow arrow, LivingEntity support) {
+        Vec3 velocity = arrow.getDeltaMovement();
+        if (velocity.lengthSqr() < 1.0E-5D) return null;
+        Vec3 direction = velocity.normalize();
+        Vec3 toSupport = supportEntityCenter(support).subtract(arrow.position());
+        double along = Math.max(1.0D, Math.min(4.0D, toSupport.dot(direction) * 0.35D));
+        return arrow.position().add(direction.scale(along));
+    }
+
+    @Nullable
+    private static Vec3 getCounterEntrance(LivingEntity attacker, LivingEntity support) {
+        Vec3 from = supportEntityCenter(attacker);
+        Vec3 to = supportEntityCenter(support);
+        Vec3 direction = to.subtract(from);
+        if (direction.lengthSqr() < 1.0E-5D) return null;
+        Vec3 pos = from.add(direction.scale(0.62D));
+        return new Vec3(pos.x, Math.max(attacker.getY(), support.getY()), pos.z);
+    }
+
+    @Nullable
+    private static Vec3 getCounterExitBehindAttacker(LivingEntity attacker, LivingEntity support) {
+        Vec3 direction = horizontalDirection(support.position().subtract(attacker.position()));
+        if (direction.lengthSqr() < 1.0E-5D) return null;
+        Vec3 behind = attacker.position().subtract(direction.scale(2.5D));
+        return new Vec3(behind.x, attacker.getY(), behind.z);
+    }
+
+    @Nullable
+    private static Vec3 getMovementEntrancePosition(LivingEntity support, @Nullable LivingEntity target, double distance, boolean allowAwayMovement) {
+        Vec3 targetDirection = target == null ? Vec3.ZERO : horizontalDirection(target.position().subtract(support.position()));
+        Vec3 movement = horizontalDirection(support.getDeltaMovement());
+        Vec3 direction = movement;
+        if (direction.lengthSqr() < 1.0E-5D || !allowAwayMovement && targetDirection.lengthSqr() > 1.0E-5D && direction.dot(targetDirection) < 0.15D) direction = targetDirection;
+        if (direction.lengthSqr() < 1.0E-5D && target != null) direction = targetDirection;
+        if (direction.lengthSqr() < 1.0E-5D) direction = forwardFromYaw(support);
+        if (direction.lengthSqr() < 1.0E-5D) return null;
+        Vec3 pos = support.position().add(direction.scale(distance));
+        return new Vec3(pos.x, support.getY(), pos.z);
+    }
+
+    @Nullable
+    private static Vec3 findSafeTargetPortalPosition(ServerLevel serverLevel, LivingEntity portalUser, LivingEntity target) {
+        double offset = 2.0D;
+        double referenceX = target.getX();
+        double referenceZ = target.getZ();
+        float referenceYaw = target.yHeadRot;
+        double sin = Math.sin(Math.toRadians(referenceYaw));
+        double cos = Math.cos(Math.toRadians(referenceYaw));
+        int minY = serverLevel.getMinBuildHeight() + 1;
+        int maxY = serverLevel.getMaxBuildHeight() - 2;
+        int baseY = Mth.clamp(target.blockPosition().getY(), minY, maxY);
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+
+        for (int tries = 0; tries < 10 && offset > 0.25D; tries++, offset -= 0.25D) {
+            double x = referenceX + offset * sin;
+            double z = referenceZ - offset * cos;
+            mutable.set(Mth.floor(x), baseY, Mth.floor(z));
+            if (!serverLevel.isLoaded(mutable)) continue;
+
+            int scan = 0;
+            while (scan++ < 12 && mutable.getY() > minY) {
+                BlockPos belowPos = mutable.below();
+                BlockState below = serverLevel.getBlockState(belowPos);
+                if (below.isFaceSturdy(serverLevel, belowPos, Direction.UP) && !below.is(Blocks.VOID_AIR)) break;
+                mutable.move(0, -1, 0);
+            }
+
+            BlockPos belowPos = mutable.below();
+            BlockState below = serverLevel.getBlockState(belowPos);
+            BlockState feet = serverLevel.getBlockState(mutable);
+            BlockState head = serverLevel.getBlockState(mutable.above());
+            boolean solidBelow = below.isFaceSturdy(serverLevel, belowPos, Direction.UP) && !below.is(Blocks.VOID_AIR);
+            boolean freeFeet = feet.isAir() || feet.getBlock() instanceof BushBlock;
+            boolean freeHead = head.isAir() || head.getBlock() instanceof BushBlock;
+            if (!solidBelow || !freeFeet || !freeHead) continue;
+
+            Vec3 candidate = new Vec3(mutable.getX() + 0.5D, mutable.getY(), mutable.getZ() + 0.5D);
+            if (serverLevel.noCollision(portalUser, portalUser.getBoundingBox().move(candidate.subtract(portalUser.position())).deflate(1.0E-4D))) return candidate;
+        }
+        return null;
+    }
+
+    @Nullable
+    private static Vec3 findSafeSurfaceAround(ServerLevel serverLevel, LivingEntity portalUser, LivingEntity anchor, double minDistance, double maxDistance, @Nullable LivingEntity avoid) {
+        RandomSource random = portalUser.getRandom();
+        Vec3 best = null;
+        double bestAvoidDistance = -1.0D;
+
+        for (int attempt = 0; attempt < 24; attempt++) {
+            double angle = random.nextDouble() * Math.PI * 2.0D;
+            double distance = minDistance + random.nextDouble() * Math.max(0.01D, maxDistance - minDistance);
+            double x = anchor.getX() + Math.cos(angle) * distance;
+            double z = anchor.getZ() + Math.sin(angle) * distance;
+            int y = serverLevel.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mth.floor(x), Mth.floor(z));
+            BlockPos pos = BlockPos.containing(x, y, z);
+            if (!isSafeSurface(serverLevel, portalUser, pos)) continue;
+
+            Vec3 candidate = new Vec3(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
+            if (avoid == null) return candidate;
+            double avoidDistance = candidate.distanceToSqr(avoid.position());
+            if (avoidDistance > bestAvoidDistance) {
+                bestAvoidDistance = avoidDistance;
+                best = candidate;
+            }
+        }
+        return best;
+    }
+
+    private static boolean isSafeSurface(ServerLevel serverLevel, LivingEntity portalUser, BlockPos pos) {
+        if (!serverLevel.isLoaded(pos) || !serverLevel.getWorldBorder().isWithinBounds(pos)) return false;
+        BlockState below = serverLevel.getBlockState(pos.below());
+        BlockState feet = serverLevel.getBlockState(pos);
+        BlockState head = serverLevel.getBlockState(pos.above());
+        if (!below.isFaceSturdy(serverLevel, pos.below(), Direction.UP) || below.is(Blocks.VOID_AIR)) return false;
+        if (!(feet.isAir() || feet.getBlock() instanceof BushBlock) || !(head.isAir() || head.getBlock() instanceof BushBlock)) return false;
+        Vec3 candidate = new Vec3(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
+        return serverLevel.noCollision(portalUser, portalUser.getBoundingBox().move(candidate.subtract(portalUser.position())).deflate(1.0E-4D));
+    }
+
+    private static boolean isRidingHerobrineDragon(Entity entity) {
+        return entity.isPassenger() && entity.getVehicle() instanceof HerobrineDragonEntity;
+    }
+
+    private static Vec3 supportEntityCenter(Entity entity) {
+        return new Vec3(entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ());
+    }
+
+    private static Vec3 horizontalDirection(Vec3 vector) {
+        Vec3 flattened = new Vec3(vector.x, 0.0D, vector.z);
+        return flattened.lengthSqr() < 1.0E-6D ? Vec3.ZERO : flattened.normalize();
+    }
+
+    private static Vec3 forwardFromYaw(LivingEntity entity) {
+        double yaw = Math.toRadians(entity.getYRot());
+        return new Vec3(-Math.sin(yaw), 0.0D, Math.cos(yaw));
+    }
+
+    private static Vec3 backwardFromYaw(LivingEntity entity) {
+        return forwardFromYaw(entity).scale(-1.0D);
+    }
+
+    public record ApproachPortalPlan(LivingEntity support, LivingEntity target, Vec3 entrance, Vec3 exit) {
+    }
+
+    public record ProjectileCounterPlan(LivingEntity attacker, LivingEntity support, @Nullable AbstractArrow arrow) {
+    }
+
+    private record LowCloneSupportPlan(LivingEntity anchor, LivingEntity enemy) {
+    }
+
 }

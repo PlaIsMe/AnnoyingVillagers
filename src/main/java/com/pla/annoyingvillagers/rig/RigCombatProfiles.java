@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.rig;
 
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 
@@ -890,12 +891,11 @@ public final class RigCombatProfiles {
         }
 
         if (mainHand.getItem() instanceof SwordItem) {
-            if (offHand.getItem() instanceof SwordItem) {
-                return getProfile(RigCombatStyle.DUAL_BASIC);
-            }
+            if (offHand.getItem() instanceof SwordItem) return getProfile(RigCombatStyle.DUAL_BASIC);
             return getProfile(RigCombatStyle.BASIC);
         }
 
+        if (mainHand.getItem() instanceof AxeItem) return getProfile(RigCombatStyle.AXE);
         return getProfile(RigCombatStyle.UNARMED);
     }
 }

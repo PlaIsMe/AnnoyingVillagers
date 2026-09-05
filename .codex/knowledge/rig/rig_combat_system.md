@@ -102,6 +102,14 @@ A hand-action system that must not overlap melee should first refuse to begin wh
 
 `RigAnimatedMeleeAttackGoal` paths while no rig attack is active, uses collider/motion-derived attack-start distance, and lets active animation movement/collision drive the action once playback begins.
 
+### Herobrine and low-clone profile integration
+
+`CommonGoals.supportsRigCombat(...)` currently accepts `AVNpc`, `HerobrineMob`, `BlueDemonEntity`, `LowHerobrineCloneEntity`, and `LowShadowHerobrineCloneEntity`. The two low clones are explicit because they do not inherit from `HerobrineMob`; without those explicit cases they fall back to vanilla `MeleeAttackGoal` and appear to have no native Rig attack behavior.
+
+The low-clone classes also need nonzero base `ATTACK_DAMAGE`; both currently use 5.0D. Equipment then resolves normally through `RigCombatProfiles`: empty/non-profile -> `UNARMED`, one ordinary sword -> `BASIC`, two ordinary swords -> `DUAL_BASIC`, ordinary axe -> `AXE`, and a `RigCombatProfileProvider` item -> its custom profile.
+
+`TransporterHerobrineCloneEntity` is the intentional exception. `CommonGoals.registerGoalForHostileNpc(...)` skips normal Rig shield/melee registration for Transporter because it is a support caster with `ATTACK_DAMAGE = 0.0D`. Do not remove this exclusion as a generic Rig-combat fix.
+
 
 ### Blue Demon profile integration
 
@@ -206,7 +214,7 @@ Current migrated users:
 
 - Aegis: `AEGIS_HEROBRINE_ULT`, whose hook calls the Ender Aegis shield shot.
 - Glaive: `GLAIVE_HEROBRINE_ULT` / `GLAIVE_HEROBRINE_EXTRA_ULT`, whose hooks spawn vacuum slices.
-- Swordsman: `SWORDMAN_HEROBRINE_ULT` / `SWORDMAN_HEROBRINE_EXTRA_ULT`, whose start hooks call `DemoniacVoltageReaverItem.tryStartSnakeAnimation(..., false/true)`.
+- Swordsman: `SWORDSMAN_HEROBRINE_ULT` / `SWORDSMAN_HEROBRINE_EXTRA_ULT`, whose start hooks call `DemoniacVoltageReaverItem.tryStartSnakeAnimation(..., false/true)`.
 - Sledgehammer: `SLEDGEHAMMER_HEROBRINE_ULT` applies Ground Stuck on successful rig hits; EXTRA ULT emits four expanding smoke-wave rings.
 - Reaper: dynamic POINT_LEFT_HAND selection based on which thunder/healing/meteorite dragon is currently usable.
 

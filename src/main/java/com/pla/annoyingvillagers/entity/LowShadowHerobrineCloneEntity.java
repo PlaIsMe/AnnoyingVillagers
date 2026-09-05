@@ -239,6 +239,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
     }
 
     public boolean hurt(@NotNull DamageSource damageSource, float f) {
+        if (damageSource.is(DamageTypes.FALL)) return super.hurt(damageSource, f);
         if (sacrificing || healing) {
             if (new Random().nextBoolean()
                     && this.level() instanceof ServerLevel serverLevel) {
@@ -257,7 +258,6 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                 }
             }
         }
-        if (damageSource.is(DamageTypes.FALL)) return false;
         if (damageSource.is(DamageTypes.CACTUS)) return false;
         if (damageSource.is(DamageTypes.WITHER)) return false;
         if (damageSource.is(DamageTypes.DROWN)) return false;
@@ -725,7 +725,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
         builder = builder.add(Attributes.MOVEMENT_SPEED, 0.3D);
         builder = builder.add(Attributes.MAX_HEALTH, 40.0D);
         builder = builder.add(Attributes.ARMOR, 25.0D);
-        builder = builder.add(Attributes.ATTACK_DAMAGE, 0.0D);
+        builder = builder.add(Attributes.ATTACK_DAMAGE, 5.0D);
         builder = builder.add(Attributes.FOLLOW_RANGE, 24.0D);
         return builder;
     }

@@ -1437,7 +1437,7 @@ public final class RigAnimationSpecs {
                 groundSlamHook(7, RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ATTACK,
                         1.4D, 0.7D, 35, 0.7D, 2.0D),
                 RigAttackWindow.of(7, 18, RIGHT_GREATSWORD)));
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.SWORDSMAN_HEROBRINE_ULT, 82, RigAnimationPlaybackType.DEFAULT,
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.SWORDSMAN_HEROBRINE_ULT, 82, RigAnimationPlaybackType.UPPER_BODY,
                         hookAt(0, mob -> {
                             DemoniacVoltageReaverItem.tryStartSnakeAnimation(mob.getMainHandItem(), mob, false);
                             if (mob instanceof HerobrineMob herobrineMob) {
@@ -1446,7 +1446,7 @@ public final class RigAnimationSpecs {
                         }))
                 .dangerous()
                 .invulnerable());
-        put(RigAnimationSpec.nonDamaging(RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT, 81, RigAnimationPlaybackType.DEFAULT,
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT, 81, RigAnimationPlaybackType.UPPER_BODY,
                         hookAt(0, mob -> {
                             DemoniacVoltageReaverItem.tryStartSnakeAnimation(mob.getMainHandItem(), mob, true);
                             if (mob instanceof HerobrineMob herobrineMob) {

@@ -18,7 +18,7 @@
 - `src/main/java/com/pla/annoyingvillagers/rig/RigColliderSystem.java`
 - `src/main/java/com/pla/annoyingvillagers/util/AnimationUtil.java`
 - `src/main/java/com/pla/annoyingvillagers/clazz/HerobrineMob.java`
-- `src/main/java/com/pla/annoyingvillagers/util/HerobrinePortalCombatUtil.java`
+- `src/main/java/com/pla/annoyingvillagers/util/HerobrineUtil.java`
 
 ## Native Rig Combat Profile
 

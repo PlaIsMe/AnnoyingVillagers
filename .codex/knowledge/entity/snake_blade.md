@@ -126,6 +126,12 @@ The post-hit delay exists so a normal no-portal hit does not chain or discard so
 - for `PortalEntity`, it returns `portal.getPortalCenter()`
 - for other entities, it returns the body midpoint: entity x/z and `entity.getY() + entity.getBbHeight() * 0.5D`
 
+These center points are a legacy behavior invariant. Do not replace them with `PortalEntity.getSnakeBladeAnchor()` and do not subtract a generic `1.0D` Y offset from living targets. Doing that pushes normal target rays toward/below the floor, which can break long-distance chain LOS checks and make a blade reach portal A but fail to find the continuation from linked portal B.
+
+`PortalEntity` legacy geometry is `WIDTH = 2.2F` and `HEIGHT = 3.0F`. Do not reduce the live portal height to `2.2F`: `getPortalCenter()` and the Snake Blade portal-chain origin depend on the entity height, so shortening the portal shifts chain geometry downward and can make portal-exit LOS/continuation fail.
+
+Do not "fix" Snake Blade range by changing the established search radii. The compatibility values remain 16 blocks for the initial normal living-target scan, 64 blocks for portal targeting/search, 14 blocks for a living target after a portal exit, and 12 blocks for the ordinary next living-target chain. Geometry/LOS regressions should be fixed at the center/origin calculation instead.
+
 `updateMovementAndAttack` moves toward the current target center, or toward the active guard target if there is no target. Delta movement is set to half of the vector from current position to the target position.
 
 Portals are not damaged. If the target is not a portal, the code is server-side, and progress is at max extension, `tryAttackTarget` can damage the target.
@@ -217,6 +223,8 @@ The touched list is used so the snake blade does not attack or enter the same po
 In `render`, the renderer gets `fromEntity = snakeBladeEntity.getRenderFromEntity()`. If missing, it returns. It interpolates the snake blade position, computes progress from `prevProgress` and current progress, and uses `DemoniacVoltageReaverItem.getToolTipPos` to start the chain at the weapon tooltip when possible.
 
 If the tooltip position is unavailable, it uses `getPositionOfPriorMob`. That method returns `portal.getPortalCenter()` when the prior entity is a `PortalEntity`, which is the rendering hook that makes a child chain emerge from the portal center after portal travel.
+
+The non-EpicFight `DemoniacVoltageReaverItem.getToolTipPos(...)` fallback must return `null` for non-`LivingEntity` origins such as a `PortalEntity` or prior `SnakeBladeEntity`. The old Epic Fight joint lookup naturally returned no tooltip for those entities. Returning a generic body position for every Entity bypasses `getPositionOfPriorMob` and changes the legacy portal/chain rendering path.
 
 Guard chains render straighter. Non-guard chains render with a deterministic wavy path based on snake blade id, from id, and target id. The renderer draws chain fragment cubes, then draws the blade head when `hasBlade()` or `isRetracting()` is true.
 

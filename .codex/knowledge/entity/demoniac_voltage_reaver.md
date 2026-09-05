@@ -8,18 +8,21 @@
 - `src/main/java/com/pla/annoyingvillagers/entity/SwordsmanHerobrineEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/rig/RigAnimationSpecs.java`
 - `src/main/java/com/pla/annoyingvillagers/util/RigPoseUtil.java`
-- `src/main/java/com/pla/annoyingvillagers/util/HerobrinePortalCombatUtil.java`
+- `src/main/java/com/pla/annoyingvillagers/util/HerobrineUtil.java`
 
 ## Current Swordsman Entry Point
 
-`SwordsmanHerobrineEntity` equips `DEMONIAC_VOLTAGE_REAVER` and registers a rig second-form goal for `SWORDMAN_HEROBRINE_ULT` / `SWORDMAN_HEROBRINE_EXTRA_ULT`.
+`SwordsmanHerobrineEntity` equips `DEMONIAC_VOLTAGE_REAVER` and registers a Rig second-form goal for `SWORDSMAN_HEROBRINE_ULT` / `SWORDSMAN_HEROBRINE_EXTRA_ULT`.
 
-The current rig hooks call:
+The normal ULT hook no longer requests Greg to create portals in the same tick. Its tick-0 hook only calls `DemoniacVoltageReaverItem.tryStartSnakeAnimation(stack, swordsman, false)` and consumes the second-form action budget. The old request line is intentionally left commented in source.
 
-- `DemoniacVoltageReaverItem.tryStartSnakeAnimation(stack, swordsman, false)` for ULT;
-- `DemoniacVoltageReaverItem.tryStartSnakeAnimation(stack, swordsman, true)` for EXTRA ULT.
+Greg independently prepares a six-portal group through `HerobrineGregSixPortalSupportGoal` when Greg's current support is his linked Swordsman in state 2 and the shared 20-40 second portal-action cooldown is ready. Greg plays `PORTAL_SUMMON`, creates the portal batch at animation tick 20, and stores that group as the preferred portal target.
 
-Do not document `HerobrineCommon.playSecondFormAnimation` or `AVAnimations.SNAKE_BLADE` as the current Swordsman second-form entry point. Those are legacy Epic Fight-era flow descriptions.
+When `EliteHerobrineSecondFormGoal` sees a ready six-portal group and its normal cooldown/action checks are ready, it forces `SWORDSMAN_HEROBRINE_ULT`; `SWORDSMAN_HEROBRINE_EXTRA_ULT` is not selected for that prepared six-portal follow-up. Normal ULT may start only while the Swordsman's current target is within 12 blocks, leaving margin inside the 16-block Snake Blade living-target scan radius.
+
+The EXTRA ULT still calls `tryStartSnakeAnimation(stack, swordsman, true)`.
+
+All live portal ownership/routing helpers now live in `HerobrineUtil`.
 
 ## tryStartSnakeAnimation
 
@@ -37,7 +40,7 @@ Do not document `HerobrineCommon.playSecondFormAnimation` or `AVAnimations.SNAKE
 
 `process` selects the preferred/closest usable portal first. If no portal route is available, it searches living targets within `TARGET_SEARCH_RADIUS = 16.0D`.
 
-The living-target filter rejects allies, spectators, creative players, non-player/non-mob entities, and targets without line of sight. Portal search uses the broader portal target range and `HerobrinePortalCombatUtil.canUsePortalOwnedBy(...)` for Herobrine-side ownership rules.
+The living-target filter rejects allies, spectators, creative players, non-player/non-mob entities, and targets without line of sight. Portal search uses the broader portal target range and `HerobrineUtil.canUsePortalOwnedBy(...)` for Herobrine-side ownership rules.
 
 ## processGuard()
 

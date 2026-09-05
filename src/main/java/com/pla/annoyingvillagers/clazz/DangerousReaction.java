@@ -30,14 +30,25 @@ public interface DangerousReaction {
     int PLACE_BLOCK_INITIAL_DELAY = 1;
     int PLACE_BLOCK_LAYER_INTERVAL = 3;
     int PLACE_BLOCK_LANE_INTERVAL = 2;
+    String NBT_DANGEROUS_REACTION_TICK = "RigDangerousReactionTick";
+    int DANGEROUS_REACTION_STATE_TICKS = 12;
 
     default RigAnimationId getDangerousReactionAnimation(Mob mob) {
         return RigAnimationId.ROLL_BACKWARD;
     }
 
     default void performDangerousReaction(Mob mob) {
-        if (!(mob.level() instanceof ServerLevel serverLevel) || !canReact(mob)) return;
+        if (!canReact(mob)) return;
+        this.performDangerousReactionNow(mob);
+    }
 
+    default void performCommittedDangerousReaction(Mob mob) {
+        if (!(mob.level() instanceof ServerLevel) || !mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || mob.isNoAi() || RigStunController.isStunned(mob)) return;
+        this.performDangerousReactionNow(mob);
+    }
+
+    private void performDangerousReactionNow(Mob mob) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)) return;
         LivingEntity target = mob.getTarget();
         if (target != null) mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
 
@@ -54,6 +65,7 @@ public interface DangerousReaction {
         Vec3 right = new Vec3(-away.z, 0.0D, away.x).normalize();
 
         mob.getNavigation().stop();
+        mob.getPersistentData().putInt(NBT_DANGEROUS_REACTION_TICK, mob.tickCount);
         RigAnimationController.play(mob, this.getDangerousReactionAnimation(mob));
 
         double backMag = 0.55D + mob.getRandom().nextDouble() * 0.35D;
@@ -105,6 +117,14 @@ public interface DangerousReaction {
     }
 
     default void afterDangerousReaction(Mob mob, ServerLevel serverLevel) {
+    }
+
+    static boolean isPerformingDangerousReaction(Mob mob) {
+        if (mob == null || !mob.getPersistentData().contains(NBT_DANGEROUS_REACTION_TICK)) return false;
+        int delta = mob.tickCount - mob.getPersistentData().getInt(NBT_DANGEROUS_REACTION_TICK);
+        if (delta < 0 || delta > DANGEROUS_REACTION_STATE_TICKS) return false;
+        RigAnimationId animationId = RigAnimationController.getActiveAnimationId(mob);
+        return animationId == RigAnimationId.ROLL_BACKWARD || animationId == RigAnimationId.STEP_BACKWARD;
     }
 
     static boolean hasDangerousTarget(Mob mob) {

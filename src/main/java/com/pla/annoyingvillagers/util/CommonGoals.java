@@ -3,14 +3,15 @@ package com.pla.annoyingvillagers.util;
 import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import com.pla.annoyingvillagers.clazz.HerobrinePortalSupportCaster;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.clazz.VillagerArmyEntity;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.DangerousReactionGoal;
+import com.pla.annoyingvillagers.entity.goal.HerobrinePortalDangerousReactionGoal;
 import com.pla.annoyingvillagers.entity.goal.KeepPositionGoal;
 import com.pla.annoyingvillagers.entity.goal.RigAnimatedMeleeAttackGoal;
-import com.pla.annoyingvillagers.entity.goal.PortalApproachGoal;
 import com.pla.annoyingvillagers.entity.goal.RigShieldGuardGoal;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -46,7 +47,8 @@ public class CommonGoals {
     }
 
     private static boolean supportsRigCombat(Mob mob) {
-        return mob instanceof AVNpc || mob instanceof HerobrineMob || mob instanceof BlueDemonEntity;
+        return mob instanceof AVNpc || mob instanceof HerobrineMob || mob instanceof BlueDemonEntity
+                || mob instanceof LowHerobrineCloneEntity || mob instanceof LowShadowHerobrineCloneEntity;
     }
 
     private static Goal createRandomStrollGoal(PathfinderMob mob, double speedModifier) {
@@ -71,7 +73,11 @@ public class CommonGoals {
 
     public static void registerDangerousReactionGoals(Mob mob) {
         if (!(mob instanceof DangerousReaction dangerousReaction)) return;
-        mob.goalSelector.addGoal(-7, new DangerousReactionGoal(mob, dangerousReaction));
+        if (mob instanceof HerobrinePortalSupportCaster supportCaster) {
+            mob.goalSelector.addGoal(-7, new HerobrinePortalDangerousReactionGoal(mob, dangerousReaction, supportCaster));
+        } else {
+            mob.goalSelector.addGoal(-7, new DangerousReactionGoal(mob, dangerousReaction));
+        }
         mob.goalSelector.addGoal(-6, new KeepPositionGoal(mob));
     }
 
@@ -97,7 +103,6 @@ public class CommonGoals {
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
         if (!(monster instanceof TransporterHerobrineCloneEntity)) {
-            monster.goalSelector.addGoal(0, new PortalApproachGoal(monster));
             addRigShieldGuardGoal(monster, 1);
             monster.goalSelector.addGoal(2, createMeleeAttackGoal(monster, 1.2D, false));
         }

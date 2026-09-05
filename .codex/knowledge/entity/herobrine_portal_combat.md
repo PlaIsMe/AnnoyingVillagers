@@ -1,136 +1,114 @@
-# Herobrine Portal Combat Knowledge
+# Herobrine Portal Support Combat Knowledge
 
 ## Source Scope
 
-- `src/main/java/com/pla/annoyingvillagers/util/HerobrinePortalCombatUtil.java`
-- `src/main/java/com/pla/annoyingvillagers/entity/goal/PortalApproachGoal.java`
-- `src/main/java/com/pla/annoyingvillagers/util/CommonGoals.java`
-- `src/main/java/com/pla/annoyingvillagers/clazz/NullWeapon.java`
-- `src/main/java/com/pla/annoyingvillagers/entity/PortalEntity.java`
+- `src/main/java/com/pla/annoyingvillagers/util/HerobrineUtil.java`
+- `src/main/java/com/pla/annoyingvillagers/clazz/HerobrinePortalSupportCaster.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/AbstractHerobrinePortalActionGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrineSupportEscapePortalGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrineProjectileCounterPortalGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrineSupportApproachPortalGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrineLowCloneSupportGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrinePortalDangerousReactionGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrineGregSixPortalSupportGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/EliteHerobrineSecondFormGoal.java`
 - `src/main/java/com/pla/annoyingvillagers/item/TransporterFragmentItem.java`
 
-## Herobrine-Side Entity Filter
+`HerobrineSupportPortalUtil.java` and `HerobrinePortalCombatUtil.java` are now fully commented legacy snapshots only. Do not add live calls back to either class. Their live helper code was consolidated into `HerobrineUtil`.
 
-`HerobrinePortalCombatUtil.isHerobrineSide` returns true for:
+## Architecture
 
-- `HerobrineMob`
-- `HerobrineGregEntity`
-- `LowHerobrineCloneEntity`
-- `LowShadowHerobrineCloneEntity`
-- `NullWeapon`
+Greg and Transporter implement `HerobrinePortalSupportCaster`. Portal behavior is split into focused Rig-aware goals while shared targeting, portal geometry, ownership, low-clone support, projectile routing, and Greg six-portal helpers live in `HerobrineUtil`.
 
-This is the shared filter used for Herobrine portal sharing and portal combat navigation.
+Greg's normal/two-portal actions and six-portal support use the same `portalActionCooldown`, randomized to 20-40 seconds. Rare combat low-clone support uses its separate 90-180 second cooldown and dedicated clone slots.
 
-## Portal Approach Goal
+There is no live `sixPortalSupportCooldown`; any old field/method/NBT for it is commented reference code only.
 
-`PortalApproachGoal` is a movement goal for mobs with a live target. It asks `HerobrinePortalCombatUtil.findRouteToTarget` for a linked portal route.
+## Animation Rules
 
-The route is valid when:
+These animation rules are intentional and must stay consistent:
 
-- the entrance portal is near the mob
-- the entrance portal is closer to the mob than the direct target body position
-- the entrance has a linked portal
-- the linked exit is near the target
-- both portals are usable by the mob or shared by Herobrine-side ownership
+- summoning combat low clones: `RigAnimationId.PORTAL_SUMMON`;
+- Greg six-portal support: `RigAnimationId.PORTAL_SUMMON`;
+- two-portal support escape: `RigAnimationId.POINT_LEFT_HAND_TOWARD`;
+- projectile counter portal: `RigAnimationId.POINT_LEFT_HAND_TOWARD`;
+- support approach portal: `RigAnimationId.POINT_LEFT_HAND_TOWARD`;
+- self dangerous-reaction/escape portal: `RigAnimationId.POINT_LEFT_HAND_TOWARD`.
 
-For walking routes, route scoring prioritizes the linked exit closest to the target, with entrance distance as the secondary score. This makes the chosen route behave like "nearest useful entrance linked to the portal nearest the enemy" instead of picking a close entrance whose exit is less useful.
+AV_EFM compatibility comments should map `PORTAL_SUMMON` to `AnimsSculkSteve.PORTAL_SUMMON` and `POINT_LEFT_HAND_TOWARD` to `AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP`.
 
-When active, the mob navigates to the entrance portal center and looks at it. `PortalApproachGoal.canContinueToUse` refreshes the route through `HerobrinePortalCombatUtil.findRouteToTarget`; if the target moves so the direct enemy path is closer than the portal entrance, or the linked exit is no longer near the target, the goal stops and normal combat movement resumes. The normal `PortalEntity` collision teleport then moves the mob to the linked exit.
+## Abstract Portal Action Goal
 
-## Shared Goal Wiring
+`AbstractHerobrinePortalActionGoal` starts only server-side while the caster is alive, AI-enabled, not riding, not Rig-stunned, not already animating, and allowed to use support portal actions. It stops navigation, plays the selected Rig animation, keeps looking at the action target, and performs gameplay at the goal-specific animation tick.
 
-`CommonGoals.registerGoalForHostileNpc` adds `PortalApproachGoal` at priority 0. This covers `HerobrineMob` variants and low shadow clones using hostile common goals, and gives portal approach priority over normal melee approach when a valid route exists.
+Low-clone and Greg six-portal casts use `PORTAL_SUMMON` and perform at tick 20 so the visual cast starts before entities/portals appear.
 
-`LowHerobrineCloneEntity` calls `CommonGoals.registerGoalForHostileNpc(this)`, so it also gets the portal approach goal.
+## Two-Portal Actions
 
-`HerobrineGregEntity` and `NullWeapon` have custom goal registration, so each now adds `PortalApproachGoal` directly.
+`HerobrineSupportEscapePortalGoal`, `HerobrineProjectileCounterPortalGoal`, `HerobrineSupportApproachPortalGoal`, and `HerobrinePortalDangerousReactionGoal` all use `POINT_LEFT_HAND_TOWARD`.
 
-## Dragon Exclusion
+The support escape action places an entrance in the supported Herobrine's existing movement/retreat path and links it to a safe exit near the caster. The approach action places an entrance using the ally's existing movement/target direction and a safe target-side exit. Projectile counter redirects a real incoming arrow or an aimed bow attack. Dangerous reaction creates a self escape route and lets the caster's authored step-back movement enter it.
 
-`PortalEntity.canTeleportEntity` rejects `HerobrineDragonEntity`. It already rejects passengers, so Herobrines riding dragons are not teleported by walking or flying through a portal.
+Shared geometry and ownership helpers for these actions live in `HerobrineUtil`.
 
-Projectiles launched by dragon logic can still be aimed through portals because projectile aiming uses `HerobrinePortalCombatUtil.getProjectilePortalAim`.
+## Low-Clone Support
 
-## Portal Collision Ownership Rules
+`HerobrineLowCloneSupportGoal` uses `PORTAL_SUMMON` and performs at tick 20.
 
-`PortalEntity.canTeleportEntity` applies owner-based teleport filtering after its normal base checks.
+The helper can spawn 1-3 `LowHerobrineCloneEntity` / `LowShadowHerobrineCloneEntity` instances up to available support slots, assigns damaged combat gear, gives the clone a valid enemy target, puts it on the Herobrine team, and starts the separate low-clone cooldown.
 
-Normal base checks reject `PortalEntity`, `SnakeBladeEntity`, `HerobrineDragonEntity`, removed/dead entities, passengers, spectator players, and entities still under the portal teleport cooldown.
+Greg normally obtains the enemy from a supported Herobrine.
 
-Ownerless portals keep the previous permissive behavior after those base checks.
+Transporter does not require a linked/supported Herobrine to summon low clones. Plan resolution is:
 
-If the portal owner is Herobrine-side (`HerobrineMob`, `HerobrineGregEntity`, `LowHerobrineCloneEntity`, `LowShadowHerobrineCloneEntity`, or `NullWeapon`), the portal only teleports the owner entity itself, Herobrine-side entities, and projectiles.
+1. use a supported Herobrine and that ally's live enemy when available;
+2. otherwise, for `TransporterHerobrineCloneEntity`, use Transporter's own valid target;
+3. if Transporter has no current target, find a nearby valid enemy within the support search radius and use Transporter itself as the summon anchor.
 
-If the portal owner is a `Player`, the portal rejects Herobrine-side entities and any `Monster`. It still allows players, villagers, animals, projectiles, and other non-monster/non-Herobrine entities.
+This preserves standalone Transporter low-clone summoning behavior while retaining normal cooldown and slot limits.
 
-## Portal Entity Sounds
+## Greg Six-Portal Support
 
-`AnnoyingVillagersModSounds` now registers dedicated portal entity sounds:
+Six-portal support is no longer requested from the Swordsman's ULT hook.
 
-- `PORTAL_OPEN`
-- `PORTAL_AMBIENT`
-- `PORTAL_FIZZLE`
-- `PORTAL_ENTER`
-- `PORTAL_EXIT`
+`HerobrineGregSixPortalSupportGoal` is a real Greg AI goal at priority `-6`. Its six-portal-specific conditions are intentionally small:
 
-`PortalEntity` now uses those sounds directly:
+- shared `portalActionCooldown == 0`;
+- Greg's currently selected support from `findGregFollowSupportHerobrine()` is a `SwordsmanHerobrineEntity`;
+- that Swordsman is state 2;
+- that Swordsman's `gregUUID` equals this Greg's UUID.
 
-- open sound on the first server tick after spawn
-- ambient sound every `AMBIENT_SOUND_INTERVAL_TICKS = 80`
-- fizzle sound when the 10-second lifetime expires
-- enter sound on the source portal during teleport
-- exit sound on the linked destination portal during teleport
+The shared abstract goal additionally requires server side, alive, AI enabled, not riding, not Rig-stunned, no active Rig animation, and `canUseSupportPortalAction()`.
 
-All of those portal entity sounds are played at volume `1.0F` and pitch `1.0F`. The older portal summon sounds are not used by `PortalEntity` itself.
+The goal plays `PORTAL_SUMMON`. At animation tick 20 it discards Greg's older owned portals, attempts the six-portal batch directly, stores a successful group as the Swordsman's preferred Demoniac Voltage Reaver portal group, marks Greg as supporting, and resets the shared random 20-40 second `portalActionCooldown`.
 
-## Shared Portal Ownership
+Temporary diagnostics use the prefix `[AV SIX PORTAL DEBUG]`. `AbstractHerobrinePortalActionGoal` exposes a single no-op `debugTrace(...)` hook; Greg's six-portal goal overrides it to log base readiness failures and lifecycle events. `HerobrineGregEntity` also emits a heartbeat every 40 ticks so debugging still shows Greg state even if goal arbitration prevents `canUse()` from being evaluated.
 
-`DemoniacVoltageReaverItem.findClosestPortalTarget` still prefers portals by distance, starter flag, and portal order, but it now allows portals owned by another Herobrine-side entity through `HerobrinePortalCombatUtil.canUsePortalOwnedBy`.
+## Forced Swordsman ULT After Six Portals
 
-Player-owned one-hand portals keep owner filtering unless the user is Herobrine-side.
+`EliteHerobrineSecondFormGoal` owns the follow-up decision. The old direct call to `requestGregSixPortalSupport()` in `SWORDSMAN_HEROBRINE_ULT` remains commented out and must not be restored.
 
-## Projectile Portal Aim
+When the Swordsman is state 2 and a ready six-portal group owned by the linked Greg exists:
 
-`HerobrinePortalCombatUtil.getProjectilePortalAim` finds an entrance portal near the shooter whose linked exit is near the target. If found, ranged attacks aim at the entrance portal center instead of directly at the target.
+- the normal second-form goal cooldown must already be ready;
+- `canStartSecondFormAction()` must pass;
+- animation selection is forced to `SWORDSMAN_HEROBRINE_ULT`;
+- `SWORDSMAN_HEROBRINE_EXTRA_ULT` must not be selected for this six-portal follow-up;
+- the current combat target must be within 12 blocks before normal ULT may start;
+- before the normal ULT starts, the ready six-portal group is set as the preferred portal target.
 
-Current users:
+Snake Blade's living-target scan radius remains 16 blocks. The 12-block cast gate intentionally leaves a 4-block margin. If normal ULT is selected while farther than 12 blocks, the goal clears that selection and retries after 10 ticks so normal movement can close distance.
 
-- `AVAnimations.SLEDGEHAMMER_SHOOT`
-- `HerobrineDragonEntity.shootMeteoriteAtTarget`
-- `ShadowHerobrineEntity.shootDarkObsAtTarget`
-- `ShadowHerobrineEntity.shootChain`
+The ULT's normal tick-0 Snake Blade start and second-form budget consumption remain unchanged.
 
-## Support Portal Spawning
+## HerobrineUtil Ownership
 
-`TransporterFragmentItem.spawnLinkedPortalPair(Level, LivingEntity, Vec3, Vec3)` is the public helper for mob AI. It keeps the active owner cap and existing placement validation, then spawns exactly one linked pair near the two preferred positions.
+All live portal combat/support utility code belongs in `HerobrineUtil`. This includes generic projectile/Snake Blade routing previously associated with the old portal-combat utility and Greg/Transporter support helpers previously associated with the support utility.
 
-`TransporterFragmentItem.canSpawnOwnedPortals(ServerLevel, LivingEntity, int)` checks whether the caster has enough remaining owned active portal capacity before multi-pair AI actions. Greg uses this before active support reposition because that action needs four portal slots.
+The two old utility Java files exist only as commented reference snapshots for recovery/comparison.
 
-`HerobrinePortalCombatUtil.spawnSupportPortalPair` places one linked portal pair near the chosen entrance/exit entities. In the current non-EpicFight source, `playPortalPairSummon` / `playSixPortalSummon` play `PORTAL_NATURAL` and swing the caster's main hand; they do not call Epic Fight animation assets.
+## Source Editing Convention
 
-Greg's support portal logic now requires a ground support Herobrine. It waits until Greg is within 10 blocks of the chosen support before casting support portals. If he is farther away, he pathfinds toward that support and retries soon. Greg's support selection now supports multiple nearby Herobrines:
+For new or changed Java in this portal/Herobrine area, keep method invocations compact on one line when practical, for example `method(a, b, c)`. Do not reformat a call into a vertical argument list such as one argument per line unless Java syntax genuinely requires it.
 
-- first preference is a supported Herobrine whose enemy is at least 10 blocks away
-- if no one needs direct approach help, Greg can instead connect two spread-out nearby Herobrines with a gather portal pair
-
-Greg's support-position goal has higher priority than `PortalApproachGoal`, so when a support Herobrine exists Greg behaves like a support caster instead of portal-approaching the enemy. While supporting a ground Herobrine, `HerobrineGregEntity.markSupportingHerobrine` keeps Greg's Herobrine body texture, white-eye overlay, and broken diamond chestplate active through synced entity state and the existing renderer layers.
-
-After a successful Greg portal support cast, `portalSupportCooldown` is randomized from 90 to 180 seconds. Failed/no-cast checks retry after 10 seconds.
-
-Greg's six-portal support is separated from ordinary support and is implemented by `HerobrinePortalCombatGoal`. It targets a live `SwordsmanHerobrineEntity` in `state > 0` with a live target, Demoniac Voltage Reaver equipped, no active `SnakeAnimation` tag, no nearby six-portal batch, and compatible Greg ownership. A successful batch stores the portal group as the Swordsman's preferred portal target; it does not directly start the snake animation. Greg's current six-portal cooldown is 30-60 seconds.
-
-Greg's support-position goal uses `HerobrinePortalCombatUtil.isEnemyOf` to avoid enemies during combat while staying near the supported Herobrine. It samples safe stand positions around the support Herobrine, favors positions farther from nearby enemies, rejects colliding positions, and stops movement once the current support spot is safe.
-
-Greg's support-position goal now treats the supported Herobrine's current target as the primary threat. If that threat is close, Greg uses a wider danger stand radius and can actively run to `activeSupportRetreatPos`.
-
-Greg active support reposition can spawn two linked portal pairs: one pair from the supported Herobrine to Greg's retreat position, and another pair from the retreat area to a flank near the enemy. This is separate from normal approach portal support and is triggered by danger proximity or Greg being hit.
-
-Shared combat escape now also asks a linked Greg to call `tryOpenRetreatPortalFor` when a `HerobrineMob` performs `CombatCommon.performEscapeRunAway`, so retreat step-back behavior can immediately get a Greg-made retreat portal.
-
-Greg also has a separate combat low-clone support cooldown in `HerobrineGregEntity`. That cooldown is randomized from 180 to 300 seconds after successful clone support. It can spawn 1 to 3 geared `LowHerobrineCloneEntity` or `LowShadowHerobrineCloneEntity` support clones near Greg's support anchor only when the supported Herobrine is less than 10 blocks from its enemy. It does not use `summonHerobrine`, so it does not overwrite Greg's main summoned-Herobrine slots.
-
-`TransporterHerobrineCloneEntity` now uses the same multi-support portal plan logic through `tryTransporterPortalSupport`, so transporter clone portal casts can prefer an allied Herobrine that is far from its enemy, fall back to gather portals between spread-out Herobrines, or finally use self-to-enemy support if no ally plan is available.
-
-## Swordsman Preferred Portal Support
-
-Current six-portal support does not call an Epic Fight patch or directly invoke `AVAnimations.SNAKE_BLADE`. `HerobrinePortalCombatGoal` stores the spawned portal group on the Swordsman's Demoniac Voltage Reaver with `DemoniacVoltageReaverItem.setPreferredPortalTarget(...)`. The normal rig second-form goal/ULT hook later calls `tryStartSnakeAnimation`, and `process()` consumes that preferred portal route first.
+When an old implementation is retired during this refactor, preserve it as commented source for comparison/recovery rather than deleting it outright.

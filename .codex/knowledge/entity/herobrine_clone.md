@@ -3,42 +3,102 @@
 ## Source Scope
 
 - `src/main/java/com/pla/annoyingvillagers/clazz/HerobrineMob.java`
+- `src/main/java/com/pla/annoyingvillagers/util/CommonGoals.java`
+- `src/main/java/com/pla/annoyingvillagers/rig/RigCombatProfiles.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/HerobrineCloneEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/ShadowHerobrineCloneEntity.java`
-- `src/main/java/com/pla/annoyingvillagers/entity/HerobrineChrisEntity.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/Herobrine7Entity.java`
 - `src/main/java/com/pla/annoyingvillagers/entity/ArmoredHerobrineEntity.java`
 
-## HerobrineMob Base
+## Shared Current Architecture
 
-`HerobrineMob` is the main base for standard and elite Herobrine variants.
+`HerobrineCloneEntity`, `ShadowHerobrineCloneEntity`, `Herobrine7Entity`, and `ArmoredHerobrineEntity` all extend `HerobrineMob` and use the current native Rig combat flow.
 
-It registers common hostile NPC goals through `CommonGoals.registerGoalForHostileNpc(this)`, which now includes `PortalApproachGoal`.
+`HerobrineMob.registerGoals()` supplies the shared Herobrine behavior: retargeting, dangerous reaction, healing, optional `RollItemGoal`, protect/healing follow behavior, hostile goals, and wandering. `CommonGoals.registerGoalForHostileNpc(...)` now gives normal `HerobrineMob` variants `RigShieldGuardGoal` and `RigAnimatedMeleeAttackGoal`; it does not use `PortalApproachGoal` for ordinary Herobrines.
 
-Natural spawn and removal use `HerobrineMobData` singleton guard:
+Combat style comes from `RigCombatProfiles.getCombatProfile(mob)`:
 
-- `finalizeSpawn` tries to claim the singleton on natural or chunk-generation spawn
-- if claim fails, the mob discards
-- `remove` releases the claim on killed or discarded removal
+- a `RigCombatProfileProvider` item owns its custom style;
+- ordinary sword -> `BASIC`;
+- two ordinary swords -> `DUAL_BASIC`;
+- ordinary axe -> `AXE`;
+- anything else / empty main hand -> `UNARMED`.
 
-`HerobrineMob.finalizeSpawn` also moves natural spawns to the surface heightmap and calls `HerobrineUtil.initialSpawn`.
+Do not add entity-specific melee goals to these normal Herobrine variants just to make Rig attacks run. Their inherited `HerobrineMob`/`CommonGoals` flow already owns melee selection.
 
-## Standard Clone Rules
+All four current classes use `ATTACK_DAMAGE = 5.0D`, so native Rig collider hits have a real base damage value.
 
-`HerobrineCloneEntity` and `ShadowHerobrineCloneEntity` both extend `HerobrineMob`.
+## Spawn Rules
 
-They naturally spawn at night every 3 days, using the `HerobrineMobData` singleton guard.
+The current `canSpawn(...)` implementations for these variants require:
 
-Both ignore several environmental damage types and reject most normal arrows unless the direct entity is an allowed custom projectile.
+- `HerobrineMobData` is not occupied;
+- nighttime;
+- at least `Difficulty.MEDIUM` progression;
+- normal `Monster.checkMonsterSpawnRules(...)`.
 
-Both create an infected player corpse on death and copy armor slots to that corpse.
+The current clone/7/armored classes do not have the old local "every 3 days" test in their `canSpawn(...)` methods. Natural Herobrine singleton claim/release and initial spawn handling remain owned by `HerobrineMob`.
 
-## Portal Interaction
+## HerobrineCloneEntity
 
-Because these variants extend `HerobrineMob` and use common hostile goals, they can run into a nearby linked portal when that portal exits near their attack target.
+Default equipment:
 
-They can also use Herobrine-owned shared portals, including portals spawned by Greg and Transporter Herobrine Clone.
+- main hand: `OBSIDIAN_WEAPON`.
 
-## Transporter Variant Relationship
+Attributes:
 
-`TransporterHerobrineCloneEntity` is a new Herobrine clone variant that extends `HerobrineMob` and uses Shadow Herobrine Clone visual/patch behavior. Its details are stored in `.codex/knowledge/entity/transporter_herobrine_clone.md`.
+- max health 100;
+- movement speed 0.45;
+- attack damage 5;
+- follow range 64;
+- armor 40;
+- armor toughness 20;
+- knockback resistance 1.
+
+It uses Herobrine Clone attack/hurt/death voices. On death, it has a 20% branch that creates `InfectedChrisEntity`; otherwise it creates `InfectedPlayerNpcEntity` with `possessed_by = herobrine_clone` and copies armor slots.
+
+## ShadowHerobrineCloneEntity
+
+Default equipment:
+
+- main hand: `SHADOW_OBSIDIAN_PILLAR`.
+
+Its attributes match the normal Herobrine Clone: 100 health, 0.45 speed, 5 attack damage, 64 follow range, 40 armor, 20 armor toughness, 1 knockback resistance.
+
+On death it creates an `InfectedPlayerNpcEntity` with `possessed_by = shadow_herobrine_clone` and copies armor slots.
+
+This class is distinct from the elite `ShadowHerobrineEntity`; elite Shadow Herobrine behavior is documented in `shadow_herobrine.md`.
+
+## Herobrine7Entity
+
+Default equipment:
+
+- main hand: `SHADOW_OBSIDIAN_WEAPON`.
+
+Attributes match the standard clone family: 100 health, 0.45 speed, 5 attack damage, 64 follow range, 40 armor, 20 armor toughness, 1 knockback resistance.
+
+On death it creates `InfectedPlayerNpcEntity` with `possessed_by = herobrine_7`.
+
+## ArmoredHerobrineEntity
+
+`ArmoredHerobrineEntity` also implements `RollItemUser`. Because `HerobrineMob.registerGoals()` checks `instanceof RollItemUser`, it automatically gets `RollItemGoal`; do not register a second copy.
+
+Default equipment:
+
+- head: `HEROBRINE_OBSIDIAN_DIAMOND_HELMET`;
+- chest: `HEROBRINE_OBSIDIAN_DIAMOND_CHESTPLATE`;
+- main hand: `SHADOW_OBSIDIAN_SWORD`.
+
+`canRollItem()` requires a live target and inherited `swapWeaponCooldown == 0`. `rollItem()` calls `super.rollItem()` to start the inherited 100-200 tick swap cooldown, then toggles a `SHADOW_OBSIDIAN_SWORD` in the offhand. The item/profile resolver therefore naturally switches between one-sword and dual-compatible Obsidian combat styles as equipment changes.
+
+Attributes are again 100 health, 0.45 speed, 5 attack damage, 64 follow range, 40 armor, 20 armor toughness, and 1 knockback resistance.
+
+On death it creates `InfectedTheMostMoistBurrit0Entity`.
+
+## Damage Rules
+
+These four variants ignore fall, cactus, wither, drown, wither-skull, and dragon-breath damage. Ordinary `AbstractArrow` damage is rejected unless it is one of the explicitly allowed custom arrow/trident paths in each class.
+
+## Portal Support Relationship
+
+Normal Herobrine clones do not have a movement goal that pathfinds them into support portals. Greg/Transporter support logic observes the supported Herobrine's existing movement and places a portal in that movement path. This is intentional; do not re-add `PortalApproachGoal` to common Herobrine hostile goals.

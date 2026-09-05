@@ -5,7 +5,6 @@ import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.util.CommonUtil;
-import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.WeaponEnchantmentDamageUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -63,7 +62,6 @@ public class SnakeBladeEntity extends Entity {
             SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.BOOLEAN);
 
     public static final float MAX_EXTEND_TIME = 5.0F;
-    private static final double ENTITY_TARGET_Y_OFFSET = 1.0D;
     private static final int MAX_PORTAL_CHAIN_TARGETS = 24;
     private static final int MAX_NORMAL_CHAIN_TARGETS = 5;
     private static final int MAX_GUARD_CHAIN_TARGETS = 5;
@@ -183,6 +181,7 @@ public class SnakeBladeEntity extends Entity {
                 e -> e.isAlive() && !e.isSpectator()
         )) {
             if (target == owner) continue;
+            if (owner instanceof SwordsmanHerobrineEntity && target instanceof HerobrineGregEntity) continue;
             if (owner != null && (owner.isAlliedTo(target) || target.isAlliedTo(owner))) continue;
 
             double dx0 = target.getX() - this.getX();
@@ -328,6 +327,7 @@ public class SnakeBladeEntity extends Entity {
     private void tryAttackTarget(LivingEntity creator, Entity target) {
         if (target == creator) return;
         if (target instanceof PortalEntity) return;
+        if (creator instanceof SwordsmanHerobrineEntity && target instanceof HerobrineGregEntity) return;
 
         if (target.hurt(this.level().damageSources().indirectMagic(this, creator), this.getDamage(creator))) {
             markTouched(target);
@@ -451,7 +451,7 @@ public class SnakeBladeEntity extends Entity {
             markTouched(exitPortal);
         }
 
-        Vec3 chainOriginCenter = chainOriginPortal.getSnakeBladeAnchor();
+        Vec3 chainOriginCenter = chainOriginPortal.getPortalCenter();
         Entity closestValid = findClosestValidTargetNear(livingCreator, chainOriginCenter, 14.0D);
         if (closestValid != null) {
             createChainFromPortalExit(chainOriginPortal, closestValid);
@@ -517,7 +517,7 @@ public class SnakeBladeEntity extends Entity {
             if (portalEntity.getPortalOrder() <= lastPortalOrder) continue;
 
             UUID ownerUuid = portalEntity.getOwnerUUID();
-            if (!HerobrinePortalCombatUtil.canUsePortalOwnedBy(livingCreator, ownerUuid)) continue;
+            if (!HerobrineUtil.canUsePortalOwnedBy(livingCreator, ownerUuid)) continue;
 
             if (bestPortal == null
                     || portalEntity.getPortalOrder() < bestPortal.getPortalOrder()
@@ -539,7 +539,7 @@ public class SnakeBladeEntity extends Entity {
             if (hasTouched(portalEntity)) continue;
             if (portalEntity.isRemoved()) continue;
             UUID ownerUuid = portalEntity.getOwnerUUID();
-            if (!HerobrinePortalCombatUtil.canUsePortalOwnedBy(livingCreator, ownerUuid)) continue;
+            if (!HerobrineUtil.canUsePortalOwnedBy(livingCreator, ownerUuid)) continue;
 
             if (closestPortal == null || center.distanceTo(portalEntity.position()) < center.distanceTo(closestPortal.position())) {
                 closestPortal = portalEntity;
@@ -614,10 +614,10 @@ public class SnakeBladeEntity extends Entity {
 
     private static Vec3 targetCenter(Entity entity) {
         if (entity instanceof PortalEntity portalEntity) {
-            return portalEntity.getSnakeBladeAnchor();
+            return portalEntity.getPortalCenter();
         }
 
-        return new Vec3(entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D - ENTITY_TARGET_Y_OFFSET, entity.getZ());
+        return new Vec3(entity.getX(), entity.getY() + entity.getBbHeight() * 0.5D, entity.getZ());
     }
 
     private boolean isValidTarget(LivingEntity creator, Entity entity) {
@@ -627,8 +627,8 @@ public class SnakeBladeEntity extends Entity {
         if (entity instanceof Player player && player.isCreative()) {
             return false;
         }
-        if (HerobrinePortalCombatUtil.isHerobrineSide(creator)
-                && HerobrinePortalCombatUtil.isHerobrineSide(entity)) {
+        if (HerobrineUtil.isHerobrineSide(creator)
+                && HerobrineUtil.isHerobrineSide(entity)) {
             return false;
         }
         if (!creator.isAlliedTo(entity)
@@ -722,7 +722,7 @@ public class SnakeBladeEntity extends Entity {
         child.setCreatorEntityUUID(this.getCreatorEntityUUID());
         child.setFromEntityID(this.getId());
         child.setToEntityID(nextPortal.getId());
-        Vec3 portalCenter = nextPortal.getSnakeBladeAnchor();
+        Vec3 portalCenter = nextPortal.getPortalCenter();
         child.setPos(portalCenter.x, portalCenter.y, portalCenter.z);
         child.setTargetsHit(this.getTargetsHit() + 1);
 

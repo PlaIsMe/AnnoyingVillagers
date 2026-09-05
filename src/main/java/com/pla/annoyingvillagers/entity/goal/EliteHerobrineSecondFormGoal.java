@@ -2,14 +2,19 @@ package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
+import com.pla.annoyingvillagers.entity.SwordsmanHerobrineEntity;
+import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigStunController;
+import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -39,6 +44,8 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
     // A failed 20% chance roll or failed animation start should retry soon.
     // Do NOT consume another full 10-20 second cooldown unless a cast really happened.
     private static final int MOUNTED_REAPER_FAILED_RETRY_TICKS = 20;
+    private static final double SWORDSMAN_ULT_MAX_TARGET_DISTANCE = 12.0D;
+    private static final double SWORDSMAN_ULT_MAX_TARGET_DISTANCE_SQR = SWORDSMAN_ULT_MAX_TARGET_DISTANCE * SWORDSMAN_ULT_MAX_TARGET_DISTANCE;
 
     private final T mob;
     private final RigAnimationId[] animationIds;
@@ -51,6 +58,8 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
     private LivingEntity target;
     private RigAnimationId selectedAnimationId;
     private boolean animationStarted;
+    private boolean forcedSwordsmanPortalUlt;
+    private UUID forcedSwordsmanPortalGroup;
 
     /*
      * Absolute mob tick deadline.
@@ -119,9 +128,9 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
         LivingEntity currentTarget = this.mob.getTarget();
         if (!isValidTarget(currentTarget)) return false;
 
-        float chance = mountedReaper
-                ? MOUNTED_REAPER_USE_CHANCE
-                : switch (state) {
+        this.forcedSwordsmanPortalGroup = this.findSwordsmanSixPortalGroup(state);
+        this.forcedSwordsmanPortalUlt = this.forcedSwordsmanPortalGroup != null;
+        float chance = this.forcedSwordsmanPortalUlt ? 1.00F : mountedReaper ? MOUNTED_REAPER_USE_CHANCE : switch (state) {
             case 0 -> 0.60F;
             case 1 -> 0.45F;
             case 2 -> 1.00F;
@@ -136,7 +145,9 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
         }
 
         this.target = currentTarget;
-        this.selectedAnimationId = this.animationSelector != null
+        this.selectedAnimationId = this.forcedSwordsmanPortalUlt
+                ? RigAnimationId.SWORDSMAN_HEROBRINE_ULT
+                : this.animationSelector != null
                 ? this.animationSelector.apply(this.mob)
                 : this.animationIds[this.mob.getRandom().nextInt(this.animationIds.length)];
 
@@ -144,6 +155,15 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
             this.target = null;
             this.nextUseTick = this.mob.tickCount
                     + (mountedReaper ? MOUNTED_REAPER_FAILED_RETRY_TICKS : 10);
+            return false;
+        }
+
+        if (this.mob instanceof SwordsmanHerobrineEntity && this.selectedAnimationId == RigAnimationId.SWORDSMAN_HEROBRINE_ULT && this.mob.distanceToSqr(currentTarget) > SWORDSMAN_ULT_MAX_TARGET_DISTANCE_SQR) {
+            this.target = null;
+            this.selectedAnimationId = null;
+            this.forcedSwordsmanPortalUlt = false;
+            this.forcedSwordsmanPortalGroup = null;
+            this.nextUseTick = this.mob.tickCount + 10;
             return false;
         }
 
@@ -176,14 +196,10 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
         this.mob.setAggressive(false);
         this.faceTarget();
 
-        RigAnimationController.play(
-                this.mob,
-                RigAnimationSpecs.get(this.selectedAnimationId),
-                this.target
-        );
+        if (this.forcedSwordsmanPortalUlt && this.forcedSwordsmanPortalGroup != null && this.mob instanceof SwordsmanHerobrineEntity swordsman) DemoniacVoltageReaverItem.setPreferredPortalTarget(swordsman.getMainHandItem(), this.forcedSwordsmanPortalGroup, swordsman.getGregUUID());
+        RigAnimationController.play(this.mob, RigAnimationSpecs.get(this.selectedAnimationId), this.target);
 
-        this.animationStarted =
-                RigAnimationController.getActiveAnimationId(this.mob) == this.selectedAnimationId;
+        this.animationStarted = RigAnimationController.getActiveAnimationId(this.mob) == this.selectedAnimationId;
     }
 
     @Override
@@ -216,6 +232,8 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
         this.target = null;
         this.selectedAnimationId = null;
         this.animationStarted = false;
+        this.forcedSwordsmanPortalUlt = false;
+        this.forcedSwordsmanPortalGroup = null;
     }
 
     @Override
@@ -231,6 +249,16 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
 
     private void scheduleMountedReaperRetry() {
         this.nextUseTick = this.mob.tickCount + MOUNTED_REAPER_FAILED_RETRY_TICKS;
+    }
+
+    @Nullable
+    private UUID findSwordsmanSixPortalGroup(int state) {
+        if (!(this.mob instanceof SwordsmanHerobrineEntity swordsman)) return null;
+        if (state != 2) return null;
+
+        UUID gregUuid = swordsman.getGregUUID();
+        if (gregUuid == null) return null;
+        return HerobrineUtil.findNearbyPortalGroup(swordsman, gregUuid, 6, 48.0D);
     }
 
     private boolean isMountedSecondFormReaper() {

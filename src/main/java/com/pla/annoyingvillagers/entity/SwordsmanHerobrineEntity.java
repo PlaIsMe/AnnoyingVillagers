@@ -46,13 +46,7 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(0, new EliteHerobrineSecondFormGoal<>(
-                this,
-                RigAnimationId.SWORDSMAN_HEROBRINE_ULT,
-                RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT,
-                swordsman -> swordsman.getMainHandItem().getItem() instanceof DemoniacVoltageReaverItem
-                        && !DemoniacVoltageReaverItem.hasSnakeAnimation(swordsman.getMainHandItem())
-        ));
+        this.goalSelector.addGoal(0, new EliteHerobrineSecondFormGoal<>(this, RigAnimationId.SWORDSMAN_HEROBRINE_ULT, RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT, swordsman -> swordsman.getMainHandItem().getItem() instanceof DemoniacVoltageReaverItem && !DemoniacVoltageReaverItem.hasSnakeAnimation(swordsman.getMainHandItem())));
     }
 
     @Override

@@ -6,21 +6,29 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.blockentity.CryingObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
+import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.clazz.Difficulty;
+import com.pla.annoyingvillagers.clazz.HerobrinePortalSupportCaster;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
-import com.pla.annoyingvillagers.entity.goal.HerobrinePortalCombatGoal;
+import com.pla.annoyingvillagers.entity.goal.HerobrineGregSixPortalSupportGoal;
+import com.pla.annoyingvillagers.entity.goal.HerobrineLowCloneSupportGoal;
+import com.pla.annoyingvillagers.entity.goal.HerobrineProjectileCounterPortalGoal;
+import com.pla.annoyingvillagers.entity.goal.HerobrineSupportApproachPortalGoal;
+import com.pla.annoyingvillagers.entity.goal.HerobrineSupportEscapePortalGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.item.TransporterFragmentItem;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
+import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
+import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import com.pla.annoyingvillagers.util.*;
 import com.pla.annoyingvillagers.spawnhandler.GregData;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
-import com.pla.annoyingvillagers.rig.RigStunnableEntity;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -40,7 +48,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -77,7 +84,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 
-public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
+public class HerobrineGregEntity extends Monster implements RigStunnableEntity, DangerousReaction, HerobrinePortalSupportCaster {
     private static final int MAX_COMBAT_LOW_CLONE_SUPPORT = 5;
     private static final float FISHING_HOOK_ESCAPE_CANCEL_CHANCE = 0.8F;
     private static final double SECOND_FORM_SUPPORT_SEARCH_RADIUS_SQR = 48.0D * 48.0D;
@@ -102,17 +109,8 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
     private boolean hookedWaitingForGround;
     private boolean hookedLeftGround;
     private int idleAvoidRepathCooldown;
-    private int supportRepositionCooldown = 120;
-    private int supportRetreatPanicTicks;
-    private int activeSupportRetreatTicks;
     private int lowCloneSupportCooldown = 0;
-    private int portalPairCooldown = 0;
-    private int rangedCounterPortalCooldown = 0;
-    private int supportEscapePortalCooldown = 0;
-    private int portalEscapeStepBackCooldown = 0;
-    private int sixPortalSupportCooldown = 0;
-    @Nullable
-    private Vec3 activeSupportRetreatPos;
+    private int portalActionCooldown = 0;
     private int supportingHerobrineVisualTicks;
     private Entity firstSummonedHerobrine;
     private Entity secondSummonedHerobrine;
@@ -238,71 +236,36 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
         this.setDeltaMovement(0.0D, deltaMovement.y, 0.0D);
     }
 
-    private int randomSupportRepositionCooldown() {
-        return (35 * 20)
-                + this.random.nextInt((70 * 20) - (35 * 20) + 1);
-    }
 
     private int randomCooldownSeconds(int minSeconds, int maxSeconds) {
         return minSeconds * 20 + this.random.nextInt((maxSeconds - minSeconds) * 20 + 1);
     }
 
+    @Override
     public int getLowCloneSupportCooldown() {
-        return lowCloneSupportCooldown;
+        return this.lowCloneSupportCooldown;
     }
 
+    @Override
     public void setLowCloneSupportCooldown() {
         this.lowCloneSupportCooldown = randomCooldownSeconds(90, 180);
     }
 
-    public int getPortalPairCooldown() {
-        return portalPairCooldown;
+    @Override
+    public int getPortalActionCooldown() {
+        return this.portalActionCooldown;
     }
 
-    public void setPortalPairCooldown() {
-        this.portalPairCooldown = randomCooldownSeconds(30, 60);
-    }
-
-    public int getRangedCounterPortalCooldown() {
-        return rangedCounterPortalCooldown;
-    }
-
-    public void setRangedCounterPortalCooldown() {
-        this.rangedCounterPortalCooldown = randomCooldownSeconds(30, 60);
-    }
-
-    public int getSupportEscapePortalCooldown() {
-        return supportEscapePortalCooldown;
-    }
-
-    public void setSupportEscapePortalCooldown() {
-        this.supportEscapePortalCooldown = randomCooldownSeconds(30, 60);
-    }
-
-    public int getPortalEscapeStepBackCooldown() {
-        return portalEscapeStepBackCooldown;
-    }
-
-    public void setPortalEscapeStepBackCooldown() {
-        this.portalEscapeStepBackCooldown = randomCooldownSeconds(30, 60);
-    }
-
-    public int getSixPortalSupportCooldown() {
-        return sixPortalSupportCooldown;
-    }
-
-    public void setSixPortalSupportCooldown() {
-        this.sixPortalSupportCooldown = randomCooldownSeconds(30, 60);
+    @Override
+    public void setPortalActionCooldown() {
+        this.portalActionCooldown = randomCooldownSeconds(20, 40);
     }
 
     private void tickCombatActionCooldowns() {
         if (this.lowCloneSupportCooldown > 0) this.lowCloneSupportCooldown--;
-        if (this.portalPairCooldown > 0) this.portalPairCooldown--;
-        if (this.rangedCounterPortalCooldown > 0) this.rangedCounterPortalCooldown--;
-        if (this.supportEscapePortalCooldown > 0) this.supportEscapePortalCooldown--;
-        if (this.portalEscapeStepBackCooldown > 0) this.portalEscapeStepBackCooldown--;
-        if (this.sixPortalSupportCooldown > 0) this.sixPortalSupportCooldown--;
+        if (this.portalActionCooldown > 0) this.portalActionCooldown--;
     }
+
 
     @Override
     protected void defineSynchedData() {
@@ -317,14 +280,7 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
         return summoning;
     }
 
-    public boolean canAnswerSixPortalSupportRequest() {
-        return !this.summoning
-                && this.escapeTiming < 0
-                && this.summonTiming < 0
-                && !this.isNoAi()
-                && this.sixPortalSupportCooldown <= 0;
-    }
-
+    @Override
     public boolean canUseSupportPortalAction() {
         return !this.summoning
                 && this.escapeTiming < 0
@@ -342,26 +298,35 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
                 && this.hasAvailableCombatLowCloneSupportSlot();
     }
 
-    @Nullable
-    public LivingEntity findEscapingSupportHerobrine() {
-        for (LivingEntity support : HerobrinePortalCombatUtil.findSupportHerobrines(this, 40.0D)) {
-            if (support instanceof Mob mob
-                    && support.isAlive()
-                    && isGregEscapeSupportTarget(support)
-                    && !isRidingHerobrineDragon(support)
-                    && mob.getTarget() != null
-                    && mob.getTarget().isAlive()
-                    && HerobrinePortalCombatUtil.isVanillaEscapePressure(mob)) {
-                return support;
-            }
-        }
-        return null;
+
+    @Override
+    public Mob getPortalSupportMob() {
+        return this;
     }
 
-    private static boolean isGregEscapeSupportTarget(LivingEntity entity) {
-        return entity instanceof TransporterHerobrineCloneEntity
-                || entity instanceof LowHerobrineCloneEntity
-                || entity instanceof LowShadowHerobrineCloneEntity;
+    @Override
+    public boolean canSupportPortalAlly(LivingEntity ally) {
+        return isGregFollowSupportTarget(ally);
+    }
+
+    @Override
+    public void markPortalSupport() {
+        this.markSupportingHerobrine();
+    }
+
+    @Override
+    public void playPortalSupportAnimation(RigAnimationId animationId, @Nullable LivingEntity lookTarget) {
+//      ADD THIS CODE IN AV_EFM
+//        PORTAL_SUMMON -> AnimsSculkSteve.PORTAL_SUMMON
+//        POINT_LEFT_HAND_TOWARD -> AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP
+
+        if (lookTarget != null && lookTarget.isAlive()) this.getLookControl().setLookAt(lookTarget, 30.0F, 30.0F);
+        RigAnimationController.play(this, RigAnimationSpecs.get(animationId), lookTarget);
+    }
+
+    @Override
+    public RigAnimationId getDangerousReactionAnimation(Mob mob) {
+        return RigAnimationId.STEP_BACKWARD;
     }
 
     private static boolean isGregFollowSupportTarget(LivingEntity entity) {
@@ -373,7 +338,7 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
 
     @Nullable
     public LivingEntity findGregFollowSupportHerobrine() {
-        for (LivingEntity support : HerobrinePortalCombatUtil.findSupportHerobrines(this, FOLLOW_SUPPORT_SEARCH_RADIUS)) {
+        for (LivingEntity support : HerobrineUtil.findSupportHerobrines(this, FOLLOW_SUPPORT_SEARCH_RADIUS)) {
             if (support.isAlive()
                     && isGregFollowSupportTarget(support)
                     && !(support.isPassenger() && support.getVehicle() instanceof HerobrineDragonEntity)) {
@@ -394,10 +359,7 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
 
     public void playSecondFormSupportCast(LivingEntity support) {
         this.markSupportingHerobrine();
-        if (support != null && support.isAlive()) {
-            this.getLookControl().setLookAt(support, 30.0F, 30.0F);
-        }
-        this.playSecondFormSupportCastAnimation();
+        this.playPortalSupportAnimation(RigAnimationId.POINT_LEFT_HAND_TOWARD, support);
     }
 
     public boolean canFishingHookCancelEscape() {
@@ -478,6 +440,8 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
         this.setCustomName(Component.literal("Greg"));
         this.setChatName(this.getDisplayName().getString());
         this.setCustomNameVisible(true);
+        this.portalActionCooldown = randomCooldownSeconds(20, 40);
+        this.lowCloneSupportCooldown = randomCooldownSeconds(90, 180);
 
         int min = AnnoyingVillagersConfig.HEROBRINE_RECALL_MIN_TIME.get();
         int max = AnnoyingVillagersConfig.HEROBRINE_RECALL_MAX_TIME.get();
@@ -497,16 +461,14 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
 
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(-1, new HerobrinePortalCombatGoal(this));
+        CommonGoals.registerDangerousReactionGoals(this);
+        this.goalSelector.addGoal(-6, new HerobrineGregSixPortalSupportGoal(this));
+        this.goalSelector.addGoal(-5, new HerobrineSupportEscapePortalGoal(this));
+        this.goalSelector.addGoal(-4, new HerobrineProjectileCounterPortalGoal(this));
+        this.goalSelector.addGoal(-3, new HerobrineSupportApproachPortalGoal(this));
+        this.goalSelector.addGoal(-2, new HerobrineLowCloneSupportGoal(this));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
-                this,
-                LivingEntity.class,
-                10,
-                true,
-                false,
-                target -> target != null && HerobrinePortalCombatUtil.isEnemyOf(this, target)
-        ));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> target != null && HerobrineUtil.isEnemyOf(this, target)));
         this.goalSelector.addGoal(0, new Goal() {
             private LivingEntity support;
             private Vec3 standPosition;
@@ -547,19 +509,6 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
                     setTarget(threat);
                     getLookControl().setLookAt(threat, 30.0F, 30.0F);
                 }
-                if (activeSupportRetreatTicks > 0 && activeSupportRetreatPos != null) {
-                    activeSupportRetreatTicks--;
-                    if (threat != null) {
-                        getLookControl().setLookAt(threat, 30.0F, 30.0F);
-                    }
-                    if (position().distanceToSqr(activeSupportRetreatPos) > (2.0D * 2.0D)) {
-                        getNavigation().moveTo(activeSupportRetreatPos.x, activeSupportRetreatPos.y, activeSupportRetreatPos.z, 1.3D);
-                    } else {
-                        getNavigation().stop();
-                    }
-                    return;
-                }
-
                 boolean currentSpotSafe = isCurrentSupportSpotSafe(this.support, threat);
                 double maxStandDistanceSqr = threat == null ? (10.0D * 10.0D) : (18.0D * 18.0D);
                 if (distanceSqr <= maxStandDistanceSqr && currentSpotSafe) {
@@ -585,15 +534,11 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
 
             @Nullable
             private LivingEntity findNearestSupportThreat(LivingEntity support) {
-                LivingEntity threat = HerobrinePortalCombatUtil.findThreateningEnemy(
-                        HerobrineGregEntity.this,
-                        support,
-                        24.0D
-                );
+                LivingEntity threat = HerobrineUtil.findThreateningEnemy(HerobrineGregEntity.this, support, 24.0D);
                 if (threat != null) {
                     return threat;
                 }
-                return HerobrinePortalCombatUtil.findEnemyForSupport(support, getTarget(), 24.0D);
+                return HerobrineUtil.findEnemyForSupport(support, getTarget(), 24.0D);
             }
 
             private boolean isCurrentSupportSpotSafe(LivingEntity support, @Nullable LivingEntity threat) {
@@ -748,19 +693,11 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
 
             @Nullable
             private LivingEntity findIdleThreat() {
-                LivingEntity threat = HerobrinePortalCombatUtil.findThreateningEnemy(
-                        HerobrineGregEntity.this,
-                        null,
-                        32.0D
-                );
+                LivingEntity threat = HerobrineUtil.findThreateningEnemy(HerobrineGregEntity.this, null, 32.0D);
                 if (threat != null) {
                     return threat;
                 }
-                return HerobrinePortalCombatUtil.findEnemyForSupport(
-                        HerobrineGregEntity.this,
-                        null,
-                        32.0D
-                );
+                return HerobrineUtil.findEnemyForSupport(HerobrineGregEntity.this, null, 32.0D);
             }
 
             @Nullable
@@ -1089,7 +1026,6 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
         if (!this.level().isClientSide) {
             placeObsidianBlockWhenInWater(AnnoyingVillagersModBlocks.CRYING_OBSIDIAN_BLOCK.get());
             tickSupportingHerobrineVisuals();
-            tickActiveSupportReposition();
             if (!isDay(this.level())) {
                 if (!this.isWhiteEye()) {
                     setWhiteEye(true);
@@ -1258,236 +1194,6 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
                 CommonUtil.stunImmunity(this, 3, 3);
             }
         }
-    }
-
-    private void tickActiveSupportReposition() {
-        if (this.supportRetreatPanicTicks > 0) {
-            this.supportRetreatPanicTicks--;
-        }
-        if (this.supportRepositionCooldown > 0) {
-            this.supportRepositionCooldown--;
-        }
-        if (this.supportRepositionCooldown > 0) {
-            return;
-        }
-
-        boolean panic = this.supportRetreatPanicTicks > 0;
-        if (!panic && this.random.nextFloat() > 0.35F) {
-            this.supportRepositionCooldown = 120;
-            return;
-        }
-
-        boolean activated = tryActiveSupportReposition(panic);
-        this.supportRepositionCooldown = activated ? randomSupportRepositionCooldown() : 120;
-    }
-
-    private boolean tryActiveSupportReposition(boolean panic) {
-        if (!(this.level() instanceof ServerLevel serverLevel)) {
-            return false;
-        }
-
-        LivingEntity support = this.findGregFollowSupportHerobrine();
-        if (support == null || !support.isAlive()
-                || (support.isPassenger() && support.getVehicle() instanceof HerobrineDragonEntity)) {
-            return false;
-        }
-
-        LivingEntity enemy = HerobrinePortalCombatUtil.findThreateningEnemy(this, support, 24.0D);
-        if (enemy == null) {
-            enemy = HerobrinePortalCombatUtil.findEnemyForSupport(support, this.getTarget(), 24.0D);
-        }
-        if (enemy == null) {
-            return false;
-        }
-
-        boolean dangerClose = panic
-                || this.distanceToSqr(enemy) <= 12.0D * 12.0D
-                || support.distanceToSqr(enemy) <= 10.0D * 10.0D;
-        if (!dangerClose) {
-            return false;
-        }
-        if (!TransporterFragmentItem.canSpawnOwnedPortals(serverLevel, this, 4)) {
-            return false;
-        }
-
-        Vec3 retreat = findActiveSupportRetreatPosition(serverLevel, support, enemy);
-        if (retreat == null) {
-            return false;
-        }
-
-        Vec3 returnEntrance = findRetreatReturnEntrance(serverLevel, retreat, support, enemy);
-        Vec3 returnExit = findEnemyFlankReturnExit(serverLevel, enemy, support);
-        int spawned = 0;
-        spawned += TransporterFragmentItem.spawnLinkedPortalPair(
-                this.level(),
-                this,
-                HerobrinePortalCombatUtil.applySupportPortalYOffset(this, support.position()),
-                HerobrinePortalCombatUtil.applySupportPortalYOffset(this, retreat)
-        );
-        spawned += TransporterFragmentItem.spawnLinkedPortalPair(
-                this.level(),
-                this,
-                HerobrinePortalCombatUtil.applySupportPortalYOffset(this, returnEntrance),
-                HerobrinePortalCombatUtil.applySupportPortalYOffset(this, returnExit)
-        );
-        if (spawned <= 0) {
-            return false;
-        }
-
-        this.activeSupportRetreatPos = retreat;
-        this.activeSupportRetreatTicks = 90;
-        this.markSupportingHerobrine();
-        HerobrinePortalCombatUtil.playPortalPairSummon(this);
-        return true;
-    }
-
-    @Nullable
-    private Vec3 findActiveSupportRetreatPosition(ServerLevel serverLevel, LivingEntity support, LivingEntity enemy) {
-        Vec3 away = horizontalDirection(support.position().subtract(enemy.position()));
-        if (away.lengthSqr() < 1.0E-4D) {
-            away = horizontalDirection(this.position().subtract(enemy.position()));
-        }
-        if (away.lengthSqr() < 1.0E-4D) {
-            away = Vec3.directionFromRotation(0.0F, this.getYRot());
-        }
-
-        for (int attempt = 0; attempt < 32; attempt++) {
-            double turn = (this.random.nextDouble() - 0.5D) * 1.2D;
-            Vec3 direction = rotateHorizontal(away, turn);
-            double distance = 16.0D
-                    + this.random.nextDouble() * (24.0D - 16.0D);
-            Vec3 raw = support.position().add(direction.scale(distance));
-            Vec3 candidate = surfacePosition(serverLevel, raw.x, raw.z);
-            if (isValidSupportRetreatPosition(serverLevel, candidate)) {
-                return candidate;
-            }
-        }
-
-        return null;
-    }
-
-    public void triggerRangedCounterRetreat(@Nullable LivingEntity threat) {
-        if (this.level().isClientSide || threat == null || !threat.isAlive()) {
-            return;
-        }
-
-        this.markSupportingHerobrine();
-        this.supportRetreatPanicTicks = Math.max(this.supportRetreatPanicTicks, 90);
-        this.supportRepositionCooldown = 0;
-        this.getLookControl().setLookAt(threat, 30.0F, 30.0F);
-        if (!(this.level() instanceof ServerLevel serverLevel)) {
-            return;
-        }
-
-        LivingEntity support = this.findGregFollowSupportHerobrine();
-        Vec3 retreat = support != null && support.isAlive()
-                ? findActiveSupportRetreatPosition(serverLevel, support, threat)
-                : findDirectRetreatPosition(serverLevel, threat);
-        if (retreat == null) {
-            return;
-        }
-
-        this.activeSupportRetreatPos = retreat;
-        this.activeSupportRetreatTicks = 90;
-        this.getNavigation().moveTo(retreat.x, retreat.y, retreat.z, 1.3D);
-    }
-
-    @Nullable
-    private Vec3 findDirectRetreatPosition(ServerLevel serverLevel, LivingEntity enemy) {
-        Vec3 away = horizontalDirection(this.position().subtract(enemy.position()));
-        if (away.lengthSqr() < 1.0E-4D) {
-            away = Vec3.directionFromRotation(0.0F, this.getYRot());
-        }
-
-        for (int attempt = 0; attempt < 24; attempt++) {
-            double turn = (this.random.nextDouble() - 0.5D) * 1.4D;
-            Vec3 direction = rotateHorizontal(away, turn);
-            double distance = 16.0D
-                    + this.random.nextDouble() * (24.0D - 16.0D);
-            Vec3 raw = this.position().add(direction.scale(distance));
-            Vec3 candidate = surfacePosition(serverLevel, raw.x, raw.z);
-            if (isValidSupportRetreatPosition(serverLevel, candidate)) {
-                return candidate;
-            }
-        }
-
-        return null;
-    }
-
-    private Vec3 findRetreatReturnEntrance(ServerLevel serverLevel, Vec3 retreat, LivingEntity support, LivingEntity enemy) {
-        Vec3 away = horizontalDirection(retreat.subtract(enemy.position()));
-        Vec3 side = new Vec3(-away.z, 0.0D, away.x);
-        if (side.lengthSqr() < 1.0E-4D) {
-            side = new Vec3(1.0D, 0.0D, 0.0D);
-        }
-        if (this.random.nextBoolean()) {
-            side = side.scale(-1.0D);
-        }
-
-        for (int attempt = 0; attempt < 8; attempt++) {
-            Vec3 raw = retreat.add(side.scale(2.5D + attempt * 0.75D));
-            Vec3 candidate = surfacePosition(serverLevel, raw.x, raw.z);
-            if (isValidSupportRetreatPosition(serverLevel, candidate)) {
-                return candidate;
-            }
-        }
-        return retreat;
-    }
-
-    private Vec3 findEnemyFlankReturnExit(ServerLevel serverLevel, LivingEntity enemy, LivingEntity support) {
-        Vec3 fromEnemyToSupport = horizontalDirection(support.position().subtract(enemy.position()));
-        if (fromEnemyToSupport.lengthSqr() < 1.0E-4D) {
-            fromEnemyToSupport = Vec3.directionFromRotation(0.0F, enemy.getYRot());
-        }
-
-        Vec3 side = new Vec3(-fromEnemyToSupport.z, 0.0D, fromEnemyToSupport.x);
-        if (this.random.nextBoolean()) {
-            side = side.scale(-1.0D);
-        }
-
-        for (int attempt = 0; attempt < 16; attempt++) {
-            double sideDistance = 6.0D + this.random.nextDouble() * 4.0D;
-            double backDistance = 2.0D + this.random.nextDouble() * 4.0D;
-            Vec3 raw = enemy.position()
-                    .add(side.scale(sideDistance))
-                    .add(fromEnemyToSupport.scale(backDistance));
-            Vec3 candidate = surfacePosition(serverLevel, raw.x, raw.z);
-            if (isValidSupportRetreatPosition(serverLevel, candidate)) {
-                return candidate;
-            }
-        }
-
-        Vec3 fallbackRaw = enemy.position().add(fromEnemyToSupport.scale(6.0D));
-        return surfacePosition(serverLevel, fallbackRaw.x, fallbackRaw.z);
-    }
-
-    private Vec3 surfacePosition(ServerLevel serverLevel, double x, double z) {
-        int y = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, BlockPos.containing(x, this.getY(), z)).getY();
-        return new Vec3(x, y, z);
-    }
-
-    private boolean isValidSupportRetreatPosition(ServerLevel serverLevel, Vec3 pos) {
-        BlockPos blockPos = BlockPos.containing(pos);
-        if (!serverLevel.isLoaded(blockPos) || !serverLevel.getWorldBorder().isWithinBounds(blockPos)) {
-            return false;
-        }
-        if (!serverLevel.isEmptyBlock(blockPos) || !serverLevel.isEmptyBlock(blockPos.above()) || serverLevel.isEmptyBlock(blockPos.below())) {
-            return false;
-        }
-
-        AABB movedBox = this.getBoundingBox().move(pos.subtract(this.position()));
-        return serverLevel.noCollision(this, movedBox);
-    }
-
-    private Vec3 horizontalDirection(Vec3 vector) {
-        Vec3 horizontal = new Vec3(vector.x, 0.0D, vector.z);
-        return horizontal.lengthSqr() < 1.0E-4D ? Vec3.ZERO : horizontal.normalize();
-    }
-
-    private Vec3 rotateHorizontal(Vec3 vector, double angle) {
-        double cos = Math.cos(angle);
-        double sin = Math.sin(angle);
-        return new Vec3(vector.x * cos - vector.z * sin, 0.0D, vector.x * sin + vector.z * cos).normalize();
     }
 
     private void tickCombatLowCloneSupportSlots() {
@@ -1942,9 +1648,6 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
             this.blockPortalSummonDamage(pSource);
             return false;
         }
-        if (this.escapeTiming < 0) {
-            markSupportPanicFromHit(pSource);
-        }
         if (this.fishingHookCancelledEscape) {
             return super.hurt(pSource, 1.0F);
         }
@@ -1977,14 +1680,6 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
         super.die(damageSource);
     }
 
-    private void markSupportPanicFromHit(DamageSource source) {
-        if (this.level().isClientSide || source.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            return;
-        }
-
-        this.supportRetreatPanicTicks = Math.max(this.supportRetreatPanicTicks, 90);
-        this.supportRepositionCooldown = Math.min(this.supportRepositionCooldown, 1 + this.random.nextInt(20));
-    }
 
     @Override
     protected void dropCustomDeathLoot(@NotNull DamageSource damageSource, int looting, boolean recentlyHit) {
@@ -2060,12 +1755,8 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
         combatMode = pCompound.getBoolean("CombatMode");
         recallTime = pCompound.getInt("RecallTime");
         fishingHookCancelledEscape = pCompound.getBoolean("FishingHookCancelledEscape");
-        lowCloneSupportCooldown = pCompound.getInt("LowCloneSupportCooldown");
-        portalPairCooldown = pCompound.getInt("PortalPairCooldown");
-        rangedCounterPortalCooldown = pCompound.getInt("RangedCounterPortalCooldown");
-        supportEscapePortalCooldown = pCompound.getInt("SupportEscapePortalCooldown");
-        portalEscapeStepBackCooldown = pCompound.getInt("PortalEscapeStepBackCooldown");
-        sixPortalSupportCooldown = pCompound.getInt("SixPortalSupportCooldown");
+        lowCloneSupportCooldown = pCompound.contains("LowCloneSupportCooldown") ? pCompound.getInt("LowCloneSupportCooldown") : randomCooldownSeconds(90, 180);
+        portalActionCooldown = pCompound.contains("PortalActionCooldown") ? pCompound.getInt("PortalActionCooldown") : randomCooldownSeconds(20, 40);
         this.hookedWaitingForGround = pCompound.getBoolean("HookedWaitingForGround");
         this.hookedLeftGround = pCompound.getBoolean("HookedLeftGround");
         this.setHooked(pCompound.getBoolean("Hooked"));
@@ -2102,11 +1793,7 @@ public class HerobrineGregEntity extends Monster implements RigStunnableEntity {
         pCompound.putInt("RecallTime", recallTime);
         pCompound.putBoolean("FishingHookCancelledEscape", fishingHookCancelledEscape);
         pCompound.putInt("LowCloneSupportCooldown", lowCloneSupportCooldown);
-        pCompound.putInt("PortalPairCooldown", portalPairCooldown);
-        pCompound.putInt("RangedCounterPortalCooldown", rangedCounterPortalCooldown);
-        pCompound.putInt("SupportEscapePortalCooldown", supportEscapePortalCooldown);
-        pCompound.putInt("PortalEscapeStepBackCooldown", portalEscapeStepBackCooldown);
-        pCompound.putInt("SixPortalSupportCooldown", sixPortalSupportCooldown);
+        pCompound.putInt("PortalActionCooldown", portalActionCooldown);
         pCompound.putBoolean("Hooked", this.isHooked());
         pCompound.putBoolean("HookedWaitingForGround", this.hookedWaitingForGround);
         pCompound.putBoolean("HookedLeftGround", this.hookedLeftGround);

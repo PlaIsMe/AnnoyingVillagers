@@ -17,7 +17,7 @@ import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.CommonUtil;
-import com.pla.annoyingvillagers.util.HerobrinePortalCombatUtil;
+import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.RigPoseUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -278,7 +278,7 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
             if (preferredOwner != null && !preferredOwner.equals(portal.getOwnerUUID())) {
                 continue;
             }
-            if (!HerobrinePortalCombatUtil.canUsePortalOwnedBy(attacker, portal.getOwnerUUID())) {
+            if (!HerobrineUtil.canUsePortalOwnedBy(attacker, portal.getOwnerUUID())) {
                 continue;
             }
 
@@ -306,7 +306,7 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
             UUID ownerUuid = portal.getOwnerUUID();
             if (ownerUuid != null
                     && !ownerUuid.equals(attackerUuid)
-                    && !HerobrinePortalCombatUtil.canUsePortalOwnedBy(attacker, ownerUuid)) {
+                    && !HerobrineUtil.canUsePortalOwnedBy(attacker, ownerUuid)) {
                 continue;
             }
 
@@ -364,8 +364,8 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
             return false;
         }
 
-        if (HerobrinePortalCombatUtil.isHerobrineSide(attacker)
-                && HerobrinePortalCombatUtil.isHerobrineSide(entity)) {
+        if (HerobrineUtil.isHerobrineSide(attacker)
+                && HerobrineUtil.isHerobrineSide(entity)) {
             return false;
         }
 
@@ -375,8 +375,8 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
     public static boolean processGuard(ItemStack stack, LivingEntity entityToGuard) {
         if (entityToGuard instanceof SwordsmanHerobrineEntity swordsmanHerobrineEntity
                 && ((swordsmanHerobrineEntity.getGregUUID() != null
-                && HerobrinePortalCombatUtil.hasNearbyPortalGroup(swordsmanHerobrineEntity, swordsmanHerobrineEntity.getGregUUID(), 6, 48.0D))
-                || HerobrinePortalCombatUtil.hasNearbyPortalGroup(swordsmanHerobrineEntity, null, 6, 48.0D))) {
+                && HerobrineUtil.hasNearbyPortalGroup(swordsmanHerobrineEntity, swordsmanHerobrineEntity.getGregUUID(), 6, 48.0D))
+                || HerobrineUtil.hasNearbyPortalGroup(swordsmanHerobrineEntity, null, 6, 48.0D))) {
             return false;
         }
 
@@ -554,9 +554,13 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
             int startTick = RigAnimationController.getActiveAnimationStartTick(mob);
             if (active != null && startTick >= 0) {
                 float elapsedTicks = Math.max(0.0F, mob.tickCount - startTick + partialTicks);
-                return RigPoseUtil.getRightWeaponPosition(mob, active, elapsedTicks, handToTip);
+                Vec3 toolTip = RigPoseUtil.getRightWeaponPosition(mob, active, elapsedTicks, handToTip);
+                if (ent instanceof SwordsmanHerobrineEntity && (active == RigAnimationId.SWORDSMAN_HEROBRINE_ULT || active == RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT)) {
+                    return toolTip.add(0.0D, 0.2D, 0.0D);
+                }
             }
         }
+        if (!(ent instanceof LivingEntity)) return null;
         return CommonUtil.getVanillaSwordOrBodyPosition(ent, partialTicks);
     }
 

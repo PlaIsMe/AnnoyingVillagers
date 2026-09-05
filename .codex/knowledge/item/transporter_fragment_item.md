@@ -179,9 +179,9 @@ It:
 - uses the next portal order after active owned portals
 - spawns exactly one linked pair with the existing pair-spawn logic
 
-This method is used by `HerobrinePortalCombatUtil.spawnSupportPortalPair` for Greg, Transporter Herobrine Clone, and Aegis portal support.
+Current Greg/Transporter support goals call this pair API through `HerobrineUtil`. The support utility computes safe entrance/exit positions for dangerous-reaction escape, projectile counter, approach, and self escape, then asks `TransporterFragmentItem` to create the linked pair.
 
-`TransporterFragmentItem.canSpawnOwnedPortals(ServerLevel level, LivingEntity caster, int portalCount)` exposes the same active owner cap check for AI flows that need to reserve more than one pair. Greg's active support reposition checks for 4 available portal slots before spawning its pull-back pair and return-flank pair.
+`TransporterFragmentItem.canSpawnOwnedPortals(ServerLevel level, LivingEntity caster, int portalCount)` exposes the active-owner cap check used before portal actions. Normal support actions reserve 2 slots. Linked Greg six-portal support reserves 6 slots and uses `spawnPortalPairsBatch(serverLevel, greg, swordsman)`. The batch is now initiated by `HerobrineGregSixPortalSupportGoal`: Greg starts `PORTAL_SUMMON`, waits until animation tick 20, then calls the batch spawn helper. The Swordsman's ULT hook no longer asks for the batch directly.
 
 ## Transporter Special Attack Flow
 

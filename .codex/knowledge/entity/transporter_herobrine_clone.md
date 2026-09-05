@@ -3,104 +3,76 @@
 ## Source Scope
 
 - `src/main/java/com/pla/annoyingvillagers/entity/TransporterHerobrineCloneEntity.java`
-- `src/main/java/com/pla/annoyingvillagers/init/AnnoyingVillagersModEntities.java`
-- `src/main/java/com/pla/annoyingvillagers/init/AnnoyingVillagersModEntityRenderers.java`
-- `src/main/java/com/pla/annoyingvillagers/init/AnnoyingVillagersModItems.java`
-- `src/main/java/com/pla/annoyingvillagers/config/AnnoyingVillagersSpawnConfig.java`
-- `src/main/resources/assets/annoyingvillagers/lang/en_us.json`
+- `src/main/java/com/pla/annoyingvillagers/clazz/HerobrineMob.java`
+- `src/main/java/com/pla/annoyingvillagers/clazz/HerobrinePortalSupportCaster.java`
+- `src/main/java/com/pla/annoyingvillagers/util/CommonGoals.java`
+- `src/main/java/com/pla/annoyingvillagers/util/HerobrineUtil.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrineSupportEscapePortalGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrineProjectileCounterPortalGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrineSupportApproachPortalGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrineLowCloneSupportGoal.java`
+- `src/main/java/com/pla/annoyingvillagers/entity/goal/HerobrinePortalDangerousReactionGoal.java`
 
-## Identity And Registration
+## Role
 
-The entity id is `annoyingvillagers:transporter_herobrine_clone`.
+`TransporterHerobrineCloneEntity` extends `HerobrineMob` but is a support/portal unit, not a normal melee fighter. It implements `HerobrinePortalSupportCaster` and normally carries `TRANSPORTER_FRAGMENT`.
 
-The Java class is `TransporterHerobrineCloneEntity`, registered as `AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE`.
+Its support filter is broader than Greg's and can support normal `HerobrineMob` entities plus both low-clone classes.
 
-It extends `HerobrineMob`, so it inherits the Herobrine singleton natural-spawn claim/release behavior from `HerobrineMob.finalizeSpawn` and `HerobrineMob.remove`.
+## Cooldowns
 
-It uses:
+Transporter uses:
 
-- `ShadowHerobrineRenderer`
-- `ShadowHerobrineClonePatch`
-- the normal biped patched renderer
-- Shadow Herobrine Clone visual texture behavior
+- shared `portalActionCooldown`: random 20-45 seconds;
+- rare `lowCloneSupportCooldown`: random 90-180 seconds.
 
-## Spawn And Resources
+Keep the older low-health self-escape lifecycle separate from these combat-support cooldowns.
 
-Natural spawn is added through `AnnoyingVillagersSpawnConfig` with `fixedGroupEntry("transporter_herobrine_clone", 1, "Transporter Herobrine Clone")`.
+## Animation Rules
 
-Spawn placement uses `TransporterHerobrineCloneEntity.canSpawn`, which mirrors Herobrine clone rules:
+AV_EFM comments should map:
 
-- every 3 days, except day 0 is allowed
-- only if `HerobrineMobData` is not occupied
-- only at night
-- normal monster spawn rules
+- `PORTAL_SUMMON` -> `AnimsSculkSteve.PORTAL_SUMMON`;
+- `POINT_LEFT_HAND_TOWARD` -> `AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP`.
 
-The spawn egg is `transporter_herobrine_clone_spawn_egg`, with a model at `assets/annoyingvillagers/models/item/transporter_herobrine_clone_spawn_egg.json`.
+Transporter low-clone summons use `PORTAL_SUMMON` and perform at tick 20.
 
-## Attributes
+Two-portal support escape, projectile counter, approach, and self dangerous-reaction portal actions use `POINT_LEFT_HAND_TOWARD`.
 
-`createAttributes` sets:
+## Goal Registration
 
-- max health: 30
-- movement speed: 0.5
-- attack damage: 0
-- follow range: 48
-- armor: 4
-- knockback resistance: 1
+Transporter adds:
 
-## Damage And Retreat
+- priority `-5`: `HerobrineSupportEscapePortalGoal`;
+- priority `-4`: `HerobrineProjectileCounterPortalGoal`;
+- priority `-3`: `HerobrineSupportApproachPortalGoal`;
+- priority `-2`: `HerobrineLowCloneSupportGoal`;
+- priority `2`: its own `SafeCombatPositionGoal`.
 
-The entity caps normal non-void damage to `1.0F`, Greg-style.
+Common goal registration supplies portal-aware dangerous reaction at priority `-7`.
 
-It ignores fall, cactus, wither, drown, wither skull, and dragon breath damage.
+## Standalone Low-Clone Summoning
 
-Low-health escape now starts every time health is at or below 35% max health and the retry cooldown has expired.
+Transporter must be able to summon combat low clones whether or not it is linked to/supporting another Herobrine.
 
-Escape timing uses:
+`HerobrineUtil.findLowCloneSupportPlan(...)` resolves Transporter plans in this order:
 
-- `ESCAPE_DURATION_TICKS = 70`
-- portal summon effect at start and around tick 60
-- `HerobrinePortalUtil.sinkIntoGround` around tick 40
-- discard at tick 1
+1. use a supported Herobrine's live enemy when available;
+2. otherwise use Transporter's own valid target;
+3. otherwise search for a nearby valid enemy within the support radius and use Transporter itself as the anchor.
 
-If hit during escape by non-void damage, only 15% of hits are allowed to deal the normal 1 damage. Escape is not canceled on hit.
+Therefore absence of a linked/supported Herobrine is not a blocker. The existing randomized 90-180 second low-clone cooldown and support-slot limits still apply.
 
-## Drops
+## SafeCombatPositionGoal
 
-On normal death, `dropCustomDeathLoot` keeps the inherited HerobrineMob drop behavior and adds a `TRANSPORTER_FRAGMENT` drop with `TRANSPORTER_FRAGMENT_DROP_CHANCE = 0.1F`.
+Transporter's supporter movement may move Transporter itself but must not command the supported Herobrine. Portal entrances for supported allies are based on the ally's existing authored movement/target path.
 
-If the transporter clone dies while escape is active, it always drops one transporter fragment.
+## Low-Health Legacy Escape
 
-## Low Clone Summon
+Transporter's older low-health escape remains separate from combat support. Current behavior includes the 10% health threshold, escape timing/retry lifecycle, fishing-hook cancellation handling, and ordinary Transporter Fragment drop behavior.
 
-The entity periodically tries to summon either `LOW_HEROBRINE_CLONE` or `LOW_SHADOW_HEROBRINE_CLONE`.
+## Utility Ownership
 
-The summon cooldown now matches Greg's support window:
+All live support/portal helpers now live in `HerobrineUtil`.
 
-- `LOW_CLONE_SUPPORT_COOLDOWN_MIN_TICKS = 180 * 20`
-- `LOW_CLONE_SUPPORT_COOLDOWN_MAX_TICKS = 300 * 20`
-- failed summon checks retry after `LOW_CLONE_SUPPORT_RETRY_TICKS = 10 * 20`
-
-Each successful summon cycle spawns 1 to 3 support clones.
-
-Spawn position search uses nearby random surface positions from the `MOTION_BLOCKING_NO_LEAVES` heightmap and requires clear spawn space.
-
-The summoned low clone:
-
-- is spawned as `MOB_SUMMONED`
-- is placed on team `herobrine`
-- gets a portal summon sound
-- receives combat support gear, including broken diamond armor rolls or rare netherite armor for some low shadow clones
-- receives a support weapon chosen from iron sword, diamond sword, `OBSIDIAN_WEAPON`, or `SHADOW_OBSIDIAN_PILLAR`
-- inherits the transporter's current target when one exists
-- uses render-portal visual setup where supported
-
-## Combat Portal Support
-
-`portalSupportCooldown` periodically calls `HerobrinePortalCombatUtil.tryTransporterPortalSupport`.
-
-That helper now shares Greg's multi-support plan logic:
-
-- first preference is a nearby Herobrine-side ally whose enemy is still at least 10 blocks away
-- if no ally currently needs direct approach help, it can connect two spread-out Herobrine-side allies with a gather portal pair
-- if no ally plan is available, the entrance falls back to the transporter itself and the exit goes to the chosen enemy
+`HerobrineSupportPortalUtil.java` and `HerobrinePortalCombatUtil.java` are fully commented legacy snapshots only.
