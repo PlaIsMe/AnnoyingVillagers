@@ -2,6 +2,8 @@ package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.item.*;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -12,38 +14,43 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.function.Supplier;
+
 public class AnnoyingVillagersModItems {
     public static final DeferredRegister<Item> REGISTRY = DeferredRegister.create(ForgeRegistries.ITEMS, AnnoyingVillagers.MODID);
 
-    // Spawn egg
-    public static final RegistryObject<Item> BLUE_DEMON_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("blue_demon_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.BLUE_DEMON, -16737895, -16777216, (new Properties())));
-    public static final RegistryObject<Item> HEROBRINE_CLONE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("herobrine_clone_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.HEROBRINE_CLONE, -10066330, -13421773, (new Properties())));
-    public static final RegistryObject<Item> SHADOW_HEROBRINE_CLONE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("shadow_herobrine_clone_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE, -10066330, -13421773, (new Properties())));
-    public static final RegistryObject<Item> TRANSPORTER_HEROBRINE_CLONE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("transporter_herobrine_clone_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE, -10066330, -103, (new Properties())));
-    public static final RegistryObject<Item> HEROBRINE_GREG_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("herobrine_greg_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.HEROBRINE_GREG, -3355648, -103, (new Properties())));
-    public static final RegistryObject<Item> LOW_HEROBRINE_CLONE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("low_herobrine_clone_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE, -10066330, -13421773, (new Properties())));
-    public static final RegistryObject<Item> LOW_SHADOW_HEROBRINE_CLONE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("low_shadow_herobrine_clone_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE, -10066330, -13421773, (new Properties())));
-    public static final RegistryObject<Item> HEROBRINE_7_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("herobrine_7_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.HEROBRINE_7, -1, -1, (new Properties())));
-    public static final RegistryObject<Item> NULL_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("null_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.NULL, -16777216, -10066330, (new Properties())));
-    public static final RegistryObject<Item> ARMORED_HEROBRINE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("armored_herobrine_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.ARMORED_HEROBRINE, -16777216, -1, (new Properties())));
-    public static final RegistryObject<Item> DARK_HEROBRINE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("shadow_herobrine_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.SHADOW_HEROBRINE, -1, -1, (new Properties())));
-    public static final RegistryObject<Item> GLAIVE_HEROBRINE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("glaive_herobrine_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.GLAIVE_HEROBRINE, 0x330099, 0xFFFFFF, (new Properties())));
-    public static final RegistryObject<Item> REAPER_HEROBRINE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("reaper_herobrine_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.REAPER_HEROBRINE, 0x330099, 0xFFFFFF, (new Properties())));
-    public static final RegistryObject<Item> SWORDSMAN_HEROBRINE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("swordsman_herobrine_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.SWORDSMAN_HEROBRINE, 0x330099, 0xFFFFFF, (new Properties())));
-    public static final RegistryObject<Item> AEGIS_HEROBRINE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("aegis_herobrine_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.AEGIS_HEROBRINE, 0x330099, 0xFFFFFF, (new Properties())));
-    public static final RegistryObject<Item> SLEDGEHAMMER_HEROBRINE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("sledgehammer_herobrine_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.SLEDGEHAMMER_HEROBRINE, 0x330099, 0xFFFFFF, (new Properties())));
-    public static final RegistryObject<Item> VILLAGER_SCOUT_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("villager_scout_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.VILLAGER_SCOUT, -205, -26317, (new Properties())));
-    public static final RegistryObject<Item> VILLAGER_SCOUT_CAPTAIN_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("villager_scout_captain_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN, 0x00FFFF, 0xFFFFFF, (new Properties())));
-    public static final RegistryObject<Item> BLUE_VILLAGER_KNIGHT_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("blue_villager_knight_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.BLUE_VILLAGER_KNIGHT, -16711681, -6710887, (new Properties())));
-    public static final RegistryObject<Item> GREEN_VILLAGER_KNIGHT_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("green_villager_knight_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.GREEN_VILLAGER_KNIGHT, -16724992, -1, (new Properties())));
-    public static final RegistryObject<Item> RED_VILLAGER_KNIGHT_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("red_villager_knight_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT, -3407821, -13421773, (new Properties())));
-    public static final RegistryObject<Item> PURPLE_VILLAGER_KNIGHT_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("purple_villager_knight_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.PURPLE_VILLAGER_KNIGHT, -3407668, -6710887, (new Properties())));
-    public static final RegistryObject<Item> STEVE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("steve_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.STEVE, -16724788, -13421569, (new Properties())));
-    public static final RegistryObject<Item> ANGRY_STEVE_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("angry_steve_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.ANGRY_STEVE, -16724788, -13421569, (new Properties())));
-    public static final RegistryObject<Item> ALEX_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("alex_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.ALEX, -3342439, -1  , (new Properties())));
-    public static final RegistryObject<Item> JEV_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("jev_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.JEV, 0x996C18, -1, (new Properties())));
-    public static final RegistryObject<Item> CHRIS_SPAWN_EGG = AnnoyingVillagersModItems.REGISTRY.register("chris_spawn_egg", () -> new ForgeSpawnEggItem(AnnoyingVillagersModEntities.CHRIS, -16737997, -6711040, (new Properties())));
+    private static RegistryObject<Item> registerSpawnEgg(String name, Supplier<? extends EntityType<? extends Mob>> entityType) {
+        return REGISTRY.register(name, () -> new ForgeSpawnEggItem(entityType, 0xFFFFFF, 0xFFFFFF, new Properties()));
+    }
 
+    // Spawn egg
+    public static final RegistryObject<Item> BLUE_DEMON_SPAWN_EGG = registerSpawnEgg("blue_demon_spawn_egg", AnnoyingVillagersModEntities.BLUE_DEMON);
+    public static final RegistryObject<Item> HEROBRINE_CLONE_SPAWN_EGG = registerSpawnEgg("herobrine_clone_spawn_egg", AnnoyingVillagersModEntities.HEROBRINE_CLONE);
+    public static final RegistryObject<Item> SHADOW_HEROBRINE_CLONE_SPAWN_EGG = registerSpawnEgg("shadow_herobrine_clone_spawn_egg", AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE);
+    public static final RegistryObject<Item> TRANSPORTER_HEROBRINE_CLONE_SPAWN_EGG = registerSpawnEgg("transporter_herobrine_clone_spawn_egg", AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE);
+    public static final RegistryObject<Item> HEROBRINE_GREG_SPAWN_EGG = registerSpawnEgg("herobrine_greg_spawn_egg", AnnoyingVillagersModEntities.HEROBRINE_GREG);
+    public static final RegistryObject<Item> LOW_HEROBRINE_CLONE_SPAWN_EGG = registerSpawnEgg("low_herobrine_clone_spawn_egg", AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE);
+    public static final RegistryObject<Item> LOW_SHADOW_HEROBRINE_CLONE_SPAWN_EGG = registerSpawnEgg("low_shadow_herobrine_clone_spawn_egg", AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE);
+    public static final RegistryObject<Item> HEROBRINE_7_SPAWN_EGG = registerSpawnEgg("herobrine_7_spawn_egg", AnnoyingVillagersModEntities.HEROBRINE_7);
+    public static final RegistryObject<Item> NULL_SPAWN_EGG = registerSpawnEgg("null_spawn_egg", AnnoyingVillagersModEntities.NULL);
+    public static final RegistryObject<Item> ARMORED_HEROBRINE_SPAWN_EGG = registerSpawnEgg("armored_herobrine_spawn_egg", AnnoyingVillagersModEntities.ARMORED_HEROBRINE);
+    public static final RegistryObject<Item> DARK_HEROBRINE_SPAWN_EGG = registerSpawnEgg("shadow_herobrine_spawn_egg", AnnoyingVillagersModEntities.SHADOW_HEROBRINE);
+    public static final RegistryObject<Item> GLAIVE_HEROBRINE_SPAWN_EGG = registerSpawnEgg("glaive_herobrine_spawn_egg", AnnoyingVillagersModEntities.GLAIVE_HEROBRINE);
+    public static final RegistryObject<Item> REAPER_HEROBRINE_SPAWN_EGG = registerSpawnEgg("reaper_herobrine_spawn_egg", AnnoyingVillagersModEntities.REAPER_HEROBRINE);
+    public static final RegistryObject<Item> SWORDSMAN_HEROBRINE_SPAWN_EGG = registerSpawnEgg("swordsman_herobrine_spawn_egg", AnnoyingVillagersModEntities.SWORDSMAN_HEROBRINE);
+    public static final RegistryObject<Item> AEGIS_HEROBRINE_SPAWN_EGG = registerSpawnEgg("aegis_herobrine_spawn_egg", AnnoyingVillagersModEntities.AEGIS_HEROBRINE);
+    public static final RegistryObject<Item> SLEDGEHAMMER_HEROBRINE_SPAWN_EGG = registerSpawnEgg("sledgehammer_herobrine_spawn_egg", AnnoyingVillagersModEntities.SLEDGEHAMMER_HEROBRINE);
+    public static final RegistryObject<Item> VILLAGER_SCOUT_SPAWN_EGG = registerSpawnEgg("villager_scout_spawn_egg", AnnoyingVillagersModEntities.VILLAGER_SCOUT);
+    public static final RegistryObject<Item> VILLAGER_SCOUT_CAPTAIN_SPAWN_EGG = registerSpawnEgg("villager_scout_captain_spawn_egg", AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN);
+    public static final RegistryObject<Item> BLUE_VILLAGER_KNIGHT_SPAWN_EGG = registerSpawnEgg("blue_villager_knight_spawn_egg", AnnoyingVillagersModEntities.BLUE_VILLAGER_KNIGHT);
+    public static final RegistryObject<Item> GREEN_VILLAGER_KNIGHT_SPAWN_EGG = registerSpawnEgg("green_villager_knight_spawn_egg", AnnoyingVillagersModEntities.GREEN_VILLAGER_KNIGHT);
+    public static final RegistryObject<Item> RED_VILLAGER_KNIGHT_SPAWN_EGG = registerSpawnEgg("red_villager_knight_spawn_egg", AnnoyingVillagersModEntities.RED_VILLAGER_KNIGHT);
+    public static final RegistryObject<Item> PURPLE_VILLAGER_KNIGHT_SPAWN_EGG = registerSpawnEgg("purple_villager_knight_spawn_egg", AnnoyingVillagersModEntities.PURPLE_VILLAGER_KNIGHT);
+    public static final RegistryObject<Item> STEVE_SPAWN_EGG = registerSpawnEgg("steve_spawn_egg", AnnoyingVillagersModEntities.STEVE);
+    public static final RegistryObject<Item> ANGRY_STEVE_SPAWN_EGG = registerSpawnEgg("angry_steve_spawn_egg", AnnoyingVillagersModEntities.ANGRY_STEVE);
+    public static final RegistryObject<Item> ALEX_SPAWN_EGG = registerSpawnEgg("alex_spawn_egg", AnnoyingVillagersModEntities.ALEX);
+    public static final RegistryObject<Item> JEV_SPAWN_EGG = registerSpawnEgg("jev_spawn_egg", AnnoyingVillagersModEntities.JEV);
+    public static final RegistryObject<Item> CHRIS_SPAWN_EGG = registerSpawnEgg("chris_spawn_egg", AnnoyingVillagersModEntities.CHRIS);
     // ------------------------------
 
     // Misc item

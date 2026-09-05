@@ -1,3 +1,6 @@
 {
-  "parent": "item/template_spawn_egg"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "annoyingvillagers:item/spawn_egg/low_shadow_herobrine_clone_spawn_egg"
+  }
 }

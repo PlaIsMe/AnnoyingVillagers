@@ -25,3 +25,4 @@ A special thank you to the talented individuals who helped bring this project to
 * **Models & Textures:** MrLech, Blue_Hair030, Motschen, Unitypusheen, Hivane, Maximino, TheArix
 * **Translation & Textures:** DanielhackerXD (Chinese), stelkardmc (Russian)
 * **VFX Assets:** Sidtheplayer (Photon assets)
+* **Egg Assets:** nikiii_Nikkii, BVKER6487 
