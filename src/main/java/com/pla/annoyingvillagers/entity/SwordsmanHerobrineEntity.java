@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.entity.goal.EliteHerobrineSecondFormGoal;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
@@ -26,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SwordsmanHerobrineEntity extends HerobrineMob {
+    private boolean snakeStateSanitizedAfterLoad;
+
     public SwordsmanHerobrineEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.SWORDSMAN_HEROBRINE.get(), level);
     }
@@ -69,10 +72,9 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
 
     @Override
     public void tick() {
-        // tickCount is still 0 before the first super.tick() call. Clear any
-        // persisted snake marker/tag before AI goals get a chance to run.
-        if (!this.level().isClientSide() && this.tickCount == 0) {
+        if (!this.level().isClientSide() && !this.snakeStateSanitizedAfterLoad) {
             DemoniacVoltageReaverItem.resetSnakeAnimationAfterEntityLoad(this);
+            this.snakeStateSanitizedAfterLoad = true;
         }
 
         super.tick();
@@ -92,6 +94,13 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
                 }
             }
         }
+    }
+
+    @Override
+    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (!this.level().isClientSide()) DemoniacVoltageReaverItem.resetSnakeAnimationAfterEntityLoad(this);
+        this.snakeStateSanitizedAfterLoad = false;
     }
 
     public void die(@NotNull DamageSource damagesource) {

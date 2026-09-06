@@ -74,12 +74,12 @@
 			"translation": [0.25, 9, 1.5]
 		},
 		"firstperson_righthand": {
-			"rotation": [0, 0, 45],
-			"translation": [0, 6.25, 0]
+			"rotation": [-62, 80, 45],
+			"translation": [-1, 6.25, 0]
 		},
 		"firstperson_lefthand": {
-			"rotation": [0, 0, -45],
-			"translation": [0, 6.25, 0]
+			"rotation": [-55, 80, -45],
+			"translation": [0.25, 8, 0]
 		},
 		"ground": {
 			"rotation": [-180, -180, 45],
@@ -100,6 +100,7 @@
 		{
 			"name": "trident",
 			"origin": [8, 0, 33],
+			"scope": 0,
 			"color": 0,
 			"children": [0, 1, 2, 3]
 		}

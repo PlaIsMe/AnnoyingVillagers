@@ -30,12 +30,12 @@
 			"translation": [-2.75, 2, -1]
 		},
 		"firstperson_righthand": {
-			"rotation": [0, 79, 38],
-			"translation": [0, 11.25, 1]
+			"rotation": [-65, -65, 150],
+			"translation": [-2.5, 4, 1]
 		},
 		"firstperson_lefthand": {
-			"rotation": [69, -91, 32],
-			"translation": [-1, 10.25, 1.5]
+			"rotation": [55, 70, 85],
+			"translation": [-2.5, 4, 1]
 		},
 		"ground": {
 			"translation": [0, -1, 0]

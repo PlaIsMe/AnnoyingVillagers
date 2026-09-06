@@ -1840,14 +1840,12 @@
 			"scale": [1, 0.81641, 0.83984]
 		},
 		"firstperson_righthand": {
-			"rotation": [-128.54, 0.19, -179.96],
-			"translation": [0, 2.5, 0.5],
-			"scale": [1, 0.81641, 0.83984]
+			"rotation": [-160, 0, -175],
+			"translation": [0.25, 5, 0]
 		},
 		"firstperson_lefthand": {
-			"rotation": [-128.54, 0.19, -179.96],
-			"translation": [0, 2.5, 0.5],
-			"scale": [1, 0.81641, 0.83984]
+			"rotation": [-160, 0, -175],
+			"translation": [0.25, 5, 0]
 		},
 		"ground": {
 			"translation": [0, 4.25, 0]

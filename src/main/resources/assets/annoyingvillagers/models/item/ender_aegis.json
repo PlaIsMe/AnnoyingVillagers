@@ -6,8 +6,23 @@
   },
   "overrides": [
     {
-      "predicate": { "annoyingvillagers:second_form": 1.0 },
+      "predicate": {
+        "annoyingvillagers:blocking": 1.0
+      },
+      "model": "annoyingvillagers:item/ender_aegis_blocking"
+    },
+    {
+      "predicate": {
+        "annoyingvillagers:second_form": 1.0
+      },
       "model": "annoyingvillagers:item/ender_aegis_awakened"
+    },
+    {
+      "predicate": {
+        "annoyingvillagers:blocking": 1.0,
+        "annoyingvillagers:second_form": 1.0
+      },
+      "model": "annoyingvillagers:item/ender_aegis_awakened_blocking"
     }
   ]
 }

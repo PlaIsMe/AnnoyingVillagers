@@ -2,7 +2,6 @@ package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.blockentity.*;
-import com.pla.annoyingvillagers.clazz.FakePlayer;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.clazz.ProjectileBreakableBlocks;
@@ -334,9 +333,8 @@ public class HerobrineUtil {
                 possessed = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), serverLevel);
             }
             possessed.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
-            LivingEntity victim = (LivingEntity) entity;
-            victim.getCustomName();
-            possessed.getPersistentData().putString("killed_name", victim.getCustomName().getString());
+            if (!(entity instanceof LivingEntity victim)) return;
+            possessed.getPersistentData().putString("killed_name", victim.getName().getString());
 
             if (!victim.getItemBySlot(EquipmentSlot.HEAD).getItem().equals(Items.PLAYER_HEAD)) {
                 possessed.setItemSlot(EquipmentSlot.HEAD, victim.getItemBySlot(EquipmentSlot.HEAD).copy());
@@ -348,8 +346,7 @@ public class HerobrineUtil {
             possessed.setItemSlot(EquipmentSlot.OFFHAND, victim.getItemBySlot(EquipmentSlot.OFFHAND).copy());
             Mob mob = (Mob) possessed;
             if (mob instanceof LowHerobrineCloneEntity lowHerobrineCloneEntity) {
-                lowHerobrineCloneEntity.setUsername(((FakePlayer) entity).getUsername());
-                lowHerobrineCloneEntity.setProfile(((FakePlayer) entity).getProfile());
+                SmartNpc.copyPlayerNpcIdentity(entity, lowHerobrineCloneEntity);
                 if (herobrineEntity instanceof HerobrineMob herobrineMob) {
                     lowHerobrineCloneEntity.setPossessedByEntity(herobrineMob);
                     lowHerobrineCloneEntity.setPossessedByUuid(herobrineMob.getUUID());

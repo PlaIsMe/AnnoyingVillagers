@@ -1,5 +1,5 @@
 {
-  "parent": "annoyingvillagers:custom/iron_longsword",
+  "parent": "annoyingvillagers:custom/diamond_longsword",
   "textures": {
     "0": "annoyingvillagers:item/iron_longsword",
     "particle": "annoyingvillagers:item/iron_longsword"

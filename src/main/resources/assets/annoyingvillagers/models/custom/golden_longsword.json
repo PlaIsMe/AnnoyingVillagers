@@ -5653,38 +5653,12 @@
       ]
     },
     "firstperson_righthand": {
-      "rotation": [
-        -150.5,
-        2.5,
-        -91.25
-      ],
-      "translation": [
-        7,
-        1.75,
-        1
-      ],
-      "scale": [
-        0.8,
-        0.8,
-        0.8
-      ]
+      "rotation": [-150, 2.5, -90],
+      "translation": [4.5, 2.5, -4]
     },
     "firstperson_lefthand": {
-      "rotation": [
-        36,
-        -176,
-        -91.25
-      ],
-      "translation": [
-        -4.25,
-        1.75,
-        1
-      ],
-      "scale": [
-        0.8,
-        0.8,
-        0.8
-      ]
+      "rotation": [-60, 2.5, -90],
+      "translation": [4.5, 2.5, -4]
     },
     "ground": {
       "rotation": [

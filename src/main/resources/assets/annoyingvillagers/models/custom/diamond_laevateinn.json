@@ -10641,38 +10641,12 @@
       ]
     },
     "firstperson_righthand": {
-      "rotation": [
-        -45,
-        0,
-        0
-      ],
-      "translation": [
-        0,
-        4,
-        0
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
+      "rotation": [-160, 0, -175],
+      "translation": [0.25, 5, 0]
     },
     "firstperson_lefthand": {
-      "rotation": [
-        -45,
-        0,
-        0
-      ],
-      "translation": [
-        0,
-        4,
-        0
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
+      "rotation": [-160, 0, -175],
+      "translation": [0.25, 5, 0]
     },
     "ground": {
       "rotation": [

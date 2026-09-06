@@ -14,12 +14,12 @@
       "translation": [0.5, 0, -1.5]
     },
     "firstperson_righthand": {
-      "rotation": [0, 88, 0],
-      "translation": [0, 1.25, 0]
+      "rotation": [51.25, 88, 0],
+      "translation": [-0.25, 3.25, 0]
     },
     "firstperson_lefthand": {
-      "rotation": [0, -88, 0],
-      "translation": [0, 1.25, 0]
+      "rotation": [51.25, -88, 0],
+      "translation": [-0.25, 3.25, 0]
     },
     "gui": {
       "rotation": [0, 0, 71],

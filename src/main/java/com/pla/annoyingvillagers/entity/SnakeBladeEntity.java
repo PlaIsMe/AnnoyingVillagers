@@ -139,12 +139,15 @@ public class SnakeBladeEntity extends Entity {
     @Override
     public void tick() {
         Entity creator = getCreatorEntity();
-        if (creator instanceof LivingEntity livingEntity
-                && (!(livingEntity.getMainHandItem().getItem() instanceof DemoniacVoltageReaverItem)
-                || !livingEntity.isAlive()
-                || livingEntity.isRemoved())) {
-            cleanupAndDiscard(creator);
-            return;
+        if (!this.level().isClientSide()) {
+            if (!(creator instanceof LivingEntity livingEntity)) {
+                cleanupAndDiscard(creator);
+                return;
+            }
+            if (!(livingEntity.getMainHandItem().getItem() instanceof DemoniacVoltageReaverItem) || !livingEntity.isAlive() || livingEntity.isRemoved()) {
+                cleanupAndDiscard(creator);
+                return;
+            }
         }
         HerobrineUtil.spawnEliteEffect(this.level(), this.getX(), this.getY(), this.getZ(), this);
 

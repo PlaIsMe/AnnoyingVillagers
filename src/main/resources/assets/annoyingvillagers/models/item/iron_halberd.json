@@ -1450,14 +1450,12 @@
 			"scale": [1, 0.94532, 0.88281]
 		},
 		"firstperson_righthand": {
-			"rotation": [-127.75, 0, -180],
-			"translation": [0, 4, 1],
-			"scale": [1, 0.94532, 0.88281]
+			"rotation": [-155, -1, 175],
+			"translation": [9.75, 6, -7.75]
 		},
 		"firstperson_lefthand": {
-			"rotation": [-127.75, 0, -180],
-			"translation": [0, 4, 1],
-			"scale": [1, 0.94532, 0.88281]
+			"rotation": [-155, 1, 175],
+			"translation": [9.75, 6, -7.75]
 		},
 		"ground": {
 			"translation": [0, 4.25, 0]
@@ -1481,6 +1479,7 @@
 		{
 			"name": "hilt",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 1,
 			"children": [
 				0,
@@ -1551,6 +1550,7 @@
 		{
 			"name": "head",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 4,
 			"children": [
 				63,

@@ -7027,38 +7027,12 @@
       ]
     },
     "firstperson_righthand": {
-      "rotation": [
-        -45,
-        0,
-        0
-      ],
-      "translation": [
-        1,
-        4.25,
-        0
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
+      "rotation": [-115, 20, 15],
+      "translation": [7, 2.75, -10.5]
     },
     "firstperson_lefthand": {
-      "rotation": [
-        -45,
-        0,
-        0
-      ],
-      "translation": [
-        3.5,
-        3.5,
-        0
-      ],
-      "scale": [
-        0.6,
-        0.6,
-        0.6
-      ]
+      "rotation": [-115, 12, 0],
+      "translation": [7, 2.75, -10.5]
     },
     "ground": {
       "scale": [

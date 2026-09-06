@@ -67,6 +67,15 @@ public class SmartNpc {
         return mob instanceof PlayerNpcEntity;
     }
 
+    public static void copyPlayerNpcIdentity(Entity entity, LowHerobrineCloneEntity lowHerobrineCloneEntity) {
+        if (!(entity instanceof PlayerNpcEntity playerNpcEntity)) return;
+
+        String username = playerNpcEntity.getUsername().getCombinedNames();
+        if (username != null && !username.isBlank()) lowHerobrineCloneEntity.setUsername(username);
+        var profile = playerNpcEntity.getProfile();
+        if (profile != null) lowHerobrineCloneEntity.setProfile(profile);
+    }
+
     public static SimpleContainer getInventory(Entity entity) {
         if (entity instanceof PlayerNpcEntity playerNpcEntity) {
             return playerNpcEntity.getInventory();
