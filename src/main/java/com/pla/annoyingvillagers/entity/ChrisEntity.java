@@ -28,6 +28,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -39,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 
 
@@ -278,6 +280,43 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
 
     public void awardKillScore(@NotNull Entity entity, int i, @NotNull DamageSource damagesource) {
         super.awardKillScore(entity, i, damagesource);
+    }
+
+    @Override
+    protected boolean seedInventory() {
+        if (super.seedInventory()) {
+            Random random = new Random();
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.GOLDEN_APPLE, random.nextInt(16, 32)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, random.nextInt(16, 32)));
+
+            List<ItemLike> foods = new ArrayList<>(REGULAR_FOODS);
+            for (int i = 0; i < 2 && !foods.isEmpty(); i++) {
+                ItemLike food = foods.remove(random.nextInt(foods.size()));
+                InventoryUtils.addItem(this.inventory, new ItemStack(food, random.nextInt(16, 32)));
+            }
+
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ARROW, random.nextInt(32, 64)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.ENDER_PEARL, random.nextInt(16, 32)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.WATER_BUCKET));
+            if (this.isVillagerKnight() && random.nextFloat() < 0.45F) {
+                InventoryUtils.addItem(this.inventory, new ItemStack(Items.LAVA_BUCKET));
+            }
+
+            List<ItemLike> blocks = new ArrayList<>(PLACEABLE_BLOCKS);
+            int blockStacks = random.nextInt(1, 2);
+            for (int i = 0; i < blockStacks && !blocks.isEmpty(); i++) {
+                ItemLike block = blocks.remove(random.nextInt(blocks.size()));
+                InventoryUtils.addItem(this.inventory, new ItemStack(block, random.nextInt(64, 128)));
+            }
+
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.COAL, random.nextInt(0, 8)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.IRON_INGOT, random.nextInt(0, 12)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.GOLD_INGOT, random.nextInt(0, 12)));
+            InventoryUtils.addItem(this.inventory, new ItemStack(Items.DIAMOND, random.nextInt(0, 8)));
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static boolean canSpawn(EntityType<ChrisEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {

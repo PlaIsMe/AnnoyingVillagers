@@ -6,6 +6,8 @@ import com.pla.annoyingvillagers.clazz.*;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.entity.goal.RollItemGoal;
+import com.pla.annoyingvillagers.entity.goal.BlueDemonEscapeHoleGoal;
+import com.pla.annoyingvillagers.entity.goal.BlueDemonWaterCarryGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
@@ -115,6 +117,10 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     private Vec3 leaveDirection = Vec3.ZERO;
     private int voiceCooldown = 0;
     private int rigAttackAnimationLockCount;
+    private boolean bbqHoleEscapeActive;
+    @Nullable
+    private BlueDemonEscapeHoleGoal escapeHoleGoal;
+    private BlueDemonWaterCarryGoal waterCarryGoal;
 
     @Override
     public void lock() {
@@ -303,6 +309,12 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             super.setTarget(null);
             return;
         }
+        LivingEntity current = this.getTarget();
+        if (pTarget == null && this.bbqHoleEscapeActive && this.canUseBbqHoleEscape()
+                && current != null && current.isAlive() && !current.isRemoved()
+                && !this.isAlliedTo(current) && current.level() == this.level()
+                && this.distanceToSqr(current) <= 28.0D * 28.0D
+                && !(current instanceof Player player && (player.isCreative() || player.isSpectator()))) return;
         super.setTarget(pTarget);
     }
 
@@ -586,7 +598,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
     public BlueDemonEntity(EntityType<? extends BlueDemonEntity> type, Level level) {
         super(type, level);
-        this.setMaxUpStep(3.0F);
+        this.setMaxUpStep(2.0F);
         this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
         this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, 0.0F);
         this.xpReward = 0;
@@ -635,6 +647,10 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
     @Override
     public void travel(@NotNull Vec3 travelVector) {
+        if (this.waterCarryGoal != null && this.waterCarryGoal.isCarrying()) {
+            this.setDeltaMovement(Vec3.ZERO);
+            return;
+        }
         if (this.isInWater() && !this.isNoAi() && !this.isPassenger()) {
             this.moveRelative(WATER_SWIM_ACCELERATION, travelVector);
             super.travel(travelVector);
@@ -678,6 +694,10 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     protected void registerGoals() {
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
         CommonGoals.registerDangerousReactionGoals(this);
+        this.escapeHoleGoal = new BlueDemonEscapeHoleGoal(this);
+        this.waterCarryGoal = new BlueDemonWaterCarryGoal(this);
+        this.goalSelector.addGoal(-4, this.waterCarryGoal);
+        this.goalSelector.addGoal(-4, this.escapeHoleGoal);
         this.goalSelector.addGoal(1, new RollItemGoal(this));
         CommonGoals.registerGoalForBlueDemonNpc(this);
     }
@@ -714,6 +734,30 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
     public boolean isInFinalDeathSequence() {
         return this.dieTick > 0;
+    }
+
+    public boolean canUseBbqHoleEscape() {
+        int state = this.getState();
+        return (state == 0 || state == 3) && this.stateTransformCooldown <= 0 && this.dieTick <= 0
+                && !this.isLeavingNow() && !this.isSauceArrivalPending() && this.healingTick == 0;
+    }
+
+    public boolean isBbqHoleEscapeActive() {
+        return this.bbqHoleEscapeActive;
+    }
+
+    public void setBbqHoleEscapeActive(boolean active) {
+        this.bbqHoleEscapeActive = active;
+    }
+
+    @Nullable
+    public BbqEntity findAvailableHoleEscapeSauce() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return null;
+        for (SauceType sauceType : SauceType.values()) {
+            BbqEntity sauce = this.resolveAliveSauce(serverLevel, sauceType);
+            if (sauce != null && sauce.canBeginHoleCarry(this)) return sauce;
+        }
+        return null;
     }
 
     private void playFinalDeathAnimation() {
@@ -1438,6 +1482,14 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     public void tick() {
         super.tick();
 
+        if (this.escapeHoleGoal != null) this.escapeHoleGoal.recoverAfterLoad();
+        if (this.escapeHoleGoal != null && this.escapeHoleGoal.shouldForceCancel()) {
+            this.escapeHoleGoal.forceCancel();
+        }
+        if (this.waterCarryGoal != null && this.waterCarryGoal.shouldForceCancel()) {
+            this.waterCarryGoal.forceCancel();
+        }
+
         if (this.getState() == 2 || this.dieTick > 0) {
             this.tickStateTwoPhysics();
         }
@@ -1543,13 +1595,13 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
             CommonUtil.stunEscapeAi(this);
 
-            if (this.getState() == 3) {
+            if (this.getState() == 3 && !this.bbqHoleEscapeActive) {
                 this.tickShockSauceOrders(this.getSauce(SauceType.HONEY_MUSTARD_SAUCE));
                 this.tickShockSauceOrders(this.getSauce(SauceType.SOY_SAUCE));
                 this.tickSweetOnionOrders(this.getSauce(SauceType.SWEET_ONION_SAUCE));
             }
 
-            this.tickBbqOrders(this.getSauce(SauceType.BBQ_SAUCE));
+            if (!this.bbqHoleEscapeActive) this.tickBbqOrders(this.getSauce(SauceType.BBQ_SAUCE));
         }
     }
 
@@ -1828,6 +1880,8 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
     @Override
     public void remove(@NotNull RemovalReason reason) {
+        if (this.escapeHoleGoal != null) this.escapeHoleGoal.forceCancel();
+        if (this.waterCarryGoal != null) this.waterCarryGoal.forceCancel();
         super.remove(reason);
         if (!level().isClientSide && level() instanceof ServerLevel serverLevel &&
                 (reason == RemovalReason.KILLED || reason == RemovalReason.DISCARDED)) {

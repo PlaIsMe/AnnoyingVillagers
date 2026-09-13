@@ -88,7 +88,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
 
     public AngrySteveEntity(EntityType<AngrySteveEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(1.0F);
+        this.setMaxUpStep(2.0F);
         this.xpReward = 8;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());

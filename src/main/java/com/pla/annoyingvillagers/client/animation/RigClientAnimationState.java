@@ -9,6 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @OnlyIn(Dist.CLIENT)
@@ -28,8 +29,14 @@ public final class RigClientAnimationState {
 
         Entity entity = Minecraft.getInstance().level == null ? null : Minecraft.getInstance().level.getEntity(entityId);
         int startTick = entity == null ? 0 : entity.tickCount;
-        Active active = new Active(animationId, startTick, durationTicks, DEFAULT_BLEND_IN_TICKS, DEFAULT_BLEND_OUT_TICKS);
+        UUID entityUuid = entity == null ? null : entity.getUUID();
+        Active active = new Active(animationId, entityUuid, startTick, durationTicks,
+                DEFAULT_BLEND_IN_TICKS, DEFAULT_BLEND_OUT_TICKS);
         ACTIVE_ANIMATIONS.put(entityId, active);
+    }
+
+    public static void clear() {
+        ACTIVE_ANIMATIONS.clear();
     }
 
     public static Map<Integer, Active> snapshot() {
@@ -39,6 +46,11 @@ public final class RigClientAnimationState {
     public static Active getActive(Entity entity, float ageInTicks) {
         Active active = ACTIVE_ANIMATIONS.get(entity.getId());
         if (active == null) {
+            return null;
+        }
+
+        if (active.entityUuid() != null && !active.entityUuid().equals(entity.getUUID())) {
+            ACTIVE_ANIMATIONS.remove(entity.getId(), active);
             return null;
         }
 
@@ -55,7 +67,8 @@ public final class RigClientAnimationState {
         return active != null && RigAnimationSpecs.get(active.animationId()).isToolHidden(arm, active.elapsedTicks(entity.tickCount));
     }
 
-    public record Active(RigAnimationId animationId, int startedAtTick, int durationTicks, int blendInTicks, int blendOutTicks) {
+    public record Active(RigAnimationId animationId, UUID entityUuid, int startedAtTick, int durationTicks,
+                         int blendInTicks, int blendOutTicks) {
         public float elapsedTicks(float ageInTicks) {
             return Math.max(0.0F, ageInTicks - this.startedAtTick);
         }

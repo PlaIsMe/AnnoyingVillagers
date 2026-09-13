@@ -71,6 +71,7 @@ import static net.minecraft.world.entity.ai.attributes.Attributes.*;
 @SuppressWarnings({"deprecation", "SameReturnValue"})
 public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEntity, FlyingAnimal, PlayerRideable
 {
+    private static final int RECALL_MOUNT_TIMEOUT_TICKS = 120;
     public static final double BASE_SPEED_GROUND = 0.3;
     public static final double BASE_SPEED_FLYING = 0.32;
     public static final double BASE_DAMAGE = 8;
@@ -99,6 +100,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     private boolean recallActive = false;
     private boolean recallAutoMount = false;
     private Vec3 recallLandPos = null;
+    private int recallStartedTick = -1;
 
     private int summonRiseTimeToLiveTicks;
     private double summonRisePhysicsReleaseY;
@@ -178,6 +180,27 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
 
     public void setRecallActive(boolean recallActive) {
         this.recallActive = recallActive;
+    }
+
+    /** Clears every transient landing/pickup state so normal orbit can resume. */
+    public void abortRecall() {
+        this.recallActive = false;
+        this.recallAutoMount = false;
+        this.recallLandPos = null;
+        this.recallStartedTick = -1;
+        this.getNavigation().stop();
+        this.setDeltaMovement(Vec3.ZERO);
+        this.noPhysics = false;
+        this.setNoGravity(false);
+        if (!this.isPassenger() && !this.hasControllingPassenger()) {
+            this.setFlying(true);
+            this.setNavigation(true);
+        }
+    }
+
+    public boolean isRecallMountTimedOut() {
+        return this.recallActive && this.recallStartedTick >= 0
+                && this.tickCount - this.recallStartedTick >= RECALL_MOUNT_TIMEOUT_TICKS;
     }
 
     public HerobrineDragonEntity(EntityType<? extends HerobrineDragonEntity> type, Level level)
@@ -475,6 +498,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
         this.recallActive = true;
         this.recallAutoMount = autoMount;
         this.recallLandPos = null;
+        this.recallStartedTick = this.tickCount;
 
         this.breathHoverTimeToLiveTicks = 0;
         this.breathHoverTarget = null;
@@ -551,6 +575,9 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
         super.tick();
         if (this.level() instanceof ServerLevel serverLevel)
         {
+            if (this.isRecallMountTimedOut() && !this.hasControllingPassenger()) {
+                this.abortRecall();
+            }
             this.checkCrystals();
             if (this.nearestCrystal != null && !this.nearestCrystal.isRemoved()) {
                 this.nearestCrystal.setBeamTarget(this.blockPosition());

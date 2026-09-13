@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.HerobrinePortalSupportCaster;
 import com.pla.annoyingvillagers.entity.goal.HerobrineLowCloneSupportGoal;
@@ -17,6 +18,7 @@ import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalUtil;
+import com.pla.annoyingvillagers.util.ProgressionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -656,17 +658,13 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
 
     public static boolean canSpawn(EntityType<TransporterHerobrineCloneEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
-        int passesDay = (int) (serverLevel.getGameTime() / 24000);
-        if (passesDay != 0 && passesDay % 3 != 0) {
-            return false;
-        }
         if (HerobrineMobData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
         }
         if (!serverLevel.isNight()) {
             return false;
         }
-        return Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);
+        return ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM) &&  Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);
     }
 
     public static AttributeSupplier.Builder createAttributes() {

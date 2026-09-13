@@ -38,7 +38,7 @@ public class ArmoredHerobrineEntity extends HerobrineMob implements RollItemUser
 
     public ArmoredHerobrineEntity(EntityType<ArmoredHerobrineEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(4.0F);
+        this.setMaxUpStep(2.0F);
         this.xpReward = 60;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());

@@ -260,6 +260,7 @@ public final class RigAnimationResolver {
             case HEROBRINE_ANIMATE -> HerobrineLivingAnimations.HEROBRINE_ANIMATE;
             case HEROBRINE_ASSISTANCE -> HerobrineLivingAnimations.HEROBRINE_ASSISTANCE;
             case HEROBRINE_RUN -> HerobrineLivingAnimations.HEROBRINE_RUN;
+            case FLY_UP -> HerobrineLivingAnimations.FLY_UP;
             case HEROBRINE_SACRIFICING -> HerobrineLivingAnimations.HEROBRINE_SACRIFICING;
             case HEROBRINE_STAGE_CHANGE -> HerobrineLivingAnimations.HEROBRINE_STAGE_CHANGE;
             case KNOCKED_ELITE -> HerobrineLivingAnimations.KNOCKED_ELITE;
@@ -273,6 +274,7 @@ public final class RigAnimationResolver {
             case BLUE_DEMON_STATE_TRANSFORM -> BlueDemonAnimations1.BLUE_DEMON_STATE_TRANSFORM;
             case BLUE_DEMON_STATE_TRANSFORM_END -> BlueDemonAnimations1.BLUE_DEMON_STATE_TRANSFORM_END;
             case BLUE_DEMON_TWOHAND_RUN -> BlueDemonAnimations1.BLUE_DEMON_TWOHAND_RUN;
+            case BLUE_DEMON_ZIPLINE -> BlueDemonAnimations1.BLUE_DEMON_ZIPLINE;
             case BLUE_DEMON_EXTRA_ATTACK -> BlueDemonAnimations1.BLUE_DEMON_EXTRA_ATTACK;
             case BLUE_DEMON_EXTRA_ATTACK_LEGENDARY -> BlueDemonAnimations1.BLUE_DEMON_EXTRA_ATTACK_LEGENDARY;
             case BLUE_DEMON_TRIDENT_FESTIVAL -> BlueDemonAnimations1.BLUE_DEMON_TRIDENT_FESTIVAL;

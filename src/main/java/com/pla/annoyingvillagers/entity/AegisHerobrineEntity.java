@@ -29,7 +29,7 @@ public class AegisHerobrineEntity extends HerobrineMob {
 
     public AegisHerobrineEntity(EntityType<AegisHerobrineEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.5F);
+        this.setMaxUpStep(2.0F);
         this.xpReward = 80;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());

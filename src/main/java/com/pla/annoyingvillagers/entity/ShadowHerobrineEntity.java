@@ -120,7 +120,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
 
     public ShadowHerobrineEntity(EntityType<ShadowHerobrineEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.8F);
+        this.setMaxUpStep(2.0F);
         this.xpReward = 60;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());

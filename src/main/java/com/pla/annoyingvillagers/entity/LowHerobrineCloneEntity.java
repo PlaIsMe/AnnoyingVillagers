@@ -107,7 +107,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
 
     public LowHerobrineCloneEntity(EntityType<? extends LowHerobrineCloneEntity> type, Level level) {
         super(type, level);
-        this.setMaxUpStep(3.0F);
+        this.setMaxUpStep(2.0F);
         this.xpReward = 50;
         this.setPersistenceRequired();
         this.setCustomNameVisible(false);

@@ -9,6 +9,7 @@ import com.pla.annoyingvillagers.blockentity.ShadowObsidianBlockEntity;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.HerobrineHealingGoal;
+import com.pla.annoyingvillagers.entity.goal.HerobrineEscapeHoleGoal;
 import com.pla.annoyingvillagers.entity.goal.RetargetCloserThreatGoal;
 import com.pla.annoyingvillagers.entity.goal.RollItemGoal;
 import com.pla.annoyingvillagers.init.*;
@@ -96,6 +97,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     private int voiceCooldown = 0;
     private int rigAttackAnimationLockCount;
     private boolean spinningWeaponInitActive;
+    private HerobrineEscapeHoleGoal escapeHoleGoal;
 
     @Override
     public void lock() {
@@ -110,6 +112,22 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     @Override
     public boolean isLocked() {
         return this.rigAttackAnimationLockCount > 0;
+    }
+
+    public boolean isHoleEscapeActive() {
+        return this.escapeHoleGoal != null && this.escapeHoleGoal.ownsEscape();
+    }
+
+    @Override
+    public void setTarget(@Nullable LivingEntity target) {
+        LivingEntity current = this.getTarget();
+        if (target == null && this.isHoleEscapeActive() && !this.isNoAi() && !this.isHealing() && !this.isSacrificing()
+                && current != null && current.isAlive()
+                && !current.isRemoved() && !this.isAlliedTo(current) && current.level() == this.level()
+                && this.distanceToSqr(current) <= 28.0D * 28.0D
+                && !(current instanceof net.minecraft.world.entity.player.Player player
+                && (player.isCreative() || player.isSpectator()))) return;
+        super.setTarget(target);
     }
 
     @Override
@@ -448,6 +466,10 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         super.registerGoals();
         this.targetSelector.addGoal(0, new RetargetCloserThreatGoal(this));
         CommonGoals.registerDangerousReactionGoals(this);
+        if (!(this instanceof NullEntity)) {
+            this.escapeHoleGoal = new HerobrineEscapeHoleGoal(this);
+            this.goalSelector.addGoal(-4, this.escapeHoleGoal);
+        }
         this.goalSelector.addGoal(1, new HerobrineHealingGoal(this));
         if (this instanceof RollItemUser) {
             this.goalSelector.addGoal(1, new RollItemGoal(this));
@@ -1071,6 +1093,10 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     @Override
     public void tick() {
         super.tick();
+        if (this.escapeHoleGoal != null) this.escapeHoleGoal.recoverAfterLoad();
+        if (this.escapeHoleGoal != null && this.escapeHoleGoal.shouldForceCancel()) {
+            this.escapeHoleGoal.forceCancel();
+        }
         this.floatOnAnyFluid();
         this.checkInsideBlocks();
         if (this.level() instanceof ServerLevel serverLevel) {
@@ -1429,6 +1455,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
 
     @Override
     public void remove(@NotNull RemovalReason reason) {
+        if (this.escapeHoleGoal != null) this.escapeHoleGoal.forceCancel();
         super.remove(reason);
         if (!level().isClientSide && level() instanceof ServerLevel serverLevel &&
                 (reason == RemovalReason.KILLED || reason == RemovalReason.DISCARDED)) {

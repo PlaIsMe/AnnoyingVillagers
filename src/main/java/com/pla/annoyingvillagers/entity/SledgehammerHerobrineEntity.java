@@ -35,7 +35,7 @@ public class SledgehammerHerobrineEntity extends HerobrineMob {
 
     public SledgehammerHerobrineEntity(EntityType<SledgehammerHerobrineEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.5F);
+        this.setMaxUpStep(2.0F);
         this.xpReward = 80;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());

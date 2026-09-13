@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.event;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.entity.goal.HerobrineEscapeHoleGoal;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -68,6 +69,7 @@ public final class RigMobClashBladeEvent {
     @SubscribeEvent
     public static void onServerStopped(ServerStoppedEvent event) {
         RigAnimationController.clearActiveAnimations();
+        HerobrineEscapeHoleGoal.clearActivePillarCycles();
     }
 
     private static boolean canRegularClash(DamageSource damageSource) {

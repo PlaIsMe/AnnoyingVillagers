@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -74,14 +75,14 @@ public final class RecoveryAi {
         MinecraftForge.EVENT_BUS.post(new AVNpcRecoveryEvent(npc, AVNpcRecoveryEvent.Action.START));
     }
 
-    public static boolean validTarget(AVNpc npc, LivingEntity target) {
+    public static boolean validTarget(PathfinderMob npc, LivingEntity target) {
         return target != null && target.isAlive() && !target.isRemoved() && !npc.isAlliedTo(target)
                 && target.level() == npc.level() && npc.distanceToSqr(target) <= 28 * 28
                 && !(target instanceof Player player && (player.isCreative() || player.isSpectator()));
     }
 
     /** Shared per-level cap in addition to each goal's staggered >=20 tick discovery cadence. */
-    public static boolean admitPath(AVNpc npc) {
+    public static boolean admitPath(PathfinderMob npc) {
         ServerLevel level = (ServerLevel) npc.level();
         PathBudget budget = PATH_BUDGETS.computeIfAbsent(level, ignored -> new PathBudget());
         if (budget.tick != level.getGameTime()) { budget.tick = level.getGameTime(); budget.count = 0; }
@@ -92,7 +93,7 @@ public final class RecoveryAi {
 
     private static final class PathBudget { long tick = Long.MIN_VALUE; int count; }
 
-    public static boolean loadedCorridor(AVNpc npc, Vec3 end) {
+    public static boolean loadedCorridor(PathfinderMob npc, Vec3 end) {
         Vec3 start = npc.position();
         int steps = Mth.ceil(start.distanceTo(end));
         if (steps > 40) return false;
@@ -112,7 +113,7 @@ public final class RecoveryAi {
         return true;
     }
 
-    public static Path targetPath(AVNpc npc, BlockPos pos) {
+    public static Path targetPath(PathfinderMob npc, BlockPos pos) {
         // Caller owns the admission and cadence. Limit expansion; a null path alone never selects a block.
         var navigation = npc.getNavigation();
         navigation.setMaxVisitedNodesMultiplier(.15F);

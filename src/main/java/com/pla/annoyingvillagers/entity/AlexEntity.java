@@ -401,7 +401,9 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
             if (this.state == 0
                     && this.getHealth() <= 20
                     && !this.getItemInHand(InteractionHand.OFF_HAND).getItem().equals(Items.TOTEM_OF_UNDYING)) {
-                this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.TOTEM_OF_UNDYING));
+                ItemStack totemOfUndying = new ItemStack(Items.TOTEM_OF_UNDYING);
+                this.setItemInHand(InteractionHand.OFF_HAND, totemOfUndying);
+                this.setOffWeaponItem(totemOfUndying);
             }
         }
     }

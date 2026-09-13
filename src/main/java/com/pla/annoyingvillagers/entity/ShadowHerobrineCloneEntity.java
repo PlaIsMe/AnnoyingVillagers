@@ -35,7 +35,7 @@ public class ShadowHerobrineCloneEntity extends HerobrineMob {
 
     public ShadowHerobrineCloneEntity(EntityType<ShadowHerobrineCloneEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(0.7F);
+        this.setMaxUpStep(2.0F);
         this.xpReward = 300;
         this.setNoAi(false);
         this.setChatName(this.getDisplayName().getString());

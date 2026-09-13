@@ -66,7 +66,7 @@ public class ReaperHerobrineEntity extends HerobrineMob {
 
     public ReaperHerobrineEntity(EntityType<ReaperHerobrineEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.9F);
+        this.setMaxUpStep(2.0F);
         this.xpReward = 300;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());

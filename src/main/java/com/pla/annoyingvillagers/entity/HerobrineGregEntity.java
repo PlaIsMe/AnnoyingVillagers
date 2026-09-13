@@ -429,7 +429,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
 
     public HerobrineGregEntity(EntityType<HerobrineGregEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.5F);
+        this.setMaxUpStep(2.0F);
         this.xpReward = 50;
         this.setNoAi(false);
         this.setPersistenceRequired();

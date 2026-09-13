@@ -110,8 +110,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     public void stop() {
         // AvNpc utilities own higher goal priorities. Cancel only the clip this goal
         // started; a stun or scripted action may already have replaced it.
-        if (this.mob instanceof com.pla.annoyingvillagers.clazz.AVNpc npc
-                && !npc.isLocked() && !RigStunController.isStunned(this.mob)
+        if (canYieldProfileAttackToHoleRecovery()
                 && this.previousAnimation == RigAnimationController.getActiveAnimationId(this.mob)
                 && RigAnimationController.hasActiveProfileAttack(this.mob)) {
             RigAnimationController.stop(this.mob, this.previousAnimation);
@@ -130,14 +129,22 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     public boolean isInterruptable() {
         // Waiting for the chain boundary can starve recovery: attack ticks may start
         // the next swing before the goal selector gets another admission pass.
-        if (this.mob instanceof com.pla.annoyingvillagers.clazz.AVNpc npc
-                && !npc.isLocked() && !RigStunController.isStunned(this.mob)
+        if (canYieldProfileAttackToHoleRecovery()
                 && RigAnimationController.hasActiveProfileAttack(this.mob)) return true;
         if (!RigAnimationController.hasActiveAnimation(this.mob)) {
             return true;
         }
         return RigAnimationController.hasActiveProfileAttack(this.mob)
                 && RigAnimationController.isAttackChainReady(this.mob);
+    }
+
+    private boolean canYieldProfileAttackToHoleRecovery() {
+        if (RigStunController.isStunned(this.mob)) return false;
+        if (this.mob instanceof com.pla.annoyingvillagers.clazz.AVNpc npc) return !npc.isLocked();
+        if (this.mob instanceof com.pla.annoyingvillagers.clazz.HerobrineMob herobrine
+                && !(this.mob instanceof NullEntity)) return !herobrine.isLocked();
+        if (this.mob instanceof com.pla.annoyingvillagers.entity.BlueDemonEntity blueDemon) return !blueDemon.isLocked();
+        return false;
     }
 
     @Override

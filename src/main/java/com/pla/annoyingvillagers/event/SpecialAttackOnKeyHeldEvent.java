@@ -56,7 +56,6 @@ public class SpecialAttackOnKeyHeldEvent {
             return;
         }
 
-
         if (entity instanceof Player player && !player.level().isClientSide()) {
             if (HerobrineEnderEyeItem.activateVanillaHeldSpecial(player)) return;
             TransporterFragmentItem.UseResult transporterUseResult = TransporterFragmentItem.tryUseHeldSpecialAttack(player, crosshairTarget);
@@ -75,7 +74,7 @@ public class SpecialAttackOnKeyHeldEvent {
         if (entity instanceof Player player) {
             if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof BlueDemonChestplateItem && BlueDemonChestplateItem.isBlueDemonChestplate(player.getItemBySlot(EquipmentSlot.CHEST))) {
                 if (entity.level() instanceof ServerLevel) {
-                    playChestplateActivationAnimation();
+                playChestplateActivationAnimation();
                 }
             }
         }

@@ -186,7 +186,7 @@ public final class RigAnimationController {
     }
 
     private static ActiveAnimationState recordActiveAnimation(Mob mob, RigAnimationSpec spec) {
-        ActiveAnimationState state = new ActiveAnimationState(spec, mob.tickCount);
+        ActiveAnimationState state = new ActiveAnimationState(mob, spec, mob.tickCount);
         ACTIVE_ANIMATIONS.put(mob.getUUID(), state);
         return state;
     }
@@ -194,6 +194,12 @@ public final class RigAnimationController {
     private static ActiveAnimationState getActiveAnimationState(Mob mob) {
         ActiveAnimationState state = ACTIVE_ANIMATIONS.get(mob.getUUID());
         if (state == null) return null;
+        // Integrated-server leave/rejoin replaces the entity instance while retaining its UUID.
+        // A pre-unload state has lost its DelayedTask hooks and must never bind to the replacement.
+        if (state.mob() != mob) {
+            ACTIVE_ANIMATIONS.remove(mob.getUUID(), state);
+            return null;
+        }
         int elapsedTicks = state.elapsedTicks(mob);
         if (elapsedTicks < 0 || elapsedTicks > state.spec().durationTicks()) {
             ACTIVE_ANIMATIONS.remove(mob.getUUID(), state);
@@ -202,7 +208,7 @@ public final class RigAnimationController {
         return state;
     }
 
-    private record ActiveAnimationState(RigAnimationSpec spec, int startTick) {
+    private record ActiveAnimationState(Mob mob, RigAnimationSpec spec, int startTick) {
         private int elapsedTicks(Mob mob) {
             return mob.tickCount - this.startTick;
         }

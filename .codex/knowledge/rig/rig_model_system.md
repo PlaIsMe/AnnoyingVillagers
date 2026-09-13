@@ -27,6 +27,12 @@ Attack one-shots may restore vanilla target-facing head yaw/pitch after the auth
 
 `RigClientAnimationState` stores packet-driven active animation state by entity id. `ClientboundRigAnimation` carries the common animation id and duration, not a second position stream. Normal Minecraft entity tracking handles the real server position.
 
+Because runtime entity ids can be reused after leaving and rejoining a world, each
+client active entry also records the entity UUID. A UUID mismatch invalidates the
+entry, and client-level unload clears the complete map. Without both guards, a stale
+held or root-motion animation can attach visually to a replacement entity and clamp
+its sample at the beginning of the old clip.
+
 `RigAnimationSpec.playbackType()` is a render mask. Whole-body playback uses the full captured one-shot pose; hand/upper-body masks can restore locomotion as the base and blend only the intended arm subtree for utility actions.
 
 `RigAnimationResolver` is the client boundary that maps common `RigAnimationId` values to generated/authored `AnimationDefinition` fields. Because the project contains many animation holder classes, maintain the resolver mechanically from the source registry rather than documenting a large holder/moveset list here.

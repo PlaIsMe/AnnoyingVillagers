@@ -781,6 +781,13 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_ANIMATE, 100));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_ASSISTANCE, 54));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_RUN, 11));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.FLY_UP, 20, RigAnimationPlaybackType.DEFAULT,
+                List.of(
+                        RigAnimationSpec.RigTimedAnimationHook.at(3, mob -> com.pla.annoyingvillagers.entity.goal.HerobrineEscapeHoleGoal.placeFlyUpPillarBlock(mob, 0)),
+                        RigAnimationSpec.RigTimedAnimationHook.at(6, mob -> com.pla.annoyingvillagers.entity.goal.HerobrineEscapeHoleGoal.placeFlyUpPillarBlock(mob, 1)),
+                        RigAnimationSpec.RigTimedAnimationHook.at(9, mob -> com.pla.annoyingvillagers.entity.goal.HerobrineEscapeHoleGoal.placeFlyUpPillarBlock(mob, 2)),
+                        RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> com.pla.annoyingvillagers.entity.goal.HerobrineEscapeHoleGoal.placeFlyUpPillarBlock(mob, 3))
+                )).withVerticalMotion());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_SACRIFICING, 54));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_STAGE_CHANGE, 54));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.KNOCKED_ELITE, 27));
@@ -802,6 +809,7 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.SHOCKED_LONG, 30));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_TWOHAND_RUN, 11));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_ZIPLINE, 27));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE, 660).invulnerable());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE_START, 20).invulnerable());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_DIE_TICK, 20).invulnerable());

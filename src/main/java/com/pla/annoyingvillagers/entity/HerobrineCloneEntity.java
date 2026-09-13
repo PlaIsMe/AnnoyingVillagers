@@ -38,7 +38,7 @@ public class HerobrineCloneEntity extends HerobrineMob {
 
     public HerobrineCloneEntity(EntityType<HerobrineCloneEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(0.7F);
+        this.setMaxUpStep(2.0F);
         this.xpReward = 300;
         this.setNoAi(false);
         this.setPersistenceRequired();

@@ -26,6 +26,7 @@ public class RecallLandGoal extends Goal {
     @Override
     public boolean canUse() {
         return dragon.isRecallActive()
+                && !dragon.isRecallMountTimedOut()
                 && dragon.getSummoner() != null
                 && dragon.getSummoner().isAlive()
                 && !dragon.isPassenger()
@@ -54,14 +55,16 @@ public class RecallLandGoal extends Goal {
 
     @Override
     public void stop() {
-        dragon.setRecallActive(false);
-        dragon.setRecallLandPos(null);
-        dragon.setNoGravity(false);
+        dragon.abortRecall();
         stage = 0;
     }
 
     @Override
     public void tick() {
+        if (dragon.isRecallMountTimedOut()) {
+            stop();
+            return;
+        }
         if (!(dragon.level() instanceof ServerLevel serverLevel)) {
             stop();
             return;

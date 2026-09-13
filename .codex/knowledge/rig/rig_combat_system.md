@@ -90,6 +90,77 @@ A target may be hit once per attack window; later windows may hit it again when 
 
 ## Combat-profile attack lock
 
+### Specialized hole escape
+
+`HerobrineEscapeHoleGoal` and `BlueDemonEscapeHoleGoal` register at priority -4,
+sharing MOVE/LOOK/JUMP and a counted profile-attack lock through the final roll.
+Their common admission/lifecycle base is `AdvancedEscapeHoleGoal`. Rig playback,
+profile-lock, shield-guard, stun, duration, active-animation, stop, and authored-root
+sampling dependencies are exposed through small protected strategy methods. Every
+AV_EFM substitution seam begins with the exact searchable comment
+`//            AV_EFM patch with epicfight animations`; compatibility mixins should
+override those seams without replacing the physical escape algorithm.
+`HoleEscapePlanner` shares the existing AvNpc passive shaft scan; specialized rig
+escapes allow rims up to 32 blocks high and also accept an unreachable elevated
+combat target. Unlike the AvNpc variant, rig escapes may recognize a bounded shaft
+whose mouth is covered. The route must stay loaded and inside world bounds, and each
+colliding block must be legal for the specialized breaker to destroy; Blue Demon
+validates with the assigned BBQ, while Herobrine validates with itself.
+`EscapeWallGoal` and `BreakTargetObstructionGoal` are not registered for these mobs.
+
+Non-Null Herobrines repeat the 20-tick non-looping `FLY_UP` clip `ceil(height / 4)`
+times. Hooks at ticks 3, 6, 9, and 12 build successive owned obsidian cells for the
+active escape cycle. Generated pose root motion supplies the ascent; collision-aware
+clearance at the fourth placement and cycle completion handles the authored clip's
+slightly shorter-than-four-block displacement. Herobrine Clone uses normal mod
+obsidian; Shadow Herobrine/Clone, Herobrine 7, Armored, and Transporter use shadow
+obsidian; the five elite weapon Herobrines use crying obsidian. Placement respects
+mobGriefing, Forge placement cancellation, fluids, block entities, and body overlap.
+Before each cycle, Herobrine progressively clears the complete six-block swept column
+(the two-block body plus the four-block authored rise), then starts `FLY_UP` and its
+placement hooks. Unloaded, protected, fluid, block-entity, and unbreakable cells stop
+progress instead of being bypassed.
+
+Blue Demon selects an available living owned sauce of any type. A BBQ movement goal
+flies over the rim and descends to his bounding-box top plus 0.3 blocks. The held
+`BLUE_DEMON_ZIPLINE` pose plays during the collision-aware paired vertical lift;
+the sauce's ordinary tick movement and Blue Demon's squad orders yield during carry.
+Carrier release resumes ordinary behavior, and Blue Demon performs the final roll.
+Transforms, final death, retreat, and unavailable sauces reject or cancel this path.
+The BBQ rendezvous progressively breaks only blocks intersecting its swept body path;
+mobGriefing, loaded-world bounds, block entities, unbreakable blocks, and Forge's
+destroy veto still apply. Both the hole and water variants abandon rendezvous after
+100 ticks and release their counted lock/state if the sauce is blocked, killed,
+removed, or otherwise lost. Failed hole rendezvous also waits 100 ticks before retrying.
+For a covered shaft, the BBQ first breaks through its approach path. During ZIPLINE,
+it also clears the exact combined Blue-Demon/carrier swept volume and pauses the lift
+timeline while breaking so the animation does not expire before upward movement resumes.
+One hundred consecutive obstruction ticks during the lift trigger the same cleanup and
+retry delay instead of retaining Blue Demon's AI lock.
+Both variants choose forward/backward roll randomly and face it toward the exit.
+Stun, disabled AI, invalid state, removal, and interruption release owned locks and
+restore gravity. Profile melee attacks on these mobs may yield to higher-priority
+utilities, as AvNpc attacks already do.
+
+Escape state must not survive an entity-instance replacement. Server animation state
+is keyed by UUID but also records the owning `Mob` identity, so a same-UUID entity
+loaded after leave/rejoin invalidates playback whose scheduled hooks belonged to the
+old instance. Herobrine pillar sessions likewise discard a same-UUID/different-instance
+cycle, and both specialized goals persist a short transient marker while gravity is
+owned so the replacement entity can restore gravity and clear orphaned playback on its
+first server tick. Herobrine clears each hook block's top before placement (hooks run
+before same-tick generated motion) and applies a 100-tick retry delay after an
+interrupted or incomplete cycle rather than repeatedly restarting `FLY_UP`.
+
+Client one-shot state records entity UUID in addition to the runtime entity id and is
+cleared on client-level unload. This prevents a reused entity id after reconnect from
+inheriting an old `FLY_UP` or held `BLUE_DEMON_ZIPLINE` visual.
+
+Reaper's dragon recall records its start tick. `RecallLandGoal` and the dragon's own
+server tick abort an uncompleted pickup after 120 ticks. Abort clears recall/auto-mount
+and landing state, restores gravity/collision/navigation, and makes the dragon eligible
+for `DragonOrbitLeaderGoal` again.
+
 `LockableRigAttackAnimation` is a narrow gate for combat-profile attacks. It exposes `lock()`, `unlock()`, and `isLocked()` and uses lock-count semantics so independent action systems can overlap safely.
 
 Only ids selected by `RigCombatProfiles.isProfileAttack(...)` are blocked. This is not a global animation lock: utility, living, roll/step, bow, shield, hand-action, and other playback can remain available.

@@ -4,6 +4,7 @@ import com.pla.annoyingvillagers.clazz.*;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.goal.EscapeAvoidGoal;
 import com.pla.annoyingvillagers.entity.goal.FollowEscapeLeaderGoal;
+import com.pla.annoyingvillagers.entity.goal.BbqCarryBlueDemonEscapeGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
@@ -71,6 +72,9 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     private boolean escapeFlying;
     private int escapeLocomotionTicks;
     private float escapeFlightHeight = 1.5F;
+    @Nullable
+    private UUID holeCarryLeaderUUID;
+    private boolean holeCarryLifting;
 
     private boolean deathAssemblyMode;
     private int deathAssemblyTicks;
@@ -163,6 +167,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             return;
         }
 
+        this.endHoleCarry(false);
         this.deathWatchMode = true;
         this.deathAssemblyMode = false;
         this.escapeMode = false;
@@ -221,6 +226,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
 
     @Override
     protected void registerGoals() {
+        this.goalSelector.addGoal(-4, new BbqCarryBlueDemonEscapeGoal(this));
         this.goalSelector.addGoal(0, new FloatGoal(this));
 
         this.goalSelector.addGoal(1, new EscapeAvoidGoal<>(this, Player.class, 12.0F, 2.0D, 2.0D));
@@ -256,6 +262,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     }
 
     public void enterEscapeMode(@Nullable BbqEntity sauceLeader) {
+        this.endHoleCarry(false);
         this.escapeMode = true;
         this.deathWatchMode = false;
         this.retreatTicks = 0;
@@ -286,6 +293,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
                                    boolean giveMainhandTrident,
                                    boolean giveOffhandChestplate,
                                    @Nullable BbqEntity escapeLeader) {
+        this.endHoleCarry(false);
         this.escapeMode = false;
         this.clearCombat();
         this.retreatTicks = 0;
@@ -472,6 +480,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             return;
         }
 
+        this.endHoleCarry(false);
         this.clearCombat();
         this.retreatTicks = 60 + this.random.nextInt(20);
 
@@ -518,6 +527,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     }
 
     public void startOrbit(@Nullable LivingEntity target, int ticks) {
+        if (this.isHoleCarryActive()) return;
         if (target == null) {
             this.clearCombat();
             return;
@@ -562,6 +572,65 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         this.chainShotsRemaining = 0;
         this.chainShotCooldown = 0;
         this.setNoGravity(false);
+    }
+
+    public boolean canBeginHoleCarry(BlueDemonEntity blueDemon) {
+        return blueDemon != null && blueDemon.isAlive() && this.getLeader() == blueDemon
+                && this.isAlive() && !this.isRemoved() && !this.isNoAi() && !this.isPassenger()
+                && !this.isHoleCarryActive() && !this.deathAssemblyMode && !this.deathWatchMode
+                && !this.escapeMode && this.retreatTicks <= 0;
+    }
+
+    public boolean beginHoleCarry(BlueDemonEntity blueDemon) {
+        if (!this.canBeginHoleCarry(blueDemon)) return false;
+        this.endHoleCarry(false);
+        this.clearCombat();
+        this.holeCarryLeaderUUID = blueDemon.getUUID();
+        this.holeCarryLifting = false;
+        this.getNavigation().stop();
+        this.setNoGravity(true);
+        this.fallDistance = 0.0F;
+        return true;
+    }
+
+    public boolean isHoleCarryActive() {
+        return this.holeCarryLeaderUUID != null;
+    }
+
+    public boolean isHoleCarryLifting() {
+        return this.isHoleCarryActive() && this.holeCarryLifting;
+    }
+
+    public void setHoleCarryLifting(boolean lifting) {
+        if (this.isHoleCarryActive()) this.holeCarryLifting = lifting;
+    }
+
+    @Nullable
+    public BlueDemonEntity getHoleCarryLeader() {
+        if (!(this.level() instanceof ServerLevel serverLevel) || this.holeCarryLeaderUUID == null) return null;
+        Entity entity = serverLevel.getEntity(this.holeCarryLeaderUUID);
+        if (entity instanceof BlueDemonEntity blueDemon && blueDemon.isAlive() && this.getLeader() == blueDemon) return blueDemon;
+        return null;
+    }
+
+    public void flapForHoleCarry() {
+        this.flapping = Math.max(this.flapping, 1.0F);
+        this.flapSpeed = Math.max(this.flapSpeed, 1.0F);
+        this.fallDistance = 0.0F;
+    }
+
+    public void endHoleCarry(boolean resumeOrbit) {
+        if (this.holeCarryLeaderUUID == null) return;
+        BlueDemonEntity blueDemon = this.getHoleCarryLeader();
+        this.holeCarryLeaderUUID = null;
+        this.holeCarryLifting = false;
+        this.getNavigation().stop();
+        this.setDeltaMovement(Vec3.ZERO);
+        this.setNoGravity(false);
+        this.fallDistance = 0.0F;
+        if (resumeOrbit && blueDemon != null && blueDemon.getTarget() != null) {
+            this.startOrbit(blueDemon.getTarget(), 40);
+        }
     }
 
     public void shootChain(LivingEntity target, int shots, int intervalTicks) {
@@ -868,6 +937,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
 
     @Override
     public void die(@NotNull DamageSource source) {
+        this.endHoleCarry(false);
         if (!this.level().isClientSide) {
             this.dropSpecialHeldItemsBeforeDeath();
         }
@@ -991,6 +1061,9 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         }
 
         this.tickVoiceCooldown();
+        if (this.isHoleCarryActive() && (this.getHoleCarryLeader() == null || this.isNoAi()
+                || !this.isAlive() || this.isRemoved())) this.endHoleCarry(false);
+        if (this.isHoleCarryActive()) return;
         if (this.deathWatchMode) {
             this.tickLeaderDeathWatch();
             return;

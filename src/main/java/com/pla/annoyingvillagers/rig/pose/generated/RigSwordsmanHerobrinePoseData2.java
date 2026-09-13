@@ -12,14 +12,14 @@ public final class RigSwordsmanHerobrinePoseData2 {
     private RigSwordsmanHerobrinePoseData2() {}
 
     public static void register(Map<RigAnimationId, RigPoseClip> clips) {
-        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_DASH_ATTACK, swordman_herobrine_dash_attack());
-        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_JUMP_ATTACK, swordman_herobrine_jump_attack());
-        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ATTACK, swordman_herobrine_extra_attack());
-        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_ULT, swordman_herobrine_ult());
-        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT, swordman_herobrine_extra_ult());
+        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_DASH_ATTACK, swordsman_herobrine_dash_attack());
+        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_JUMP_ATTACK, swordsman_herobrine_jump_attack());
+        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ATTACK, swordsman_herobrine_extra_attack());
+        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_ULT, swordsman_herobrine_ult());
+        clips.put(RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT, swordsman_herobrine_extra_ult());
     }
 
-    private static RigPoseClip swordman_herobrine_dash_attack() {
+    private static RigPoseClip swordsman_herobrine_dash_attack() {
         return RigPoseClip.of(
                 part(BODY, new float[]{0F, 3.109F, -2.343F, -1.899F, 0.1F, 1.022F, -1.406F, -13.401F, 0.15F, 0.434F, -1.606F, -19.395F, 0.2F, 0.059F, -2.382F, -25.916F, 0.25F, 0.063F, -2.714F, -28.384F, 0.3F, 0.22F, -2.703F, -28.914F, 0.35F, -2.107F, -0.415F, -32.938F, 0.4F, -4.769F, -0.738F, -40.186F, 0.45F, -4.971F, -3.781F, -46.682F, 0.5F, -1.366F, -8.784F, -52.119F, 0.55F, 3.636F, -11.784F, -51.704F, 0.6F, 5.351F, -11.826F, -51.511F, 0.65F, 5.577F, -11.661F, -51.264F, 0.75F, 5.147F, -11.451F, -51.043F, 0.85F, 5.644F, -12.314F, -51.267F, 0.9F, 6.629F, -12.065F, -50.405F, 0.95F, 7.348F, -13.994F, -49.115F, 1F, 7.572F, -14.715F, -48.56F, 1.15F, 7.875F, -13.43F, -46.003F, 1.35F, 7.887F, -13.277F, -45.741F, 1.45F, 7.673F, -15.446F, -47.682F, 1.55F, 7.572F, -16.163F, -48.237F, 1.65F, 6.432F, -13.426F, -48.213F, 1.7F, 4.366F, -9.964F, -47.035F, 1.75F, 1.916F, -6.869F, -44.331F, 1.85F, 0.301F, -5.291F, -43.452F, 2.2F, -0.498F, -2.343F, -38.845F}, new float[]{0F, 13.026F, 49.414F, 4.528F, 0.05F, 6.424F, 78.304F, 2.832F, 0.1F, 28.123F, 108.221F, 27.952F, 0.2F, 29.012F, 167.537F, 32.627F, 0.3F, 30.247F, 183.044F, 35.915F, 0.35F, 20.55F, 136.236F, 23.095F, 0.4F, 60.784F, 67.893F, 42.694F, 0.45F, 51.386F, 13.906F, -8.937F, 0.5F, 87.131F, -17.001F, -22.475F, 0.55F, 131.751F, -53.945F, -47.433F, 0.6F, 151.75F, -61.687F, -64.507F, 0.75F, 157.534F, -62.637F, -66.37F, 0.85F, 152.36F, -62.939F, -60.094F, 0.9F, 133.281F, -64.98F, -41.505F, 0.95F, 99.685F, -63.473F, -11.713F, 1F, 79.414F, -55.339F, 4.858F, 1.1F, 76.018F, -51.771F, 13.721F, 1.35F, 75.753F, -49.856F, 13.562F, 1.45F, 111.822F, -50.739F, -20.262F, 1.55F, 121.071F, -47.876F, -28.245F, 1.65F, 98.422F, -43.186F, -15.504F, 1.75F, 50.011F, -16.906F, -4.624F, 1.85F, 39.346F, 7.763F, 1.821F, 2.05F, 25.676F, 31.119F, 7.574F, 2.2F, 13.026F, 49.414F, 4.528F}),
                 part(HEAD, new float[]{0F, 3.08F, -2.344F, -1.891F, 0.1F, 1.012F, -1.405F, -13.322F, 0.15F, 0.463F, -1.624F, -19.297F, 0.2F, 0.129F, -2.431F, -25.823F, 0.25F, 0.149F, -2.78F, -28.302F, 0.3F, 0.313F, -2.774F, -28.839F, 0.35F, -2.075F, -0.411F, -32.79F, 0.4F, -4.889F, -0.677F, -40.091F, 0.45F, -5.13F, -3.815F, -46.727F, 0.5F, -1.46F, -8.878F, -52.221F, 0.55F, 3.64F, -11.897F, -51.827F, 0.6F, 5.383F, -11.938F, -51.631F, 0.65F, 5.608F, -11.774F, -51.383F, 0.75F, 5.179F, -11.565F, -51.161F, 0.85F, 5.664F, -12.427F, -51.376F, 0.9F, 6.63F, -12.165F, -50.5F, 0.95F, 7.336F, -14.07F, -49.195F, 1F, 7.554F, -14.771F, -48.617F, 1.15F, 7.868F, -13.489F, -46.024F, 1.35F, 7.881F, -13.336F, -45.762F, 1.45F, 7.658F, -15.473F, -47.7F, 1.55F, 7.554F, -16.185F, -48.259F, 1.65F, 6.42F, -13.446F, -48.226F, 1.7F, 4.37F, -9.995F, -47.046F, 1.75F, 1.933F, -6.907F, -44.366F, 1.85F, 0.304F, -5.32F, -43.492F, 2.2F, -0.527F, -2.344F, -38.836F}, new float[]{0F, 9.162F, -0.166F, -0.933F, 0.15F, 0.976F, 41.687F, 2.553F, 0.2F, -14.935F, 52.089F, -6.493F, 0.3F, -27.052F, 54.97F, -13.848F, 0.35F, 27.995F, 46.474F, 21.189F, 0.4F, 47.383F, 11.34F, 32.594F, 0.45F, 33.669F, -11.862F, 22.738F, 0.5F, 45.976F, -48.843F, 11.747F, 0.55F, 54.496F, -99.362F, 5.918F, 0.6F, 58.982F, -112.394F, 1.514F, 0.75F, 58.741F, -115.255F, 4.988F, 0.85F, 44.76F, -113.676F, 21.693F, 0.95F, -15.829F, -112.065F, 84.521F, 1F, -41.597F, -120.7F, 105.628F, 1.15F, -53.341F, -135.382F, 112.451F, 1.35F, -54.028F, -134.838F, 112.209F, 1.45F, -34.121F, -167.077F, 100.293F, 1.55F, -30.591F, -176.59F, 99.451F, 1.65F, -50.832F, -153.708F, 110.4F, 1.7F, -101.287F, -141.647F, 149.112F, 1.75F, -144.56F, -167.008F, 177.735F, 1.85F, -153.188F, -190.863F, 180.903F, 2.2F, -170.838F, -179.834F, 179.067F}),
@@ -35,7 +35,7 @@ public final class RigSwordsmanHerobrinePoseData2 {
         );
     }
 
-    private static RigPoseClip swordman_herobrine_jump_attack() {
+    private static RigPoseClip swordsman_herobrine_jump_attack() {
         return RigPoseClip.of(
                 part(BODY, new float[]{0F, 0.181F, 3.906F, 0.99F, 0.1F, 1.261F, 11.73F, 8.658F, 0.15F, 1.542F, 14.262F, 10.45F, 0.2F, 1.639F, 16.18F, 11.352F, 0.25F, 1.175F, 10.264F, -6.885F, 0.3F, 1.044F, 1.376F, -30.397F, 0.35F, 1.359F, -6.045F, -50.83F, 0.4F, 1.512F, -12.717F, -71.269F, 0.45F, 1.516F, -13.531F, -91.674F, 0.5F, 1.442F, -12.419F, -107.45F, 0.65F, 2.513F, -13.878F, -108.919F, 0.75F, 2.609F, -13.998F, -109.02F, 0.8F, 2.649F, -13.563F, -108.616F, 0.85F, 2.668F, -11.392F, -106.062F, 1F, 3.006F, -7.854F, -103.352F, 1.1F, 2.541F, -5.633F, -101.109F, 1.2F, 1.376F, -3.732F, -98.597F, 1.3F, -0.469F, -2.36F, -96.075F}, new float[]{0F, 182.074F, 56.102F, 151.115F, 0.1F, 156.398F, 53.312F, 140.098F, 0.2F, 142.125F, 45.835F, 134.439F, 0.25F, 120.043F, 27.702F, 125.416F, 0.3F, 91.534F, 3.924F, 98.843F, 0.4F, 85.309F, -9.476F, 90.6F, 0.45F, 97.575F, 2.535F, 106.057F, 0.5F, 121.118F, 16.204F, 117.451F, 0.65F, 117.51F, 7.229F, 113.558F, 0.8F, 118.304F, 9.049F, 113.581F, 0.85F, 125.149F, 23.384F, 115.749F, 1.05F, 89.889F, 49.945F, 83.671F, 1.15F, 59.453F, 56.29F, 53.376F, 1.3F, 13.379F, 49.575F, 4.901F}),
                 part(HEAD, new float[]{0F, 0.201F, 3.94F, 1.081F, 0.1F, 1.276F, 11.756F, 8.706F, 0.15F, 1.556F, 14.281F, 10.479F, 0.2F, 1.651F, 16.191F, 11.365F, 0.25F, 1.17F, 10.223F, -6.929F, 0.3F, 1.077F, 1.238F, -30.468F, 0.35F, 1.423F, -6.209F, -50.892F, 0.4F, 1.58F, -12.887F, -71.322F, 0.45F, 1.506F, -13.63F, -91.707F, 0.5F, 1.386F, -12.427F, -107.435F, 0.65F, 2.457F, -13.886F, -108.902F, 0.75F, 2.553F, -14.005F, -109.003F, 0.8F, 2.594F, -13.571F, -108.6F, 0.85F, 2.613F, -11.405F, -106.048F, 1F, 2.957F, -7.86F, -103.351F, 1.1F, 2.499F, -5.634F, -101.11F, 1.2F, 1.341F, -3.732F, -98.595F, 1.3F, -0.498F, -2.361F, -96.067F}, new float[]{0F, 19.612F, 28.079F, -31.945F, 0.2F, 27.175F, 30.095F, -7.394F, 0.25F, 33.801F, 28.96F, 6.225F, 0.3F, 40.107F, 13.285F, -5.906F, 0.4F, 46.002F, 11.28F, -13.191F, 0.45F, 52.684F, 6.023F, -5.067F, 0.65F, 64.511F, 7.763F, -9.76F, 0.8F, 62.542F, 7.414F, -10.109F, 0.85F, 46.975F, 4.456F, -11.49F, 1F, 40.195F, -3.998F, -3.255F, 1.15F, 26.064F, -5.542F, 2.636F, 1.3F, 9.323F, -0.233F, -0.856F}),
@@ -51,7 +51,7 @@ public final class RigSwordsmanHerobrinePoseData2 {
         );
     }
 
-    private static RigPoseClip swordman_herobrine_extra_attack() {
+    private static RigPoseClip swordsman_herobrine_extra_attack() {
         return RigPoseClip.of(
                 part(BODY, new float[]{0F, 3.109F, -2.343F, -1.899F, 0.25F, 0.083F, 0.68F, -0.351F, 0.3F, -0.104F, 14.341F, -4.601F, 0.35F, -0.104F, 25.732F, -10.78F, 0.4F, -0.104F, 28.594F, -14.799F, 0.45F, -0.104F, 26.075F, -18.097F, 0.5F, -0.104F, 14.074F, -22.362F, 0.55F, -0.104F, 3.05F, -25.974F, 0.6F, -0.104F, -5.389F, -29.021F, 0.65F, -0.104F, -8.055F, -30.055F, 0.8F, -0.104F, -7.376F, -30.184F, 1.4F, -0.104F, -7.172F, -30.168F, 1.9F, -0.684F, -5.962F, -32.472F, 2.25F, -0.842F, -4.051F, -30.449F, 2.6F, -0.498F, -2.343F, -28.292F}, new float[]{0F, 13.026F, 49.414F, 4.528F, 0.25F, -6.349F, 3.071F, -0.421F, 0.45F, -8.972F, 0F, 0F, 0.55F, 21.953F, 0F, 0F, 0.65F, 34.177F, 0F, 0F, 1.9F, 29.487F, 5.566F, -3.539F, 2.6F, 13.026F, 49.414F, 4.528F}),
                 part(HEAD, new float[]{0F, 3.08F, -2.344F, -1.891F, 0.25F, 0.084F, 0.691F, -0.414F, 0.3F, -0.1F, 14.357F, -4.669F, 0.35F, -0.1F, 25.751F, -10.851F, 0.4F, -0.1F, 28.62F, -14.877F, 0.45F, -0.1F, 26.093F, -18.168F, 0.5F, -0.096F, 14.073F, -22.368F, 0.55F, -0.094F, 3.075F, -25.934F, 0.6F, -0.093F, -5.333F, -28.965F, 0.65F, -0.093F, -7.987F, -29.998F, 0.8F, -0.093F, -7.308F, -30.127F, 1.4F, -0.093F, -7.104F, -30.11F, 1.9F, -0.674F, -5.917F, -32.423F, 2.25F, -0.846F, -4.036F, -30.419F, 2.6F, -0.527F, -2.344F, -28.284F}, new float[]{0F, 9.162F, -0.166F, -0.933F, 0.15F, -10.051F, 1.715F, 1.593F, 0.4F, -32.38F, 2.141F, -2.397F, 0.45F, -27.78F, 2.238F, -2.307F, 0.55F, 33.938F, 3.105F, -0.829F, 0.6F, 51.365F, 3.197F, -0.323F, 0.65F, 57.186F, 3.21F, -0.152F, 1.4F, 57.186F, 3.21F, -0.152F, 1.9F, 46.53F, 7.921F, -3.973F, 2.25F, 27.008F, 4.329F, -6.796F, 2.6F, 9.162F, -0.166F, -0.933F}),
@@ -67,7 +67,7 @@ public final class RigSwordsmanHerobrinePoseData2 {
         );
     }
 
-    private static RigPoseClip swordman_herobrine_ult() {
+    private static RigPoseClip swordsman_herobrine_ult() {
         return RigPoseClip.of(
                 part(BODY, new float[]{0F, 3.109F, -2.343F, -1.899F, 0.4F, 0F, -0.606F, 0F, 3.7F, 0F, -0.606F, 0F, 4.1F, 3.109F, -2.343F, -1.899F}, new float[]{0F, 13.026F, 49.414F, 4.528F, 0.4F, 0F, 0F, 0F, 3.7F, 0F, 0F, 0F, 4.1F, 13.026F, 49.414F, 4.528F}),
                 part(HEAD, new float[]{0F, 3.08F, -2.344F, -1.891F, 0.4F, 0F, -0.606F, 0F, 3.7F, 0F, -0.606F, 0F, 4.1F, 3.08F, -2.344F, -1.891F}, new float[]{0F, 9.162F, -0.166F, -0.933F, 0.4F, 0F, 0F, 0F, 3.7F, 0F, 0F, 0F, 4.1F, 9.162F, -0.166F, -0.933F}),
@@ -83,7 +83,7 @@ public final class RigSwordsmanHerobrinePoseData2 {
         );
     }
 
-    private static RigPoseClip swordman_herobrine_extra_ult() {
+    private static RigPoseClip swordsman_herobrine_extra_ult() {
         return RigPoseClip.of(
                 part(BODY, new float[]{0F, 3.109F, -2.343F, -1.899F, 0.4F, 0F, -0.606F, 0F, 3.7F, 0.153F, -0.674F, -0.086F, 4.05F, 3.094F, -2.333F, -1.891F}, new float[]{0F, 13.026F, 49.414F, 4.528F, 0.4F, 0F, 0F, 0F, 3.7F, 0.412F, 2.061F, 0.078F, 4.05F, 12.918F, 49.149F, 4.471F}),
                 part(HEAD, new float[]{0F, 3.08F, -2.344F, -1.891F, 0.4F, 0F, -0.606F, 0F, 3.7F, 0.152F, -0.674F, -0.086F, 4.05F, 3.066F, -2.334F, -1.883F}, new float[]{0F, 9.162F, -0.166F, -0.933F, 0.4F, 0F, 0F, 0F, 3.7F, 0.363F, 0.007F, 0.251F, 4.05F, 9.124F, -0.173F, -0.89F}),

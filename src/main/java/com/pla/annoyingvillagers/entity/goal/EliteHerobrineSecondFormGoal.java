@@ -11,6 +11,7 @@ import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -114,6 +115,7 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
 
     @Override
     public boolean canUse() {
+        if (ModList.get().isLoaded("epicfight_annoyingvillagers")) return false;
         if (this.mob.tickCount < this.nextUseTick) return false;
 
         int state = this.mob.getState();

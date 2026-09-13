@@ -3,14 +3,9 @@ package com.pla.annoyingvillagers.entity.goal;
 import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.entity.ai.RecoveryAi;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.Set;
 
 /** Physical jump/place ascent. Combat height selects a hole; passive recovery proves a bounded open shaft. */
 public final class EscapeHoleWithBlockGoal extends AbstractRecoveryGoal {
@@ -125,56 +120,19 @@ public final class EscapeHoleWithBlockGoal extends AbstractRecoveryGoal {
     }
 
     private boolean safeFooting(BlockPos feet) {
-        return npc.level().hasChunkAt(feet.below())
-                && npc.level().getBlockState(feet.below()).isFaceSturdy(npc.level(), feet.below(), Direction.UP)
-                && npc.level().getBlockState(feet).getFluidState().isEmpty();
+        return HoleEscapePlanner.safeFooting(npc, feet);
     }
 
     private boolean open(BlockPos feet) {
-        return npc.level().hasChunkAt(feet) && npc.level().hasChunkAt(feet.above())
-                && npc.level().getBlockState(feet).getCollisionShape(npc.level(), feet).isEmpty()
-                && npc.level().getBlockState(feet.above()).getCollisionShape(npc.level(), feet.above()).isEmpty()
-                && npc.level().getBlockState(feet).getFluidState().isEmpty();
+        return HoleEscapePlanner.open(npc, feet);
     }
 
     private BlockPos findShaftExit() {
-        // Bounded flood-fill accepts 1x1, 1x3, 2x3, 3x3 and irregular footprints without treating rooms as holes.
-        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
-        Set<BlockPos> seen = new HashSet<>();
-        queue.add(column); seen.add(column);
-        BlockPos best = null;
-        while (!queue.isEmpty()) {
-            BlockPos cell = queue.removeFirst();
-            if (!open(cell)) return shaftReject("body_not_open", cell);
-            if (!npc.level().canSeeSky(cell)) return shaftReject("roof_or_no_sky", cell);
-            for (Direction side : Direction.Plane.HORIZONTAL) {
-                BlockPos adjacent = cell.relative(side);
-                if (!npc.level().hasChunkAt(adjacent)) return shaftReject("unloaded_edge", adjacent);
-                if (open(adjacent) || open(adjacent.above()) && safeFooting(adjacent.above())) {
-                    if (!open(adjacent)) return shaftReject("walkable_step_exit", adjacent);
-                    if (!safeFooting(adjacent) || Math.abs(adjacent.getX() - column.getX()) > 3
-                            || Math.abs(adjacent.getZ() - column.getZ()) > 3) return shaftReject("open_drop_or_radius_exceeded", adjacent);
-                    if (seen.add(adjacent)) {
-                        if (seen.size() > 24) return shaftReject("footprint_limit", adjacent);
-                        queue.addLast(adjacent);
-                    }
-                    continue;
-                }
-                BlockPos rim = null;
-                for (int dy = 2; dy <= 8; dy++) {
-                    BlockPos stand = adjacent.above(dy);
-                    if (open(stand) && safeFooting(stand)) { rim = stand; break; }
-                }
-                if (rim == null) return shaftReject("no_rim_within_8_blocks", adjacent);
-                if (best == null || rim.getY() < best.getY()) best = rim;
-            }
-        }
-        return best;
+        return HoleEscapePlanner.findPassiveShaftExit(npc, column, 8, this::shaftReject);
     }
 
-    private BlockPos shaftReject(String reason, BlockPos pos) {
+    private void shaftReject(String reason, BlockPos pos) {
         trace("shaft_" + reason + " pos=" + pos);
-        return null;
     }
 
     @Override public void stop() {

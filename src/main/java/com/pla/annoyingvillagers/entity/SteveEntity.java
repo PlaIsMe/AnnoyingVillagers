@@ -508,20 +508,12 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
                         0.5F, 1.0F
                 );
             }
-            if (this.getState() != 2 && this.getTarget() == null && !this.getMainHandItem().isEmpty()) {
-                this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
-            }
             if (this.state == 0
                     && this.getHealth() <= 20
                     && !this.getItemInHand(InteractionHand.OFF_HAND).getItem().equals(Items.TOTEM_OF_UNDYING)) {
-                this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.TOTEM_OF_UNDYING));
-            }
-            if (this.getTarget() != null && this.state == 0
-                    && this.getHealth() > 20
-                    && this.getItemInHand(InteractionHand.OFF_HAND).getItem().equals(Items.TOTEM_OF_UNDYING)
-                    && !(this.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof ShieldItem)) {
-                this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+                ItemStack totemOfUndying = new ItemStack(Items.TOTEM_OF_UNDYING);
+                this.setItemInHand(InteractionHand.OFF_HAND, totemOfUndying);
+                this.setOffWeaponItem(totemOfUndying);
             }
             if (swapWeaponCooldown > 0) swapWeaponCooldown--;
         }
