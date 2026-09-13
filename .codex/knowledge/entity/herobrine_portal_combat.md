@@ -35,8 +35,6 @@ These animation rules are intentional and must stay consistent:
 - support approach portal: `RigAnimationId.POINT_LEFT_HAND_TOWARD`;
 - self dangerous-reaction/escape portal: `RigAnimationId.POINT_LEFT_HAND_TOWARD`.
 
-AV_EFM compatibility comments should map `PORTAL_SUMMON` to `AnimsSculkSteve.PORTAL_SUMMON` and `POINT_LEFT_HAND_TOWARD` to `AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP`.
-
 ## Abstract Portal Action Goal
 
 `AbstractHerobrinePortalActionGoal` starts only server-side while the caster is alive, AI-enabled, not riding, not Rig-stunned, not already animating, and allowed to use support portal actions. It stops navigation, plays the selected Rig animation, keeps looking at the action target, and performs gameplay at the goal-specific animation tick.

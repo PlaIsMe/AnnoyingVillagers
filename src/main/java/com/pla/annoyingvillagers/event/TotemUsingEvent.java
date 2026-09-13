@@ -28,7 +28,7 @@ public class TotemUsingEvent {
 
 //        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 //        if (!entity.level().isClientSide() && entity.getServer() != null && livingEntityPatch != null) {
-//            livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+//            livingEntityPatch.playAnimationSynchronized(AVAnimations.STUN_BACK, 0.0F);
 //        }
 
         if (entity instanceof Mob mob && !entity.level().isClientSide() && entity.getServer() != null) {

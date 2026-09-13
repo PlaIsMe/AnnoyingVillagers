@@ -76,7 +76,7 @@ public class WaterEnderPearlEscapeGoal extends Goal {
     private void playPearlAnimation() {
 //        ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+//            this.getLivingEntityPatch().playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
 //        }
         RigAnimationController.lockProfileAttacksFor(this.mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
         RigAnimationController.play(this.mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);

@@ -207,8 +207,8 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
 //        }
 //
 //        var dynamicAnimation = animationPlayer.getRealAnimation();
-//        return dynamicAnimation == AVAnimations.SNAKE_BLADE
-//                || dynamicAnimation == AVAnimations.SNAKE_BLADE_GUARD;
+//        return dynamicAnimation == AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_INNATE
+//                || dynamicAnimation == AnimsDemoniacVoltageReaver.DEMONIAC_VOLTAGE_REAVER_INNATE_SPECIAL;
 
         if (livingEntity instanceof Mob mob) {
             RigAnimationId active = RigAnimationController.getActiveAnimationId(mob);

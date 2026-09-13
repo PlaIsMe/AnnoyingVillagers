@@ -61,7 +61,7 @@ public class ThrowingPearlKeyPressedEvent {
     private static void playThrowingPearlAnimation(Entity entity) {
 //        Add Animation in AV_EFM
 
-//        livingEntityPatch.playAnimationSynchronized(AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP, 0.0F);
+//        livingEntityPatch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
 //        Create VANILLA_ANIMATION
     }
 

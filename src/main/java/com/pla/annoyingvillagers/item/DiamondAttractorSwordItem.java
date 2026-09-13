@@ -137,7 +137,7 @@ public class DiamondAttractorSwordItem extends SwordItem implements RigCombatPro
 //        if (targetPatch != null) {
 //            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(targetPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
 //            if (!EpicfightUtil.isLongHitAnimation(dynamicAnimation, targetPatch)) {
-//                targetPatch.playAnimationSynchronized(AnimsPugilistSteve.KNOCKDOWN_FORWARD, 0.0F);
+//                targetPatch.playAnimationSynchronized(AVAnimations.KNOCKDOWN_FORWARD, 0.0F);
 //            }
 //        }
 

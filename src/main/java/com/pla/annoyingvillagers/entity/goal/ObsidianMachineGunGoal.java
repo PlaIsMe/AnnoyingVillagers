@@ -40,7 +40,6 @@ public class ObsidianMachineGunGoal extends Goal {
 
     @Override
     public void start() {
-        // AV_EFM play animations
         this.shadowHerobrine.getNavigation().stop();
         this.shadowHerobrine.setAggressive(false);
 

@@ -1035,18 +1035,19 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     private void playInitAnimation() {
 //      ADD THIS CODE IN AV_EFM
 
-//        if (getLivingEntityPatch() != null && !this.level().isClientSide()) {
-//            if (this instanceof ReaperHerobrineEntity || this instanceof GlaiveHerobrineEntity) {
-//                getLivingEntityPatch().playAnimationSynchronized(AnimsWom.GLOWING_AGONY_GUARD, 0.0F);
-//            } else if (this instanceof AegisHerobrineEntity aegisHerobrineEntity) {
-//                // For some reason the block animation can't be played inside finalize spawn
-//                aegisHerobrineEntity.getPersistentData().putBoolean("init_animation", true);
-//            } else if (this instanceof TransporterHerobrineCloneEntity) {
-//                getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
-//            } else if (!(this instanceof SledgehammerHerobrineEntity) && !(this instanceof SwordsmanHerobrineEntity)) {
-//                getLivingEntityPatch().playAnimationSynchronized(AVAnimations.HEROBRINE_ANIMATE, 0.0F);
-//            }
-//        }
+        // if (getLivingEntityPatch() != null && !this.level().isClientSide()) {
+        //     if (this instanceof GlaiveHerobrineEntity) {
+        //         getLivingEntityPatch().playAnimationSynchronized(AnimsAVSpear.AV_SPEAR_GUARD, 0.0F);
+        //     } else if (this instanceof TransporterHerobrineCloneEntity) {
+        //         getLivingEntityPatch().playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
+        //     } else if (!(this instanceof SledgehammerHerobrineEntity)
+        //                 && !(this instanceof SwordsmanHerobrineEntity)
+        //                 && !(this instanceof AegisHerobrineEntity)
+        //                 && !(this instanceof ReaperHerobrineEntity)
+        //                 && !(this instanceof NullEntity)) {
+        //         getLivingEntityPatch().playAnimationSynchronized(AVAnimations.HEROBRINE_ANIMATE, 0.0F);
+        //     }
+        // }
 
         if (!this.level().isClientSide()) {
             if (this instanceof GlaiveHerobrineEntity) {
@@ -1082,7 +1083,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
 //      ADD THIS CODE IN AV_EFM
 
 //        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_STAGE_CHANGE, 0.0F);
+//            this.getLivingEntityPatch().playAnimationSynchronized(AVAnimations.HEROBRINE_STAGE_CHANGE, 0.0F);
 //        }
 
         if (!this.level().isClientSide()) {
@@ -1104,8 +1105,6 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
             if (stunEscapeCooldown > 0) stunEscapeCooldown--;
             if (swapWeaponCooldown > 0) swapWeaponCooldown--;
             if (this.secondFormCooldown > 0) this.secondFormCooldown--;
-
-            CommonUtil.stunEscapeAi(this);
 
             if (this.state > 0 && this.tickCount % 20 == 0
                     && (this instanceof AegisHerobrineEntity

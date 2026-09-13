@@ -344,7 +344,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     public void playGuardBreakAttackAnimation() {
 //      ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.GUARD_BREAK_ATTACK, 0.0F);
+//            this.getLivingEntityPatch().playAnimationSynchronized(AVAnimations.STUN_BACK, 0.0F);
 //        }
 
         if (!this.level().isClientSide) {
@@ -354,7 +354,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
 
     public void playTriedAnimation() {
 //      ADD THIS CODE IN AV_EFM
-//        Objects.requireNonNull(this.getLivingEntityPatch()).playAnimationSynchronized(AnimsPugilistSteve.TRIED, 0.0F);
+//        Objects.requireNonNull(this.getLivingEntityPatch()).playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_KNOCKDOWN, 0.0F);
 
         if (!this.level().isClientSide) {
             RigAnimationController.play(this, RigAnimationId.LEGENDARY_SWORD_KNOCKDOWN);

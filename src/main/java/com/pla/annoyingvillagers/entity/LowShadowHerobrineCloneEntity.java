@@ -345,7 +345,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
 //      ADD THIS CODE IN AV_EFM
 //        final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
 //        if (livingentitypatch != null && !this.level().isClientSide()) {
-//            livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.PLAYER_HEROBRINE_POSSESSION, 0.0F);
+//            livingentitypatch.playAnimationSynchronized(AVAnimations.PLAYER_HEROBRINE_POSSESSION, 0.0F);
 //        }
 
         if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.PLAYER_HEROBRINE_POSSESSION) RigAnimationController.play(this,RigAnimationId.PLAYER_HEROBRINE_POSSESSION);
@@ -355,9 +355,9 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
 //      ADD THIS CODE IN AV_EFM
 //        if (this.livingentitypatch != null && !this.isDeadOrDying() && this.isAlive()) {
 //            if (this.sacrificing) {
-//                this.livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_ASSISTANCE, 0.0F);
+//                this.livingentitypatch.playAnimationSynchronized(AVAnimations.HEROBRINE_ASSISTANCE, 0.0F);
 //            } else if (this.healing) {
-//                this.livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_SACRIFICING, 0.0F);
+//                this.livingentitypatch.playAnimationSynchronized(AVAnimations.HEROBRINE_SACRIFICING, 0.0F);
 //            }
 //        }
         RigAnimationId animationId = this.sacrificing ? RigAnimationId.HEROBRINE_ASSISTANCE : this.healing ? RigAnimationId.HEROBRINE_SACRIFICING : null;

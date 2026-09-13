@@ -36,13 +36,13 @@ public class SpecialAttackOnKeyHeldEvent {
 
     private static void playPortalSummonAnimation() {
 //        Add this in AV_EFM
-//        livingEntityPatch.playAnimationSynchronized(AnimsSculkSteve.PORTAL_SUMMON, 0.0F);
+//        livingEntityPatch.playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
 //        create VANILLA_ANIMATION
     }
 
     private static void playChestplateActivationAnimation() {
 //        Add this in AV_EFM
-//        livingEntityPatch.playAnimationSynchronized(AnimsWom.CUT_ANTITHEUS_ASCENSION, 0.0F);
+//        livingEntityPatch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_MIDDLE, 0.0F);
 //        create VANILLA_ANIMATION
     }
 

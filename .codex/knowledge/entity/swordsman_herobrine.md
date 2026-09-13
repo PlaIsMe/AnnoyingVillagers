@@ -52,7 +52,7 @@ This distance restriction applies only to `SWORDSMAN_HEROBRINE_ULT`; `SWORDSMAN_
 
 The non-EpicFight fallback treats both Swordsman ULT animations as active Snake Blade animation states for the Rig mob so SnakeAnimation NBT is not cleared merely because Epic Fight is absent.
 
-`getToolTipPos(...)` retains its commented Epic Fight joint-transform implementation for AV_EFM. The native fallback uses `RigPoseUtil` right-weapon position during Rig animation and `CommonUtil.getVanillaSwordOrBodyPosition(...)` otherwise.
+`getToolTipPos(...)` uses `RigPoseUtil` right-weapon position during Rig animation and `CommonUtil.getVanillaSwordOrBodyPosition(...)` otherwise.
 
 ## Portal / Snake Blade Routing
 

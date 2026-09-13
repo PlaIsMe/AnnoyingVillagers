@@ -764,9 +764,9 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 //      ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
 //            if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
-//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_DIE, 0.0F);
+//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_DIE, 0.0F);
 //            } else {
-//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFight.BLUE_DEMON_DIE_LEGENDARY_SWORD_START, 0.0F);
+//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_DIE_LEGENDARY_SWORD_START, 0.0F);
 //            }
 //        }
 
@@ -781,9 +781,9 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 //      ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null && (this.dieTick <= 180 && this.dieTick % 10 == 0)) {
 //            if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
-//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
+//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
 //            } else {
-//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsEpicFight.BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK, 0.0F);
+//                this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_DIE_LEGENDARY_SWORD_TICK, 0.0F);
 //            }
 //        }
 
@@ -1083,12 +1083,11 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 //      ADD THIS CODE IN AV_EFM
 //        if (this.level() instanceof ServerLevel serverLevel && this.getLivingEntityPatch() != null && this.dieTick <= 0) {
 //            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(this.getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
-//            if (dynamicAnimation == AnimsWom.CUT_ANTITHEUS_ASCENSION
-//                    || dynamicAnimation == AVAnimations.TRIDENT_ATTACK
-//                    || dynamicAnimation == AnimsWom.ELECTRIC_FIELD
-//                    || dynamicAnimation == AnimsPugilistSteve.TRIDENT_FESTIVAL
-//                    || dynamicAnimation == AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM
-//                    || dynamicAnimation == AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END) {
+//            if (dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THUNDER_ATTACK
+//                    || dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_ELECTRIC_FIELD
+//                    || dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_FESTIVAL
+//                    || dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_STATE_TRANSFORM
+//                    || dynamicAnimation == AnimsBlueDemonTrident.BLUE_DEMON_STATE_TRANSFORM_END) {
 //                EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(serverLevel, HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO,
 //                        this, damagesource.getEntity());
 //                return false;
@@ -1400,7 +1399,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 //      ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
 //            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
-//            if (dynamicAnimation != AVAnimations.TRIDENT_ATTACK && dynamicAnimation != AnimsPugilistSteve.TRIDENT_FESTIVAL) {
+//            if (dynamicAnimation != AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_THUNDER_ATTACK && dynamicAnimation != AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_FESTIVAL) {
 //                return true;
 //            }
 //        }
@@ -1461,7 +1460,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     private void playStateTransformAnimation() {
 //        ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
+//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_STATE_TRANSFORM, 0.0F);
 //        }
 
         if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.BLUE_DEMON_STATE_TRANSFORM) {
@@ -1472,7 +1471,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     private void playStateTransformEndAnimation() {
 //        ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.BLUE_DEMON_STATE_TRANSFORM_END, 0.0F);
+//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_STATE_TRANSFORM_END, 0.0F);
 //        }
 
         RigAnimationController.play(this, RigAnimationId.BLUE_DEMON_STATE_TRANSFORM_END);
@@ -1592,8 +1591,6 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             }
 
             this.syncChestplateHealingFoil();
-
-            CommonUtil.stunEscapeAi(this);
 
             if (this.getState() == 3 && !this.bbqHoleEscapeActive) {
                 this.tickShockSauceOrders(this.getSauce(SauceType.HONEY_MUSTARD_SAUCE));
@@ -1866,7 +1863,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     private void playTridentFestivalAnimation() {
 //        ADD THIS CODE IN AV_EFM
 //        if (this.getLivingEntityPatch() != null) {
-//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsPugilistSteve.TRIDENT_FESTIVAL, 0.0F);
+//            this.getLivingEntityPatch().playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_FESTIVAL, 0.0F);
 //        }
 
 //        CREATE VANILLA_ANIMATION

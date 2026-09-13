@@ -313,8 +313,8 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
     @Override
     public void playPortalSupportAnimation(RigAnimationId animationId, @Nullable LivingEntity lookTarget) {
 //      ADD THIS CODE IN AV_EFM
-//        PORTAL_SUMMON -> AnimsSculkSteve.PORTAL_SUMMON
-//        POINT_LEFT_HAND_TOWARD -> AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP
+//        PORTAL_SUMMON -> AVAnimations.PORTAL_SUMMON
+//        POINT_LEFT_HAND_TOWARD -> AVAnimations.POINT_LEFT_HAND_TOWARD
 
         if (lookTarget != null && lookTarget.isAlive()) this.getLookControl().setLookAt(lookTarget, 30.0F, 30.0F);
         RigAnimationController.play(this, RigAnimationSpecs.get(animationId), lookTarget);

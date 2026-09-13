@@ -139,7 +139,7 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
 //          ADD THIS CODE IN AV_EFM
 //            LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(victim, LivingEntityPatch.class);
 //            if (livingEntityPatch != null) {
-//                livingEntityPatch.playAnimationSynchronized(AnimsPugilistSteve.LONGEST_HIT, 0.0F);
+//                livingEntityPatch.playAnimationSynchronized(AVAnimations.SUPER_KNOCK_BACK, 0.0F);
 //            }
         if (!this.level().isClientSide && victim instanceof LivingEntity livingVictim && livingVictim.isAlive()) {
             if (livingVictim instanceof Player player) {

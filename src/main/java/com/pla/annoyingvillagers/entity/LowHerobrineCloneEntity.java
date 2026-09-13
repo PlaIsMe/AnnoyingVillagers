@@ -333,7 +333,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
 //      ADD THIS CODE IN AV_EFM
 //        final LivingEntityPatch<?> livingentitypatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
 //        if (livingentitypatch != null && !this.level().isClientSide()) {
-//            livingentitypatch.playAnimationSynchronized(AnimsSculkSteve.HEROBRINE_SACRIFICING, 0.0F);
+//            livingentitypatch.playAnimationSynchronized(AVAnimations.HEROBRINE_SACRIFICING, 0.0F);
 //        }
 
         if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.HEROBRINE_SACRIFICING) RigAnimationController.play(this, RigAnimationId.HEROBRINE_SACRIFICING);

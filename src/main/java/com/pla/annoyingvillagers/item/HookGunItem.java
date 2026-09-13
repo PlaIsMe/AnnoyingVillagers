@@ -772,7 +772,10 @@ public class HookGunItem extends Item {
             cancelHookHandAnimation(owner, rightHand);
             return;
         }
-
+        if (getHookHandAnimationState(owner, hook) == HOOK_ANIMATION_NONE) {
+            cancelHookHandAnimation(owner, rightHand);
+            return;
+        }
         setHookHandAnimationState(owner, rightHand, getHookHandAnimationState(owner, hook));
     }
 
@@ -796,11 +799,13 @@ public class HookGunItem extends Item {
         return HOOK_ANIMATION_NORMAL;
     }
 
-    private static void setHookHandAnimationState(LivingEntity owner, boolean rightHand, byte nextState) {
-        if (nextState == HOOK_ANIMATION_NONE) {
-            cancelHookHandAnimation(owner, rightHand);
-            return;
-        }
+    private static void setHookHandAnimationState(LivingEntity owner, boolean rightHand, byte nextState) {        
+// add this in AV_EFM
+//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(owner, LivingEntityPatch.class);
+//        AssetAccessor<? extends StaticAnimation> nextEpicFightAnimation = getEpicFightHookHandAnimation(rightHand, nextState);
+//        if (livingEntityPatch != null && nextEpicFightAnimation != null) {
+//            livingEntityPatch.playAnimationSynchronized(nextEpicFightAnimation, 0.0F);
+//        }
 
         String tagName = getHookHandAnimationTag(rightHand);
         RigAnimationId nextAnimation = getHookHandAnimation(rightHand, nextState);
@@ -821,13 +826,6 @@ public class HookGunItem extends Item {
         stopHookHandAnimations(owner, rightHand);
         owner.getPersistentData().putByte(tagName, nextState);
         RigAnimationController.playHeldPose(mob, nextAnimation);
-
-        // add this in AV_EFM
-//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(owner, LivingEntityPatch.class);
-//        AssetAccessor<? extends StaticAnimation> nextEpicFightAnimation = getEpicFightHookHandAnimation(rightHand, nextState);
-//        if (livingEntityPatch != null && nextEpicFightAnimation != null) {
-//            livingEntityPatch.playAnimationSynchronized(nextEpicFightAnimation, 0.0F);
-//        }
     }
 
     public static void cancelHookHandAnimations(LivingEntity owner) {
@@ -841,14 +839,14 @@ public class HookGunItem extends Item {
     }
 
     private static void stopHookHandAnimations(LivingEntity owner, boolean rightHand) {
+// add this in AV_EFM
+//        EpicfightUtil.stopAnimationSynchronized(owner, getEpicFightHookHandAnimation(rightHand, HOOK_ANIMATION_NORMAL));
+//        EpicfightUtil.stopAnimationSynchronized(owner, getEpicFightHookHandAnimation(rightHand, HOOK_ANIMATION_TOP));
+
         if (owner instanceof Mob mob) {
             RigAnimationController.stop(mob, getHookHandAnimation(rightHand, HOOK_ANIMATION_NORMAL));
             RigAnimationController.stop(mob, getHookHandAnimation(rightHand, HOOK_ANIMATION_TOP));
         }
-
-        // add this in AV_EFM
-//        EpicfightUtil.stopAnimationSynchronized(owner, getEpicFightHookHandAnimation(rightHand, HOOK_ANIMATION_NORMAL));
-//        EpicfightUtil.stopAnimationSynchronized(owner, getEpicFightHookHandAnimation(rightHand, HOOK_ANIMATION_TOP));
     }
 
     private static String getHookHandAnimationTag(boolean rightHand) {
@@ -856,16 +854,7 @@ public class HookGunItem extends Item {
     }
 
     private static RigAnimationId getHookHandAnimation(boolean rightHand, byte state) {
-        if (state == HOOK_ANIMATION_NORMAL) {
-            return rightHand ? RigAnimationId.RIGHT_HAND_HOOK : RigAnimationId.LEFT_HAND_HOOK;
-        }
-        if (state == HOOK_ANIMATION_TOP) {
-            return rightHand ? RigAnimationId.RIGHT_HAND_HOOK_TOP : RigAnimationId.LEFT_HAND_HOOK_TOP;
-        }
-        return null;
-    }
-
-    // add this in AV_EFM
+            // add this in AV_EFM
 //    private static AssetAccessor<? extends StaticAnimation> getEpicFightHookHandAnimation(boolean rightHand, byte state) {
 //        if (state == HOOK_ANIMATION_NORMAL) {
 //            return rightHand ? AVAnimations.HOOK_HAND_RIGHT : AVAnimations.HOOK_HAND_LEFT;
@@ -875,6 +864,15 @@ public class HookGunItem extends Item {
 //        }
 //        return null;
 //    }
+
+        if (state == HOOK_ANIMATION_NORMAL) {
+            return rightHand ? RigAnimationId.RIGHT_HAND_HOOK : RigAnimationId.LEFT_HAND_HOOK;
+        }
+        if (state == HOOK_ANIMATION_TOP) {
+            return rightHand ? RigAnimationId.RIGHT_HAND_HOOK_TOP : RigAnimationId.LEFT_HAND_HOOK_TOP;
+        }
+        return null;
+    }
 
     @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class Events {

@@ -897,7 +897,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         super.tick();
         if (!(this.level() instanceof ServerLevel)) return;
         this.tickVoiceCooldown();
-        CommonUtil.stunEscapeAi(this);
 
         if (this.tickCount == 1 && !this.initialSpawn) {
             implementFirstTick((ServerLevel) this.level());

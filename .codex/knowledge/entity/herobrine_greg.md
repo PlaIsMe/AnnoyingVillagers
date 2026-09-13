@@ -30,13 +30,6 @@ Greg uses two combat-support cooldowns:
 
 There is no live `sixPortalSupportCooldown`. Old dedicated six-portal cooldown fields/methods/NBT may remain commented in source for recovery only.
 
-## Animation Rules
-
-`playPortalSupportAnimation(...)` uses native Rig animations. AV_EFM comments should map:
-
-- `PORTAL_SUMMON` -> `AnimsSculkSteve.PORTAL_SUMMON`;
-- `POINT_LEFT_HAND_TOWARD` -> `AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP`.
-
 Greg uses `PORTAL_SUMMON` for:
 
 - low-clone support;

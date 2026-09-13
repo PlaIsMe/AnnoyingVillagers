@@ -72,43 +72,6 @@ public class CommonUtil {
 //        mob.addEffect(new MobEffectInstance(CEMobEffects.FULL_STUN_IMMUNITY.get(), duration, pAmplifier));
     }
 
-    public static void stunEscapeAi(Mob mob) {
-//      ADD THIS CODE IN AV_EFM
-
-//        if (ModList.get().isLoaded("efkick") && this.stunEscapeCooldown == 0 && this.level() instanceof ServerLevel) {
-//            if (getLivingEntityPatch() != null) {
-//                AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(getLivingEntityPatch().getAnimator().getPlayerFor(null)).getRealAnimation();
-//                if (EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && mob.isAlive()) {
-//                    if (new Random().nextFloat() < CombatBehaviour.calculateGuardBreakWakeUpChance(mob)) {
-//                        if (mob instanceof HerobrineMob herobrineMob) {
-//                            herobrineMob.setStunEscapeCooldown(60);
-//                        } else if (mob instanceof AVNpc avnpc) {
-//                            avnpc.setStunEscapeCooldown(60);
-//                        } else if (mob instanceof BlueDemonEntity blueDemonEntity) {
-//                            blueDemonEntity.setStunEscapeCooldown(60);
-//                        }
-//                        new DelayedTask(new Random().nextInt(5, 10)) {
-//                            @Override
-//                            public void run() {
-//                                if (getLivingEntityPatch() != null && EpicfightUtil.isLongHitAnimationNotExecutedAnimation(dynamicAnimation, getLivingEntityPatch()) && mob.isAlive()) {
-//                                    CombatBehaviour.postGuardBreakWakeUp(mob, getLivingEntityPatch(), serverLevel);
-//                                } else {
-//                                    if (mob instanceof HerobrineMob herobrineMob) {
-//                                        herobrineMob.setStunEscapeCooldown(-1);
-//                                    } else if (mob instanceof AVNpc avnpc) {
-//                                        avnpc.setStunEscapeCooldown(-1);
-//                                    } else if (mob instanceof BlueDemonEntity avnpc) {
-//                                        blueDemonEntity.setStunEscapeCooldown(60);
-//                                    }
-//                                }
-//                            }
-//                        };
-//                    }
-//                }
-//            }
-//        }
-    }
-
     public static Vec3 getVanillaSwordOrBodyPosition(Entity entity) {
         return getVanillaSwordOrBodyPosition(entity, 1.0F);
     }

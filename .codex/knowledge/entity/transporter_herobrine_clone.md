@@ -28,13 +28,6 @@ Transporter uses:
 
 Keep the older low-health self-escape lifecycle separate from these combat-support cooldowns.
 
-## Animation Rules
-
-AV_EFM comments should map:
-
-- `PORTAL_SUMMON` -> `AnimsSculkSteve.PORTAL_SUMMON`;
-- `POINT_LEFT_HAND_TOWARD` -> `AnimsEpicFightIronSpell.CASTING_ONE_HAND_TOP`.
-
 Transporter low-clone summons use `PORTAL_SUMMON` and perform at tick 20.
 
 Two-portal support escape, projectile counter, approach, and self dangerous-reaction portal actions use `POINT_LEFT_HAND_TOWARD`.
