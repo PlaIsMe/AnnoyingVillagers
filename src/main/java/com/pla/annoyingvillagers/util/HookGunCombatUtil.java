@@ -1150,15 +1150,15 @@ public final class HookGunCombatUtil {
     }
 
     private static void playHookGunAnimation(LivingEntity entity) {
-        if (entity instanceof Mob mob && !entity.level().isClientSide()) {
-            RigAnimationController.play(mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
-        }
-
-        // add this in AV_EFM
+// add this in AV_EFM
 //        LivingEntityPatch<?> patch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
 //        if (patch != null && !entity.level().isClientSide()) {
 //            patch.playAnimationSynchronized(AVAnimations.HOOK_GUN, 0.0F);
 //        }
+
+        if (entity instanceof Mob mob && !entity.level().isClientSide()) {
+            RigAnimationController.play(mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
+        }
     }
 
     private static void aimAt(LivingEntity entity, Vec3 target) {
