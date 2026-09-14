@@ -37,7 +37,7 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
     private int cycleStartTick;
     private double cycleStartY;
     private boolean previousNoGravity;
-    private RigAnimationId exitRoll;
+    public RigAnimationId exitRoll;
     private boolean clearingCycle;
     private int retryAfterTick;
     private final RigEscapeObstructionBreaker obstructionBreaker = new RigEscapeObstructionBreaker();

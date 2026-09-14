@@ -204,7 +204,7 @@ public class NullEntity extends HerobrineMob {
         }
     }
 
-    private List<NullWeapon> getAvailableNullWeapons() {
+    public List<NullWeapon> getAvailableNullWeapons() {
         List<NullWeapon> weapons = new ArrayList<>(5);
         if (this.nullSwordEntity != null && this.nullSwordEntity.isAlive()) weapons.add(this.nullSwordEntity);
         if (this.nullAxeEntity != null && this.nullAxeEntity.isAlive()) weapons.add(this.nullAxeEntity);

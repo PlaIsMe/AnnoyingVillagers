@@ -60,7 +60,9 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.NULL_HOE.get(), NullWeaponRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLOCK_PROJECTILE.get(), BlockProjectileRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_GREG.get(), HerobrineGregRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_WARDEN.get(), HerobrineWardenRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.AV_WARDEN.get(), AvWardenRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.GOLEM_WARRIORS.get(), AvGolemRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.GOLEM_ARMS.get(), GolemArmsRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get(), HerobrineDragonRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.DRAGON_METEORITE.get(), DragonMeteoriteRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SHOCKWAVE_BLOCK.get(), ShockWaveBlockRenderer::new);

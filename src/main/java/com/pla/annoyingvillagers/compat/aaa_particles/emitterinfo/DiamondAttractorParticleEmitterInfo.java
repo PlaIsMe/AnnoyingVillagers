@@ -29,7 +29,7 @@ public class DiamondAttractorParticleEmitterInfo extends ParticleEmitterInfo {
     private int durationTicks = 0;
 
     private double smoothing = 1.0D;
-    private Vec3 swordLocalOffset = Vec3.ZERO;
+    public Vec3 swordLocalOffset = Vec3.ZERO;
 
     public DiamondAttractorParticleEmitterInfo(ResourceLocation effek) {
         super(effek);

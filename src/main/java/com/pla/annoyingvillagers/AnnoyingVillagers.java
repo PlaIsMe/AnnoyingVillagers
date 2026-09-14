@@ -180,6 +180,8 @@ public class AnnoyingVillagers {
                     ClientboundRigAnimation::decode,
                     ClientboundRigAnimation::handle
             );
+            AnnoyingVillagers.addNetworkMessage(ClientboundSpecialAnimation.class, ClientboundSpecialAnimation::encode, ClientboundSpecialAnimation::decode, ClientboundSpecialAnimation::handle);
+            AnnoyingVillagers.addNetworkMessage(ServerboundDestructionEyeAttack.class, ServerboundDestructionEyeAttack::encode, ServerboundDestructionEyeAttack::decode, ServerboundDestructionEyeAttack::handle);
             AnnoyingVillagers.addNetworkMessage(
                     ClientboundBetterCombatAnimation.class,
                     ClientboundBetterCombatAnimation::encode,

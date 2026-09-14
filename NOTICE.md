@@ -14,6 +14,8 @@ This project incorporates assets, code references, and logic from the following 
 * **Quark** by Vazkii & contributors `[CC BY-NC-SA 3.0]` - Colored enchantment and glint rendering logic. ([Source](https://github.com/VazkiiMods/Quark))
 * **Electroblob's Wizardry** by Electroblob `[CC-BY-3.0]` - Black hole logic. ([Source](https://github.com/Electroblob77/Wizardry))
 * **Annoying Villagers** by Pugilist Steve `[AFL-3.0]` - Additional hit and clash sounds. ([Link](https://space.bilibili.com/1337039598/dynamic))
+* **EpicFight Super Golem** by merlin204 `[Authorized Use]` - AvGolem models, customized Golem Arms models, textures and inspired animations in Block Bench. ([Source](https://github.com/supermerlin204/Super_Golem))
+* **EpicFight Super Warden** by merlin204 `[Authorized Use]` - AvWarden models and inspired animations in Block Bench. ([Source](https://github.com/supermerlin204/Super_Warden))
 
 ---
 

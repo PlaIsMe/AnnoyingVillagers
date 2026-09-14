@@ -13,7 +13,7 @@ forceTickMobs = true
 
 Implemented on HerobrineMob (all its subclasses inherit it), HerobrineGregEntity,
 BlueDemonEntity, BbqEntity and JevEntity. The explicitly requested NullWeapon,
-HerobrineDragonEntity, HerobrineWardenEntity and EliteHerobrineKnockedEntity do not
+HerobrineDragonEntity, AvWarden and EliteHerobrineKnockedEntity do not
 extend HerobrineMob, so they implement it independently. Low clones that do not
 extend HerobrineMob are not opted in.
 

@@ -31,7 +31,7 @@ public class WaterEnderPearlEscapeGoal extends Goal {
     private static final float YAW_STEP = 10.0F;
     private static final float[] PITCHES = {-20.0F, -8.0F, 0.0F, 2.0F, 4.0F, 8.0F, 14.0F, 24.0F, 36.0F};
 
-    private final Mob mob;
+    public final Mob mob;
     private Vec3 pearlTarget;
     private long nextSearchTick;
 

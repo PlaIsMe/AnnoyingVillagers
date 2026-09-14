@@ -62,8 +62,8 @@ public class HookGunItem extends Item {
     private static final double COLLISION_DAMPING = 0.25D;
     private static final int USE_COOLDOWN_TICKS = 8;
     private static final byte HOOK_ANIMATION_NONE = 0;
-    private static final byte HOOK_ANIMATION_NORMAL = 1;
-    private static final byte HOOK_ANIMATION_TOP = 2;
+    public static final byte HOOK_ANIMATION_NORMAL = 1;
+    public static final byte HOOK_ANIMATION_TOP = 2;
     private static final double HOOK_ANIMATION_TOP_Y = 0.55D;
     private static final double HOOK_ANIMATION_BACK_DOT = -0.20D;
 
@@ -849,7 +849,7 @@ public class HookGunItem extends Item {
         }
     }
 
-    private static String getHookHandAnimationTag(boolean rightHand) {
+    public static String getHookHandAnimationTag(boolean rightHand) {
         return rightHand ? TAG_RIGHT_HOOK_ANIMATION : TAG_LEFT_HOOK_ANIMATION;
     }
 

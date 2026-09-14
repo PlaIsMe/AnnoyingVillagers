@@ -75,3 +75,37 @@ Keep throw/spawn behavior independent from visibility. A throw animation should 
 Files under `client/animation/rig_animation/**` are generated/user-authored animation holders and can be very large. Preserve their generated inline `public static final AnimationDefinition ... = AnimationDefinition.Builder...build();` style. Do not mechanically split those fields into private creator methods unless explicitly requested.
 
 Project knowledge should describe the registry and playback flow rather than enumerate hundreds of animation constants or holder classes. When integrating new holders, the required path is `AnimationDefinition → RigAnimationId → RigAnimationResolver → RigAnimationSpecs → generated pose refresh when common-side sampling is needed`.
+
+## Special articulated non-humanoid rigs
+
+`AvWarden`, `AvGolem`/`GolemWarriors`, and `GolemArms` use the vanilla `ModelPart`/`AnimationDefinition` runtime without Epic Fight, but they deliberately do not collapse into the humanoid `ModelRig` hierarchy.
+
+Client model classes are:
+- `ModelAvWarden`, driven by `client/animations/AvWardenAnimations`.
+- `ModelAvGolem`, driven by `client/animations/AvGolemAnimations`.
+- `ModelGolemArm`, driven by `client/animations/GolemArmsAnimations`.
+
+These models preserve the authored segmented joint chains. Warden retains upper/lower arms and legs; its `left_ribcage` and `right_ribcage` are children of `body` so they inherit body motion without independent animation tracks. AvGolem retains `arm_1` through `arm_7`, tool anchors, knees, and the weapon-support joints. GolemArms keeps hidden `Root -> Torso -> Chest` driver parts plus the four visible `garm_*` chains; the hidden parent chain is required to preserve the original arm-space motion.
+
+Do not route these models through the Steve/humanoid retarget path. Their authored bone names are the contract between the generated Java model, `AnimationDefinition` holder, client resolver, and common generated special-pose data.
+
+`AvGolem` uses the vanilla iron-golem base texture. Its armor layer is a separate `ModelAvGolemArmor` and currently supports helmet and chest slots. `GolemArms` is an attached visual entity owned by the player; it is rendered with the iron-golem base texture plus `textures/entities/golem_arms_emissive.png`.
+
+## Special animation client selection
+
+`SpecialAnimationClientUtil` and `SpecialAnimationResolver` are the client-only bridge for the three special rig families. Packet-driven one-shot attacks take priority over ordinary locomotion. When no one-shot is active:
+- AvWarden selects emerge/dig/sniff/death/fall/chase/walk/idle as appropriate and applies live Warden head tracking.
+- AvGolem selects weapon-family locomotion where supplied, otherwise normal run/walk/idle/fall/death.
+- GolemArms follows its owner and selects idle, kneel, sneak, walk, or run from the owner's current state.
+
+The common special-animation registry stores ids/specs only. It must not import client `AnimationDefinition` or model classes.
+
+## Separate generated special-pose data
+
+`tools/generate_special_pose_clips.py` is the non-humanoid companion to the humanoid rig-pose generator. It parses the authored Java `ModelPart` hierarchy plus `AnimationDefinition` fields and generates common/server-safe Java source under:
+
+```text
+src/main/java/com/pla/annoyingvillagers/rig/pose/generated/special/
+```
+
+This intentionally follows the existing project convention of generated Java pose data. The special classes live in a `special` subpackage so they stay separate from humanoid `RigColliderAnchor` pose classes. `SpecialPoseLibrary` registers this generated Java data directly; there is no runtime JSON pose loader.

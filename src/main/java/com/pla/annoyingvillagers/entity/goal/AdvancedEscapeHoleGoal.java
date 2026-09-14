@@ -22,11 +22,11 @@ import java.util.EnumSet;
 /** Shared combat-hole admission and counted profile-attack ownership for rig mobs. */
 public abstract class AdvancedEscapeHoleGoal<T extends PathfinderMob & LockableRigAttackAnimation> extends Goal {
     private static final int MAX_TARGET_HEIGHT_DIFFERENCE = 32;
-    protected final T mob;
+    public final T mob;
     protected LivingEntity target;
-    protected Vec3 exitPosition;
+    public Vec3 exitPosition;
     protected int upAmountBlocks;
-    protected boolean finished;
+    public boolean finished;
     protected int elapsed;
     private int nextCheck;
     private boolean ownsLock;

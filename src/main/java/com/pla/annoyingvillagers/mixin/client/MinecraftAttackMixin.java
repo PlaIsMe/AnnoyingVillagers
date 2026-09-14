@@ -3,7 +3,9 @@ package com.pla.annoyingvillagers.mixin.client;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
+import com.pla.annoyingvillagers.item.DestructionEyeItem;
 import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
+import com.pla.annoyingvillagers.network.ServerboundDestructionEyeAttack;
 import com.pla.annoyingvillagers.network.VanillaAttackKeyMessage;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.client.Minecraft;
@@ -23,7 +25,14 @@ public abstract class MinecraftAttackMixin {
     private void annoyingVillagers$handleVanillaAbilityAttack(CallbackInfoReturnable<Boolean> cir) {
         Minecraft minecraft = (Minecraft)(Object)this;
         LocalPlayer player = minecraft.player;
-        if (player == null || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
+        if (player == null) return;
+        if (player.getMainHandItem().getItem() instanceof DestructionEyeItem) {
+            AnnoyingVillagers.PACKET_HANDLER.sendToServer(new ServerboundDestructionEyeAttack());
+            player.swing(InteractionHand.MAIN_HAND);
+            cir.setReturnValue(false);
+            return;
+        }
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
 
         if (player.getMainHandItem().getItem() instanceof EnderSlayerScytheItem && EnderSlayerScytheItem.isDragonActive(player.getMainHandItem())) {
             AnnoyingVillagers.PACKET_HANDLER.sendToServer(new VanillaAttackKeyMessage());

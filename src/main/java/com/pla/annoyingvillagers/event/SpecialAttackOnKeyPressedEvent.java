@@ -38,7 +38,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //        create VANILLA_ANIMATION
     }
 
-    private static void playHookGunBindAnimationAfterHandRefresh(Player player) {
+    public static void playHookGunBindAnimationAfterHandRefresh(Player player) {
         new DelayedTask(2) {
             @Override
             public void run() {
@@ -51,7 +51,7 @@ public class SpecialAttackOnKeyPressedEvent {
         };
     }
 
-    private static void playTransporterFragmentAnimation(Player player, TransporterFragmentItem.UseMode useMode) {
+    public static void playTransporterFragmentAnimation(Player player, TransporterFragmentItem.UseMode useMode) {
         switch (useMode) {
             case BOTH_HANDS, MAIN_HAND -> {
                 playPortalSummonAnimation(player);

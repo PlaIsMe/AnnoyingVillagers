@@ -68,7 +68,9 @@ public class AnnoyingVillagersModEntities {
     public static final RegistryObject<EntityType<NullPickaxeEntity>> NULL_PICKAXE = register("null_pickaxe", Builder.<NullPickaxeEntity>of(NullPickaxeEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(NullPickaxeEntity::new).fireImmune().sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<NullShovelEntity>> NULL_SHOVEL = register("null_shovel", Builder.<NullShovelEntity>of(NullShovelEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(NullShovelEntity::new).fireImmune().sized(0.6F, 1.8F));
     public static final RegistryObject<EntityType<NullHoeEntity>> NULL_HOE = register("null_hoe", Builder.<NullHoeEntity>of(NullHoeEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(NullHoeEntity::new).fireImmune().sized(0.6F, 1.8F));
-    public static final RegistryObject<EntityType<HerobrineWardenEntity>> HEROBRINE_WARDEN = register("herobrine_warden", EntityType.Builder.of(HerobrineWardenEntity::new, MobCategory.MONSTER).sized(0.9F, 2.9F).clientTrackingRange(16).fireImmune());
+    public static final RegistryObject<EntityType<AvWarden>> AV_WARDEN = register("av_warden", EntityType.Builder.<AvWarden>of(AvWarden::new, MobCategory.MONSTER).sized(0.9F, 2.9F).clientTrackingRange(16).fireImmune());
+    public static final RegistryObject<EntityType<GolemWarriors>> GOLEM_WARRIORS = register("golem_warriors", EntityType.Builder.<GolemWarriors>of(GolemWarriors::new, MobCategory.CREATURE).sized(1.4F, 2.7F).clientTrackingRange(16));
+    public static final RegistryObject<EntityType<GolemArms>> GOLEM_ARMS = register("golem_arms", EntityType.Builder.<GolemArms>of(GolemArms::new, MobCategory.MISC).sized(1.0F, 2.3F).clientTrackingRange(16).updateInterval(1).noSave());
     public static final RegistryObject<EntityType<NullSkeletonEntity>> NULL_SKELETON = register("null_skeleton", Builder.<NullSkeletonEntity>of(NullSkeletonEntity::new, MobCategory.MONSTER).setShouldReceiveVelocityUpdates(true).setTrackingRange(128).setUpdateInterval(3).setCustomClientFactory(NullSkeletonEntity::new).fireImmune().sized(0.6F, 1.8F));
 
     public static final RegistryObject<EntityType<BlackHoleEntity>> BLACK_HOLE = register("black_hole", Builder.<BlackHoleEntity>of(BlackHoleEntity::new, MobCategory.MISC).sized(6.0F, 3.0F).clientTrackingRange(192).updateInterval(1).fireImmune());
@@ -268,7 +270,9 @@ public class AnnoyingVillagersModEntities {
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.NULL_SHOVEL.get(), NullShovelEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.NULL_HOE.get(), NullHoeEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.HEROBRINE_GREG.get(), HerobrineGregEntity.createAttributes().build());
-        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.HEROBRINE_WARDEN.get(), HerobrineWardenEntity.createAttributes().build());
+        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.AV_WARDEN.get(), AvWarden.createAttributes().build());
+        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.GOLEM_WARRIORS.get(), GolemWarriors.createAttributes().build());
+        entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.GOLEM_ARMS.get(), GolemArms.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get(), HerobrineDragonEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.DRAGON_METEORITE.get(), DragonMeteoriteEntity.createAttributes().build());
         entityAttributeCreationEvent.put(AnnoyingVillagersModEntities.NULL_SKELETON.get(), NullSkeletonEntity.createAttributes().build());

@@ -292,3 +292,42 @@ Current migrated users:
 Reaper dragon summoning is a separate locked hand-action path. `summonEnderDragon(type)` must refuse to start while another rig animation is active, start `REAPER_HEROBRINE_ULT`, then acquire a profile-attack lock for that animation duration. The tick-22 ULT hook performs the fracture and actual dragon spawn. The spawned dragon begins underground with temporary no-gravity/no-physics and `DragonSummonRiseGoal` carries it above the caster before normal physics is restored.
 
 Ground Stuck is now a normal AV mob effect rather than an Epic Fight stun event. Rig targets use `HIT_LEFT`/`HIT_RIGHT`; non-rig/player targets receive the short vanilla nausea/slowness/mining-fatigue fallback. Knockout spin uses an AV client packet plus a vanilla `LivingEntityRenderer` mixin. Keep this path free of active Epic Fight imports;
+
+## AvWarden, AvGolem, and GolemArms special combat
+
+The Epic-Fight-free special rigs use `SpecialAnimationId`, `SpecialAnimationSpecs`, `SpecialAnimationController`, generated Java pose clips in `rig.pose.generated.special`, and `SpecialColliderSystem`. This is parallel to the humanoid rig combat system rather than an extension of `RigCombatProfiles`.
+
+`SpecialAnimationController.play(...)` is server authoritative. It starts a common animation id, sends the client playback packet, schedules authored hit windows/effects, and asks `SpecialColliderSystem` to sample the generated pose at the current animation time. The collider system interpolates the same joint transforms used by the visual animation and sweeps multiple samples across a server tick so fast segmented-arm attacks do not tunnel through targets.
+
+Reference collider families preserved from the original mods are:
+- AvWarden arm phases: OBB half-size approximately `0.8, 0.8, 0.8`, local center offset `0, 0.3, 0`, normally attached to `arm_down_L`/`arm_down_R`.
+- AvGolem bare-arm phases: OBB half-size `0.5, 0.5, 0.5`, attached along `arm_1`, `arm_3`, `arm_5`, and `arm_7` of the attacking side(s).
+- GolemArms phases: OBB half-size `0.5, 0.5, 0.5`, attached along all four joints of the active `garm_up_*` or `garm_down_*` chain.
+
+Timed ground impacts and Warden sonic-boom effects are server hooks attached to the corresponding special animation specs. Do not infer gameplay from the client animation class at runtime.
+
+### AvWarden
+
+`AvWarden` replaces the former Herobrine Warden registration and uses entity id `av_warden`. It retains Warden Brain targeting/activity behavior, but removes vanilla FIGHT `SonicBoom` and the priority-15 melee `OneShot`, then launches the custom animation/combat selector. The custom selector uses the converted Super Warden attack chains, skills, and sonic boom while ordinary Warden emerge/dig/sniff state still drives their corresponding converted visual animations.
+
+### AvGolem weapon families
+
+`AvGolem` is the reusable Iron Golem-derived base and `GolemWarriors` is the registered concrete entity. `AvGolemCombatGoal` replaces vanilla melee/chasing attack execution with special-animation combos.
+
+Weapon animation family selection must go through overridable helpers that receive both hand stacks:
+- `canUseSword(mainHand, offHand)`
+- `canUseDualSword(mainHand, offHand)`
+- `canUseAxe(mainHand, offHand)`
+- `canUseDualAxe(mainHand, offHand)`
+- `canUseSpear(mainHand, offHand)`
+
+The default implementation maps single/dual `SwordItem` combinations. Axe, dual-axe, and spear helpers return false by default so subclasses can explicitly opt into project-specific weapons without changing animation selection code. Weapon-prefixed animation families are `SWORD_`, `DUAL_SWORD_`, `AXE_`, `DUAL_AXE_`, and `SPEAR_`. Do not use `idle_test` at runtime.
+
+### Destruction Eye and GolemArms
+
+`DestructionEyeItem` owns one `GolemArms` follower while held in the player's main hand. The follower is an unpickable/no-physics visual-combat entity positioned on its owner. Server attack requests choose:
+- `AIR_ATK` while airborne;
+- `RUN_ATK` while sprinting and moving;
+- otherwise cycle `ATK_1`, `ATK_2`, `ATK_3`.
+
+When no one-shot attack is active, the client GolemArms model mirrors the owner's state with idle, kneel (sneaking while stationary), sneak (sneaking while moving), walk, or run animation. The item itself remains a normal item; the spawned follower supplies the articulated four-arm model, animation clock, and server collider owner.

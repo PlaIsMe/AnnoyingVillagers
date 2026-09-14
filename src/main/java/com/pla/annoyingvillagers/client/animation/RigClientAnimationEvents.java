@@ -13,6 +13,9 @@ public final class RigClientAnimationEvents {
 
     @SubscribeEvent
     public static void onLevelUnload(LevelEvent.Unload event) {
-        if (event.getLevel().isClientSide()) RigClientAnimationState.clear();
+        if (event.getLevel().isClientSide()) {
+            RigClientAnimationState.clear();
+            SpecialClientAnimationState.clear();
+        }
     }
 }

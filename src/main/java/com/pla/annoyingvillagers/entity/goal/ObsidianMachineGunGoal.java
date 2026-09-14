@@ -1,20 +1,17 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.entity.ShadowHerobrineEntity;
-import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
-import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
-import com.pla.annoyingvillagers.rig.RigStunController;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.goal.Goal;
 
 import java.util.EnumSet;
 
-public class ObsidianMachineGunGoal extends Goal {
+public class ObsidianMachineGunGoal extends AnimatedMobGoal {
     private final ShadowHerobrineEntity shadowHerobrine;
     private LivingEntity target;
 
     public ObsidianMachineGunGoal(ShadowHerobrineEntity shadowHerobrine) {
+        super(shadowHerobrine);
         this.shadowHerobrine = shadowHerobrine;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
@@ -34,8 +31,8 @@ public class ObsidianMachineGunGoal extends Goal {
                 && this.shadowHerobrine.getObsidianMachineGunTick() == 0
                 && !this.shadowHerobrine.isHealing()
                 && !this.shadowHerobrine.isSacrificing()
-                && !RigStunController.isStunned(this.shadowHerobrine)
-                && !RigAnimationController.hasActiveAnimation(this.shadowHerobrine);
+                && !this.isAnimationStunned()
+                && !this.isAnimationBusy();
     }
 
     @Override
@@ -43,13 +40,13 @@ public class ObsidianMachineGunGoal extends Goal {
         this.shadowHerobrine.getNavigation().stop();
         this.shadowHerobrine.setAggressive(false);
 
-        RigAnimationController.play(this.shadowHerobrine, RigAnimationSpecs.get(RigAnimationId.OBSIDIAN_MACHINE_GUN), this.target);
+        this.playGoalAnimation(RigAnimationId.OBSIDIAN_MACHINE_GUN, this.target);
     }
 
     @Override
     public boolean canContinueToUse() {
         return this.shadowHerobrine.isAlive()
-                && RigAnimationController.getActiveAnimationId(this.shadowHerobrine) == RigAnimationId.OBSIDIAN_MACHINE_GUN;
+                && this.isGoalAnimationPlaying(RigAnimationId.OBSIDIAN_MACHINE_GUN);
     }
 
     @Override
@@ -63,6 +60,7 @@ public class ObsidianMachineGunGoal extends Goal {
 
     @Override
     public void stop() {
+        this.finishGoalAnimation();
         this.target = null;
     }
 

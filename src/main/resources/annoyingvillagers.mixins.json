@@ -5,6 +5,7 @@
   "refmap": "annoyingvillagers.mixins.refmap.json",
   "plugin": "com.pla.annoyingvillagers.mixin.plugin.CompatMixinPlugin",
   "mixins": [
+    "BrainAccessor",
     "DistanceManagerAccessor",
     "ServerChunkCacheAccessor",
     "MobMixin",

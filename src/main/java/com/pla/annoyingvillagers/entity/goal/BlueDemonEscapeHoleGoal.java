@@ -22,7 +22,7 @@ public class BlueDemonEscapeHoleGoal extends AdvancedEscapeHoleGoal<BlueDemonEnt
     private int liftDuration;
     private boolean lifting;
     private boolean previousNoGravity;
-    private RigAnimationId exitRoll;
+    public RigAnimationId exitRoll;
     private int retryAfterTick;
     private int obstructionWaitTicks;
     private final RigEscapeObstructionBreaker obstructionBreaker = new RigEscapeObstructionBreaker();

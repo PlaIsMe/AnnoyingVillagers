@@ -4,14 +4,9 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
 import com.pla.annoyingvillagers.entity.SwordsmanHerobrineEntity;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
-import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
-import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
-import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -19,7 +14,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
+public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends AnimatedMobGoal {
     private static final int DEFAULT_CHECK_INTERVAL_TICKS = 5;
     private static final int DEFAULT_MIN_COOLDOWN_TICKS = 60;
     private static final int DEFAULT_RANDOM_COOLDOWN_TICKS = 61;
@@ -101,6 +96,7 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
     }
 
     private EliteHerobrineSecondFormGoal(T mob,RigAnimationId[] animationIds,Predicate<T> extraCondition,Function<T, RigAnimationId> animationSelector,int checkIntervalTicks,int minCooldownTicks,int randomCooldownTicks) {
+        super(mob);
         if (animationIds.length == 0) throw new IllegalArgumentException("At least one second-form animation is required");
         this.mob = mob;
         this.animationIds = animationIds.clone();
@@ -115,7 +111,6 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
 
     @Override
     public boolean canUse() {
-        if (ModList.get().isLoaded("epicfight_annoyingvillagers")) return false;
         if (this.mob.tickCount < this.nextUseTick) return false;
 
         int state = this.mob.getState();
@@ -178,7 +173,7 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
                 && !this.mob.isRemoved()
                 && !this.mob.isDeadOrDying()
                 && this.selectedAnimationId != null
-                && RigAnimationController.getActiveAnimationId(this.mob) == this.selectedAnimationId;
+                && this.isGoalAnimationPlaying(this.selectedAnimationId);
     }
 
     @Override
@@ -199,9 +194,9 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
         this.faceTarget();
 
         if (this.forcedSwordsmanPortalUlt && this.forcedSwordsmanPortalGroup != null && this.mob instanceof SwordsmanHerobrineEntity swordsman) DemoniacVoltageReaverItem.setPreferredPortalTarget(swordsman.getMainHandItem(), this.forcedSwordsmanPortalGroup, swordsman.getGregUUID());
-        RigAnimationController.play(this.mob, RigAnimationSpecs.get(this.selectedAnimationId), this.target);
+        this.playGoalAnimation(this.selectedAnimationId, this.target);
 
-        this.animationStarted = RigAnimationController.getActiveAnimationId(this.mob) == this.selectedAnimationId;
+        this.animationStarted = this.isGoalAnimationPlaying(this.selectedAnimationId);
     }
 
     @Override
@@ -213,6 +208,7 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
 
     @Override
     public void stop() {
+        this.finishGoalAnimation();
         int state = this.mob.getState();
 
         if (isMountedSecondFormReaper()) {
@@ -279,8 +275,8 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
                 && !this.mob.isDeadOrDying()
                 && !this.mob.isNoAi()
                 && passengerAllowed
-                && !RigStunController.isStunned(this.mob)
-                && !RigAnimationController.hasActiveAnimation(this.mob);
+                && !this.isAnimationStunned()
+                && !this.isAnimationBusy();
     }
 
     private void faceTarget() {
@@ -295,5 +291,4 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Goal {
                 && !target.isDeadOrDying();
     }
 }
-
 

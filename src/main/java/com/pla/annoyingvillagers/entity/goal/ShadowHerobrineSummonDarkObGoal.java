@@ -1,20 +1,17 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.entity.ShadowHerobrineEntity;
-import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
-import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
-import com.pla.annoyingvillagers.rig.RigStunController;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.goal.Goal;
 
 import java.util.EnumSet;
 
-public class ShadowHerobrineSummonDarkObGoal extends Goal {
+public class ShadowHerobrineSummonDarkObGoal extends AnimatedMobGoal {
     private final ShadowHerobrineEntity shadowHerobrine;
     private LivingEntity target;
 
     public ShadowHerobrineSummonDarkObGoal(ShadowHerobrineEntity shadowHerobrine) {
+        super(shadowHerobrine);
         this.shadowHerobrine = shadowHerobrine;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
@@ -31,20 +28,20 @@ public class ShadowHerobrineSummonDarkObGoal extends Goal {
                 && this.shadowHerobrine.getObsidianMachineGunTick() == 0
                 && !this.shadowHerobrine.isSacrificing()
                 && !this.shadowHerobrine.isPassenger()
-                && !RigStunController.isStunned(this.shadowHerobrine)
-                && !RigAnimationController.hasActiveAnimation(this.shadowHerobrine);
+                && !this.isAnimationStunned()
+                && !this.isAnimationBusy();
     }
 
     @Override
     public void start() {
         this.shadowHerobrine.getNavigation().stop();
         this.shadowHerobrine.setAggressive(false);
-        RigAnimationController.play(this.shadowHerobrine, RigAnimationSpecs.get(RigAnimationId.POINT_LEFT_HAND_MIDDLE), this.target);
+        this.playGoalAnimation(RigAnimationId.POINT_LEFT_HAND_MIDDLE, this.target);
     }
 
     @Override
     public boolean canContinueToUse() {
-        return RigAnimationController.getActiveAnimationId(this.shadowHerobrine) == RigAnimationId.POINT_LEFT_HAND_MIDDLE;
+        return this.isGoalAnimationPlaying(RigAnimationId.POINT_LEFT_HAND_MIDDLE);
     }
 
     @Override
@@ -58,6 +55,7 @@ public class ShadowHerobrineSummonDarkObGoal extends Goal {
 
     @Override
     public void stop() {
+        this.finishGoalAnimation();
         this.target = null;
     }
 

@@ -51,7 +51,7 @@ import java.util.*;
 
 public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceTickEntity, RigStunnableEntity {
     private int wardenCallingCooldown;
-    private int eatCount = 0;
+    public int eatCount = 0;
     private boolean initialSpawn = false;
     private final List<Item> listWeapons = new ArrayList<>(Arrays.asList(
             Items.DIAMOND_SWORD,
@@ -130,7 +130,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
-        if (pSource.getEntity() instanceof HerobrineWardenEntity) {
+        if (pSource.getEntity() instanceof AvWarden) {
             eatCount = eatCount + 1;
             playBeingEatenAnimation();
             if (this.level() instanceof ServerLevel serverLevel) {
@@ -237,8 +237,8 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
             ensureKnockedAnimation();
             if (this.wardenCallingCooldown == 0) {
                 ServerLevel level = (ServerLevel) this.level();
-                HerobrineWardenEntity warden =
-                        new HerobrineWardenEntity(AnnoyingVillagersModEntities.HEROBRINE_WARDEN.get(), level);
+                AvWarden warden =
+                        new AvWarden(AnnoyingVillagersModEntities.AV_WARDEN.get(), level);
                 double dist = (this.getBbWidth() + warden.getBbWidth()) * 0.5D + 0.5D;
                 Vec3 forward = Vec3.directionFromRotation(0.0F, this.yBodyRot);
                 Vec3 spawn = this.position()

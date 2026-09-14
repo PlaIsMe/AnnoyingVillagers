@@ -28,6 +28,10 @@ public final class RigOrientedBox {
         return new RigOrientedBox(transform.transformPoint(preset.center()), transform.axisX(), transform.axisY(), transform.axisZ(), preset.halfX(), preset.halfY(), preset.halfZ());
     }
 
+    public static RigOrientedBox from(RigPartTransform transform, double halfX, double halfY, double halfZ, Vec3 center) {
+        return new RigOrientedBox(transform.transformPoint(center), transform.axisX(), transform.axisY(), transform.axisZ(), halfX, halfY, halfZ);
+    }
+
     public Vec3 center() { return this.center; }
     public Vec3 axisX() { return this.axisX; }
     public Vec3 axisY() { return this.axisY; }

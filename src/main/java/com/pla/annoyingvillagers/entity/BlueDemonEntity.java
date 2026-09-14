@@ -109,7 +109,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     private int squadArrivalTicks = -1;
     private float sauceSquadAngle = 0.0F;
     private boolean spawnedBbqSauce = false;
-    private int dieTick = -1;
+    public int dieTick = -1;
     @Nullable
     private UUID savedKillerUUID;
     private boolean neverLeave = false;

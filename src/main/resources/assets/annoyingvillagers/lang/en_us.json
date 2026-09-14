@@ -250,7 +250,6 @@
   "entity.annoyingvillagers.infected_player_npc": "Infected Player",
   "entity.annoyingvillagers.steve": "Steve",
   "entity.annoyingvillagers.angry_steve": "Steve",
-  "entity.annoyingvillagers.herobrine_warden": "§5Herobrine§r Warden",
   "entity.annoyingvillagers.herobrine_dragon": "Ender Dragon",
   "effect.annoyingvillagers.enchant_bed_effect": "Enchanted Bed",
   "effect.annoyingvillagers.captive": "Captive",
@@ -415,5 +414,9 @@
   "tooltip.annoyingvillagers.vanilla_combat.diamond_attractor_sword.right_click": "Right Click: Pull items and enemies toward you, then rip weapons from their hands. • 1 minute cooldown",
   "tooltip.annoyingvillagers.vanilla_combat.diamond_blaster_sword.right_click": "Right Click: Release a repulsive blast that pushes enemies away on hit. • 1 minute cooldown",
   "tooltip.annoyingvillagers.vanilla_combat.hook_sword.right_click": "Right Click: Hook the enemy's weapon and force it out of their hands. • 45 seconds cooldown",
-  "tooltip.annoyingvillagers.vanilla_combat.dnax_hooked_sword.right_click": "Right Click: Obedience hostile mobs • 15 seconds cooldown"
+  "tooltip.annoyingvillagers.vanilla_combat.dnax_hooked_sword.right_click": "Right Click: Obedience hostile mobs • 15 seconds cooldown",
+  "entity.annoyingvillagers.av_warden": "§5Warden§r",
+  "entity.annoyingvillagers.golem_warriors": "Golem Warriors",
+  "entity.annoyingvillagers.golem_arms": "Golem Arms",
+  "item.annoyingvillagers.destruction_eye": "Destruction Eye"
 }
