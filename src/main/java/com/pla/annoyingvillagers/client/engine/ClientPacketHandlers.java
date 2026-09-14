@@ -108,9 +108,7 @@ public final class ClientPacketHandlers {
                 () -> PhotonClientFxUtil.spawnAt(level, "requestingassistance",  msg.from().add(0.0D, 1.0D, 0.0D)),
                 () -> {
                     AAAParticlesUtil.sendHerobrineAssistance(level, msg.from().x, msg.from().y, msg.from().z);
-                    return true;
-                },
-                () -> HerobrineUtil.startHerobrineAssistanceFallback(level, msg.from()));
+                });
     }
 
     public static void handleEnderAegisSparkFx(ClientboundEnderAegisSparkFx msg) {

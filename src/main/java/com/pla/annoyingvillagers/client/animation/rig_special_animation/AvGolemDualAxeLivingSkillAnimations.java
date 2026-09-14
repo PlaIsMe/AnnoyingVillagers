@@ -292,7 +292,8 @@ public class AvGolemDualAxeLivingSkillAnimations {
 			))
 			.build();
 
-	public static final AnimationDefinition DUAL_AXE_IDLE = AnimationDefinition.Builder.withLength(3.0F).looping()
+	public static final AnimationDefinition DUAL_AXE_IDLE = AnimationDefinition.Builder.withLength(3.0F)
+			.looping()
 			.addAnimation("Root", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, -0.4611F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, -0.4708F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1454,7 +1455,8 @@ public class AvGolemDualAxeLivingSkillAnimations {
 			))
 			.build();
 
-	public static final AnimationDefinition DUAL_AXE_WALK = AnimationDefinition.Builder.withLength(1.0F).looping()
+	public static final AnimationDefinition DUAL_AXE_WALK = AnimationDefinition.Builder.withLength(1.0F)
+			.looping()
 			.addAnimation("Root", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, -0.838F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, -1.5399F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1752,4 +1754,5 @@ public class AvGolemDualAxeLivingSkillAnimations {
 					new Keyframe(1.0F, KeyframeAnimations.posVec(0.8171F, -0.8712F, 4.282F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.build();
+
 }

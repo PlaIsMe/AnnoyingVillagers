@@ -1631,4 +1631,5 @@ public class AvGolemDualAxeAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.8171F, -0.4943F, -22.4902F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.build();
+
 }

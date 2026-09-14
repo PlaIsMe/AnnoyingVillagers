@@ -52,9 +52,9 @@ public final class SpecialAnimationResolver {
             case GOLEM_SPEAR_SKILL_1 -> AvGolemSpearLivingSkillAnimations.SPEAR_SKILL_1;
             case ARMS_ATK_1 -> GolemArmsAttackAnimations1.ATK_1;
             case ARMS_ATK_2 -> GolemArmsAttackAnimations1.ATK_2;
-            case ARMS_ATK_3 -> GolemArmsAttackAnimations1.ATK_3;
-            case ARMS_RUN_ATK -> GolemArmsAttackAnimations2.RUN_ATK;
-            case ARMS_AIR_ATK -> GolemArmsAttackAnimations2.AIR_ATK;
+            case ARMS_ATK_3 -> GolemArmsAttackAnimations2.ATK_3;
+            case ARMS_RUN_ATK -> GolemArmsAttackAnimations3.RUN_ATK;
+            case ARMS_AIR_ATK -> GolemArmsAttackAnimations3.AIR_ATK;
             case ARMS_GUARD_TRANSFORM -> GolemArmsLivingAnimations.GUARD_TRANSFORM;
             case ARMS_GUARD -> GolemArmsLivingAnimations.GUARD;
             case ARMS_GUARD_FINISH -> GolemArmsLivingAnimations.GUARD_FINISH;
