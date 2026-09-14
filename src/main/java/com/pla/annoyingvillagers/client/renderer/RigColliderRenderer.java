@@ -4,11 +4,16 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
+import com.pla.annoyingvillagers.client.animation.SpecialClientAnimationState;
 import com.pla.annoyingvillagers.rig.RigAnimationSpec;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigAttackWindow;
 import com.pla.annoyingvillagers.rig.RigColliderSystem;
 import com.pla.annoyingvillagers.rig.RigOrientedBox;
+import com.pla.annoyingvillagers.specialanimation.SpecialAnimationSpec;
+import com.pla.annoyingvillagers.specialanimation.SpecialAnimationSpecs;
+import com.pla.annoyingvillagers.specialanimation.SpecialAttackWindow;
+import com.pla.annoyingvillagers.specialanimation.SpecialColliderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -55,21 +60,49 @@ public final class RigColliderRenderer {
 
             float elapsed = active.sampleTicks(ageInTicks);
             float bodyYaw = Mth.rotLerp(event.getPartialTick(), mob.yBodyRotO, mob.yBodyRot);
+            renderRigBoxes(poseStack, lines, mob, spec, elapsed, bodyYaw);
+        }
 
-            for (RigAttackWindow window : spec.attackWindows()) {
-                boolean attackTime = window.contains(elapsed);
-                float red = 1.0F;
-                float green = attackTime ? 0.0F : 1.0F;
-                float blue = attackTime ? 0.0F : 1.0F;
+        for (var entry : SpecialClientAnimationState.snapshot().entrySet()) {
+            Entity entity = mc.level.getEntity(entry.getKey());
+            if (!(entity instanceof Mob mob)) continue;
 
-                for (RigOrientedBox box : RigColliderSystem.collisionBoxes(mob, spec, window, elapsed, bodyYaw)) {
-                    renderBox(poseStack, lines, box, red, green, blue);
-                }
-            }
+            float ageInTicks = mob.tickCount + event.getPartialTick();
+            SpecialClientAnimationState.Active active = SpecialClientAnimationState.getActive(mob, ageInTicks);
+            if (active == null) continue;
+
+            SpecialAnimationSpec spec = SpecialAnimationSpecs.get(active.animationId());
+            if (spec.attackWindows().length == 0) continue;
+
+            float elapsed = active.elapsedTicks(ageInTicks);
+            float bodyYaw = Mth.rotLerp(event.getPartialTick(), mob.yBodyRotO, mob.yBodyRot);
+            renderSpecialBoxes(poseStack, lines, mob, active.animationId(), spec, elapsed, bodyYaw);
         }
 
         poseStack.popPose();
         buffer.endBatch(RenderType.lines());
+    }
+
+    private static void renderRigBoxes(PoseStack poseStack, VertexConsumer consumer, Mob mob, RigAnimationSpec spec, float elapsed, float bodyYaw) {
+        for (RigAttackWindow window : spec.attackWindows()) {
+            boolean attackTime = window.contains(elapsed);
+            float green = attackTime ? 0.0F : 1.0F;
+            float blue = attackTime ? 0.0F : 1.0F;
+            for (RigOrientedBox box : RigColliderSystem.collisionBoxes(mob, spec, window, elapsed, bodyYaw)) {
+                renderBox(poseStack, consumer, box, 1.0F, green, blue);
+            }
+        }
+    }
+
+    private static void renderSpecialBoxes(PoseStack poseStack, VertexConsumer consumer, Mob mob, com.pla.annoyingvillagers.specialanimation.SpecialAnimationId animationId, SpecialAnimationSpec spec, float elapsed, float bodyYaw) {
+        for (SpecialAttackWindow window : spec.attackWindows()) {
+            boolean attackTime = window.contains(elapsed);
+            float green = attackTime ? 0.0F : 1.0F;
+            float blue = attackTime ? 0.0F : 1.0F;
+            for (RigOrientedBox box : SpecialColliderSystem.collisionBoxes(mob, animationId, window, elapsed, bodyYaw)) {
+                renderBox(poseStack, consumer, box, 1.0F, green, blue);
+            }
+        }
     }
 
     private static void renderBox(PoseStack poseStack, VertexConsumer consumer, RigOrientedBox box, float red, float green, float blue) {

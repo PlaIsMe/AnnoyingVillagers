@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.specialanimation;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.GolemArms;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.item.DestructionEyeItem;
 import com.pla.annoyingvillagers.network.ClientboundSpecialAnimation;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -36,14 +37,16 @@ public final class SpecialAnimationController {
     public static boolean play(Mob mob, SpecialAnimationSpec spec, LivingEntity target) {
         if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || hasActiveAnimation(mob)) return false;
         if (target != null && target.isAlive()) faceTarget(mob, target);
-        mob.swing(InteractionHand.MAIN_HAND, true);
+        if (spec.attackWindows().length > 0) {
+            mob.swing(InteractionHand.MAIN_HAND, true);
+            if (!(mob instanceof GolemArms)) playSwingSound(mob);
+        }
         ActiveAnimationState state = new ActiveAnimationState(mob, spec, mob.tickCount);
         ACTIVE.put(mob.getUUID(), state);
         sendAnimation(mob, spec.animationId(), spec.durationTicks());
         scheduleEnd(mob, state);
         scheduleHooks(mob, state);
         scheduleCollisions(mob, state);
-        mob.level().playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.WHOOSH.get(), SoundSource.HOSTILE, 1.0F, 0.9F + mob.getRandom().nextFloat() * 0.2F);
         return true;
     }
 
@@ -82,6 +85,7 @@ public final class SpecialAnimationController {
     }
 
     private static void scheduleEnd(Mob mob, ActiveAnimationState state) {
+        if (state.spec().animationId() == SpecialAnimationId.ARMS_GUARD) return;
         new DelayedTask(state.spec().durationTicks()) {
             @Override
             public void run() {
@@ -108,6 +112,15 @@ public final class SpecialAnimationController {
     }
 
     private static void scheduleWindow(Mob mob, ActiveAnimationState state, SpecialAttackWindow window, boolean multiWindow) {
+        if (mob instanceof GolemArms) {
+            new DelayedTask(window.startTickInclusive()) {
+                @Override
+                public void run() {
+                    if (!isCurrent(mob, state) || !mob.isAlive() || mob.isRemoved()) return;
+                    playSwingSound(mob);
+                }
+            };
+        }
         Set<UUID> hit = new HashSet<>();
         for (int elapsed = window.startTickInclusive(); elapsed < window.endTickExclusive(); elapsed++) {
             int tick = elapsed;
@@ -135,6 +148,7 @@ public final class SpecialAnimationController {
         boolean hurt = target.hurt(source, (float)(baseDamage * multiplier));
         if (resetHurtCooldown) target.invulnerableTime = previousInvulnerableTime;
         if (!hurt) return;
+        if (mob instanceof GolemArms arms) DestructionEyeItem.damageForArmsHit(arms);
         mob.setLastHurtMob(target);
         if (owner instanceof Mob ownerMob) {
             ownerMob.setLastHurtMob(target);
@@ -143,6 +157,13 @@ public final class SpecialAnimationController {
         Vec3 away = target.position().subtract(mob.position());
         if (away.horizontalDistanceSqr() > 1.0E-6D) target.knockback(0.35D + 0.1D * multiplier, -away.x, -away.z);
         mob.level().playSound(null, target.getX(), target.getY(), target.getZ(), AnnoyingVillagersModSounds.BLUNT_HIT.get(), SoundSource.HOSTILE, 0.9F, 0.9F + mob.getRandom().nextFloat() * 0.2F);
+    }
+
+    private static void playSwingSound(Mob mob) {
+        SoundSource source = mob instanceof GolemArms ? SoundSource.PLAYERS : SoundSource.HOSTILE;
+        float volume = mob instanceof GolemArms ? 1.2F : 1.0F;
+        float pitch = 0.85F + mob.getRandom().nextFloat() * 0.15F;
+        mob.level().playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.WHOOSH.get(), source, volume, pitch);
     }
 
     private static boolean canDamage(Mob mob, LivingEntity target) {

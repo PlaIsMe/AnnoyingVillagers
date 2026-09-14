@@ -9,11 +9,7 @@ This project has a second vanilla `ModelPart` animation/combat path for large no
 - `GolemArms` is the attached visual/combat entity `annoyingvillagers:golem_arms` used by Destruction Eye. Do not use Golem Heart naming in Annoying Villagers code.
 - `DestructionEyeItem` is registered as `annoyingvillagers:destruction_eye`.
 
-Client model/animation pairs are:
-
-- `ModelAvWarden` + `client/animations/AvWardenAnimations`
-- `ModelAvGolem` + `client/animations/AvGolemAnimations`
-- `ModelGolemArm` + `client/animations/GolemArmsAnimations`
+Client models are `ModelAvWarden`, `ModelAvGolem`, and `ModelGolemArm`. Their exported `AnimationDefinition` holders live under `client/animation/rig_special_animation/` and are split by role/family to keep the very large generated Java files manageable. `SpecialAnimationResolver` is the authoritative client mapping from common `SpecialAnimationId` to those holders.
 
 These models preserve the original segmented authored joint chains. Never retarget them back to the Steve/humanoid rig.
 
@@ -43,7 +39,7 @@ Collider contracts preserved from the reference mods:
 
 - Warden arm: half extents `0.8, 0.8, 0.8`, local center `0, 0.3, 0`, on `arm_down_L/R`.
 - Golem arm: half extents `0.5, 0.5, 0.5`, on `arm_1`, `arm_3`, `arm_5`, `arm_7` for the attacking side.
-- GolemArms: half extents `0.5, 0.5, 0.5`, on all four joints of the selected `garm_up_*` / `garm_down_*` chain.
+- GolemArms: half extents `0.5, 0.5, 0.5`, on all four joints of the selected visible arm chain. The current three-arm rig has bottom-left `garm_down_1_L..4_L`, top-center `garm_up_1_R..4_R`, and bottom-right `garm_down_1_R..4_R`. There is no `garm_up_*_L` chain anymore.
 
 Do not replace these with one large entity AABB. The segmented authored animation is the hitbox source of truth.
 
@@ -97,6 +93,8 @@ Client locomotion selection:
 - moving: `WALK`
 - sprinting + moving: `RUN`
 
+Movement detection uses very small per-tick horizontal displacement/delta thresholds so short navigation steps do not visually slide in the idle pose. `ModelAvGolem` and `ModelAvWarden` combine `limbSwingAmount`, actual `current - previous` horizontal displacement, and delta movement so even tiny path corrections still play WALK/CHASE instead of translating the whole static model.
+
 Attack-key selection is server-authoritative through `ServerboundDestructionEyeAttack`:
 
 - airborne: `AIR_ATK`
@@ -105,9 +103,25 @@ Attack-key selection is server-authoritative through `ServerboundDestructionEyeA
 
 The client Minecraft attack mixin suppresses the ordinary player hit while Destruction Eye is in the main hand, sends the request packet, and plays only the local hand swing. `SpecialAnimationController` performs actual arm collision/damage on the server.
 
-`ModelGolemArm` intentionally contains hidden `Root -> Torso -> Chest` driver parts plus the visible 16 `garm_*` joints. Do not remove the hidden parents: the imported arm animation is authored relative to them.
+`ModelGolemArm` intentionally contains hidden `Root -> Torso -> Chest` driver parts plus 12 visible joints across three arm chains. Do not remove the hidden parents: the imported arm animation is authored relative to them. The top-center arm intentionally keeps the historical `garm_up_*_R` names because the exported animations and server pose generator are name-based.
 
-The base arm texture is the vanilla Iron Golem texture. `textures/entities/golem_arms_emissive.png` is the renamed luminous overlay copied from the original Golem Heart asset; the old item name is not exposed in AV resources/code. Destruction Eye uses its own provided item texture/model.
+The attached entity is visually anchored to the owner twice: `GolemArms` mirrors both the owner's tick-history (`xo/yo/zo`) and render-history (`xOld/yOld/zOld`) plus current transform every tick, and `GolemArmsRenderer#getRenderOffset` compensates using the same `xOld -> current` interpolation path as vanilla entity rendering. This avoids the one-entity-network-interpolation delay that otherwise makes the arms trail behind a moving player.
+
+The base arm texture is the vanilla Iron Golem texture. `textures/entities/golem_arms_emissive.png` is the renamed luminous overlay copied from the original asset. `GolemArmsRedGlintLayer` adds the project's red entity enchantment glint using `ColoredGlintRenderTypes.ENTITY_GLINT_RED`. Destruction Eye uses its own provided item texture/model.
+
+### Destruction Eye guard
+
+Holding right click with Destruction Eye in the main hand uses vanilla `UseAnim.BLOCK` / long use duration, so vanilla player movement slowdown applies. `GolemArms` drives a server-side guard animation state machine:
+
+`GUARD_TRANSFORM` (one shot) -> `GUARD` (loop while held) -> `GUARD_FINISH` (one shot after release).
+
+`DestructionEyeGuardEvent` blocks shield-blockable positional damage from every direction; unlike a vanilla shield there is no front-facing dot-product test. Bypass-shield damage and piercing arrows remain unblocked. A successful block calls `CommonUtil.damageBlocked(...)` and damages Destruction Eye by one durability. Successful server-authoritative GolemArms attack hits also damage the bound Destruction Eye by one durability per successfully damaged target.
+
+GolemArms swing audio follows the original Golem Heart intent: the Epic Fight reference uses `WHOOSH_BIG`; Annoying Villagers uses its closest local equivalent `AnnoyingVillagersModSounds.WHOOSH`. For GolemArms the sound is scheduled at each attack-window start so multi-phase arm attacks whoosh when each authored swing begins; guard/non-damaging animations stay silent. Existing AvWarden/AvGolem special-attack WHOOSH timing remains at animation start.
+
+### Collider debug rendering
+
+`RigColliderRenderer` renders both humanoid `RigColliderSystem` boxes and `SpecialColliderSystem` boxes when vanilla hitbox rendering is enabled. That means AvWarden, AvGolem, and GolemArms attack colliders use the same cyan-before-active / red-during-active debug convention. These are the same pose-driven OBBs used by server damage, not decorative client-only boxes.
 
 ## Reference timing and damage notes
 

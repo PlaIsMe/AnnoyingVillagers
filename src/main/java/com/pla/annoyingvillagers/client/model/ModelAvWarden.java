@@ -158,13 +158,19 @@ public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 			this.animate(entity.sniffAnimationState, AvWardenSkillAnimations2.SNIFF, ageInTicks);
 		} else if (!entity.onGround()) {
 			SpecialAnimationClientUtil.applyLoop(this, AvWardenLivingAnimations.FALL, ageInTicks);
-		} else if (entity.getDeltaMovement().horizontalDistanceSqr() > 0.0025D) {
+		} else if (isMoving(entity, limbSwingAmount)) {
 			SpecialAnimationClientUtil.applyLoop(this, entity.isAvChasing() ? AvWardenLivingAnimations.CHASE : AvWardenLivingAnimations.WALK, ageInTicks);
 		} else {
 			SpecialAnimationClientUtil.applyLoop(this, AvWardenLivingAnimations.IDLE, ageInTicks);
 		}
 		this.head.yRot += Mth.clamp(netHeadYaw, -60.0F, 60.0F) * ((float)Math.PI / 180.0F);
 		this.head.xRot += Mth.clamp(headPitch, -30.0F, 30.0F) * ((float)Math.PI / 180.0F);
+	}
+
+	private static boolean isMoving(net.minecraft.world.entity.LivingEntity entity, float limbSwingAmount) {
+		double dx = entity.getX() - entity.xo;
+		double dz = entity.getZ() - entity.zo;
+		return limbSwingAmount > 0.001F || dx * dx + dz * dz > 1.0E-8D || entity.getDeltaMovement().horizontalDistanceSqr() > 1.0E-8D;
 	}
 
 	public List<ModelPart> getBioluminescentLayerModelParts() {

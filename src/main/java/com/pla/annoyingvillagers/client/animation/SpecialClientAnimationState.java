@@ -47,6 +47,10 @@ public final class SpecialClientAnimationState {
         return active;
     }
 
+    public static Map<Integer, Active> snapshot() {
+        return Map.copyOf(ACTIVE);
+    }
+
     public static void clear() {
         ACTIVE.clear();
     }

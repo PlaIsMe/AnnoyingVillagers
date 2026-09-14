@@ -15,8 +15,7 @@ public final class SpecialAnimationSpecs {
     private static final Map<SpecialAnimationId, SpecialAnimationSpec> SPECS = new EnumMap<>(SpecialAnimationId.class);
     private static final String[] GOLEM_LEFT = {"arm_1_L", "arm_3_L", "arm_5_L", "arm_7_L"};
     private static final String[] GOLEM_RIGHT = {"arm_1_R", "arm_3_R", "arm_5_R", "arm_7_R"};
-    private static final String[] ARMS_UP_LEFT = {"garm_up_1_L", "garm_up_2_L", "garm_up_3_L", "garm_up_4_L"};
-    private static final String[] ARMS_UP_RIGHT = {"garm_up_1_R", "garm_up_2_R", "garm_up_3_R", "garm_up_4_R"};
+    private static final String[] ARMS_UP_CENTER = {"garm_up_1_R", "garm_up_2_R", "garm_up_3_R", "garm_up_4_R"};
     private static final String[] ARMS_DOWN_LEFT = {"garm_down_1_L", "garm_down_2_L", "garm_down_3_L", "garm_down_4_L"};
     private static final String[] ARMS_DOWN_RIGHT = {"garm_down_1_R", "garm_down_2_R", "garm_down_3_R", "garm_down_4_R"};
 
@@ -94,11 +93,14 @@ public final class SpecialAnimationSpecs {
     }
 
     private static void registerArms() {
-        put(SpecialAnimationId.ARMS_ATK_1, 2.0F, 1.0F, windows(window(30, 40, armsDownRight()), window(55, 65, armsUpLeft())));
-        put(SpecialAnimationId.ARMS_ATK_2, 2.15F, 1.0F, windows(window(30, 40, armsUpRight()), window(45, 55, armsDownLeft())));
-        put(SpecialAnimationId.ARMS_ATK_3, 1.85F, 1.0F, windows(window(30, 40, concat(armsDownRight(), armsUpLeft(), armsDownLeft(), armsUpRight()))));
+        put(SpecialAnimationId.ARMS_ATK_1, 2.0F, 1.0F, windows(window(30, 40, armsDownRight()), window(55, 65, armsUpCenter())));
+        put(SpecialAnimationId.ARMS_ATK_2, 2.15F, 1.0F, windows(window(30, 40, armsUpCenter()), window(45, 55, armsDownLeft())));
+        put(SpecialAnimationId.ARMS_ATK_3, 1.85F, 1.0F, windows(window(30, 40, concat(armsDownRight(), armsDownLeft(), armsUpCenter()))));
         put(SpecialAnimationId.ARMS_RUN_ATK, 2.0F, 1.0F, windows(window(25, 35, concat(armsDownRight(), armsDownLeft()))));
-        put(SpecialAnimationId.ARMS_AIR_ATK, 1.65F, 1.0F, windows(window(20, 30, concat(armsDownRight(), armsUpLeft(), armsDownLeft(), armsUpRight()))));
+        put(SpecialAnimationId.ARMS_AIR_ATK, 1.65F, 1.0F, windows(window(20, 30, concat(armsDownRight(), armsDownLeft(), armsUpCenter()))));
+        put(SpecialAnimationId.ARMS_GUARD_TRANSFORM, 0.5F, 0.0F, windows());
+        SPECS.put(SpecialAnimationId.ARMS_GUARD, new SpecialAnimationSpec(SpecialAnimationId.ARMS_GUARD, 72_000, 0.0F, windows(), List.of()));
+        put(SpecialAnimationId.ARMS_GUARD_FINISH, 0.5F, 0.0F, windows());
     }
 
     private static void put(SpecialAnimationId id, float seconds, float damageMultiplier, SpecialAttackWindow[] windows) {
@@ -210,12 +212,8 @@ public final class SpecialAnimationSpecs {
         return SpecialCollider.box("Tool_R", 0.22D, 0.22D, 1.8D, 0.0D, 0.0D, -1.35D);
     }
 
-    private static SpecialCollider[] armsUpLeft() {
-        return boxes(ARMS_UP_LEFT, 0.5D, 0.5D, 0.5D, 0.0D, 0.0D, 0.0D);
-    }
-
-    private static SpecialCollider[] armsUpRight() {
-        return boxes(ARMS_UP_RIGHT, 0.5D, 0.5D, 0.5D, 0.0D, 0.0D, 0.0D);
+    private static SpecialCollider[] armsUpCenter() {
+        return boxes(ARMS_UP_CENTER, 0.5D, 0.5D, 0.5D, 0.0D, 0.0D, 0.0D);
     }
 
     private static SpecialCollider[] armsDownLeft() {

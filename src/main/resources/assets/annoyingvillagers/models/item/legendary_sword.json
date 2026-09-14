@@ -6,10 +6,12 @@
   },
   "overrides": [
     {
-      "predicate": {
-        "custom_model_data": 1
-      },
+      "predicate": { "custom_model_data": 1 },
       "model": "annoyingvillagers:item/yellow_legendary_sword"
+    },
+    {
+      "predicate": { "annoyingvillagers:awakened": 1.0 },
+      "model": "annoyingvillagers:item/heavy_attack_legendary_sword"
     }
   ]
 }

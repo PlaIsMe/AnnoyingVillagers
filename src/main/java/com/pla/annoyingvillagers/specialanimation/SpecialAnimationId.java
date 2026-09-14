@@ -50,7 +50,10 @@ public enum SpecialAnimationId {
     ARMS_ATK_2(SpecialAnimationFamily.GOLEM_ARMS, "ATK_2"),
     ARMS_ATK_3(SpecialAnimationFamily.GOLEM_ARMS, "ATK_3"),
     ARMS_RUN_ATK(SpecialAnimationFamily.GOLEM_ARMS, "RUN_ATK"),
-    ARMS_AIR_ATK(SpecialAnimationFamily.GOLEM_ARMS, "AIR_ATK");
+    ARMS_AIR_ATK(SpecialAnimationFamily.GOLEM_ARMS, "AIR_ATK"),
+    ARMS_GUARD_TRANSFORM(SpecialAnimationFamily.GOLEM_ARMS, "GUARD_TRANSFORM"),
+    ARMS_GUARD(SpecialAnimationFamily.GOLEM_ARMS, "GUARD"),
+    ARMS_GUARD_FINISH(SpecialAnimationFamily.GOLEM_ARMS, "GUARD_FINISH");
 
     private static final Map<Integer, SpecialAnimationId> BY_NETWORK_ID = new HashMap<>();
 

@@ -216,7 +216,7 @@ public class ModelAvGolem extends HierarchicalModel<GolemWarriors> {
 			SpecialAnimationClientUtil.apply(this, deathAnimation(style), Math.max(0.0F, entity.deathTime - 1.0F + partialTick));
 		} else if (!entity.onGround()) {
 			SpecialAnimationClientUtil.applyLoop(this, fallAnimation(style), ageInTicks);
-		} else if (entity.getDeltaMovement().horizontalDistanceSqr() > 0.0025D) {
+		} else if (isMoving(entity, limbSwingAmount)) {
 			AnimationDefinition movement = style == AvGolemWeaponStyle.NORMAL && entity.isSprinting() ? AvGolemLivingAnimations.RUN : walkAnimation(style);
 			SpecialAnimationClientUtil.applyLoop(this, movement, ageInTicks);
 		} else {
@@ -224,6 +224,12 @@ public class ModelAvGolem extends HierarchicalModel<GolemWarriors> {
 		}
 		this.head.yRot += Mth.clamp(netHeadYaw, -45.0F, 45.0F) * ((float)Math.PI / 180.0F);
 		this.head.xRot += Mth.clamp(headPitch, -25.0F, 25.0F) * ((float)Math.PI / 180.0F);
+	}
+
+	private static boolean isMoving(net.minecraft.world.entity.LivingEntity entity, float limbSwingAmount) {
+		double dx = entity.getX() - entity.xo;
+		double dz = entity.getZ() - entity.zo;
+		return limbSwingAmount > 0.001F || dx * dx + dz * dz > 1.0E-8D || entity.getDeltaMovement().horizontalDistanceSqr() > 1.0E-8D;
 	}
 
 	private static AnimationDefinition idleAnimation(AvGolemWeaponStyle style) {

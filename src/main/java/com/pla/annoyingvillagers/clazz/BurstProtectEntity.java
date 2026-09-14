@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.clazz;
 
-import com.pla.annoyingvillagers.rig.RigCriticalUtil;
-import com.pla.annoyingvillagers.rig.RigStunController;
+import com.pla.annoyingvillagers.util.BurstProtectionUtil;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -27,7 +26,8 @@ public interface BurstProtectEntity {
 //
 //        AssetAccessor<? extends StaticAnimation> anim = player.getRealAnimation();
 //        return EpicfightUtil.isDamagableHitAnimation(anim, patch);
-        return RigStunController.isStunned(self) || RigCriticalUtil.isCriticalDamage(self, source);
+        // The concrete helper provides a supported injection target for animation backends.
+        return BurstProtectionUtil.shouldIgnoreBurstProtection(self, source);
     }
 
     default float applyBurstProtection(LivingEntity self, DamageSource source, float damage) {

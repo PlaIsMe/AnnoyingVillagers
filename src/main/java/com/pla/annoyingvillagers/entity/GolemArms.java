@@ -29,6 +29,7 @@ public class GolemArms extends Mob {
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(GolemArms.class, EntityDataSerializers.INT);
     private UUID ownerUuid;
     private int normalAttackIndex;
+    private GuardPhase guardPhase = GuardPhase.IDLE;
 
     public GolemArms(EntityType<? extends GolemArms> type, Level level) {
         super(type, level);
@@ -63,7 +64,7 @@ public class GolemArms extends Mob {
 
     public boolean attackFromOwner() {
         LivingEntity owner = getOwnerLiving();
-        if (!(owner instanceof Player player) || SpecialAnimationController.hasActiveAnimation(this)) return false;
+        if (!(owner instanceof Player player) || DestructionEyeItem.isGuarding(player) || this.guardPhase != GuardPhase.IDLE || SpecialAnimationController.hasActiveAnimation(this)) return false;
         SpecialAnimationId animation;
         if (!player.onGround()) animation = SpecialAnimationId.ARMS_AIR_ATK;
         else if (player.isSprinting() && player.getDeltaMovement().horizontalDistanceSqr() > 0.0025D) animation = SpecialAnimationId.ARMS_RUN_ATK;
@@ -91,8 +92,54 @@ public class GolemArms extends Mob {
                 this.discard();
                 return;
             }
+            if (owner instanceof Player player) tickGuardState(player);
         }
-        this.moveTo(owner.getX(), owner.getY(), owner.getZ(), owner.yBodyRot, owner.getXRot());
+        syncToOwner(owner);
+    }
+
+    private void tickGuardState(Player owner) {
+        boolean requested = DestructionEyeItem.isGuarding(owner);
+        SpecialAnimationId active = SpecialAnimationController.getActiveAnimationId(this);
+
+        if (requested) {
+            if (this.guardPhase == GuardPhase.IDLE || this.guardPhase == GuardPhase.FINISH) {
+                SpecialAnimationController.clear(this);
+                this.guardPhase = GuardPhase.TRANSFORM;
+                SpecialAnimationController.play(this, SpecialAnimationId.ARMS_GUARD_TRANSFORM, null);
+                return;
+            }
+            if (this.guardPhase == GuardPhase.TRANSFORM && active == null) {
+                this.guardPhase = GuardPhase.GUARD;
+                SpecialAnimationController.play(this, SpecialAnimationId.ARMS_GUARD, null);
+                return;
+            }
+            if (this.guardPhase == GuardPhase.GUARD && active == null) SpecialAnimationController.play(this, SpecialAnimationId.ARMS_GUARD, null);
+            return;
+        }
+
+        if (this.guardPhase == GuardPhase.TRANSFORM || this.guardPhase == GuardPhase.GUARD) {
+            SpecialAnimationController.clear(this);
+            this.guardPhase = GuardPhase.FINISH;
+            SpecialAnimationController.play(this, SpecialAnimationId.ARMS_GUARD_FINISH, null);
+            return;
+        }
+        if (this.guardPhase == GuardPhase.FINISH && active == null) this.guardPhase = GuardPhase.IDLE;
+    }
+
+    private void syncToOwner(LivingEntity owner) {
+        this.xo = owner.xo;
+        this.yo = owner.yo;
+        this.zo = owner.zo;
+        this.xOld = owner.xOld;
+        this.yOld = owner.yOld;
+        this.zOld = owner.zOld;
+        this.xRotO = owner.xRotO;
+        this.yRotO = owner.yBodyRotO;
+        this.yBodyRotO = owner.yBodyRotO;
+        this.yHeadRotO = owner.yHeadRotO;
+        this.setPos(owner.getX(), owner.getY(), owner.getZ());
+        this.setXRot(owner.getXRot());
+        this.setYRot(owner.yBodyRot);
         this.setYBodyRot(owner.yBodyRot);
         this.setYHeadRot(owner.getYHeadRot());
         this.setDeltaMovement(owner.getDeltaMovement());
@@ -139,5 +186,12 @@ public class GolemArms extends Mob {
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 1.0D).add(Attributes.ATTACK_DAMAGE, 12.0D).add(Attributes.MOVEMENT_SPEED, 0.0D).add(Attributes.FOLLOW_RANGE, 32.0D);
+    }
+
+    private enum GuardPhase {
+        IDLE,
+        TRANSFORM,
+        GUARD,
+        FINISH
     }
 }

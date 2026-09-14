@@ -55,6 +55,9 @@ public final class SpecialAnimationResolver {
             case ARMS_ATK_3 -> GolemArmsAttackAnimations1.ATK_3;
             case ARMS_RUN_ATK -> GolemArmsAttackAnimations2.RUN_ATK;
             case ARMS_AIR_ATK -> GolemArmsAttackAnimations2.AIR_ATK;
+            case ARMS_GUARD_TRANSFORM -> GolemArmsLivingAnimations.GUARD_TRANSFORM;
+            case ARMS_GUARD -> GolemArmsLivingAnimations.GUARD;
+            case ARMS_GUARD_FINISH -> GolemArmsLivingAnimations.GUARD_FINISH;
         };
     }
 }

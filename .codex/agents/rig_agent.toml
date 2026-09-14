@@ -36,4 +36,6 @@ Treat `LockableRigAttackAnimation` as a narrow combat-profile attack gate, not a
 When adding a hand-action system that must not overlap melee attacks, first refuse to start while `RigAnimationController.hasActiveProfileAttack(mob)` is true, then acquire one profile-attack lock for that action's overlap interval and release that system's token on completion or abort.
 
 For locomotion rendering, do not use `Mob#isAggressive()` or stale/damped `limbSwingAmount` as the RUN classifier. RUN should reflect sprinting/current horizontal movement; limbSwingAmount may still gate moving vs idle.
+
+For the current GolemArms special rig, preserve the three-arm contract: bottom-left `garm_down_*_L`, top-center `garm_up_*_R`, bottom-right `garm_down_*_R`; never reintroduce `garm_up_*_L` unless the user explicitly changes the authored model again. Guard ids (`ARMS_GUARD_TRANSFORM`, `ARMS_GUARD`, `ARMS_GUARD_FINISH`) are non-damaging visual states and should not receive invented attack colliders.
 """

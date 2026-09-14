@@ -7,7 +7,6 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import com.pla.annoyingvillagers.network.ClientboundPlayerGroundTransitionPosition;
-import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -134,8 +133,6 @@ public class TransporterFragmentItem extends Item {
     }
 
     public static UseResult tryUseHeldSpecialAttack(Player player, Vec3 crosshairTarget) {
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled()) return UseResult.missed();
-
         Item transporterFragment = AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get();
         boolean mainHand = player.getMainHandItem().is(transporterFragment);
         boolean offHand = player.getOffhandItem().is(transporterFragment);
