@@ -27,9 +27,11 @@ import java.util.UUID;
 
 public class GolemArms extends Mob {
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(GolemArms.class, EntityDataSerializers.INT);
+    private static final int GUARD_RELEASE_CONFIRM_TICKS = 2;
     private UUID ownerUuid;
     private int normalAttackIndex;
     private GuardPhase guardPhase = GuardPhase.IDLE;
+    private int guardReleaseTicks;
 
     public GolemArms(EntityType<? extends GolemArms> type, Level level) {
         super(type, level);
@@ -67,7 +69,12 @@ public class GolemArms extends Mob {
         if (!(owner instanceof Player player) || DestructionEyeItem.isGuarding(player) || this.guardPhase != GuardPhase.IDLE || SpecialAnimationController.hasActiveAnimation(this)) return false;
         SpecialAnimationId animation;
         if (!player.onGround()) animation = SpecialAnimationId.ARMS_AIR_ATK;
-        else if (player.isSprinting() && player.getDeltaMovement().horizontalDistanceSqr() > 0.0025D) animation = SpecialAnimationId.ARMS_RUN_ATK;
+        // ServerPlayer#getDeltaMovement() is not a reliable way to tell whether a real player
+        // is moving, because normal client movement arrives primarily as position packets.
+        // The old velocity check could therefore reject RUN_ATK even while the player was
+        // actively sprinting. Sprint state itself is synchronized to the server, so use it
+        // directly for the sprint attack selection.
+        else if (player.isSprinting()) animation = SpecialAnimationId.ARMS_RUN_ATK;
         else {
             animation = switch (this.normalAttackIndex++ % 3) {
                 case 0 -> SpecialAnimationId.ARMS_ATK_1;
@@ -102,6 +109,7 @@ public class GolemArms extends Mob {
         SpecialAnimationId active = SpecialAnimationController.getActiveAnimationId(this);
 
         if (requested) {
+            this.guardReleaseTicks = 0;
             if (this.guardPhase == GuardPhase.IDLE || this.guardPhase == GuardPhase.FINISH) {
                 SpecialAnimationController.clear(this);
                 this.guardPhase = GuardPhase.TRANSFORM;
@@ -118,11 +126,17 @@ public class GolemArms extends Mob {
         }
 
         if (this.guardPhase == GuardPhase.TRANSFORM || this.guardPhase == GuardPhase.GUARD) {
+            // Require a real release for two consecutive server ticks. A one-tick
+            // use-state gap must not turn into a full 0.5 s GUARD_FINISH animation.
+            if (++this.guardReleaseTicks < GUARD_RELEASE_CONFIRM_TICKS) return;
+            this.guardReleaseTicks = 0;
             SpecialAnimationController.clear(this);
             this.guardPhase = GuardPhase.FINISH;
             SpecialAnimationController.play(this, SpecialAnimationId.ARMS_GUARD_FINISH, null);
             return;
         }
+
+        this.guardReleaseTicks = 0;
         if (this.guardPhase == GuardPhase.FINISH && active == null) this.guardPhase = GuardPhase.IDLE;
     }
 

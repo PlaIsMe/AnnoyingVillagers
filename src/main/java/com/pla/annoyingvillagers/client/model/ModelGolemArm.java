@@ -21,7 +21,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 public class ModelGolemArm extends HierarchicalModel<GolemArms> {
+	private static final float LIVING_TRANSITION_TICKS = 5.0F;
+
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_golem_arm"), "main");
 	private final ModelPart Root;
@@ -39,6 +44,7 @@ public class ModelGolemArm extends HierarchicalModel<GolemArms> {
 	private final ModelPart garm_down_2_R;
 	private final ModelPart garm_down_3_R;
 	private final ModelPart garm_down_4_R;
+	private final Map<GolemArms, LivingBlendState> livingBlendStates = new WeakHashMap<>();
 
 	public ModelGolemArm(ModelPart root) {
 		this.Root = root.getChild("Root");
@@ -153,21 +159,67 @@ public class ModelGolemArm extends HierarchicalModel<GolemArms> {
 			SpecialAnimationClientUtil.apply(this, SpecialAnimationResolver.resolve(active.animationId()), active.elapsedTicks(ageInTicks));
 			return;
 		}
-		LivingEntity owner = entity.getOwnerLiving();
-		AnimationDefinition animation = GolemArmsLivingAnimations.IDLE;
-		if (owner != null) {
-			boolean moving = isOwnerMoving(owner);
-			if (!owner.onGround()) animation = GolemArmsLivingAnimations.IDLE;
-			else if (owner.isShiftKeyDown()) animation = moving ? GolemArmsLivingAnimations.SNEAK : GolemArmsLivingAnimations.KNEEL;
-			else if (moving && owner.isSprinting()) animation = GolemArmsLivingAnimations.RUN;
-			else if (moving) animation = GolemArmsLivingAnimations.WALK;
+
+		LivingPose desiredPose = resolveLivingPose(entity.getOwnerLiving());
+		LivingBlendState state = this.livingBlendStates.computeIfAbsent(entity, ignored -> new LivingBlendState(desiredPose, ageInTicks));
+		if (state.currentPose != desiredPose) {
+			state.previousPose = state.currentPose;
+			state.currentPose = desiredPose;
+			state.transitionStartedAt = ageInTicks;
 		}
-		SpecialAnimationClientUtil.applyLoop(this, animation, ageInTicks);
+
+		float progress = Math.max(0.0F, Math.min(1.0F, (ageInTicks - state.transitionStartedAt) / LIVING_TRANSITION_TICKS));
+		if (state.previousPose != null && progress < 1.0F) {
+			float blend = smoothStep(progress);
+			SpecialAnimationClientUtil.applyLoop(this, state.previousPose.animation, ageInTicks, 1.0F - blend);
+			SpecialAnimationClientUtil.applyLoop(this, state.currentPose.animation, ageInTicks, blend);
+		} else {
+			state.previousPose = null;
+			SpecialAnimationClientUtil.applyLoop(this, state.currentPose.animation, ageInTicks);
+		}
+	}
+
+	private static LivingPose resolveLivingPose(LivingEntity owner) {
+		if (owner == null || !owner.onGround()) return LivingPose.IDLE;
+		boolean moving = isOwnerMoving(owner);
+		if (owner.isShiftKeyDown()) return moving ? LivingPose.SNEAK : LivingPose.KNEEL;
+		if (moving && owner.isSprinting()) return LivingPose.RUN;
+		if (moving) return LivingPose.WALK;
+		return LivingPose.IDLE;
 	}
 
 	private static boolean isOwnerMoving(LivingEntity owner) {
 		double dx = owner.getX() - owner.xo;
 		double dz = owner.getZ() - owner.zo;
 		return dx * dx + dz * dz > 1.0E-6D || owner.getDeltaMovement().horizontalDistanceSqr() > 1.0E-6D;
+	}
+
+	private static float smoothStep(float value) {
+		return value * value * (3.0F - 2.0F * value);
+	}
+
+	private enum LivingPose {
+		IDLE(GolemArmsLivingAnimations.IDLE),
+		WALK(GolemArmsLivingAnimations.WALK),
+		RUN(GolemArmsLivingAnimations.RUN),
+		SNEAK(GolemArmsLivingAnimations.SNEAK),
+		KNEEL(GolemArmsLivingAnimations.KNEEL);
+
+		private final AnimationDefinition animation;
+
+		LivingPose(AnimationDefinition animation) {
+			this.animation = animation;
+		}
+	}
+
+	private static final class LivingBlendState {
+		private LivingPose previousPose;
+		private LivingPose currentPose;
+		private float transitionStartedAt;
+
+		private LivingBlendState(LivingPose currentPose, float transitionStartedAt) {
+			this.currentPose = currentPose;
+			this.transitionStartedAt = transitionStartedAt;
+		}
 	}
 }

@@ -21,8 +21,10 @@ import net.minecraft.world.scores.Team;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -130,6 +132,19 @@ public final class RigAnimationController {
         int elapsedTicks = state.elapsedTicks(mob);
         for (RigAttackWindow attackWindow : state.spec().attackWindows()) if (attackWindow.contains(elapsedTicks)) return true;
         return false;
+    }
+
+    public static List<RigOrientedBox> activeAttackCollisionBoxes(Mob mob) {
+        ActiveAnimationState state = getActiveAnimationState(mob);
+        if (state == null || !state.spec().damagesTarget()) return List.of();
+
+        int elapsedTicks = state.elapsedTicks(mob);
+        List<RigOrientedBox> boxes = new ArrayList<>();
+        for (RigAttackWindow attackWindow : state.spec().attackWindows()) {
+            if (!attackWindow.contains(elapsedTicks)) continue;
+            boxes.addAll(RigColliderSystem.collisionBoxes(mob, state.spec(), attackWindow, elapsedTicks));
+        }
+        return boxes.isEmpty() ? List.of() : List.copyOf(boxes);
     }
 
     public static boolean hasActiveAnimation(Mob mob) {

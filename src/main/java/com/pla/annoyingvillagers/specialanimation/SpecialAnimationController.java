@@ -5,9 +5,11 @@ import com.pla.annoyingvillagers.entity.GolemArms;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.DestructionEyeItem;
 import com.pla.annoyingvillagers.network.ClientboundSpecialAnimation;
+import com.pla.annoyingvillagers.rig.RigOrientedBox;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -18,8 +20,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.network.PacketDistributor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -48,6 +52,29 @@ public final class SpecialAnimationController {
         scheduleHooks(mob, state);
         scheduleCollisions(mob, state);
         return true;
+    }
+
+    public static boolean isInActiveAttackWindow(Mob mob) {
+        ActiveAnimationState state = getState(mob);
+        if (state == null || state.spec().attackWindows().length == 0) return false;
+        int elapsedTicks = state.elapsedTicks(mob);
+        for (SpecialAttackWindow window : state.spec().attackWindows()) {
+            if (window.contains(elapsedTicks)) return true;
+        }
+        return false;
+    }
+
+    public static List<RigOrientedBox> activeAttackCollisionBoxes(Mob mob) {
+        ActiveAnimationState state = getState(mob);
+        if (state == null || state.spec().attackWindows().length == 0) return List.of();
+
+        int elapsedTicks = state.elapsedTicks(mob);
+        List<RigOrientedBox> boxes = new ArrayList<>();
+        for (SpecialAttackWindow window : state.spec().attackWindows()) {
+            if (!window.contains(elapsedTicks)) continue;
+            boxes.addAll(SpecialColliderSystem.collisionBoxes(mob, state.spec().animationId(), window, elapsedTicks, mob.yBodyRot));
+        }
+        return boxes.isEmpty() ? List.of() : List.copyOf(boxes);
     }
 
     public static boolean hasActiveAnimation(Mob mob) {
@@ -160,10 +187,22 @@ public final class SpecialAnimationController {
     }
 
     private static void playSwingSound(Mob mob) {
-        SoundSource source = mob instanceof GolemArms ? SoundSource.PLAYERS : SoundSource.HOSTILE;
-        float volume = mob instanceof GolemArms ? 1.2F : 1.0F;
-        float pitch = 0.85F + mob.getRandom().nextFloat() * 0.15F;
-        mob.level().playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.WHOOSH.get(), source, volume, pitch);
+        boolean golemArms = mob instanceof GolemArms;
+        SoundSource source = golemArms ? SoundSource.PLAYERS : SoundSource.HOSTILE;
+        float volume = golemArms ? 1.2F : 1.0F;
+        float pitch = golemArms
+                ? 0.95F + mob.getRandom().nextFloat() * 0.1F
+                : 0.85F + mob.getRandom().nextFloat() * 0.15F;
+        mob.level().playSound(
+                null,
+                mob.getX(),
+                mob.getY(),
+                mob.getZ(),
+                golemArms ? SoundEvents.IRON_GOLEM_ATTACK : AnnoyingVillagersModSounds.WHOOSH.get(),
+                source,
+                volume,
+                pitch
+        );
     }
 
     private static boolean canDamage(Mob mob, LivingEntity target) {

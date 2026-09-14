@@ -40,7 +40,7 @@ public final class SpecialClientAnimationState {
             ACTIVE.remove(entity.getId(), active);
             return null;
         }
-        if (active.elapsedTicks(ageInTicks) > active.durationTicks()) {
+        if (active.expired(ageInTicks)) {
             ACTIVE.remove(entity.getId(), active);
             return null;
         }
@@ -58,6 +58,14 @@ public final class SpecialClientAnimationState {
     public record Active(SpecialAnimationId animationId, UUID entityUuid, int startedAtTick, int durationTicks) {
         public float elapsedTicks(float ageInTicks) {
             return Math.max(0.0F, ageInTicks - this.startedAtTick);
+        }
+
+        public boolean expired(float ageInTicks) {
+            // GUARD_TRANSFORM is immediately followed by ARMS_GUARD on the server.
+            // Keep its final pose until that replacement packet arrives so a small
+            // server/network handoff delay cannot expose the normal idle pose.
+            if (this.animationId == SpecialAnimationId.ARMS_GUARD_TRANSFORM) return false;
+            return this.elapsedTicks(ageInTicks) > this.durationTicks;
         }
     }
 }

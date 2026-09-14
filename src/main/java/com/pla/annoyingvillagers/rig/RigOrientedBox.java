@@ -62,6 +62,66 @@ public final class RigOrientedBox {
         return max;
     }
 
+    public boolean intersects(RigOrientedBox other) {
+        if (other == null) return false;
+
+        Vec3[] aAxes = {this.axisX, this.axisY, this.axisZ};
+        Vec3[] bAxes = {other.axisX, other.axisY, other.axisZ};
+        double[] aHalf = {this.halfX, this.halfY, this.halfZ};
+        double[] bHalf = {other.halfX, other.halfY, other.halfZ};
+        double[][] rotation = new double[3][3];
+        double[][] absRotation = new double[3][3];
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                rotation[i][j] = aAxes[i].dot(bAxes[j]);
+                absRotation[i][j] = Math.abs(rotation[i][j]) + EPSILON;
+            }
+        }
+
+        Vec3 delta = other.center.subtract(this.center);
+        double[] translation = {
+                delta.dot(aAxes[0]),
+                delta.dot(aAxes[1]),
+                delta.dot(aAxes[2])
+        };
+
+        // The three local axes of this box.
+        for (int i = 0; i < 3; i++) {
+            double radiusOther = bHalf[0] * absRotation[i][0]
+                    + bHalf[1] * absRotation[i][1]
+                    + bHalf[2] * absRotation[i][2];
+            if (Math.abs(translation[i]) > aHalf[i] + radiusOther) return false;
+        }
+
+        // The three local axes of the other box.
+        for (int j = 0; j < 3; j++) {
+            double projected = Math.abs(translation[0] * rotation[0][j]
+                    + translation[1] * rotation[1][j]
+                    + translation[2] * rotation[2][j]);
+            double radiusThis = aHalf[0] * absRotation[0][j]
+                    + aHalf[1] * absRotation[1][j]
+                    + aHalf[2] * absRotation[2][j];
+            if (projected > radiusThis + bHalf[j]) return false;
+        }
+
+        // The nine axes made by crossing one axis from each box.
+        for (int i = 0; i < 3; i++) {
+            int i1 = (i + 1) % 3;
+            int i2 = (i + 2) % 3;
+            for (int j = 0; j < 3; j++) {
+                int j1 = (j + 1) % 3;
+                int j2 = (j + 2) % 3;
+                double radiusThis = aHalf[i1] * absRotation[i2][j] + aHalf[i2] * absRotation[i1][j];
+                double radiusOther = bHalf[j1] * absRotation[i][j2] + bHalf[j2] * absRotation[i][j1];
+                double distance = Math.abs(translation[i2] * rotation[i1][j] - translation[i1] * rotation[i2][j]);
+                if (distance > radiusThis + radiusOther) return false;
+            }
+        }
+
+        return true;
+    }
+
     public boolean intersects(AABB box) {
         Vec3 otherCenter = box.getCenter();
         double[] a = {this.halfX, this.halfY, this.halfZ};

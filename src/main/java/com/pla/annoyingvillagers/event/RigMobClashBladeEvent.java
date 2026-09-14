@@ -2,7 +2,9 @@ package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
+import com.pla.annoyingvillagers.entity.GolemArms;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigOrientedBox;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationController;
 import com.pla.annoyingvillagers.entity.goal.HerobrineEscapeHoleGoal;
 import com.pla.annoyingvillagers.util.CommonUtil;
@@ -16,6 +18,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.ItemStack;
@@ -29,6 +32,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -46,16 +50,31 @@ public final class RigMobClashBladeEvent {
             return;
         }
 
-        if (!(event.getEntity() instanceof Mob defender) || !(defender.level() instanceof ServerLevel serverLevel)) {
+        if (!(event.getEntity().level() instanceof ServerLevel serverLevel)) {
             return;
         }
 
         DamageSource damageSource = event.getSource();
         Entity attacker = damageSource.getEntity();
-        if (attacker == null
-                || attacker == defender
+        if (attacker == null || attacker == event.getEntity() || !canRegularClash(damageSource)) {
+            return;
+        }
+
+        // GolemArms are intentionally non-attackable entities, so an incoming attack normally
+        // reaches their owner instead. During an Arms attack window, compare the actual oriented
+        // attack boxes. If an enemy rig/special attack box meets an Arms box first, treat that as
+        // a weapon clash and cancel the damage to the owner.
+        GolemArms clashingArms = findClashingArms(event.getEntity(), attacker, serverLevel);
+        if (clashingArms != null) {
+            event.setCanceled(true);
+            applyClashRecoil(attacker);
+            applyClashRecoil(event.getEntity());
+            CommonUtil.damageBlockedForce(clashingArms, attacker, serverLevel);
+            return;
+        }
+
+        if (!(event.getEntity() instanceof Mob defender)
                 || !hasClashWeapon(defender)
-                || !canRegularClash(damageSource)
                 || !RigAnimationController.isInActiveAttackWindow(defender)
                 || !isAttackerInFront(defender, attacker)) {
             return;
@@ -72,6 +91,52 @@ public final class RigMobClashBladeEvent {
         RigAnimationController.clearActiveAnimations();
         SpecialAnimationController.clearActiveAnimations();
         HerobrineEscapeHoleGoal.clearActivePillarCycles();
+    }
+
+    private static GolemArms findClashingArms(LivingEntity defender, Entity attacker, ServerLevel serverLevel) {
+        List<RigOrientedBox> attackingBoxes = activeAttackBoxes(attacker, serverLevel);
+        if (attackingBoxes.isEmpty()) return null;
+
+        for (GolemArms arms : serverLevel.getEntitiesOfClass(
+                GolemArms.class,
+                defender.getBoundingBox().inflate(3.0D),
+                candidate -> candidate.isAlive() && !candidate.isRemoved() && candidate.getOwnerLiving() == defender
+        )) {
+            List<RigOrientedBox> armsBoxes = SpecialAnimationController.activeAttackCollisionBoxes(arms);
+            if (armsBoxes.isEmpty()) continue;
+            if (intersectsAny(armsBoxes, attackingBoxes)) return arms;
+        }
+        return null;
+    }
+
+    private static List<RigOrientedBox> activeAttackBoxes(Entity attacker, ServerLevel serverLevel) {
+        List<RigOrientedBox> boxes = new ArrayList<>();
+        if (attacker instanceof Mob attackingMob) {
+            boxes.addAll(RigAnimationController.activeAttackCollisionBoxes(attackingMob));
+            boxes.addAll(SpecialAnimationController.activeAttackCollisionBoxes(attackingMob));
+        }
+
+        // GolemArms damage is credited to its player owner, so the DamageSource entity is the
+        // player rather than the floating Arms entity. Recover those active Arms boxes here too.
+        if (attacker instanceof LivingEntity livingAttacker) {
+            for (GolemArms arms : serverLevel.getEntitiesOfClass(
+                    GolemArms.class,
+                    livingAttacker.getBoundingBox().inflate(3.0D),
+                    candidate -> candidate.isAlive() && !candidate.isRemoved() && candidate.getOwnerLiving() == livingAttacker
+            )) {
+                boxes.addAll(SpecialAnimationController.activeAttackCollisionBoxes(arms));
+            }
+        }
+        return boxes.isEmpty() ? List.of() : List.copyOf(boxes);
+    }
+
+    private static boolean intersectsAny(List<RigOrientedBox> first, List<RigOrientedBox> second) {
+        for (RigOrientedBox a : first) {
+            for (RigOrientedBox b : second) {
+                if (a.intersects(b)) return true;
+            }
+        }
+        return false;
     }
 
     private static boolean canRegularClash(DamageSource damageSource) {

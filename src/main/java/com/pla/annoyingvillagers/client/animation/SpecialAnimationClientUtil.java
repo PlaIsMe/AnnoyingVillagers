@@ -11,10 +11,20 @@ public final class SpecialAnimationClientUtil {
     }
 
     public static void apply(HierarchicalModel<? extends Entity> model, AnimationDefinition animation, float elapsedTicks) {
-        KeyframeAnimations.animate(model, animation, (long)(Math.max(0.0F, elapsedTicks) * 50.0F), 1.0F, new Vector3f());
+        apply(model, animation, elapsedTicks, 1.0F);
+    }
+
+    public static void apply(HierarchicalModel<? extends Entity> model, AnimationDefinition animation, float elapsedTicks, float weight) {
+        if (weight <= 0.0F) return;
+        KeyframeAnimations.animate(model, animation, (long)(Math.max(0.0F, elapsedTicks) * 50.0F), weight, new Vector3f());
     }
 
     public static void applyLoop(HierarchicalModel<? extends Entity> model, AnimationDefinition animation, float ageInTicks) {
-        KeyframeAnimations.animate(model, animation, (long)(Math.max(0.0F, ageInTicks) * 50.0F), 1.0F, new Vector3f());
+        applyLoop(model, animation, ageInTicks, 1.0F);
+    }
+
+    public static void applyLoop(HierarchicalModel<? extends Entity> model, AnimationDefinition animation, float ageInTicks, float weight) {
+        if (weight <= 0.0F) return;
+        KeyframeAnimations.animate(model, animation, (long)(Math.max(0.0F, ageInTicks) * 50.0F), weight, new Vector3f());
     }
 }

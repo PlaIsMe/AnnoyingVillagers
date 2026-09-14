@@ -8,9 +8,9 @@ import net.minecraft.client.animation.KeyframeAnimations;
 public class GolemArmsAttackAnimations1 {
 	public static final AnimationDefinition ATK_1 = AnimationDefinition.Builder.withLength(2.0F)
 			.addAnimation("Root", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(0.1669F, 0.9159F, -0.0446F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(0.599F, 3.3025F, -0.1486F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(2.5127F, -16.1613F, -1.6914F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.05F, KeyframeAnimations.degreeVec(2.59F, -17.6593F, -1.7761F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.1F, KeyframeAnimations.degreeVec(2.7304F, -22.2784F, -2.031F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(2.4852F, 13.8115F, -0.3979F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(2.9899F, 16.5893F, -0.4069F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.4F, KeyframeAnimations.degreeVec(3.4081F, 18.8786F, -0.4141F), AnimationChannel.Interpolations.LINEAR),
@@ -28,13 +28,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.2F, KeyframeAnimations.degreeVec(6.1295F, 24.7115F, -1.8406F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.35F, KeyframeAnimations.degreeVec(4.9161F, 19.8046F, -1.68F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.75F, KeyframeAnimations.degreeVec(1.0955F, 4.2637F, -0.5019F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.9F, KeyframeAnimations.degreeVec(0.1982F, 0.7607F, -0.0956F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(1.9F, KeyframeAnimations.degreeVec(0.1982F, 0.7607F, -0.0956F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("Root", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.3033F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 2.2618F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 2.1537F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 1.6781F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 1.5517F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.4F, KeyframeAnimations.posVec(0.0F, 1.4473F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -62,13 +59,9 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.8F, KeyframeAnimations.posVec(0.0F, 2.1599F, -1.0354F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 2.2195F, -0.6048F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.posVec(0.0F, 2.2647F, -0.2788F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.posVec(0.0F, 2.2933F, -0.0722F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.3033F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("Torso", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(0.2708F, 1.1349F, -0.0132F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(0.9769F, 4.0938F, -0.0225F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(4.1744F, 17.1068F, 0.3864F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(5.0714F, 20.5293F, 0.6278F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(5.5911F, 22.4494F, 0.7913F), AnimationChannel.Interpolations.LINEAR),
@@ -86,8 +79,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.35F, KeyframeAnimations.degreeVec(9.1116F, 34.0054F, 6.5711F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.55F, KeyframeAnimations.degreeVec(4.5704F, 20.1253F, 2.9883F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.75F, KeyframeAnimations.degreeVec(1.4917F, 7.3083F, 0.8756F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.9F, KeyframeAnimations.degreeVec(0.2546F, 1.2979F, 0.1411F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(1.9F, KeyframeAnimations.degreeVec(0.2546F, 1.2979F, 0.1411F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("Chest", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -115,66 +107,6 @@ public class GolemArmsAttackAnimations1 {
 			))
 			.addAnimation("garm_down_1_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-19.3837F, 3.3709F, -12.1439F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(-20.7482F, 5.3793F, -12.216F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(-24.4006F, 10.6715F, -12.6423F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.degreeVec(-29.7874F, 18.0817F, -13.8641F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.degreeVec(-36.4116F, 26.2423F, -16.2371F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.25F, KeyframeAnimations.degreeVec(-43.5911F, 33.6934F, -19.7066F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.3F, KeyframeAnimations.degreeVec(-50.0963F, 39.2095F, -23.4787F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.35F, KeyframeAnimations.degreeVec(-54.1452F, 42.1046F, -26.0626F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.4F, KeyframeAnimations.degreeVec(-56.1229F, 43.3826F, -27.3797F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.5F, KeyframeAnimations.degreeVec(-56.9758F, 43.9077F, -27.9576F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.55F, KeyframeAnimations.degreeVec(-3.8082F, 6.1097F, -13.8344F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.6F, KeyframeAnimations.degreeVec(20.5302F, -13.9769F, -20.9725F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.0F, KeyframeAnimations.degreeVec(20.5302F, -13.9769F, -20.9725F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.05F, KeyframeAnimations.degreeVec(20.2307F, -13.8809F, -20.8671F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.15F, KeyframeAnimations.degreeVec(18.0214F, -13.1531F, -20.1039F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.3F, KeyframeAnimations.degreeVec(11.6264F, -10.8585F, -18.0463F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.6F, KeyframeAnimations.degreeVec(-5.8065F, -3.3534F, -13.7993F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.75F, KeyframeAnimations.degreeVec(-13.4364F, 0.3666F, -12.6751F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.9F, KeyframeAnimations.degreeVec(-18.3276F, 2.8331F, -12.2155F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.degreeVec(-19.3837F, 3.3709F, -12.1438F), AnimationChannel.Interpolations.LINEAR)
-			))
-			.addAnimation("garm_down_2_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(15.2358F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(16.5363F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(19.9317F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.25F, KeyframeAnimations.degreeVec(34.9036F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.3F, KeyframeAnimations.degreeVec(38.84F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.35F, KeyframeAnimations.degreeVec(41.0465F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.4F, KeyframeAnimations.degreeVec(42.0644F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.5F, KeyframeAnimations.degreeVec(42.4921F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.0F, KeyframeAnimations.degreeVec(42.4921F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.15F, KeyframeAnimations.degreeVec(40.8653F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.3F, KeyframeAnimations.degreeVec(36.676F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.75F, KeyframeAnimations.degreeVec(19.5006F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.9F, KeyframeAnimations.degreeVec(15.9981F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.degreeVec(15.2358F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-			))
-			.addAnimation("garm_down_2_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.2024F, -0.5233F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.2024F, -0.5233F), AnimationChannel.Interpolations.LINEAR)
-			))
-			.addAnimation("garm_down_3_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(53.6798F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.degreeVec(53.6798F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-			))
-			.addAnimation("garm_down_3_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.1755F, -1.8983F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.1755F, -1.8983F), AnimationChannel.Interpolations.LINEAR)
-			))
-			.addAnimation("garm_down_4_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(47.4534F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.degreeVec(47.4534F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-			))
-			.addAnimation("garm_down_4_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.4216F, -1.2287F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.4216F, -1.2287F), AnimationChannel.Interpolations.LINEAR)
-			))
-			.addAnimation("garm_up_1_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-19.3267F, -3.0285F, 9.6419F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(-20.9087F, -3.8435F, 9.9086F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(-25.087F, -5.9415F, 10.7257F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.15F, KeyframeAnimations.degreeVec(-31.0248F, -8.763F, 12.1511F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(-44.4655F, -14.2716F, 16.4263F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(-49.837F, -16.053F, 18.5396F), AnimationChannel.Interpolations.LINEAR),
@@ -186,21 +118,11 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(0.65F, KeyframeAnimations.degreeVec(135.1536F, 47.9516F, 60.8792F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.7F, KeyframeAnimations.degreeVec(190.4656F, 46.2796F, 64.3809F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.75F, KeyframeAnimations.degreeVec(213.1554F, 45.6033F, 64.7517F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.8F, KeyframeAnimations.degreeVec(76.783F, 3.7794F, -0.4637F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.85F, KeyframeAnimations.degreeVec(6.2064F, -21.8461F, 32.2917F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.9F, KeyframeAnimations.degreeVec(-5.3106F, -19.4867F, 36.5488F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.95F, KeyframeAnimations.degreeVec(-10.3838F, -17.3911F, 37.1527F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.1F, KeyframeAnimations.degreeVec(-14.5865F, -15.0748F, 34.5439F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.2F, KeyframeAnimations.degreeVec(-16.7619F, -14.4844F, 30.5161F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.3F, KeyframeAnimations.degreeVec(-18.8498F, -13.5496F, 25.3342F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.45F, KeyframeAnimations.degreeVec(-21.5295F, -10.484F, 17.607F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.55F, KeyframeAnimations.degreeVec(-22.4503F, -7.7143F, 13.8673F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.65F, KeyframeAnimations.degreeVec(-22.3275F, -5.2745F, 11.6384F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.85F, KeyframeAnimations.degreeVec(6.7095F, 6.6873F, -57.7258F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.8F, KeyframeAnimations.degreeVec(-20.79F, -3.3543F, 10.1965F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.degreeVec(-19.3267F, -3.0285F, 9.6419F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(2.0F, KeyframeAnimations.degreeVec(-19.3837F, 3.3709F, -12.1439F), AnimationChannel.Interpolations.LINEAR)
 			))
-			.addAnimation("garm_up_1_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			.addAnimation("garm_down_1_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.5F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.55F, KeyframeAnimations.posVec(8.5461F, 4.7802F, -4.8866F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.6F, KeyframeAnimations.posVec(2.3903F, 8.3427F, -20.0608F), AnimationChannel.Interpolations.LINEAR),
@@ -229,12 +151,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.75F, KeyframeAnimations.posVec(1.1281F, 0.6605F, 0.141F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.8F, KeyframeAnimations.posVec(0.7922F, 0.4585F, -0.0282F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.477F, 0.2744F, -0.0768F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.9F, KeyframeAnimations.posVec(0.223F, 0.1279F, -0.0566F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.posVec(0.0579F, 0.0332F, -0.0181F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(1.9F, KeyframeAnimations.posVec(0.223F, 0.1279F, -0.0566F), AnimationChannel.Interpolations.LINEAR)
 			))
-			.addAnimation("garm_up_2_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(39.9746F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			.addAnimation("garm_down_2_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(15.2358F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.5F, KeyframeAnimations.degreeVec(39.9746F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.55F, KeyframeAnimations.degreeVec(61.07F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.6F, KeyframeAnimations.degreeVec(70.5824F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -247,10 +167,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.65F, KeyframeAnimations.degreeVec(28.7962F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.75F, KeyframeAnimations.degreeVec(33.8146F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.degreeVec(38.8795F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.degreeVec(39.9746F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(2.0F, KeyframeAnimations.degreeVec(15.2358F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
-			.addAnimation("garm_up_2_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.2907F, -0.8714F), AnimationChannel.Interpolations.LINEAR),
+			.addAnimation("garm_down_2_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.2024F, -0.5233F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.55F, KeyframeAnimations.posVec(0.0F, 2.2907F, -0.8714F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.6F, KeyframeAnimations.posVec(0.0F, 2.2265F, -0.847F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.65F, KeyframeAnimations.posVec(0.0F, 1.4844F, -0.5647F), AnimationChannel.Interpolations.LINEAR),
@@ -271,11 +191,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.7F, KeyframeAnimations.posVec(0.0F, 1.4844F, -0.5647F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.8F, KeyframeAnimations.posVec(0.0F, 1.8889F, -0.7185F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.posVec(0.0F, 2.1794F, -0.829F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.posVec(0.0F, 2.2615F, -0.8603F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.2907F, -0.8714F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.2024F, -0.5233F), AnimationChannel.Interpolations.LINEAR)
 			))
-			.addAnimation("garm_up_3_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(39.1103F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			.addAnimation("garm_down_3_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(53.6798F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.5F, KeyframeAnimations.degreeVec(39.1104F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.55F, KeyframeAnimations.degreeVec(58.8265F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.6F, KeyframeAnimations.degreeVec(67.537F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -288,10 +207,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.65F, KeyframeAnimations.degreeVec(28.1586F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.75F, KeyframeAnimations.degreeVec(33.0684F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.degreeVec(38.0347F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.degreeVec(39.1103F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(2.0F, KeyframeAnimations.degreeVec(53.6798F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
-			.addAnimation("garm_up_3_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 3.1047F, -1.2985F), AnimationChannel.Interpolations.LINEAR),
+			.addAnimation("garm_down_3_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.1755F, -1.8983F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.55F, KeyframeAnimations.posVec(0.0F, 3.1047F, -1.2985F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.6F, KeyframeAnimations.posVec(0.0F, 3.0178F, -1.2621F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.65F, KeyframeAnimations.posVec(0.0F, 2.0118F, -0.8414F), AnimationChannel.Interpolations.LINEAR),
@@ -313,11 +232,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.8F, KeyframeAnimations.posVec(0.0F, 2.5601F, -1.0707F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 2.7818F, -1.1634F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.posVec(0.0F, 2.9538F, -1.2354F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.posVec(0.0F, 3.0651F, -1.282F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 3.1047F, -1.2985F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.1755F, -1.8983F), AnimationChannel.Interpolations.LINEAR)
 			))
-			.addAnimation("garm_up_4_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(43.2649F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			.addAnimation("garm_down_4_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(47.4534F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.5F, KeyframeAnimations.degreeVec(43.2649F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.55F, KeyframeAnimations.degreeVec(38.8413F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.6F, KeyframeAnimations.degreeVec(28.1059F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -330,10 +248,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.65F, KeyframeAnimations.degreeVec(31.1667F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.75F, KeyframeAnimations.degreeVec(36.5983F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.degreeVec(42.0797F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.degreeVec(43.2649F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(2.0F, KeyframeAnimations.degreeVec(47.4534F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
-			.addAnimation("garm_up_4_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.0438F, -1.0322F), AnimationChannel.Interpolations.LINEAR),
+			.addAnimation("garm_down_4_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.4216F, -1.2287F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.5F, KeyframeAnimations.posVec(0.0F, 2.0438F, -1.0322F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.55F, KeyframeAnimations.posVec(0.0F, 1.8312F, -0.9248F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.6F, KeyframeAnimations.posVec(0.0F, 1.3244F, -0.6689F), AnimationChannel.Interpolations.LINEAR),
@@ -354,13 +272,73 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.7F, KeyframeAnimations.posVec(0.0F, 1.3244F, -0.6689F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.8F, KeyframeAnimations.posVec(0.0F, 1.6853F, -0.8511F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.posVec(0.0F, 1.9445F, -0.982F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.posVec(0.0F, 2.0177F, -1.019F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.0438F, -1.0322F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.4216F, -1.2287F), AnimationChannel.Interpolations.LINEAR)
+			))
+			.addAnimation("garm_up_1_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-27.9194F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.3F, KeyframeAnimations.degreeVec(-25.6478F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.4F, KeyframeAnimations.degreeVec(-25.2659F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.45F, KeyframeAnimations.degreeVec(-24.8005F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.5F, KeyframeAnimations.degreeVec(-23.6054F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.55F, KeyframeAnimations.degreeVec(-12.2918F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.6F, KeyframeAnimations.degreeVec(-6.782F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.8F, KeyframeAnimations.degreeVec(-6.782F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.05F, KeyframeAnimations.degreeVec(-6.9237F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.2F, KeyframeAnimations.degreeVec(-8.8393F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.35F, KeyframeAnimations.degreeVec(-12.4661F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.75F, KeyframeAnimations.degreeVec(-24.5213F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.9F, KeyframeAnimations.degreeVec(-27.3119F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.0F, KeyframeAnimations.degreeVec(-27.9194F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+			))
+			.addAnimation("garm_up_1_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.05F, KeyframeAnimations.posVec(-12.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.75F, KeyframeAnimations.posVec(-1.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+			))
+			.addAnimation("garm_up_2_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(41.5955F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.45F, KeyframeAnimations.degreeVec(45.7852F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.5F, KeyframeAnimations.degreeVec(47.3172F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.55F, KeyframeAnimations.degreeVec(56.7097F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.6F, KeyframeAnimations.degreeVec(61.2789F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.65F, KeyframeAnimations.degreeVec(61.279F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.0F, KeyframeAnimations.degreeVec(61.279F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.15F, KeyframeAnimations.degreeVec(60.0862F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.3F, KeyframeAnimations.degreeVec(57.0313F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.75F, KeyframeAnimations.degreeVec(44.6578F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.9F, KeyframeAnimations.degreeVec(42.1433F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.0F, KeyframeAnimations.degreeVec(41.5955F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+			))
+			.addAnimation("garm_up_2_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.4703F, -1.0198F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.4703F, -1.0198F), AnimationChannel.Interpolations.LINEAR)
+			))
+			.addAnimation("garm_up_3_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(41.7235F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.3F, KeyframeAnimations.degreeVec(49.4178F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.5F, KeyframeAnimations.degreeVec(50.628F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.15F, KeyframeAnimations.degreeVec(50.0875F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.75F, KeyframeAnimations.degreeVec(43.1141F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.0F, KeyframeAnimations.degreeVec(41.7235F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+			))
+			.addAnimation("garm_up_3_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 3.5798F, -1.6848F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 3.5798F, -1.6848F), AnimationChannel.Interpolations.LINEAR)
+			))
+			.addAnimation("garm_up_4_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(43.2649F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.3F, KeyframeAnimations.degreeVec(49.4157F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.55F, KeyframeAnimations.degreeVec(50.3835F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.15F, KeyframeAnimations.degreeVec(49.9513F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.75F, KeyframeAnimations.degreeVec(44.3768F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.0F, KeyframeAnimations.degreeVec(43.2649F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+			))
+			.addAnimation("garm_up_4_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.424F, -1.1563F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.424F, -1.1563F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_1_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-28.4935F, -0.4305F, 16.4837F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(-23.5764F, -0.6898F, 15.5218F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(-9.8236F, -0.7105F, 12.7344F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.15F, KeyframeAnimations.degreeVec(11.3739F, 1.2121F, 8.6379F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.2F, KeyframeAnimations.degreeVec(38.1505F, 6.4842F, 5.1108F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(68.4338F, 14.3163F, 5.0581F), AnimationChannel.Interpolations.LINEAR),
@@ -395,13 +373,9 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.8F, KeyframeAnimations.degreeVec(-5.2163F, 0.65F, 15.6445F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(-14.9778F, 0.1267F, 16.0074F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.degreeVec(-22.2937F, -0.1971F, 16.2731F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.degreeVec(-26.8928F, -0.3735F, 16.4312F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(2.0F, KeyframeAnimations.degreeVec(-28.4935F, -0.4305F, 16.4837F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_1_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(-0.2573F, -0.1673F, 0.0722F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(-1.0608F, -0.6331F, 0.0402F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.15F, KeyframeAnimations.posVec(-2.3838F, -1.3167F, -0.6195F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.2F, KeyframeAnimations.posVec(-3.9252F, -2.0723F, -2.3243F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(-5.2305F, -2.7364F, -5.0334F), AnimationChannel.Interpolations.LINEAR),
@@ -437,14 +411,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.75F, KeyframeAnimations.posVec(-4.5109F, -1.6933F, -0.7274F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.8F, KeyframeAnimations.posVec(-3.0873F, -1.1518F, -0.3382F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.posVec(-1.8379F, -0.682F, -0.1294F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.9F, KeyframeAnimations.posVec(-0.8577F, -0.3169F, -0.0367F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.posVec(-0.2237F, -0.0824F, -0.0059F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(1.9F, KeyframeAnimations.posVec(-0.8577F, -0.3169F, -0.0367F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_2_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(43.309F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(41.2833F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(35.9567F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(12.0885F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(5.8016F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(2.2918F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -457,13 +427,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.55F, KeyframeAnimations.degreeVec(15.1743F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.75F, KeyframeAnimations.degreeVec(32.177F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(38.881F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.degreeVec(42.7698F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(2.0F, KeyframeAnimations.degreeVec(43.309F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_2_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.4327F, -1.1746F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 2.3166F, -1.1398F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 2.0143F, -1.0492F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 1.5953F, -0.9234F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 0.6842F, -0.6488F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.3309F, -0.5414F), AnimationChannel.Interpolations.LINEAR),
@@ -487,13 +454,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.65F, KeyframeAnimations.posVec(0.0F, 1.3378F, -1.0458F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.8F, KeyframeAnimations.posVec(0.0F, 2.006F, -1.1481F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.posVec(0.0F, 2.3145F, -1.1705F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.posVec(0.0F, 2.4017F, -1.1739F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.4327F, -1.1746F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_3_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(34.7118F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(33.0761F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(28.791F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(9.715F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(4.675F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(1.8502F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -504,13 +468,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.45F, KeyframeAnimations.degreeVec(6.0383F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.75F, KeyframeAnimations.degreeVec(25.7616F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(31.1409F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.degreeVec(34.276F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(2.0F, KeyframeAnimations.degreeVec(34.7118F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_3_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 1.9004F, -0.8235F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 1.8097F, -0.7991F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 1.5735F, -0.7356F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 0.5345F, -0.4549F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.2585F, -0.3796F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.1026F, -0.3369F), AnimationChannel.Interpolations.LINEAR),
@@ -532,13 +493,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.65F, KeyframeAnimations.posVec(0.0F, 1.0451F, -0.7398F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.8F, KeyframeAnimations.posVec(0.0F, 1.5671F, -0.8079F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.posVec(0.0F, 1.8081F, -0.8216F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.posVec(0.0F, 1.8762F, -0.8233F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 1.9004F, -0.8235F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_4_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 					new Keyframe(0.0F, KeyframeAnimations.degreeVec(42.8583F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(40.8531F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(35.5814F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(11.9649F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(5.743F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(2.2689F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -550,13 +508,10 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.55F, KeyframeAnimations.degreeVec(15.0183F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.75F, KeyframeAnimations.degreeVec(31.8413F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(38.4755F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.degreeVec(42.3245F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(2.0F, KeyframeAnimations.degreeVec(42.8583F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_4_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.9362F, -0.7678F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 2.796F, -0.7451F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 2.4311F, -0.6859F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 1.9254F, -0.6036F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 0.8258F, -0.4242F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.3993F, -0.3539F), AnimationChannel.Interpolations.LINEAR),
@@ -582,21 +537,19 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.8F, KeyframeAnimations.posVec(0.0F, 2.4211F, -0.7533F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 2.6308F, -0.7617F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.posVec(0.0F, 2.7935F, -0.766F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.95F, KeyframeAnimations.posVec(0.0F, 2.8988F, -0.7676F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.9362F, -0.7678F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.build();
 
 	public static final AnimationDefinition ATK_2 = AnimationDefinition.Builder.withLength(2.15F)
 			.addAnimation("Root", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(6.8511F, 27.5649F, -1.8833F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(6.6321F, 27.6784F, -1.0181F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(6.0713F, 27.987F, 1.2317F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.25F, KeyframeAnimations.degreeVec(3.7764F, 29.5568F, 11.1155F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.3F, KeyframeAnimations.degreeVec(3.2279F, 30.0202F, 13.6991F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.35F, KeyframeAnimations.degreeVec(2.9344F, 30.2851F, 15.1285F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.45F, KeyframeAnimations.degreeVec(2.7686F, 30.5015F, 16.0492F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.5F, KeyframeAnimations.degreeVec(2.9104F, 28.9606F, 15.8891F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.25F, KeyframeAnimations.degreeVec(3.5035F, -20.3547F, 8.0305F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.3F, KeyframeAnimations.degreeVec(3.2241F, -29.9014F, 10.4742F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.35F, KeyframeAnimations.degreeVec(3.179F, -37.1399F, 11.7272F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.4F, KeyframeAnimations.degreeVec(6.1102F, -51.9162F, 8.8488F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.45F, KeyframeAnimations.degreeVec(3.4935F, -46.9161F, 12.0904F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.5F, KeyframeAnimations.degreeVec(3.2529F, -38.463F, 12.4542F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.55F, KeyframeAnimations.degreeVec(10.0895F, -20.8761F, 6.2167F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.6F, KeyframeAnimations.degreeVec(17.5748F, -43.2629F, -1.9539F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.7F, KeyframeAnimations.degreeVec(18.2969F, -48.0286F, -2.4482F), AnimationChannel.Interpolations.LINEAR),
@@ -617,29 +570,38 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("Root", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.9238F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.45F, KeyframeAnimations.posVec(0.0F, 0.9647F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.5F, KeyframeAnimations.posVec(0.0F, 0.9234F, -0.1485F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.55F, KeyframeAnimations.posVec(0.0F, -0.2536F, -4.3685F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.6F, KeyframeAnimations.posVec(0.0F, -0.7479F, -6.1403F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.9F, KeyframeAnimations.posVec(0.0F, -0.7479F, -6.1403F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.95F, KeyframeAnimations.posVec(0.0F, -0.7479F, -10.7551F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.0F, KeyframeAnimations.posVec(0.0F, -0.7479F, -15.6989F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.2F, KeyframeAnimations.posVec(0.0F, -0.7311F, -15.6853F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.25F, KeyframeAnimations.posVec(0.0F, -0.6731F, -15.6378F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.35F, KeyframeAnimations.posVec(0.0F, -0.4481F, -15.454F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.4F, KeyframeAnimations.posVec(0.0F, -0.2906F, -15.3252F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.5F, KeyframeAnimations.posVec(0.0F, 0.0911F, -15.0133F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.8F, KeyframeAnimations.posVec(0.0F, 1.4322F, -13.9172F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.9F, KeyframeAnimations.posVec(0.0F, 1.8198F, -13.6005F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.1151F, -13.3591F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.05F, KeyframeAnimations.posVec(0.0F, 2.2165F, -13.2762F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.1F, KeyframeAnimations.posVec(0.0F, 2.2808F, -13.2237F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 2.3033F, -13.2053F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.3033F, -0.2053F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 1.56F, 9.35F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 1.41F, 8.01F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.4F, KeyframeAnimations.posVec(0.0F, 1.11F, 6.67F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.45F, KeyframeAnimations.posVec(0.0F, 0.9647F, 7.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.5F, KeyframeAnimations.posVec(0.0F, 0.9234F, 5.8515F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.55F, KeyframeAnimations.posVec(0.0F, -0.2536F, 3.6315F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.6F, KeyframeAnimations.posVec(0.0F, -0.7479F, 4.8597F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.7F, KeyframeAnimations.posVec(0.0F, -0.75F, 5.53F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.8F, KeyframeAnimations.posVec(0.0F, -0.75F, 6.19F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.9F, KeyframeAnimations.posVec(0.0F, -0.7479F, 5.8597F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.95F, KeyframeAnimations.posVec(0.0F, -0.7479F, 6.2449F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.0F, KeyframeAnimations.posVec(0.0F, -0.7479F, 6.3011F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.05F, KeyframeAnimations.posVec(0.0F, -0.74F, 6.3F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.15F, KeyframeAnimations.posVec(0.0F, -0.73F, 5.64F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.2F, KeyframeAnimations.posVec(0.0F, -0.7311F, 5.3147F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.25F, KeyframeAnimations.posVec(0.0F, -0.6731F, 5.3622F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.3F, KeyframeAnimations.posVec(0.0F, -0.56F, 5.95F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.35F, KeyframeAnimations.posVec(0.0F, -0.4481F, 5.546F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.4F, KeyframeAnimations.posVec(0.0F, -0.2906F, 5.6748F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.5F, KeyframeAnimations.posVec(0.0F, 0.0911F, 5.9867F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.65F, KeyframeAnimations.posVec(0.0F, 0.76F, 4.03F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.8F, KeyframeAnimations.posVec(0.0F, 1.4322F, 3.0828F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 1.63F, 2.74F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.9F, KeyframeAnimations.posVec(0.0F, 1.8198F, 1.3995F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.0F, KeyframeAnimations.posVec(0.0F, 2.1151F, -0.3591F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.05F, KeyframeAnimations.posVec(0.0F, 2.2165F, -0.2762F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.1F, KeyframeAnimations.posVec(0.0F, 2.2808F, -0.2237F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 2.3033F, -0.2053F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("Torso", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(15.9516F, 46.66F, 12.3228F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(17.0978F, 48.2522F, 13.5935F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(22.676F, 54.3914F, 19.6556F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.45F, KeyframeAnimations.degreeVec(23.9317F, 55.4885F, 20.9994F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.5F, KeyframeAnimations.degreeVec(22.4783F, 53.824F, 19.5325F), AnimationChannel.Interpolations.LINEAR),
@@ -657,8 +619,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("Chest", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(21.017F, 28.6897F, 5.4214F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(21.061F, 29.8499F, 6.9505F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(21.4453F, 33.4847F, 11.8937F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(21.7141F, 34.9426F, 13.9587F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.45F, KeyframeAnimations.degreeVec(21.8531F, 35.3366F, 14.479F), AnimationChannel.Interpolations.LINEAR),
@@ -684,9 +645,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_1_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(20.5302F, -13.9769F, -20.9725F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(19.2938F, -13.7586F, -20.9672F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(16.0775F, -13.1887F, -20.976F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-19.3837F, 3.3709F, -12.1439F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(1.9676F, -10.6969F, -21.3987F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(-1.7032F, -10.0558F, -21.6095F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(-3.7281F, -9.7076F, -21.7434F), AnimationChannel.Interpolations.LINEAR),
@@ -762,7 +721,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_2_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(42.4921F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(15.2358F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.5F, KeyframeAnimations.degreeVec(42.4454F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.55F, KeyframeAnimations.degreeVec(40.4604F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.6F, KeyframeAnimations.degreeVec(35.6631F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -910,42 +869,8 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 2.4216F, -1.2287F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_1_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-6.782F, 10.1148F, -30.0959F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(-1.9194F, -2.592F, -23.3613F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(10.7131F, -34.6976F, -10.0989F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.degreeVec(51.9279F, -75.707F, -16.9715F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.degreeVec(200.0884F, -57.8163F, -123.5957F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.25F, KeyframeAnimations.degreeVec(219.9541F, -38.1509F, -110.1359F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.3F, KeyframeAnimations.degreeVec(227.8419F, -33.331F, -99.1915F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.35F, KeyframeAnimations.degreeVec(232.6983F, -31.1838F, -93.8976F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.4F, KeyframeAnimations.degreeVec(234.9656F, -30.2832F, -91.6416F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.45F, KeyframeAnimations.degreeVec(235.8923F, -29.9173F, -90.9219F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.5F, KeyframeAnimations.degreeVec(231.5122F, -32.6558F, -89.5173F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.55F, KeyframeAnimations.degreeVec(406.6937F, -7.9415F, -16.1588F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.6F, KeyframeAnimations.degreeVec(337.375F, 12.7379F, -44.037F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.65F, KeyframeAnimations.degreeVec(327.36F, 11.2761F, -48.6122F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.7F, KeyframeAnimations.degreeVec(320.4629F, 9.4192F, -51.5122F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.75F, KeyframeAnimations.degreeVec(316.0166F, 7.6518F, -53.2818F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.8F, KeyframeAnimations.degreeVec(313.4659F, 6.1655F, -54.401F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.85F, KeyframeAnimations.degreeVec(312.3492F, 5.0134F, -55.2609F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.9F, KeyframeAnimations.degreeVec(312.2515F, 4.1975F, -56.1816F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.95F, KeyframeAnimations.degreeVec(406.9596F, -5.8898F, -9.382F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.0F, KeyframeAnimations.degreeVec(549.3576F, -61.0093F, -69.0456F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.05F, KeyframeAnimations.degreeVec(568.1284F, -59.1033F, -85.8651F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.1F, KeyframeAnimations.degreeVec(578.7327F, -58.6511F, -96.9568F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.15F, KeyframeAnimations.degreeVec(583.1299F, -58.876F, -102.1455F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.2F, KeyframeAnimations.degreeVec(576.8185F, -59.1108F, -98.071F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.25F, KeyframeAnimations.degreeVec(550.3327F, -60.1449F, -80.0884F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.3F, KeyframeAnimations.degreeVec(533.9514F, -55.9761F, -67.1273F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.35F, KeyframeAnimations.degreeVec(519.1402F, -50.0809F, -55.9835F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.4F, KeyframeAnimations.degreeVec(504.9989F, -42.0006F, -46.8849F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.45F, KeyframeAnimations.degreeVec(492.1982F, -32.2312F, -40.5952F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.5F, KeyframeAnimations.degreeVec(480.0389F, -21.8371F, -36.8171F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.55F, KeyframeAnimations.degreeVec(467.6385F, -11.9334F, -35.0827F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.6F, KeyframeAnimations.degreeVec(454.307F, -3.5934F, -34.8853F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.65F, KeyframeAnimations.degreeVec(439.7731F, 2.3221F, -35.5258F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.7F, KeyframeAnimations.degreeVec(424.3031F, 5.4489F, -36.0209F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.75F, KeyframeAnimations.degreeVec(408.5448F, 6.1339F, -35.3534F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(332.0806F, 4.0863F, -6.7566F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.35F, KeyframeAnimations.degreeVec(401.4605F, 4.3232F, -11.8502F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.8F, KeyframeAnimations.degreeVec(393.177F, 5.3047F, -32.9524F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(378.7234F, 4.0224F, -28.9313F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.degreeVec(365.6063F, 3.0532F, -23.9087F), AnimationChannel.Interpolations.LINEAR),
@@ -957,41 +882,9 @@ public class GolemArmsAttackAnimations1 {
 			))
 			.addAnimation("garm_up_1_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(-2.492F, 0.6143F, -2.5393F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(-7.3746F, 2.1072F, -9.0365F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(-10.8442F, 3.9089F, -17.5179F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(-10.7434F, 5.3758F, -25.0462F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.25F, KeyframeAnimations.posVec(-7.4932F, 5.9037F, -28.2114F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.3F, KeyframeAnimations.posVec(-4.0256F, 5.8314F, -28.1485F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.35F, KeyframeAnimations.posVec(-2.1285F, 5.7845F, -27.9675F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.4F, KeyframeAnimations.posVec(-1.0102F, 5.8442F, -27.63F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.45F, KeyframeAnimations.posVec(1.0742F, 6.4164F, -26.0249F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.5F, KeyframeAnimations.posVec(4.1144F, 7.5781F, -22.0686F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.55F, KeyframeAnimations.posVec(-7.593F, -2.3086F, 5.2742F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.6F, KeyframeAnimations.posVec(8.3399F, -3.5503F, 8.7457F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.65F, KeyframeAnimations.posVec(10.6032F, -3.5929F, 7.7546F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.7F, KeyframeAnimations.posVec(12.0925F, -3.653F, 6.8479F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.75F, KeyframeAnimations.posVec(13.0254F, -3.7348F, 6.1645F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.8F, KeyframeAnimations.posVec(13.5616F, -3.8185F, 5.7344F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.85F, KeyframeAnimations.posVec(13.813F, -3.8712F, 5.5319F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.9F, KeyframeAnimations.posVec(13.8624F, -3.853F, 5.5015F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.95F, KeyframeAnimations.posVec(-3.5016F, -2.4863F, 5.7223F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.0F, KeyframeAnimations.posVec(-6.9927F, 2.8794F, -12.9195F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.05F, KeyframeAnimations.posVec(-5.7991F, 3.2668F, -13.9273F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.1F, KeyframeAnimations.posVec(-5.5367F, 3.4778F, -14.0368F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.15F, KeyframeAnimations.posVec(-5.6266F, 3.5366F, -13.9243F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.2F, KeyframeAnimations.posVec(-5.6551F, 3.4778F, -13.7963F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.25F, KeyframeAnimations.posVec(-5.7141F, 3.2671F, -13.3987F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.3F, KeyframeAnimations.posVec(-5.758F, 2.9529F, -12.7372F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.35F, KeyframeAnimations.posVec(-5.6235F, 2.6466F, -11.832F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.4F, KeyframeAnimations.posVec(-5.2993F, 2.3765F, -10.7762F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.45F, KeyframeAnimations.posVec(-4.8184F, 2.1448F, -9.6718F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.5F, KeyframeAnimations.posVec(-4.2321F, 1.9421F, -8.6028F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.55F, KeyframeAnimations.posVec(-3.6031F, 1.7513F, -7.6225F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.6F, KeyframeAnimations.posVec(-2.994F, 1.5542F, -6.7473F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.65F, KeyframeAnimations.posVec(-2.4537F, 1.3391F, -5.961F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.7F, KeyframeAnimations.posVec(-2.0076F, 1.1052F, -5.2272F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.75F, KeyframeAnimations.posVec(-1.6541F, 0.8626F, -4.5066F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.35F, KeyframeAnimations.posVec(-12.21F, -4.92F, -0.57F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.6F, KeyframeAnimations.posVec(1.64F, 2.97F, 7.02F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.1F, KeyframeAnimations.posVec(-4.47F, -4.05F, 10.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.posVec(-1.1258F, 0.4225F, -3.02F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.9F, KeyframeAnimations.posVec(-0.8906F, 0.2572F, -2.2691F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.95F, KeyframeAnimations.posVec(-0.6517F, 0.1386F, -1.557F), AnimationChannel.Interpolations.LINEAR),
@@ -1001,10 +894,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_2_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(61.279F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(58.4189F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(50.8469F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.degreeVec(40.1006F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(41.5955F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(16.5792F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(7.7866F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(3.0219F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1021,9 +911,6 @@ public class GolemArmsAttackAnimations1 {
 			))
 			.addAnimation("garm_up_2_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.4704F, -1.0198F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 2.3504F, -0.9703F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 2.0393F, -0.8419F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 1.6091F, -0.6643F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 0.6793F, -0.2804F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.3238F, -0.1337F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.1269F, -0.0524F), AnimationChannel.Interpolations.LINEAR),
@@ -1051,10 +938,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 2.4704F, -1.0198F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_3_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(50.628F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(48.2384F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(41.9492F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.degreeVec(33.091F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(41.7235F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(13.7722F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(6.4987F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(2.5298F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1070,10 +954,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.degreeVec(41.7235F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_3_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 3.5798F, -1.6847F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 3.406F, -1.603F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 2.9552F, -1.3908F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 2.3317F, -1.0973F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 3.5798F, -1.6848F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 0.9843F, -0.4633F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.4693F, -0.2209F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.1839F, -0.0866F), AnimationChannel.Interpolations.LINEAR),
@@ -1104,10 +985,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 3.5798F, -1.6848F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_4_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(50.3835F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(48.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(41.7451F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.degreeVec(32.9301F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(43.2649F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(13.7071F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(6.4686F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(2.5183F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1124,9 +1002,6 @@ public class GolemArmsAttackAnimations1 {
 			))
 			.addAnimation("garm_up_4_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.424F, -1.1563F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 2.3063F, -1.1001F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 2.001F, -0.9545F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 1.5788F, -0.7531F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 0.6665F, -0.3179F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.3178F, -0.1516F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.1246F, -0.0594F), AnimationChannel.Interpolations.LINEAR),
@@ -1155,10 +1030,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 2.424F, -1.1563F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_1_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-151.5207F, 9.3204F, 34.8401F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(-154.5333F, 10.0056F, 32.1649F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(-169.9381F, 13.7477F, 26.3523F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.degreeVec(-226.1079F, 16.5638F, 12.2997F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-388.4935F, -0.4305F, 16.4837F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.2F, KeyframeAnimations.degreeVec(-252.3125F, 14.852F, 8.6413F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(-271.0327F, 15.2689F, 8.2179F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(-287.5688F, 15.2076F, 8.3705F), AnimationChannel.Interpolations.LINEAR),
@@ -1190,10 +1062,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.degreeVec(-388.4935F, -0.4305F, 16.4837F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_1_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(2.1159F, 0.3667F, -18.9469F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.4097F, -0.7581F, -18.5848F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(-3.1754F, -3.0854F, -17.6837F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(-6.3389F, -5.0804F, -16.4077F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.2F, KeyframeAnimations.posVec(-7.421F, -5.77F, -14.5855F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(-5.983F, -4.9866F, -11.8695F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(-3.8044F, -3.5738F, -8.539F), AnimationChannel.Interpolations.LINEAR),
@@ -1204,9 +1073,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_2_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(0.884F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(3.1946F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(43.309F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(16.425F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.4F, KeyframeAnimations.degreeVec(19.4901F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.45F, KeyframeAnimations.degreeVec(23.0406F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1217,10 +1084,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.degreeVec(43.309F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_2_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 15.9493F, 0.8895F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 11.7558F, 0.7437F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 4.0363F, 0.3985F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 0.0022F, -0.0088F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.4327F, -1.1746F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 0.2632F, -0.3628F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 0.8243F, -0.6258F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 1.3927F, -0.7793F), AnimationChannel.Interpolations.LINEAR),
@@ -1235,9 +1099,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 2.4327F, -1.1746F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_3_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(1.0628F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(3.8357F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(34.7118F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(16.1593F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(19.4329F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.4F, KeyframeAnimations.degreeVec(22.6293F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1253,10 +1115,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.degreeVec(34.7118F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_3_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 15.9493F, 0.8895F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 11.7558F, 0.6556F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 4.0363F, 0.2251F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 0.0022F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 1.9004F, -0.8235F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 0.2632F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 1.3926F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 1.7056F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1269,9 +1128,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.posVec(0.0F, 1.9004F, -0.8235F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_4_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(0.8463F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(3.0617F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(42.8583F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(15.8928F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.4F, KeyframeAnimations.degreeVec(19.0544F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.45F, KeyframeAnimations.degreeVec(22.5115F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1282,10 +1139,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(2.15F, KeyframeAnimations.degreeVec(42.8583F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_4_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 15.9493F, 0.8895F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 11.7558F, 0.6556F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 4.0363F, 0.2251F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 0.0021F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.9362F, -0.7678F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 0.2474F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 1.3092F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 1.6033F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1303,11 +1157,7 @@ public class GolemArmsAttackAnimations1 {
 
 	public static final AnimationDefinition ATK_3 = AnimationDefinition.Builder.withLength(1.85F)
 			.addAnimation("Root", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(24.3011F, 49.1498F, 14.8842F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(21.8762F, 46.5089F, 12.8906F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(16.5965F, 39.4132F, 8.7739F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.degreeVec(10.9849F, 29.272F, 4.8886F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.degreeVec(6.2298F, 18.089F, 2.2089F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(2.6812F, 8.1729F, 0.7352F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(0.5273F, 1.6394F, 0.1162F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1316,11 +1166,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("Root", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, -0.7479F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, -0.7481F, 0.2486F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, -0.7497F, 0.925F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, -0.754F, 1.9277F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, -0.7625F, 3.1553F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.3033F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, -0.7971F, 5.8788F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, -0.8477F, 7.1715F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.4F, KeyframeAnimations.posVec(0.0F, -1.168F, 8.2722F), AnimationChannel.Interpolations.LINEAR),
@@ -1349,9 +1195,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 2.3033F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("Torso", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(1.9783F, 23.5178F, -0.3312F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(0.7883F, 22.1307F, -0.544F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(-2.1968F, 18.5506F, -0.9424F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(-13.8653F, 3.8125F, -0.5848F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(-16.2814F, 0.7673F, -0.1343F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(-16.8962F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1371,9 +1215,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("Chest", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(24.3959F, 22.3788F, 17.4024F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(24.5738F, 21.0095F, 16.3794F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(25.1415F, 17.5069F, 13.7688F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(29.0539F, 3.5134F, 2.9543F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(30.1896F, 0.7035F, 0.6035F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(30.4951F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1388,11 +1230,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_1_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-15.9997F, 54.7717F, -89.1543F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(-6.2116F, 57.0888F, -80.8174F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(22.9444F, 58.9725F, -55.5712F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.degreeVec(58.4024F, 51.5659F, -26.0121F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.degreeVec(82.1331F, 36.1535F, -9.741F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-19.3837F, 3.3709F, -12.1439F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(96.1097F, 20.2395F, -3.8794F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(103.8834F, 9.3428F, -2.687F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(105.7681F, 6.5901F, -2.6632F), AnimationChannel.Interpolations.LINEAR),
@@ -1424,11 +1262,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(-19.3837F, 3.3709F, -12.1439F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_1_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(-6.4162F, -11.8742F, 4.7534F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(-5.6134F, -11.5407F, 5.2905F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(-3.2792F, -10.6778F, 6.3139F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.3475F, -9.5022F, 6.7692F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(4.4372F, -8.2651F, 5.9606F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(7.8761F, -7.217F, 4.2268F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(9.9747F, -6.5977F, 2.8542F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(10.5093F, -6.623F, 3.203F), AnimationChannel.Interpolations.LINEAR),
@@ -1464,7 +1298,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_2_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(15.2358F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.95F, KeyframeAnimations.degreeVec(0.4877F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.15F, KeyframeAnimations.degreeVec(3.3503F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.6F, KeyframeAnimations.degreeVec(12.8306F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1472,11 +1306,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(15.2358F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_2_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 16.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 15.0422F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 12.5957F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 9.291F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 5.7587F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.2024F, -0.5233F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 2.6292F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.533F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1502,7 +1332,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 2.2024F, -0.5233F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_3_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(53.6798F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.023F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.95F, KeyframeAnimations.degreeVec(1.6977F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.05F, KeyframeAnimations.degreeVec(5.8147F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1514,11 +1344,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(53.6798F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_3_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 16.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 15.0422F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 12.5957F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 9.291F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 5.7587F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.1755F, -1.8983F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 2.6292F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.533F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1544,7 +1370,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 2.1755F, -1.8983F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_4_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(47.4534F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.0205F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.95F, KeyframeAnimations.degreeVec(1.5118F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.05F, KeyframeAnimations.degreeVec(5.1694F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1555,11 +1381,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(47.4534F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_4_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 16.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 15.0421F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 12.5957F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 9.291F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 5.7587F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.4216F, -1.2287F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 2.6292F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.533F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1585,80 +1407,54 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 2.4216F, -1.2287F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_1_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-136.6851F, -58.901F, -102.3766F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(-147.1554F, -61.7848F, -92.9705F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(-181.0323F, -64.5108F, -62.3312F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.degreeVec(-221.4747F, -56.4172F, -27.5747F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.degreeVec(-245.807F, -40.2902F, -11.3389F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.25F, KeyframeAnimations.degreeVec(-260.0875F, -24.4931F, -6.479F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.3F, KeyframeAnimations.degreeVec(-268.3899F, -14.049F, -6.0032F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.35F, KeyframeAnimations.degreeVec(-270.4531F, -11.4575F, -6.1597F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.5F, KeyframeAnimations.degreeVec(-270.4531F, -11.4575F, -6.1597F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.55F, KeyframeAnimations.degreeVec(-286.5732F, -28.0292F, -0.7345F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.6F, KeyframeAnimations.degreeVec(-305.9926F, -41.289F, 10.243F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.7F, KeyframeAnimations.degreeVec(-316.9203F, -46.0496F, 17.8071F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.75F, KeyframeAnimations.degreeVec(-321.4374F, -47.5286F, 21.1004F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.8F, KeyframeAnimations.degreeVec(-324.4274F, -48.3701F, 23.3209F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.85F, KeyframeAnimations.degreeVec(-325.2671F, -48.5537F, 23.9224F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.9F, KeyframeAnimations.degreeVec(-324.4928F, -47.6063F, 22.7584F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.95F, KeyframeAnimations.degreeVec(-322.9192F, -45.3628F, 20.2425F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.0F, KeyframeAnimations.degreeVec(-321.1217F, -41.9613F, 16.9471F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.1F, KeyframeAnimations.degreeVec(-318.9365F, -32.5109F, 9.9325F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.15F, KeyframeAnimations.degreeVec(-319.2217F, -27.0127F, 6.7393F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.2F, KeyframeAnimations.degreeVec(-320.6499F, -21.4082F, 3.863F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.25F, KeyframeAnimations.degreeVec(-323.2783F, -15.9919F, 1.2886F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.3F, KeyframeAnimations.degreeVec(-327.1014F, -11.0214F, -1.0145F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.35F, KeyframeAnimations.degreeVec(-332.053F, -6.6979F, -3.0603F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.4F, KeyframeAnimations.degreeVec(-337.9985F, -3.1519F, -4.8307F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.5F, KeyframeAnimations.degreeVec(-351.9813F, 1.4993F, -7.3412F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.6F, KeyframeAnimations.degreeVec(-366.7063F, 3.475F, -8.1986F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.7F, KeyframeAnimations.degreeVec(-379.3099F, 4.0047F, -7.6947F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.75F, KeyframeAnimations.degreeVec(-383.8941F, 4.0636F, -7.2519F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.8F, KeyframeAnimations.degreeVec(-386.8667F, 4.0822F, -6.8955F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.85F, KeyframeAnimations.degreeVec(-387.9194F, 4.0863F, -6.7566F), AnimationChannel.Interpolations.LINEAR)
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-387.9194F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.25F, KeyframeAnimations.degreeVec(-300.0875F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.3F, KeyframeAnimations.degreeVec(-303.3899F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.35F, KeyframeAnimations.degreeVec(-305.4531F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.5F, KeyframeAnimations.degreeVec(-290.4531F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.55F, KeyframeAnimations.degreeVec(-286.5732F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.6F, KeyframeAnimations.degreeVec(-305.9926F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.7F, KeyframeAnimations.degreeVec(-316.9203F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.75F, KeyframeAnimations.degreeVec(-321.4374F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.8F, KeyframeAnimations.degreeVec(-324.4274F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.85F, KeyframeAnimations.degreeVec(-325.2671F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.9F, KeyframeAnimations.degreeVec(-324.4928F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.95F, KeyframeAnimations.degreeVec(-322.9192F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.0F, KeyframeAnimations.degreeVec(-321.1217F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.1F, KeyframeAnimations.degreeVec(-318.9365F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.15F, KeyframeAnimations.degreeVec(-319.2217F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.2F, KeyframeAnimations.degreeVec(-320.6499F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.8F, KeyframeAnimations.degreeVec(-386.8667F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.85F, KeyframeAnimations.degreeVec(-387.9194F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_1_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(-5.6354F, 3.5383F, -13.9153F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(-6.7498F, 3.5731F, -13.3866F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(-9.3685F, 3.763F, -11.3602F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(-11.9189F, 4.3088F, -7.2691F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(-12.7528F, 5.3318F, -1.8089F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.25F, KeyframeAnimations.posVec(-11.6086F, 6.6528F, 3.1889F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.3F, KeyframeAnimations.posVec(-9.9499F, 7.7832F, 6.3369F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.35F, KeyframeAnimations.posVec(-9.5748F, 8.2001F, 7.3501F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.4F, KeyframeAnimations.posVec(-9.7227F, 8.5929F, 7.5149F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.45F, KeyframeAnimations.posVec(-9.7928F, 9.0867F, 7.5018F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.5F, KeyframeAnimations.posVec(-9.8118F, 9.3553F, 7.4583F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.55F, KeyframeAnimations.posVec(-9.1835F, 8.1464F, 4.4097F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.6F, KeyframeAnimations.posVec(-8.6895F, 9.2807F, 4.7452F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.65F, KeyframeAnimations.posVec(-8.6895F, 7.9717F, 6.3413F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.7F, KeyframeAnimations.posVec(-8.6896F, 6.8124F, 7.6204F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.75F, KeyframeAnimations.posVec(-8.6896F, 5.8924F, 8.5513F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.8F, KeyframeAnimations.posVec(-8.6896F, 5.3121F, 9.1071F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.85F, KeyframeAnimations.posVec(-8.6874F, 5.1564F, 9.2489F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.9F, KeyframeAnimations.posVec(-8.6398F, 5.3342F, 8.9644F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.95F, KeyframeAnimations.posVec(-8.5249F, 5.7228F, 8.2972F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.0F, KeyframeAnimations.posVec(-8.3441F, 6.2326F, 7.2979F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.05F, KeyframeAnimations.posVec(-8.0969F, 6.7577F, 6.0276F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.1F, KeyframeAnimations.posVec(-7.7821F, 7.1926F, 4.5625F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.15F, KeyframeAnimations.posVec(-7.3991F, 7.4463F, 2.9939F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.2F, KeyframeAnimations.posVec(-6.9484F, 7.4547F, 1.4254F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.25F, KeyframeAnimations.posVec(-6.4327F, 7.1886F, -0.036F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.3F, KeyframeAnimations.posVec(-5.8572F, 6.6569F, -1.2903F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.35F, KeyframeAnimations.posVec(-5.2301F, 5.9033F, -2.2574F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.4F, KeyframeAnimations.posVec(-4.5627F, 4.9977F, -2.8867F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.45F, KeyframeAnimations.posVec(-3.8697F, 4.024F, -3.164F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.5F, KeyframeAnimations.posVec(-3.1686F, 3.0658F, -3.112F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.55F, KeyframeAnimations.posVec(-2.4803F, 2.1942F, -2.7863F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.6F, KeyframeAnimations.posVec(-1.8278F, 1.4586F, -2.267F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.65F, KeyframeAnimations.posVec(-1.2362F, 0.8832F, -1.6479F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.7F, KeyframeAnimations.posVec(-0.7316F, 0.4686F, -1.0265F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.75F, KeyframeAnimations.posVec(-0.3406F, 0.1982F, -0.4945F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(1.8F, KeyframeAnimations.posVec(-0.0889F, 0.0483F, -0.1316F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 6.6528F, 3.1889F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 7.7832F, 6.3369F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 8.2001F, 7.3501F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.4F, KeyframeAnimations.posVec(0.0F, 8.5929F, 7.5149F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.45F, KeyframeAnimations.posVec(0.0F, 9.0867F, 7.5018F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.5F, KeyframeAnimations.posVec(0.0F, 9.3553F, 7.4583F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.55F, KeyframeAnimations.posVec(0.0F, 8.1464F, 4.4097F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.6F, KeyframeAnimations.posVec(0.0F, 9.2807F, 4.7452F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.65F, KeyframeAnimations.posVec(0.0F, 7.9717F, 6.3413F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.7F, KeyframeAnimations.posVec(0.0F, 6.8124F, 7.6204F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.75F, KeyframeAnimations.posVec(0.0F, 5.8924F, 8.5513F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.8F, KeyframeAnimations.posVec(0.0F, 5.3121F, 9.1071F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.85F, KeyframeAnimations.posVec(0.0F, 5.1564F, 9.2489F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.9F, KeyframeAnimations.posVec(0.0F, 5.3342F, 8.9644F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.95F, KeyframeAnimations.posVec(0.0F, 5.7228F, 8.2972F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.0F, KeyframeAnimations.posVec(0.0F, 6.2326F, 7.2979F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.05F, KeyframeAnimations.posVec(0.0F, 6.7577F, 6.0276F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.1F, KeyframeAnimations.posVec(0.0F, 7.1926F, 4.5625F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.15F, KeyframeAnimations.posVec(0.0F, 7.4463F, 2.9939F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.2F, KeyframeAnimations.posVec(0.0F, 7.4547F, 4.4254F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.45F, KeyframeAnimations.posVec(0.0F, 9.37F, 5.53F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(1.8F, KeyframeAnimations.posVec(0.0F, 0.0483F, -0.1316F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_2_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(41.5955F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.0182F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.95F, KeyframeAnimations.degreeVec(1.3363F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.05F, KeyframeAnimations.degreeVec(4.5619F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1669,11 +1465,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(41.5955F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_2_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 16.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 15.0422F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 12.5957F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 9.291F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 5.7587F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.4704F, -1.0198F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 2.6292F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.533F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1699,7 +1491,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 2.4704F, -1.0198F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_3_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(41.7235F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.0182F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.95F, KeyframeAnimations.degreeVec(1.3372F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.05F, KeyframeAnimations.degreeVec(4.566F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1710,11 +1502,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(41.7235F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_3_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 16.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 15.0422F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 12.5957F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 9.291F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 5.7587F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 3.5798F, -1.6848F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 2.6292F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.533F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1742,7 +1530,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 3.5798F, -1.6848F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_4_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(43.2649F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.0188F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.95F, KeyframeAnimations.degreeVec(1.3845F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(1.05F, KeyframeAnimations.degreeVec(4.7292F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1753,11 +1541,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(43.2649F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_up_4_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 16.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 15.0422F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 12.5957F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, 9.291F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 5.7587F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.424F, -1.1563F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 2.6292F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.533F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1783,11 +1567,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 2.424F, -1.1563F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_1_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(16.5155F, -55.19F, 62.4458F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(27.5254F, -56.6258F, 54.2712F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(54.9159F, -55.1312F, 33.7866F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.degreeVec(80.4709F, -44.9815F, 16.5499F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.degreeVec(95.1638F, -30.2907F, 8.8012F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(-28.4935F, -0.4305F, 16.4837F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(102.3533F, -16.9751F, 5.3165F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(105.2385F, -8.606F, 3.2351F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(105.767F, -6.5913F, 2.6641F), AnimationChannel.Interpolations.LINEAR),
@@ -1820,10 +1600,6 @@ public class GolemArmsAttackAnimations1 {
 			))
 			.addAnimation("garm_down_1_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
 					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(-1.7178F, -1.1136F, -1.208F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(-5.8606F, -3.5768F, -2.4175F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.15F, KeyframeAnimations.posVec(-9.7427F, -5.8441F, -0.9702F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(-11.0139F, -6.9168F, 1.9568F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(-10.5102F, -6.9841F, 3.6733F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(-10.2838F, -6.7429F, 3.6281F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(-10.5791F, -6.4952F, 2.668F), AnimationChannel.Interpolations.LINEAR),
@@ -1859,10 +1635,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_2_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(46.7397F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(44.0055F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(36.9202F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.degreeVec(16.7381F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(43.309F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(7.5614F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(1.5187F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1876,10 +1649,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(43.309F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_2_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 1.8935F, -0.8232F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 1.7802F, -0.7739F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 1.4906F, -0.6481F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 0.6815F, -0.2963F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.4327F, -1.1746F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 0.3112F, -0.1353F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.0631F, -0.0274F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1905,10 +1675,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 2.4327F, -1.1746F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_3_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(60.1131F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(56.6502F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(47.5909F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.degreeVec(21.4546F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(34.7118F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(9.6239F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(1.9213F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1922,10 +1689,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(34.7118F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_3_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 1.8935F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 1.7801F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 1.4906F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 0.6815F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 1.9004F, -0.8235F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 0.3111F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.0631F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1951,10 +1715,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.posVec(0.0F, 1.9004F, -0.8235F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_4_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-					new Keyframe(0.0F, KeyframeAnimations.degreeVec(44.8345F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.degreeVec(42.2069F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.degreeVec(35.4055F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.degreeVec(16.0624F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.degreeVec(42.8583F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.degreeVec(7.2623F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.degreeVec(1.4597F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
@@ -1968,10 +1729,7 @@ public class GolemArmsAttackAnimations1 {
 					new Keyframe(1.85F, KeyframeAnimations.degreeVec(42.8583F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
 			))
 			.addAnimation("garm_down_4_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 1.78F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.05F, KeyframeAnimations.posVec(0.0F, 1.6734F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, 1.4013F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-					new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, 0.6407F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+					new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 2.9361F, -0.7678F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.25F, KeyframeAnimations.posVec(0.0F, 0.2925F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.3F, KeyframeAnimations.posVec(0.0F, 0.0593F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 					new Keyframe(0.35F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),

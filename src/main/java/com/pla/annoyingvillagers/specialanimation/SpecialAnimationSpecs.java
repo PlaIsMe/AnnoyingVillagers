@@ -93,11 +93,11 @@ public final class SpecialAnimationSpecs {
     }
 
     private static void registerArms() {
-        put(SpecialAnimationId.ARMS_ATK_1, 2.0F, 1.0F, windows(window(30, 40, armsDownRight()), window(55, 65, armsUpCenter())));
-        put(SpecialAnimationId.ARMS_ATK_2, 2.15F, 1.0F, windows(window(30, 40, armsUpCenter()), window(45, 55, armsDownLeft())));
-        put(SpecialAnimationId.ARMS_ATK_3, 1.85F, 1.0F, windows(window(30, 40, concat(armsDownRight(), armsDownLeft(), armsUpCenter()))));
-        put(SpecialAnimationId.ARMS_RUN_ATK, 2.0F, 1.0F, windows(window(25, 35, concat(armsDownRight(), armsDownLeft()))));
-        put(SpecialAnimationId.ARMS_AIR_ATK, 1.65F, 1.0F, windows(window(20, 30, concat(armsDownRight(), armsDownLeft(), armsUpCenter()))));
+        put(SpecialAnimationId.ARMS_ATK_1, 2.0F, 1.0F, windows(window(30, 45, armsDownRight()), window(55, 70, armsUpCenter())));
+        put(SpecialAnimationId.ARMS_ATK_2, 2.15F, 1.0F, windows(window(30, 45, armsUpCenter()), window(45, 60, armsDownLeft())));
+        put(SpecialAnimationId.ARMS_ATK_3, 1.85F, 1.0F, windows(window(30, 45, concat(armsDownRight(), armsDownLeft(), armsUpCenter()))));
+        put(SpecialAnimationId.ARMS_RUN_ATK, 2.0F, 1.0F, windows(window(25, 40, concat(armsDownRight(), armsDownLeft()))));
+        put(SpecialAnimationId.ARMS_AIR_ATK, 1.65F, 1.0F, windows(window(20, 35, concat(armsDownRight(), armsDownLeft(), armsUpCenter()))));
         put(SpecialAnimationId.ARMS_GUARD_TRANSFORM, 0.5F, 0.0F, windows());
         SPECS.put(SpecialAnimationId.ARMS_GUARD, new SpecialAnimationSpec(SpecialAnimationId.ARMS_GUARD, 72_000, 0.0F, windows(), List.of()));
         put(SpecialAnimationId.ARMS_GUARD_FINISH, 0.5F, 0.0F, windows());
