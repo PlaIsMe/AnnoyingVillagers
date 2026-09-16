@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.GolemArms;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigOrientedBox;
+import com.pla.annoyingvillagers.rig.armor.ObsidianArmorController;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationController;
 import com.pla.annoyingvillagers.entity.goal.HerobrineEscapeHoleGoal;
 import com.pla.annoyingvillagers.util.CommonUtil;
@@ -60,6 +61,15 @@ public final class RigMobClashBladeEvent {
             return;
         }
 
+        List<RigOrientedBox> armorBoxes = ObsidianArmorController.activeAttackCollisionBoxes(event.getEntity());
+        if (!armorBoxes.isEmpty() && clashesWithArmor(armorBoxes, attacker, damageSource.getDirectEntity(), serverLevel)) {
+            event.setCanceled(true);
+            applyClashRecoil(attacker);
+            applyClashRecoil(event.getEntity());
+            CommonUtil.damageBlockedForce(event.getEntity(), attacker, serverLevel);
+            return;
+        }
+
         // GolemArms are intentionally non-attackable entities, so an incoming attack normally
         // reaches their owner instead. During an Arms attack window, compare the actual oriented
         // attack boxes. If an enemy rig/special attack box meets an Arms box first, treat that as
@@ -90,6 +100,7 @@ public final class RigMobClashBladeEvent {
     public static void onServerStopped(ServerStoppedEvent event) {
         RigAnimationController.clearActiveAnimations();
         SpecialAnimationController.clearActiveAnimations();
+        ObsidianArmorController.clearAll();
         HerobrineEscapeHoleGoal.clearActivePillarCycles();
     }
 
@@ -119,6 +130,7 @@ public final class RigMobClashBladeEvent {
         // GolemArms damage is credited to its player owner, so the DamageSource entity is the
         // player rather than the floating Arms entity. Recover those active Arms boxes here too.
         if (attacker instanceof LivingEntity livingAttacker) {
+            boxes.addAll(ObsidianArmorController.activeAttackCollisionBoxes(livingAttacker));
             for (GolemArms arms : serverLevel.getEntitiesOfClass(
                     GolemArms.class,
                     livingAttacker.getBoundingBox().inflate(3.0D),
@@ -128,6 +140,15 @@ public final class RigMobClashBladeEvent {
             }
         }
         return boxes.isEmpty() ? List.of() : List.copyOf(boxes);
+    }
+
+    private static boolean clashesWithArmor(List<RigOrientedBox> armorBoxes, Entity attacker, Entity directEntity, ServerLevel serverLevel) {
+        List<RigOrientedBox> attackBoxes = activeAttackBoxes(attacker, serverLevel);
+        if (intersectsAny(armorBoxes, attackBoxes)) return true;
+        Entity contactEntity = directEntity == null ? attacker : directEntity;
+        if (contactEntity == null) return false;
+        for (RigOrientedBox armorBox : armorBoxes) if (armorBox.intersects(contactEntity.getBoundingBox())) return true;
+        return false;
     }
 
     private static boolean intersectsAny(List<RigOrientedBox> first, List<RigOrientedBox> second) {

@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
+import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
 import com.pla.annoyingvillagers.item.HerobrineEnderEyeItem;
 import com.pla.annoyingvillagers.item.NullWeaponItem;
 import com.pla.annoyingvillagers.item.TransporterFragmentItem;
@@ -57,6 +58,7 @@ public class SpecialAttackOnKeyHeldEvent {
         }
 
         if (entity instanceof Player player && !player.level().isClientSide()) {
+            if (EnderSlayerScytheItem.activateMountedDragonDescent(player)) return;
             if (HerobrineEnderEyeItem.activateVanillaHeldSpecial(player)) return;
             TransporterFragmentItem.UseResult transporterUseResult = TransporterFragmentItem.tryUseHeldSpecialAttack(player, crosshairTarget);
             if (transporterUseResult.consumed()) {

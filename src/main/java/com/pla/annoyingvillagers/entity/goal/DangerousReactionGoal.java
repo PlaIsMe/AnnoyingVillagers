@@ -1,8 +1,7 @@
 package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.DangerousReaction;
-import com.pla.annoyingvillagers.rig.RigAnimationController;
-import com.pla.annoyingvillagers.rig.RigAnimationId;
+import com.pla.annoyingvillagers.util.DangerousReactionAnimations;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -14,7 +13,7 @@ public class DangerousReactionGoal extends Goal {
     private final DangerousReaction dangerousReaction;
     private UUID lastTargetUuid;
     private int lastDangerousAnimationStartTick = Integer.MIN_VALUE;
-    private RigAnimationId lastDangerousAnimationId;
+    private Object lastDangerousAnimationId;
 
     public DangerousReactionGoal(Mob mob, DangerousReaction dangerousReaction) {
         this.mob = mob;
@@ -25,13 +24,13 @@ public class DangerousReactionGoal extends Goal {
     public boolean canUse() {
         if (!DangerousReaction.canReact(this.mob)) return false;
         LivingEntity target = this.mob.getTarget();
-        if (!(target instanceof Mob targetMob)) return false;
+        if (target == null) return false;
 
-        int startTick = RigAnimationController.getActiveAnimationStartTick(targetMob);
-        RigAnimationId animationId = RigAnimationController.getActiveAnimationId(targetMob);
+        int startTick = DangerousReactionAnimations.animationStartTick(target);
+        Object animationId = DangerousReactionAnimations.animationKey(target);
         return startTick >= 0 && animationId != null && (!target.getUUID().equals(this.lastTargetUuid)
                 || startTick != this.lastDangerousAnimationStartTick
-                || animationId != this.lastDangerousAnimationId);
+                || !animationId.equals(this.lastDangerousAnimationId));
     }
 
     @Override
@@ -42,10 +41,10 @@ public class DangerousReactionGoal extends Goal {
     @Override
     public void start() {
         LivingEntity target = this.mob.getTarget();
-        if (!(target instanceof Mob targetMob) || !DangerousReaction.canReact(this.mob)) return;
+        if (target == null || !DangerousReaction.canReact(this.mob)) return;
         this.lastTargetUuid = target.getUUID();
-        this.lastDangerousAnimationStartTick = RigAnimationController.getActiveAnimationStartTick(targetMob);
-        this.lastDangerousAnimationId = RigAnimationController.getActiveAnimationId(targetMob);
+        this.lastDangerousAnimationStartTick = DangerousReactionAnimations.animationStartTick(target);
+        this.lastDangerousAnimationId = DangerousReactionAnimations.animationKey(target);
         this.dangerousReaction.performDangerousReaction(this.mob);
     }
 }

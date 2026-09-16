@@ -11,7 +11,6 @@ import com.pla.annoyingvillagers.entity.goal.DragonSummonRiseGoal;
 import com.pla.annoyingvillagers.entity.goal.RecallLandGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModKeyMappings;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
@@ -72,6 +71,7 @@ import static net.minecraft.world.entity.ai.attributes.Attributes.*;
 public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEntity, FlyingAnimal, PlayerRideable
 {
     private static final int RECALL_MOUNT_TIMEOUT_TICKS = 120;
+    private static final int SPECIAL_ATTACK_DESCENT_TICKS = 10;
     public static final double BASE_SPEED_GROUND = 0.3;
     public static final double BASE_SPEED_FLYING = 0.32;
     public static final double BASE_DAMAGE = 8;
@@ -86,6 +86,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     private final DragonAnimator animator;
     private boolean flying;
     private boolean nearGround;
+    private int specialAttackDescentTicks;
 
     private UUID summonerUUID;
     private LivingEntity summoner;
@@ -122,6 +123,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     public EndCrystal nearestCrystal;
 
     private static final EntityDataAccessor<Boolean> DATA_CONTROL_LOCKED = SynchedEntityData.defineId(HerobrineDragonEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DATA_SPECIAL_ATTACK_DESCENDING = SynchedEntityData.defineId(HerobrineDragonEntity.class, EntityDataSerializers.BOOLEAN);
 
     public boolean isRecallActive() {
         return recallActive;
@@ -246,6 +248,15 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     {
         super.defineSynchedData();
         this.entityData.define(DATA_CONTROL_LOCKED, false);
+        this.entityData.define(DATA_SPECIAL_ATTACK_DESCENDING, false);
+    }
+
+    private boolean isSpecialAttackDescending() {
+        return this.entityData.get(DATA_SPECIAL_ATTACK_DESCENDING);
+    }
+
+    private void setSpecialAttackDescending(boolean descending) {
+        this.entityData.set(DATA_SPECIAL_ATTACK_DESCENDING, descending);
     }
 
     private boolean isControlLocked() {
@@ -505,6 +516,17 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
         this.breathHoverPos = null;
     }
 
+    public boolean descendFromSpecialAttack(Player driver) {
+        if (this.level().isClientSide() || driver == null || this.getControllingPassenger() != driver || !this.isFlying()) return false;
+        this.specialAttackDescentTicks = SPECIAL_ATTACK_DESCENT_TICKS;
+        this.setSpecialAttackDescending(true);
+        Vec3 movement = this.getDeltaMovement();
+        this.setDeltaMovement(movement.x, Math.min(movement.y, -0.35D), movement.z);
+        this.hasImpulse = true;
+        this.hurtMarked = true;
+        return true;
+    }
+
     private static boolean hasEnderSlayerScythe(Player p) {
         for (ItemStack s : p.getInventory().items) {
             if (s.getItem() instanceof EnderSlayerScytheItem) return true;
@@ -573,6 +595,18 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     public void tick()
     {
         super.tick();
+        if (!this.level().isClientSide()) {
+            if (this.specialAttackDescentTicks > 0) {
+                this.specialAttackDescentTicks--;
+                if (this.specialAttackDescentTicks <= 0) this.setSpecialAttackDescending(false);
+            } else if (this.isSpecialAttackDescending()) {
+                this.setSpecialAttackDescending(false);
+            }
+            if ((!this.isFlying() || !this.hasControllingPassenger()) && this.isSpecialAttackDescending()) {
+                this.specialAttackDescentTicks = 0;
+                this.setSpecialAttackDescending(false);
+            }
+        }
         if (this.level() instanceof ServerLevel serverLevel)
         {
             if (this.isRecallMountTimedOut() && !this.hasControllingPassenger()) {
@@ -724,7 +758,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
         {
             moveForward = moveForward > 0? moveForward : 0;
             if (driver.jumping) moveY = 1;
-            else if (AnnoyingVillagersModKeyMappings.DRAGON_FLIGHT_DESCENT_KEY.isDown()) moveY = -1;
+            else if (this.isSpecialAttackDescending()) moveY = -1;
             else if (moveForward > 0) moveY = -driver.getXRot() / 90;
         }
 

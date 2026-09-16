@@ -306,8 +306,10 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
     }
 
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
-        if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
-            ServerLevel serverLevel = serverLevelAccessor.getLevel();
+        ServerLevel serverLevel = serverLevelAccessor.getLevel();
+        if (mobSpawnType == MobSpawnType.SPAWN_EGG) {
+            PersistentPlayerNpcManager.replaceIdentityForSpawnEgg(serverLevel.getServer(), "Alex");
+        } else if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
             AlexData alexData = AlexData.get(serverLevel);
 
             if (!alexData.tryClaim(serverLevel, this.getUUID())) {

@@ -55,6 +55,7 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     private boolean spawnDragonInit = false;
     private int dragonSummonCooldown = 0;
     private int pendingDragonSummonType = -1;
+    private boolean dragonSummonAnimationStarted;
 
     private static final int SUMMON_RISE_DURATION_TICKS = 120;
     private static final double SUMMON_UNDERGROUND_DISTANCE = 5.0D;
@@ -163,32 +164,51 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     // 2: healing dragon
     public void summonEnderDragon(int type) {
         if (!(this.level() instanceof ServerLevel) || type < 0 || type > 2) return;
-        if (this.pendingDragonSummonType >= 0 || RigAnimationController.hasActiveAnimation(this)) return;
+        if (this.pendingDragonSummonType >= 0 || this.isDragonSummonAnimationBusy()) return;
 
         this.pendingDragonSummonType = type;
         this.getNavigation().stop();
         this.setAggressive(false);
         this.playSound(AnnoyingVillagersModSounds.REAPER_SUMMON.get(), 2.0F, 1.0F);
 
-        RigAnimationController.play(this, RigAnimationSpecs.get(RigAnimationId.REAPER_HEROBRINE_ULT), this.getTarget());
-        if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.REAPER_HEROBRINE_ULT) {
+        this.playDragonSummonAnimation();
+        if (!this.isDragonSummonAnimationPlaying()) {
             this.pendingDragonSummonType = -1;
+            this.finishDragonSummonAnimation();
             return;
         }
+        this.dragonSummonAnimationStarted = true;
+    }
 
-        // Lock normal rig profile attacks for the entire summoning animation.
-        RigAnimationController.lockProfileAttacksFor(this, RigAnimationId.REAPER_HEROBRINE_ULT);
+    /** Animation backend hooks; compatibility mods can replace playback and ownership checks. */
+    public boolean isDragonSummonAnimationBusy() {
+        return RigAnimationController.hasActiveAnimation(this);
+    }
+
+    public void playDragonSummonAnimation() {
+        RigAnimationController.play(this, RigAnimationSpecs.get(RigAnimationId.REAPER_HEROBRINE_ULT), this.getTarget());
+        if (this.isDragonSummonAnimationPlaying()) {
+            RigAnimationController.lockProfileAttacksFor(this, RigAnimationId.REAPER_HEROBRINE_ULT);
+        }
+    }
+
+    public boolean isDragonSummonAnimationPlaying() {
+        return RigAnimationController.getActiveAnimationId(this) == RigAnimationId.REAPER_HEROBRINE_ULT;
+    }
+
+    /** Releases replacement-backend locks after completion, interruption, or failed playback. */
+    public void finishDragonSummonAnimation() {
     }
 
     public boolean isDragonSummonPending() {
         return this.pendingDragonSummonType >= 0;
     }
 
-    /** Called only by the REAPER_HEROBRINE_ULT timed hook. */
+    /** Called by the active animation backend's summon event. */
     public void completePendingDragonSummon() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         if (this.pendingDragonSummonType < 0) return;
-        if (RigAnimationController.getActiveAnimationId(this) != RigAnimationId.REAPER_HEROBRINE_ULT) return;
+        if (!this.isDragonSummonAnimationPlaying()) return;
 
         int type = this.pendingDragonSummonType;
         this.pendingDragonSummonType = -1;
@@ -362,6 +382,10 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     public void tick() {
         super.tick();
         if (!level().isClientSide) {
+            if (this.dragonSummonAnimationStarted && !this.isDragonSummonAnimationPlaying()) {
+                this.dragonSummonAnimationStarted = false;
+                this.finishDragonSummonAnimation();
+            }
             // Reaper is only allowed to remain mounted during full second form.
             if (this.isPassenger()
                     && this.getVehicle() instanceof HerobrineDragonEntity
@@ -378,7 +402,7 @@ public class ReaperHerobrineEntity extends HerobrineMob {
                 } else {
                     summonEnderDragon(0);
                     if (this.pendingDragonSummonType == 0
-                            && RigAnimationController.getActiveAnimationId(this) == RigAnimationId.REAPER_HEROBRINE_ULT) {
+                            && this.isDragonSummonAnimationPlaying()) {
                         this.spawnDragonInit = true;
                     }
                 }
@@ -388,7 +412,7 @@ public class ReaperHerobrineEntity extends HerobrineMob {
             // system ever interrupts/replaces the ULT first, release the request so the
             // normal dragon progression logic can retry instead of becoming stuck forever.
             if (this.pendingDragonSummonType >= 0
-                    && RigAnimationController.getActiveAnimationId(this) != RigAnimationId.REAPER_HEROBRINE_ULT) {
+                    && !this.isDragonSummonAnimationPlaying()) {
                 this.pendingDragonSummonType = -1;
             }
 
@@ -561,4 +585,3 @@ public class ReaperHerobrineEntity extends HerobrineMob {
         return addEpicFightAttributes(builder);
     }
 }
-

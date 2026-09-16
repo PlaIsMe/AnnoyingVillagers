@@ -5,12 +5,7 @@ import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.entity.ai.RecoveryAi;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigStunController;
-import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.BlockItem;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -41,34 +36,6 @@ public final class RecoveryTrace {
             if (reason.startsWith("jump_started")) session.decisions.put("lastJump", reason + "@tick=" + npc.tickCount);
             if (reason.startsWith("landed")) session.decisions.put("lastLanding", reason + "@tick=" + npc.tickCount);
         }
-    }
-
-    @SubscribeEvent
-    public static void commands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("avrecoverytrace")
-                .requires(source -> source.hasPermission(2))
-                .then(Commands.literal("off").executes(context -> {
-                    SESSIONS.clear();
-                    context.getSource().sendSuccess(() -> Component.literal("AV recovery tracing disabled."), false);
-                    return 1;
-                }))
-                .then(Commands.argument("npc", EntityArgument.entity()).executes(context -> {
-                    Entity entity = EntityArgument.getEntity(context, "npc");
-                    if (!(entity instanceof AVNpc npc)) {
-                        context.getSource().sendFailure(Component.literal("Select an AvNpc such as Steve."));
-                        return 0;
-                    }
-                    if (SESSIONS.size() >= 8 && !SESSIONS.containsKey(npc.getUUID())) {
-                        context.getSource().sendFailure(Component.literal("Already tracing 8 NPCs. Use /avrecoverytrace off first."));
-                        return 0;
-                    }
-                    Session session = new Session(npc, context.getSource().getServer().overworld().getGameTime() + 12000);
-                    SESSIONS.put(npc.getUUID(), session);
-                    snapshot(session);
-                    context.getSource().sendSuccess(() -> Component.literal("Tracing " + npc.getName().getString()
-                            + " for 10 minutes in logs/latest.log (AV recovery trace). Stop: /avrecoverytrace off"), false);
-                    return 1;
-                })));
     }
 
     @SubscribeEvent

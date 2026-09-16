@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.client.animation.ObsidianArmorClientAnimationState;
 import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
 import com.pla.annoyingvillagers.client.animation.SpecialClientAnimationState;
 import com.pla.annoyingvillagers.rig.RigAnimationSpec;
@@ -10,6 +11,8 @@ import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigAttackWindow;
 import com.pla.annoyingvillagers.rig.RigColliderSystem;
 import com.pla.annoyingvillagers.rig.RigOrientedBox;
+import com.pla.annoyingvillagers.rig.armor.ObsidianArmorColliderSystem;
+import com.pla.annoyingvillagers.rig.armor.ObsidianArmorController;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationSpec;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationSpecs;
 import com.pla.annoyingvillagers.specialanimation.SpecialAttackWindow;
@@ -19,6 +22,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -77,6 +81,18 @@ public final class RigColliderRenderer {
             float elapsed = active.elapsedTicks(ageInTicks);
             float bodyYaw = Mth.rotLerp(event.getPartialTick(), mob.yBodyRotO, mob.yBodyRot);
             renderSpecialBoxes(poseStack, lines, mob, active.animationId(), spec, elapsed, bodyYaw);
+        }
+
+        for (var entry : ObsidianArmorClientAnimationState.snapshot().entrySet()) {
+            Entity entity = mc.level.getEntity(entry.getKey().entityId());
+            if (!(entity instanceof LivingEntity living)) continue;
+            ObsidianArmorClientAnimationState.State active = ObsidianArmorClientAnimationState.get(living, entry.getKey().part());
+            if (active == null) continue;
+            float elapsed = active.elapsedTicks();
+            boolean attackTime = elapsed >= ObsidianArmorController.ATTACK_START_TICK && elapsed < ObsidianArmorController.ATTACK_END_TICK_EXCLUSIVE;
+            float green = attackTime ? 0.0F : 1.0F;
+            float blue = attackTime ? 0.0F : 1.0F;
+            for (RigOrientedBox box : ObsidianArmorColliderSystem.collisionBoxes(living, active.animationId(), elapsed)) renderBox(poseStack, lines, box, 1.0F, green, blue);
         }
 
         poseStack.popPose();

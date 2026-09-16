@@ -60,7 +60,8 @@ public class PlayIdleAnimationGoal extends Goal {
         }
 
         avNpc.getNavigation().stop();
-        avNpc.setDeltaMovement(0.0D, 0.0D, 0.0D);
+        avNpc.setStrolling(false);
+        stopHorizontalMovement();
         avNpc.setPlayingIdle(true);
         avNpc.onIdleAnimationGoalStart(activeChoice);
     }
@@ -81,7 +82,7 @@ public class PlayIdleAnimationGoal extends Goal {
         }
 
         avNpc.getNavigation().stop();
-        avNpc.setDeltaMovement(0.0D, 0.0D, 0.0D);
+        stopHorizontalMovement();
 
         if (activeChoice != null) {
             avNpc.onIdleAnimationGoalTick(activeChoice);
@@ -98,6 +99,16 @@ public class PlayIdleAnimationGoal extends Goal {
         avNpc.setPlayingIdleCooldown(new Random().nextInt(400, 1200));
         activeChoice = null;
         ticksLeft = 0;
+    }
+
+    private void stopHorizontalMovement() {
+        // Keep gravity's vertical velocity: clearing Y removes the downward collision
+        // that maintains onGround, making this goal cancel itself on the next tick.
+        // Both rig playback and Epic Fight playback use this same goal.
+        avNpc.setDeltaMovement(0.0D, avNpc.getDeltaMovement().y, 0.0D);
+        avNpc.setXxa(0.0F);
+        avNpc.setZza(0.0F);
+        avNpc.setSpeed(0.0F);
     }
 
     private boolean baseCanRun() {

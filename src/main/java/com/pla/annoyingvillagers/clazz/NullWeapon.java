@@ -11,6 +11,7 @@ import com.pla.annoyingvillagers.entity.goal.PortalApproachGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.NullWeaponItem;
 import com.pla.annoyingvillagers.task.DelayedTask;
+import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
@@ -192,6 +193,9 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
     private boolean isValidReleaseTarget(@Nullable LivingEntity target) {
         if (target == null || !target.isAlive() || target.isRemoved() || target == this.nullEntity || target == this.player || target instanceof NullWeapon) return false;
+        // A Null-owned weapon belongs to the Herobrine side even if scoreboard team
+        // data has not been restored yet (for example, just after loading a world).
+        if ((this.nullEntity != null || this.nullUUID != null) && HerobrineUtil.isHerobrineSide(target)) return false;
         if (this.nullEntity != null && (target.isAlliedTo(this.nullEntity) || this.nullEntity.isAlliedTo(target))) return false;
         if (this.player != null && (target.isAlliedTo(this.player) || this.player.isAlliedTo(target))) return false;
         return !target.isAlliedTo(this);
@@ -335,9 +339,11 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
             return (target == lastHurtBy || target == lastHurt) && target.isAlive() && !target.isAlliedTo(this.player);
         }));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> this.released
-                && this.nullEntity != null && this.nullEntity.isAlive() && target != null && this.nullEntity.getTarget() == target));
+                && this.nullEntity != null && this.nullEntity.isAlive() && target != null
+                && this.nullEntity.getTarget() == target && this.isValidReleaseTarget(target)));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> this.released
-                && this.nullEntity != null && this.nullEntity.isAlive() && target != null && target.getLastHurtMob() == this.nullEntity));
+                && this.nullEntity != null && this.nullEntity.isAlive() && target != null
+                && target.getLastHurtMob() == this.nullEntity && this.isValidReleaseTarget(target)));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
                 target -> this.released && this.isValidReleaseTarget(target)));
         this.targetSelector.addGoal(6, new HurtByTargetGoal(this) {
@@ -543,6 +549,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     @Override
     public boolean doHurtTarget(@NotNull Entity pEntity) {
         if (this.player != null && !this.released) return false;
+        if (pEntity instanceof LivingEntity livingEntity && !this.isValidReleaseTarget(livingEntity)) return false;
         if (pEntity instanceof Player hurtPlayer && this.playerUUID != null && this.playerUUID.equals(hurtPlayer.getUUID())) {
             return false;
         }

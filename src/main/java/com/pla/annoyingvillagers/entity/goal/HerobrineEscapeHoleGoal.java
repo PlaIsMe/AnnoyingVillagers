@@ -1,6 +1,5 @@
 package com.pla.annoyingvillagers.entity.goal;
 
-import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.blockentity.CryingObsidianBlockEntity;
 import com.pla.annoyingvillagers.blockentity.ObsidianBlockEntity;
@@ -66,30 +65,15 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
     /** Called only by the four FLY_UP RigAnimationSpecs hooks. */
     public static void placeFlyUpPillarBlock(Mob mob, int blockIndex) {
         PillarCycle cycle = ACTIVE_PILLARS.get(mob.getUUID());
-        if (cycle == null || cycle.mob != mob) {
-            AnnoyingVillagers.LOGGER.warn("[HerobrineEscape] Ignored pillar block {} for {}: no matching active cycle",
-                    blockIndex, mob.getStringUUID());
-            return;
-        }
+        if (cycle == null || cycle.mob != mob) return;
         // Animation hooks and the authoritative goal tick may reach the same checkpoint.
         if (blockIndex < cycle.nextBlockIndex) return;
         if (blockIndex != cycle.nextBlockIndex || cycle.failed || !cycle.owner.ownsLock()
                 || !cycle.owner.canAct() || !cycle.owner.canContinueSpecializedEscape()
-                || !cycle.owner.isFlyUpAnimationActive()) {
-            AnnoyingVillagers.LOGGER.warn(
-                    "[HerobrineEscape] Rejected pillar block {} for {}: expected={}, failed={}, ownsLock={}, canAct={}, canContinue={}, flyActive={}",
-                    blockIndex, mob.getStringUUID(), cycle.nextBlockIndex, cycle.failed,
-                    cycle.owner.ownsLock(), cycle.owner.canAct(), cycle.owner.canContinueSpecializedEscape(),
-                    cycle.owner.isFlyUpAnimationActive());
-            return;
-        }
+                || !cycle.owner.isFlyUpAnimationActive()) return;
         cycle.nextBlockIndex++;
         cycle.applyPlacementClearance(blockIndex);
-        if (cycle.failed) {
-            AnnoyingVillagers.LOGGER.warn("[HerobrineEscape] Clearance failed for pillar block {} on {}",
-                    blockIndex, mob.getStringUUID());
-            return;
-        }
+        if (cycle.failed) return;
         cycle.place(blockIndex);
     }
 
@@ -158,9 +142,6 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
         BlockPos base = BlockPos.containing(this.mob.getX(), this.cycleStartY, this.mob.getZ());
         ACTIVE_PILLARS.put(this.mob.getUUID(), new PillarCycle(this, this.mob, base, this.cycleStartY));
         this.clearingCycle = true;
-        AnnoyingVillagers.LOGGER.info(
-                "[HerobrineEscape] Started fly cycle for {} ({}) at {}, cyclesRemaining={}",
-                this.mob.getName().getString(), this.mob.getStringUUID(), base, this.cyclesRemaining);
     }
 
     /**
@@ -175,9 +156,6 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
         while (cycle.nextBlockIndex < BLOCKS_PER_CYCLE
                 && elapsedTicks >= PILLAR_PLACEMENT_TICKS[cycle.nextBlockIndex]) {
             int blockIndex = cycle.nextBlockIndex;
-            AnnoyingVillagers.LOGGER.info(
-                    "[HerobrineEscape] Requesting pillar block {} for {} at animationTick={}",
-                    blockIndex, this.mob.getStringUUID(), elapsedTicks);
             placeFlyUpPillarBlock(this.mob, blockIndex);
             if (cycle.failed || cycle.nextBlockIndex == blockIndex) break;
         }
@@ -254,10 +232,6 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
             return;
         }
         if (this.mob.tickCount - this.cycleStartTick + 1 < this.getFlyUpAnimationDurationTicks()) {
-            AnnoyingVillagers.LOGGER.warn(
-                    "[HerobrineEscape] FLY_UP ended early for {}: elapsedTicks={}, expectedTicks={}",
-                    this.mob.getStringUUID(), this.mob.tickCount - this.cycleStartTick,
-                    this.getFlyUpAnimationDurationTicks());
             this.delayRetry();
             this.finished = true;
             return;
@@ -266,10 +240,6 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
         PillarCycle completed = ACTIVE_PILLARS.remove(this.mob.getUUID());
         if (completed == null || completed.failed || completed.nextBlockIndex != BLOCKS_PER_CYCLE
                 || !this.ensureCycleHeight()) {
-            AnnoyingVillagers.LOGGER.warn(
-                    "[HerobrineEscape] Fly cycle validation failed for {}: cyclePresent={}, failed={}, placed={}/{}",
-                    this.mob.getStringUUID(), completed != null, completed != null && completed.failed,
-                    completed == null ? 0 : completed.nextBlockIndex, BLOCKS_PER_CYCLE);
             this.delayRetry();
             this.finished = true;
             return;
@@ -284,8 +254,6 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
         this.mob.setNoGravity(this.previousNoGravity);
         this.exitRoll = this.prepareRandomExitRoll();
         this.cycleStartTick = this.mob.tickCount;
-        AnnoyingVillagers.LOGGER.info("[HerobrineEscape] Starting exit roll {} for {}",
-                this.exitRoll, this.mob.getStringUUID());
         this.playExitRollAnimation();
     }
 
@@ -371,17 +339,11 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
         private void place(int blockIndex) {
             if (!(this.mob.level() instanceof ServerLevel level)) {
                 this.failed = true;
-                AnnoyingVillagers.LOGGER.warn("[HerobrineEscape] Placement failed for {}: not in ServerLevel",
-                        this.mob.getStringUUID());
                 return;
             }
             BlockPos pos = this.base.above(blockIndex);
             if (!level.hasChunkAt(pos) || !level.getWorldBorder().isWithinBounds(pos) || !level.isInWorldBounds(pos)) {
                 this.failed = true;
-                AnnoyingVillagers.LOGGER.warn(
-                        "[HerobrineEscape] Placement failed for {} at {}: chunkLoaded={}, insideBorder={}, worldBounds={}",
-                        this.mob.getStringUUID(), pos, level.hasChunkAt(pos),
-                        level.getWorldBorder().isWithinBounds(pos), level.isInWorldBounds(pos));
                 return;
             }
             Block block = blockFor(this.mob);
@@ -390,15 +352,8 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
                     || !existing.getFluidState().isEmpty()
                     || existing.hasBlockEntity() && !existing.is(block)
                     || !existing.canBeReplaced() && !existing.is(block)
-                    || this.mob.getBoundingBox().intersects(new AABB(pos))
-                    || !level.getEntities(this.mob, new AABB(pos)).isEmpty()) {
+                    || this.mob.getBoundingBox().intersects(new AABB(pos))) {
                 this.failed = true;
-                AnnoyingVillagers.LOGGER.warn(
-                        "[HerobrineEscape] Placement rejected for {} at {}: mobGriefing={}, block={}, fluidEmpty={}, replaceable={}, mobCollision={}, otherEntities={}",
-                        this.mob.getStringUUID(), pos, ForgeEventFactory.getMobGriefingEvent(level, this.mob),
-                        existing, existing.getFluidState().isEmpty(), existing.canBeReplaced(),
-                        this.mob.getBoundingBox().intersects(new AABB(pos)),
-                        level.getEntities(this.mob, new AABB(pos)).size());
                 return;
             }
             BlockState state = block.defaultBlockState();
@@ -409,21 +364,15 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
                 BlockSnapshot snapshot = BlockSnapshot.create(level.dimension(), level, pos);
                 if (!level.setBlockAndUpdate(pos, state)) {
                     this.failed = true;
-                    AnnoyingVillagers.LOGGER.warn("[HerobrineEscape] setBlockAndUpdate failed for {} at {}",
-                            this.mob.getStringUUID(), pos);
                     return;
                 }
                 if (ForgeEventFactory.onBlockPlace(this.mob, snapshot, net.minecraft.core.Direction.UP)) {
                     snapshot.restore(true, false);
                     this.failed = true;
-                    AnnoyingVillagers.LOGGER.warn("[HerobrineEscape] BlockPlaceEvent canceled for {} at {}",
-                            this.mob.getStringUUID(), pos);
                     return;
                 }
             }
             setOwner(level, pos, this.mob, state);
-            AnnoyingVillagers.LOGGER.info("[HerobrineEscape] Placed {} for {} at {}",
-                    state, this.mob.getStringUUID(), pos);
         }
     }
 }

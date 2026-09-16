@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.client.engine;
 
 import com.pla.annoyingvillagers.compat.photon.PhotonClientFxUtil;
+import com.pla.annoyingvillagers.client.animation.ObsidianArmorClientAnimationState;
 import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
 import com.pla.annoyingvillagers.event.NoVfxPortalEvent;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
@@ -108,7 +109,9 @@ public final class ClientPacketHandlers {
                 () -> PhotonClientFxUtil.spawnAt(level, "requestingassistance",  msg.from().add(0.0D, 1.0D, 0.0D)),
                 () -> {
                     AAAParticlesUtil.sendHerobrineAssistance(level, msg.from().x, msg.from().y, msg.from().z);
-                });
+                    return true;
+                },
+                () -> NoVfxPortalEvent.spawn(msg.from(), 60));
     }
 
     public static void handleEnderAegisSparkFx(ClientboundEnderAegisSparkFx msg) {
@@ -415,6 +418,13 @@ public final class ClientPacketHandlers {
         minecraft.player.setDeltaMovement(Vec3.ZERO);
         minecraft.player.fallDistance = 0.0F;
         minecraft.player.setPos(msg.x(), msg.y(), msg.z());
+    }
+
+    public static void handleObsidianArmorAnimation(ClientboundObsidianArmorAnimation msg) {
+        Level level = Minecraft.getInstance().level;
+        if (level == null) return;
+        Entity entity = level.getEntity(msg.entityId());
+        if (entity instanceof net.minecraft.world.entity.LivingEntity living) ObsidianArmorClientAnimationState.start(msg.entityId(), living.getUUID(), msg.animationId(), msg.durationTicks());
     }
 
 }

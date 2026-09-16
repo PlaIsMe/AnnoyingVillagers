@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.entity.goal.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.rig.LockableRigAttackAnimation;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.rig.RigBowAnimationSelector;
 import com.pla.annoyingvillagers.rig.RigStunEscapeEntity;
@@ -206,24 +207,33 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     public boolean isIdleAnimationGoalAvailable() {
-        return false;
+        return true;
     }
 
     public boolean canStartIdleAnimationGoal(@Nullable IdleAnimation choice) {
-        return true;
+        return !isLocked() && !isUsingItem() && !isSleeping()
+                && !isRecoveryActionActive() && !isRecoveryDigging()
+                && !RigStunController.isStunned(this)
+                && !RigAnimationController.hasActiveAnimation(this);
     }
 
     public boolean canContinueIdleAnimationGoal(@Nullable IdleAnimation choice, int ticksLeft) {
-        return true;
+        return choice != null && ticksLeft > 0 && !isLocked() && !isUsingItem()
+                && !isSleeping() && !isRecoveryActionActive() && !isRecoveryDigging()
+                && !RigStunController.isStunned(this)
+                && RigAnimationController.getActiveAnimationId(this) == choice.rigAnimation();
     }
 
     public void onIdleAnimationGoalStart(IdleAnimation choice) {
+        RigAnimationController.playHeldPose(this, choice.rigAnimation());
     }
 
     public void onIdleAnimationGoalTick(IdleAnimation choice) {
     }
 
     public void onIdleAnimationGoalStop(@Nullable IdleAnimation choice) {
+        // The goal calls this from stop(); do not terminate a newer hit/recovery action.
+        if (choice != null) RigAnimationController.stop(this, choice.rigAnimation());
     }
 
     public boolean canUseLockedRandomStrollGoal() {

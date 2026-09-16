@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.entity.goal;
 
 import com.pla.annoyingvillagers.clazz.DangerousReaction;
 import com.pla.annoyingvillagers.clazz.HerobrinePortalSupportCaster;
-import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.util.DangerousReactionAnimations;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,7 +20,7 @@ public class HerobrinePortalDangerousReactionGoal extends Goal {
     private final HerobrinePortalSupportCaster supportCaster;
     private UUID lastTargetUuid;
     private int lastDangerousAnimationStartTick = Integer.MIN_VALUE;
-    private RigAnimationId lastDangerousAnimationId;
+    private Object lastDangerousAnimationKey;
     private int castAnimationStartTick = -1;
     private boolean reactionPerformed;
 
@@ -31,34 +31,38 @@ public class HerobrinePortalDangerousReactionGoal extends Goal {
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
+    public Mob getMob() {
+        return this.mob;
+    }
+
     @Override
     public boolean canUse() {
-        if (!DangerousReaction.canReact(this.mob)) return false;
+        if (!this.canReact()) return false;
         LivingEntity target = this.mob.getTarget();
-        if (!(target instanceof Mob targetMob)) return false;
+        if (target == null) return false;
 
-        int startTick = RigAnimationController.getActiveAnimationStartTick(targetMob);
-        RigAnimationId animationId = RigAnimationController.getActiveAnimationId(targetMob);
-        return startTick >= 0 && animationId != null && (!target.getUUID().equals(this.lastTargetUuid)
+        int startTick = this.getDangerousAnimationStartTick(target);
+        Object animationKey = this.getDangerousAnimationKey(target);
+        return startTick >= 0 && animationKey != null && (!target.getUUID().equals(this.lastTargetUuid)
                 || startTick != this.lastDangerousAnimationStartTick
-                || animationId != this.lastDangerousAnimationId);
+                || !animationKey.equals(this.lastDangerousAnimationKey));
     }
 
     @Override
     public void start() {
         LivingEntity target = this.mob.getTarget();
-        if (!(target instanceof Mob targetMob) || !DangerousReaction.canReact(this.mob)) return;
+        if (target == null || !this.canReact()) return;
 
         this.lastTargetUuid = target.getUUID();
-        this.lastDangerousAnimationStartTick = RigAnimationController.getActiveAnimationStartTick(targetMob);
-        this.lastDangerousAnimationId = RigAnimationController.getActiveAnimationId(targetMob);
+        this.lastDangerousAnimationStartTick = this.getDangerousAnimationStartTick(target);
+        this.lastDangerousAnimationKey = this.getDangerousAnimationKey(target);
         this.reactionPerformed = false;
         this.castAnimationStartTick = -1;
 
         boolean canUsePortal = this.supportCaster.canUseSupportPortalAction()
                 && this.supportCaster.getPortalActionCooldown() <= 0
                 && HerobrineUtil.canSpawnPortalPair(this.supportCaster)
-                && !RigAnimationController.hasActiveAnimation(this.mob);
+                && !DangerousReactionAnimations.isBusy(this.mob);
 
         if (!canUsePortal) {
             this.reactionPerformed = true;
@@ -70,7 +74,7 @@ public class HerobrinePortalDangerousReactionGoal extends Goal {
         this.mob.setAggressive(false);
         this.mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
         this.supportCaster.playPortalSupportAnimation(RigAnimationId.POINT_LEFT_HAND_TOWARD, target);
-        this.castAnimationStartTick = RigAnimationController.getActiveAnimationStartTick(this.mob);
+        this.castAnimationStartTick = DangerousReactionAnimations.animationStartTick(this.mob);
 
         if (this.castAnimationStartTick < 0) {
             this.reactionPerformed = true;
@@ -83,7 +87,7 @@ public class HerobrinePortalDangerousReactionGoal extends Goal {
         return !this.reactionPerformed
                 && this.mob.isAlive()
                 && !this.mob.isRemoved()
-                && RigAnimationController.getActiveAnimationId(this.mob) == RigAnimationId.POINT_LEFT_HAND_TOWARD;
+                && DangerousReactionAnimations.isPlaying(this.mob, RigAnimationId.POINT_LEFT_HAND_TOWARD);
     }
 
     @Override
@@ -110,5 +114,17 @@ public class HerobrinePortalDangerousReactionGoal extends Goal {
     @Override
     public boolean requiresUpdateEveryTick() {
         return true;
+    }
+
+    protected boolean canReact() {
+        return DangerousReaction.canReact(this.mob);
+    }
+
+    protected int getDangerousAnimationStartTick(LivingEntity target) {
+        return DangerousReactionAnimations.animationStartTick(target);
+    }
+
+    protected Object getDangerousAnimationKey(LivingEntity target) {
+        return DangerousReactionAnimations.isDangerous(target) ? DangerousReactionAnimations.animationKey(target) : null;
     }
 }

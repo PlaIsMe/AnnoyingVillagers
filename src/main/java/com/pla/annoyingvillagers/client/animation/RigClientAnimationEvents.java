@@ -16,6 +16,7 @@ public final class RigClientAnimationEvents {
         if (event.getLevel().isClientSide()) {
             RigClientAnimationState.clear();
             SpecialClientAnimationState.clear();
+            ObsidianArmorClientAnimationState.clear();
         }
     }
 }

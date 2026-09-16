@@ -1,6 +1,5 @@
 package com.pla.annoyingvillagers.entity.goal;
 
-import org.jetbrains.annotations.Nullable;
 import com.pla.annoyingvillagers.entity.NullEntity;
 import com.pla.annoyingvillagers.entity.NullSkeletonEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
@@ -9,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 
@@ -26,9 +26,18 @@ public class NullSummonSkeletonGoal extends AnimatedMobGoal {
 
     @Override
     public boolean canUse() {
-        return this.nullEntity.level() instanceof ServerLevel
-                && this.nullEntity.canSummonNullSkeleton()
+        return canStartSummoning(this.nullEntity)
                 && !this.isAnimationBusy();
+    }
+
+    /**
+     * Shared non-animation eligibility for alternate combat backends. The rig goal
+     * adds its own busy-animation check; Epic Fight checks that through its attack goal.
+     */
+    public static boolean canStartSummoning(NullEntity nullEntity) {
+        return nullEntity.level() instanceof ServerLevel
+                && nullEntity.isAlive()
+                && nullEntity.canSummonNullSkeleton();
     }
 
     @Override

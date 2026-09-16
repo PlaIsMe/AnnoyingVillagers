@@ -27,7 +27,7 @@ public abstract class HumanoidArmorLayerMixin<
                                         org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<A> cir) {
         // Forge supplies the exact stack that this armor pass is about to render. This
         // also covers player armor and custom RigArmorLayer subclasses.
-        ColoredGlintState.setTargetStack(stack);
+        ColoredGlintState.setTargetStack(stack, entity);
     }
 
     @Inject(
@@ -36,7 +36,7 @@ public abstract class HumanoidArmorLayerMixin<
     )
     private void av$setArmorTarget(PoseStack poseStack, MultiBufferSource bufferSource, T entity,
                                    EquipmentSlot slot, int packedLight, A model, CallbackInfo ci) {
-        ColoredGlintState.setTargetStack(entity.getItemBySlot(slot));
+        ColoredGlintState.setTargetStack(entity.getItemBySlot(slot), entity);
     }
 
     @Inject(

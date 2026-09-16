@@ -64,6 +64,9 @@ public class EnderSlayerScytheItem extends SwordItem implements RigCombatProfile
 
         HerobrineDragonEntity dragon = getTrackedDragon(player);
         if (dragon != null) {
+            if (dragon == player.getVehicle() && dragon.descendFromSpecialAttack(player)) {
+                return true;
+            }
             dragon.recallAndLand(true);
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             return true;
@@ -84,6 +87,13 @@ public class EnderSlayerScytheItem extends SwordItem implements RigCombatProfile
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         return true;
+    }
+
+    public static boolean activateMountedDragonDescent(Player player) {
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide()) return false;
+        if (!(player.getMainHandItem().getItem() instanceof EnderSlayerScytheItem)) return false;
+        HerobrineDragonEntity dragon = getTrackedDragon(player);
+        return dragon != null && dragon == player.getVehicle() && dragon.descendFromSpecialAttack(player);
     }
 
     public static boolean commandMeteor(Player player) {

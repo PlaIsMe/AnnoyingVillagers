@@ -3,9 +3,8 @@ package com.pla.annoyingvillagers.clazz;
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
 import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
 import com.pla.annoyingvillagers.entity.SteveEntity;
-import com.pla.annoyingvillagers.rig.RigAnimationController;
+import com.pla.annoyingvillagers.util.DangerousReactionAnimations;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
-import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.InventoryUtils;
@@ -43,7 +42,7 @@ public interface DangerousReaction {
     }
 
     default void performCommittedDangerousReaction(Mob mob) {
-        if (!(mob.level() instanceof ServerLevel) || !mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || mob.isNoAi() || RigStunController.isStunned(mob)) return;
+        if (!(mob.level() instanceof ServerLevel) || !mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || mob.isNoAi() || DangerousReactionAnimations.isStunned(mob)) return;
         this.performDangerousReactionNow(mob);
     }
 
@@ -66,7 +65,7 @@ public interface DangerousReaction {
 
         mob.getNavigation().stop();
         mob.getPersistentData().putInt(NBT_DANGEROUS_REACTION_TICK, mob.tickCount);
-        RigAnimationController.play(mob, this.getDangerousReactionAnimation(mob));
+        DangerousReactionAnimations.play(mob, this.getDangerousReactionAnimation(mob));
 
         double backMag = 0.55D + mob.getRandom().nextDouble() * 0.35D;
         double strafeMag = (mob.getRandom().nextBoolean() ? 1 : -1) * (0.05D + mob.getRandom().nextDouble() * 0.15D);
@@ -82,7 +81,7 @@ public interface DangerousReaction {
             new DelayedTask(delay) {
                 @Override
                 public void run() {
-                    if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || RigStunController.isStunned(mob)) return;
+                    if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || DangerousReactionAnimations.isStunned(mob)) return;
                     mob.setDeltaMovement(mob.getDeltaMovement().add(tail.x, 0.0D, tail.z));
                     mob.hasImpulse = true;
                 }
@@ -93,10 +92,10 @@ public interface DangerousReaction {
         new DelayedTask(jumpDelay) {
             @Override
             public void run() {
-                if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || !mob.onGround() || RigStunController.isStunned(mob)) return;
+                if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || !mob.onGround() || DangerousReactionAnimations.isStunned(mob)) return;
                 if (mob instanceof AVNpc avNpc) avNpc.shortPillarJump();
                 else mob.getJumpControl().jump();
-                RigAnimationController.play(mob, RigAnimationId.JUMP);
+                DangerousReactionAnimations.play(mob, RigAnimationId.JUMP);
             }
         };
 
@@ -123,13 +122,13 @@ public interface DangerousReaction {
         if (mob == null || !mob.getPersistentData().contains(NBT_DANGEROUS_REACTION_TICK)) return false;
         int delta = mob.tickCount - mob.getPersistentData().getInt(NBT_DANGEROUS_REACTION_TICK);
         if (delta < 0 || delta > DANGEROUS_REACTION_STATE_TICKS) return false;
-        RigAnimationId animationId = RigAnimationController.getActiveAnimationId(mob);
-        return animationId == RigAnimationId.ROLL_BACKWARD || animationId == RigAnimationId.STEP_BACKWARD;
+        return DangerousReactionAnimations.isPlaying(mob, RigAnimationId.ROLL_BACKWARD)
+                || DangerousReactionAnimations.isPlaying(mob, RigAnimationId.STEP_BACKWARD);
     }
 
     static boolean hasDangerousTarget(Mob mob) {
         LivingEntity target = mob == null ? null : mob.getTarget();
-        return target instanceof Mob targetMob && target.isAlive() && !target.isRemoved() && RigAnimationController.isDangerous(targetMob);
+        return target != null && target.isAlive() && !target.isRemoved() && DangerousReactionAnimations.isDangerous(target);
     }
 
     static boolean canReact(Mob mob) {
@@ -141,11 +140,11 @@ public interface DangerousReaction {
                 && !mob.isDeadOrDying()
                 && !mob.isNoAi()
                 && !(mob instanceof ReaperHerobrineEntity reaper && reaper.isSecondFormDragonRider())
-                && !RigStunController.isStunned(mob)
-                && target instanceof Mob targetMob
+                && !DangerousReactionAnimations.isStunned(mob)
+                && target != null
                 && target.isAlive()
                 && !target.isRemoved()
-                && RigAnimationController.isDangerous(targetMob)
+                && DangerousReactionAnimations.isDangerous(target)
                 && mob.distanceToSqr(target) <= DANGEROUS_REACTION_DISTANCE * DANGEROUS_REACTION_DISTANCE;
     }
 

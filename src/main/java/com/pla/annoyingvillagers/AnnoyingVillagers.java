@@ -181,6 +181,8 @@ public class AnnoyingVillagers {
                     ClientboundRigAnimation::handle
             );
             AnnoyingVillagers.addNetworkMessage(ClientboundSpecialAnimation.class, ClientboundSpecialAnimation::encode, ClientboundSpecialAnimation::decode, ClientboundSpecialAnimation::handle);
+            AnnoyingVillagers.addNetworkMessage(ClientboundObsidianArmorAnimation.class, ClientboundObsidianArmorAnimation::encode, ClientboundObsidianArmorAnimation::decode, ClientboundObsidianArmorAnimation::handle);
+            AnnoyingVillagers.addNetworkMessage(ServerboundActivateArmor.class, ServerboundActivateArmor::encode, ServerboundActivateArmor::decode, ServerboundActivateArmor::handle);
             AnnoyingVillagers.addNetworkMessage(ServerboundDestructionEyeAttack.class, ServerboundDestructionEyeAttack::encode, ServerboundDestructionEyeAttack::decode, ServerboundDestructionEyeAttack::handle);
             AnnoyingVillagers.addNetworkMessage(
                     ClientboundBetterCombatAnimation.class,

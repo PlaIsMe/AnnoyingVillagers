@@ -40,6 +40,48 @@ public final class PersistentPlayerNpcManager {
     private static boolean stopping;
     private PersistentPlayerNpcManager() {}
 
+    /** Removes the previous persistent identity so a spawn egg can replace it immediately. */
+    public static void replaceIdentityForSpawnEgg(MinecraftServer server, String identity) {
+        PersistentPlayerNpcData data = PersistentPlayerNpcData.get(server);
+        Set<UUID> replacedIds = new LinkedHashSet<>();
+
+        for (Session session : new ArrayList<>(SESSIONS.values())) {
+            if (session.identity.equals(identity)) replacedIds.add(session.id);
+        }
+        for (PersistentPlayerNpcData.Entry entry : data.entries()) {
+            if (entry.identity().equals(identity)) replacedIds.add(entry.npcId());
+        }
+        for (ServerLevel level : server.getAllLevels()) {
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof PersistentPlayerNpc npc
+                        && npc.persistentPlayerIdentity().equals(identity)) {
+                    replacedIds.add(entity.getUUID());
+                }
+            }
+        }
+
+        for (UUID id : replacedIds) {
+            Entity oldNpc = null;
+            for (ServerLevel level : server.getAllLevels()) {
+                oldNpc = level.getEntity(id);
+                if (oldNpc != null) break;
+            }
+            if (oldNpc instanceof PersistentPlayerNpc npc
+                    && npc.persistentPlayerIdentity().equals(identity)
+                    && !oldNpc.isRemoved()) {
+                oldNpc.discard();
+            }
+
+            Session remaining = SESSIONS.remove(id);
+            if (remaining != null) {
+                remaining.removeRow(server);
+                remaining.releaseTicket(server);
+            }
+            data.remove(id);
+            vacate(server.overworld(), identity, id);
+        }
+    }
+
     public static boolean isTabProfileName(String name) {
         if (name == null || name.length() != 16 || !name.startsWith("zzAVN")) return false;
         for (int i = 5; i < 16; i++) if (Character.digit(name.charAt(i), 16) < 0) return false;
@@ -250,8 +292,11 @@ public final class PersistentPlayerNpcManager {
                 if (skin != null) skin.apply(profile);
                 tabPlayer = new FakePlayer(level, profile) {
                     @Override public Component getTabListDisplayName() {
-                        return Component.literal("[NPC] ").withStyle(ChatFormatting.GRAY)
-                                .append(Component.literal(identity));
+                        if (AnnoyingVillagersConfig.NPC_PREFIX.get()) {
+                            return Component.literal("[NPC] ").withStyle(ChatFormatting.GRAY)
+                                    .append(Component.literal(identity));
+                        }
+                        return Component.literal(identity);
                     }
                 };
                 tabPlayer.setGameMode(GameType.SPECTATOR);

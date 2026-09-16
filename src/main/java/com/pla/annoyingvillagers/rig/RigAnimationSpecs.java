@@ -83,6 +83,14 @@ public final class RigAnimationSpecs {
     private static final RigCollider LEFT_ELBOW = RigCollider.of(LEFT_ARM, BODY);
 
     static {
+        for (RigAnimationId idle : new RigAnimationId[]{
+                RigAnimationId.SIT, RigAnimationId.LAY, RigAnimationId.PUSH_UP,
+                RigAnimationId.SLIGHT, RigAnimationId.SLEEP, RigAnimationId.LAY_RELAX_EMOTE,
+                RigAnimationId.ONE_ARM_LAY_EMOTE, RigAnimationId.SIT_NO_WEAPON_EMOTE,
+                RigAnimationId.SORROW_EMOTE, RigAnimationId.FUN_JUMP_EMOTE,
+                RigAnimationId.JUMP_EMOTE, RigAnimationId.PRONE_EMOTE}) {
+            put(RigAnimationSpec.nonDamaging(idle, 240));
+        }
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_AIM_DOWN, 14, RigAnimationPlaybackType.UPPER_BODY));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_AIM_MID, 14, RigAnimationPlaybackType.UPPER_BODY));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BOW_AIM_UP, 14, RigAnimationPlaybackType.UPPER_BODY));

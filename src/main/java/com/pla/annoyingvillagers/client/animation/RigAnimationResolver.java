@@ -222,6 +222,21 @@ public final class RigAnimationResolver {
             case POINT_LEFT_HAND_TOWARD -> LivingAnimations.POINT_LEFT_HAND_TOWARD;
             case POINT_LEFT_HAND_MIDDLE -> LivingAnimations.POINT_LEFT_HAND_MIDDLE;
             case POINT_LEFT_HAND_UP -> LivingAnimations.POINT_LEFT_HAND_UP;
+            case DIG_MAINHAND -> LivingAnimations.DIG_MAINHAND;
+            case USE_MAINHAND -> LivingAnimations.USE_MAINHAND;
+
+            case SIT -> EmoteAnimations1.SIT_EMOTE;
+            case LAY -> EmoteAnimations1.LAY_EMOTE;
+            case PUSH_UP -> EmoteAnimations1.PUSH_UP_EMOTE;
+            case SLIGHT -> EmoteAnimations1.SLIGHT_EMOTE;
+            case SLEEP -> EmoteAnimations1.DEATH_EMOTE;
+            case LAY_RELAX_EMOTE -> EmoteAnimations1.LAY_RELAX_EMOTE;
+            case ONE_ARM_LAY_EMOTE -> EmoteAnimations1.ONE_ARM_LAY_EMOTE;
+            case SIT_NO_WEAPON_EMOTE -> EmoteAnimations1.SIT_NO_WEAPON_EMOTE;
+            case SORROW_EMOTE -> EmoteAnimations1.SORROW_EMOTE;
+            case FUN_JUMP_EMOTE -> EmoteAnimations1.FUN_JUMP_EMOTE;
+            case JUMP_EMOTE -> EmoteAnimations1.JUMP_EMOTE;
+            case PRONE_EMOTE -> EmoteAnimations1.PRONE_EMOTE;
 
             case RUN -> RunAnimations.RUN;
             case RUN_HOLDING_DUAL_WEAPON -> RunAnimations.RUN_HOLDING_DUAL_WEAPON;
@@ -409,8 +424,6 @@ public final class RigAnimationResolver {
             case DUAL_OBSIDIAN_SWORD_DASH_ATTACK -> ObsidianAnimations4.DUAL_OBSIDIAN_SWORD_DASH_ATTACK;
             case DUAL_OBSIDIAN_SWORD_EXTRA_ATTACK -> ObsidianAnimations4.DUAL_OBSIDIAN_SWORD_EXTRA_ATTACK;
             case DUAL_OBSIDIAN_SWORD_ULT -> ObsidianAnimations4.DUAL_OBSIDIAN_SWORD_ULT;
-            case DIG_MAINHAND -> RecoveryAnimations.DIG_MAINHAND;
-            case USE_MAINHAND -> RecoveryAnimations.USE_MAINHAND;
         };
     }
 }

@@ -4,17 +4,14 @@ import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
 import com.pla.annoyingvillagers.entity.ReaperHerobrineEntity;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
-import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
-import com.pla.annoyingvillagers.rig.RigStunController;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.goal.Goal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class MountOrDismountDragonGoal extends Goal {
+public class MountOrDismountDragonGoal extends AnimatedMobGoal {
     private static final int MIN_COOLDOWN_TICKS = 20 * 60;
     private static final int RANDOM_COOLDOWN_TICKS = 20 * 60 * 2 + 1;
     private static final int RETRY_COOLDOWN_TICKS = 20;
@@ -31,8 +28,10 @@ public class MountOrDismountDragonGoal extends Goal {
      * state 2, the action is due immediately.
      */
     private int nextActionTick = -1;
+    private boolean dragonCallStarted;
 
     public MountOrDismountDragonGoal(ReaperHerobrineEntity reaper) {
+        super(reaper);
         this.reaper = reaper;
 
         /*
@@ -68,7 +67,7 @@ public class MountOrDismountDragonGoal extends Goal {
         }
 
         // Never interrupt the actual summon process or a stun.
-        if (this.reaper.isDragonSummonPending() || RigStunController.isStunned(this.reaper)) {
+        if (this.reaper.isDragonSummonPending() || this.isAnimationStunned()) {
             return false;
         }
 
@@ -82,6 +81,7 @@ public class MountOrDismountDragonGoal extends Goal {
 
     @Override
     public void start() {
+        this.dragonCallStarted = false;
         this.reaper.getNavigation().stop();
         this.reaper.setAggressive(false);
 
@@ -110,23 +110,22 @@ public class MountOrDismountDragonGoal extends Goal {
             RigAnimationController.stop(this.reaper, activeAnimation);
         }
 
-        RigAnimationController.play(
-                this.reaper,
-                RigAnimationSpecs.get(RigAnimationId.REAPER_HEROBRINE_EXTRA_ULT),
-                this.reaper.getTarget()
-        );
+        this.playGoalAnimation(RigAnimationId.REAPER_HEROBRINE_EXTRA_ULT, this.reaper.getTarget());
 
-        if (RigAnimationController.getActiveAnimationId(this.reaper)
-                != RigAnimationId.REAPER_HEROBRINE_EXTRA_ULT) {
+        if (!this.isGoalAnimationPlaying(RigAnimationId.REAPER_HEROBRINE_EXTRA_ULT)) {
+            this.finishGoalAnimation();
             scheduleRetry();
             return;
         }
+        this.dragonCallStarted = true;
 
-        // Block normal melee/profile attacks for the whole dragon-call animation.
-        RigAnimationController.lockProfileAttacksFor(
-                this.reaper,
-                RigAnimationId.REAPER_HEROBRINE_EXTRA_ULT
-        );
+        // Replacement backends own their combat lock through the animation hooks.
+        if (!this.usesAnimationEvents()) {
+            RigAnimationController.lockProfileAttacksFor(
+                    this.reaper,
+                    RigAnimationId.REAPER_HEROBRINE_EXTRA_ULT
+            );
+        }
 
         /*
          * A stale recallActive flag must not make a live dragon permanently
@@ -139,7 +138,16 @@ public class MountOrDismountDragonGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        return false;
+        return this.dragonCallStarted && isReaperUsable() && !this.isAnimationStunned()
+                && this.isGoalAnimationPlaying(RigAnimationId.REAPER_HEROBRINE_EXTRA_ULT);
+    }
+
+    @Override
+    public void stop() {
+        if (this.dragonCallStarted) {
+            this.finishGoalAnimation();
+            this.dragonCallStarted = false;
+        }
     }
 
     @Override

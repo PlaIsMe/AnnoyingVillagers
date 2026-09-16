@@ -1,9 +1,12 @@
 package com.pla.annoyingvillagers.client.renderer;
 
+import com.pla.annoyingvillagers.entity.ArmoredHerobrineEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
+import com.pla.annoyingvillagers.item.HerobrineObsidianArmorCharge;
 import com.pla.annoyingvillagers.util.GlintColorHelper;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 public final class ColoredGlintState {
@@ -26,6 +29,10 @@ public final class ColoredGlintState {
     }
 
     public static void setTargetStack(ItemStack stack) {
+        setTargetStack(stack, null);
+    }
+
+    public static void setTargetStack(ItemStack stack, LivingEntity wearer) {
         int mode = GlintColorHelper.getColor(stack);
 
         if (mode == NONE) {
@@ -33,6 +40,8 @@ public final class ColoredGlintState {
                 mode = ORANGE;
             } else if (stack.is(AnnoyingVillagersModItems.RED_AXE.get()) || stack.is(AnnoyingVillagersModItems.GIANT_RED_AXE.get())) {
                 mode = RED;
+            } else if (HerobrineObsidianArmorCharge.isObsidianArmor(stack) && (HerobrineObsidianArmorCharge.isFullyCharged(stack) || HerobrineObsidianArmorCharge.hasForcedPurpleFoil(stack) || wearer instanceof ArmoredHerobrineEntity)) {
+                mode = PURPLE;
             } else if (
                     (stack.is(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get()) && BlueDemonTridentItem.isFullyCharged(stack))
                             || (stack.is(AnnoyingVillagersModItems.BLUE_DEMON_CHESTPLATE.get())

@@ -3,9 +3,11 @@ package com.pla.annoyingvillagers.entity;
 import com.pla.annoyingvillagers.clazz.Difficulty;
 import com.pla.annoyingvillagers.clazz.RollItemUser;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
+import com.pla.annoyingvillagers.entity.goal.ArmoredHerobrineArmorGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.item.HerobrineObsidianArmorCharge;
 import com.pla.annoyingvillagers.item.ShadowObsidianSwordItem;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
@@ -44,10 +46,31 @@ public class ArmoredHerobrineEntity extends HerobrineMob implements RollItemUser
         this.setCustomName(this.getDisplayName());
         this.setCustomNameVisible(true);
         this.setPersistenceRequired();
-        this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(AnnoyingVillagersModItems.HEROBRINE_OBSIDIAN_DIAMOND_HELMET.get()));
-        this.setItemSlot(EquipmentSlot.CHEST, new ItemStack(AnnoyingVillagersModItems.HEROBRINE_OBSIDIAN_DIAMOND_CHESTPLATE.get()));
+        ItemStack helmet = new ItemStack(AnnoyingVillagersModItems.HEROBRINE_OBSIDIAN_DIAMOND_HELMET.get());
+        ItemStack chestplate = new ItemStack(AnnoyingVillagersModItems.HEROBRINE_OBSIDIAN_DIAMOND_CHESTPLATE.get());
+        HerobrineObsidianArmorCharge.setForcedPurpleFoil(helmet, true);
+        HerobrineObsidianArmorCharge.setForcedPurpleFoil(chestplate, true);
+        this.setItemSlot(EquipmentSlot.HEAD, helmet);
+        this.setItemSlot(EquipmentSlot.CHEST, chestplate);
         this.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get()));
         this.setChatName(this.getDisplayName().getString());
+    }
+
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(1, new ArmoredHerobrineArmorGoal(this));
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        keepObsidianArmorPurple(this.getItemBySlot(EquipmentSlot.HEAD));
+        keepObsidianArmorPurple(this.getItemBySlot(EquipmentSlot.CHEST));
+    }
+
+    private static void keepObsidianArmorPurple(ItemStack stack) {
+        if (HerobrineObsidianArmorCharge.isObsidianArmor(stack) && !HerobrineObsidianArmorCharge.hasForcedPurpleFoil(stack)) HerobrineObsidianArmorCharge.setForcedPurpleFoil(stack, true);
     }
 
     public boolean hurt(@NotNull DamageSource damagesource, float f) {

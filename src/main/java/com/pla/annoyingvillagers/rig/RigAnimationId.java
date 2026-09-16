@@ -235,6 +235,25 @@ public enum RigAnimationId {
     RUN,
     RUN_HOLDING_DUAL_WEAPON,
     RUN_HOLDING_WEAPON,
+    SHOCKED,
+    SHOCKED_LONG,
+    FALL,
+    LANDING,
+    DIG_MAINHAND,
+    USE_MAINHAND,
+
+    SIT,
+    LAY,
+    PUSH_UP,
+    SLIGHT,
+    SLEEP,
+    LAY_RELAX_EMOTE,
+    ONE_ARM_LAY_EMOTE,
+    SIT_NO_WEAPON_EMOTE,
+    SORROW_EMOTE,
+    FUN_JUMP_EMOTE,
+    JUMP_EMOTE,
+    PRONE_EMOTE,
 
     DUAL_LONGSWORD_ATTACK1,
     DUAL_LONGSWORD_ATTACK2,
@@ -363,13 +382,7 @@ public enum RigAnimationId {
     TACHI_IDLE,
     TACHI_RUN,
     TACHI_WALK,
-    TACHI_ULT,
-    SHOCKED,
-    SHOCKED_LONG,
-    FALL,
-    LANDING,
-    DIG_MAINHAND,
-    USE_MAINHAND;
+    TACHI_ULT;
 
     private static final RigAnimationId[] VALUES = values();
 

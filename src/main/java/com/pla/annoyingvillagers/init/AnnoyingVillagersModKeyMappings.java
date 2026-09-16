@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.network.ServerboundActivateArmor;
 import com.pla.annoyingvillagers.network.SpecialAttackMessage;
 import com.pla.annoyingvillagers.network.ThrowingEnderPearlMessage;
 import net.minecraft.client.Camera;
@@ -77,8 +78,8 @@ public class AnnoyingVillagersModKeyMappings {
         }
     };
 
-    public static final KeyMapping DRAGON_FLIGHT_DESCENT_KEY = new KeyMapping(
-            "key.annoyingvillagers.dragon_flight_descent",
+    public static final KeyMapping ACTIVATE_ARMOR = new KeyMapping(
+            "key.annoyingvillagers.activate_armor",
             GLFW.GLFW_KEY_Z,
             "key.categories.annoyingvillagers"
     );
@@ -87,7 +88,7 @@ public class AnnoyingVillagersModKeyMappings {
     public static void registerKeyBindings(RegisterKeyMappingsEvent event) {
         event.register(SPECIAL_ATTACK);
         event.register(THROW_ENDER_PEARL);
-        event.register(DRAGON_FLIGHT_DESCENT_KEY);
+        event.register(ACTIVATE_ARMOR);
     }
 
     private static SpecialAttackMessage createSpecialAttackMessage(int type, int heldTicks) {
@@ -130,6 +131,7 @@ public class AnnoyingVillagersModKeyMappings {
             if (mc.screen == null) {
                 SPECIAL_ATTACK.consumeClick();
                 THROW_ENDER_PEARL.consumeClick();
+                while (ACTIVATE_ARMOR.consumeClick()) AnnoyingVillagers.PACKET_HANDLER.sendToServer(new ServerboundActivateArmor());
             }
         }
     }

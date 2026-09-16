@@ -565,8 +565,10 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
-        if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
-            ServerLevel serverLevel = serverLevelAccessor.getLevel();
+        ServerLevel serverLevel = serverLevelAccessor.getLevel();
+        if (mobSpawnType == MobSpawnType.SPAWN_EGG) {
+            PersistentPlayerNpcManager.replaceIdentityForSpawnEgg(serverLevel.getServer(), "Steve");
+        } else if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
             SteveData steveData = SteveData.get(serverLevel);
 
             if (!steveData.tryClaim(serverLevel, this.getUUID())) {

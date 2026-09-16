@@ -9,6 +9,7 @@ public class AnnoyingVillagersConfig {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec SPEC;
     public static ForgeConfigSpec.BooleanValue FORCE_TICK_MOBS;
+    public static ForgeConfigSpec.BooleanValue NPC_PREFIX;
     public static ForgeConfigSpec.BooleanValue REMOTE_NPC_DEPARTURE_ENABLED;
     public static ForgeConfigSpec.IntValue REMOTE_NPC_DEPARTURE_MIN_MINUTES;
     public static ForgeConfigSpec.IntValue REMOTE_NPC_DEPARTURE_MAX_MINUTES;
@@ -34,6 +35,11 @@ public class AnnoyingVillagersConfig {
                         "Keep ForceTickEntity mobs ticking remotely (Herobrine mobs, Null weapons, Blue Demon, BBQ and Jev).",
                         "Disabling releases their runtime chunk tickets; player-like Steve/Alex/Chris sessions have separate ownership.")
                 .define("forceTickMobs", true);
+
+        NPC_PREFIX = BUILDER.comment(
+                        "Show the gray [NPC] prefix for Steve, Alex and Chris in the multiplayer player list.",
+                        "Disabled by default so these NPCs look like normal players in the list.")
+                .define("npcPrefix", false);
 
         BUILDER.push("remoteNpcDeparture");
         REMOTE_NPC_DEPARTURE_ENABLED = BUILDER.comment("Allow force-ticked NPCs to leave when no external chunk loader covers them.")
