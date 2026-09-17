@@ -25,6 +25,7 @@
     "FishingHookAccessor",
     "FishingHookReturnMixin",
     "BoatMixin",
+    "MinecartMixin",
     "compat.smartnpc.PlayerNpcEntityMixin",
     "compat.smartnpc.ProgressionEventMixin",
     "compat.smartnpc.ProgressionUtilMixin",

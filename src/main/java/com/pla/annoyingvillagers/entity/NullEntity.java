@@ -144,6 +144,21 @@ public class NullEntity extends HerobrineMob {
         }
     }
 
+    public boolean reconnectNullWeapon(String slot, NullWeapon nullWeapon) {
+        UUID weaponUUID = nullWeapon.getUUID();
+        UUID trackedUUID = switch (slot) {
+            case "sword" -> this.nullSwordUUID;
+            case "pickaxe" -> this.nullPickaxeUUID;
+            case "axe" -> this.nullAxeUUID;
+            case "hoe" -> this.nullHoeUUID;
+            default -> this.nullShovelUUID;
+        };
+        if (trackedUUID != null && !trackedUUID.equals(weaponUUID)) return false;
+
+        this.setNullWeapon(slot, nullWeapon);
+        return true;
+    }
+
     public NullEntity(SpawnEntity spawnEntity, Level level) {
         this(AnnoyingVillagersModEntities.NULL.get(), level);
     }
@@ -378,40 +393,35 @@ public class NullEntity extends HerobrineMob {
                 Entity entity = ((ServerLevel) this.level()).getEntity(nullSwordUUID);
                 if (entity instanceof NullWeapon nullSword) {
                     this.nullSwordEntity = nullSword;
-                } else {
-                    this.nullSwordUUID = null;
+                    nullSword.setNullEntity(this);
                 }
             }
             if (nullAxeEntity == null && nullAxeUUID != null) {
                 Entity entity = ((ServerLevel) this.level()).getEntity(nullAxeUUID);
                 if (entity instanceof NullWeapon nullAxe) {
                     this.nullAxeEntity = nullAxe;
-                } else {
-                    this.nullAxeUUID = null;
+                    nullAxe.setNullEntity(this);
                 }
             }
             if (nullPickaxeEntity == null && nullPickaxeUUID != null) {
                 Entity entity = ((ServerLevel) this.level()).getEntity(nullPickaxeUUID);
                 if (entity instanceof NullWeapon nullPickaxe) {
                     this.nullPickaxeEntity = nullPickaxe;
-                } else {
-                    this.nullPickaxeUUID = null;
+                    nullPickaxe.setNullEntity(this);
                 }
             }
             if (nullShovelEntity == null && nullShovelUUID != null) {
                 Entity entity = ((ServerLevel) this.level()).getEntity(nullShovelUUID);
                 if (entity instanceof NullWeapon nullShovel) {
                     this.nullShovelEntity = nullShovel;
-                } else {
-                    this.nullShovelUUID = null;
+                    nullShovel.setNullEntity(this);
                 }
             }
             if (nullHoeEntity == null && nullHoeUUID != null) {
                 Entity entity = ((ServerLevel) this.level()).getEntity(nullHoeUUID);
                 if (entity instanceof NullWeapon nullHoe) {
                     this.nullHoeEntity = nullHoe;
-                } else {
-                    nullHoeUUID = null;
+                    nullHoe.setNullEntity(this);
                 }
             }
 

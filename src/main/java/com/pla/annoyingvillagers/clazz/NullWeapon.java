@@ -21,6 +21,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -54,6 +57,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 public class NullWeapon extends Monster implements ForceTickEntity, RigStunnableEntity {
+    private static final EntityDataAccessor<Boolean> DATA_SPINNING = SynchedEntityData.defineId(NullWeapon.class, EntityDataSerializers.BOOLEAN);
     protected UUID nullUUID;
     protected NullEntity nullEntity;
 
@@ -61,10 +65,10 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     protected Player player;
 
     protected String weapon;
-    private boolean spinning = false;
     private int spinAnimationSequence = 0;
     private int randomSpinCooldown = 120;
     private int weaponAttackCooldown = 0;
+    private boolean suppressRemovalDrop;
     private int releaseCooldown = 0;
     private UUID releaseTargetUUID;
     private LivingEntity releaseTarget;
@@ -202,8 +206,8 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     public void setSpinning(boolean spinning) {
-        if (this.spinning == spinning) return;
-        this.spinning = spinning;
+        if (this.isSpinning() == spinning) return;
+        this.entityData.set(DATA_SPINNING, spinning);
         this.spinAnimationSequence++;
 
         if (this.level().isClientSide) return;
@@ -215,7 +219,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     public boolean isSpinning() {
-        return spinning;
+        return this.entityData.get(DATA_SPINNING);
     }
 
     public void setReleased(boolean released) {
@@ -227,27 +231,9 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     public void spinfor5seconds() {
-//      ADD THIS CODE IN AV_EFM
-
-//        final LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(this, LivingEntityPatch.class);
-//        if (livingEntityPatch != null) {
-//            livingEntityPatch.playAnimationSynchronized(AnimsWom.GLOWING_AGONY_GUARD, 0.0F);
-//            new DelayedTask(100) {
-//                @Override
-//                public void run() {
-//                    livingEntityPatch.playAnimationSynchronized(AVAnimations.IDLE_BREAK, 0.0F);
-//                }
-//            };
-//        }
-
-//        Create VANILLA_ANIMATION
         if (this.level().isClientSide || !this.isAlive() || this.isRemoved()) return;
 
-        if (this.spinning) {
-            this.spinning = false;
-            this.spinAnimationSequence++;
-            RigAnimationController.stop(this, RigAnimationId.SPINNING_WEAPON);
-        }
+        if (this.isSpinning()) this.setSpinning(false);
         this.setSpinning(true);
         final int sequence = this.spinAnimationSequence;
         new DelayedTask(100) {
@@ -307,6 +293,12 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
 
     public NullEntity getNullEntity() {
         return nullEntity;
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_SPINNING, false);
     }
 
     protected NullWeapon(EntityType<? extends Monster> pEntityType, Level pLevel) {
@@ -422,7 +414,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
                 RigAnimationId activeAnimation = RigAnimationController.getActiveAnimationId(NullWeapon.this);
                 if (distanceSqr <= 12.25D && NullWeapon.this.weaponAttackCooldown <= 0
                         && (activeAnimation == null || activeAnimation == RigAnimationId.SPINNING_WEAPON)) {
-                    if (NullWeapon.this.spinning) NullWeapon.this.setSpinning(false);
+                    if (NullWeapon.this.isSpinning()) NullWeapon.this.setSpinning(false);
 
                     RigAnimationId attack = switch (NullWeapon.this.getRandom().nextInt(3)) {
                         case 0 -> RigAnimationId.SWORD_ATTACK1;
@@ -612,20 +604,6 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     private static boolean isAllowedHeldCategory(Player p) {
-//      ADD THIS CODE IN AV_EFM
-
-//        ItemStack main = p.getMainHandItem();
-//
-//        if (main.getItem() instanceof NullWeaponItem) return true;
-//
-//        CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(main);
-//        if (!(cap instanceof WeaponCapability weaponCap)) return true;
-//
-//        var cat = weaponCap.getWeaponCategory();
-//        return cat == CapabilityItem.WeaponCategories.BOW
-//                || cat == CapabilityItem.WeaponCategories.CROSSBOW
-//                || cat == CapabilityItem.WeaponCategories.NOT_WEAPON;
-
         return true;
     }
 
@@ -682,9 +660,12 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
             if (nullEntity == null && nullUUID != null) {
                 Entity entity = ((ServerLevel) level()).getEntity(nullUUID);
                 if (entity instanceof NullEntity entityNull) {
+                    if (!entityNull.reconnectNullWeapon(this.weapon, this)) {
+                        this.suppressRemovalDrop = true;
+                        this.discard();
+                        return;
+                    }
                     this.nullEntity = entityNull;
-                } else {
-                    this.nullEntity = null;
                 }
             }
             if (nullEntity != null && !nullEntity.isAlive()) {
@@ -712,7 +693,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
 
         if (!this.level().isClientSide) {
             if (this.randomSpinCooldown > 0) this.randomSpinCooldown--;
-            if (!this.released && !this.spinning && this.randomSpinCooldown <= 0) {
+            if (!this.released && !this.isSpinning() && this.randomSpinCooldown <= 0) {
                 this.randomSpinCooldown = 180 + this.getRandom().nextInt(321);
                 this.spinfor5seconds();
             }
@@ -730,8 +711,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
 
         if (!this.level().isClientSide) this.correctExcessiveVerticalDrift();
 
-        // Player-owned weapons no longer have Epic Fight's skill tick to drive the legacy
-        // ten-tick teleport. Null-owned weapons are still driven by NullEntity itself.
+        // Player-owned weapons use this entity tick to drive the legacy ten-tick teleport.
         if (!this.level().isClientSide && this.player != null && this.tickCount % 10 == 0) this.processTeleportByPlayer();
 
         if (this.releaseCooldown > 0) this.releaseCooldown--;
@@ -847,7 +827,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
 
     @Override
     public void remove(@NotNull RemovalReason pReason) {
-        if (this.spinning && !this.level().isClientSide) this.setSpinning(false);
+        if (this.isSpinning() && !this.level().isClientSide) this.setSpinning(false);
         if (this.level() instanceof ServerLevel serverLevel) {
             if (this.player != null) {
                 String trackingKey = this.getPlayerTrackingKey();
@@ -855,7 +835,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
                 if (playerData.hasUUID(trackingKey) && this.getUUID().equals(playerData.getUUID(trackingKey))) {
                     playerData.remove(trackingKey);
                 }
-            } else {
+            } else if (!this.suppressRemovalDrop) {
                 var item = new ItemEntity(serverLevel, this.getX(), this.getY(), this.getZ(), this.getMainHandItem());
                 item.setPickUpDelay(10);
                 serverLevel.addFreshEntity(item);
