@@ -4,7 +4,7 @@ This project incorporates assets, code references, and logic from the following 
 
 ## Third-Party Code & Assets
 
-* **Epic Fight** by Epic Fight Team `[GPL-3.0]` - Fracture block logic and particle behavior references. ([Source](https://github.com/Antikythera-Studios/epicfight))
+* **Epic Fight** by Epic Fight Team `[GPL-3.0]` - Fracture block logic and particle behavior references, Sword Trail logic. ([Source](https://github.com/Antikythera-Studios/epicfight))
 * **Epic Fight Sound Overhaul** by William_Ashenhart `[Authorized Use]` - Sword and movement sound assets. ([Link](https://www.curseforge.com/minecraft/texture-packs/epic-fight-sound-overhaul))
 * **Epic Fight: Impactful** by namelesslk `[LGPL-2.1]` - Camera engine and camera shake references. ([Source](https://github.com/Cyber2049/Epic-Fight-Impactful))
 * **EpicFight-Awaken** by ShelMarow `[GPL-3.0]` - Vacuum Slice entity. ([Link](https://www.curseforge.com/members/shelmarow/projects))

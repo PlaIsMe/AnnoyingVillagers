@@ -298,7 +298,8 @@ public final class ClientPacketHandlers {
             return;
         }
 
-        RigClientAnimationState.start(msg.entityId(), msg.animationId(), msg.durationTicks());
+        RigClientAnimationState.start(msg.entityId(), msg.animationId(), msg.durationTicks(),
+                msg.trailStartTick(), msg.trailEndTickExclusive());
     }
 
     public static void handleBlackFire(ClientboundBlackFireFx msg) {

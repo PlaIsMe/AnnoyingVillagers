@@ -21,7 +21,8 @@ public final class RigClientAnimationState {
     private RigClientAnimationState() {
     }
 
-    public static void start(int entityId, RigAnimationId animationId, int durationTicks) {
+    public static void start(int entityId, RigAnimationId animationId, int durationTicks,
+                             int trailStartTick, int trailEndTickExclusive) {
         if (durationTicks <= 0) {
             ACTIVE_ANIMATIONS.remove(entityId);
             return;
@@ -31,7 +32,7 @@ public final class RigClientAnimationState {
         int startTick = entity == null ? 0 : entity.tickCount;
         UUID entityUuid = entity == null ? null : entity.getUUID();
         Active active = new Active(animationId, entityUuid, startTick, durationTicks,
-                DEFAULT_BLEND_IN_TICKS, DEFAULT_BLEND_OUT_TICKS);
+                DEFAULT_BLEND_IN_TICKS, DEFAULT_BLEND_OUT_TICKS, trailStartTick, trailEndTickExclusive);
         ACTIVE_ANIMATIONS.put(entityId, active);
     }
 
@@ -68,7 +69,14 @@ public final class RigClientAnimationState {
     }
 
     public record Active(RigAnimationId animationId, UUID entityUuid, int startedAtTick, int durationTicks,
-                         int blendInTicks, int blendOutTicks) {
+                         int blendInTicks, int blendOutTicks, int trailStartTick, int trailEndTickExclusive) {
+        public boolean hasTrailWindow() {
+            return this.trailStartTick >= 0 && this.trailEndTickExclusive > this.trailStartTick;
+        }
+
+        public boolean trailWindowContains(float elapsedTicks) {
+            return this.hasTrailWindow() && elapsedTicks >= this.trailStartTick && elapsedTicks < this.trailEndTickExclusive;
+        }
         public float elapsedTicks(float ageInTicks) {
             return Math.max(0.0F, ageInTicks - this.startedAtTick);
         }

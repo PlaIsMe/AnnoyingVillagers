@@ -58,7 +58,7 @@ public final class RigAnimationController {
                 baseSpec.playbackType()
         );
         recordActiveAnimation(mob, heldSpec);
-        sendAnimation(mob, animationId, HELD_POSE_DURATION_TICKS);
+        sendAnimation(mob, heldSpec);
     }
 
     public static void stop(Mob mob, RigAnimationId animationId) {
@@ -72,7 +72,7 @@ public final class RigAnimationController {
         }
 
         if (ACTIVE_ANIMATIONS.remove(mob.getUUID(), state)) {
-            sendAnimation(mob, animationId, 0);
+            sendAnimationStop(mob, animationId);
         }
     }
 
@@ -120,7 +120,7 @@ public final class RigAnimationController {
         runHooks(mob, spec, RigAnimationSpec.RigTimedAnimationHook.START);
         scheduleTimedHooks(mob, spec, state);
         scheduleAnimationEnd(mob, spec, state);
-        sendAnimation(mob, spec.animationId(), spec.durationTicks());
+        sendAnimation(mob, spec);
         scheduleRigSounds(mob, spec);
         scheduleAnimationMotion(mob, target, spec, state);
         if (spec.damagesTarget()) scheduleCollisions(mob, spec, state);
@@ -233,8 +233,33 @@ public final class RigAnimationController {
         return ACTIVE_ANIMATIONS.get(mob.getUUID()) == state;
     }
 
-    private static void sendAnimation(Mob mob, RigAnimationId animationId, int durationTicks) {
-        AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundRigAnimation(mob.getId(), animationId, durationTicks));
+    private static void sendAnimation(Mob mob, RigAnimationSpec spec) {
+        int trailStartTick = ClientboundRigAnimation.NO_TRAIL_TICK;
+        int trailEndTickExclusive = ClientboundRigAnimation.NO_TRAIL_TICK;
+
+        if (spec.damagesTarget() && spec.attackWindows().length > 0) {
+            // A multi-window attack intentionally has one continuous visual trail span.
+            // Example: windows [2,8) and [13,20) produce a trail span [2,20).
+            trailStartTick = spec.firstAttackWindowStartTick();
+            trailEndTickExclusive = spec.lastAttackWindowEndTick();
+        } else if (spec.animationId() == RigAnimationId.SPINNING_WEAPON) {
+            // NullWeapon's held spinning pose is explicitly started/stopped by the server.
+            trailStartTick = 0;
+            trailEndTickExclusive = spec.durationTicks();
+        }
+
+        AnnoyingVillagers.PACKET_HANDLER.send(
+                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
+                new ClientboundRigAnimation(mob.getId(), spec.animationId(), spec.durationTicks(), trailStartTick, trailEndTickExclusive)
+        );
+    }
+
+    private static void sendAnimationStop(Mob mob, RigAnimationId animationId) {
+        AnnoyingVillagers.PACKET_HANDLER.send(
+                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
+                new ClientboundRigAnimation(mob.getId(), animationId, 0,
+                        ClientboundRigAnimation.NO_TRAIL_TICK, ClientboundRigAnimation.NO_TRAIL_TICK)
+        );
     }
 
     private static void scheduleAnimationEnd(Mob mob, RigAnimationSpec spec, ActiveAnimationState state) {

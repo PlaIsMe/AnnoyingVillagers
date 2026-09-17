@@ -22,7 +22,16 @@ public final class RigPoseSampler {
     }
 
     public static RigPartTransform sample(Mob mob, RigAnimationId animationId, float elapsedTicks, RigColliderAnchor anchor, float bodyYaw) {
-        return toWorld(sampleLocal(animationId, elapsedTicks, anchor), mob.position(), bodyYaw);
+        return sample(animationId, elapsedTicks, anchor, mob.position(), bodyYaw);
+    }
+
+    /**
+     * Samples a rig anchor at an explicit interpolated owner position/yaw. This is used by
+     * world-space trail sampling so camera transforms never become part of trail history.
+     */
+    public static RigPartTransform sample(RigAnimationId animationId, float elapsedTicks, RigColliderAnchor anchor,
+                                          Vec3 entityPosition, float bodyYaw) {
+        return toWorld(sampleLocal(animationId, elapsedTicks, anchor), entityPosition, bodyYaw);
     }
 
     public static RigPartTransform sampleLocal(RigAnimationId animationId, float elapsedTicks, RigColliderAnchor anchor) {

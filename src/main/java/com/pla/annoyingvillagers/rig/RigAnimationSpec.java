@@ -110,6 +110,13 @@ public record RigAnimationSpec(RigAnimationId animationId, int durationTicks, Ri
         return impactDelayTicks;
     }
 
+    public int firstAttackWindowStartTick() {
+        if (!this.damagesTarget || this.attackWindows.length == 0) return 0;
+        int firstStartTick = Integer.MAX_VALUE;
+        for (RigAttackWindow attackWindow : this.attackWindows) firstStartTick = Math.min(firstStartTick, attackWindow.startTickInclusive());
+        return firstStartTick;
+    }
+
     public int lastAttackWindowEndTick() {
         if (!this.damagesTarget || this.attackWindows.length == 0) return this.durationTicks;
         int lastEndTick = 0;

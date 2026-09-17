@@ -516,8 +516,23 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         } else {
             this.offWeaponItem = ItemStack.EMPTY;
         }
-        this.voiceCooldown = tag.getInt("VoiceCooldown");
         this.mainWeaponDisarmed = tag.getBoolean("MainWeaponDisarmed");
+
+        // A bow equipped by AVNpcRangedBowAttackGoal is temporary.  The goal's
+        // previous-hands fields are not persisted, so after a reload a temporary
+        // bow would otherwise look like the NPC's permanent weapon and the goal
+        // could never restore the cached melee weapon.
+        if (this.getMainHandItem().getItem() instanceof BowItem
+                && !this.mainWeaponItem.isEmpty()
+                && !this.mainWeaponDisarmed) {
+            ItemStack temporaryBow = this.getMainHandItem().copy();
+            this.setItemSlot(EquipmentSlot.MAINHAND, this.mainWeaponItem.copy());
+            this.setUseBow(false);
+            if (!InventoryUtils.addItem(this.inventory, temporaryBow)) {
+                this.spawnAtLocation(temporaryBow);
+            }
+        }
+        this.voiceCooldown = tag.getInt("VoiceCooldown");
     }
 
     @Override
