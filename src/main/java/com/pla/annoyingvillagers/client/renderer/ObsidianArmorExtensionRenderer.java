@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -29,8 +30,10 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.ModList;
 
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 /** Shared dynamic geometry for first person and renderers that bake the armor shell. */
 @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
@@ -90,27 +93,22 @@ public final class ObsidianArmorExtensionRenderer {
     /** The attachment callback transforms model coordinates into the backend's joint space. */
     public static void render(LivingEntity wearer, PoseStack stack, MultiBufferSource buffer, int light,
                               HumanoidModel<?> humanoidPose, BiConsumer<PoseStack, RigColliderAnchor> attachment) {
+        render(wearer, stack, buffer, light, humanoidPose, attachment, anchor -> true);
+    }
+
+    private static void render(LivingEntity wearer, PoseStack stack, MultiBufferSource buffer, int light,
+                               HumanoidModel<?> humanoidPose, BiConsumer<PoseStack, RigColliderAnchor> attachment,
+                               Predicate<RigColliderAnchor> visibleAnchor) {
         ensureModels();
         for (ObsidianArmorPart part : ObsidianArmorPart.values()) {
             if (!isEquipped(wearer, part)) continue;
             var state = ObsidianArmorClientAnimationState.get(wearer, part);
             if (state == null) continue;
             var clip = ObsidianArmorPoseLibrary.clip(state.animationId());
-            RenderType armorType = RenderType.armorCutoutNoCull(
-                    part == ObsidianArmorPart.HELMET ? HELMET_TEXTURE : CHESTPLATE_TEXTURE);
             ItemStack armor = wearer.getItemBySlot(part.slot());
-            VertexConsumer vertices;
-            ColoredGlintState.setTargetStack(armor, wearer);
-            try {
-                // Vanilla requests the fixed glint buffer BEFORE the shared armor
-                // buffer. Reversing that order ends the armor batch and leaves a
-                // stale consumer ("BufferBuilder not started"). Our ItemRenderer
-                // mixin supplies the colored glint for this same helper.
-                vertices = ItemRenderer.getArmorFoilBuffer(buffer, armorType, false, armor.hasFoil());
-            } finally {
-                ColoredGlintState.clear();
-            }
             if (part == ObsidianArmorPart.HELMET) {
+                if (!visibleAnchor.test(RigColliderAnchor.HEAD)) continue;
+                VertexConsumer vertices = armorBuffer(wearer, armor, HELMET_TEXTURE, buffer);
                 helmet.applyAnimationPose(clip, state.elapsedTicks());
                 copyPose(helmet.Head, humanoidPose == null ? null : humanoidPose.head);
                 stack.pushPose();
@@ -121,10 +119,14 @@ public final class ObsidianArmorExtensionRenderer {
                     stack.popPose();
                 }
             } else {
+                if (!visibleAnchor.test(RigColliderAnchor.BODY)
+                        && !visibleAnchor.test(RigColliderAnchor.RIGHT_ARM)) continue;
+                VertexConsumer vertices = armorBuffer(wearer, armor, CHESTPLATE_TEXTURE, buffer);
                 chestplate.applyAnimationPose(clip, state.elapsedTicks());
                 copyPose(chestplate.Body, humanoidPose == null ? null : humanoidPose.body);
                 copyPose(chestplate.RightArm, humanoidPose == null ? null : humanoidPose.rightArm);
                 for (RigColliderAnchor anchor : new RigColliderAnchor[]{RigColliderAnchor.BODY, RigColliderAnchor.RIGHT_ARM}) {
+                    if (!visibleAnchor.test(anchor)) continue;
                     stack.pushPose();
                     try {
                         attachment.accept(stack, anchor);
@@ -134,6 +136,39 @@ public final class ObsidianArmorExtensionRenderer {
                     }
                 }
             }
+        }
+    }
+
+    /** Draws the animated right-arm tiles after a first-person renderer has applied its arm transform. */
+    public static void renderFirstPersonRightArm(LivingEntity wearer, PoseStack stack,
+                                                  MultiBufferSource buffer, int light) {
+        ItemStack armor = wearer.getItemBySlot(ObsidianArmorPart.CHESTPLATE.slot());
+        if (!HerobrineObsidianArmorCharge.isChestplate(armor)) return;
+        var state = ObsidianArmorClientAnimationState.get(wearer, ObsidianArmorPart.CHESTPLATE);
+        if (state == null) return;
+
+        ensureModels();
+        chestplate.applyAnimationPose(ObsidianArmorPoseLibrary.clip(state.animationId()), state.elapsedTicks());
+        PartPose armPose = chestplate.RightArm.storePose();
+        chestplate.RightArm.loadPose(PartPose.ZERO);
+        try {
+            chestplate.renderExtensionTiles(true, stack,
+                    armorBuffer(wearer, armor, CHESTPLATE_TEXTURE, buffer), light, OverlayTexture.NO_OVERLAY);
+        } finally {
+            chestplate.RightArm.loadPose(armPose);
+        }
+    }
+
+    private static VertexConsumer armorBuffer(LivingEntity wearer, ItemStack armor,
+                                               ResourceLocation texture, MultiBufferSource buffer) {
+        ColoredGlintState.setTargetStack(armor, wearer);
+        try {
+            // Vanilla requests the fixed glint buffer before the shared armor buffer.
+            // Reversing that order leaves a stale consumer ("BufferBuilder not started").
+            return ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(texture),
+                    false, armor.hasFoil());
+        } finally {
+            ColoredGlintState.clear();
         }
     }
 
@@ -172,7 +207,14 @@ public final class ObsidianArmorExtensionRenderer {
             stack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyYaw));
             stack.scale(-1.0F, -1.0F, 1.0F);
             stack.translate(0.0D, -1.501D, 0.0D);
-            render(player, stack, buffer, light, firstPersonPose, (pose, anchor) -> {});
+            // Body-mounted tiles sit between the camera and the hands and can cover
+            // the complete first-person arm with the armor's opaque black texture.
+            // Punchy supplies a separate animated hand pose, so its arm tiles are
+            // rendered by the Punchy mixin in that exact pose instead.
+            boolean punchyHands = ModList.get().isLoaded("punchy");
+            render(player, stack, buffer, light, firstPersonPose, (pose, anchor) -> {},
+                    anchor -> anchor == RigColliderAnchor.HEAD
+                            || (!punchyHands && anchor == RigColliderAnchor.RIGHT_ARM));
         } finally {
             stack.popPose();
         }

@@ -33,6 +33,10 @@ public final class VanillaWeaponCombatEvent {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onCriticalHit(CriticalHitEvent event) {
         Player player = event.getEntity();
+        if (com.pla.annoyingvillagers.item.HackerSwordItem.isComboAttack(player)) {
+            event.setResult(net.minecraftforge.eventbus.api.Event.Result.ALLOW);
+            event.setDamageModifier(1.5F);
+        }
         if (!event.isVanillaCritical() || player.level().isClientSide() || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
         ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof ShadowObsidianPillarItem) ShadowObsidianPillarItem.onVanillaCriticalHit(stack, player);

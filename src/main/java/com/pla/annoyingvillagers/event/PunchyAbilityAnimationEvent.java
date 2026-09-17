@@ -16,7 +16,6 @@ public final class PunchyAbilityAnimationEvent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         // Follow Punchy's input processing so generic use/attack poses do not replace the ability.
-        if (event.phase == TickEvent.Phase.END && ModList.get().isLoaded("bettercombat")
-                && ModList.get().isLoaded("punchy")) PunchyClientCompat.flushAbility();
+        if (event.phase == TickEvent.Phase.END && ModList.get().isLoaded("punchy")) PunchyClientCompat.flushAbility();
     }
 }

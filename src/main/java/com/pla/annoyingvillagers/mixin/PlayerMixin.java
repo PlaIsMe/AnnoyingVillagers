@@ -18,6 +18,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin {
+    @Inject(method = "getAttackStrengthScale", at = @At("HEAD"), cancellable = true)
+    private void av$fullStrengthHackerCombo(float partialTicks,
+            org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Float> cir) {
+        if (com.pla.annoyingvillagers.item.HackerSwordItem.isComboAttack((Player)(Object)this)) {
+            cir.setReturnValue(1.0F);
+        }
+    }
     @Redirect(
             method = "hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z",
             at = @At(

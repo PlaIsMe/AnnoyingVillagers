@@ -37,6 +37,7 @@
     "compat.punchy.TridentStateMachineMixin",
     "compat.punchy.UseItemStateMachineMixin",
     "compat.punchy.SpearStateMachineMixin",
+    "compat.punchy.PunchyArmRendererMixin",
     "client.ModelPartMixin",
     "client.GroundStuckKnockoutRenderMixin",
     "client.EndFireEntityRenderDispatcherMixin",

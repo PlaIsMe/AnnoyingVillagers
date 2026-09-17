@@ -28,9 +28,6 @@ public final class BetterCombatClientCompat {
             case TWO_HANDED -> AnimatedHand.TWO_HANDED;
         };
         animatable.playAttackAnimation(message.animation(), hand, message.swingDurationTicks(), message.upswing());
-        if (entity == minecraft.player && ModList.get().isLoaded("punchy")) {
-            PunchyClientCompat.queueAbility(minecraft.player, message);
-        }
     }
 
 }

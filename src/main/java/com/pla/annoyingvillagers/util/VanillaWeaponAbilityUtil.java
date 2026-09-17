@@ -23,6 +23,7 @@ public final class VanillaWeaponAbilityUtil {
     public static final String BETTER_COMBAT_MOD_ID = "bettercombat";
     public static final String BETTER_COMBAT_FIST_ATTACK = "bettercombat:one_handed_punch";
     public static final String BETTER_COMBAT_ONE_HANDED_STAB = "bettercombat:one_handed_stab";
+    public static final String BETTER_COMBAT_ONE_HANDED_SLAM = "bettercombat:one_handed_slam";
     public static final String BETTER_COMBAT_ONE_HANDED_UPPERCUT_RIGHT = "bettercombat:one_handed_uppercut_right";
     public static final String BETTER_COMBAT_TWO_HANDED_SLAM = "bettercombat:two_handed_slam";
     public static final String BETTER_COMBAT_TWO_HANDED_SLAM_HEAVY = "bettercombat:two_handed_slam_heavy";
@@ -48,6 +49,17 @@ public final class VanillaWeaponAbilityUtil {
 
     public static void swingOffHand(Player player) {
         player.swing(InteractionHand.OFF_HAND, true);
+    }
+
+    public static void swingMainHand(Player player, String animation, float durationTicks) {
+        if (!ModList.get().isLoaded(BETTER_COMBAT_MOD_ID)) swingMainHand(player);
+        if (player instanceof ServerPlayer) {
+            // Also send without Better Combat: client-only Punchy can animate every combo strike.
+            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
+                    new ClientboundBetterCombatAnimation(player.getId(),
+                            ClientboundBetterCombatAnimation.AnimatedHand.MAIN_HAND,
+                            animation, durationTicks, BETTER_COMBAT_UPSWING));
+        }
     }
 
     public static void swingOffHand(Player player, String betterCombatAnimation) {

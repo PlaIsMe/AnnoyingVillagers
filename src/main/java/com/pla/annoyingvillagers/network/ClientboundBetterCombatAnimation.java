@@ -47,6 +47,10 @@ public record ClientboundBetterCombatAnimation(
             if (ModList.get().isLoaded(VanillaWeaponAbilityUtil.BETTER_COMBAT_MOD_ID)) {
                 DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BetterCombatClientCompat.playAnimation(msg));
             }
+            if (ModList.get().isLoaded("punchy")) {
+                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
+                        com.pla.annoyingvillagers.client.compat.PunchyClientCompat.queueAbility(msg));
+            }
         });
         context.setPacketHandled(true);
     }

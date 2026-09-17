@@ -28,6 +28,11 @@ public final class PunchyClientCompat {
 
     private PunchyClientCompat() {}
 
+    public static void queueAbility(ClientboundBetterCombatAnimation message) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null && player.getId() == message.playerId()) queueAbility(player, message);
+    }
+
     public static void queueAbility(LocalPlayer player, ClientboundBetterCombatAnimation message) {
         pending = new PendingAbility(player, message);
     }
@@ -40,7 +45,8 @@ public final class PunchyClientCompat {
                 || !mc.options.getCameraType().isFirstPerson()) return;
 
         try {
-            if (!PunchyConfig.isModEnabled() || !PunchyConfig.isBetterCombatCompatEnabled()) return;
+            if (!PunchyConfig.isModEnabled() || (net.minecraftforge.fml.ModList.get().isLoaded("bettercombat")
+                    && !PunchyConfig.isBetterCombatCompatEnabled())) return;
             ClientboundBetterCombatAnimation message = ability.message;
             InteractionHand hand = message.animatedHand() == ClientboundBetterCombatAnimation.AnimatedHand.OFF_HAND
                     ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
