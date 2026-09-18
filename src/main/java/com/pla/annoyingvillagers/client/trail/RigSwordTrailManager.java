@@ -11,6 +11,8 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
 import com.pla.annoyingvillagers.client.renderer.RigItemVisualResolver;
+import com.pla.annoyingvillagers.entity.AngrySteveEntity;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigAnimationSpec;
 import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
@@ -96,6 +98,13 @@ public final class RigSwordTrailManager {
                     itemId = RigSwordTrailReloadListener.INSTANCE.getItemId(original);
                 }
                 if (definition == null || itemId == null) continue;
+
+                if (mob instanceof AngrySteveEntity angrySteve
+                        && angrySteve.isLegendaryAwakened()
+                        && arm == mob.getMainArm()
+                        && original.is(AnnoyingVillagersModItems.LEGENDARY_SWORD.get())) {
+                    definition = definition.withColor(253, 255, 118);
+                }
 
                 TrailKey key = new TrailKey(mob.getId(), arm);
                 TrailState state = STATES.computeIfAbsent(key, ignored -> new TrailState());

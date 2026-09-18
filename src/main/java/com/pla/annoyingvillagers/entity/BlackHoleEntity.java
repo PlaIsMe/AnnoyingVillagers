@@ -31,15 +31,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-/**
- * Native Forge 1.20.1 port of the Electroblob's Wizardry black-hole construct.
- *
- * Wizardry's black-hole spell uses a base effect radius of 3 but computes the actual suction radius as twice that
- * value. Its default spell duration is 400 ticks and its suction acceleration is 0.075. This AV implementation keeps
- * those combat values while using modern entity networking, particles and rendering.
- */
 public class BlackHoleEntity extends Entity {
-    public static final int DEFAULT_LIFETIME = 400;
+    public static final int DEFAULT_LIFETIME = 140;
     public static final float DEFAULT_SIZE_MULTIPLIER = 1.0F;
     public static final float BASE_EFFECT_RADIUS = 3.0F;
     public static final double SUCTION_STRENGTH = 0.075D;

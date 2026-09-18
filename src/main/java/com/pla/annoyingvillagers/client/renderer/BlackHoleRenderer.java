@@ -20,20 +20,11 @@ import org.joml.Matrix4f;
 
 import java.util.Random;
 
-/**
- * Forge 1.20.1 port of Wizardry's Scroll of Black Hole renderer.
- *
- * Wizardry rendered every ray as a GL triangle strip whose first two vertices shared the centre.
- * A direct conversion of those four vertices to Minecraft's modern QUADS buffer creates a degenerate
- * quad, which may rasterize as nothing. This renderer keeps the same 30 rotating tapered rays, but
- * gives every ray a tiny non-zero inner edge and emits the back face too, making the vortex reliable
- * from every camera angle while retaining the original appearance.
- */
 public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
     private static final ResourceLocation RAY_TEXTURE = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/black_hole/ray.png");
     private static final ResourceLocation CENTRE_TEXTURE = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/black_hole/centre.png");
-    private static final RenderType RAY_RENDER_TYPE = RenderType.entityTranslucentEmissive(RAY_TEXTURE);
-    private static final RenderType CENTRE_RENDER_TYPE = RenderType.entityTranslucentEmissive(CENTRE_TEXTURE);
+    private static final RenderType RAY_RENDER_TYPE = BlackHoleRenderTypes.darkness(RAY_TEXTURE);
+    private static final RenderType CENTRE_RENDER_TYPE = BlackHoleRenderTypes.darkness(CENTRE_TEXTURE);
     private static final int RAY_COUNT = 30;
     private static final float INNER_RADIUS = 0.035F;
 
@@ -49,14 +40,23 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
 
         poseStack.pushPose();
         poseStack.scale(scale, scale, scale);
-        this.renderRays(entity, partialTick, poseStack, bufferSource);
-        this.renderCentre(poseStack, bufferSource);
+        // Layered alpha masks simulate a black glow without relying on shader-pack bloom.
+        for (int layer = 3; layer >= 1; layer--) {
+            poseStack.pushPose();
+            float haloScale = 1.0F + layer * 0.12F;
+            poseStack.scale(haloScale, haloScale, haloScale);
+            this.renderRays(entity, partialTick, poseStack, bufferSource, 64);
+            this.renderCentre(poseStack, bufferSource, 64);
+            poseStack.popPose();
+        }
+        this.renderRays(entity, partialTick, poseStack, bufferSource, 255);
+        this.renderCentre(poseStack, bufferSource, 255);
         poseStack.popPose();
 
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    private void renderRays(BlackHoleEntity entity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource) {
+    private void renderRays(BlackHoleEntity entity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int alpha) {
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
         Matrix3f normalMatrix = pose.normal();
@@ -102,21 +102,15 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
             float innerZ2 = endZ2 / length2 * INNER_RADIUS;
 
             // Front face: opaque centre of ray.png at U=0, fading outward toward U=1.
-            vertex(consumer, matrix, normalMatrix, innerX1, innerY1, innerZ1, 0.0F, 0.0F);
-            vertex(consumer, matrix, normalMatrix, innerX2, innerY2, innerZ2, 0.0F, 1.0F);
-            vertex(consumer, matrix, normalMatrix, endX2, endY2, endZ2, 1.0F, 1.0F);
-            vertex(consumer, matrix, normalMatrix, endX1, endY1, endZ1, 1.0F, 0.0F);
+            vertex(consumer, matrix, normalMatrix, innerX1, innerY1, innerZ1, 0.0F, 0.0F, alpha);
+            vertex(consumer, matrix, normalMatrix, innerX2, innerY2, innerZ2, 0.0F, 1.0F, alpha);
+            vertex(consumer, matrix, normalMatrix, endX2, endY2, endZ2, 1.0F, 1.0F, alpha);
+            vertex(consumer, matrix, normalMatrix, endX1, endY1, endZ1, 1.0F, 0.0F, alpha);
 
-            // Back face. Wizardry disabled culling globally; emitting the reverse face reproduces that
-            // without relying on global OpenGL state in the modern renderer.
-            vertex(consumer, matrix, normalMatrix, endX1, endY1, endZ1, 1.0F, 0.0F);
-            vertex(consumer, matrix, normalMatrix, endX2, endY2, endZ2, 1.0F, 1.0F);
-            vertex(consumer, matrix, normalMatrix, innerX2, innerY2, innerZ2, 0.0F, 1.0F);
-            vertex(consumer, matrix, normalMatrix, innerX1, innerY1, innerZ1, 0.0F, 0.0F);
         }
     }
 
-    private void renderCentre(PoseStack poseStack, MultiBufferSource bufferSource) {
+    private void renderCentre(PoseStack poseStack, MultiBufferSource bufferSource, int alpha) {
         poseStack.pushPose();
         poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
         PoseStack.Pose pose = poseStack.last();
@@ -125,21 +119,16 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
         VertexConsumer consumer = bufferSource.getBuffer(CENTRE_RENDER_TYPE);
         float halfSize = 0.8F;
 
-        vertex(consumer, matrix, normalMatrix, -halfSize, halfSize, 0.0F, 0.0F, 0.0F);
-        vertex(consumer, matrix, normalMatrix, halfSize, halfSize, 0.0F, 1.0F, 0.0F);
-        vertex(consumer, matrix, normalMatrix, halfSize, -halfSize, 0.0F, 1.0F, 1.0F);
-        vertex(consumer, matrix, normalMatrix, -halfSize, -halfSize, 0.0F, 0.0F, 1.0F);
-
-        vertex(consumer, matrix, normalMatrix, -halfSize, -halfSize, 0.0F, 0.0F, 1.0F);
-        vertex(consumer, matrix, normalMatrix, halfSize, -halfSize, 0.0F, 1.0F, 1.0F);
-        vertex(consumer, matrix, normalMatrix, halfSize, halfSize, 0.0F, 1.0F, 0.0F);
-        vertex(consumer, matrix, normalMatrix, -halfSize, halfSize, 0.0F, 0.0F, 0.0F);
+        vertex(consumer, matrix, normalMatrix, -halfSize, halfSize, 0.0F, 0.0F, 0.0F, alpha);
+        vertex(consumer, matrix, normalMatrix, halfSize, halfSize, 0.0F, 1.0F, 0.0F, alpha);
+        vertex(consumer, matrix, normalMatrix, halfSize, -halfSize, 0.0F, 1.0F, 1.0F, alpha);
+        vertex(consumer, matrix, normalMatrix, -halfSize, -halfSize, 0.0F, 0.0F, 1.0F, alpha);
         poseStack.popPose();
     }
 
-    private static void vertex(VertexConsumer consumer, Matrix4f matrix, Matrix3f normalMatrix, float x, float y, float z, float u, float v) {
+    private static void vertex(VertexConsumer consumer, Matrix4f matrix, Matrix3f normalMatrix, float x, float y, float z, float u, float v, int alpha) {
         consumer.vertex(matrix, x, y, z)
-                .color(255, 255, 255, 255)
+                .color(0, 0, 0, alpha)
                 .uv(u, v)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(LightTexture.FULL_BRIGHT)
