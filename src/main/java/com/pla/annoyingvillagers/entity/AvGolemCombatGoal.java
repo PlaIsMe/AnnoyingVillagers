@@ -11,13 +11,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Epic-Fight-free port of the Super Golem / Modular Golem behavior-series AI.
- *
- * Each series keeps its original weight, cooldown and target-grid gate. Follow-up
- * attacks use the same distance gates as the reference mods, while the actual hit
- * detection is handled by the server-side special pose collider system.
- */
 public class AvGolemCombatGoal extends Goal {
     private final AvGolem golem;
     private final Map<SpecialAnimationId, Integer> seriesCooldowns = new EnumMap<>(SpecialAnimationId.class);

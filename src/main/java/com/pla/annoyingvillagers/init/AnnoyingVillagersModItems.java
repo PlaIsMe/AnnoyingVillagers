@@ -51,6 +51,7 @@ public class AnnoyingVillagersModItems {
     public static final RegistryObject<Item> ALEX_SPAWN_EGG = registerSpawnEgg("alex_spawn_egg", AnnoyingVillagersModEntities.ALEX);
     public static final RegistryObject<Item> JEV_SPAWN_EGG = registerSpawnEgg("jev_spawn_egg", AnnoyingVillagersModEntities.JEV);
     public static final RegistryObject<Item> CHRIS_SPAWN_EGG = registerSpawnEgg("chris_spawn_egg", AnnoyingVillagersModEntities.CHRIS);
+    public static final RegistryObject<Item> IRON_GOLEM_WARRIOR_SPAWN_EGG = registerSpawnEgg("iron_golem_warrior_spawn_egg", AnnoyingVillagersModEntities.IRON_GOLEM_WARRIOR);
     // ------------------------------
 
     // Misc item

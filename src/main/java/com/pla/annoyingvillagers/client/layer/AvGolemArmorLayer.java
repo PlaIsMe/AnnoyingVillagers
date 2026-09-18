@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.client.model.ModelAvGolem;
 import com.pla.annoyingvillagers.client.model.ModelAvGolemArmor;
-import com.pla.annoyingvillagers.entity.GolemWarriors;
+import com.pla.annoyingvillagers.entity.AvGolem;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -17,21 +17,21 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
 
-public class AvGolemArmorLayer extends RenderLayer<GolemWarriors, ModelAvGolem> {
+public class AvGolemArmorLayer extends RenderLayer<AvGolem, ModelAvGolem> {
     private final ModelAvGolemArmor armorModel;
 
-    public AvGolemArmorLayer(RenderLayerParent<GolemWarriors, ModelAvGolem> parent, ModelAvGolemArmor armorModel) {
+    public AvGolemArmorLayer(RenderLayerParent<AvGolem, ModelAvGolem> parent, ModelAvGolemArmor armorModel) {
         super(parent);
         this.armorModel = armorModel;
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, GolemWarriors entity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AvGolem entity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
         renderArmorPiece(poseStack, buffer, packedLight, entity, EquipmentSlot.HEAD);
         renderArmorPiece(poseStack, buffer, packedLight, entity, EquipmentSlot.CHEST);
     }
 
-    private void renderArmorPiece(PoseStack poseStack, MultiBufferSource buffer, int packedLight, GolemWarriors entity, EquipmentSlot slot) {
+    private void renderArmorPiece(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AvGolem entity, EquipmentSlot slot) {
         ItemStack stack = entity.getItemBySlot(slot);
         if (!(stack.getItem() instanceof ArmorItem armorItem) || armorItem.getEquipmentSlot() != slot) return;
         ResourceLocation texture = armorTexture(armorItem);

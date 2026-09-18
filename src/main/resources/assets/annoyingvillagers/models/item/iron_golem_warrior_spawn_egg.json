@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "annoyingvillagers:item/spawn_egg/iron_golem_warrior_spawn_egg"
+  }
+}

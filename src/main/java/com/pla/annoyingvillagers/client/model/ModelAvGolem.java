@@ -7,8 +7,8 @@ import com.pla.annoyingvillagers.client.animation.SpecialAnimationClientUtil;
 import com.pla.annoyingvillagers.client.animation.SpecialAnimationResolver;
 import com.pla.annoyingvillagers.client.animation.SpecialClientAnimationState;
 import com.pla.annoyingvillagers.client.animation.rig_special_animation.*;
+import com.pla.annoyingvillagers.entity.AvGolem;
 import com.pla.annoyingvillagers.entity.AvGolemWeaponStyle;
-import com.pla.annoyingvillagers.entity.GolemWarriors;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationFamily;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.model.HierarchicalModel;
@@ -25,7 +25,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import org.jetbrains.annotations.NotNull;
 
-public class ModelAvGolem extends HierarchicalModel<GolemWarriors> {
+public class ModelAvGolem extends HierarchicalModel<AvGolem> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_av_golem"), "main");
 
 private final ModelPart modelRoot;
@@ -191,7 +191,7 @@ private final ModelPart modelRoot;
     }
 
 	@Override
-	public void setupAnim(@NotNull GolemWarriors entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	public void setupAnim(@NotNull AvGolem entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.Root.getAllParts().forEach(ModelPart::resetPose);
 		this.arm_s_L.resetPose();
 		this.arm_s_R.resetPose();

@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.client.layer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.pla.annoyingvillagers.client.model.ModelAvGolem;
-import com.pla.annoyingvillagers.entity.GolemWarriors;
+import com.pla.annoyingvillagers.entity.AvGolem;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -12,21 +12,21 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-public class AvGolemItemInHandLayer extends RenderLayer<GolemWarriors, ModelAvGolem> {
+public class AvGolemItemInHandLayer extends RenderLayer<AvGolem, ModelAvGolem> {
     private final ItemInHandRenderer itemRenderer;
 
-    public AvGolemItemInHandLayer(RenderLayerParent<GolemWarriors, ModelAvGolem> parent, ItemInHandRenderer itemRenderer) {
+    public AvGolemItemInHandLayer(RenderLayerParent<AvGolem, ModelAvGolem> parent, ItemInHandRenderer itemRenderer) {
         super(parent);
         this.itemRenderer = itemRenderer;
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, GolemWarriors entity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AvGolem entity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
         renderHand(entity, entity.getMainHandItem(), entity.getMainArm(), poseStack, buffer, packedLight);
         renderHand(entity, entity.getOffhandItem(), entity.getMainArm().getOpposite(), poseStack, buffer, packedLight);
     }
 
-    private void renderHand(GolemWarriors entity, ItemStack stack, HumanoidArm arm, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+    private void renderHand(AvGolem entity, ItemStack stack, HumanoidArm arm, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         if (stack.isEmpty()) return;
         poseStack.pushPose();
         this.getParentModel().translateToTool(arm, poseStack);
