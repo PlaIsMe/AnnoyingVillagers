@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "com.pla.annoyingvillagers.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "plugin": "com.pla.annoyingvillagers.mixin.plugin.CompatMixinPlugin",
   "mixins": [
     "BrainAccessor",
