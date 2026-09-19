@@ -26,7 +26,6 @@ public class AnnoyingVillagersConfig {
     public static ForgeConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_CHAT;
     public static ForgeConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_VOICE;
     public static ForgeConfigSpec.ConfigValue<Boolean> AV_MOB_CAN_BURN_ITEM;
-    public static ForgeConfigSpec.ConfigValue<Boolean> ARROW_CAN_BREAK_BLOCK;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> WEAPON_DISARMS_AFFECTED_ENTITY_TYPES;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> WEAPON_DISARMS_BLACKLIST;
 
@@ -100,9 +99,6 @@ public class AnnoyingVillagersConfig {
                         "Turn on all voice for NPC")
                 .define("turnOnNpcVoice", true);
 
-        ARROW_CAN_BREAK_BLOCK = BUILDER.comment(
-                        "Make arrow can break block")
-                .define("arrowCanBreakBlock", true);
         AV_MOB_CAN_BURN_ITEM = BUILDER.comment(
                         "Enable burning items ability for all of Av NPCs and Mobs")
                 .define("AvMobCanBurnItem", true);
