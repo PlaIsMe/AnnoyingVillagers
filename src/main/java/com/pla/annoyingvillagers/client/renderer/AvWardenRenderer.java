@@ -29,4 +29,9 @@ public class AvWardenRenderer extends MobRenderer<AvWarden, ModelAvWarden> {
     public @NotNull ResourceLocation getTextureLocation(@NotNull AvWarden entity) {
         return BASE;
     }
+
+    @Override
+    protected float getFlipDegrees(@NotNull AvWarden entity) {
+        return 0.0F;
+    }
 }

@@ -28,4 +28,9 @@ public class AvGolemRenderer extends MobRenderer<AvGolem, ModelAvGolem> {
         }
         return DEFAULT_TEXTURE;
     }
+
+    @Override
+    protected float getFlipDegrees(@NotNull AvGolem entity) {
+        return 0.0F;
+    }
 }
