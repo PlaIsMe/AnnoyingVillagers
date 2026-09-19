@@ -10,6 +10,8 @@ import com.pla.annoyingvillagers.client.animation.rig_special_animation.*;
 import com.pla.annoyingvillagers.entity.AvGolem;
 import com.pla.annoyingvillagers.entity.AvGolemWeaponStyle;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationFamily;
+import com.pla.annoyingvillagers.specialanimation.SpecialAnimationId;
+import com.pla.annoyingvillagers.specialanimation.pose.SpecialPoseLibrary;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -23,6 +25,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public class ModelAvGolem extends HierarchicalModel<AvGolem> {
@@ -197,23 +200,31 @@ private final ModelPart modelRoot;
 		this.arm_s_R.resetPose();
 		SpecialClientAnimationState.Active active = SpecialClientAnimationState.getActive(entity, ageInTicks);
 		if (active != null && active.animationId().family() == SpecialAnimationFamily.AV_GOLEM) {
-			SpecialAnimationClientUtil.apply(this, SpecialAnimationResolver.resolve(active.animationId()), active.elapsedTicks(ageInTicks));
+			float elapsedTicks = active.elapsedTicks(ageInTicks);
+			SpecialAnimationClientUtil.apply(this, SpecialAnimationResolver.resolve(active.animationId()), elapsedTicks);
+			compensateServerRootMotion(active.animationId(), elapsedTicks);
 			return;
 		}
 		AvGolemWeaponStyle style = entity.getWeaponStyle();
 		if (entity.isDeadOrDying() || entity.deathTime > 0) {
 			float partialTick = Mth.clamp(ageInTicks - entity.tickCount, 0.0F, 1.0F);
 			SpecialAnimationClientUtil.apply(this, deathAnimation(style), Math.max(0.0F, entity.deathTime - 1.0F + partialTick));
-		} else if (!entity.onGround()) {
-			SpecialAnimationClientUtil.applyLoop(this, fallAnimation(style), ageInTicks);
-		} else if (isMoving(entity, limbSwingAmount)) {
+		} else if (entity.isSprinting() || isMoving(entity, limbSwingAmount)) {
 			AnimationDefinition movement = style == AvGolemWeaponStyle.NORMAL && entity.isSprinting() ? AvGolemLivingAnimations.RUN : walkAnimation(style);
 			SpecialAnimationClientUtil.applyLoop(this, movement, ageInTicks);
+		} else if (!entity.onGround()) {
+			SpecialAnimationClientUtil.applyLoop(this, fallAnimation(style), ageInTicks);
 		} else {
 			SpecialAnimationClientUtil.applyLoop(this, idleAnimation(style), ageInTicks);
 		}
 		this.head.yRot += Mth.clamp(netHeadYaw, -45.0F, 45.0F) * ((float)Math.PI / 180.0F);
 		this.head.xRot += Mth.clamp(headPitch, -25.0F, 25.0F) * ((float)Math.PI / 180.0F);
+	}
+
+	private void compensateServerRootMotion(SpecialAnimationId animationId, float elapsedTicks) {
+		Vec3 motion = SpecialPoseLibrary.accumulatedRootMotion(animationId, elapsedTicks);
+		this.Root.x -= (float)motion.x;
+		this.Root.z -= (float)motion.z;
 	}
 
 	private static boolean isMoving(net.minecraft.world.entity.LivingEntity entity, float limbSwingAmount) {

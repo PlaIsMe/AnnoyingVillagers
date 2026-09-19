@@ -10,6 +10,9 @@ import com.pla.annoyingvillagers.client.animation.rig_special_animation.AvWarden
 import com.pla.annoyingvillagers.client.animation.rig_special_animation.AvWardenSkillAnimations2;
 import com.pla.annoyingvillagers.entity.AvWarden;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationFamily;
+import com.pla.annoyingvillagers.specialanimation.SpecialAnimationId;
+import com.pla.annoyingvillagers.specialanimation.pose.SpecialPoseLibrary;
+import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -21,12 +24,14 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_av_warden"), "main");
+	private final ModelPart modelRoot;
 	private final ModelPart Root;
 	private final ModelPart body;
 	private final ModelPart chest;
@@ -51,6 +56,7 @@ public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 	private final ModelPart knee_L;
 
 	public ModelAvWarden(ModelPart root) {
+		this.modelRoot = root;
 		this.Root = root.getChild("Root");
 		this.body = this.Root.getChild("body");
 		this.chest = this.body.getChild("chest");
@@ -138,7 +144,7 @@ public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 
 	@Override
 	public @NotNull ModelPart root() {
-		return this.Root;
+		return this.modelRoot;
 	}
 
 	@Override
@@ -146,7 +152,9 @@ public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 		this.root().getAllParts().forEach(ModelPart::resetPose);
 		SpecialClientAnimationState.Active active = SpecialClientAnimationState.getActive(entity, ageInTicks);
 		if (active != null && active.animationId().family() == SpecialAnimationFamily.AV_WARDEN) {
-			SpecialAnimationClientUtil.apply(this, SpecialAnimationResolver.resolve(active.animationId()), active.elapsedTicks(ageInTicks));
+			float elapsedTicks = active.elapsedTicks(ageInTicks);
+			SpecialAnimationClientUtil.apply(this, SpecialAnimationResolver.resolve(active.animationId()), elapsedTicks);
+			compensateServerRootMotion(active.animationId(), elapsedTicks);
 		} else if (entity.isDeadOrDying() || entity.deathTime > 0) {
 			float partialTick = Mth.clamp(ageInTicks - entity.tickCount, 0.0F, 1.0F);
 			SpecialAnimationClientUtil.apply(this, AvWardenLivingAnimations.DEATH, Math.max(0.0F, entity.deathTime - 1.0F + partialTick));
@@ -154,12 +162,22 @@ public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 			this.animate(entity.emergeAnimationState, AvWardenSkillAnimations2.EMERGE, ageInTicks);
 		} else if (entity.hasPose(net.minecraft.world.entity.Pose.DIGGING)) {
 			this.animate(entity.diggingAnimationState, AvWardenLivingAnimations.DIGGING, ageInTicks);
+		} else if (isLocomoting(entity, limbSwingAmount, ageInTicks)) {
+			boolean chasing = entity.isAvChasing();
+			AnimationDefinition movement = chasing ? AvWardenLivingAnimations.CHASE : AvWardenLivingAnimations.WALK;
+			float partialTick = Mth.clamp(ageInTicks - entity.tickCount, 0.0F, 1.0F);
+			float walkPosition = entity.walkAnimation.position(partialTick);
+			float walkAmount = Math.max(Math.abs(limbSwingAmount), entity.walkAnimation.speed(partialTick));
+			float playbackSpeed = chasing ? 1.8F : 2.0F;
+			if (walkAmount > 0.001F) {
+				this.animateWalk(movement, walkPosition, 1.0F, playbackSpeed, 1.0F);
+			} else {
+				SpecialAnimationClientUtil.applyLoop(this, movement, ageInTicks * playbackSpeed);
+			}
 		} else if (entity.sniffAnimationState.isStarted()) {
 			this.animate(entity.sniffAnimationState, AvWardenSkillAnimations2.SNIFF, ageInTicks);
 		} else if (!entity.onGround()) {
 			SpecialAnimationClientUtil.applyLoop(this, AvWardenLivingAnimations.FALL, ageInTicks);
-		} else if (isMoving(entity, limbSwingAmount)) {
-			SpecialAnimationClientUtil.applyLoop(this, entity.isAvChasing() ? AvWardenLivingAnimations.CHASE : AvWardenLivingAnimations.WALK, ageInTicks);
 		} else {
 			SpecialAnimationClientUtil.applyLoop(this, AvWardenLivingAnimations.IDLE, ageInTicks);
 		}
@@ -167,10 +185,23 @@ public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 		this.head.xRot += Mth.clamp(headPitch, -30.0F, 30.0F) * ((float)Math.PI / 180.0F);
 	}
 
-	private static boolean isMoving(net.minecraft.world.entity.LivingEntity entity, float limbSwingAmount) {
+	private void compensateServerRootMotion(SpecialAnimationId animationId, float elapsedTicks) {
+		Vec3 motion = SpecialPoseLibrary.accumulatedRootMotion(animationId, elapsedTicks);
+		this.Root.x -= (float)motion.x;
+		this.Root.z -= (float)motion.z;
+	}
+
+	private static boolean isLocomoting(AvWarden entity, float limbSwingAmount, float ageInTicks) {
+		float partialTick = Mth.clamp(ageInTicks - entity.tickCount, 0.0F, 1.0F);
 		double dx = entity.getX() - entity.xo;
 		double dz = entity.getZ() - entity.zo;
-		return limbSwingAmount > 0.001F || dx * dx + dz * dz > 1.0E-8D || entity.getDeltaMovement().horizontalDistanceSqr() > 1.0E-8D;
+		return entity.isAvMoving()
+				|| entity.isAvChasing()
+				|| entity.isAvClientMoving()
+				|| Math.abs(limbSwingAmount) > 0.001F
+				|| entity.walkAnimation.speed(partialTick) > 0.001F
+				|| dx * dx + dz * dz > 1.0E-8D
+				|| entity.getDeltaMovement().horizontalDistanceSqr() > 1.0E-8D;
 	}
 
 	public List<ModelPart> getBioluminescentLayerModelParts() {

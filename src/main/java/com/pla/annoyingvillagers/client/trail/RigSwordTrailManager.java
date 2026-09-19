@@ -10,8 +10,10 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
+import com.pla.annoyingvillagers.client.animation.SpecialClientAnimationState;
 import com.pla.annoyingvillagers.client.renderer.RigItemVisualResolver;
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
+import com.pla.annoyingvillagers.entity.AvGolem;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigAnimationSpec;
@@ -21,6 +23,13 @@ import com.pla.annoyingvillagers.rig.RigCollider;
 import com.pla.annoyingvillagers.rig.RigColliderAnchor;
 import com.pla.annoyingvillagers.rig.pose.RigPartTransform;
 import com.pla.annoyingvillagers.rig.pose.RigPoseSampler;
+import com.pla.annoyingvillagers.specialanimation.SpecialAnimationFamily;
+import com.pla.annoyingvillagers.specialanimation.SpecialAnimationId;
+import com.pla.annoyingvillagers.specialanimation.SpecialAnimationSpec;
+import com.pla.annoyingvillagers.specialanimation.SpecialAnimationSpecs;
+import com.pla.annoyingvillagers.specialanimation.SpecialAttackWindow;
+import com.pla.annoyingvillagers.specialanimation.SpecialCollider;
+import com.pla.annoyingvillagers.specialanimation.pose.SpecialPoseSampler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -43,6 +52,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
@@ -106,9 +116,35 @@ public final class RigSwordTrailManager {
                     definition = definition.withColor(253, 255, 118);
                 }
 
-                TrailKey key = new TrailKey(mob.getId(), arm);
+                TrailKey key = new TrailKey(mob.getId(), arm, 0);
                 TrailState state = STATES.computeIfAbsent(key, ignored -> new TrailState());
-                state.update(mob, active, arm, definition, itemId);
+                state.update(mob, new RigTrailPlayback(active, elapsed), arm, definition, itemId);
+                touched.add(key);
+            }
+        }
+
+        for (var entry : SpecialClientAnimationState.snapshot().entrySet()) {
+            Entity entity = mc.level.getEntity(entry.getKey());
+            if (!(entity instanceof AvGolem golem) || !golem.isAlive() || golem.isRemoved()) continue;
+            SpecialClientAnimationState.Active active = SpecialClientAnimationState.getActive(golem, golem.tickCount);
+            if (active == null || active.animationId().family() != SpecialAnimationFamily.AV_GOLEM) continue;
+
+            float elapsed = active.elapsedTicks(golem.tickCount);
+            SpecialAnimationSpec spec = SpecialAnimationSpecs.get(active.animationId());
+            for (SpecialTrailWindow trailWindow : specialTrailWindows(spec)) {
+                if (elapsed < Math.max(0, trailWindow.startTickInclusive() - 1) || elapsed >= trailWindow.endTickExclusive()) continue;
+
+                HumanoidArm arm = trailWindow.arm();
+                ItemStack stack = stackForArm(golem, arm);
+                if (stack.isEmpty()) continue;
+                RigSwordTrailDefinition definition = RigSwordTrailReloadListener.INSTANCE.get(stack);
+                ResourceLocation itemId = RigSwordTrailReloadListener.INSTANCE.getItemId(stack);
+                if (definition == null || itemId == null) continue;
+
+                TrailKey key = new TrailKey(golem.getId(), arm, trailWindow.windowIndex() + 1);
+                TrailState state = STATES.computeIfAbsent(key, ignored -> new TrailState());
+                state.update(golem, new SpecialTrailPlayback(active.animationId(), active.startedAtTick(), elapsed,
+                        trailWindow.startTickInclusive(), trailWindow.endTickExclusive()), arm, definition, itemId);
                 touched.add(key);
             }
         }
@@ -276,19 +312,81 @@ public final class RigSwordTrailManager {
         return result;
     }
 
+    private static List<SpecialTrailWindow> specialTrailWindows(SpecialAnimationSpec spec) {
+        List<SpecialTrailWindow> result = new ArrayList<>();
+        SpecialAttackWindow[] windows = spec.attackWindows();
+        for (int i = 0; i < windows.length; i++) {
+            SpecialAttackWindow window = windows[i];
+            EnumSet<HumanoidArm> arms = EnumSet.noneOf(HumanoidArm.class);
+            for (SpecialCollider collider : window.colliders()) {
+                if ("Tool_R".equals(collider.boneName())) arms.add(HumanoidArm.RIGHT);
+                if ("Tool_L".equals(collider.boneName())) arms.add(HumanoidArm.LEFT);
+            }
+            for (HumanoidArm arm : arms) {
+                result.add(new SpecialTrailWindow(i, arm, window.startTickInclusive(), window.endTickExclusive()));
+            }
+        }
+        return result;
+    }
+
     private static ItemStack stackForArm(Mob mob, HumanoidArm arm) {
         return arm == mob.getMainArm() ? mob.getMainHandItem() : mob.getOffhandItem();
     }
 
-    private record TrailKey(int entityId, HumanoidArm arm) {}
+    private record TrailKey(int entityId, HumanoidArm arm, int track) {}
+    private record SpecialTrailWindow(int windowIndex, HumanoidArm arm, int startTickInclusive, int endTickExclusive) {}
+    private record SpecialTrailIdentity(SpecialAnimationId animationId, int startedAtTick, float trailStartTick, float trailEndTickExclusive) {}
     private record EdgePair(Vec3 start, Vec3 end) {}
+
+    private interface TrailPlayback {
+        Object identity();
+        float elapsedTicks();
+        float trailStartTick();
+        float trailEndTickExclusive();
+        TrailEdge sample(Mob mob, HumanoidArm arm, float elapsed, float entityPartial, RigSwordTrailDefinition definition, boolean forceCurrentPosition);
+    }
+
+    private record RigTrailPlayback(RigClientAnimationState.Active active, float elapsedTicks) implements TrailPlayback {
+        @Override
+        public Object identity() {
+            return this.active.animationId();
+        }
+
+        @Override
+        public float trailStartTick() {
+            return this.active.trailStartTick();
+        }
+
+        @Override
+        public float trailEndTickExclusive() {
+            return this.active.trailEndTickExclusive();
+        }
+
+        @Override
+        public TrailEdge sample(Mob mob, HumanoidArm arm, float elapsed, float entityPartial, RigSwordTrailDefinition definition, boolean forceCurrentPosition) {
+            return sampleEdge(mob, this.active.animationId(), arm, elapsed, entityPartial, definition, forceCurrentPosition);
+        }
+    }
+
+    private record SpecialTrailPlayback(SpecialAnimationId animationId, int startedAtTick, float elapsedTicks,
+                                        float trailStartTick, float trailEndTickExclusive) implements TrailPlayback {
+        @Override
+        public Object identity() {
+            return new SpecialTrailIdentity(this.animationId, this.startedAtTick, this.trailStartTick, this.trailEndTickExclusive);
+        }
+
+        @Override
+        public TrailEdge sample(Mob mob, HumanoidArm arm, float elapsed, float entityPartial, RigSwordTrailDefinition definition, boolean forceCurrentPosition) {
+            return sampleSpecialEdge(mob, this.animationId, arm, elapsed, entityPartial, definition, forceCurrentPosition);
+        }
+    }
 
     private static final class TrailState {
         private final LinkedList<TrailEdge> edges = new LinkedList<>();
         private final LinkedList<TrailEdge> invisibleEdges = new LinkedList<>();
         private RigSwordTrailDefinition definition;
         private ResourceLocation itemId;
-        private RigAnimationId animationId;
+        private Object animationIdentity;
         private Vec3 lastOwnerPosition;
         private float startEdgeCorrection;
         private boolean removing;
@@ -300,9 +398,9 @@ public final class RigSwordTrailManager {
             if (this.removing && this.removeTicksRemaining > 0) this.removeTicksRemaining--;
         }
 
-        private void update(Mob mob, RigClientAnimationState.Active active, HumanoidArm arm,
+        private void update(Mob mob, TrailPlayback playback, HumanoidArm arm,
                             RigSwordTrailDefinition newDefinition, ResourceLocation newItemId) {
-            boolean identityChanged = this.animationId != active.animationId()
+            boolean identityChanged = !Objects.equals(this.animationIdentity, playback.identity())
                     || this.itemId == null || !this.itemId.equals(newItemId)
                     || this.definition == null;
             double maxContinuousMoveSqr = mob instanceof com.pla.annoyingvillagers.clazz.NullWeapon
@@ -312,10 +410,10 @@ public final class RigSwordTrailManager {
 
             if (identityChanged) {
                 this.reset();
-                this.animationId = active.animationId();
+                this.animationIdentity = playback.identity();
                 this.itemId = newItemId;
                 this.definition = newDefinition;
-                this.initializeInvisible(mob, active, arm, false);
+                this.initializeInvisible(mob, playback, arm, false);
             } else {
                 this.definition = newDefinition;
             }
@@ -325,45 +423,45 @@ public final class RigSwordTrailManager {
                 this.edges.clear();
                 this.invisibleEdges.clear();
                 this.startEdgeCorrection = 0.0F;
-                this.initializeInvisible(mob, active, arm, true);
+                this.initializeInvisible(mob, playback, arm, true);
             }
 
             this.lastOwnerPosition = mob.position();
             this.removing = false;
             this.removeTicksRemaining = this.definition.lifetimeTicks();
 
-            float elapsed = active.elapsedTicks(mob.tickCount);
-            if (elapsed < active.trailStartTick()) {
-                this.updateInvisible(mob, active, arm, elapsed, teleported);
+            float elapsed = playback.elapsedTicks();
+            if (elapsed < playback.trailStartTick()) {
+                this.updateInvisible(mob, playback, arm, elapsed, teleported);
                 return;
             }
-            if (elapsed >= active.trailEndTickExclusive()) {
+            if (elapsed >= playback.trailEndTickExclusive()) {
                 this.beginRemoval();
                 return;
             }
 
-            this.createNextCurve(mob, active, arm, elapsed, teleported);
+            this.createNextCurve(mob, playback, arm, elapsed, teleported);
         }
 
-        private void initializeInvisible(Mob mob, RigClientAnimationState.Active active, HumanoidArm arm, boolean forceCurrentPosition) {
-            float current = active.elapsedTicks(mob.tickCount);
+        private void initializeInvisible(Mob mob, TrailPlayback playback, HumanoidArm arm, boolean forceCurrentPosition) {
+            float current = playback.elapsedTicks();
             float previous = Math.max(0.0F, current - 1.0F);
             float middle = (previous + current) * 0.5F;
-            this.invisibleEdges.add(sampleEdge(mob, active.animationId(), arm, previous, 0.0F, this.definition, forceCurrentPosition));
-            this.invisibleEdges.add(sampleEdge(mob, active.animationId(), arm, middle, 0.5F, this.definition, forceCurrentPosition));
-            this.invisibleEdges.add(sampleEdge(mob, active.animationId(), arm, current, 1.0F, this.definition, forceCurrentPosition));
+            this.invisibleEdges.add(playback.sample(mob, arm, previous, 0.0F, this.definition, forceCurrentPosition));
+            this.invisibleEdges.add(playback.sample(mob, arm, middle, 0.5F, this.definition, forceCurrentPosition));
+            this.invisibleEdges.add(playback.sample(mob, arm, current, 1.0F, this.definition, forceCurrentPosition));
         }
 
-        private void updateInvisible(Mob mob, RigClientAnimationState.Active active, HumanoidArm arm,
+        private void updateInvisible(Mob mob, TrailPlayback playback, HumanoidArm arm,
                                      float elapsed, boolean forceCurrentPosition) {
             float previous = Math.max(0.0F, elapsed - 1.0F);
             float middle = (previous + elapsed) * 0.5F;
             this.invisibleEdges.clear();
-            this.invisibleEdges.add(sampleEdge(mob, active.animationId(), arm, previous, 0.0F, this.definition, forceCurrentPosition));
-            this.invisibleEdges.add(sampleEdge(mob, active.animationId(), arm, middle, 0.5F, this.definition, forceCurrentPosition));
+            this.invisibleEdges.add(playback.sample(mob, arm, previous, 0.0F, this.definition, forceCurrentPosition));
+            this.invisibleEdges.add(playback.sample(mob, arm, middle, 0.5F, this.definition, forceCurrentPosition));
         }
 
-        private void createNextCurve(Mob mob, RigClientAnimationState.Active active, HumanoidArm arm,
+        private void createNextCurve(Mob mob, TrailPlayback playback, HumanoidArm arm,
                                      float elapsed, boolean forceCurrentPosition) {
             boolean firstTrail = this.edges.isEmpty();
             // Trail windows arrive as exact server ticks, so there is no fractional start-time
@@ -372,9 +470,9 @@ public final class RigSwordTrailManager {
 
             float previous = Math.max(0.0F, elapsed - 1.0F);
             float middle = (previous + elapsed) * 0.5F;
-            TrailEdge prevEdge = sampleEdge(mob, active.animationId(), arm, previous, 0.0F, this.definition, forceCurrentPosition);
-            TrailEdge middleEdge = sampleEdge(mob, active.animationId(), arm, middle, 0.5F, this.definition, forceCurrentPosition);
-            TrailEdge currentEdge = sampleEdge(mob, active.animationId(), arm, elapsed, 1.0F, this.definition, forceCurrentPosition);
+            TrailEdge prevEdge = playback.sample(mob, arm, previous, 0.0F, this.definition, forceCurrentPosition);
+            TrailEdge middleEdge = playback.sample(mob, arm, middle, 0.5F, this.definition, forceCurrentPosition);
+            TrailEdge currentEdge = playback.sample(mob, arm, elapsed, 1.0F, this.definition, forceCurrentPosition);
 
             TrailEdge edge1;
             TrailEdge edge2;
@@ -423,6 +521,7 @@ public final class RigSwordTrailManager {
             this.edges.clear();
             this.invisibleEdges.clear();
             this.startEdgeCorrection = 0.0F;
+            this.animationIdentity = null;
             this.lastOwnerPosition = null;
             this.removing = false;
             this.removeTicksRemaining = 0;
@@ -436,6 +535,16 @@ public final class RigSwordTrailManager {
         float bodyYaw = forceCurrentPosition ? mob.yBodyRot : Mth.rotLerp(entityPartial, mob.yBodyRotO, mob.yBodyRot);
         RigColliderAnchor anchor = arm == HumanoidArm.RIGHT ? RigColliderAnchor.RIGHT_TOOL : RigColliderAnchor.LEFT_TOOL;
         RigPartTransform tool = RigPoseSampler.sample(animationId, elapsed, anchor, ownerPosition, bodyYaw);
+        return new TrailEdge(tool.transformPoint(definition.beginPos()), tool.transformPoint(definition.endPos()), definition.lifetimeTicks());
+    }
+
+    private static TrailEdge sampleSpecialEdge(Mob mob, SpecialAnimationId animationId, HumanoidArm arm,
+                                               float elapsed, float entityPartial, RigSwordTrailDefinition definition,
+                                               boolean forceCurrentPosition) {
+        Vec3 ownerPosition = forceCurrentPosition ? mob.position() : mob.getPosition(entityPartial);
+        float bodyYaw = forceCurrentPosition ? mob.yBodyRot : Mth.rotLerp(entityPartial, mob.yBodyRotO, mob.yBodyRot);
+        String boneName = arm == HumanoidArm.RIGHT ? "Tool_R" : "Tool_L";
+        RigPartTransform tool = SpecialPoseSampler.sample(animationId, elapsed, boneName, ownerPosition, bodyYaw);
         return new TrailEdge(tool.transformPoint(definition.beginPos()), tool.transformPoint(definition.endPos()), definition.lifetimeTicks());
     }
 

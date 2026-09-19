@@ -1452,306 +1452,306 @@ public class AvGolemAxeLivingSkillAnimations {
                 ))
                 .build();
 
-        public static final AnimationDefinition AXE_WALK = AnimationDefinition.Builder.withLength(1.0F)
-                .looping()
-                .addAnimation("Root", new AnimationChannel(AnimationChannel.Targets.POSITION,
-                        new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, -1.3814F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, -1.7365F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, -1.7213F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, -1.681F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.posVec(0.0F, -1.4369F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.posVec(0.0F, -1.3967F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.posVec(0.0F, -1.3814F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.posVec(0.0F, -1.7365F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.posVec(0.0F, -1.7213F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.75F, KeyframeAnimations.posVec(0.0F, -1.6242F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.posVec(0.0F, -1.4369F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.posVec(0.0F, -1.3967F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.posVec(0.0F, -1.3814F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(-5.0429F, 8.716F, 0.7562F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.05F, KeyframeAnimations.degreeVec(-5.0462F, 8.466F, 0.7557F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.degreeVec(-5.0685F, 6.7871F, 0.7527F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.degreeVec(-5.1351F, 1.7109F, 0.7478F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.degreeVec(-5.157F, 0.032F, 0.7474F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(-5.1603F, -0.2179F, 0.7474F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.55F, KeyframeAnimations.degreeVec(-5.157F, 0.032F, 0.7474F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.degreeVec(-5.1351F, 1.7109F, 0.7478F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.degreeVec(-5.0685F, 6.7871F, 0.7527F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.degreeVec(-5.0462F, 8.466F, 0.7557F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(-5.0429F, 8.716F, 0.7562F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("chest", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(7.2926F, 5.1193F, -0.4035F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.05F, KeyframeAnimations.degreeVec(7.2907F, 4.789F, -0.4335F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.degreeVec(7.2864F, 3.8918F, -0.5149F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.degreeVec(7.2823F, 2.5687F, -0.6345F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.degreeVec(7.3042F, -4.1479F, -1.2417F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.degreeVec(7.317F, -5.4709F, -1.3622F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.degreeVec(7.3273F, -6.3681F, -1.4442F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(7.3314F, -6.6984F, -1.4745F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.55F, KeyframeAnimations.degreeVec(7.3273F, -6.3681F, -1.4442F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.degreeVec(7.317F, -5.4709F, -1.3622F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.7F, KeyframeAnimations.degreeVec(7.2925F, -2.5401F, -1.0959F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.degreeVec(7.2823F, 2.5687F, -0.6345F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.degreeVec(7.2864F, 3.8918F, -0.5149F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.degreeVec(7.2907F, 4.789F, -0.4335F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(7.2926F, 5.1193F, -0.4035F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("head", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(-0.9552F, -14.0113F, 0.7066F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.05F, KeyframeAnimations.degreeVec(-0.9487F, -13.3888F, 0.682F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.degreeVec(-0.9325F, -11.696F, 0.6156F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.degreeVec(-0.9125F, -9.1944F, 0.5191F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.degreeVec(-0.8757F, 3.5361F, 0.0429F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.degreeVec(-0.8809F, 6.0378F, -0.0504F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.degreeVec(-0.8868F, 7.7306F, -0.1139F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(-0.8895F, 8.3532F, -0.1374F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.55F, KeyframeAnimations.degreeVec(-0.8868F, 7.7306F, -0.1139F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.degreeVec(-0.8809F, 6.0378F, -0.0504F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.degreeVec(-0.8757F, 3.5361F, 0.0429F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.degreeVec(-0.9125F, -9.1944F, 0.5191F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.degreeVec(-0.9325F, -11.696F, 0.6156F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.degreeVec(-0.9487F, -13.3888F, 0.682F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(-0.9552F, -14.0113F, 0.7066F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_1_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(-27.5697F, 7.3382F, -10.5711F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.05F, KeyframeAnimations.degreeVec(-27.7865F, 6.9961F, -10.5374F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.degreeVec(-28.3758F, 6.0674F, -10.4392F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.degreeVec(-29.2465F, 4.6992F, -10.2771F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.degreeVec(-33.7264F, -2.2026F, -9.1348F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.degreeVec(-34.6268F, -3.5498F, -8.8459F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.degreeVec(-35.2417F, -4.4602F, -8.6377F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(-35.4692F, -4.7948F, -8.5586F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.55F, KeyframeAnimations.degreeVec(-35.2417F, -4.4602F, -8.6377F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.degreeVec(-34.6267F, -3.5498F, -8.8459F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.degreeVec(-33.7263F, -2.2026F, -9.1348F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.degreeVec(-29.2465F, 4.6992F, -10.2771F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.degreeVec(-28.3758F, 6.0674F, -10.4392F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.degreeVec(-27.7865F, 6.9961F, -10.5374F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(-27.5697F, 7.3382F, -10.5711F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_2_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_3_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_4_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_5_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_6_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_7_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("Tool_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(-93.1896F, -3.1011F, -180.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_1_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(-1.004F, 1.2818F, 32.4884F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.degreeVec(-0.7104F, 1.0937F, 32.5374F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.degreeVec(1.5202F, -0.347F, 32.879F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(1.8125F, -0.5372F, 32.9197F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.degreeVec(1.5202F, -0.347F, 32.879F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.degreeVec(-0.7104F, 1.0937F, 32.5374F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(-1.004F, 1.2818F, 32.4884F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_2_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_3_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_4_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_5_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_6_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_7_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("Tool_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(-86.6868F, 1.7588F, -161.8702F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("leg_up_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(-180.0F, 9.7001F, -180.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.degreeVec(-180.0F, 5.7949F, -180.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.degreeVec(0.0F, 1.1316F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.2F, KeyframeAnimations.degreeVec(0.0F, 17.3605F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, 35.9243F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.3F, KeyframeAnimations.degreeVec(0.0F, 52.75F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.0F, 64.0795F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.degreeVec(0.0F, 68.4283F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.degreeVec(0.0F, 54.8084F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(0.0F, 35.5962F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.degreeVec(0.0F, 40.9492F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.degreeVec(0.0F, 41.2416F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.7F, KeyframeAnimations.degreeVec(0.0F, 38.169F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, 28.5147F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.8F, KeyframeAnimations.degreeVec(0.0F, 13.7519F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.degreeVec(-180.0F, 0.8621F, -180.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.degreeVec(-180.0F, 9.3401F, -180.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.degreeVec(-180.0F, 9.7721F, -180.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(-180.0F, 9.7001F, -180.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("leg_down_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 29.2282F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.05F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 33.5831F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 37.4527F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 47.15F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.2F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 64.299F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 78.3372F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.3F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 85.2255F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 84.9078F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 80.9776F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 58.8948F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 28.1354F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.55F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 32.8371F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 36.9654F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 43.1804F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.7F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 52.7158F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 56.1505F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.8F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 50.4473F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 38.0086F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 29.0554F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 29.2282F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("leg_up_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, -35.5962F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.degreeVec(0.0F, -40.9492F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.degreeVec(0.0F, -41.2416F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.2F, KeyframeAnimations.degreeVec(0.0F, -38.169F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, -28.5147F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.3F, KeyframeAnimations.degreeVec(0.0F, -13.7519F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.degreeVec(-180.0F, -0.8621F, 180.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.degreeVec(-180.0F, -9.3401F, 180.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.degreeVec(-180.0F, -9.7721F, 180.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(-180.0F, -9.7001F, 180.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.degreeVec(-180.0F, -5.7949F, 180.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.degreeVec(0.0F, -1.1316F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.7F, KeyframeAnimations.degreeVec(0.0F, -17.3605F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, -35.9243F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.8F, KeyframeAnimations.degreeVec(0.0F, -52.75F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.0F, -64.0795F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.degreeVec(0.0F, -68.4283F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.degreeVec(0.0F, -54.8084F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, -35.5962F, 0.0F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("leg_down_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -28.1354F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.05F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -32.8371F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -36.9654F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -43.1804F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.2F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -52.7158F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -56.1505F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.3F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -50.4473F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -38.0086F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -29.0554F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -29.2282F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.55F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -33.5831F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -37.4527F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -47.15F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.7F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -64.299F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -78.3372F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.8F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -85.2255F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -84.9078F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -80.9776F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -58.8948F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -28.1354F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_s_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(-27.0643F, -6.5872F, -10.9401F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.05F, KeyframeAnimations.degreeVec(-27.3997F, -6.3585F, -10.8965F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.degreeVec(-28.3087F, -5.7363F, -10.7706F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.degreeVec(-29.6428F, -4.8154F, -10.5648F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.degreeVec(-36.2297F, -0.0391F, -9.1543F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.degreeVec(-37.4764F, 0.9291F, -8.8059F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.degreeVec(-38.3097F, 1.5919F, -8.5567F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(-38.6139F, 1.8373F, -8.4622F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.55F, KeyframeAnimations.degreeVec(-38.3097F, 1.5919F, -8.5567F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.degreeVec(-37.4764F, 0.9291F, -8.8059F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.7F, KeyframeAnimations.degreeVec(-34.6887F, -1.2019F, -9.5468F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.degreeVec(-29.6428F, -4.8154F, -10.5648F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.degreeVec(-28.3087F, -5.7363F, -10.7706F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.degreeVec(-27.3997F, -6.3586F, -10.8965F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(-27.0644F, -6.5872F, -10.9401F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_s_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
-                        new Keyframe(0.0F, KeyframeAnimations.posVec(-0.2875F, -1.3884F, -2.5191F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.05F, KeyframeAnimations.posVec(-0.2598F, -1.5659F, -2.4114F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.posVec(-0.1901F, -1.7434F, -2.1178F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.posVec(-0.1022F, -1.7282F, -1.6813F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.2F, KeyframeAnimations.posVec(-0.0192F, -1.688F, -1.1466F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.25F, KeyframeAnimations.posVec(0.041F, -1.6311F, -0.5602F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.3F, KeyframeAnimations.posVec(0.0697F, -1.5659F, 0.0289F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.posVec(0.0682F, -1.5007F, 0.571F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.posVec(0.0469F, -1.4438F, 1.0168F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.posVec(0.0222F, -1.4036F, 1.3186F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.posVec(0.011F, -1.3884F, 1.4296F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.55F, KeyframeAnimations.posVec(0.0222F, -1.5659F, 1.3186F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.posVec(0.0469F, -1.7434F, 1.0168F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.posVec(0.0682F, -1.7282F, 0.571F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.7F, KeyframeAnimations.posVec(0.0697F, -1.688F, 0.0289F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.75F, KeyframeAnimations.posVec(0.041F, -1.6311F, -0.5602F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.8F, KeyframeAnimations.posVec(-0.0192F, -1.5659F, -1.1466F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.posVec(-0.1022F, -1.5007F, -1.6813F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.posVec(-0.1901F, -1.4438F, -2.1178F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.posVec(-0.2598F, -1.4036F, -2.4114F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.posVec(-0.2875F, -1.3884F, -2.5191F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_s_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                        new Keyframe(0.0F, KeyframeAnimations.degreeVec(-10.2091F, -9.2102F, -327.2434F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.05F, KeyframeAnimations.degreeVec(-9.8151F, -8.7689F, -327.2719F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.degreeVec(-8.7475F, -7.5705F, -327.3382F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.degreeVec(-7.1772F, -5.8035F, -327.4075F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.25F, KeyframeAnimations.degreeVec(-3.2012F, -1.3244F, -327.433F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.7891F, 3.1394F, -327.2452F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.degreeVec(2.3727F, 4.892F, -327.1123F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.degreeVec(3.4518F, 6.078F, -327.0031F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.degreeVec(3.8505F, 6.5141F, -326.9588F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.55F, KeyframeAnimations.degreeVec(3.4518F, 6.078F, -327.0031F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.degreeVec(2.3727F, 4.892F, -327.1123F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.degreeVec(0.7891F, 3.1394F, -327.2452F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.75F, KeyframeAnimations.degreeVec(-3.2012F, -1.3244F, -327.433F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.degreeVec(-7.1772F, -5.8035F, -327.4074F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.degreeVec(-8.7475F, -7.5705F, -327.3382F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.degreeVec(-9.8151F, -8.7689F, -327.2719F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.degreeVec(-10.2091F, -9.2102F, -327.2434F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .addAnimation("arm_s_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
-                        new Keyframe(0.0F, KeyframeAnimations.posVec(0.3431F, -1.4325F, 2.6992F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.05F, KeyframeAnimations.posVec(0.3189F, -1.61F, 2.5906F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.1F, KeyframeAnimations.posVec(0.2588F, -1.7876F, 2.2944F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.15F, KeyframeAnimations.posVec(0.1852F, -1.7723F, 1.8551F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.2F, KeyframeAnimations.posVec(0.1199F, -1.7321F, 1.3181F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.25F, KeyframeAnimations.posVec(0.0792F, -1.6752F, 0.731F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.3F, KeyframeAnimations.posVec(0.0701F, -1.61F, 0.1429F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.35F, KeyframeAnimations.posVec(0.0896F, -1.5448F, -0.3968F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.4F, KeyframeAnimations.posVec(0.1257F, -1.488F, -0.8396F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.45F, KeyframeAnimations.posVec(0.1605F, -1.4477F, -1.1388F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.5F, KeyframeAnimations.posVec(0.1753F, -1.4325F, -1.2486F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.55F, KeyframeAnimations.posVec(0.1605F, -1.61F, -1.1387F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.6F, KeyframeAnimations.posVec(0.1257F, -1.7876F, -0.8396F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.65F, KeyframeAnimations.posVec(0.0896F, -1.7723F, -0.3968F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.7F, KeyframeAnimations.posVec(0.0701F, -1.7321F, 0.1429F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.75F, KeyframeAnimations.posVec(0.0792F, -1.6752F, 0.731F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.8F, KeyframeAnimations.posVec(0.1199F, -1.61F, 1.3181F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.85F, KeyframeAnimations.posVec(0.1852F, -1.5448F, 1.8551F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.9F, KeyframeAnimations.posVec(0.2588F, -1.488F, 2.2944F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(0.95F, KeyframeAnimations.posVec(0.3189F, -1.4477F, 2.5906F), AnimationChannel.Interpolations.LINEAR),
-                        new Keyframe(1.0F, KeyframeAnimations.posVec(0.3431F, -1.4325F, 2.6992F), AnimationChannel.Interpolations.LINEAR)
-                ))
-                .build();
+	public static final AnimationDefinition AXE_WALK = AnimationDefinition.Builder.withLength(1.0F)
+		.looping()
+		.addAnimation("Root", new AnimationChannel(AnimationChannel.Targets.POSITION,
+			new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, -1.3814F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.posVec(0.0F, -1.7365F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.posVec(0.0F, -1.7213F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.2F, KeyframeAnimations.posVec(0.0F, -1.681F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.posVec(0.0F, -1.4369F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.posVec(0.0F, -1.3967F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.posVec(0.0F, -1.3814F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.posVec(0.0F, -1.7365F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.posVec(0.0F, -1.7213F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.75F, KeyframeAnimations.posVec(0.0F, -1.6242F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.posVec(0.0F, -1.4369F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.posVec(0.0F, -1.3967F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.posVec(0.0F, -1.3814F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(-5.0429F, 8.716F, 0.7562F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.05F, KeyframeAnimations.degreeVec(-5.0462F, 8.466F, 0.7557F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.degreeVec(-5.0685F, 6.7871F, 0.7527F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.degreeVec(-5.1351F, 1.7109F, 0.7478F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.degreeVec(-5.157F, 0.032F, 0.7474F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(-5.1603F, -0.2179F, 0.7474F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.55F, KeyframeAnimations.degreeVec(-5.157F, 0.032F, 0.7474F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.degreeVec(-5.1351F, 1.7109F, 0.7478F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.degreeVec(-5.0685F, 6.7871F, 0.7527F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.degreeVec(-5.0462F, 8.466F, 0.7557F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(-5.0429F, 8.716F, 0.7562F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("chest", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(7.2926F, 5.1193F, -0.4035F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.05F, KeyframeAnimations.degreeVec(7.2907F, 4.789F, -0.4335F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.degreeVec(7.2864F, 3.8918F, -0.5149F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.degreeVec(7.2823F, 2.5687F, -0.6345F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.degreeVec(7.3042F, -4.1479F, -1.2417F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.degreeVec(7.317F, -5.4709F, -1.3622F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.degreeVec(7.3273F, -6.3681F, -1.4442F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(7.3314F, -6.6984F, -1.4745F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.55F, KeyframeAnimations.degreeVec(7.3273F, -6.3681F, -1.4442F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.degreeVec(7.317F, -5.4709F, -1.3622F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.7F, KeyframeAnimations.degreeVec(7.2925F, -2.5401F, -1.0959F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.degreeVec(7.2823F, 2.5687F, -0.6345F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.degreeVec(7.2864F, 3.8918F, -0.5149F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.degreeVec(7.2907F, 4.789F, -0.4335F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(7.2926F, 5.1193F, -0.4035F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("head", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(-0.9552F, -14.0113F, 0.7066F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.05F, KeyframeAnimations.degreeVec(-0.9487F, -13.3888F, 0.682F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.degreeVec(-0.9325F, -11.696F, 0.6156F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.degreeVec(-0.9125F, -9.1944F, 0.5191F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.degreeVec(-0.8757F, 3.5361F, 0.0429F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.degreeVec(-0.8809F, 6.0378F, -0.0504F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.degreeVec(-0.8868F, 7.7306F, -0.1139F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(-0.8895F, 8.3532F, -0.1374F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.55F, KeyframeAnimations.degreeVec(-0.8868F, 7.7306F, -0.1139F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.degreeVec(-0.8809F, 6.0378F, -0.0504F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.degreeVec(-0.8757F, 3.5361F, 0.0429F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.degreeVec(-0.9125F, -9.1944F, 0.5191F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.degreeVec(-0.9325F, -11.696F, 0.6156F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.degreeVec(-0.9487F, -13.3888F, 0.682F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(-0.9552F, -14.0113F, 0.7066F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_1_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(-27.5697F, 7.3382F, -10.5711F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.05F, KeyframeAnimations.degreeVec(-27.7865F, 6.9961F, -10.5374F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.degreeVec(-28.3758F, 6.0674F, -10.4392F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.degreeVec(-29.2465F, 4.6992F, -10.2771F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.degreeVec(-33.7264F, -2.2026F, -9.1348F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.degreeVec(-34.6268F, -3.5498F, -8.8459F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.degreeVec(-35.2417F, -4.4602F, -8.6377F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(-35.4692F, -4.7948F, -8.5586F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.55F, KeyframeAnimations.degreeVec(-35.2417F, -4.4602F, -8.6377F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.degreeVec(-34.6267F, -3.5498F, -8.8459F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.degreeVec(-33.7263F, -2.2026F, -9.1348F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.degreeVec(-29.2465F, 4.6992F, -10.2771F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.degreeVec(-28.3758F, 6.0674F, -10.4392F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.degreeVec(-27.7865F, 6.9961F, -10.5374F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(-27.5697F, 7.3382F, -10.5711F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_2_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_3_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_4_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_5_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_6_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_7_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(9.0047F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("Tool_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(-93.1896F, -3.1011F, -180.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_1_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(-1.004F, 1.2818F, 32.4884F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.degreeVec(-0.7104F, 1.0937F, 32.5374F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.degreeVec(1.5202F, -0.347F, 32.879F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(1.8125F, -0.5372F, 32.9197F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.degreeVec(1.5202F, -0.347F, 32.879F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.degreeVec(-0.7104F, 1.0937F, 32.5374F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(-1.004F, 1.2818F, 32.4884F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_2_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_3_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_4_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_5_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_6_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_7_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(30.8229F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("Tool_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(-86.6868F, 1.7588F, -161.8702F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("leg_up_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(-180.0F, 9.7001F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.degreeVec(-180.0F, 5.7949F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.degreeVec(-180.0F, -1.8871F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.2F, KeyframeAnimations.degreeVec(-180.0F, -18.116F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.25F, KeyframeAnimations.degreeVec(-180.0F, -36.6798F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.3F, KeyframeAnimations.degreeVec(-180.0F, -53.5055F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.degreeVec(-180.0F, -64.835F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.degreeVec(-180.0F, -69.1838F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.degreeVec(-180.0F, -55.5639F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(-180.0F, -36.3517F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.degreeVec(-180.0F, -41.7047F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.degreeVec(-180.0F, -41.9971F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.7F, KeyframeAnimations.degreeVec(-180.0F, -38.9245F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.75F, KeyframeAnimations.degreeVec(-180.0F, -29.2702F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.8F, KeyframeAnimations.degreeVec(-180.0F, -14.5074F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.degreeVec(-180.0F, 0.8621F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.degreeVec(-180.0F, 9.3401F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.degreeVec(-180.0F, 9.7721F, -180.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(-180.0F, 9.7001F, -180.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("leg_down_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 29.2282F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.05F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 33.5831F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 37.4527F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 47.15F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.2F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 64.299F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 78.3372F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.3F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 85.2255F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 84.9078F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 80.9776F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 58.8948F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 28.1354F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.55F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 32.8371F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 36.9654F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 43.1804F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.7F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 52.7158F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 56.1505F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.8F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 50.4473F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 38.0086F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 29.0554F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 29.2282F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("leg_up_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, -35.5962F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.degreeVec(0.0F, -40.9492F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.degreeVec(0.0F, -41.2416F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.2F, KeyframeAnimations.degreeVec(0.0F, -38.169F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, -28.5147F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.3F, KeyframeAnimations.degreeVec(0.0F, -13.7519F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.0F, 1.6176F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.degreeVec(0.0F, 10.0956F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.degreeVec(0.0F, 10.5276F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(0.0F, 10.4556F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.degreeVec(0.0F, 6.5504F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.degreeVec(0.0F, -1.1316F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.7F, KeyframeAnimations.degreeVec(0.0F, -17.3605F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, -35.9243F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.8F, KeyframeAnimations.degreeVec(0.0F, -52.75F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.0F, -64.0795F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.degreeVec(0.0F, -68.4283F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.degreeVec(0.0F, -54.8084F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, -35.5962F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("leg_down_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -28.1354F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.05F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -32.8371F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -36.9654F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -43.1804F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.2F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -52.7158F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.25F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -56.1505F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.3F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -50.4473F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -38.0086F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -29.0554F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -29.2282F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.55F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -33.5831F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -37.4527F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -47.15F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.7F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -64.299F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.75F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -78.3372F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.8F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -85.2255F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -84.9078F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -80.9776F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -58.8948F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -28.1354F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_s_L", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(-27.0643F, -6.5872F, -10.9401F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.05F, KeyframeAnimations.degreeVec(-27.3997F, -6.3585F, -10.8965F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.degreeVec(-28.3087F, -5.7363F, -10.7706F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.degreeVec(-29.6428F, -4.8154F, -10.5648F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.degreeVec(-36.2297F, -0.0391F, -9.1543F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.degreeVec(-37.4764F, 0.9291F, -8.8059F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.degreeVec(-38.3097F, 1.5919F, -8.5567F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(-38.6139F, 1.8373F, -8.4622F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.55F, KeyframeAnimations.degreeVec(-38.3097F, 1.5919F, -8.5567F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.degreeVec(-37.4764F, 0.9291F, -8.8059F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.7F, KeyframeAnimations.degreeVec(-34.6887F, -1.2019F, -9.5468F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.degreeVec(-29.6428F, -4.8154F, -10.5648F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.degreeVec(-28.3087F, -5.7363F, -10.7706F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.degreeVec(-27.3997F, -6.3586F, -10.8965F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(-27.0644F, -6.5872F, -10.9401F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_s_L", new AnimationChannel(AnimationChannel.Targets.POSITION,
+			new Keyframe(0.0F, KeyframeAnimations.posVec(-0.2875F, -1.3884F, -2.5191F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.05F, KeyframeAnimations.posVec(-0.2598F, -1.5659F, -2.4114F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.posVec(-0.1901F, -1.7434F, -2.1178F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.posVec(-0.1022F, -1.7282F, -1.6813F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.2F, KeyframeAnimations.posVec(-0.0192F, -1.688F, -1.1466F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.25F, KeyframeAnimations.posVec(0.041F, -1.6311F, -0.5602F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.3F, KeyframeAnimations.posVec(0.0697F, -1.5659F, 0.0289F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.posVec(0.0682F, -1.5007F, 0.571F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.posVec(0.0469F, -1.4438F, 1.0168F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.posVec(0.0222F, -1.4036F, 1.3186F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.posVec(0.011F, -1.3884F, 1.4296F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.55F, KeyframeAnimations.posVec(0.0222F, -1.5659F, 1.3186F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.posVec(0.0469F, -1.7434F, 1.0168F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.posVec(0.0682F, -1.7282F, 0.571F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.7F, KeyframeAnimations.posVec(0.0697F, -1.688F, 0.0289F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.75F, KeyframeAnimations.posVec(0.041F, -1.6311F, -0.5602F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.8F, KeyframeAnimations.posVec(-0.0192F, -1.5659F, -1.1466F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.posVec(-0.1022F, -1.5007F, -1.6813F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.posVec(-0.1901F, -1.4438F, -2.1178F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.posVec(-0.2598F, -1.4036F, -2.4114F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.posVec(-0.2875F, -1.3884F, -2.5191F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_s_R", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+			new Keyframe(0.0F, KeyframeAnimations.degreeVec(-10.2091F, -9.2102F, -327.2434F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.05F, KeyframeAnimations.degreeVec(-9.8151F, -8.7689F, -327.2719F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.degreeVec(-8.7475F, -7.5705F, -327.3382F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.degreeVec(-7.1772F, -5.8035F, -327.4075F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.25F, KeyframeAnimations.degreeVec(-3.2012F, -1.3244F, -327.433F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.degreeVec(0.7891F, 3.1394F, -327.2452F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.degreeVec(2.3727F, 4.892F, -327.1123F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.degreeVec(3.4518F, 6.078F, -327.0031F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.degreeVec(3.8505F, 6.5141F, -326.9588F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.55F, KeyframeAnimations.degreeVec(3.4518F, 6.078F, -327.0031F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.degreeVec(2.3727F, 4.892F, -327.1123F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.degreeVec(0.7891F, 3.1394F, -327.2452F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.75F, KeyframeAnimations.degreeVec(-3.2012F, -1.3244F, -327.433F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.degreeVec(-7.1772F, -5.8035F, -327.4074F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.degreeVec(-8.7475F, -7.5705F, -327.3382F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.degreeVec(-9.8151F, -8.7689F, -327.2719F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.degreeVec(-10.2091F, -9.2102F, -327.2434F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.addAnimation("arm_s_R", new AnimationChannel(AnimationChannel.Targets.POSITION,
+			new Keyframe(0.0F, KeyframeAnimations.posVec(0.3431F, -1.4325F, 2.6992F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.05F, KeyframeAnimations.posVec(0.3189F, -1.61F, 2.5906F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.1F, KeyframeAnimations.posVec(0.2588F, -1.7876F, 2.2944F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.15F, KeyframeAnimations.posVec(0.1852F, -1.7723F, 1.8551F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.2F, KeyframeAnimations.posVec(0.1199F, -1.7321F, 1.3181F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.25F, KeyframeAnimations.posVec(0.0792F, -1.6752F, 0.731F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.3F, KeyframeAnimations.posVec(0.0701F, -1.61F, 0.1429F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.35F, KeyframeAnimations.posVec(0.0896F, -1.5448F, -0.3968F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.4F, KeyframeAnimations.posVec(0.1257F, -1.488F, -0.8396F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.45F, KeyframeAnimations.posVec(0.1605F, -1.4477F, -1.1388F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.5F, KeyframeAnimations.posVec(0.1753F, -1.4325F, -1.2486F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.55F, KeyframeAnimations.posVec(0.1605F, -1.61F, -1.1387F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.6F, KeyframeAnimations.posVec(0.1257F, -1.7876F, -0.8396F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.65F, KeyframeAnimations.posVec(0.0896F, -1.7723F, -0.3968F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.7F, KeyframeAnimations.posVec(0.0701F, -1.7321F, 0.1429F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.75F, KeyframeAnimations.posVec(0.0792F, -1.6752F, 0.731F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.8F, KeyframeAnimations.posVec(0.1199F, -1.61F, 1.3181F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.85F, KeyframeAnimations.posVec(0.1852F, -1.5448F, 1.8551F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.9F, KeyframeAnimations.posVec(0.2588F, -1.488F, 2.2944F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(0.95F, KeyframeAnimations.posVec(0.3189F, -1.4477F, 2.5906F), AnimationChannel.Interpolations.LINEAR),
+			new Keyframe(1.0F, KeyframeAnimations.posVec(0.3431F, -1.4325F, 2.6992F), AnimationChannel.Interpolations.LINEAR)
+		))
+		.build();
 
 }

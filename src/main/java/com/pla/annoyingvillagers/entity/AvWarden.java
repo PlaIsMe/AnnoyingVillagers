@@ -64,6 +64,15 @@ public class AvWarden extends Warden implements ForceTickEntity {
             SynchedEntityData.defineId(AvWarden.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_AV_CHASING =
             SynchedEntityData.defineId(AvWarden.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DATA_AV_MOVING =
+            SynchedEntityData.defineId(AvWarden.class, EntityDataSerializers.BOOLEAN);
+    private double avLastServerX;
+    private double avLastServerZ;
+    private boolean avMovementSampleInitialized;
+    private double avClientLastX;
+    private double avClientLastZ;
+    private boolean avClientMovementSampleInitialized;
+    private int avClientMovingTicks;
     private boolean infectedSculk = false;
     private boolean avBrainConfigured;
     private final Map<SpecialAnimationId, Integer> avSeriesCooldowns = new EnumMap<>(SpecialAnimationId.class);
@@ -75,6 +84,7 @@ public class AvWarden extends Warden implements ForceTickEntity {
         super.defineSynchedData();
         this.entityData.define(DATA_BONE_OPEN, false);
         this.entityData.define(DATA_AV_CHASING, false);
+        this.entityData.define(DATA_AV_MOVING, false);
     }
 
     private boolean isBoneOpen() {
@@ -87,6 +97,14 @@ public class AvWarden extends Warden implements ForceTickEntity {
 
     public boolean isAvChasing() {
         return this.entityData.get(DATA_AV_CHASING);
+    }
+
+    public boolean isAvMoving() {
+        return this.entityData.get(DATA_AV_MOVING);
+    }
+
+    public boolean isAvClientMoving() {
+        return this.level().isClientSide() && this.avClientMovingTicks > 0;
     }
 
     public void setEatingUUID(UUID eatingUUID) {
@@ -142,9 +160,8 @@ public class AvWarden extends Warden implements ForceTickEntity {
         if (!this.level().isClientSide()) configureAvCombatBrain();
         super.customServerAiStep();
         if (this.level().isClientSide()) return;
-        LivingEntity currentTarget = this.getTarget();
-        this.entityData.set(DATA_AV_CHASING, currentTarget != null && currentTarget.isAlive());
         tickAvCombat();
+        updateAvMovementState();
 
         if (eatingHerobrine == null && eatingUUID != null) {
             Entity e = ((ServerLevel) level()).getEntity(eatingUUID);
@@ -224,7 +241,12 @@ public class AvWarden extends Warden implements ForceTickEntity {
             infectedSculk = true;
         }
         if (level().isClientSide) {
+            this.updateAvClientMovementState();
             this.setupIdleAnimationStates();
+            if (this.roarAnimationState.isStarted()) this.roarAnimationState.stop();
+            if (this.sniffAnimationState.isStarted() && (this.isAvMoving() || this.isAvChasing() || this.isAvClientMoving())) {
+                this.sniffAnimationState.stop();
+            }
             if (isBoneOpen()) {
                 this.setupEatingAnimationStates();
             }
@@ -238,6 +260,49 @@ public class AvWarden extends Warden implements ForceTickEntity {
             if (isBoneOpen()) setBoneOpen(false);
             burrowThenDespawn();
         }
+    }
+
+
+    private void updateAvClientMovementState() {
+        double x = this.getX();
+        double z = this.getZ();
+        if (!this.avClientMovementSampleInitialized) {
+            this.avClientLastX = x;
+            this.avClientLastZ = z;
+            this.avClientMovementSampleInitialized = true;
+        }
+        double dx = x - this.avClientLastX;
+        double dz = z - this.avClientLastZ;
+        boolean displaced = dx * dx + dz * dz > 1.0E-8D;
+        if (displaced || this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-8D || this.isAvMoving()) {
+            this.avClientMovingTicks = 4;
+        } else if (this.avClientMovingTicks > 0) {
+            --this.avClientMovingTicks;
+        }
+        this.avClientLastX = x;
+        this.avClientLastZ = z;
+    }
+
+    private void updateAvMovementState() {
+        double x = this.getX();
+        double z = this.getZ();
+        if (!this.avMovementSampleInitialized) {
+            this.avLastServerX = x;
+            this.avLastServerZ = z;
+            this.avMovementSampleInitialized = true;
+        }
+        double dx = x - this.avLastServerX;
+        double dz = z - this.avLastServerZ;
+        boolean displaced = dx * dx + dz * dz > 1.0E-8D;
+        Brain<Warden> brain = this.getBrain();
+        boolean hasWalkTarget = brain.hasMemoryValue(MemoryModuleType.WALK_TARGET);
+        boolean moving = !SpecialAnimationController.hasActiveAnimation(this)
+                && (displaced || hasWalkTarget || this.getNavigation().isInProgress() || this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-6D);
+        LivingEntity target = brain.getMemory(MemoryModuleType.ATTACK_TARGET).orElse(this.getTarget());
+        this.entityData.set(DATA_AV_MOVING, moving);
+        this.entityData.set(DATA_AV_CHASING, moving && target != null && target.isAlive());
+        this.avLastServerX = x;
+        this.avLastServerZ = z;
     }
 
     @Override
@@ -285,7 +350,7 @@ public class AvWarden extends Warden implements ForceTickEntity {
             return;
         }
         if (this.avComboIndex < this.avCombo.size()) {
-            if (this.avComboIndex == 0 || targetInAvGrid(target, 1, 0, -1, 3)) playNextAvComboStep(target);
+            if (this.distanceTo(target) <= 10.0F) playNextAvComboStep(target);
             else clearAvCombo();
             return;
         }

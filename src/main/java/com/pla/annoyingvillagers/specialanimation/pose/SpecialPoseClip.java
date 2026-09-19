@@ -32,6 +32,11 @@ public final class SpecialPoseClip {
         return track == null ? Pose.ZERO : track.sample(Math.max(0.0F, elapsedTicks) / TICKS_PER_SECOND);
     }
 
+    public Pose sampleNonReversingRootMotion(String boneName, float elapsedTicks) {
+        Track track = this.tracks.get(boneName);
+        return track == null ? Pose.ZERO : track.sampleNonReversingRootMotion(Math.max(0.0F, elapsedTicks) / TICKS_PER_SECOND);
+    }
+
     public record Bone(String name, Track track) {
     }
 
@@ -57,6 +62,29 @@ public final class SpecialPoseClip {
             Vector position = sampleVector(this.position, timeSeconds);
             Vector rotation = sampleVector(this.rotation, timeSeconds);
             return new Pose(new Vector(position.x(), -position.y(), position.z()), new Vector(rotation.x() * DEG_TO_RAD, rotation.y() * DEG_TO_RAD, rotation.z() * DEG_TO_RAD));
+        }
+
+        private Pose sampleNonReversingRootMotion(float timeSeconds) {
+            Vector position = sampleVector(this.position, timeSeconds);
+            return new Pose(new Vector(position.x(), -position.y(), nonReversingZ(timeSeconds)), Vector.ZERO);
+        }
+
+        private float nonReversingZ(float timeSeconds) {
+            if (this.position.length < 4) return 0.0F;
+            float startZ = this.position[3];
+            float minZ = startZ;
+            float maxZ = startZ;
+            for (int i = 3; i < this.position.length; i += 4) {
+                minZ = Math.min(minZ, this.position[i]);
+                maxZ = Math.max(maxZ, this.position[i]);
+            }
+            boolean forward = startZ - minZ >= maxZ - startZ;
+            float effectiveZ = startZ;
+            for (int i = 0; i + 3 < this.position.length && this.position[i] <= timeSeconds; i += 4) {
+                effectiveZ = forward ? Math.min(effectiveZ, this.position[i + 3]) : Math.max(effectiveZ, this.position[i + 3]);
+            }
+            float sampledZ = sampleVector(this.position, timeSeconds).z();
+            return forward ? Math.min(effectiveZ, sampledZ) : Math.max(effectiveZ, sampledZ);
         }
 
         private static Vector sampleVector(float[] data, float timeSeconds) {

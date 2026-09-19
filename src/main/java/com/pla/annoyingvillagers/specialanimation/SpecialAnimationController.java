@@ -6,6 +6,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.DestructionEyeItem;
 import com.pla.annoyingvillagers.network.ClientboundSpecialAnimation;
 import com.pla.annoyingvillagers.rig.RigOrientedBox;
+import com.pla.annoyingvillagers.specialanimation.pose.SpecialPoseLibrary;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +16,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
@@ -50,6 +52,7 @@ public final class SpecialAnimationController {
         sendAnimation(mob, spec.animationId(), spec.durationTicks());
         scheduleEnd(mob, state);
         scheduleHooks(mob, state);
+        scheduleRootMotion(mob, target, state);
         scheduleCollisions(mob, state);
         return true;
     }
@@ -131,6 +134,36 @@ public final class SpecialAnimationController {
                 }
             };
         }
+    }
+
+    private static void scheduleRootMotion(Mob mob, LivingEntity target, ActiveAnimationState state) {
+        SpecialAnimationFamily family = state.spec().animationId().family();
+        if (family != SpecialAnimationFamily.AV_GOLEM && family != SpecialAnimationFamily.AV_WARDEN) return;
+        Vec3 forward = horizontalDirection(mob, target);
+        for (int elapsedTick = 1; elapsedTick <= state.spec().durationTicks(); elapsedTick++) {
+            int currentElapsedTick = elapsedTick;
+            new DelayedTask(currentElapsedTick - 1) {
+                @Override
+                public void run() {
+                    if (!isCurrent(mob, state) || !mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return;
+                    Vec3 delta = SpecialPoseLibrary.worldRootMotionDelta(state.spec().animationId(), currentElapsedTick - 1.0F, currentElapsedTick, forward);
+                    if (delta.lengthSqr() < 1.0E-8D) return;
+                    mob.move(MoverType.SELF, delta);
+                    mob.hasImpulse = true;
+                    mob.hurtMarked = true;
+                }
+            };
+        }
+    }
+
+    private static Vec3 horizontalDirection(Mob mob, LivingEntity target) {
+        Vec3 direction = target != null ? target.position().subtract(mob.position()) : mob.getLookAngle();
+        direction = new Vec3(direction.x, 0.0D, direction.z);
+        if (direction.lengthSqr() < 1.0E-6D) {
+            direction = Vec3.directionFromRotation(0.0F, mob.getYRot());
+            direction = new Vec3(direction.x, 0.0D, direction.z);
+        }
+        return direction.lengthSqr() < 1.0E-6D ? new Vec3(0.0D, 0.0D, 1.0D) : direction.normalize();
     }
 
     private static void scheduleCollisions(Mob mob, ActiveAnimationState state) {

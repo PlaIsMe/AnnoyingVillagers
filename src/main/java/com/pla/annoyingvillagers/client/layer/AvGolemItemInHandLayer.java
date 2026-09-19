@@ -8,7 +8,9 @@ import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -22,8 +24,21 @@ public class AvGolemItemInHandLayer extends RenderLayer<AvGolem, ModelAvGolem> {
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AvGolem entity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+        renderHeadItem(entity, poseStack, buffer, packedLight);
         renderHand(entity, entity.getMainHandItem(), entity.getMainArm(), poseStack, buffer, packedLight);
         renderHand(entity, entity.getOffhandItem(), entity.getMainArm().getOpposite(), poseStack, buffer, packedLight);
+    }
+
+    private void renderHeadItem(AvGolem entity, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+        ItemStack stack = entity.getItemBySlot(EquipmentSlot.HEAD);
+        if (stack.isEmpty() || stack.getItem() instanceof ArmorItem) return;
+        poseStack.pushPose();
+        this.getParentModel().translateToHead(poseStack);
+        poseStack.translate(0.0D, -0.25D, 0.0D);
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        poseStack.scale(0.625F, -0.625F, -0.625F);
+        this.itemRenderer.renderItem(entity, stack, ItemDisplayContext.HEAD, false, poseStack, buffer, packedLight);
+        poseStack.popPose();
     }
 
     private void renderHand(AvGolem entity, ItemStack stack, HumanoidArm arm, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {

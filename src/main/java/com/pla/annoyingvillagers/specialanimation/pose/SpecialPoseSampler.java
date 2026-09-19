@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.specialanimation.pose;
 
 import com.pla.annoyingvillagers.rig.pose.RigPartTransform;
+import com.pla.annoyingvillagers.specialanimation.SpecialAnimationFamily;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationId;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
@@ -18,7 +19,11 @@ public final class SpecialPoseSampler {
     }
 
     public static RigPartTransform sample(Mob mob, SpecialAnimationId animationId, float elapsedTicks, String boneName, float bodyYaw) {
-        return toWorld(sampleLocal(animationId, elapsedTicks, boneName), mob.position(), bodyYaw);
+        return sample(animationId, elapsedTicks, boneName, mob.position(), bodyYaw);
+    }
+
+    public static RigPartTransform sample(SpecialAnimationId animationId, float elapsedTicks, String boneName, Vec3 entityPosition, float bodyYaw) {
+        return toWorld(sampleLocal(animationId, elapsedTicks, boneName), entityPosition, bodyYaw);
     }
 
     public static RigPartTransform sampleLocal(SpecialAnimationId animationId, float elapsedTicks, String boneName) {
@@ -32,10 +37,18 @@ public final class SpecialPoseSampler {
         }
 
         Matrix4f matrix = new Matrix4f();
+        Vec3 rootMotion = usesServerRootMotion(animationId) ? SpecialPoseLibrary.accumulatedRootMotion(animationId, elapsedTicks) : Vec3.ZERO;
         while (!chain.isEmpty()) {
             SpecialSkeleton.Bone part = chain.pop();
             SpecialPoseClip.Pose pose = clip.sample(part.name(), elapsedTicks);
-            matrix.translate((part.pivotX() + pose.position().x()) / MODEL_UNITS_PER_BLOCK, (part.pivotY() + pose.position().y()) / MODEL_UNITS_PER_BLOCK, (part.pivotZ() + pose.position().z()) / MODEL_UNITS_PER_BLOCK);
+            float x = part.pivotX() + pose.position().x();
+            float y = part.pivotY() + pose.position().y();
+            float z = part.pivotZ() + pose.position().z();
+            if ("Root".equals(part.name())) {
+                x -= (float)rootMotion.x;
+                z -= (float)rootMotion.z;
+            }
+            matrix.translate(x / MODEL_UNITS_PER_BLOCK, y / MODEL_UNITS_PER_BLOCK, z / MODEL_UNITS_PER_BLOCK);
             matrix.rotateZYX(part.zRot() + pose.rotation().z(), part.yRot() + pose.rotation().y(), part.xRot() + pose.rotation().x());
         }
 
@@ -44,6 +57,10 @@ public final class SpecialPoseSampler {
         Vector3f yAxis = matrix.transformDirection(new Vector3f(0.0F, 1.0F, 0.0F)).normalize();
         Vector3f zAxis = matrix.transformDirection(new Vector3f(0.0F, 0.0F, 1.0F)).normalize();
         return new RigPartTransform(new Vec3(-origin.x, MODEL_ORIGIN_HEIGHT - origin.y, -origin.z), new Vec3(-xAxis.x, -xAxis.y, -xAxis.z), new Vec3(-yAxis.x, -yAxis.y, -yAxis.z), new Vec3(-zAxis.x, -zAxis.y, -zAxis.z));
+    }
+
+    private static boolean usesServerRootMotion(SpecialAnimationId animationId) {
+        return animationId.family() == SpecialAnimationFamily.AV_GOLEM || animationId.family() == SpecialAnimationFamily.AV_WARDEN;
     }
 
     private static RigPartTransform toWorld(RigPartTransform local, Vec3 entityPosition, float bodyYaw) {
