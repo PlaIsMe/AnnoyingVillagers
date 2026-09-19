@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -38,11 +39,10 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatProfileProvider {
+public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCombatProfileProvider {
     private static final String TAG_PREFERRED_PORTAL_GROUP = "PreferredPortalGroup";
     private static final String TAG_PREFERRED_PORTAL_OWNER = "PreferredPortalOwner";
     private static final String TAG_SNAKE_PROFILE_ATTACK_LOCK = "SnakeBladeProfileAttackLock";
@@ -54,7 +54,7 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
     private static final int VANILLA_RECOVERY_DURATION_TICKS = 20 * 60;
 
     public DemoniacVoltageReaverItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }
@@ -105,21 +105,21 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
     }
 
     public static boolean hasSnakeAnimation(ItemStack stack) {
-        return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean("SnakeAnimation");
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean("SnakeAnimation");
     }
 
     public static void clearSnakeAnimation(ItemStack stack) {
-        if (!stack.hasTag()) {
+        if (!LegacyItemData.has(stack)) {
             return;
         }
-        stack.removeTagKey("SnakeAnimation");
+        LegacyItemData.update(stack, tag -> tag.remove("SnakeAnimation"));
         clearPreferredPortalTarget(stack);
     }
 
     public static boolean tryStartSnakeAnimation(ItemStack stack, LivingEntity livingEntity, boolean guard) {
         boolean launched = guard ? processGuard(stack, livingEntity) : process(stack, livingEntity);
         if (launched || getLastFragment(livingEntity) != null) {
-            stack.getOrCreateTag().putBoolean("SnakeAnimation", true);
+            LegacyItemData.update(stack, tag -> tag.putBoolean("SnakeAnimation", true));
             acquireSnakeProfileAttackLock(livingEntity);
             return true;
         }
@@ -253,30 +253,34 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
             return;
         }
 
-        stack.getOrCreateTag().putUUID(TAG_PREFERRED_PORTAL_GROUP, portalGroupUuid);
-        if (portalOwnerUuid != null) {
-            stack.getOrCreateTag().putUUID(TAG_PREFERRED_PORTAL_OWNER, portalOwnerUuid);
-        } else if (stack.hasTag()) {
-            stack.getTag().remove(TAG_PREFERRED_PORTAL_OWNER);
-        }
+        LegacyItemData.update(stack, tag -> {
+            tag.putUUID(TAG_PREFERRED_PORTAL_GROUP, portalGroupUuid);
+            if (portalOwnerUuid != null) {
+                tag.putUUID(TAG_PREFERRED_PORTAL_OWNER, portalOwnerUuid);
+            } else {
+                tag.remove(TAG_PREFERRED_PORTAL_OWNER);
+            }
+        });
     }
 
     public static void clearPreferredPortalTarget(ItemStack stack) {
-        if (!stack.hasTag()) {
+        if (!LegacyItemData.has(stack)) {
             return;
         }
-        stack.removeTagKey(TAG_PREFERRED_PORTAL_GROUP);
-        stack.removeTagKey(TAG_PREFERRED_PORTAL_OWNER);
+        LegacyItemData.update(stack, tag -> {
+            tag.remove(TAG_PREFERRED_PORTAL_GROUP);
+            tag.remove(TAG_PREFERRED_PORTAL_OWNER);
+        });
     }
 
     private static PortalEntity findPreferredPortalTarget(ItemStack stack, LivingEntity attacker) {
-        if (!stack.hasTag() || !stack.getTag().hasUUID(TAG_PREFERRED_PORTAL_GROUP)) {
+        if (!LegacyItemData.has(stack) || !LegacyItemData.get(stack).hasUUID(TAG_PREFERRED_PORTAL_GROUP)) {
             return null;
         }
 
-        UUID preferredGroup = stack.getTag().getUUID(TAG_PREFERRED_PORTAL_GROUP);
-        UUID preferredOwner = stack.getTag().hasUUID(TAG_PREFERRED_PORTAL_OWNER)
-                ? stack.getTag().getUUID(TAG_PREFERRED_PORTAL_OWNER)
+        UUID preferredGroup = LegacyItemData.get(stack).getUUID(TAG_PREFERRED_PORTAL_GROUP);
+        UUID preferredOwner = LegacyItemData.get(stack).hasUUID(TAG_PREFERRED_PORTAL_OWNER)
+                ? LegacyItemData.get(stack).getUUID(TAG_PREFERRED_PORTAL_OWNER)
                 : null;
         PortalEntity bestPortal = null;
 
@@ -562,11 +566,15 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
 //                joint.m32 + ent.getZ()
 //        );
 
-        if (ent instanceof Player player) {
-            if (ModList.get().isLoaded("bettercombat") && player.level().isClientSide()) {
-                Vec3 animatedTip = BetterCombatSnakeAttachment.getToolTipPos(player);
-                if (animatedTip != null) return animatedTip;
+        if (ent instanceof LivingEntity living && living.level().isClientSide()) {
+            Vec3 renderedToolTip = BetterCombatSnakeAttachment.getToolTipPos(living);
+            if (renderedToolTip != null) {
+                return ent instanceof SwordsmanHerobrineEntity
+                        ? renderedToolTip.add(0.0D, 0.2D, 0.0D)
+                        : renderedToolTip;
             }
+        }
+        if (ent instanceof Player player) {
             float bodyYaw = Mth.lerp(partialTicks, player.yBodyRotO, player.yBodyRot) * Mth.DEG_TO_RAD;
             double sinYaw = Mth.sin(bodyYaw);
             double cosYaw = Mth.cos(bodyYaw);
@@ -594,19 +602,21 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
     }
 
     public static boolean isVanillaAwakened(ItemStack stack, Level level) {
-        return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean("SecondForm") && level.getGameTime() < stack.getTag().getLong(VANILLA_AWAKEN_EXPIRES_TAG);
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean("SecondForm") && level.getGameTime() < LegacyItemData.get(stack).getLong(VANILLA_AWAKEN_EXPIRES_TAG);
     }
 
     public static boolean isVanillaRecovering(ItemStack stack, Level level) {
-        return stack.hasTag() && stack.getTag() != null && stack.getTag().contains(VANILLA_RECOVERY_UNTIL_TAG) && level.getGameTime() < stack.getTag().getLong(VANILLA_RECOVERY_UNTIL_TAG);
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).contains(VANILLA_RECOVERY_UNTIL_TAG) && level.getGameTime() < LegacyItemData.get(stack).getLong(VANILLA_RECOVERY_UNTIL_TAG);
     }
 
     public static boolean activateVanillaSpecial(Player player) {
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide()) return false;
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof DemoniacVoltageReaverItem) || isVanillaAwakened(stack, player.level()) || isVanillaRecovering(stack, player.level())) return false;
-        stack.getOrCreateTag().putBoolean("SecondForm", true);
-        stack.getOrCreateTag().putLong(VANILLA_AWAKEN_EXPIRES_TAG, player.level().getGameTime() + VANILLA_AWAKEN_DURATION_TICKS);
+        LegacyItemData.update(stack, tag -> {
+            tag.putBoolean("SecondForm", true);
+            tag.putLong(VANILLA_AWAKEN_EXPIRES_TAG, player.level().getGameTime() + VANILLA_AWAKEN_DURATION_TICKS);
+        });
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         HerobrineUtil.spawnEliteEffect(player.level(), player.getX(), player.getY(), player.getZ(), player);
@@ -635,7 +645,7 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.literal(Component.translatable("tooltip.annoyingvillagers.demoniac_voltage_reaver").getString()));
     }
@@ -648,11 +658,11 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
 //            if (skillContainer != null) {
 //                if (skillContainer.getStack() >= 1) {
 //                    HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
-//                    if (itemstack.getTag() != null && !itemstack.getTag().getBoolean("SecondForm")) {
-//                        itemstack.getTag().putBoolean("SecondForm", true);
+//                    if (LegacyItemData.get(itemstack) != null && !LegacyItemData.get(itemstack).getBoolean("SecondForm")) {
+//                        LegacyItemData.get(itemstack).putBoolean("SecondForm", true);
 //                    }
-//                } else if (skillContainer.getStack() < 1 && itemstack.getTag() != null && itemstack.getTag().getBoolean("SecondForm")) {
-//                    itemstack.getTag().remove("SecondForm");
+//                } else if (skillContainer.getStack() < 1 && LegacyItemData.get(itemstack) != null && LegacyItemData.get(itemstack).getBoolean("SecondForm")) {
+//                    LegacyItemData.get(itemstack).remove("SecondForm");
 //                }
 //            }
 //        }
@@ -661,28 +671,30 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
 
     public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
         super.inventoryTick(itemstack, level, entity, i, flag);
-        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && itemstack.hasTag() && itemstack.getTag() != null && itemstack.getTag().getBoolean("SecondForm") && (!itemstack.getTag().contains(VANILLA_AWAKEN_EXPIRES_TAG) || level.getGameTime() >= itemstack.getTag().getLong(VANILLA_AWAKEN_EXPIRES_TAG))) {
-            itemstack.getTag().remove("SecondForm");
-            itemstack.getTag().remove(VANILLA_AWAKEN_EXPIRES_TAG);
-            itemstack.getOrCreateTag().putLong(VANILLA_RECOVERY_UNTIL_TAG, level.getGameTime() + VANILLA_RECOVERY_DURATION_TICKS);
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && LegacyItemData.has(itemstack) && LegacyItemData.get(itemstack) != null && LegacyItemData.get(itemstack).getBoolean("SecondForm") && (!LegacyItemData.get(itemstack).contains(VANILLA_AWAKEN_EXPIRES_TAG) || level.getGameTime() >= LegacyItemData.get(itemstack).getLong(VANILLA_AWAKEN_EXPIRES_TAG))) {
+            LegacyItemData.update(itemstack, tag -> {
+                tag.remove("SecondForm");
+                tag.remove(VANILLA_AWAKEN_EXPIRES_TAG);
+                tag.putLong(VANILLA_RECOVERY_UNTIL_TAG, level.getGameTime() + VANILLA_RECOVERY_DURATION_TICKS);
+            });
             if (entity instanceof Player player) player.getCooldowns().addCooldown(itemstack.getItem(), VANILLA_RECOVERY_DURATION_TICKS);
             clearSnakeAnimation(itemstack);
             if (entity instanceof Player player) releaseSnakeProfileAttackLock(player);
         }
-        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && entity instanceof Player player && itemstack.hasTag() && itemstack.getTag() != null) {
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && entity instanceof Player player && LegacyItemData.has(itemstack) && LegacyItemData.get(itemstack) != null) {
             long cooldownUntil = isVanillaAwakened(itemstack, level)
-                    ? itemstack.getTag().getLong(VANILLA_AWAKEN_EXPIRES_TAG)
-                    : itemstack.getTag().getLong(VANILLA_RECOVERY_UNTIL_TAG);
+                    ? LegacyItemData.get(itemstack).getLong(VANILLA_AWAKEN_EXPIRES_TAG)
+                    : LegacyItemData.get(itemstack).getLong(VANILLA_RECOVERY_UNTIL_TAG);
             long remaining = cooldownUntil - level.getGameTime();
             if (remaining > 0L && player.getCooldowns().getCooldownPercent(itemstack.getItem(), 0.0F) <= 0.0F) {
                 player.getCooldowns().addCooldown(itemstack.getItem(), (int)Math.min(Integer.MAX_VALUE, remaining));
             }
-            if (!isVanillaAwakened(itemstack, level) && itemstack.getTag().contains(VANILLA_RECOVERY_UNTIL_TAG) && remaining <= 0L) {
-                itemstack.getTag().remove(VANILLA_RECOVERY_UNTIL_TAG);
+            if (!isVanillaAwakened(itemstack, level) && LegacyItemData.get(itemstack).contains(VANILLA_RECOVERY_UNTIL_TAG) && remaining <= 0L) {
+                LegacyItemData.update(itemstack, tag -> tag.remove(VANILLA_RECOVERY_UNTIL_TAG));
             }
         }
         if (VanillaWeaponAbilityUtil.abilitiesEnabled() && flag && entity instanceof Player player && isVanillaAwakened(itemstack, level)) HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
-        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && entity instanceof Player player && !flag && itemstack.hasTag() && itemstack.getTag().getBoolean("SnakeAnimation")) {
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && entity instanceof Player player && !flag && LegacyItemData.has(itemstack) && LegacyItemData.get(itemstack).getBoolean("SnakeAnimation")) {
             clearSnakeAnimation(itemstack);
             releaseSnakeProfileAttackLock(player);
         }

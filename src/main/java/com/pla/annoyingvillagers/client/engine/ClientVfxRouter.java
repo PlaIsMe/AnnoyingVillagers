@@ -3,8 +3,8 @@ package com.pla.annoyingvillagers.client.engine;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxMode;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.function.BooleanSupplier;
 
@@ -20,8 +20,15 @@ public final class ClientVfxRouter {
             return;
         }
 
+        // The bundled Effekseer effects are the native visuals for effects
+        // that support AAA Particles. Prefer them in DEFAULT mode; Photon is
+        // still the fallback and remains first when explicitly selected.
+        if (mode == VfxMode.DEFAULT && tryAaa(effect, aaa)) {
+            return;
+        }
+
         boolean photonTried = false;
-        boolean aaaTried = false;
+        boolean aaaTried = mode == VfxMode.DEFAULT;
 
         if (mode == VfxMode.PHOTON) {
             photonTried = true;

@@ -32,8 +32,8 @@ public class ModelVillagerKnightArmor<T extends Entity> extends EntityModel<T> {
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
 
-    public void renderToBuffer(PoseStack posestack, VertexConsumer vertexconsumer, int i, int j, float f, float f1, float f2, float f3) {
-        this.Head.render(posestack, vertexconsumer, i, j, f, f1, f2, f3);
+    public void renderToBuffer(PoseStack posestack, VertexConsumer vertexconsumer, int i, int j, int color) {
+        this.Head.render(posestack, vertexconsumer, i, j, color);
     }
 
     public void setupAnim(T t0, float f, float f1, float f2, float f3, float f4) {

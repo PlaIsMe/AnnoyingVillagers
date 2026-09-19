@@ -12,20 +12,22 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
-import net.minecraftforge.event.entity.living.MobSpawnEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.living.MobDespawnEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import java.util.*;
 
 /** Configurable ticket ownership for ordinary mobs, independent of player-like sessions. */
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class ForceTickEntityManager {
     // Shared with PersistentPlayerNpcManager. Keep the established ticket name so both
     // mods' unattended-player checks recognize all AV-owned NPC tickets as non-attendance.
@@ -74,11 +76,11 @@ public final class ForceTickEntityManager {
     }
 
     @SubscribeEvent
-    public static void allowDespawn(MobSpawnEvent.AllowDespawn event) {
+    public static void allowDespawn(MobDespawnEvent event) {
         if (AnnoyingVillagersConfig.FORCE_TICK_MOBS.get() && eligible(event.getEntity())) {
             // Do not persist PersistenceRequired: disabling the feature must restore normal
             // distance-despawn rules. Explicit death/recall/discard remains entity-owned.
-            event.setResult(Event.Result.DENY);
+            event.setResult(MobDespawnEvent.Result.DENY);
         }
     }
 
@@ -101,8 +103,8 @@ public final class ForceTickEntityManager {
     }
 
     @SubscribeEvent
-    public static void tick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+    public static void tick(ServerTickEvent.Post event) {
+        if (false) return;
         MinecraftServer server = event.getServer();
         boolean enabled = AnnoyingVillagersConfig.FORCE_TICK_MOBS.get();
         if (!Objects.equals(lastEnabled, enabled)) {

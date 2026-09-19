@@ -20,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 
 import static com.pla.annoyingvillagers.util.ArmorUtil.dropArmorSlot;
 
-public abstract class HerobrineObsidianDiamondArmorChestplateItem extends ArmorItem {
+public abstract class HerobrineObsidianDiamondArmorChestplateItem extends LegacyArmorItem {
     private static final int CHARGE_METER_STEPS = 10;
     private static final int CHARGE_COLOR = 0xB05CFF;
     private static final int CHARGE_DIM_COLOR = 0x352243;
@@ -36,7 +36,7 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends ArmorI
     private static final int CHARGE_FULL_COLOR = 0xD37CFF;
 
     public HerobrineObsidianDiamondArmorChestplateItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(Type pType) {
                 return switch (pType) {
@@ -44,6 +44,7 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends ArmorI
                     case LEGGINGS -> 15 * 25;
                     case CHESTPLATE -> 600;
                     case HELMET -> 11 * 25;
+                    case BODY -> 600;
                 };
             }
 
@@ -54,11 +55,12 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends ArmorI
                     case LEGGINGS -> 0;
                     case CHESTPLATE -> 24;
                     case HELMET -> 0;
+                    case BODY -> 24;
                 };
             }
 
             public int getEnchantmentValue() { return 0; }
-            public SoundEvent getEquipSound() { return SoundEvents.ARMOR_EQUIP_GENERIC; }
+            public Object getEquipSound() { return SoundEvents.ARMOR_EQUIP_GENERIC; }
             public Ingredient getRepairIngredient() { return Ingredient.of(); }
             public String getName() { return "herobrine_obsidian_diamond_armor"; }
             public float getToughness() { return 2.0F; }
@@ -114,8 +116,9 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends ArmorI
         }
 
         @Override
-        public void onInventoryTick(ItemStack stack, Level level, Player player, int slotIndex, int selectedIndex) {
-            super.onInventoryTick(stack, level, player, slotIndex, selectedIndex);
+        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+            if (!(entity instanceof Player player)) return;
+            super.inventoryTick(stack, level, entity, slotIndex, selected);
             if (player.getItemBySlot(EquipmentSlot.CHEST) == stack) {
                 dropArmorSlot(player, EquipmentSlot.FEET, "Herobrine Obsidian Diamond Chestplate");
                 dropArmorSlot(player, EquipmentSlot.LEGS, "Herobrine Obsidian Diamond Chestplate");
@@ -123,7 +126,7 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends ArmorI
         }
 
         @Override
-        public void appendHoverText(@NotNull ItemStack stack, Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+        public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
             super.appendHoverText(stack, level, tooltip, flag);
             tooltip.add(Component.translatable("tooltip.annoyingvillagers.herobrine_obsidian_chestplate"));
             appendChargeTooltip(stack, tooltip);

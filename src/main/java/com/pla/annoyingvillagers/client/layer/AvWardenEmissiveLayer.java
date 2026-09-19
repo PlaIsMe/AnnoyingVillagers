@@ -31,6 +31,6 @@ public class AvWardenEmissiveLayer extends RenderLayer<AvWarden, ModelAvWarden> 
         if (alpha <= 0.0F) return;
         VertexConsumer consumer = buffer.getBuffer(RenderType.entityTranslucentEmissive(this.texture));
         if (this.tendrilsOnly) this.getParentModel().renderTendrils(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, alpha);
-        else this.getParentModel().renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, alpha);
+        else this.getParentModel().renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, net.minecraft.util.FastColor.ARGB32.colorFromFloat(alpha, 1.0F, 1.0F, 1.0F));
     }
 }

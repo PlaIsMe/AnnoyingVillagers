@@ -67,7 +67,7 @@ public class ThrowingPearlKeyPressedEvent {
 
     public static void execute(final Entity entity) {
         if (entity != null) {
-            if (!(entity.level() instanceof ServerLevel)) return;
+            if (!(entity.level() instanceof ServerLevel serverLevel)) return;
             if (!efmConditionToExecute(entity)) {
                 return;
             }
@@ -87,7 +87,7 @@ public class ThrowingPearlKeyPressedEvent {
                             projectile.shoot(entity.getLookAngle().x, entity.getLookAngle().y, entity.getLookAngle().z, 1.5F, 0.0F);
                             level.addFreshEntity(projectile);
                             entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.ENDER_PEARL_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (entity.level().getRandom().nextFloat() * 0.4F + 0.8F));
-                            stack.hurtAndBreak(1, player, p -> {
+                            stack.hurtAndBreak(1, serverLevel, player, item -> {
                             });
                             return true;
                         }).orElse(false);

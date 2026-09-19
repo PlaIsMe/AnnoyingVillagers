@@ -15,7 +15,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ThrowablePotionItem;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class InventoryUtils {
         for (int i = 0; i < inventory.getContainerSize() && !remaining.isEmpty(); i++) {
             ItemStack slotStack = inventory.getItem(i);
             if (slotStack.isEmpty()
-                    || !ItemStack.isSameItemSameTags(slotStack, remaining)
+                    || !ItemStack.isSameItemSameComponents(slotStack, remaining)
                     || slotStack.getCount() >= slotStack.getMaxStackSize()) {
                 continue;
             }
@@ -277,7 +277,7 @@ public class InventoryUtils {
         if (foodStack.isEmpty()) {
             return false;
         }
-        return consumeItem(entity, stack -> ItemStack.isSameItemSameTags(stack, foodStack), 1).isPresent();
+        return consumeItem(entity, stack -> ItemStack.isSameItemSameComponents(stack, foodStack), 1).isPresent();
     }
 
     public static BlockState getBlockState(ItemStack stack) {
@@ -342,7 +342,7 @@ public class InventoryUtils {
     private static boolean isRegularFoodStack(ItemStack stack) {
         return !stack.is(Items.GOLDEN_APPLE)
                 && !stack.is(Items.ENCHANTED_GOLDEN_APPLE)
-                && stack.isEdible();
+                && stack.get(net.minecraft.core.component.DataComponents.FOOD) != null;
     }
 
     private static ItemStack oneOf(ItemStack stack) {

@@ -34,7 +34,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,13 +60,9 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     private static final double SUMMON_UNDERGROUND_DISTANCE = 5.0D;
     private static final double SUMMON_RISE_DISTANCE = 15.0D;
 
-    public ReaperHerobrineEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.REAPER_HEROBRINE.get(), level);
-    }
-
-    public ReaperHerobrineEntity(EntityType<ReaperHerobrineEntity> entitytype, Level level) {
+        public ReaperHerobrineEntity(EntityType<ReaperHerobrineEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 300;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -239,7 +234,7 @@ public class ReaperHerobrineEntity extends HerobrineMob {
         dragon.setYHeadRot(this.getYRot());
         dragon.setYBodyRot(this.getYRot());
         dragon.setXRot(-85.0F);
-        dragon.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(BlockPos.containing(spawnPos)), MobSpawnType.MOB_SUMMONED, null, null);
+        dragon.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(BlockPos.containing(spawnPos)), MobSpawnType.MOB_SUMMONED, null);
         dragon.setPos(spawnPos);
         dragon.setYRot(this.getYRot());
         dragon.setYHeadRot(this.getYRot());
@@ -374,7 +369,7 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     }
 
     @Override
-    public boolean canChangeDimensions() {
+    public boolean canChangeDimensions(Level from, Level to) {
         return false;
     }
 
@@ -548,7 +543,7 @@ public class ReaperHerobrineEntity extends HerobrineMob {
 
             eliteHerobrineKnockedEntity.moveTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
             eliteHerobrineKnockedEntity.getPersistentData().putString("FromElite", "EnderSlayerScythe");
-            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(eliteHerobrineKnockedEntity);
 

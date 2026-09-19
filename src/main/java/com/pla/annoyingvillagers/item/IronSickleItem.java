@@ -10,10 +10,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class IronSickleItem extends SwordItem implements RigCombatProfileProvider {
+public class IronSickleItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public IronSickleItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 250;
             }

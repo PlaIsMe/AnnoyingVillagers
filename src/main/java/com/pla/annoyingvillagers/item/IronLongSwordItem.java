@@ -7,10 +7,10 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class IronLongSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class IronLongSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public IronLongSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 250;
             }

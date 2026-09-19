@@ -6,8 +6,10 @@ import com.pla.annoyingvillagers.entity.ShadowHerobrineEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.item.*;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomModelData;
 
 public final class RigItemVisualResolver {
     private RigItemVisualResolver() {}
@@ -17,7 +19,7 @@ public final class RigItemVisualResolver {
                 && entity instanceof AngrySteveEntity angrySteve
                 && angrySteve.isLegendaryAwakened()) {
             ItemStack awakenedStack = originalStack.copy();
-            awakenedStack.getOrCreateTag().putInt("CustomModelData", 1);
+            awakenedStack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(1));
             return awakenedStack;
         }
 

@@ -24,18 +24,13 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SledgehammerHerobrineEntity extends HerobrineMob {
-    public SledgehammerHerobrineEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.SLEDGEHAMMER_HEROBRINE.get(), level);
-    }
-
-    public SledgehammerHerobrineEntity(EntityType<SledgehammerHerobrineEntity> entitytype, Level level) {
+        public SledgehammerHerobrineEntity(EntityType<SledgehammerHerobrineEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 80;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -81,7 +76,7 @@ public class SledgehammerHerobrineEntity extends HerobrineMob {
 
             eliteHerobrineKnockedEntity.moveTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
             eliteHerobrineKnockedEntity.getPersistentData().putString("FromElite", "ObsidianSledgehammer");
-            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, (SpawnGroupData)null, (CompoundTag)null);
+            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, (SpawnGroupData)null);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(eliteHerobrineKnockedEntity);
 

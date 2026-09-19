@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.mixin.ThrownTridentAccessor;
 import com.pla.annoyingvillagers.item.BlueDemonChestplateItem;
 import com.pla.annoyingvillagers.util.BlueDemonUtil;
 import net.minecraft.core.BlockPos;
@@ -34,7 +35,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -120,7 +120,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.setOwner(owner);
         this.pickup = AbstractArrow.Pickup.DISALLOWED;
         this.specialImpactTriggered = true;
-        this.dealtDamage = false;
+        ((ThrownTridentAccessor) this).annoyingVillagers$setDealtDamage(false);
 
         Vec3 pos = new Vec3(
                 standPos.getX() + 0.5D,
@@ -320,7 +320,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.setOwner(owner);
         this.pickup = AbstractArrow.Pickup.DISALLOWED;
         this.specialImpactTriggered = true;
-        this.dealtDamage = false;
+        ((ThrownTridentAccessor) this).annoyingVillagers$setDealtDamage(false);
 
         this.entityData.set(DATA_FESTIVAL_RISE_ACTIVE, true);
         this.summonedGroundTridentFestival = true;
@@ -416,26 +416,22 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         super(type, level);
     }
 
-    public BlueDemonThrownTridentEntity(PlayMessages.SpawnEntity packet, Level level) {
-        this(AnnoyingVillagersModEntities.BLUE_DEMON_THROWN_TRIDENT.get(), level);
-    }
-
-    public BlueDemonThrownTridentEntity(Level level, LivingEntity shooter, ItemStack stack) {
+        public BlueDemonThrownTridentEntity(Level level, LivingEntity shooter, ItemStack stack) {
         super(AnnoyingVillagersModEntities.BLUE_DEMON_THROWN_TRIDENT.get(), level);
         this.setOwner(shooter);
         this.pickup = AbstractArrow.Pickup.DISALLOWED;
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DATA_STUCK_FACE, (byte)255);
-        this.entityData.define(DATA_FESTIVAL_RISE_ACTIVE, false);
-        this.entityData.define(DATA_FESTIVAL_GROUNDED_POSE, false);
-        this.entityData.define(DATA_FESTIVAL_POSE_XROT, 90.0F);
-        this.entityData.define(DATA_FESTIVAL_POSE_YROT, 0.0F);
-        this.entityData.define(DATA_FESTIVAL_START_Y, 0.0F);
-        this.entityData.define(DATA_FESTIVAL_END_Y, 0.0F);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_STUCK_FACE, (byte)255);
+        builder.define(DATA_FESTIVAL_RISE_ACTIVE, false);
+        builder.define(DATA_FESTIVAL_GROUNDED_POSE, false);
+        builder.define(DATA_FESTIVAL_POSE_XROT, 90.0F);
+        builder.define(DATA_FESTIVAL_POSE_YROT, 0.0F);
+        builder.define(DATA_FESTIVAL_START_Y, 0.0F);
+        builder.define(DATA_FESTIVAL_END_Y, 0.0F);
     }
 
     private void syncFestivalPoseFromData() {
@@ -473,7 +469,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         float damage = 8.0F;
         DamageSource damageSource = this.damageSources().trident(this, owner == null ? this : owner);
 
-        this.dealtDamage = true;
+        ((ThrownTridentAccessor) this).annoyingVillagers$setDealtDamage(true);
         SoundEvent sound = SoundEvents.TRIDENT_HIT;
 
         boolean hurtSuccess = target.hurt(damageSource, damage);
@@ -481,7 +477,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         if (hurtSuccess) {
             if (target instanceof LivingEntity livingTarget && new Random().nextFloat() <= 0.15F) {
                 livingTarget.addEffect(new MobEffectInstance(
-                        AnnoyingVillagersModMobEffects.ELECTRIFY.get(),
+                        AnnoyingVillagersModMobEffects.ELECTRIFY,
                         20,
                         1
                 ));
@@ -663,7 +659,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
     }
 
     @Override
-    public boolean ignoreExplosion() {
+    public boolean ignoreExplosion(net.minecraft.world.level.Explosion explosion) {
         return true;
     }
 
@@ -958,7 +954,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.inGround = false;
         this.inGroundTime = 0;
         this.shakeTime = 0;
-        this.dealtDamage = false;
+        ((ThrownTridentAccessor) this).annoyingVillagers$setDealtDamage(false);
         this.specialImpactTriggered = false;
 
         this.setNoPhysics(false);
@@ -975,7 +971,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.xRotO = this.getXRot();
 
         this.shoot(normalized.x, normalized.y, normalized.z, speed, inaccuracy);
-        this.playSound(SoundEvents.TRIDENT_THROW, 1.0F, 1.0F);
+        this.playSound(SoundEvents.TRIDENT_THROW.value(), 1.0F, 1.0F);
     }
 
     public void summonSuperLightningAtSelf() {
@@ -1030,7 +1026,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.inGround = false;
         this.inGroundTime = 0;
         this.shakeTime = 0;
-        this.dealtDamage = false;
+        ((ThrownTridentAccessor) this).annoyingVillagers$setDealtDamage(false);
         this.specialImpactTriggered = false;
 
         this.setNoPhysics(true);
@@ -1070,7 +1066,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.inGround = false;
         this.inGroundTime = 0;
         this.shakeTime = 0;
-        this.dealtDamage = false;
+        ((ThrownTridentAccessor) this).annoyingVillagers$setDealtDamage(false);
         this.pickup = AbstractArrow.Pickup.DISALLOWED;
 
         if (direction != null && direction.lengthSqr() > 1.0E-7D) {

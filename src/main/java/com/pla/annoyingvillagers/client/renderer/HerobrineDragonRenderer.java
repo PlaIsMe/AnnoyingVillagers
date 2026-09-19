@@ -52,8 +52,8 @@ public class HerobrineDragonRenderer extends MobRenderer<HerobrineDragonEntity, 
 
     @Override
     protected void setupRotations(@NotNull HerobrineDragonEntity dragon, @NotNull PoseStack ps,
-                                  float ageInTicks, float yaw, float partialTicks) {
-        super.setupRotations(dragon, ps, ageInTicks, yaw, partialTicks);
+                                  float ageInTicks, float yaw, float partialTicks, float scale) {
+        super.setupRotations(dragon, ps, ageInTicks, yaw, partialTicks, scale);
 
         var animator = dragon.getAnimator();
         if (animator != null) {
@@ -84,7 +84,7 @@ public class HerobrineDragonRenderer extends MobRenderer<HerobrineDragonEntity, 
             // Simple glow
             RenderType type = RenderType.eyes(GLOW_TEXTURE);
             getParentModel().renderToBuffer(ps, buffer.getBuffer(type), light, OverlayTexture.NO_OVERLAY,
-                    1f, 1f, 1f, 1f);
+                    -1);
         }
     }
 
@@ -102,10 +102,10 @@ public class HerobrineDragonRenderer extends MobRenderer<HerobrineDragonEntity, 
 
             float delta = dragon.deathTime / (float) dragon.getMaxDeathTime();
             getParentModel().renderToBuffer(ps, buffer.getBuffer(DISSOLVE_TYPE), light, OverlayTexture.NO_OVERLAY,
-                    1f, 1f, 1f, delta);
+                    net.minecraft.util.FastColor.ARGB32.colorFromFloat(delta, 1.0F, 1.0F, 1.0F));
 
             getParentModel().renderToBuffer(ps, buffer.getBuffer(RenderType.entityDecal(BODY_TEXTURE)), light,
-                    OverlayTexture.pack(0, true), 1f, 1f, 1f, 1f);
+                    OverlayTexture.pack(0, true), -1);
         }
     }
 }

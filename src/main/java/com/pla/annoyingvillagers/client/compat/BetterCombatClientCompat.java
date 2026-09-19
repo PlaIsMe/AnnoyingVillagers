@@ -1,14 +1,13 @@
 package com.pla.annoyingvillagers.client.compat;
 
 import com.pla.annoyingvillagers.network.ClientboundBetterCombatAnimation;
-import net.bettercombat.client.animation.AnimationRegistry;
 import net.bettercombat.client.animation.PlayerAttackAnimatable;
 import net.bettercombat.logic.AnimatedHand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.ModList;
 
 @OnlyIn(Dist.CLIENT)
 public final class BetterCombatClientCompat {
@@ -17,7 +16,7 @@ public final class BetterCombatClientCompat {
 
     public static void playAnimation(ClientboundBetterCombatAnimation message) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null || !AnimationRegistry.animations.containsKey(message.animation())) return;
+        if (minecraft.level == null) return;
 
         Entity entity = minecraft.level.getEntity(message.playerId());
         if (!(entity instanceof PlayerAttackAnimatable animatable)) return;

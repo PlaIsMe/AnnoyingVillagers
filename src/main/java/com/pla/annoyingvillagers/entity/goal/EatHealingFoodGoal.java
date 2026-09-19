@@ -167,7 +167,7 @@ public class EatHealingFoodGoal extends Goal {
 
     private boolean equipTemporaryFood() {
         ItemStack consumed = this.avNpc.consumeInventoryItem(
-                stack -> ItemStack.isSameItemSameTags(stack, this.foodStack),
+                stack -> ItemStack.isSameItemSameComponents(stack, this.foodStack),
                 1
         ).orElse(ItemStack.EMPTY);
         if (consumed.isEmpty()) {
@@ -192,7 +192,7 @@ public class EatHealingFoodGoal extends Goal {
 
         if (!this.usingTemporaryFood) {
             ItemStack heldStack = this.avNpc.getItemInHand(this.foodHand);
-            if (!ItemStack.isSameItemSameTags(heldStack, this.foodStack)) {
+            if (!ItemStack.isSameItemSameComponents(heldStack, this.foodStack)) {
                 return;
             }
 

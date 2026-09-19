@@ -21,21 +21,19 @@ public final class ModelVacuumSlice extends EntityModel<VacuumSliceEntity> {
     public void setupAnim(@NotNull VacuumSliceEntity entity,float limbSwing,float limbSwingAmount,float ageInTicks,float netHeadYaw,float headPitch) {}
 
     @Override
-    public void renderToBuffer(PoseStack poseStack,@NotNull VertexConsumer consumer,int packedLight,int packedOverlay,float red,float green,float blue,float alpha) {
+    public void renderToBuffer(PoseStack poseStack,@NotNull VertexConsumer consumer,int packedLight,int packedOverlay, int color) {
         PoseStack.Pose pose = poseStack.last();
-        Matrix4f poseMatrix = pose.pose();
-        Matrix3f normalMatrix = pose.normal();
-        vertex(consumer,poseMatrix,normalMatrix,-HALF_WIDTH,HALF_THICKNESS,-HALF_LENGTH,0.0F,1.0F,red,green,blue,alpha,packedLight,packedOverlay,0.0F,1.0F,0.0F);
-        vertex(consumer,poseMatrix,normalMatrix,-HALF_WIDTH,HALF_THICKNESS,HALF_LENGTH,1.0F,1.0F,red,green,blue,alpha,packedLight,packedOverlay,0.0F,1.0F,0.0F);
-        vertex(consumer,poseMatrix,normalMatrix,HALF_WIDTH,HALF_THICKNESS,HALF_LENGTH,1.0F,0.0F,red,green,blue,alpha,packedLight,packedOverlay,0.0F,1.0F,0.0F);
-        vertex(consumer,poseMatrix,normalMatrix,HALF_WIDTH,HALF_THICKNESS,-HALF_LENGTH,0.0F,0.0F,red,green,blue,alpha,packedLight,packedOverlay,0.0F,1.0F,0.0F);
-        vertex(consumer,poseMatrix,normalMatrix,HALF_WIDTH,-HALF_THICKNESS,-HALF_LENGTH,0.0F,0.0F,red,green,blue,alpha,packedLight,packedOverlay,0.0F,-1.0F,0.0F);
-        vertex(consumer,poseMatrix,normalMatrix,HALF_WIDTH,-HALF_THICKNESS,HALF_LENGTH,1.0F,0.0F,red,green,blue,alpha,packedLight,packedOverlay,0.0F,-1.0F,0.0F);
-        vertex(consumer,poseMatrix,normalMatrix,-HALF_WIDTH,-HALF_THICKNESS,HALF_LENGTH,1.0F,1.0F,red,green,blue,alpha,packedLight,packedOverlay,0.0F,-1.0F,0.0F);
-        vertex(consumer,poseMatrix,normalMatrix,-HALF_WIDTH,-HALF_THICKNESS,-HALF_LENGTH,0.0F,1.0F,red,green,blue,alpha,packedLight,packedOverlay,0.0F,-1.0F,0.0F);
+        vertex(consumer,pose,-HALF_WIDTH,HALF_THICKNESS,-HALF_LENGTH,0.0F,1.0F,color,packedLight,packedOverlay,0.0F,1.0F,0.0F);
+        vertex(consumer,pose,-HALF_WIDTH,HALF_THICKNESS,HALF_LENGTH,1.0F,1.0F,color,packedLight,packedOverlay,0.0F,1.0F,0.0F);
+        vertex(consumer,pose,HALF_WIDTH,HALF_THICKNESS,HALF_LENGTH,1.0F,0.0F,color,packedLight,packedOverlay,0.0F,1.0F,0.0F);
+        vertex(consumer,pose,HALF_WIDTH,HALF_THICKNESS,-HALF_LENGTH,0.0F,0.0F,color,packedLight,packedOverlay,0.0F,1.0F,0.0F);
+        vertex(consumer,pose,HALF_WIDTH,-HALF_THICKNESS,-HALF_LENGTH,0.0F,0.0F,color,packedLight,packedOverlay,0.0F,-1.0F,0.0F);
+        vertex(consumer,pose,HALF_WIDTH,-HALF_THICKNESS,HALF_LENGTH,1.0F,0.0F,color,packedLight,packedOverlay,0.0F,-1.0F,0.0F);
+        vertex(consumer,pose,-HALF_WIDTH,-HALF_THICKNESS,HALF_LENGTH,1.0F,1.0F,color,packedLight,packedOverlay,0.0F,-1.0F,0.0F);
+        vertex(consumer,pose,-HALF_WIDTH,-HALF_THICKNESS,-HALF_LENGTH,0.0F,1.0F,color,packedLight,packedOverlay,0.0F,-1.0F,0.0F);
     }
 
-    private static void vertex(VertexConsumer consumer,Matrix4f poseMatrix,Matrix3f normalMatrix,float x,float y,float z,float u,float v,float red,float green,float blue,float alpha,int packedLight,int packedOverlay,float normalX,float normalY,float normalZ) {
-        consumer.vertex(poseMatrix,x,y,z).color(red,green,blue,alpha).uv(u,v).overlayCoords(packedOverlay).uv2(packedLight).normal(normalMatrix,normalX,normalY,normalZ).endVertex();
+    private static void vertex(VertexConsumer consumer,PoseStack.Pose pose,float x,float y,float z,float u,float v,int color,int packedLight,int packedOverlay,float normalX,float normalY,float normalZ) {
+        consumer.addVertex(pose,x,y,z).setColor(color).setUv(u,v).setOverlay(packedOverlay).setLight(packedLight).setNormal(pose,normalX,normalY,normalZ);
     }
 }

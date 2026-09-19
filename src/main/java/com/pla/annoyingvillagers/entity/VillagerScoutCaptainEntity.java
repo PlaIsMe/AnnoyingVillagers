@@ -27,9 +27,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -37,13 +36,9 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
-    public VillagerScoutCaptainEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.VILLAGER_SCOUT_CAPTAIN.get(), level);
-    }
-
-    public VillagerScoutCaptainEntity(EntityType<VillagerScoutCaptainEntity> entitytype, Level level) {
+        public VillagerScoutCaptainEntity(EntityType<VillagerScoutCaptainEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(1.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(1.0F);
         this.xpReward = 0;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -52,11 +47,7 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
         this.setPlaceBlockToParryChance(0.5);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+        protected void registerGoals() {
         super.registerGoals();
         CommonGoals.registerGoalForVillagerKnightNpc(this);
     }
@@ -66,11 +57,7 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
         return AnnoyingVillagersModSounds.VILLAGER_SCOUTS_SAY.get();
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+        public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -79,19 +66,19 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
     }
 
     public SoundEvent getAmbientSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.villager.ambient"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.villager.ambient"));
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.villager.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.villager.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.villager.death"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.villager.death"));
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
-        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, compoundTag);
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
+        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
 
         TeamUtil.addOrJoinTeam(this, "villagers");
 
@@ -155,8 +142,9 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, source, recentlyHit);
         if (this.level() instanceof ServerLevel serverLevel) {
             final double x = this.getX();
             final double y = this.getY() + 1.0D;

@@ -9,8 +9,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import punchy.client.animation.PunchyAnimationManager;
 import punchy.client.animation.data.AnimationClip;
 import punchy.config.PunchyConfig;
@@ -45,7 +45,7 @@ public final class PunchyClientCompat {
                 || !mc.options.getCameraType().isFirstPerson()) return;
 
         try {
-            if (!PunchyConfig.isModEnabled() || (net.minecraftforge.fml.ModList.get().isLoaded("bettercombat")
+            if (!PunchyConfig.isModEnabled() || (net.neoforged.fml.ModList.get().isLoaded("bettercombat")
                     && !PunchyConfig.isBetterCombatCompatEnabled())) return;
             ClientboundBetterCombatAnimation message = ability.message;
             InteractionHand hand = message.animatedHand() == ClientboundBetterCombatAnimation.AnimatedHand.OFF_HAND

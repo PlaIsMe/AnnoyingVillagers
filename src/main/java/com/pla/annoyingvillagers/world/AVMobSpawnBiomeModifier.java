@@ -1,21 +1,14 @@
 package com.pla.annoyingvillagers.world;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraftforge.common.world.BiomeModifier;
-import net.minecraftforge.common.world.ModifiableBiomeInfo;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
 
 public final class AVMobSpawnBiomeModifier implements BiomeModifier {
-
-    private static final RegistryObject<Codec<? extends BiomeModifier>> SERIALIZER = RegistryObject
-            .create(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "av_mob_spawns"),
-                    ForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, AnnoyingVillagers.MODID);
 
     @Override
     public void modify(Holder<Biome> biomeHolder, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
@@ -26,10 +19,10 @@ public final class AVMobSpawnBiomeModifier implements BiomeModifier {
         AVWorldSpawns.addBiomeSpawns(builder);
     }
 
-    @Override public Codec<? extends BiomeModifier> codec() {
-        return SERIALIZER.get();
+    @Override public MapCodec<? extends BiomeModifier> codec() {
+        return makeCodec();
     }
-    public static Codec<AVMobSpawnBiomeModifier> makeCodec() {
-        return Codec.unit(AVMobSpawnBiomeModifier::new);
+    public static MapCodec<AVMobSpawnBiomeModifier> makeCodec() {
+        return MapCodec.unit(AVMobSpawnBiomeModifier::new);
     }
 }

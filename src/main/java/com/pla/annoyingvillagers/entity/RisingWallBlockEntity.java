@@ -21,7 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class RisingWallBlockEntity extends Entity {
@@ -73,11 +72,11 @@ public class RisingWallBlockEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(FINAL_BLOCK_POS, BlockPos.ZERO);
-        this.entityData.define(RENDER_BLOCK_STATE, Blocks.AIR.defaultBlockState());
-        this.entityData.define(START_DELAY_TICKS, 0);
-        this.entityData.define(RISE_TICKS, 10);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(FINAL_BLOCK_POS, BlockPos.ZERO);
+        builder.define(RENDER_BLOCK_STATE, Blocks.AIR.defaultBlockState());
+        builder.define(START_DELAY_TICKS, 0);
+        builder.define(RISE_TICKS, 10);
     }
 
     public BlockPos getFinalBlockPos() {
@@ -229,7 +228,7 @@ public class RisingWallBlockEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
-        this.setFinalBlockPos(NbtUtils.readBlockPos(tag.getCompound("FinalBlockPos")));
+        this.setFinalBlockPos(NbtUtils.readBlockPos(tag, "FinalBlockPos").orElse(BlockPos.ZERO));
 
         this.setBlockState(NbtUtils.readBlockState(
                 this.level().holderLookup(Registries.BLOCK),
@@ -261,8 +260,4 @@ public class RisingWallBlockEntity extends Entity {
         return false;
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
-}

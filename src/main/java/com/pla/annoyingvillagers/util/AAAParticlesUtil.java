@@ -8,7 +8,6 @@ import com.pla.annoyingvillagers.compat.aaa_particles.emitterinfo.EnderGlaiveExp
 import com.pla.annoyingvillagers.compat.aaa_particles.emitterinfo.TeleportPortalParticleEmitterInfo;
 import com.pla.annoyingvillagers.entity.BlueDemonThunderBeamEntity;
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
-import mod.chloeprime.aaaparticles.api.common.AAALevel;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -26,11 +25,17 @@ public class AAAParticlesUtil {
                 .spawnInWorld(level, null);
     }
 
-    public static void sendDragonBeamHit(Level level, BlockPos hitBlock) {
-        AAALevel.addParticle(level, false,
-                new ParticleEmitterInfo(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "dragon_beam_hit"))
-                        .clone()
-                        .position(hitBlock.getX(), hitBlock.getY(), hitBlock.getZ()));
+    private static boolean spawnAt(Level level, String effect, double x, double y, double z) {
+        if (level == null || !level.isClientSide()) return false;
+        new ParticleEmitterInfo(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, effect))
+                .position(x, y, z)
+                .spawnInWorld(level, null);
+        return true;
+    }
+
+    public static boolean sendDragonBeamHit(Level level, BlockPos hitBlock) {
+        return hitBlock != null && spawnAt(level, "dragon_beam_hit",
+                hitBlock.getX(), hitBlock.getY(), hitBlock.getZ());
     }
 
     public static void sendBlueDemonThunderBeam(Level level, BlueDemonThunderBeamEntity blueDemonThunderBeamEntity) {
@@ -40,25 +45,16 @@ public class AAAParticlesUtil {
                 .spawnInWorld(level, null);
     }
 
-    public static void sendHerobrinePortal(Level level, double x, double y, double z) {
-        AAALevel.addParticle(level, false,
-                new ParticleEmitterInfo(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "herobrine_portal"))
-                        .clone()
-                        .position(x, y, z));
+    public static boolean sendHerobrinePortal(Level level, double x, double y, double z) {
+        return spawnAt(level, "herobrine_portal", x, y, z);
     }
 
-    public static void sendHerobrineAssistance(Level level, double x, double y, double z) {
-        AAALevel.addParticle(level, false,
-                new ParticleEmitterInfo(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "requesting_assistance"))
-                        .clone()
-                        .position(x, y, z));
+    public static boolean sendHerobrineAssistance(Level level, double x, double y, double z) {
+        return spawnAt(level, "requesting_assistance", x, y, z);
     }
 
-    public static void sendWoopieWind(Level level, double x, double y, double z) {
-        AAALevel.addParticle(level, false,
-                new ParticleEmitterInfo(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "woopie_sword_wind"))
-                        .clone()
-                        .position(x, y, z));
+    public static boolean sendWoopieWind(Level level, double x, double y, double z) {
+        return spawnAt(level, "woopie_sword_wind", x, y, z);
     }
 
     public static boolean sendTeleportPortal(Level level, Vec3 pos, Vec3 normal) {
@@ -98,7 +94,7 @@ public class AAAParticlesUtil {
             return;
         }
 
-        Vec3 pos = CommonUtil.getVanillaSwordOrBodyPosition(entity, Minecraft.getInstance().getFrameTime());
+        Vec3 pos = CommonUtil.getVanillaSwordOrBodyPosition(entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
 
         new ParticleEmitterInfo(
                 ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_attractor"))

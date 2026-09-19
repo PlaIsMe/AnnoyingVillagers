@@ -12,9 +12,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class DNAxHookedSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class DNAxHookedSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
     public DNAxHookedSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 500;
             }

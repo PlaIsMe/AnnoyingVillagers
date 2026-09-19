@@ -10,9 +10,9 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class RubySwordItem extends SwordItem implements RigCombatProfileProvider {
+public class RubySwordItem extends LegacySwordItem implements RigCombatProfileProvider {
     public RubySwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 2561;
             }

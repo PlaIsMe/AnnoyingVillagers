@@ -3,13 +3,13 @@ package com.pla.annoyingvillagers.network;
 import com.pla.annoyingvillagers.client.engine.ClientPacketHandlers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
 
-public record ClientboundMuteExplosionAtPos(BlockPos pos, int lifetimeTicks) {
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+
+
+public record ClientboundMuteExplosionAtPos(BlockPos pos, int lifetimeTicks)  implements AnnoyingVillagersPayload {
 
     public static void encode(ClientboundMuteExplosionAtPos msg, FriendlyByteBuf buf) {
         buf.writeBlockPos(msg.pos);
@@ -20,11 +20,7 @@ public record ClientboundMuteExplosionAtPos(BlockPos pos, int lifetimeTicks) {
         return new ClientboundMuteExplosionAtPos(buf.readBlockPos(), buf.readVarInt());
     }
 
-    public static void handle(ClientboundMuteExplosionAtPos msg, Supplier<NetworkEvent.Context> ctx) {
-        var c = ctx.get();
-        c.enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.handleMuteExplosionAtPos(msg));
-        });
-        c.setPacketHandled(true);
+    public static void handle(ClientboundMuteExplosionAtPos msg, IPayloadContext context) {
+        context.enqueueWork(() -> ClientPacketHandlers.handleMuteExplosionAtPos(msg));
     }
 }

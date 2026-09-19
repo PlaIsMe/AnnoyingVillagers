@@ -31,7 +31,7 @@ public class EnderAegisProjectileItem extends Item {
         return UseAnim.SPEAR;
     }
 
-    public int getUseDuration(@NotNull ItemStack itemstack) {
+    public int getUseDuration(@NotNull ItemStack itemstack, net.minecraft.world.entity.LivingEntity entity) {
         return 72000;
     }
 
@@ -40,9 +40,7 @@ public class EnderAegisProjectileItem extends Item {
             if (serverPlayer.isAlive()) {
                 EnderAegisProjectile enderAegisProjectile = EnderAegisProjectile.shoot(level, serverPlayer, new Random(), 1.0F, 18.0D, 7);
 
-                itemstack.hurtAndBreak(1, serverPlayer, (serverplayer1) -> {
-                    serverplayer1.broadcastBreakEvent(serverPlayer.getUsedItemHand());
-                });
+                itemstack.hurtAndBreak(1, serverPlayer, LivingEntity.getSlotForHand(serverPlayer.getUsedItemHand()));
                 enderAegisProjectile.pickup = Pickup.DISALLOWED;
             }
         }

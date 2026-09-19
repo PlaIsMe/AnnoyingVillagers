@@ -1,13 +1,14 @@
 package com.pla.annoyingvillagers.client.animation;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 /** Prevents entity-id reuse from inheriting one-shot state after leaving a world. */
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class RigClientAnimationEvents {
     private RigClientAnimationEvents() {}
 

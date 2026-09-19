@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.mixin.client;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
@@ -27,7 +29,7 @@ public abstract class MinecraftAttackMixin {
         LocalPlayer player = minecraft.player;
         if (player == null) return;
         if (player.getMainHandItem().getItem() instanceof DestructionEyeItem) {
-            AnnoyingVillagers.PACKET_HANDLER.sendToServer(new ServerboundDestructionEyeAttack());
+            PacketDistributor.sendToServer(new ServerboundDestructionEyeAttack());
             player.swing(InteractionHand.MAIN_HAND);
             cir.setReturnValue(false);
             return;
@@ -35,14 +37,14 @@ public abstract class MinecraftAttackMixin {
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
 
         if (player.getMainHandItem().getItem() instanceof EnderSlayerScytheItem && EnderSlayerScytheItem.isDragonActive(player.getMainHandItem())) {
-            AnnoyingVillagers.PACKET_HANDLER.sendToServer(new VanillaAttackKeyMessage());
+            PacketDistributor.sendToServer(new VanillaAttackKeyMessage());
             VanillaWeaponAbilityUtil.swingOffHand(player);
             cir.setReturnValue(false);
             return;
         }
 
         if (player.getMainHandItem().getItem() instanceof DemoniacVoltageReaverItem && DemoniacVoltageReaverItem.isVanillaAwakened(player.getMainHandItem(), player.level())) {
-            AnnoyingVillagers.PACKET_HANDLER.sendToServer(new VanillaAttackKeyMessage());
+            PacketDistributor.sendToServer(new VanillaAttackKeyMessage());
             VanillaWeaponAbilityUtil.swingMainHand(player);
             cir.setReturnValue(false);
         }

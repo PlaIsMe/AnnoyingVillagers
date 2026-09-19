@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 public class HitParticleType extends SimpleParticleType {
     public static final BiFunction<Entity, Entity, Vec3> CENTER_OF_TARGET = (target, attacker) -> {
         EntityDimensions dimensions = target.getDimensions(target.getPose());
-        return new Vec3(target.getX(), target.getY() + dimensions.height * 0.5D, target.getZ());
+        return new Vec3(target.getX(), target.getY() + dimensions.height() * 0.5D, target.getZ());
     };
     public static final BiFunction<Entity, Entity, Vec3> RANDOM_WITHIN_BOUNDING_BOX = (target, attacker) -> {
         AABB boundingBox = target.getBoundingBox();

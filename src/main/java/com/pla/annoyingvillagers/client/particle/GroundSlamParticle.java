@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.client.particle;
 
 import com.pla.annoyingvillagers.block.FractureBlockState;
+import com.pla.annoyingvillagers.mixin.client.ParticleAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.NoRenderParticle;
@@ -11,8 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +43,7 @@ public class GroundSlamParticle extends NoRenderParticle {
             if (originalState != null) blockState = originalState;
         }
 
-        if (!blockState.shouldSpawnParticlesOnBreak()) return;
+        if (blockState.isAir()) return;
 
         Minecraft minecraft = Minecraft.getInstance();
         int count = Math.max(0, (int) particleCount);
@@ -74,7 +75,7 @@ public class GroundSlamParticle extends NoRenderParticle {
             if (smokeParticle != null) {
                 smokeParticle.setParticleSpeed(sin * spread * 0.1D, this.random.nextDouble() * 0.05D, cos * spread * 0.1D);
                 smokeParticle.scale(3.0F);
-                smokeParticle.setAlpha(0.33F);
+                ((ParticleAccessor) smokeParticle).annoyingVillagers$setAlpha(0.33F);
                 minecraft.particleEngine.add(smokeParticle);
             }
         }

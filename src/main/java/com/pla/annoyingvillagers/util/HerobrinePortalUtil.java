@@ -58,7 +58,7 @@ public class HerobrinePortalUtil {
         tag.putInt(NBT_TICKS, 0);
         tag.putInt(NBT_MAX_TICKS, 20 * 5);
 
-        level.playSound(null, entity.blockPosition(), SoundEvents.SOUL_ESCAPE, SoundSource.HOSTILE, 0.6f, 0.8f + level.random.nextFloat() * 0.2f);
+        level.playSound(null, entity.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 0.6f, 0.8f + level.random.nextFloat() * 0.2f);
 
     }
 
@@ -80,7 +80,7 @@ public class HerobrinePortalUtil {
         tag.putInt(NBT_SINK_TICKS, 0);
         tag.putInt(NBT_SINK_MAX_TICKS, 20 * 5);
 
-        level.playSound(null, entity.blockPosition(), SoundEvents.SOUL_ESCAPE, SoundSource.HOSTILE, 0.5f, 1.2f + level.random.nextFloat() * 0.2f);
+        level.playSound(null, entity.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 0.5f, 1.2f + level.random.nextFloat() * 0.2f);
 
     }
 

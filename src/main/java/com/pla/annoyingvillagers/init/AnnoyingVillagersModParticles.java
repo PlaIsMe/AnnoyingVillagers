@@ -3,12 +3,13 @@ package com.pla.annoyingvillagers.init;
 import com.pla.annoyingvillagers.client.particle.*;
 import com.pla.annoyingvillagers.client.particle.smoke_wave.SmokeWaveParticle;
 import net.minecraft.client.particle.SmokeParticle;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class AnnoyingVillagersModParticles {
 
     @SubscribeEvent

@@ -18,7 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ToolActions;
+import net.neoforged.neoforge.common.ItemAbilities;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -110,7 +110,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
     private static int annoyingVillagers$getRodHandSide(LivingEntity owner) {
         int mainHandSide = owner.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
         ItemStack mainHand = owner.getMainHandItem();
-        if (mainHand.canPerformAction(ToolActions.FISHING_ROD_CAST)) {
+        if (mainHand.canPerformAction(ItemAbilities.FISHING_ROD_CAST)) {
             return mainHandSide;
         }
         return -mainHandSide;
@@ -121,13 +121,12 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
     }
 
     private static void annoyingVillagers$vertex(VertexConsumer consumer, Matrix4f pose, Matrix3f normal, int lightmapUv, float x, int y, int u, int v) {
-        consumer.vertex(pose, x - 0.5F, (float) y - 0.5F, 0.0F)
-                .color(255, 255, 255, 255)
-                .uv((float) u, (float) v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(lightmapUv)
-                .normal(normal, 0.0F, 1.0F, 0.0F)
-                .endVertex();
+        consumer.addVertex(pose, x - 0.5F, (float) y - 0.5F, 0.0F)
+                .setColor(255, 255, 255, 255)
+                .setUv((float) u, (float) v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(lightmapUv)
+                .setNormal(0.0F, 1.0F, 0.0F);
     }
 
     private static void annoyingVillagers$stringVertex(
@@ -152,9 +151,8 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
         normalX /= normalLength;
         normalY /= normalLength;
         normalZ /= normalLength;
-        consumer.vertex(pose.pose(), lineX, lineY, lineZ)
-                .color(0, 0, 0, 255)
-                .normal(pose.normal(), normalX, normalY, normalZ)
-                .endVertex();
+        consumer.addVertex(pose.pose(), lineX, lineY, lineZ)
+                .setColor(0, 0, 0, 255)
+                .setNormal(pose, normalX, normalY, normalZ);
     }
 }

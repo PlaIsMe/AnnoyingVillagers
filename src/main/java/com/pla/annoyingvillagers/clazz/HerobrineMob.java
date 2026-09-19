@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.clazz;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
@@ -62,15 +63,15 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -382,11 +383,11 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
         this.setDropChance(EquipmentSlot.CHEST, 0.0F);
         this.setDropChance(EquipmentSlot.HEAD, 0.0F);
-        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
-        this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, 0.0F);
-        this.setPathfindingMalus(BlockPathTypes.LAVA, 0.0F);
-        this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 0.0F);
-        this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, 0.0F);
+        this.setPathfindingMalus(PathType.WATER, 0.0F);
+        this.setPathfindingMalus(PathType.WATER_BORDER, 0.0F);
+        this.setPathfindingMalus(PathType.LAVA, 0.0F);
+        this.setPathfindingMalus(PathType.DANGER_FIRE, 0.0F);
+        this.setPathfindingMalus(PathType.DAMAGE_FIRE, 0.0F);
         this.resetSecondFormCooldown();
     }
 
@@ -403,12 +404,12 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         }
 
         @Override
-        protected boolean hasValidPathType(@NotNull BlockPathTypes type) {
-            if (type == BlockPathTypes.WATER
-                    || type == BlockPathTypes.WATER_BORDER
-                    || type == BlockPathTypes.LAVA
-                    || type == BlockPathTypes.DANGER_FIRE
-                    || type == BlockPathTypes.DAMAGE_FIRE) {
+        protected boolean hasValidPathType(@NotNull PathType type) {
+            if (type == PathType.WATER
+                    || type == PathType.WATER_BORDER
+                    || type == PathType.LAVA
+                    || type == PathType.DANGER_FIRE
+                    || type == PathType.DAMAGE_FIRE) {
                 return true;
             }
             return super.hasValidPathType(type);
@@ -420,11 +421,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         }
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    private Entity getHealingHerobrine() {
+        private Entity getHealingHerobrine() {
         if (isHealing()) {
             if (firstPossessedHerobrine != null) {
                 if (firstPossessedHerobrine instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity && lowShadowHerobrineCloneEntity.isHealing()) {
@@ -581,11 +578,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         };
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEAD;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+        public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -593,17 +586,18 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         return -0.35D;
     }
 
-    protected void dropCustomDeathLoot(@NotNull DamageSource damagesource, int i, boolean flag) {
-        super.dropCustomDeathLoot(damagesource, i, flag);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource damagesource, boolean flag) {
+        int i = 0;
+        super.dropCustomDeathLoot(level, damagesource, flag);
         this.spawnAtLocation(new ItemStack(Blocks.OBSIDIAN));
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
     }
 
     public boolean causeFallDamage(float f, float f1, @NotNull DamageSource damagesource) {
@@ -691,8 +685,6 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         if (this.isInvulnerableTo(pDamageSource)) {
             return;
         }
-
-        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
         if (pDamageAmount <= 0.0F) {
             return;
         }
@@ -706,7 +698,8 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
             this.setAbsorptionAmount(this.getAbsorptionAmount() - absorbed);
             if (this.getAbsorptionAmount() < 0.0F) this.setAbsorptionAmount(0.0F);
         }
-        f1 = ForgeHooks.onLivingDamage(this, pDamageSource, f1);
+        this.damageContainers.peek().setNewDamage(f1);
+        f1 = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         f1 = this.applyBurstProtection(this, pDamageSource, f1);
         if (this.level() instanceof ServerLevel serverLevel
                 && this.getState() < 2
@@ -923,9 +916,9 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                 this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
             }
             ItemStack enderAegis = new ItemStack(AnnoyingVillagersModItems.ENDER_AEGIS.get());
-            enderAegis.enchant(Enchantments.SHARPNESS, 3);
-            enderAegis.enchant(Enchantments.SWEEPING_EDGE, 3);
-            enderAegis.enchant(Enchantments.KNOCKBACK, 3);
+            EnchantmentUtil.enchant(enderAegis, Enchantments.SHARPNESS, 3);
+            EnchantmentUtil.enchant(enderAegis, Enchantments.SWEEPING_EDGE, 3);
+            EnchantmentUtil.enchant(enderAegis, Enchantments.KNOCKBACK, 3);
             this.setItemInHand(InteractionHand.MAIN_HAND, enderAegis);
         }
         if (this instanceof SwordsmanHerobrineEntity) {
@@ -933,9 +926,9 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                 this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
             }
             ItemStack demoniacVoltageReaver = new ItemStack(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get());
-            demoniacVoltageReaver.enchant(Enchantments.SHARPNESS, 3);
-            demoniacVoltageReaver.enchant(Enchantments.SWEEPING_EDGE, 3);
-            demoniacVoltageReaver.enchant(Enchantments.KNOCKBACK, 3);
+            EnchantmentUtil.enchant(demoniacVoltageReaver, Enchantments.SHARPNESS, 3);
+            EnchantmentUtil.enchant(demoniacVoltageReaver, Enchantments.SWEEPING_EDGE, 3);
+            EnchantmentUtil.enchant(demoniacVoltageReaver, Enchantments.KNOCKBACK, 3);
             this.setItemInHand(InteractionHand.MAIN_HAND, demoniacVoltageReaver);
         }
         if (this instanceof SledgehammerHerobrineEntity) {
@@ -943,9 +936,9 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                 this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
             }
             ItemStack obsidianSledgehammer = new ItemStack(AnnoyingVillagersModItems.OBSIDIAN_SLEDGEHAMMER.get());
-            obsidianSledgehammer.enchant(Enchantments.SHARPNESS, 3);
-            obsidianSledgehammer.enchant(Enchantments.SWEEPING_EDGE, 3);
-            obsidianSledgehammer.enchant(Enchantments.KNOCKBACK, 3);
+            EnchantmentUtil.enchant(obsidianSledgehammer, Enchantments.SHARPNESS, 3);
+            EnchantmentUtil.enchant(obsidianSledgehammer, Enchantments.SWEEPING_EDGE, 3);
+            EnchantmentUtil.enchant(obsidianSledgehammer, Enchantments.KNOCKBACK, 3);
             this.setItemInHand(InteractionHand.MAIN_HAND, obsidianSledgehammer);
         }
         if (this instanceof GlaiveHerobrineEntity) {
@@ -953,9 +946,9 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                 this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
             }
             ItemStack enderGlaive = new ItemStack(AnnoyingVillagersModItems.ENDER_GLAIVE.get());
-            enderGlaive.enchant(Enchantments.SHARPNESS, 3);
-            enderGlaive.enchant(Enchantments.SWEEPING_EDGE, 3);
-            enderGlaive.enchant(Enchantments.KNOCKBACK, 3);
+            EnchantmentUtil.enchant(enderGlaive, Enchantments.SHARPNESS, 3);
+            EnchantmentUtil.enchant(enderGlaive, Enchantments.SWEEPING_EDGE, 3);
+            EnchantmentUtil.enchant(enderGlaive, Enchantments.KNOCKBACK, 3);
             this.setItemInHand(InteractionHand.MAIN_HAND, enderGlaive);
         }
         if (this instanceof ReaperHerobrineEntity reaperHerobrineEntity) {
@@ -963,9 +956,9 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                 this.playSound(AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY_SECOND_FORM_RELEASE.get(), 0.5F, 1.0F);
             }
             ItemStack enderSlayerScythe = new ItemStack(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get());
-            enderSlayerScythe.enchant(Enchantments.SHARPNESS, 3);
-            enderSlayerScythe.enchant(Enchantments.SWEEPING_EDGE, 3);
-            enderSlayerScythe.enchant(Enchantments.KNOCKBACK, 3);
+            EnchantmentUtil.enchant(enderSlayerScythe, Enchantments.SHARPNESS, 3);
+            EnchantmentUtil.enchant(enderSlayerScythe, Enchantments.SWEEPING_EDGE, 3);
+            EnchantmentUtil.enchant(enderSlayerScythe, Enchantments.KNOCKBACK, 3);
             this.setItemInHand(InteractionHand.MAIN_HAND, enderSlayerScythe);
 
             if (reaperHerobrineEntity.getThunderHerobrineDragon() == null && reaperHerobrineEntity.getThunderHerobrineDragonUUID() == null) {
@@ -983,40 +976,40 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         if (this instanceof NullEntity nullEntity) {
             if (nullEntity.getNullSwordEntity() != null) {
                 ItemStack nullSword = new ItemStack(AnnoyingVillagersModItems.NULL_SWORD.get());
-                nullSword.enchant(Enchantments.SHARPNESS, 5);
-                nullSword.enchant(Enchantments.SWEEPING_EDGE, 5);
+                EnchantmentUtil.enchant(nullSword, Enchantments.SHARPNESS, 5);
+                EnchantmentUtil.enchant(nullSword, Enchantments.SWEEPING_EDGE, 5);
                 nullEntity.getNullSwordEntity().setItemInHand(InteractionHand.MAIN_HAND, nullSword);
             }
             if (nullEntity.getNullAxeEntity() != null) {
                 ItemStack nullAxe = new ItemStack(AnnoyingVillagersModItems.NULL_AXE.get());
-                nullAxe.enchant(Enchantments.SMITE, 5);
-                nullAxe.enchant(Enchantments.FIRE_ASPECT, 2);
+                EnchantmentUtil.enchant(nullAxe, Enchantments.SMITE, 5);
+                EnchantmentUtil.enchant(nullAxe, Enchantments.FIRE_ASPECT, 2);
                 nullEntity.getNullAxeEntity().setItemInHand(InteractionHand.MAIN_HAND, nullAxe);
             }
             if (nullEntity.getNullPickaxeEntity() != null) {
                 ItemStack nullPickaxe = new ItemStack(AnnoyingVillagersModItems.NULL_PICKAXE.get());
-                nullPickaxe.enchant(Enchantments.BLOCK_EFFICIENCY, 5);
-                nullPickaxe.enchant(Enchantments.UNBREAKING, 3);
+                EnchantmentUtil.enchant(nullPickaxe, Enchantments.EFFICIENCY, 5);
+                EnchantmentUtil.enchant(nullPickaxe, Enchantments.UNBREAKING, 3);
                 nullEntity.getNullPickaxeEntity().setItemInHand(InteractionHand.MAIN_HAND, nullPickaxe);
             }
             if (nullEntity.getNullShovelEntity() != null) {
                 ItemStack nullShovel = new ItemStack(AnnoyingVillagersModItems.NULL_SHOVEL.get());
-                nullShovel.enchant(Enchantments.UNBREAKING, 5);
-                nullShovel.enchant(Enchantments.MENDING, 1);
+                EnchantmentUtil.enchant(nullShovel, Enchantments.UNBREAKING, 5);
+                EnchantmentUtil.enchant(nullShovel, Enchantments.MENDING, 1);
                 nullEntity.getNullShovelEntity().setItemInHand(InteractionHand.MAIN_HAND, nullShovel);
             }
             if (nullEntity.getNullHoeEntity() != null) {
                 ItemStack nullHoe = new ItemStack(AnnoyingVillagersModItems.NULL_HOE.get());
-                nullHoe.enchant(Enchantments.KNOCKBACK, 5);
-                nullHoe.enchant(Enchantments.BLOCK_EFFICIENCY, 1);
+                EnchantmentUtil.enchant(nullHoe, Enchantments.KNOCKBACK, 5);
+                EnchantmentUtil.enchant(nullHoe, Enchantments.EFFICIENCY, 1);
                 nullEntity.getNullHoeEntity().setItemInHand(InteractionHand.MAIN_HAND, nullHoe);
             }
         }
         if (this instanceof ShadowHerobrineEntity shadowHerobrineEntity) {
             ItemStack shadowObsidianPillar = new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_PILLAR.get());
-            shadowObsidianPillar.enchant(Enchantments.SHARPNESS, 5);
-            shadowObsidianPillar.enchant(Enchantments.SWEEPING_EDGE, 5);
-            shadowObsidianPillar.enchant(Enchantments.KNOCKBACK, 3);
+            EnchantmentUtil.enchant(shadowObsidianPillar, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(shadowObsidianPillar, Enchantments.SWEEPING_EDGE, 5);
+            EnchantmentUtil.enchant(shadowObsidianPillar, Enchantments.KNOCKBACK, 3);
             this.setItemInHand(InteractionHand.MAIN_HAND, shadowObsidianPillar);
             shadowHerobrineEntity.setSummonDarkObCooldown(0);
         }
@@ -1029,7 +1022,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     }
 
     public boolean canBeAffected(MobEffectInstance mobeffectinstance) {
-        return (mobeffectinstance.getEffect().getCategory() == MobEffectCategory.BENEFICIAL || mobeffectinstance.getEffect() == MobEffects.GLOWING) && super.canBeAffected(mobeffectinstance);
+        return (mobeffectinstance.getEffect().value().getCategory() == MobEffectCategory.BENEFICIAL || mobeffectinstance.getEffect() == MobEffects.GLOWING) && super.canBeAffected(mobeffectinstance);
     }
 
     private void playInitAnimation() {
@@ -1160,10 +1153,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
 
             if (this.tickCount == 1) {
                 if (this.renderPortal) {
-                    AnnoyingVillagers.PACKET_HANDLER.send(
-                            PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                            new ClientboundHerobrinePortalFx(this.getOnPos().getCenter().add(0.0, 1.5, 0.0))
-                    );
+                    ClientboundHerobrinePortalFx.sendToNearby(this, this.getOnPos().getCenter().add(0.0, 1.5, 0.0));
                     this.renderPortal = false;
                 }
                 if (this.initialSpawn) {
@@ -1180,10 +1170,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                 int remaining = this.recallTicks;
 
                 if (remaining == SHINK_TIME_START) {
-                    AnnoyingVillagers.PACKET_HANDLER.send(
-                            PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this),
-                            new ClientboundHerobrinePortalFx(new Vec3(this.getX(), this.getY(), this.getZ()))
-                    );
+                    ClientboundHerobrinePortalFx.sendToNearby(this, new Vec3(this.getX(), this.getY(), this.getZ()));
                     this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);
                     HerobrinePortalUtil.sinkIntoGround(serverLevel, this, 0.06);
                 }
@@ -1272,10 +1259,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                     this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
                 }
                 playStageChangeAnimation();
-                AnnoyingVillagers.PACKET_HANDLER.send(
-                        PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this),
-                        new ClientboundHerobrineAssistanceFx(new Vec3(this.getX(), this.getY(), this.getZ()))
-                );
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(this, new ClientboundHerobrineAssistanceFx(new Vec3(this.getX(), this.getY(), this.getZ())));
                 if (this.level() instanceof ServerLevel) {
                     this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);;
                 }
@@ -1462,7 +1446,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         }
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
         if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
             ServerLevel serverLevel = serverLevelAccessor.getLevel();
             HerobrineMobData herobrineMobData = HerobrineMobData.get(serverLevel);
@@ -1479,7 +1463,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
             this.initialSpawn = false;
         }
 
-        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, compoundTag);
+        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
         this.setLeftHanded(false);
         HerobrineUtil.initialSpawn(serverLevelAccessor, this, recallTicks, mobSpawnType);
         return returnSpawnGroupData;

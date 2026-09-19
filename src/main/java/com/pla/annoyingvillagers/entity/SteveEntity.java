@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.clazz.*;
@@ -34,10 +35,9 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -70,13 +70,9 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     @Override
     public String persistentPlayerIdentity() { return "Steve"; }
 
-    public SteveEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.STEVE.get(), level);
-    }
-
-    public SteveEntity(EntityType<SteveEntity> entitytype, Level level) {
+        public SteveEntity(EntityType<SteveEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(1.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(1.0F);
         this.xpReward = 8;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -86,11 +82,7 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         this.setMainWeaponItem(new ItemStack(Items.DIAMOND_SWORD));
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+        protected void registerGoals() {
         super.registerGoals();
         CommonGoals.registerDangerousReactionGoals(this);
         CommonGoals.registerGoalForNeutralNpc(this);
@@ -101,11 +93,7 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         return AnnoyingVillagersModSounds.STEVE_SAY.get();
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+        public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -156,11 +144,11 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
     }
 
     @Override
@@ -198,7 +186,7 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
                 SteveData steveData = SteveData.get(serverLevel);
                 steveData.forceClaim(serverLevel, angrySteveEntity.getUUID());
 
-                angrySteveEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(angrySteveEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, (SpawnGroupData) null, (CompoundTag) null);
+                angrySteveEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(angrySteveEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, (SpawnGroupData) null);
                 serverLevel.addFreshEntity(angrySteveEntity);
                 if (target != null) {
                     angrySteveEntity.setTarget(target);
@@ -254,8 +242,9 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, source, recentlyHit);
         if (!(this.level() instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -272,22 +261,22 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         List<ItemStack> damagedStacks = new ArrayList<>();
 
         ItemStack compressedDiamondHelmet = new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND_HELMET.get());
-        compressedDiamondHelmet.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-        compressedDiamondHelmet.enchant(Enchantments.PROJECTILE_PROTECTION, 5);
-        compressedDiamondHelmet.enchant(Enchantments.FIRE_PROTECTION, 5);
-        compressedDiamondHelmet.enchant(Enchantments.BLAST_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.PROJECTILE_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.FIRE_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.BLAST_PROTECTION, 5);
         damagedStacks.add(compressedDiamondHelmet);
 
         ItemStack compressedDiamondChestplate = new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND_CHESTPLATE.get());
-        compressedDiamondChestplate.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-        compressedDiamondChestplate.enchant(Enchantments.PROJECTILE_PROTECTION, 5);
-        compressedDiamondChestplate.enchant(Enchantments.FIRE_PROTECTION, 5);
-        compressedDiamondChestplate.enchant(Enchantments.BLAST_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.PROJECTILE_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.FIRE_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.BLAST_PROTECTION, 5);
         damagedStacks.add(compressedDiamondChestplate);
 
         ItemStack diamondSword = new ItemStack(Items.DIAMOND_SWORD);
-        diamondSword.enchant(Enchantments.SHARPNESS, 5);
-        diamondSword.enchant(Enchantments.SMITE, 5);
+        EnchantmentUtil.enchant(diamondSword, Enchantments.SHARPNESS, 5);
+        EnchantmentUtil.enchant(diamondSword, Enchantments.SMITE, 5);
         damagedStacks.add(diamondSword);
 
         if (new Random().nextBoolean()) {
@@ -295,61 +284,61 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         }
 
         ItemStack bow = this.getBowItem();
-        bow.enchant(Enchantments.POWER_ARROWS, 5);
-        bow.enchant(Enchantments.PUNCH_ARROWS, 5);
+        EnchantmentUtil.enchant(bow, Enchantments.POWER, 5);
+        EnchantmentUtil.enchant(bow, Enchantments.PUNCH, 5);
         damagedStacks.add(bow);
 
         double chance = new Random().nextDouble(0.0, 1.0);
         if (chance < 0.2) {
             ItemStack woodenDoor = new ItemStack(AnnoyingVillagersModItems.WOODEN_DOOR.get());
-            woodenDoor.enchant(Enchantments.SHARPNESS, 5);
-            woodenDoor.enchant(Enchantments.KNOCKBACK, 3);
-            woodenDoor.enchant(Enchantments.MENDING, 5);
+            EnchantmentUtil.enchant(woodenDoor, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(woodenDoor, Enchantments.KNOCKBACK, 3);
+            EnchantmentUtil.enchant(woodenDoor, Enchantments.MENDING, 5);
             damagedStacks.add(woodenDoor);
         } else if (chance < 0.4) {
             ItemStack craftingTable = new ItemStack(AnnoyingVillagersModItems.CRAFTING_TABLE.get());
-            craftingTable.enchant(Enchantments.SMITE, 5);
-            craftingTable.enchant(Enchantments.KNOCKBACK, 3);
-            craftingTable.enchant(Enchantments.MENDING, 5);
+            EnchantmentUtil.enchant(craftingTable, Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(craftingTable, Enchantments.KNOCKBACK, 3);
+            EnchantmentUtil.enchant(craftingTable, Enchantments.MENDING, 5);
             damagedStacks.add(craftingTable);
         } else if (chance < 0.6) {
             ItemStack ladder = new ItemStack(AnnoyingVillagersModItems.LADDER.get());
-            ladder.enchant(Enchantments.SMITE, 5);
-            ladder.enchant(Enchantments.SWEEPING_EDGE, 3);
-            ladder.enchant(Enchantments.MENDING, 5);
+            EnchantmentUtil.enchant(ladder, Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(ladder, Enchantments.SWEEPING_EDGE, 3);
+            EnchantmentUtil.enchant(ladder, Enchantments.MENDING, 5);
             damagedStacks.add(ladder);
         } else if (chance < 0.8) {
             ItemStack trapDoor = new ItemStack(AnnoyingVillagersModItems.TRAPDOOR.get());
-            trapDoor.enchant(Enchantments.KNOCKBACK, 5);
-            trapDoor.enchant(Enchantments.SWEEPING_EDGE, 3);
-            trapDoor.enchant(Enchantments.MENDING, 5);
+            EnchantmentUtil.enchant(trapDoor, Enchantments.KNOCKBACK, 5);
+            EnchantmentUtil.enchant(trapDoor, Enchantments.SWEEPING_EDGE, 3);
+            EnchantmentUtil.enchant(trapDoor, Enchantments.MENDING, 5);
             damagedStacks.add(trapDoor);
         } else {
             ItemStack mendingDiamondSword = new ItemStack(Items.DIAMOND_SWORD);
-            mendingDiamondSword.enchant(Enchantments.SHARPNESS, 5);
-            mendingDiamondSword.enchant(Enchantments.SMITE, 5);
-            mendingDiamondSword.enchant(Enchantments.MENDING, 5);
+            EnchantmentUtil.enchant(mendingDiamondSword, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(mendingDiamondSword, Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(mendingDiamondSword, Enchantments.MENDING, 5);
             damagedStacks.add(mendingDiamondSword);
         }
 
         double rareWeaponRoll = new Random().nextDouble(0.0D, 1.0D);
         if (rareWeaponRoll < 0.3D) {
             ItemStack diamondGreatsword = new ItemStack(AnnoyingVillagersModItems.DIAMOND_GREATSWORD.get());
-            diamondGreatsword.enchant(Enchantments.SHARPNESS, 5);
-            diamondGreatsword.enchant(Enchantments.SMITE, 5);
-            diamondGreatsword.enchant(Enchantments.SWEEPING_EDGE, 5);
+            EnchantmentUtil.enchant(diamondGreatsword, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(diamondGreatsword, Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(diamondGreatsword, Enchantments.SWEEPING_EDGE, 5);
             damagedStacks.add(diamondGreatsword);
         } else if (rareWeaponRoll < 0.6D) {
             ItemStack samanthaTheKillerAxe = new ItemStack(AnnoyingVillagersModItems.SAMANTHA_THE_KILLER_AXE.get());
-            samanthaTheKillerAxe.enchant(Enchantments.SHARPNESS, 5);
-            samanthaTheKillerAxe.enchant(Enchantments.SMITE, 5);
-            samanthaTheKillerAxe.enchant(Enchantments.SWEEPING_EDGE, 5);
+            EnchantmentUtil.enchant(samanthaTheKillerAxe, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(samanthaTheKillerAxe, Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(samanthaTheKillerAxe, Enchantments.SWEEPING_EDGE, 5);
             damagedStacks.add(samanthaTheKillerAxe);
         } else {
             ItemStack woopieTheSword = new ItemStack(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get());
-            woopieTheSword.enchant(Enchantments.SHARPNESS, 5);
-            woopieTheSword.enchant(Enchantments.SMITE, 5);
-            woopieTheSword.enchant(Enchantments.SWEEPING_EDGE, 5);
+            EnchantmentUtil.enchant(woopieTheSword, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(woopieTheSword, Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(woopieTheSword, Enchantments.SWEEPING_EDGE, 5);
             damagedStacks.add(woopieTheSword);
         }
         damagedStacks.add(new ItemStack(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get()));
@@ -385,9 +374,9 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
             if (this.getHealth() > this.getMaxHealth() / 2) {
                 if (chance < 0.2) {
                     ItemStack woopieTheSword = new ItemStack(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get());
-                    woopieTheSword.enchant(Enchantments.SHARPNESS, 5);
-                    woopieTheSword.enchant(Enchantments.SMITE, 5);
-                    woopieTheSword.enchant(Enchantments.SWEEPING_EDGE, 5);
+                    EnchantmentUtil.enchant(woopieTheSword, Enchantments.SHARPNESS, 5);
+                    EnchantmentUtil.enchant(woopieTheSword, Enchantments.SMITE, 5);
+                    EnchantmentUtil.enchant(woopieTheSword, Enchantments.SWEEPING_EDGE, 5);
                     this.setItemInHand(InteractionHand.MAIN_HAND, woopieTheSword);
 
                     this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get()));
@@ -395,8 +384,8 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
                     setWeapon = true;
                 } else if (chance < 0.4) {
                     ItemStack diamondGreatsword = new ItemStack(AnnoyingVillagersModItems.DIAMOND_GREATSWORD.get());
-                    diamondGreatsword.enchant(Enchantments.SHARPNESS, 5);
-                    diamondGreatsword.enchant(Enchantments.KNOCKBACK, 5);
+                    EnchantmentUtil.enchant(diamondGreatsword, Enchantments.SHARPNESS, 5);
+                    EnchantmentUtil.enchant(diamondGreatsword, Enchantments.KNOCKBACK, 5);
                     this.setItemInHand(InteractionHand.MAIN_HAND, diamondGreatsword);
 
                     this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
@@ -404,8 +393,8 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
                     setWeapon = true;
                 } else if (chance < 0.6) {
                     ItemStack killerAxe = new ItemStack(AnnoyingVillagersModItems.SAMANTHA_THE_KILLER_AXE.get());
-                    killerAxe.enchant(Enchantments.SHARPNESS, 5);
-                    killerAxe.enchant(Enchantments.FIRE_ASPECT, 2);
+                    EnchantmentUtil.enchant(killerAxe, Enchantments.SHARPNESS, 5);
+                    EnchantmentUtil.enchant(killerAxe, Enchantments.FIRE_ASPECT, 2);
                     this.setItemInHand(InteractionHand.MAIN_HAND, killerAxe);
 
                     this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get()));
@@ -413,8 +402,8 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
                     setWeapon = true;
                 } else {
                     ItemStack diamondSword = new ItemStack(Items.DIAMOND_SWORD);
-                    diamondSword.enchant(Enchantments.SHARPNESS, 5);
-                    diamondSword.enchant(Enchantments.SMITE, 5);
+                    EnchantmentUtil.enchant(diamondSword, Enchantments.SHARPNESS, 5);
+                    EnchantmentUtil.enchant(diamondSword, Enchantments.SMITE, 5);
                     this.setItemInHand(InteractionHand.MAIN_HAND, diamondSword);
                     this.setItemInHand(InteractionHand.OFF_HAND, diamondSword);
                     setWeapon = true;
@@ -422,9 +411,9 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
             } else {
                 if (chance <= 0.4) {
                     ItemStack woopieTheSword = new ItemStack(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get());
-                    woopieTheSword.enchant(Enchantments.SHARPNESS, 5);
-                    woopieTheSword.enchant(Enchantments.SMITE, 5);
-                    woopieTheSword.enchant(Enchantments.SWEEPING_EDGE, 5);
+                    EnchantmentUtil.enchant(woopieTheSword, Enchantments.SHARPNESS, 5);
+                    EnchantmentUtil.enchant(woopieTheSword, Enchantments.SMITE, 5);
+                    EnchantmentUtil.enchant(woopieTheSword, Enchantments.SWEEPING_EDGE, 5);
                     this.setItemInHand(InteractionHand.MAIN_HAND, woopieTheSword);
 
                     this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get()));
@@ -447,8 +436,8 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
             }
         } else if (this.state == 0 && this.getHealth() <= 20) {
             ItemStack diamondSword = new ItemStack(Items.DIAMOND_SWORD);
-            diamondSword.enchant(Enchantments.SHARPNESS, 5);
-            diamondSword.enchant(Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(diamondSword, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(diamondSword, Enchantments.SMITE, 5);
             this.setItemInHand(InteractionHand.MAIN_HAND, diamondSword);
             this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.TOTEM_OF_UNDYING));
             setWeapon = true;
@@ -458,28 +447,28 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
             chance = new Random().nextDouble(0.0, 1.0);
             if (chance <= 0.2) {
                 ItemStack diamondSword = new ItemStack(Items.DIAMOND_SWORD);
-                diamondSword.enchant(Enchantments.SHARPNESS, 5);
-                diamondSword.enchant(Enchantments.SMITE, 5);
+                EnchantmentUtil.enchant(diamondSword, Enchantments.SHARPNESS, 5);
+                EnchantmentUtil.enchant(diamondSword, Enchantments.SMITE, 5);
                 this.setItemInHand(InteractionHand.MAIN_HAND, diamondSword);
             } else if (chance <= 0.4) {
                 ItemStack woodenDoor = new ItemStack(AnnoyingVillagersModItems.WOODEN_DOOR.get());
-                woodenDoor.enchant(Enchantments.SHARPNESS, 5);
-                woodenDoor.enchant(Enchantments.KNOCKBACK, 3);
+                EnchantmentUtil.enchant(woodenDoor, Enchantments.SHARPNESS, 5);
+                EnchantmentUtil.enchant(woodenDoor, Enchantments.KNOCKBACK, 3);
                 this.setItemInHand(InteractionHand.MAIN_HAND, woodenDoor);
             } else if (chance <= 0.6) {
                 ItemStack craftingTable = new ItemStack(AnnoyingVillagersModItems.CRAFTING_TABLE.get());
-                craftingTable.enchant(Enchantments.SMITE, 5);
-                craftingTable.enchant(Enchantments.KNOCKBACK, 3);
+                EnchantmentUtil.enchant(craftingTable, Enchantments.SMITE, 5);
+                EnchantmentUtil.enchant(craftingTable, Enchantments.KNOCKBACK, 3);
                 this.setItemInHand(InteractionHand.MAIN_HAND, craftingTable);
             } else if (chance <= 0.8) {
                 ItemStack ladder = new ItemStack(AnnoyingVillagersModItems.LADDER.get());
-                ladder.enchant(Enchantments.SMITE, 5);
-                ladder.enchant(Enchantments.SWEEPING_EDGE, 3);
+                EnchantmentUtil.enchant(ladder, Enchantments.SMITE, 5);
+                EnchantmentUtil.enchant(ladder, Enchantments.SWEEPING_EDGE, 3);
                 this.setItemInHand(InteractionHand.MAIN_HAND, ladder);
             } else {
                 ItemStack trapDoor = new ItemStack(AnnoyingVillagersModItems.TRAPDOOR.get());
-                trapDoor.enchant(Enchantments.KNOCKBACK, 5);
-                trapDoor.enchant(Enchantments.SWEEPING_EDGE, 3);
+                EnchantmentUtil.enchant(trapDoor, Enchantments.KNOCKBACK, 5);
+                EnchantmentUtil.enchant(trapDoor, Enchantments.SWEEPING_EDGE, 3);
                 this.setItemInHand(InteractionHand.MAIN_HAND, trapDoor);
             }
         }
@@ -529,8 +518,6 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         if (this.isInvulnerableTo(pDamageSource)) {
             return;
         }
-
-        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
         if (pDamageAmount <= 0.0F) {
             return;
         }
@@ -547,7 +534,9 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
             }
         }
 
-        finalDamage = ForgeHooks.onLivingDamage(this, pDamageSource, finalDamage);
+        this.damageContainers.peek().setNewDamage(finalDamage);
+
+        finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
 
         if (this.level() instanceof ServerLevel serverLevel
@@ -564,7 +553,7 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         this.gameEvent(GameEvent.ENTITY_DAMAGE);
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
         ServerLevel serverLevel = serverLevelAccessor.getLevel();
         if (mobSpawnType == MobSpawnType.SPAWN_EGG) {
             PersistentPlayerNpcManager.replaceIdentityForSpawnEgg(serverLevel.getServer(), "Steve");
@@ -579,7 +568,7 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
 
         TeamUtil.addOrJoinTeam(this, "steve");
         this.swapWeaponCooldown = new Random().nextInt(100, 200);
-        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata, compoundtag);
+        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata);
     }
 
     public static boolean canSpawn(EntityType<SteveEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {

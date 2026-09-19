@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.rig.armor;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.item.HerobrineObsidianArmorCharge;
@@ -16,14 +17,13 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -195,11 +195,11 @@ public final class ObsidianArmorController {
     public static float armorSpikeDamage(LivingEntity wearer, ObsidianArmorPart part) {
         float baseDamage = part == ObsidianArmorPart.CHESTPLATE ? CHESTPLATE_BASE_DAMAGE : HELMET_BASE_DAMAGE;
         ItemStack armor = wearer.getItemBySlot(part.slot());
-        int protectionLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.ALL_DAMAGE_PROTECTION, armor);
+        int protectionLevel = EnchantmentUtil.getLevel(Enchantments.PROTECTION, armor);
         // Reuse vanilla Sharpness' exact level-to-damage curve, but feed it the
         // Protection level from the armor piece that produced this spike hit.
         float protectionBonus = protectionLevel > 0
-                ? Enchantments.SHARPNESS.getDamageBonus(protectionLevel, MobType.UNDEFINED)
+                ? 0.5F * protectionLevel + 0.5F
                 : 0.0F;
         return baseDamage + protectionBonus;
     }
@@ -297,7 +297,7 @@ public final class ObsidianArmorController {
     }
 
     private static void sendAnimation(LivingEntity wearer, SpecialAnimationId animationId, int durationTicks) {
-        AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> wearer), new ClientboundObsidianArmorAnimation(wearer.getId(), animationId, durationTicks));
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(wearer, new ClientboundObsidianArmorAnimation(wearer.getId(), animationId, durationTicks));
     }
 
     private record ActiveState(LivingEntity wearer, EnumMap<ObsidianArmorPart, SpecialAnimationId> animations,

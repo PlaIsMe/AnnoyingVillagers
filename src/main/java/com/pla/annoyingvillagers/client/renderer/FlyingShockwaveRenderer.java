@@ -12,8 +12,8 @@ import net.minecraft.client.renderer.entity.*;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
@@ -59,10 +59,7 @@ public class FlyingShockwaveRenderer extends EntityRenderer<FlyingShockwaveProje
                 vertexConsumer,
                 pPackedLight,
                 OverlayTexture.NO_OVERLAY,
-                1.0F,
-                1.0F,
-                1.0F,
-                1.0F
+                -1
         );
 
         pPoseStack.popPose();

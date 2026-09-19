@@ -9,15 +9,17 @@ import com.pla.annoyingvillagers.potion.ObedienceMobEffect;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import javax.annotation.Nullable;
 
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class MobTargetRedirectEvent {
     public static boolean shouldPreserveRedirectTarget(Mob mob) {
         LivingEntity currentTarget = mob.getTarget();
@@ -172,8 +174,8 @@ public class MobTargetRedirectEvent {
     }
 
     @SubscribeEvent
-    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-        LivingEntity livingEntity = event.getEntity();
+    public static void onLivingTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof LivingEntity livingEntity)) return;
         if (livingEntity instanceof Mob mob) {
             if (mob instanceof BlueDemonEntity || mob instanceof BbqEntity) return;
 
@@ -205,14 +207,14 @@ public class MobTargetRedirectEvent {
             return;
         }
 
-        LivingEntity newTarget = event.getNewTarget();
+        LivingEntity newTarget = event.getNewAboutToBeSetTarget();
         if (shouldBlockVillagerKnightJevTarget(mob, newTarget)) {
-            event.setNewTarget(getVillagerKnightJevReplacementTarget(mob, newTarget));
+            event.setNewAboutToBeSetTarget(getVillagerKnightJevReplacementTarget(mob, newTarget));
             return;
         }
 
         if (newTarget != null && ObedienceMobEffect.shouldBlockTarget(mob, newTarget)) {
-            event.setNewTarget(null);
+            event.setNewAboutToBeSetTarget(null);
         }
     }
 }

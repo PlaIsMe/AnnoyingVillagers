@@ -12,10 +12,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class HookedIronSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class HookedIronSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public HookedIronSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 250;
             }

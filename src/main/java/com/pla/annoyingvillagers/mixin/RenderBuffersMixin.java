@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.mixin;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 
 import com.pla.annoyingvillagers.client.renderer.ColoredGlintRenderTypes;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class RenderBuffersMixin {
 
     @Inject(method = "put", at = @At("HEAD"))
-    private static void addGlintTypes(Object2ObjectLinkedOpenHashMap<RenderType, BufferBuilder> mapBuildersIn, RenderType renderTypeIn, CallbackInfo callbackInfo) {
+    private static void addGlintTypes(Object2ObjectLinkedOpenHashMap<RenderType, ByteBufferBuilder> mapBuildersIn, RenderType renderTypeIn, CallbackInfo callbackInfo) {
         ColoredGlintRenderTypes.registerIntoFixed(mapBuildersIn);
     }
 }

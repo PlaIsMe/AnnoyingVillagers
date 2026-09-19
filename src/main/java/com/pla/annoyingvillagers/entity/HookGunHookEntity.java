@@ -32,9 +32,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -93,11 +91,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
     private long grappleAttachedAt = -1L;
     private int grappleReturnDelayTicks = -1;
 
-    public HookGunHookEntity(PlayMessages.SpawnEntity packet, Level level) {
-        this(AnnoyingVillagersModEntities.HOOK_GUN_HOOK.get(), level);
-    }
-
-    public HookGunHookEntity(EntityType<? extends HookGunHookEntity> entityType, Level level) {
+        public HookGunHookEntity(EntityType<? extends HookGunHookEntity> entityType, Level level) {
         super(entityType, level);
     }
 
@@ -120,16 +114,16 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(DATA_OWNER_ID, 0);
-        this.entityData.define(DATA_ATTACHED, false);
-        this.entityData.define(DATA_DOUBLE_MODE, false);
-        this.entityData.define(DATA_RIGHT_HAND, true);
-        this.entityData.define(DATA_RETURNING, false);
-        this.entityData.define(DATA_BOUND_STACK, ItemStack.EMPTY);
-        this.entityData.define(DATA_ANCHOR_X, 0.0F);
-        this.entityData.define(DATA_ANCHOR_Y, 0.0F);
-        this.entityData.define(DATA_ANCHOR_Z, 0.0F);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_OWNER_ID, 0);
+        builder.define(DATA_ATTACHED, false);
+        builder.define(DATA_DOUBLE_MODE, false);
+        builder.define(DATA_RIGHT_HAND, true);
+        builder.define(DATA_RETURNING, false);
+        builder.define(DATA_BOUND_STACK, ItemStack.EMPTY);
+        builder.define(DATA_ANCHOR_X, 0.0F);
+        builder.define(DATA_ANCHOR_Y, 0.0F);
+        builder.define(DATA_ANCHOR_Z, 0.0F);
     }
 
     @Override
@@ -181,7 +175,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         }
 
         BlockHitResult emptyBucketFluidHit = this.getEmptyBucketFluidHit();
-        if (emptyBucketFluidHit != null && !ForgeEventFactory.onProjectileImpact(this, emptyBucketFluidHit)) {
+        if (emptyBucketFluidHit != null && !EventHooks.onProjectileImpact(this, emptyBucketFluidHit)) {
             this.onHit(emptyBucketFluidHit);
         }
 
@@ -190,7 +184,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         }
 
         BlockHitResult boneMealSaplingHit = this.getBoneMealSaplingOutlineHit();
-        if (boneMealSaplingHit != null && !ForgeEventFactory.onProjectileImpact(this, boneMealSaplingHit)) {
+        if (boneMealSaplingHit != null && !EventHooks.onProjectileImpact(this, boneMealSaplingHit)) {
             this.onHit(boneMealSaplingHit);
         }
 
@@ -199,7 +193,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         }
 
         HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-        if (hitResult.getType() != HitResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, hitResult)) {
+        if (hitResult.getType() != HitResult.Type.MISS && !EventHooks.onProjectileImpact(this, hitResult)) {
             this.onHit(hitResult);
         }
 
@@ -568,7 +562,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         tag.putBoolean(TAG_RETURNING, this.isReturning());
         ItemStack boundStack = this.getBoundItem();
         if (!boundStack.isEmpty()) {
-            tag.put(TAG_BOUND_STACK, boundStack.save(new CompoundTag()));
+            tag.put(TAG_BOUND_STACK, boundStack.save(this.level().registryAccess()));
         }
         tag.putDouble(TAG_ANCHOR_X, this.anchor.x);
         tag.putDouble(TAG_ANCHOR_Y, this.anchor.y);
@@ -588,7 +582,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         this.entityData.set(DATA_RIGHT_HAND, !tag.contains(TAG_RIGHT_HAND) || tag.getBoolean(TAG_RIGHT_HAND));
         this.entityData.set(DATA_RETURNING, tag.getBoolean(TAG_RETURNING));
         if (tag.contains(TAG_BOUND_STACK, 10)) {
-            this.setBoundItem(ItemStack.of(tag.getCompound(TAG_BOUND_STACK)));
+            this.setBoundItem(ItemStack.parseOptional(this.level().registryAccess(), tag.getCompound(TAG_BOUND_STACK)));
         } else {
             this.setBoundItem(ItemStack.EMPTY);
         }
@@ -609,12 +603,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         return new AABB(this.position(), owner.getEyePosition()).inflate(1.0D);
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
+        @Override
     public @NotNull ItemStack getItem() {
         return this.getBoundItem();
     }

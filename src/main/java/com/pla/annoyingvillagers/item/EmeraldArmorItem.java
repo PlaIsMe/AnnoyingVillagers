@@ -13,15 +13,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public abstract class EmeraldArmorItem extends ArmorItem {
+public abstract class EmeraldArmorItem extends LegacyArmorItem {
 
     public EmeraldArmorItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(ArmorItem.@NotNull Type type) {
                 return switch (type) {
@@ -29,6 +30,7 @@ public abstract class EmeraldArmorItem extends ArmorItem {
                     case LEGGINGS   -> 15 * 48;  // 720
                     case CHESTPLATE -> 16 * 48;  // 768
                     case HELMET     -> 11 * 48;  // 528
+                    case BODY       -> 16 * 48;
                 };
             }
 
@@ -39,6 +41,7 @@ public abstract class EmeraldArmorItem extends ArmorItem {
                     case LEGGINGS   -> 5;
                     case CHESTPLATE -> 8;
                     case HELMET     -> 5;
+                    case BODY       -> 8;
                 };
             }
 
@@ -46,8 +49,8 @@ public abstract class EmeraldArmorItem extends ArmorItem {
                 return 10;
             }
 
-            public @NotNull SoundEvent getEquipSound() {
-                return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
+            public Object getEquipSound() {
+                return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
             }
 
             public @NotNull Ingredient getRepairIngredient() {
@@ -79,8 +82,9 @@ public abstract class EmeraldArmorItem extends ArmorItem {
         }
 
         @Override
-        public void onInventoryTick(ItemStack stack, Level level, Player player, int slotIndex, int selectedIndex) {
-            super.onInventoryTick(stack, level, player, slotIndex, selectedIndex);
+        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+            if (!(entity instanceof Player player)) return;
+            super.inventoryTick(stack, level, entity, slotIndex, selected);
             if (player.getItemBySlot(EquipmentSlot.FEET) == stack) {
                 if (!player.level().isClientSide()) {
                     player.addEffect(new MobEffectInstance(MobEffects.JUMP, 100, 1));
@@ -100,8 +104,9 @@ public abstract class EmeraldArmorItem extends ArmorItem {
         }
 
         @Override
-        public void onInventoryTick(ItemStack stack, Level level, Player player, int slotIndex, int selectedIndex) {
-            super.onInventoryTick(stack, level, player, slotIndex, selectedIndex);
+        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+            if (!(entity instanceof Player player)) return;
+            super.inventoryTick(stack, level, entity, slotIndex, selected);
             if (player.getItemBySlot(EquipmentSlot.LEGS) == stack) {
                 if (!player.level().isClientSide()) {
                     player.addEffect(new MobEffectInstance(MobEffects.JUMP, 100, 1));
@@ -121,8 +126,9 @@ public abstract class EmeraldArmorItem extends ArmorItem {
         }
 
         @Override
-        public void onInventoryTick(ItemStack stack, Level level, Player player, int slotIndex, int selectedIndex) {
-            super.onInventoryTick(stack, level, player, slotIndex, selectedIndex);
+        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+            if (!(entity instanceof Player player)) return;
+            super.inventoryTick(stack, level, entity, slotIndex, selected);
             if (player.getItemBySlot(EquipmentSlot.CHEST) == stack) {
                 if (!player.level().isClientSide()) {
                     player.addEffect(new MobEffectInstance(MobEffects.JUMP, 100, 1));
@@ -142,8 +148,9 @@ public abstract class EmeraldArmorItem extends ArmorItem {
         }
 
         @Override
-        public void onInventoryTick(ItemStack stack, Level level, Player player, int slotIndex, int selectedIndex) {
-            super.onInventoryTick(stack, level, player, slotIndex, selectedIndex);
+        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+            if (!(entity instanceof Player player)) return;
+            super.inventoryTick(stack, level, entity, slotIndex, selected);
             if (player.getItemBySlot(EquipmentSlot.HEAD) == stack) {
                 if (!player.level().isClientSide()) {
                     player.addEffect(new MobEffectInstance(MobEffects.JUMP, 100, 1));

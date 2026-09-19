@@ -8,10 +8,11 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -51,7 +52,7 @@ public class FractureBlockEntity extends BlockEntity {
             return;
         }
 
-        if (blockEntity.originalBlockState.shouldSpawnParticlesOnBreak() && blockEntity.maxLifeTime - blockEntity.lifeTime < 10) {
+        if (!blockEntity.originalBlockState.isAir() && blockEntity.maxLifeTime - blockEntity.lifeTime < 10) {
             Particle blockParticle = new TerrainParticle((ClientLevel) level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0D, 0.0D, 0.0D, blockEntity.originalBlockState, blockPos);
             blockParticle.setParticleSpeed((Math.random() - 0.5D) * 0.3D, Math.random() * 0.5D, (Math.random() - 0.5D) * 0.3D);
             blockParticle.setLifetime(10 + level.random.nextInt(60));
@@ -61,7 +62,7 @@ public class FractureBlockEntity extends BlockEntity {
         if (blockEntity.lifeTime++ > blockEntity.maxLifeTime) {
             level.removeBlockEntity(blockPos);
             FractureBlockState.remove(blockPos);
-            level.setBlock(blockPos, blockEntity.originalBlockState, 0);
+            level.setBlock(blockPos, blockEntity.originalBlockState, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
         }
     }
 }

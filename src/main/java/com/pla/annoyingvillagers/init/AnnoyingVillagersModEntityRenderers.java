@@ -2,11 +2,11 @@ package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.client.renderer.*;
 import net.minecraft.client.renderer.entity.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderers;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber.Bus;
 
 @EventBusSubscriber(bus = Bus.MOD, value = {Dist.CLIENT})
 public class AnnoyingVillagersModEntityRenderers {
@@ -66,7 +66,7 @@ public class AnnoyingVillagersModEntityRenderers {
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get(), HerobrineDragonRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.DRAGON_METEORITE.get(), DragonMeteoriteRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.SHOCKWAVE_BLOCK.get(), ShockWaveBlockRenderer::new);
-        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.NULL_SKELETON.get(), WitherSkeletonRenderer::new);
+        registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.NULL_SKELETON.get(), NullSkeletonRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLACK_HOLE.get(), BlackHoleRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.BLUE_DEMON_THUNDER_BEAM.get(), BlueDemonThunderBeamRenderer::new);
         registerrenderers.registerEntityRenderer(AnnoyingVillagersModEntities.TRIDENT_LIGHTNING_BOLT.get(), LightningBoltRenderer::new);

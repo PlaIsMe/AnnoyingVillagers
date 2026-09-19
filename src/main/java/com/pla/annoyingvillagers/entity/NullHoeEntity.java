@@ -5,14 +5,9 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 
 public class NullHoeEntity extends NullWeapon {
-    public NullHoeEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.NULL_HOE.get(), level);
-    }
-
-    public NullHoeEntity(EntityType<NullHoeEntity> entitytype, Level level) {
+        public NullHoeEntity(EntityType<NullHoeEntity> entitytype, Level level) {
         super(entitytype, level);
         this.setWeapon("hoe");
     }

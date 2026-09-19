@@ -27,9 +27,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PlayMessages;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -62,17 +60,13 @@ public class PortalEntity extends Entity {
         this.setNoGravity(true);
     }
 
-    public PortalEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.PORTAL.get(), level);
-    }
-
-    @Override
-    protected void defineSynchedData() {
-        this.entityData.define(LINKED_PORTAL_UUID, Optional.empty());
-        this.entityData.define(OWNER_UUID, Optional.empty());
-        this.entityData.define(PORTAL_GROUP_UUID, Optional.empty());
-        this.entityData.define(PORTAL_ORDER, -1);
-        this.entityData.define(STARTER_PORTAL, false);
+        @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(LINKED_PORTAL_UUID, Optional.empty());
+        builder.define(OWNER_UUID, Optional.empty());
+        builder.define(PORTAL_GROUP_UUID, Optional.empty());
+        builder.define(PORTAL_ORDER, -1);
+        builder.define(STARTER_PORTAL, false);
     }
 
     @Override
@@ -240,10 +234,7 @@ public class PortalEntity extends Entity {
             return;
         }
 
-        AnnoyingVillagers.PACKET_HANDLER.send(
-                PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                new ClientboundTeleportPortalFx(this.getPortalCenter(), this.getNormal())
-        );
+        PacketDistributor.sendToPlayersTrackingEntity(this, new ClientboundTeleportPortalFx(this.getPortalCenter(), this.getNormal()));
     }
 
     private Vec3 findExitPosition(Entity entity, double exitSide, double relativeY) {
@@ -410,8 +401,4 @@ public class PortalEntity extends Entity {
         tag.putBoolean("StarterPortal", this.isStarterPortal());
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
-}

@@ -20,60 +20,48 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 public class InfectedChrisEntity extends PathfinderMob implements RigStunnableEntity {
-    public InfectedChrisEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(), level);
-    }
-
-    public InfectedChrisEntity(EntityType<InfectedChrisEntity> entitytype, Level level) {
+        public InfectedChrisEntity(EntityType<InfectedChrisEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(0.6F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(0.6F);
         this.xpReward = 7;
         this.setNoAi(true);
         this.setCustomName(this.getDisplayName());
         this.setCustomNameVisible(true);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+        protected void registerGoals() {
         super.registerGoals();
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public double getMyRidingOffset() {
+        public double getMyRidingOffset() {
         return -0.35D;
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, source, recentlyHit);
         HerobrineUtil.dropHerobrineChrisLoot(this.level(), this.getX(), this.getY(), this.getZ());
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
-        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata, compoundtag);
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
+        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata);
 
         if (!this.level().isClientSide()) {
-            this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE.get(), 3000, 1));
+            this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE, 3000, 1));
         }
         return returnSpawnGroupData;
     }
@@ -82,7 +70,7 @@ public class InfectedChrisEntity extends PathfinderMob implements RigStunnableEn
     public void tick() {
         super.tick();
         if (!this.level().isClientSide()) {
-            this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE.get(), 2, 0, false, false));
+            this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE, 2, 0, false, false));
             CommonUtil.stunImmunity(this, 2, 0);
         }
     }

@@ -15,18 +15,19 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.player.CriticalHitEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
 public final class RigStunCombatEvent {
     private static final float PLAYER_CRITICAL_STUN_CHANCE = 0.30F;
 
@@ -34,12 +35,12 @@ public final class RigStunCombatEvent {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onCriticalHit(CriticalHitEvent event) {
-        if (event.getEntity().level().isClientSide || !event.isVanillaCritical() || event.getResult() == Event.Result.DENY || !(event.getTarget() instanceof LivingEntity target)) return;
+        if (event.getEntity().level().isClientSide || !event.isCriticalHit() || !(event.getTarget() instanceof LivingEntity target)) return;
         RigCriticalUtil.markVanillaPlayerCritical(event.getEntity(), target);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onLivingAttack(LivingAttackEvent event) {
+    public static void onLivingAttack(LivingIncomingDamageEvent event) {
         if (event.isCanceled()) return;
 
         DamageSource source = event.getSource();
@@ -59,22 +60,22 @@ public final class RigStunCombatEvent {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onLivingHurt(LivingHurtEvent event) {
+    public static void onLivingHurt(LivingDamageEvent.Pre event) {
         float multiplier = RigDamageContext.finalIncomingMultiplier(event.getEntity(), event.getSource());
-        if (multiplier != 1.0F) event.setAmount(event.getAmount() * multiplier);
+        if (multiplier != 1.0F) event.setNewDamage(event.getNewDamage() * multiplier);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onLivingDamage(LivingDamageEvent event) {
+    public static void onLivingDamage(LivingDamageEvent.Post event) {
         LivingEntity victim = event.getEntity();
         DamageSource source = event.getSource();
-        if (event.getAmount() <= 0.0F || !(victim instanceof Mob mobVictim) || !RigStunController.supports(mobVictim)) return;
+        if (event.getNewDamage() <= 0.0F || !(victim instanceof Mob mobVictim) || !RigStunController.supports(mobVictim)) return;
 
         // Ground Stuck owns its reaction animation while active. This is the vanilla-rig
         // equivalent of the old Epic Fight EntityStunEvent cancellation.
-        if (victim.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get())) return;
+        if (victim.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK)) return;
 
-        if (source.is(DamageTypes.FALL) && event.getAmount() > 1.0F) {
+        if (source.is(DamageTypes.FALL) && event.getNewDamage() > 1.0F) {
             RigAnimationController.stop(mobVictim, RigAnimationId.FALL);
             RigStunController.applyLanding(mobVictim);
             return;

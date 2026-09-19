@@ -7,10 +7,10 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class NetheriteKnifeItem extends SwordItem implements RigCombatProfileProvider {
+public class NetheriteKnifeItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public NetheriteKnifeItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 2031;
             }

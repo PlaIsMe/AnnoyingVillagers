@@ -24,16 +24,16 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ItemSupplier;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
@@ -41,34 +41,47 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
     private static final int SLAM_PULSE_INTERVAL_TICKS = 20;
     private static final int ELITE_FX_INTERVAL_TICKS = 4;
     private static final int MAX_LIFETIME_TICKS = 100;
+    private int legacyKnockback;
 
-    public EnderAegisProjectile(SpawnEntity spawnentity, Level level) {
-        super(AnnoyingVillagersModEntities.ENDER_AEGIS_PROJECTILE.get(), level);
-    }
-
-    public EnderAegisProjectile(EntityType<? extends EnderAegisProjectile> entitytype, Level level) {
+        public EnderAegisProjectile(EntityType<? extends EnderAegisProjectile> entitytype, Level level) {
         super(entitytype, level);
     }
 
     public EnderAegisProjectile(EntityType<? extends EnderAegisProjectile> entitytype, double d0, double d1, double d2, Level level) {
-        super(entitytype, d0, d1, d2, level);
+        super(entitytype, d0, d1, d2, level, ItemStack.EMPTY, null);
     }
 
     public EnderAegisProjectile(EntityType<? extends EnderAegisProjectile> entitytype, LivingEntity livingentity, Level level) {
-        super(entitytype, livingentity, level);
+        super(entitytype, livingentity, level, ItemStack.EMPTY, null);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @OnlyIn(Dist.CLIENT)
+        @OnlyIn(Dist.CLIENT)
     public @NotNull ItemStack getItem() {
         return new ItemStack(Blocks.AIR);
     }
 
     public @NotNull ItemStack getPickupItem() {
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    protected @NotNull ItemStack getDefaultPickupItem() {
+        return ItemStack.EMPTY;
+    }
+
+    public void setKnockback(int knockback) {
+        this.legacyKnockback = Math.max(0, knockback);
+    }
+
+    @Override
+    protected void doKnockback(@NotNull LivingEntity target, @NotNull DamageSource source) {
+        super.doKnockback(target, source);
+        if (this.legacyKnockback > 0) {
+            double resistance = Math.max(0.0D, 1.0D - target.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE));
+            Vec3 push = this.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D).normalize()
+                    .scale(this.legacyKnockback * 0.6D * resistance);
+            if (push.lengthSqr() > 0.0D) target.push(push.x, 0.1D, push.z);
+        }
     }
 
     public void tick() {
@@ -107,7 +120,7 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
         enderAegisProjectile.setBaseDamage(d0);
         enderAegisProjectile.setKnockback(i);
         level.addFreshEntity(enderAegisProjectile);
-        level.playSound(null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.arrow.shoot"))), SoundSource.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.5F + 1.0F) + f / 2.0F);
+        level.playSound(null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.arrow.shoot"))), SoundSource.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.5F + 1.0F) + f / 2.0F);
         return enderAegisProjectile;
     }
 
@@ -123,7 +136,7 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
         enderAegisProjectile.setKnockback(7);
         enderAegisProjectile.setCritArrow(false);
         livingentity.level().addFreshEntity(enderAegisProjectile);
-        livingentity.level().playSound(null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.arrow.shoot"))), SoundSource.PLAYERS, 1.0F, 1.0F / ((new Random()).nextFloat() * 0.5F + 1.0F));
+        livingentity.level().playSound(null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.arrow.shoot"))), SoundSource.PLAYERS, 1.0F, 1.0F / ((new Random()).nextFloat() * 0.5F + 1.0F));
         return enderAegisProjectile;
     }
 

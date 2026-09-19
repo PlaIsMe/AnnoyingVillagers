@@ -23,20 +23,15 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 public class InfectedTheMostMoistBurrit0Entity extends PathfinderMob implements RigStunnableEntity {
     private boolean initialSpawn = false;
-    public InfectedTheMostMoistBurrit0Entity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.INFECTED_THEMOSTMOISTBURRIT0.get(), level);
-    }
-
-    public InfectedTheMostMoistBurrit0Entity(EntityType<InfectedTheMostMoistBurrit0Entity> entitytype, Level level) {
+        public InfectedTheMostMoistBurrit0Entity(EntityType<InfectedTheMostMoistBurrit0Entity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(0.6F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(0.6F);
         this.xpReward = 0;
         this.setNoAi(true);
         this.setCustomName(this.getDisplayName());
@@ -45,24 +40,16 @@ public class InfectedTheMostMoistBurrit0Entity extends PathfinderMob implements 
         this.setItemSlot(EquipmentSlot.CHEST, new ItemStack(AnnoyingVillagersModItems.BROKEN_DIAMOND_CHESTPLATE.get()));
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public double getMyRidingOffset() {
+            public double getMyRidingOffset() {
         return -0.35D;
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
     }
 
     @Override
@@ -75,13 +62,14 @@ public class InfectedTheMostMoistBurrit0Entity extends PathfinderMob implements 
             }
             this.initialSpawn = true;
         }
-        this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE.get(), 2, 0, false, false));
+        this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE, 2, 0, false, false));
         CommonUtil.stunImmunity(this, 2, 0);
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, source, recentlyHit);
         HerobrineUtil.dropArmoredHerobrineLoot(this.level(), this.getX(), this.getY(), this.getZ());
     }
 
@@ -97,11 +85,11 @@ public class InfectedTheMostMoistBurrit0Entity extends PathfinderMob implements 
         this.initialSpawn = tag.getBoolean("InitialSpawn");
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
         if (!this.level().isClientSide()) {
             TeamUtil.addOrJoinTeam(this, "herobrine");
         }
-        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, compoundTag);
+        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
     }
 
     public static Builder createAttributes() {

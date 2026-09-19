@@ -28,9 +28,6 @@ public class ArmorUtil {
 
     public static void damageArmor(LivingEntity target,
                              int durabilityDamagePerPiece) {
-        RandomSource random = target.getRandom();
-        ServerPlayer serverAttacker = target instanceof ServerPlayer serverPlayer ? serverPlayer : null;
-
         for (EquipmentSlot slot : new EquipmentSlot[]{
                 EquipmentSlot.FEET,
                 EquipmentSlot.LEGS,
@@ -43,11 +40,7 @@ public class ArmorUtil {
                 continue;
             }
 
-            if (armor.hurt(durabilityDamagePerPiece, random, serverAttacker)) {
-                armor.shrink(1);
-                armor.setDamageValue(0);
-                target.setItemSlot(slot, ItemStack.EMPTY);
-            }
+            armor.hurtAndBreak(durabilityDamagePerPiece, target, slot);
         }
     }
 }

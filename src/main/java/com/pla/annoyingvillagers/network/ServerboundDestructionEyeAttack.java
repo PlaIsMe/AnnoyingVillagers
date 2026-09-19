@@ -5,11 +5,11 @@ import com.pla.annoyingvillagers.item.DestructionEyeItem;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
 
-public record ServerboundDestructionEyeAttack() {
+
+public record ServerboundDestructionEyeAttack()  implements AnnoyingVillagersPayload {
     public static void encode(ServerboundDestructionEyeAttack message, FriendlyByteBuf buffer) {
     }
 
@@ -17,16 +17,14 @@ public record ServerboundDestructionEyeAttack() {
         return new ServerboundDestructionEyeAttack();
     }
 
-    public static void handle(ServerboundDestructionEyeAttack message, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
+    public static void handle(ServerboundDestructionEyeAttack message, IPayloadContext contextSupplier) {
+        IPayloadContext context = contextSupplier;
         context.enqueueWork(() -> {
-            ServerPlayer player = context.getSender();
-            if (player == null) return;
+            if (!(context.player() instanceof ServerPlayer player)) return;
             ItemStack stack = player.getMainHandItem();
             if (!(stack.getItem() instanceof DestructionEyeItem)) return;
             GolemArms arms = DestructionEyeItem.getOrCreateArms(player.serverLevel(), player, stack);
             if (arms != null) arms.attackFromOwner();
         });
-        context.setPacketHandled(true);
     }
 }

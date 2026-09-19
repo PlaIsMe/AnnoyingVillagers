@@ -21,7 +21,7 @@ public class GregData extends SavedData {
     }
 
     public static GregData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(GregData::load, GregData::new, ID);
+        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(GregData::new, (tag, provider) -> GregData.load(tag)), ID);
     }
 
     public static GregData load(CompoundTag compoundTag) {
@@ -36,7 +36,7 @@ public class GregData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null) {
             compoundTag.putUUID("activeId", activeId);
         }

@@ -46,8 +46,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PlayMessages;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,13 +83,9 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
     private final Entity[] combatLowCloneSupport = new Entity[MAX_COMBAT_LOW_CLONE_SUPPORT];
     private final UUID[] combatLowCloneSupportUUIDs = new UUID[MAX_COMBAT_LOW_CLONE_SUPPORT];
 
-    public TransporterHerobrineCloneEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.TRANSPORTER_HEROBRINE_CLONE.get(), level);
-    }
-
-    public TransporterHerobrineCloneEntity(EntityType<TransporterHerobrineCloneEntity> entityType, Level level) {
+        public TransporterHerobrineCloneEntity(EntityType<TransporterHerobrineCloneEntity> entityType, Level level) {
         super(entityType, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 120;
         this.setNoAi(false);
         this.setPersistenceRequired();
@@ -102,9 +97,9 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(HOOKED, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(HOOKED, false);
     }
 
     public boolean isHooked() {
@@ -480,10 +475,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
         this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);
         playPortalSummonAnimation();
         if (this.level() instanceof ServerLevel) {
-            AnnoyingVillagers.PACKET_HANDLER.send(
-                    PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                    new ClientboundHerobrinePortalFx(this.position().add(0.0D, 0.0D, 0.0D))
-            );
+            ClientboundHerobrinePortalFx.sendToNearby(this, this.position());
         }
     }
 
@@ -601,8 +593,9 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource damageSource, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(damageSource, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource damageSource, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, damageSource, recentlyHit);
         if (this.escapeTiming >= 0 || this.fishingHookCancelledEscape) {
             this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get()));
             return;

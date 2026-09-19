@@ -18,14 +18,15 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class RedVillagerKnightArmorItem extends ArmorItem {
+public abstract class RedVillagerKnightArmorItem extends LegacyArmorItem {
 
     public RedVillagerKnightArmorItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(ArmorItem.@NotNull Type type) {
                 return switch (type) {
@@ -33,6 +34,7 @@ public abstract class RedVillagerKnightArmorItem extends ArmorItem {
                     case LEGGINGS   -> 15 * 25;
                     case CHESTPLATE -> 16 * 25;
                     case HELMET     -> 11 * 25;
+                    case BODY       -> 16 * 25;
                 };
             }
 
@@ -43,6 +45,7 @@ public abstract class RedVillagerKnightArmorItem extends ArmorItem {
                     case LEGGINGS   -> 5;
                     case CHESTPLATE -> 7;
                     case HELMET     -> 5;
+                    case BODY       -> 7;
                 };
             }
 
@@ -50,8 +53,8 @@ public abstract class RedVillagerKnightArmorItem extends ArmorItem {
                 return 10;
             }
 
-            public @NotNull SoundEvent getEquipSound() {
-                return (SoundEvent) Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_chain")));
+            public Object getEquipSound() {
+                return (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_chain")));
             }
 
             public @NotNull Ingredient getRepairIngredient() {

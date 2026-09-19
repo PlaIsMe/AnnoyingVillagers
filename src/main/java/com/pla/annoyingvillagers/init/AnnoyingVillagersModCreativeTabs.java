@@ -6,15 +6,15 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class AnnoyingVillagersModCreativeTabs {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, AnnoyingVillagers.MODID);
 
-    public static final RegistryObject<CreativeModeTab> AV_TAB = CREATIVE_MODE_TABS.register("annoyingvillagers_tab",
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> AV_TAB = CREATIVE_MODE_TABS.register("annoyingvillagers_tab",
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get()))
                     .title(Component.translatable("creativetab.annoyingvillagers_tab"))
                     .displayItems((pParameters, pOutput) -> {

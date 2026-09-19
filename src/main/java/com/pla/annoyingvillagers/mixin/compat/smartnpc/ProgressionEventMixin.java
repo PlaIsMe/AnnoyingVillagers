@@ -1,10 +1,13 @@
 package com.pla.annoyingvillagers.mixin.compat.smartnpc;
 
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,7 +21,7 @@ public abstract class ProgressionEventMixin {
     }
 
     @Inject(method = "onServerTick", at = @At("HEAD"), cancellable = true)
-    private static void annoyingVillagers$onServerTick(TickEvent.ServerTickEvent event, CallbackInfo ci) {
+    private static void annoyingVillagers$onServerTick(ServerTickEvent.Post event, CallbackInfo ci) {
         ci.cancel();
     }
 
@@ -38,7 +41,7 @@ public abstract class ProgressionEventMixin {
     }
 
     @Inject(method = "onLivingTick", at = @At("HEAD"), cancellable = true)
-    private static void annoyingVillagers$onLivingTick(LivingEvent.LivingTickEvent event, CallbackInfo ci) {
+    private static void annoyingVillagers$onLivingTick(EntityTickEvent.Post event, CallbackInfo ci) {
         ci.cancel();
     }
 }

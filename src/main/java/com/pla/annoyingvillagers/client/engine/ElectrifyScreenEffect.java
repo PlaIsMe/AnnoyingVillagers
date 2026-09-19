@@ -8,17 +8,18 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import java.util.Random;
 
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class ElectrifyScreenEffect {
     private static final int SPARK_FRAME_COUNT = 27;
     private static final ResourceLocation[] ELECTRIC_SPARK_TEXTURES = createSparkTextures();
@@ -35,7 +36,7 @@ public final class ElectrifyScreenEffect {
         GuiGraphics guiGraphics = event.getGuiGraphics();
         int width = minecraft.getWindow().getGuiScaledWidth();
         int height = minecraft.getWindow().getGuiScaledHeight();
-        float time = player.tickCount + event.getPartialTick();
+        float time = player.tickCount + event.getPartialTick().getGameTimeDeltaPartialTick(false);
         float pulse = 0.85F + 0.15F * Math.abs((float)Math.sin(time * 2.6F));
         boolean strongShock = effect.getAmplifier() > 1;
         long flashTick = player.tickCount / 2L;
@@ -78,7 +79,7 @@ public final class ElectrifyScreenEffect {
     }
 
     private static MobEffectInstance getElectrifyEffect(Player player) {
-        return player == null ? null : player.getEffect(AnnoyingVillagersModMobEffects.ELECTRIFY.get());
+        return player == null ? null : player.getEffect(AnnoyingVillagersModMobEffects.ELECTRIFY);
     }
 
     private static boolean useVanillaPlayerShockFx() {

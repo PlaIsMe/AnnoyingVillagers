@@ -3,12 +3,12 @@ package com.pla.annoyingvillagers.network;
 import com.pla.annoyingvillagers.client.compat.BetterCombatClientCompat;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
+
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+
 
 public record ClientboundBetterCombatAnimation(
         int playerId,
@@ -16,7 +16,7 @@ public record ClientboundBetterCombatAnimation(
         String animation,
         float swingDurationTicks,
         float upswing
-) {
+)  implements AnnoyingVillagersPayload {
     public enum AnimatedHand {
         MAIN_HAND,
         OFF_HAND,
@@ -41,17 +41,14 @@ public record ClientboundBetterCombatAnimation(
         );
     }
 
-    public static void handle(ClientboundBetterCombatAnimation msg, Supplier<NetworkEvent.Context> ctx) {
-        NetworkEvent.Context context = ctx.get();
+    public static void handle(ClientboundBetterCombatAnimation msg, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (ModList.get().isLoaded(VanillaWeaponAbilityUtil.BETTER_COMBAT_MOD_ID)) {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BetterCombatClientCompat.playAnimation(msg));
+                BetterCombatClientCompat.playAnimation(msg);
             }
             if (ModList.get().isLoaded("punchy")) {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
-                        com.pla.annoyingvillagers.client.compat.PunchyClientCompat.queueAbility(msg));
+                com.pla.annoyingvillagers.client.compat.PunchyClientCompat.queueAbility(msg);
             }
         });
-        context.setPacketHandled(true);
     }
 }

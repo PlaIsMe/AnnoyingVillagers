@@ -108,11 +108,11 @@ public class BlockProjectileEntity extends ThrowableProjectile {
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(DATA_BLOCK, Blocks.STONE.defaultBlockState());
-        this.entityData.define(ROT_X, 0f);
-        this.entityData.define(ROT_Y, 0f);
-        this.entityData.define(ROT_Z, 0f);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_BLOCK, Blocks.STONE.defaultBlockState());
+        builder.define(ROT_X, 0f);
+        builder.define(ROT_Y, 0f);
+        builder.define(ROT_Z, 0f);
     }
 
     public void setCarriedBlock(BlockState state) {
@@ -335,7 +335,7 @@ public class BlockProjectileEntity extends ThrowableProjectile {
     }
 
     @Override
-    protected float getGravity() {
+    protected double getDefaultGravity() {
         return 0.005F;
     }
 }

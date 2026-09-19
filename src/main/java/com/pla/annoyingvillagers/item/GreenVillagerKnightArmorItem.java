@@ -19,15 +19,15 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class GreenVillagerKnightArmorItem extends ArmorItem {
+public abstract class GreenVillagerKnightArmorItem extends LegacyArmorItem {
 
     public GreenVillagerKnightArmorItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(ArmorItem.Type type) {
                 return switch (type) {
@@ -35,6 +35,7 @@ public abstract class GreenVillagerKnightArmorItem extends ArmorItem {
                     case LEGGINGS   -> 15 * 25;
                     case CHESTPLATE -> 16 * 25;
                     case HELMET     -> 11 * 25;
+                    case BODY       -> 16 * 25;
                 };
             }
 
@@ -45,6 +46,7 @@ public abstract class GreenVillagerKnightArmorItem extends ArmorItem {
                     case LEGGINGS   -> 5;
                     case CHESTPLATE -> 7;
                     case HELMET     -> 5;
+                    case BODY       -> 7;
                 };
             }
 
@@ -52,7 +54,7 @@ public abstract class GreenVillagerKnightArmorItem extends ArmorItem {
                 return 10;
             }
 
-            public SoundEvent getEquipSound() {
+            public Object getEquipSound() {
                 return SoundEvents.ARMOR_EQUIP_GENERIC;
             }
 

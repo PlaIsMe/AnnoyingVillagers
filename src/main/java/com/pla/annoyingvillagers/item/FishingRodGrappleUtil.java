@@ -9,6 +9,7 @@ import com.pla.annoyingvillagers.mixin.FishingHookAccessor;
 import java.util.Optional;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -33,7 +34,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ToolActions;
+import net.neoforged.neoforge.common.ItemAbilities;
 
 import javax.annotation.Nullable;
 
@@ -153,7 +154,7 @@ public final class FishingRodGrappleUtil {
                         damage = getReturnDamage(hook);
                     }
 
-                    stack.hurtAndBreak(damage, player, brokenPlayer -> brokenPlayer.broadcastBreakEvent(hand));
+                    stack.hurtAndBreak(damage, player, LivingEntity.getSlotForHand(hand));
                 }
 
                 startHookReturn(hook);
@@ -168,7 +169,7 @@ public final class FishingRodGrappleUtil {
                 }
 
                 int damage = hook.retrieve(stack);
-                stack.hurtAndBreak(damage, player, brokenPlayer -> brokenPlayer.broadcastBreakEvent(hand));
+                stack.hurtAndBreak(damage, player, LivingEntity.getSlotForHand(hand));
             }
 
             level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL, 1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
@@ -176,8 +177,9 @@ public final class FishingRodGrappleUtil {
         } else {
             level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
             if (!level.isClientSide) {
-                int lureSpeed = EnchantmentHelper.getFishingSpeedBonus(stack);
-                int luck = EnchantmentHelper.getFishingLuckBonus(stack);
+                ServerLevel serverLevel = (ServerLevel) level;
+                int lureSpeed = (int) (EnchantmentHelper.getFishingTimeReduction(serverLevel, stack, player) * 20.0F);
+                int luck = EnchantmentHelper.getFishingLuckBonus(serverLevel, stack, player);
                 FishingHook grappleHook = new FishingHook(player, level, luck, lureSpeed);
                 grappleHook.getPersistentData().putBoolean(KEY_GRAPPLE_HOOK, true);
                 level.addFreshEntity(grappleHook);
@@ -529,7 +531,7 @@ public final class FishingRodGrappleUtil {
 
     public static boolean shouldOffhandFishingRodTakeRightClick(Player player) {
         ItemStack offhand = player.getOffhandItem();
-        return (offhand.getItem() instanceof FishingRodItem || offhand.canPerformAction(ToolActions.FISHING_ROD_CAST))
+        return (offhand.getItem() instanceof FishingRodItem || offhand.canPerformAction(ItemAbilities.FISHING_ROD_CAST))
                 && !player.getCooldowns().isOnCooldown(offhand.getItem());
     }
 
@@ -561,8 +563,9 @@ public final class FishingRodGrappleUtil {
             collectReturningItem = false;
         }
 
-        int lureSpeed = EnchantmentHelper.getFishingSpeedBonus(stack);
-        int luck = EnchantmentHelper.getFishingLuckBonus(stack);
+        ServerLevel serverLevel = (ServerLevel) level;
+        int lureSpeed = (int) (EnchantmentHelper.getFishingTimeReduction(serverLevel, stack, player) * 20.0F);
+        int luck = EnchantmentHelper.getFishingLuckBonus(serverLevel, stack, player);
         FishingHook grappleHook = new FishingHook(player, level, luck, lureSpeed);
         Vec3 castVelocity = grappleHook.getDeltaMovement();
         grappleHook.moveTo(start.x, start.y, start.z, player.getYRot(), player.getXRot());

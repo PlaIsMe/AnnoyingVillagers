@@ -21,6 +21,6 @@ public class IllagerMobVanillaLayer<T extends AbstractIllager, M extends Illager
         ResourceLocation texture = VanillaOverlayTexturePicker.pickIllagerTexture(entity);
         if (texture == null) return;
         VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.eyes(texture));
-        this.getParentModel().renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        this.getParentModel().renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, -1);
     }
 }

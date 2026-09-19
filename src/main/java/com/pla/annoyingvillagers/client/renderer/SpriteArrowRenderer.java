@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.client.renderer;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -35,12 +36,12 @@ public class SpriteArrowRenderer extends EntityRenderer<AbstractArrow> {
         poseStack.translate(-0.2, 0, 0);
         poseStack.mulPose(Axis.ZP.rotationDegrees(-45));
         poseStack.scale(1.5f,1.5f,1.5f);
-        ItemStack pickupItem = abstractArrow.getPickupItem();
+        ItemStack pickupItem = abstractArrow.getPickupItemStackOrigin().copy();
         if (pickupItem.is(Items.ARROW) && abstractArrow instanceof Arrow arrow) {
             int color = arrow.getColor();
             if (color != -1) {
                 pickupItem = Items.TIPPED_ARROW.getDefaultInstance();
-                pickupItem.getOrCreateTag().putInt("CustomPotionColor", color);
+                LegacyItemData.getOrCreate(pickupItem).putInt("CustomPotionColor", color);
             }
         }
         renderer.renderStatic(pickupItem, ItemDisplayContext.GROUND, pPackedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, abstractArrow.level(), abstractArrow.getId());

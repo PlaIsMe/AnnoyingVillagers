@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.event;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.pla.annoyingvillagers.entity.AlexEntity;
 import com.pla.annoyingvillagers.entity.ChrisEntity;
 import com.pla.annoyingvillagers.entity.SteveEntity;
@@ -17,11 +18,12 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraftforge.event.entity.living.LivingUseTotemEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class TotemUsingEvent {
     private static void playGuardBreakAttackAnimation(LivingEntity entity) {
 //        Add this code in AV_EFM
@@ -48,8 +50,8 @@ public class TotemUsingEvent {
                     public void run() {
                         steveEntity.setHealth(steveEntity.getMaxHealth());
                         ItemStack diamondSword = new ItemStack(Items.DIAMOND_SWORD);
-                        diamondSword.enchant(Enchantments.SHARPNESS, 5);
-                        diamondSword.enchant(Enchantments.SMITE, 5);
+                        EnchantmentUtil.enchant(diamondSword, Enchantments.SHARPNESS, 5);
+                        EnchantmentUtil.enchant(diamondSword, Enchantments.SMITE, 5);
                         steveEntity.setItemInHand(InteractionHand.OFF_HAND, diamondSword);
                         steveEntity.setOffWeaponItem(diamondSword);
                         steveEntity.setState(1);
@@ -68,10 +70,10 @@ public class TotemUsingEvent {
                                 1.0F, 1.0F
                         );
                         ItemStack compressedDiamondHelmet = new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND_HELMET.get());
-                        compressedDiamondHelmet.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-                        compressedDiamondHelmet.enchant(Enchantments.PROJECTILE_PROTECTION, 5);
-                        compressedDiamondHelmet.enchant(Enchantments.FIRE_PROTECTION, 5);
-                        compressedDiamondHelmet.enchant(Enchantments.BLAST_PROTECTION, 5);
+                        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.PROTECTION, 5);
+                        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.PROJECTILE_PROTECTION, 5);
+                        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.FIRE_PROTECTION, 5);
+                        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.BLAST_PROTECTION, 5);
                         steveEntity.setItemSlot(EquipmentSlot.HEAD, compressedDiamondHelmet);
                     }
                 };
@@ -87,10 +89,10 @@ public class TotemUsingEvent {
                                 1.0F, 1.0F
                         );
                         ItemStack compressedDiamondChestplate = new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND_CHESTPLATE.get());
-                        compressedDiamondChestplate.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-                        compressedDiamondChestplate.enchant(Enchantments.PROJECTILE_PROTECTION, 5);
-                        compressedDiamondChestplate.enchant(Enchantments.FIRE_PROTECTION, 5);
-                        compressedDiamondChestplate.enchant(Enchantments.BLAST_PROTECTION, 5);
+                        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.PROTECTION, 5);
+                        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.PROJECTILE_PROTECTION, 5);
+                        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.FIRE_PROTECTION, 5);
+                        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.BLAST_PROTECTION, 5);
                         steveEntity.setItemSlot(EquipmentSlot.CHEST, compressedDiamondChestplate);
                     }
                 };
@@ -102,10 +104,10 @@ public class TotemUsingEvent {
                     public void run() {
                         alexEntity.setHealth(alexEntity.getMaxHealth());
                         ItemStack diamondSword = new ItemStack(AnnoyingVillagersModItems.THUNDER_DIAMOND_BLADE.get());
-                        diamondSword.enchant(Enchantments.SHARPNESS, 5);
-                        diamondSword.enchant(Enchantments.FIRE_ASPECT, 2);
-                        diamondSword.enchant(Enchantments.KNOCKBACK, 2);
-                        diamondSword.enchant(Enchantments.UNBREAKING, 5);
+                        EnchantmentUtil.enchant(diamondSword, Enchantments.SHARPNESS, 5);
+                        EnchantmentUtil.enchant(diamondSword, Enchantments.FIRE_ASPECT, 2);
+                        EnchantmentUtil.enchant(diamondSword, Enchantments.KNOCKBACK, 2);
+                        EnchantmentUtil.enchant(diamondSword, Enchantments.UNBREAKING, 5);
                         alexEntity.setItemInHand(InteractionHand.OFF_HAND, diamondSword);
                         alexEntity.setItemInHand(InteractionHand.MAIN_HAND, diamondSword);
                         alexEntity.setOffWeaponItem(diamondSword);
@@ -122,9 +124,9 @@ public class TotemUsingEvent {
                     public void run() {
                         chrisEntity.setHealth(chrisEntity.getMaxHealth());
                         ItemStack diamondSword = new ItemStack(Items.DIAMOND_SWORD);
-                        diamondSword.enchant(Enchantments.KNOCKBACK, 5);
-                        diamondSword.enchant(Enchantments.SHARPNESS, 5);
-                        diamondSword.enchant(Enchantments.UNBREAKING, 5);
+                        EnchantmentUtil.enchant(diamondSword, Enchantments.KNOCKBACK, 5);
+                        EnchantmentUtil.enchant(diamondSword, Enchantments.SHARPNESS, 5);
+                        EnchantmentUtil.enchant(diamondSword, Enchantments.UNBREAKING, 5);
                         chrisEntity.setItemInHand(InteractionHand.OFF_HAND, diamondSword);
                         chrisEntity.setOffWeaponItem(diamondSword);
                         chrisEntity.setState(1);

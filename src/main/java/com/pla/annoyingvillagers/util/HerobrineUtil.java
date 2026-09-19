@@ -58,13 +58,15 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -165,7 +167,7 @@ public class HerobrineUtil {
         if (ModList.get().isLoaded("smart_npc") && SmartNpc.isSmartNpc(entity)) {
             if (!(world instanceof ServerLevel serverLevel)) return;
             entity.getPersistentData().putBoolean("die_by_possess", true);
-            Entity possessed;
+            Mob possessed;
             if (herobrineEntity instanceof HerobrineCloneEntity || herobrineEntity instanceof NullEntity
                     || herobrineEntity instanceof NullSwordEntity || herobrineEntity instanceof NullAxeEntity
                     || herobrineEntity instanceof NullPickaxeEntity || herobrineEntity instanceof NullShovelEntity
@@ -218,7 +220,7 @@ public class HerobrineUtil {
                     lowShadowHerobrineCloneEntity.setPossessedByUuid(herobrineMob.getUUID());
                 }
             }
-            mob.finalizeSpawn(serverLevel, world.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+            mob.finalizeSpawn(serverLevel, world.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
             serverLevel.addFreshEntity(possessed);
         }
     }
@@ -295,10 +297,7 @@ public class HerobrineUtil {
         if (entity != null && level instanceof ServerLevel serverLevel) {
             if (Math.random() <= 0.3D) {
                 boolean extraParticle = Math.random() <= 0.87D;
-                AnnoyingVillagers.PACKET_HANDLER.send(
-                        PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity),
-                        new ClientboundEliteHerobrineFx(entity.getId(), entity.tickCount, new Vec3(x, y, z), extraParticle)
-                );
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new ClientboundEliteHerobrineFx(entity.getId(), entity.tickCount, new Vec3(x, y, z), extraParticle));
 
                 if (extraParticle) {
                     serverLevel.playSound(
@@ -1119,18 +1118,19 @@ public class HerobrineUtil {
         };
     }
 
-    private static ItemStack createRandomModdedEnchantedBook() {
-        List<Enchantment> pool = BuiltInRegistries.ENCHANTMENT.stream()
-                .filter(enchantment -> !enchantment.isCurse())
+    private static ItemStack createRandomModdedEnchantedBook(Level level) {
+        List<net.minecraft.core.Holder.Reference<Enchantment>> pool = level.registryAccess()
+                .registryOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT).holders()
+                .filter(enchantment -> !enchantment.is(net.minecraft.tags.EnchantmentTags.CURSE))
                 .toList();
 
         if (pool.isEmpty()) {
             return new ItemStack(Items.ENCHANTED_BOOK);
         }
 
-        Enchantment enchantment = pool.get(new Random().nextInt(pool.size()));
+        net.minecraft.core.Holder<Enchantment> enchantment = pool.get(new Random().nextInt(pool.size()));
         ItemStack book = new ItemStack(Items.ENCHANTED_BOOK);
-        EnchantedBookItem.addEnchantment(book, new EnchantmentInstance(enchantment, new Random().nextInt(5, 10)));
+        book.enchant(enchantment, new Random().nextInt(5, 10));
         return book;
     }
 
@@ -1149,7 +1149,7 @@ public class HerobrineUtil {
 
         for (Item item : drops) {
             ItemStack stack = (item == Items.ENCHANTED_BOOK)
-                    ? createRandomModdedEnchantedBook()
+                    ? createRandomModdedEnchantedBook(level)
                     : new ItemStack(item);
 
             ItemEntity entity = new ItemEntity(level, x, y, z, stack);
@@ -1177,7 +1177,7 @@ public class HerobrineUtil {
 
         for (Item item : items) {
             ItemStack stack = (item == Items.ENCHANTED_BOOK)
-                    ? createRandomModdedEnchantedBook()
+                    ? createRandomModdedEnchantedBook(level)
                     : new ItemStack(item);
 
             ItemEntity entity = new ItemEntity(level, x, y, z, stack);
@@ -1230,7 +1230,7 @@ public class HerobrineUtil {
 
         for (Item item : items) {
             ItemStack stack = (item == Items.ENCHANTED_BOOK)
-                    ? createRandomModdedEnchantedBook()
+                    ? createRandomModdedEnchantedBook(level)
                     : new ItemStack(item);
 
             ItemEntity entity = new ItemEntity(level, x, y, z, stack);
@@ -1260,7 +1260,7 @@ public class HerobrineUtil {
 
         for (Item item : items) {
             ItemStack stack = (item == Items.ENCHANTED_BOOK)
-                    ? createRandomModdedEnchantedBook()
+                    ? createRandomModdedEnchantedBook(level)
                     : new ItemStack(item);
 
             ItemEntity entity = new ItemEntity(level, x, y, z, stack);
@@ -1299,7 +1299,7 @@ public class HerobrineUtil {
 
         for (Item item : items) {
             ItemStack stack = (item == Items.ENCHANTED_BOOK)
-                    ? createRandomModdedEnchantedBook()
+                    ? createRandomModdedEnchantedBook(level)
                     : new ItemStack(item);
 
             ItemEntity entity = new ItemEntity(level, x, y, z, stack);
@@ -1317,7 +1317,7 @@ public class HerobrineUtil {
 
             for (Item item : items) {
                 ItemStack stack = (item == Items.ENCHANTED_BOOK)
-                        ? createRandomModdedEnchantedBook()
+                        ? createRandomModdedEnchantedBook(serverLevel)
                         : new ItemStack(item);
 
                 ItemEntity entity = new ItemEntity(serverLevel, x, y, z, stack);
@@ -1354,7 +1354,7 @@ public class HerobrineUtil {
 
             for (Item item : items) {
                 ItemStack stack = (item == Items.ENCHANTED_BOOK)
-                        ? createRandomModdedEnchantedBook()
+                        ? createRandomModdedEnchantedBook(level)
                         : new ItemStack(item);
 
                 ItemEntity entity = new ItemEntity(level, x, y, z, stack);
@@ -1381,7 +1381,7 @@ public class HerobrineUtil {
 
         for (Item item : drops) {
             ItemStack stack = (item == Items.ENCHANTED_BOOK)
-                    ? createRandomModdedEnchantedBook()
+                    ? createRandomModdedEnchantedBook(level)
                     : new ItemStack(item);
 
             ItemEntity entity = new ItemEntity(level, x, y, z, stack);
@@ -1937,7 +1937,7 @@ public class HerobrineUtil {
         equipLowCloneGear(clone, caster.getRandom());
         clone.setTarget(enemy);
         clone.lookAt(EntityAnchorArgument.Anchor.EYES, enemy.getEyePosition());
-        clone.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(clone.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+        clone.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(clone.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
         if (!serverLevel.addFreshEntity(clone)) return false;
         if (!supportCaster.claimCombatLowCloneSupportSlot(clone)) {
             clone.discard();
@@ -1945,7 +1945,7 @@ public class HerobrineUtil {
         }
 
         TeamUtil.addOrJoinTeam(clone, "herobrine");
-        AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY.with(() -> clone), new ClientboundHerobrinePortalFx(spawn));
+        ClientboundHerobrinePortalFx.sendToNearby(clone, spawn);
         return true;
     }
 

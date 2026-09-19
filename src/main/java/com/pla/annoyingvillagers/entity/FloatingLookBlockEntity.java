@@ -34,7 +34,6 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -114,11 +113,11 @@ public class FloatingLookBlockEntity extends LivingEntity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DATA_ORIGINAL_POS, BlockPos.ZERO);
-        this.entityData.define(DATA_BLOCK_STATE, Blocks.AIR.defaultBlockState());
-        this.entityData.define(DATA_PHASE, PHASE_RISING);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_ORIGINAL_POS, BlockPos.ZERO);
+        builder.define(DATA_BLOCK_STATE, Blocks.AIR.defaultBlockState());
+        builder.define(DATA_PHASE, PHASE_RISING);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -389,7 +388,7 @@ public class FloatingLookBlockEntity extends LivingEntity {
                 tag.putInt("y", placePos.getY());
                 tag.putInt("z", placePos.getZ());
 
-                blockEntity.load(tag);
+                blockEntity.loadWithComponents(tag, level.registryAccess());
                 blockEntity.setChanged();
 
                 level.sendBlockUpdated(placePos, oldState, blockState, 3);
@@ -572,7 +571,7 @@ public class FloatingLookBlockEntity extends LivingEntity {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        this.setOriginalPos(NbtUtils.readBlockPos(tag.getCompound("OriginalPos")));
+        this.setOriginalPos(NbtUtils.readBlockPos(tag, "OriginalPos").orElse(BlockPos.ZERO));
 
         this.setCarriedBlock(NbtUtils.readBlockState(
                 this.level().holderLookup(Registries.BLOCK),
@@ -636,12 +635,8 @@ public class FloatingLookBlockEntity extends LivingEntity {
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
         return EntityDimensions.fixed(1.0F, 1.0F);
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
-}

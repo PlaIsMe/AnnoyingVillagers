@@ -66,15 +66,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -264,12 +263,12 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
 
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(WHITE_EYE, false);
-        this.entityData.define(USE_HEROBRINE_TEXTURE, false);
-        this.entityData.define(SUPPORTING_HEROBRINE, false);
-        this.entityData.define(HOOKED, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(WHITE_EYE, false);
+        builder.define(USE_HEROBRINE_TEXTURE, false);
+        builder.define(SUPPORTING_HEROBRINE, false);
+        builder.define(HOOKED, false);
     }
 
     public boolean isSummoning() {
@@ -415,11 +414,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         return summonTimestamp;
     }
 
-    public HerobrineGregEntity(SpawnEntity spawnentity, Level level) {
-        this(AnnoyingVillagersModEntities.HEROBRINE_GREG.get(), level);
-    }
-
-    public String getChatName() {
+        public String getChatName() {
         return chatName;
     }
 
@@ -429,7 +424,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
 
     public HerobrineGregEntity(EntityType<HerobrineGregEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 50;
         this.setNoAi(false);
         this.setPersistenceRequired();
@@ -444,18 +439,14 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         int randomMin = Math.min(min, max);
         int randomMax = Math.max(min, max);
         this.recallTime = (randomMin + new Random().nextInt(randomMax - randomMin + 1)) * 60 * 20;
-        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
-        this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, 0.0F);
-        this.setPathfindingMalus(BlockPathTypes.LAVA, 0.0F);
-        this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 0.0F);
-        this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, 0.0F);
+        this.setPathfindingMalus(PathType.WATER, 0.0F);
+        this.setPathfindingMalus(PathType.WATER_BORDER, 0.0F);
+        this.setPathfindingMalus(PathType.LAVA, 0.0F);
+        this.setPathfindingMalus(PathType.DANGER_FIRE, 0.0F);
+        this.setPathfindingMalus(PathType.DAMAGE_FIRE, 0.0F);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+        protected void registerGoals() {
         super.registerGoals();
         CommonGoals.registerDangerousReactionGoals(this);
         this.goalSelector.addGoal(-6, new HerobrineGregSixPortalSupportGoal(this));
@@ -853,11 +844,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         this.goalSelector.addGoal(5, new FloatGoal(this));
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public double getMyRidingOffset() {
+        public double getMyRidingOffset() {
         return -0.35D;
     }
 
@@ -1100,10 +1087,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
             if (this.escapeTiming == 60 && this.combatMode) {
                 this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get());
                 playSecondFormSupportCastAnimation();
-                AnnoyingVillagers.PACKET_HANDLER.send(
-                        PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                        new ClientboundHerobrinePortalFx(this.getOnPos().getCenter().add(0.0, 0.5, 0.0))
-                );
+                ClientboundHerobrinePortalFx.sendToNearby(this, this.getOnPos().getCenter().add(0.0, 0.5, 0.0));
             }
             if (this.escapeTiming == 40) {
                 if (this.level() instanceof ServerLevel serverLevel) {
@@ -1266,7 +1250,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         if (this.level() instanceof ServerLevel levelaccessor) {
             String[] parts = herobrineMobId.split(":");
             ResourceLocation mobResourceLocation = ResourceLocation.fromNamespaceAndPath(parts[0], parts[1]);
-            EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(mobResourceLocation);
+            EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(mobResourceLocation);
             if (type != null && type.create(level()) instanceof Mob herobrine) {
                 if (herobrine instanceof HerobrineMob herobrineMob) {
                     herobrineMob.setGregUUID(this.getUUID());
@@ -1277,10 +1261,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
                     equipGearForLowHerobrineClone(lowHerobrineCloneEntity);
                 } else if (herobrine instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity) {
                     if (renderPortal) {
-                        AnnoyingVillagers.PACKET_HANDLER.send(
-                                PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                                new ClientboundHerobrinePortalFx(new Vec3(spawnX, spawnY, spawnZ))
-                        );
+                        ClientboundHerobrinePortalFx.sendToNearby(this, new Vec3(spawnX, spawnY, spawnZ));
                     } else {
                         equipGearForLowHerobrineClone(lowShadowHerobrineCloneEntity);
                     }
@@ -1289,7 +1270,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
 
                 herobrine.moveTo(spawnX, spawnY, spawnZ, this.getYRot(), this.getXRot());
                 herobrine.lookAt(EntityAnchorArgument.Anchor.EYES, new Vec3(summonLookX, spawnY, summonLookZ));
-                herobrine.finalizeSpawn(levelaccessor, levelaccessor.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+                herobrine.finalizeSpawn(levelaccessor, levelaccessor.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
                 levelaccessor.addFreshEntity(herobrine);
 
                 if (this.combatMode) {
@@ -1369,10 +1350,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
 
     private void summonEscapeAtDay() {
         this.escapeTiming = 70;
-        AnnoyingVillagers.PACKET_HANDLER.send(
-                PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                new ClientboundHerobrinePortalFx(this.getOnPos().getCenter().add(0.0, 0.5, 0.0))
-        );
+        ClientboundHerobrinePortalFx.sendToNearby(this, this.getOnPos().getCenter().add(0.0, 0.5, 0.0));
 
         double yawRad = Math.toRadians(this.getYRot());
 
@@ -1417,10 +1395,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
 
     private void summonEscapeAtNight() {
         this.escapeTiming = 70;
-        AnnoyingVillagers.PACKET_HANDLER.send(
-                PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                new ClientboundHerobrinePortalFx(this.getOnPos().getCenter().add(0.0, 0.5, 0.0))
-        );
+        ClientboundHerobrinePortalFx.sendToNearby(this, this.getOnPos().getCenter().add(0.0, 0.5, 0.0));
 
         List<String> herobrines = new ArrayList<>();
         herobrines.add("annoyingvillagers:herobrine_clone");
@@ -1544,10 +1519,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         this.lookAt(EntityAnchorArgument.Anchor.EYES, new Vec3(centerX, baseY, centerZ));
 
         if (!(this.level() instanceof ServerLevel)) return;
-        AnnoyingVillagers.PACKET_HANDLER.send(
-                PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                new ClientboundHerobrinePortalFx(new Vec3(centerX, baseY, centerZ))
-        );
+        ClientboundHerobrinePortalFx.sendToNearby(this, new Vec3(centerX, baseY, centerZ));
 
         Random random = new Random();
         String pick = herobrines.get(random.nextInt(herobrines.size()));
@@ -1624,11 +1596,11 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damagesource) {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
     }
 
     public boolean isDay(Level level) {
@@ -1678,8 +1650,9 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
 
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource damageSource, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(damageSource, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource damageSource, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, damageSource, recentlyHit);
         if (this.escapeTiming >= 0 || this.fishingHookCancelledEscape) {
             this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get()));
         }
@@ -1691,7 +1664,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         return itemStack;
     }
 
-    private void equipGearForLowHerobrineClone(Entity entity) {
+    private void equipGearForLowHerobrineClone(LivingEntity entity) {
         if (!(entity instanceof LowHerobrineCloneEntity) && !(entity instanceof LowShadowHerobrineCloneEntity)) {
             return;
         }
@@ -1710,7 +1683,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         entity.setItemSlot(EquipmentSlot.MAINHAND, randomDamage(new ItemStack(listWeapons.get(random.nextInt(listWeapons.size())))));
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata) {
         if (mobspawntype == MobSpawnType.NATURAL || mobspawntype == MobSpawnType.CHUNK_GENERATION) {
             ServerLevel serverLevel = serverlevelaccessor.getLevel();
             GregData gregData = GregData.get(serverLevel);
@@ -1728,7 +1701,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         }
 
         ChatUtil.joinGame(this, "Greg");
-        return super.finalizeSpawn(serverlevelaccessor, difficultyinstance, mobspawntype, spawngroupdata, compoundtag);
+        return super.finalizeSpawn(serverlevelaccessor, difficultyinstance, mobspawntype, spawngroupdata);
     }
 
     public void awardKillScore(@NotNull Entity entity, int i, @NotNull DamageSource damagesource) {

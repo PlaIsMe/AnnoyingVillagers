@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
@@ -37,10 +38,9 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -74,11 +74,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
     @Override
     public String persistentPlayerIdentity() { return "Alex"; }
 
-    public AlexEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.ALEX.get(), level);
-    }
-
-    public int getState() {
+        public int getState() {
         return state;
     }
 
@@ -105,7 +101,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
 
     public AlexEntity(EntityType<AlexEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(1.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(1.0F);
         this.xpReward = 60;
         this.setNoAi(false);
         this.setCustomName(Component.translatable(this.getType().getDescriptionId()));
@@ -114,11 +110,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
         this.setPlaceBlockToParryChance(0.7);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+        protected void registerGoals() {
         super.registerGoals();
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, (target) -> jevToProtect != null
                 && jevToProtect.isAlive()
@@ -145,9 +137,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
         tag.putInt("State", this.state);
         tag.putBoolean("SpawnJev", spawnJev);
         if (!this.currentBoundHook.isEmpty()) {
-            CompoundTag hookTag = new CompoundTag();
-            this.currentBoundHook.save(hookTag);
-            tag.put("CurrentBoundHook", hookTag);
+            tag.put("CurrentBoundHook", this.currentBoundHook.save(this.registryAccess()));
         }
     }
 
@@ -160,7 +150,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
         state = tag.getInt("State");
         spawnJev = tag.getBoolean("SpawnJev");
         if (tag.contains("CurrentBoundHook", 10)) {
-            currentBoundHook = ItemStack.of(tag.getCompound("CurrentBoundHook"));
+            currentBoundHook = ItemStack.parseOptional(this.registryAccess(), tag.getCompound("CurrentBoundHook"));
         } else {
             currentBoundHook = HookGunCombatUtil.createAlexDefaultPickaxe();
         }
@@ -171,11 +161,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
         return AnnoyingVillagersModSounds.ALEX_SAY.get();
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+        public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -184,11 +170,11 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death"));
     }
 
     @Override
@@ -205,8 +191,9 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, source, recentlyHit);
         if (this.level() instanceof ServerLevel serverLevel) {
             final double x = this.getX();
             final double y = this.getY() + 1.0D;
@@ -224,16 +211,16 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
             List<ItemStack> damagedStacks = new ArrayList<>();
 
             ItemStack sword = new ItemStack(AnnoyingVillagersModItems.THUNDER_DIAMOND_BLADE.get());
-            sword.enchant(Enchantments.SHARPNESS, 5);
-            sword.enchant(Enchantments.FIRE_ASPECT, 2);
-            sword.enchant(Enchantments.KNOCKBACK, 2);
-            sword.enchant(Enchantments.UNBREAKING, 5);
+            EnchantmentUtil.enchant(sword, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(sword, Enchantments.FIRE_ASPECT, 2);
+            EnchantmentUtil.enchant(sword, Enchantments.KNOCKBACK, 2);
+            EnchantmentUtil.enchant(sword, Enchantments.UNBREAKING, 5);
             damagedStacks.add(sword);
 
             ItemStack bow = this.getBowItem();
-            bow.enchant(Enchantments.PUNCH_ARROWS, 3);
-            bow.enchant(Enchantments.POWER_ARROWS, 3);
-            bow.enchant(Enchantments.FLAMING_ARROWS, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.PUNCH, 3);
+            EnchantmentUtil.enchant(bow, Enchantments.POWER, 3);
+            EnchantmentUtil.enchant(bow, Enchantments.FLAME, 2);
             damagedStacks.add(bow);
 
             for (ItemStack stack : damagedStacks) {
@@ -252,7 +239,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
             jevEntity.moveTo(this.getX() + new Random().nextDouble(1.0D, 10.0D), this.getY() + new Random().nextDouble(1.0D, 10.0D), this.getZ() + new Random().nextDouble(1.0D, 10.0D), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
             jevEntity.setFollowTarget(this);
             jevEntity.setFollowTargetUUID(this.getUUID());
-            jevEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+            jevEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
             serverLevel.addFreshEntity(jevEntity);
 
             this.setJevUUID(jevEntity.getUUID());
@@ -270,8 +257,6 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
         if (this.isInvulnerableTo(pDamageSource)) {
             return;
         }
-
-        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
         if (pDamageAmount <= 0.0F) {
             return;
         }
@@ -288,7 +273,9 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
             }
         }
 
-        finalDamage = ForgeHooks.onLivingDamage(this, pDamageSource, finalDamage);
+        this.damageContainers.peek().setNewDamage(finalDamage);
+
+        finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
 
         if (this.level() instanceof ServerLevel serverLevel
@@ -305,7 +292,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
         this.gameEvent(GameEvent.ENTITY_DAMAGE);
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
         ServerLevel serverLevel = serverLevelAccessor.getLevel();
         if (mobSpawnType == MobSpawnType.SPAWN_EGG) {
             PersistentPlayerNpcManager.replaceIdentityForSpawnEgg(serverLevel.getServer(), "Alex");
@@ -318,14 +305,14 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
             }
         }
 
-        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata, compoundtag);
+        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata);
         TeamUtil.addOrJoinTeam(this, "alex");
 
         ItemStack sword = new ItemStack(AnnoyingVillagersModItems.THUNDER_DIAMOND_BLADE.get());
-        sword.enchant(Enchantments.SHARPNESS, 5);
-        sword.enchant(Enchantments.FIRE_ASPECT, 2);
-        sword.enchant(Enchantments.KNOCKBACK, 2);
-        sword.enchant(Enchantments.UNBREAKING, 5);
+        EnchantmentUtil.enchant(sword, Enchantments.SHARPNESS, 5);
+        EnchantmentUtil.enchant(sword, Enchantments.FIRE_ASPECT, 2);
+        EnchantmentUtil.enchant(sword, Enchantments.KNOCKBACK, 2);
+        EnchantmentUtil.enchant(sword, Enchantments.UNBREAKING, 5);
         this.setItemSlot(EquipmentSlot.MAINHAND, sword);
         this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.ENDER_PEARL));
         this.setMainWeaponItem(sword);
@@ -421,7 +408,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
                 return true;
             }
 
-            if (ItemStack.isSameItemSameTags(slotStack, stack)
+            if (ItemStack.isSameItemSameComponents(slotStack, stack)
                     && slotStack.getCount() < slotStack.getMaxStackSize()) {
                 return true;
             }

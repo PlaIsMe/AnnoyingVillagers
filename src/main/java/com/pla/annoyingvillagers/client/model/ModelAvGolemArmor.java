@@ -32,10 +32,10 @@ public class ModelAvGolemArmor {
     }
 
     public void renderHelmet(PoseStack poseStack, VertexConsumer consumer, int packedLight, int overlay, float red, float green, float blue) {
-        this.helmet.render(poseStack, consumer, packedLight, overlay, red, green, blue, 1.0F);
+        this.helmet.render(poseStack, consumer, packedLight, overlay, net.minecraft.util.FastColor.ARGB32.colorFromFloat(1.0F, red, green, blue));
     }
 
     public void renderChestplate(PoseStack poseStack, VertexConsumer consumer, int packedLight, int overlay, float red, float green, float blue) {
-        this.chestplate.render(poseStack, consumer, packedLight, overlay, red, green, blue, 1.0F);
+        this.chestplate.render(poseStack, consumer, packedLight, overlay, net.minecraft.util.FastColor.ARGB32.colorFromFloat(1.0F, red, green, blue));
     }
 }

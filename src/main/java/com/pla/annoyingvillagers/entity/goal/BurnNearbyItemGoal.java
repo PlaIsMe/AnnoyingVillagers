@@ -641,9 +641,9 @@ public class BurnNearbyItemGoal extends Goal {
             return false;
         }
 
-        EquipmentSlot slot = LivingEntity.getEquipmentSlotForItem(groundStack);
+        EquipmentSlot slot = mob.getEquipmentSlotForItem(groundStack);
 
-        if (slot.getType() != EquipmentSlot.Type.ARMOR) {
+        if (slot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR) {
             return false;
         }
 
@@ -692,7 +692,7 @@ public class BurnNearbyItemGoal extends Goal {
             ItemStack slotStack = inventory.getItem(i);
 
             if (!slotStack.isEmpty()
-                    && ItemStack.isSameItemSameTags(slotStack, remaining)
+                    && ItemStack.isSameItemSameComponents(slotStack, remaining)
                     && slotStack.getCount() < slotStack.getMaxStackSize()) {
                 int transferable = Math.min(
                         remaining.getCount(),
@@ -763,7 +763,7 @@ public class BurnNearbyItemGoal extends Goal {
                 return true;
             }
 
-            if (ItemStack.isSameItemSameTags(slotStack, incoming)
+            if (ItemStack.isSameItemSameComponents(slotStack, incoming)
                     && slotStack.getCount() < slotStack.getMaxStackSize()) {
                 return true;
             }
@@ -855,9 +855,9 @@ public class BurnNearbyItemGoal extends Goal {
             return false;
         }
 
-        EquipmentSlot slot = LivingEntity.getEquipmentSlotForItem(stack);
+        EquipmentSlot slot = mob.getEquipmentSlotForItem(stack);
 
-        if (slot.getType() != EquipmentSlot.Type.ARMOR) {
+        if (slot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR) {
             return false;
         }
 

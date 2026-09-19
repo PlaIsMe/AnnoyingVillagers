@@ -7,10 +7,10 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class IronGlaiveItem extends SwordItem {
+public class IronGlaiveItem extends LegacySwordItem {
 
     public IronGlaiveItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 450;
             }

@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
@@ -14,14 +15,14 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public class RedAxeItem extends SwordItem implements RigCombatProfileProvider {
+public class RedAxeItem extends LegacySwordItem implements RigCombatProfileProvider {
     public static final int VANILLA_ULT_COOLDOWN_TICKS = 20 * 15;
     private static final int GIANT_FORM_TICKS = 10;
     private static final double VANILLA_MELEE_RANGE = 5.0D;
     private static final String GIANT_FORM_UNTIL_TAG = "AnnoyingVillagersRedAxeGiantUntil";
 
     public RedAxeItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }
@@ -58,7 +59,7 @@ public class RedAxeItem extends SwordItem implements RigCombatProfileProvider {
         }
 
         if (level instanceof ServerLevel serverLevel) {
-            stack.getOrCreateTag().putLong(GIANT_FORM_UNTIL_TAG, level.getGameTime() + GIANT_FORM_TICKS);
+            LegacyItemData.getOrCreate(stack).putLong(GIANT_FORM_UNTIL_TAG, level.getGameTime() + GIANT_FORM_TICKS);
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
             LivingEntity target = VanillaWeaponAbilityUtil.findLookTarget(player, VANILLA_MELEE_RANGE);
             if (target != null) {
@@ -73,8 +74,8 @@ public class RedAxeItem extends SwordItem implements RigCombatProfileProvider {
 
     public static boolean isGiantForm(ItemStack stack, Level level) {
         return level != null
-                && stack.hasTag()
-                && level.getGameTime() < stack.getTag().getLong(GIANT_FORM_UNTIL_TAG);
+                && LegacyItemData.has(stack)
+                && level.getGameTime() < LegacyItemData.get(stack).getLong(GIANT_FORM_UNTIL_TAG);
     }
 
     @Override

@@ -4,13 +4,12 @@ import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import com.pla.annoyingvillagers.rig.RigAnimationSpec;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.eventbus.api.Cancelable;
+import net.neoforged.neoforge.event.entity.EntityEvent;
+import net.neoforged.bus.api.ICancellableEvent;
 import javax.annotation.Nullable;
 
 /** Cancel before native playback/colliders when another animation engine owns this action. */
-@Cancelable
-public final class AVNpcRigAnimationEvent extends EntityEvent {
+public final class AVNpcRigAnimationEvent extends EntityEvent implements ICancellableEvent {
     private final RigAnimationSpec spec;
     private final LivingEntity target;
 

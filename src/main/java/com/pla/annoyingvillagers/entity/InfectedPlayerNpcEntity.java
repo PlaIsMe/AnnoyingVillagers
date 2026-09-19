@@ -22,9 +22,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -34,53 +33,42 @@ public class InfectedPlayerNpcEntity extends FakePlayer {
     public InfectedPlayerNpcEntity(EntityType<? extends InfectedPlayerNpcEntity> type, Level level) {
         super(type, level);
         this.xpReward = 300;
-        this.setMaxUpStep(0.6F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(0.6F);
         this.xpReward = 7;
         this.setNoAi(true);
         this.setCustomNameVisible(true);
     }
 
-    public InfectedPlayerNpcEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), level);
-    }
-
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+            protected void registerGoals() {
         this.goalSelector.getAvailableGoals().clear();
         this.targetSelector.getAvailableGoals().clear();
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public double getMyRidingOffset() {
+        public double getMyRidingOffset() {
         return -0.35D;
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
     }
 
     @Override
     public void tick() {
         super.tick();
         if (!this.level().isClientSide()) {
-            this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE.get(), 2, 0, false, false));
+            this.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.HEROBRINE, 2, 0, false, false));
             CommonUtil.stunImmunity(this, 2, 0);
         }
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, source, recentlyHit);
         String possessedBy = this.getPersistentData().getString("possessed_by");
         switch (possessedBy) {
             case "herobrine_clone" -> HerobrineUtil.dropHerobrineCloneLoot(this.level(), this.getX(), this.getY(), this.getZ());
@@ -117,11 +105,11 @@ public class InfectedPlayerNpcEntity extends FakePlayer {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
         if (!this.level().isClientSide()) {
             TeamUtil.addOrJoinTeam(this, "herobrine");
         }
-        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, compoundTag);
+        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
     }
 
     public boolean isPushable() {

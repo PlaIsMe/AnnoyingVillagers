@@ -20,7 +20,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -263,7 +263,7 @@ public final class SpecialAnimationController {
     }
 
     private static void sendAnimation(Mob mob, SpecialAnimationId animationId, int durationTicks) {
-        AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundSpecialAnimation(mob.getId(), animationId, durationTicks));
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(mob, new ClientboundSpecialAnimation(mob.getId(), animationId, durationTicks));
     }
 
     private record ActiveAnimationState(Mob mob, SpecialAnimationSpec spec, int startTick) {

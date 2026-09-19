@@ -12,7 +12,8 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
-import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -39,7 +40,7 @@ public class ZombieMixin {
     }
 
     @Inject(method = "finalizeSpawn", at = @At("RETURN"))
-    private void monsterJoinHerobrineTeam(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag, CallbackInfoReturnable<SpawnGroupData> cir) {
+    private void monsterJoinHerobrineTeam(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, CallbackInfoReturnable<SpawnGroupData> cir) {
         Zombie self = (Zombie) (Object) this;
         if (!self.level().isClientSide() && self.getServer() != null) {
             TeamUtil.addOrJoinTeam(self, "herobrine");
@@ -70,13 +71,11 @@ public class ZombieMixin {
 
     private static ItemStack createDyedArmor(Item item, Random random) {
         ItemStack stack = new ItemStack(item);
-        if (stack.getItem() instanceof DyeableLeatherItem dyeable) {
-            int red = random.nextInt(256);
-            int green = random.nextInt(256);
-            int blue = random.nextInt(256);
-            int color = (red << 16) | (green << 8) | blue;
-            dyeable.setColor(stack, color);
-        }
+        int red = random.nextInt(256);
+        int green = random.nextInt(256);
+        int blue = random.nextInt(256);
+        int color = (red << 16) | (green << 8) | blue;
+        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(color, false));
         return stack;
     }
 }

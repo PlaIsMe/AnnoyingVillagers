@@ -32,10 +32,7 @@ public final class PersistentPlayerNpcData extends SavedData {
 
     public static PersistentPlayerNpcData get(MinecraftServer server) {
         return server.overworld().getDataStorage().computeIfAbsent(
-                PersistentPlayerNpcData::load,
-                PersistentPlayerNpcData::new,
-                DATA_NAME
-        );
+                new SavedData.Factory<>(PersistentPlayerNpcData::new, (tag, provider) -> PersistentPlayerNpcData.load(tag)), DATA_NAME);
     }
 
     public static PersistentPlayerNpcData load(CompoundTag tag) {
@@ -64,7 +61,7 @@ public final class PersistentPlayerNpcData extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag) {
+    public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
         ListTag npcs = new ListTag();
         for (Entry entry : this.entries.values()) {
             CompoundTag npcTag = new CompoundTag();

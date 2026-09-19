@@ -62,9 +62,9 @@ public final class WhiteAfterimageParticle extends Particle {
         PoseStack poseStack = new PoseStack();
 
         poseStack.pushPose();
-        poseStack.mulPoseMatrix(RenderSystem.getModelViewStack().last().pose());
-        RenderSystem.getModelViewStack().pushPose();
-        RenderSystem.getModelViewStack().setIdentity();
+        poseStack.mulPose(RenderSystem.getModelViewMatrix());
+        RenderSystem.getModelViewStack().pushMatrix();
+        RenderSystem.getModelViewStack().identity();
         RenderSystem.applyModelViewMatrix();
 
         Vec3 cameraPos = camera.getPosition();
@@ -75,11 +75,11 @@ public final class WhiteAfterimageParticle extends Particle {
 
         MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
         VertexConsumer whiteConsumer = buffers.getBuffer(WHITE_RENDER_TYPE);
-        this.model.renderToBuffer(poseStack, whiteConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, alpha);
+        this.model.renderToBuffer(poseStack, whiteConsumer, packedLight, OverlayTexture.NO_OVERLAY, net.minecraft.util.FastColor.ARGB32.colorFromFloat(alpha, 1.0F, 1.0F, 1.0F));
         buffers.endBatch(WHITE_RENDER_TYPE);
 
         poseStack.popPose();
-        RenderSystem.getModelViewStack().popPose();
+        RenderSystem.getModelViewStack().popMatrix();
         RenderSystem.applyModelViewMatrix();
     }
 

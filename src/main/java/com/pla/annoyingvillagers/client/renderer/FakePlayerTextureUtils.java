@@ -5,6 +5,7 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
@@ -19,7 +20,7 @@ public final class FakePlayerTextureUtils {
     }
 
     public static SkinType getPlayerSkinType(GameProfile profile) {
-        if (profile == null || !profile.isComplete()) {
+        if (!isComplete(profile)) {
             return SkinType.DEFAULT;
         }
 
@@ -29,15 +30,8 @@ public final class FakePlayerTextureUtils {
             return cached;
         }
 
-        Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textures =
-                Minecraft.getInstance().getSkinManager().getInsecureSkinInformation(profile);
-        MinecraftProfileTexture skin = textures.get(MinecraftProfileTexture.Type.SKIN);
-        SkinType type;
-        if (skin != null) {
-            type = "slim".equals(skin.getMetadata("model")) ? SkinType.SLIM : SkinType.DEFAULT;
-        } else {
-            type = "slim".equals(DefaultPlayerSkin.getSkinModelName(id)) ? SkinType.SLIM : SkinType.DEFAULT;
-        }
+        PlayerSkin skin = Minecraft.getInstance().getSkinManager().getInsecureSkin(profile);
+        SkinType type = skin.model() == PlayerSkin.Model.SLIM ? SkinType.SLIM : SkinType.DEFAULT;
         SKIN_TYPE_CACHE.put(id, type);
         return type;
     }
@@ -45,10 +39,10 @@ public final class FakePlayerTextureUtils {
     public static ResourceLocation getPlayerSkin(FakePlayer entity) {
         return getTexture(entity, MinecraftProfileTexture.Type.SKIN).orElseGet(() -> {
             GameProfile profile = entity.getProfile();
-            if (profile != null && profile.isComplete()) {
-                return DefaultPlayerSkin.getDefaultSkin(profile.getId());
+            if (isComplete(profile)) {
+                return DefaultPlayerSkin.get(profile).texture();
             }
-            return DefaultPlayerSkin.getDefaultSkin();
+            return DefaultPlayerSkin.getDefaultTexture();
         });
     }
 
@@ -62,20 +56,27 @@ public final class FakePlayerTextureUtils {
         }
 
         GameProfile profile = entity.getProfile();
-        if (profile == null || !profile.isComplete() || profile.getName() == null) {
+        if (!isComplete(profile)) {
             return Optional.empty();
         }
 
         Minecraft minecraft = Minecraft.getInstance();
-        MinecraftProfileTexture profileTexture =
-                minecraft.getSkinManager().getInsecureSkinInformation(profile).get(type);
-        if (profileTexture == null) {
+        PlayerSkin playerSkin = minecraft.getSkinManager().getInsecureSkin(profile);
+        ResourceLocation location = switch (type) {
+            case SKIN -> playerSkin.texture();
+            case CAPE -> playerSkin.capeTexture();
+            case ELYTRA -> playerSkin.elytraTexture();
+        };
+        if (location == null) {
             return Optional.empty();
         }
 
-        ResourceLocation location = minecraft.getSkinManager().registerTexture(profileTexture, type);
         entity.setTexture(type, location);
         return Optional.of(location);
+    }
+
+    private static boolean isComplete(GameProfile profile) {
+        return profile != null && profile.getId() != null && profile.getName() != null;
     }
 
     public enum SkinType {

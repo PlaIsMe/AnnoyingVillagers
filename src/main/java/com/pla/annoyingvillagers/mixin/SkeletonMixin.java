@@ -29,7 +29,7 @@ public class SkeletonMixin {
     }
 
     @Inject(method = "finalizeSpawn", at = @At("RETURN"))
-    private void monsterJoinHerobrineTeam(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag, CallbackInfoReturnable<SpawnGroupData> cir) {
+    private void monsterJoinHerobrineTeam(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, CallbackInfoReturnable<SpawnGroupData> cir) {
         AbstractSkeleton self = (AbstractSkeleton) (Object) this;
         if (!self.level().isClientSide() && self.getServer() != null) {
             TeamUtil.addOrJoinTeam(self, "herobrine");

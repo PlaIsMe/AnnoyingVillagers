@@ -18,7 +18,7 @@ public class SteveData extends SavedData {
     private static final long COOLDOWN_TICKS = 20L * 60L * 10L;
 
     public static SteveData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(SteveData::load, SteveData::new, ID);
+        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(SteveData::new, (tag, provider) -> SteveData.load(tag)), ID);
     }
 
     public static SteveData load(CompoundTag compoundTag) {
@@ -36,7 +36,7 @@ public class SteveData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null) {
             compoundTag.putUUID("activeId", activeId);
         }

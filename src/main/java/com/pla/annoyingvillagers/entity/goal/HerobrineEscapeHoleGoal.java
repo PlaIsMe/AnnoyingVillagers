@@ -20,8 +20,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.BlockSnapshot;
-import net.minecraftforge.event.ForgeEventFactory;
+import net.neoforged.neoforge.common.util.BlockSnapshot;
+import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -108,7 +108,7 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
         this.recoverAfterLoad();
         return this.mob.tickCount >= this.retryAfterTick && !(this.mob instanceof NullEntity)
                 && !this.mob.isHealing() && !this.mob.isSacrificing()
-                && ForgeEventFactory.getMobGriefingEvent(this.mob.level(), this.mob);
+                && EventHooks.canEntityGrief(this.mob.level(), this.mob);
     }
 
     @Override
@@ -348,7 +348,7 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
             }
             Block block = blockFor(this.mob);
             BlockState existing = level.getBlockState(pos);
-            if (!ForgeEventFactory.getMobGriefingEvent(level, this.mob)
+            if (!EventHooks.canEntityGrief(level, this.mob)
                     || !existing.getFluidState().isEmpty()
                     || existing.hasBlockEntity() && !existing.is(block)
                     || !existing.canBeReplaced() && !existing.is(block)
@@ -366,8 +366,8 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
                     this.failed = true;
                     return;
                 }
-                if (ForgeEventFactory.onBlockPlace(this.mob, snapshot, net.minecraft.core.Direction.UP)) {
-                    snapshot.restore(true, false);
+                if (EventHooks.onBlockPlace(this.mob, snapshot, net.minecraft.core.Direction.UP)) {
+                    snapshot.restore(3);
                     this.failed = true;
                     return;
                 }

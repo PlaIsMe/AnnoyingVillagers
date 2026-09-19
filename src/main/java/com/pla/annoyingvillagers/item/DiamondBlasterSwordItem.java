@@ -19,10 +19,10 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public class DiamondBlasterSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class DiamondBlasterSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public DiamondBlasterSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() { return 1561; }
             public float getSpeed() { return 6.0F; }
             public float getAttackDamageBonus() { return 4.4F; }

@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.pla.annoyingvillagers.entity.AlexEntity;
 import com.pla.annoyingvillagers.entity.JevEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -24,7 +25,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import com.pla.annoyingvillagers.util.PotionUtil;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -343,16 +344,16 @@ public final class HookGunCombatUtil {
 
     public static ItemStack createAlexDefaultPickaxe() {
         ItemStack pickaxe = new ItemStack(Items.IRON_PICKAXE);
-        pickaxe.enchant(Enchantments.MENDING, 1);
-        pickaxe.enchant(Enchantments.UNBREAKING, 3);
-        pickaxe.enchant(Enchantments.BLOCK_EFFICIENCY, 3);
+        EnchantmentUtil.enchant(pickaxe, Enchantments.MENDING, 1);
+        EnchantmentUtil.enchant(pickaxe, Enchantments.UNBREAKING, 3);
+        EnchantmentUtil.enchant(pickaxe, Enchantments.EFFICIENCY, 3);
         return pickaxe;
     }
 
     public static ItemStack createAlexHookSword() {
         ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
-        sword.enchant(Enchantments.SHARPNESS, 5);
-        sword.enchant(Enchantments.SMITE, 5);
+        EnchantmentUtil.enchant(sword, Enchantments.SHARPNESS, 5);
+        EnchantmentUtil.enchant(sword, Enchantments.SMITE, 5);
         return sword;
     }
 
@@ -362,8 +363,8 @@ public final class HookGunCombatUtil {
 
     public static ItemStack createAlexHelmet() {
         ItemStack helmet = new ItemStack(Items.DIAMOND_HELMET);
-        helmet.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 4);
-        helmet.enchant(Enchantments.UNBREAKING, 3);
+        EnchantmentUtil.enchant(helmet, Enchantments.PROTECTION, 4);
+        EnchantmentUtil.enchant(helmet, Enchantments.UNBREAKING, 3);
         return helmet;
     }
 
@@ -642,7 +643,7 @@ public final class HookGunCombatUtil {
                     () -> getGroundHookAnchorAimPosition(selectedSupport),
                     DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null);
             if (fired) {
-                InventoryUtils.consumeItem(inventory, stack -> ItemStack.isSameItemSameTags(stack, block), 1);
+                InventoryUtils.consumeItem(inventory, stack -> ItemStack.isSameItemSameComponents(stack, block), 1);
             }
             return fired;
         }
@@ -690,7 +691,7 @@ public final class HookGunCombatUtil {
         boolean fired = shootHookAtEntity(jev, InteractionHand.OFF_HAND, shot, target,
                 DEFAULT_RETRIEVE_DELAY_TICKS, DEFAULT_RESTORE_DELAY_TICKS, null);
         if (fired) {
-            InventoryUtils.consumeItem(jev.getInventory(), candidate -> ItemStack.isSameItemSameTags(candidate, shot), 1);
+            InventoryUtils.consumeItem(jev.getInventory(), candidate -> ItemStack.isSameItemSameComponents(candidate, shot), 1);
         }
         return fired;
     }
@@ -1034,13 +1035,13 @@ public final class HookGunCombatUtil {
 
         if (data.getBoolean(KEY_SAVED_MAINHAND)) {
             ItemStack stack = data.contains(KEY_ORIGINAL_MAINHAND, Tag.TAG_COMPOUND)
-                    ? ItemStack.of(data.getCompound(KEY_ORIGINAL_MAINHAND))
+                    ? ItemStack.parseOptional(entity.registryAccess(), data.getCompound(KEY_ORIGINAL_MAINHAND))
                     : ItemStack.EMPTY;
             entity.setItemInHand(InteractionHand.MAIN_HAND, stack);
         }
         if (data.getBoolean(KEY_SAVED_OFFHAND)) {
             ItemStack stack = data.contains(KEY_ORIGINAL_OFFHAND, Tag.TAG_COMPOUND)
-                    ? ItemStack.of(data.getCompound(KEY_ORIGINAL_OFFHAND))
+                    ? ItemStack.parseOptional(entity.registryAccess(), data.getCompound(KEY_ORIGINAL_OFFHAND))
                     : ItemStack.EMPTY;
             entity.setItemInHand(InteractionHand.OFF_HAND, stack);
         }
@@ -1088,9 +1089,7 @@ public final class HookGunCombatUtil {
             return;
         }
 
-        CompoundTag stackTag = new CompoundTag();
-        stack.save(stackTag);
-        data.put(key, stackTag);
+        data.put(key, stack.save(entity.registryAccess()));
     }
 
     private static boolean shouldPlayHookGunAnimationForHand(LivingEntity entity, InteractionHand hand, ItemStack boundItem) {
@@ -1108,7 +1107,7 @@ public final class HookGunCombatUtil {
             return ItemStack.EMPTY;
         }
 
-        return ItemStack.of(data.getCompound(key));
+        return ItemStack.parseOptional(entity.registryAccess(), data.getCompound(key));
     }
 
     private static void rememberLastHookBoundItem(LivingEntity entity, InteractionHand hand, ItemStack boundItem) {
@@ -1121,7 +1120,7 @@ public final class HookGunCombatUtil {
 
         ItemStack stored = boundItem.copy();
         stored.setCount(1);
-        data.put(key, stored.save(new CompoundTag()));
+        data.put(key, stored.save(entity.registryAccess()));
     }
 
     private static String getLastHookBoundItemKey(InteractionHand hand) {
@@ -1139,14 +1138,14 @@ public final class HookGunCombatUtil {
             return true;
         }
 
-        return ItemStack.isSameItemSameTags(previousBoundItem, boundItem);
+        return ItemStack.isSameItemSameComponents(previousBoundItem, boundItem);
     }
 
     private static boolean isConsumableHookItem(LivingEntity entity, ItemStack boundItem) {
         return !boundItem.isEmpty()
                 && (boundItem.getFoodProperties(entity) != null
                 || boundItem.getItem() instanceof ThrowablePotionItem
-                || !PotionUtils.getMobEffects(boundItem).isEmpty());
+                || !PotionUtil.getMobEffects(boundItem).isEmpty());
     }
 
     private static void playHookGunAnimation(LivingEntity entity) {
@@ -1508,13 +1507,13 @@ public final class HookGunCombatUtil {
 
     private static boolean isPositivePotionStack(ItemStack stack) {
         return stack.getItem() instanceof ThrowablePotionItem
-                && !PotionUtils.getMobEffects(stack).isEmpty()
-                && PotionUtils.getMobEffects(stack).stream().allMatch(effect -> effect.getEffect().isBeneficial());
+                && !PotionUtil.getMobEffects(stack).isEmpty()
+                && PotionUtil.getMobEffects(stack).stream().allMatch(effect -> effect.getEffect().value().isBeneficial());
     }
 
     private static boolean isNegativePotionStack(ItemStack stack) {
         return stack.getItem() instanceof ThrowablePotionItem
-                && PotionUtils.getMobEffects(stack).stream().anyMatch(effect -> !effect.getEffect().isBeneficial());
+                && PotionUtil.getMobEffects(stack).stream().anyMatch(effect -> !effect.getEffect().value().isBeneficial());
     }
 
     private static boolean isEnemyHarassmentStack(ItemStack stack) {

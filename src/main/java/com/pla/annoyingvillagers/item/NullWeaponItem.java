@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NullWeaponItem extends SwordItem implements RigCombatProfileProvider {
+public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileProvider {
     private static final String CHARGE_TAG = "AVNullWeaponCharge";
     private static final String RELEASE_UNTIL_TAG = "AVNullWeaponReleaseUntil";
     private static final String RECOVERY_UNTIL_TAG = "AVNullWeaponRecoveryUntil";
@@ -36,7 +37,7 @@ public class NullWeaponItem extends SwordItem implements RigCombatProfileProvide
     private static final String[] OWNED_KEYS = {"NullPickaxeUUID", "NullHoeUUID", "NullAxeUUID", "NullShovelUUID", "NullSwordUUID"};
 
     public NullWeaponItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() { return 1561; }
             public float getSpeed() { return 4.0F; }
             public float getAttackDamageBonus() { return 3.0F; }
@@ -85,8 +86,8 @@ public class NullWeaponItem extends SwordItem implements RigCombatProfileProvide
         if (weapons.isEmpty()) return false;
         LivingEntity target = VanillaWeaponAbilityUtil.findCommandTarget(player, 24.0D);
         for (NullWeapon weapon : weapons) weapon.releaseForTicks(target, RELEASE_DURATION_TICKS);
-        stack.getOrCreateTag().putLong(RELEASE_UNTIL_TAG, player.level().getGameTime() + RELEASE_DURATION_TICKS);
-        stack.getOrCreateTag().remove(RECOVERY_UNTIL_TAG);
+        LegacyItemData.getOrCreate(stack).putLong(RELEASE_UNTIL_TAG, player.level().getGameTime() + RELEASE_DURATION_TICKS);
+        LegacyItemData.getOrCreate(stack).remove(RECOVERY_UNTIL_TAG);
         VanillaWeaponAbilityUtil.swingOffHand(player);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
         player.getCooldowns().addCooldown(item, RELEASE_DURATION_TICKS);
@@ -96,8 +97,8 @@ public class NullWeaponItem extends SwordItem implements RigCombatProfileProvide
                 if (player.level() instanceof ServerLevel level) {
                     for (NullWeapon weapon : getOwnedWeapons(level, player)) weapon.stopRelease();
                     setCharge(stack, 0);
-                    stack.getOrCreateTag().remove(RELEASE_UNTIL_TAG);
-                    stack.getOrCreateTag().putLong(RECOVERY_UNTIL_TAG, player.level().getGameTime() + RECOVERY_COOLDOWN_TICKS);
+                    LegacyItemData.getOrCreate(stack).remove(RELEASE_UNTIL_TAG);
+                    LegacyItemData.getOrCreate(stack).putLong(RECOVERY_UNTIL_TAG, player.level().getGameTime() + RECOVERY_COOLDOWN_TICKS);
                     if (player.getOffhandItem() == stack) syncOwnedWeapons(level, player, stack);
                     else discardOwnedWeapons(level, player);
                 }
@@ -117,15 +118,15 @@ public class NullWeaponItem extends SwordItem implements RigCombatProfileProvide
             return;
         }
         long now = level.getGameTime();
-        long releaseUntil = stack.getOrCreateTag().getLong(RELEASE_UNTIL_TAG);
-        long recoveryUntil = stack.getOrCreateTag().getLong(RECOVERY_UNTIL_TAG);
+        long releaseUntil = LegacyItemData.getOrCreate(stack).getLong(RELEASE_UNTIL_TAG);
+        long recoveryUntil = LegacyItemData.getOrCreate(stack).getLong(RECOVERY_UNTIL_TAG);
         if (releaseUntil > 0L && now >= releaseUntil) {
-            stack.getOrCreateTag().remove(RELEASE_UNTIL_TAG);
+            LegacyItemData.getOrCreate(stack).remove(RELEASE_UNTIL_TAG);
             setCharge(stack, 0);
             for (NullWeapon weapon : getOwnedWeapons(serverLevel, player)) weapon.stopRelease();
             if (recoveryUntil <= now) {
                 recoveryUntil = now + RECOVERY_COOLDOWN_TICKS;
-                stack.getOrCreateTag().putLong(RECOVERY_UNTIL_TAG, recoveryUntil);
+                LegacyItemData.getOrCreate(stack).putLong(RECOVERY_UNTIL_TAG, recoveryUntil);
             }
         }
         long cooldownUntil = releaseUntil > now ? releaseUntil : recoveryUntil;
@@ -133,7 +134,7 @@ public class NullWeaponItem extends SwordItem implements RigCombatProfileProvide
         if (remaining > 0L && player.getCooldowns().getCooldownPercent(stack.getItem(), 0.0F) <= 0.0F) {
             player.getCooldowns().addCooldown(stack.getItem(), (int)Math.min(Integer.MAX_VALUE, remaining));
         } else if (recoveryUntil > 0L && recoveryUntil <= now) {
-            stack.getOrCreateTag().remove(RECOVERY_UNTIL_TAG);
+            LegacyItemData.getOrCreate(stack).remove(RECOVERY_UNTIL_TAG);
         }
         if (player.getOffhandItem() != stack) {
             setCharge(stack, 0);
@@ -214,7 +215,7 @@ public class NullWeaponItem extends SwordItem implements RigCombatProfileProvide
     public boolean isFoil(@NotNull ItemStack stack) { return true; }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.null_weapon_full"));
     }

@@ -23,48 +23,61 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ItemSupplier;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
 public class EnchantedEnderPearlEntity extends AbstractArrow implements ItemSupplier {
+    private int legacyKnockback;
 
-    public EnchantedEnderPearlEntity(SpawnEntity spawnEntity, Level level) {
-        super(AnnoyingVillagersModEntities.ENCHANTED_ENDER_PEARL_PROJECTILE.get(), level);
-    }
-
-    public EnchantedEnderPearlEntity(EntityType<? extends EnchantedEnderPearlEntity> entitytype, Level level) {
+        public EnchantedEnderPearlEntity(EntityType<? extends EnchantedEnderPearlEntity> entitytype, Level level) {
         super(entitytype, level);
     }
 
     public EnchantedEnderPearlEntity(EntityType<? extends EnchantedEnderPearlEntity> entitytype, double d0, double d1, double d2, Level level) {
-        super(entitytype, d0, d1, d2, level);
+        super(entitytype, d0, d1, d2, level, ItemStack.EMPTY, null);
     }
 
     public EnchantedEnderPearlEntity(EntityType<? extends EnchantedEnderPearlEntity> entitytype, LivingEntity livingentity, Level level) {
-        super(entitytype, livingentity, level);
+        super(entitytype, livingentity, level, ItemStack.EMPTY, null);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @OnlyIn(Dist.CLIENT)
+        @OnlyIn(Dist.CLIENT)
     public @NotNull ItemStack getItem() {
         return new ItemStack((ItemLike) AnnoyingVillagersModItems.ENCHANTED_ENDER_PEARL.get());
     }
 
     public @NotNull ItemStack getPickupItem() {
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    protected @NotNull ItemStack getDefaultPickupItem() {
+        return ItemStack.EMPTY;
+    }
+
+    public void setKnockback(int knockback) {
+        this.legacyKnockback = Math.max(0, knockback);
+    }
+
+    @Override
+    protected void doKnockback(@NotNull LivingEntity target, @NotNull DamageSource source) {
+        super.doKnockback(target, source);
+        if (this.legacyKnockback > 0) {
+            double resistance = Math.max(0.0D, 1.0D - target.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE));
+            net.minecraft.world.phys.Vec3 push = this.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D).normalize()
+                    .scale(this.legacyKnockback * 0.6D * resistance);
+            if (push.lengthSqr() > 0.0D) target.push(push.x, 0.1D, push.z);
+        }
     }
 
     protected void doPostHurtEffects(@NotNull LivingEntity livingentity) {
@@ -145,7 +158,7 @@ public class EnchantedEnderPearlEntity extends AbstractArrow implements ItemSupp
         enchantedEnderPearl.setBaseDamage(d0);
         enchantedEnderPearl.setKnockback(i);
         level.addFreshEntity(enchantedEnderPearl);
-        level.playSound((Player) null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), (SoundEvent) Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "throw"))), SoundSource.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.5F + 1.0F) + f / 2.0F);
+        level.playSound((Player) null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "throw"))), SoundSource.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.5F + 1.0F) + f / 2.0F);
         return enchantedEnderPearl;
     }
 
@@ -161,7 +174,7 @@ public class EnchantedEnderPearlEntity extends AbstractArrow implements ItemSupp
         enchantedEnderPearl.setKnockback(0);
         enchantedEnderPearl.setCritArrow(false);
         livingentity.level().addFreshEntity(enchantedEnderPearl);
-        livingentity.level().playSound((Player) null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), (SoundEvent) Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "throw"))), SoundSource.PLAYERS, 1.0F, 1.0F / ((new Random()).nextFloat() * 0.5F + 1.0F));
+        livingentity.level().playSound((Player) null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "throw"))), SoundSource.PLAYERS, 1.0F, 1.0F / ((new Random()).nextFloat() * 0.5F + 1.0F));
         return enchantedEnderPearl;
     }
 }

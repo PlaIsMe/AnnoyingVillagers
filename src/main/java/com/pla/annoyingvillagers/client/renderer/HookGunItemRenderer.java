@@ -13,23 +13,25 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
-    private static final ResourceLocation BASE_MODEL =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "item/hook_gun_body");
+    private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
+            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "item/hook_gun_body"));
     private static final ThreadLocal<RenderedHandContext> RENDERED_HAND_CONTEXT = new ThreadLocal<>();
 
     public static HookGunItemRenderer instance;

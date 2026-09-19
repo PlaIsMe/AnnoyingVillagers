@@ -13,22 +13,14 @@ public final class EFAParticleRenderType {
 
     public static final ParticleRenderType PARTICLE_SHEET_OPAQUE_NO_CULL = new ParticleRenderType() {
         @Override
-        public void begin(BufferBuilder builder, @NotNull TextureManager textureManager) {
+        public BufferBuilder begin(Tesselator tesselator, @NotNull TextureManager textureManager) {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.disableCull();
             RenderSystem.depthMask(true);
             RenderSystem.setShader(GameRenderer::getParticleShader);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
-            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
-        }
-
-        @Override
-        public void end(Tesselator tesselator) {
-            tesselator.end();
-            RenderSystem.depthMask(true);
-            RenderSystem.enableCull();
-            RenderSystem.disableBlend();
+            return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
         }
 
         @Override

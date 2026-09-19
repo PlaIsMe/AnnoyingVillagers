@@ -5,14 +5,9 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 
 public class NullSwordEntity extends NullWeapon {
-    public NullSwordEntity(SpawnEntity spawnentity, Level level) {
-        this(AnnoyingVillagersModEntities.NULL_SWORD.get(), level);
-    }
-
-    public NullSwordEntity(EntityType<NullSwordEntity> entitytype, Level level) {
+        public NullSwordEntity(EntityType<NullSwordEntity> entitytype, Level level) {
         super(entitytype, level);
         this.setWeapon("sword");
     }

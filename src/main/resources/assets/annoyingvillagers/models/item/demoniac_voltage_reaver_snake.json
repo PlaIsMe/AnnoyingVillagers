@@ -4,7 +4,7 @@
     "1": "annoyingvillagers:item/srb",
     "4": "annoyingvillagers:item/sr1",
     "5": "annoyingvillagers:item/ptail",
-    "particle": "annoyingvillager:item/srb"
+    "particle": "annoyingvillagers:item/srb"
   },
   "base": {
     "parent": "annoyingvillagers:custom/demoniac_voltage_reaver_snake",
@@ -12,10 +12,10 @@
       "1": "annoyingvillagers:item/srb",
       "4": "annoyingvillagers:item/sr1",
       "5": "annoyingvillagers:item/ptail",
-      "particle": "annoyingvillager:item/srb"
+      "particle": "annoyingvillagers:item/srb"
     }
   },
-  "loader": "forge:separate_transforms",
+  "loader": "neoforge:separate_transforms",
   "perspectives": {
     "firstperson_lefthand": {
       "parent": "annoyingvillagers:custom/demoniac_voltage_reaver_snake",
@@ -23,7 +23,7 @@
         "1": "annoyingvillagers:item/srb",
         "4": "annoyingvillagers:item/sr1",
         "5": "annoyingvillagers:item/ptail",
-        "particle": "annoyingvillager:item/srb"
+        "particle": "annoyingvillagers:item/srb"
       }
     },
     "firstperson_righthand": {
@@ -32,7 +32,7 @@
         "1": "annoyingvillagers:item/srb",
         "4": "annoyingvillagers:item/sr1",
         "5": "annoyingvillagers:item/ptail",
-        "particle": "annoyingvillager:item/srb"
+        "particle": "annoyingvillagers:item/srb"
       }
     },
     "thirdperson_lefthand": {
@@ -41,7 +41,7 @@
         "1": "annoyingvillagers:item/srb",
         "4": "annoyingvillagers:item/sr1",
         "5": "annoyingvillagers:item/ptail",
-        "particle": "annoyingvillager:item/srb"
+        "particle": "annoyingvillagers:item/srb"
       }
     },
     "thirdperson_righthand": {
@@ -50,7 +50,7 @@
         "1": "annoyingvillagers:item/srb",
         "4": "annoyingvillagers:item/sr1",
         "5": "annoyingvillagers:item/ptail",
-        "particle": "annoyingvillager:item/srb"
+        "particle": "annoyingvillagers:item/srb"
       }
     },
     "gui": {
@@ -60,7 +60,7 @@
         "3": "annoyingvillagers:item/sr2",
         "4": "annoyingvillagers:item/sr1",
         "5": "annoyingvillagers:item/ptail",
-        "particle": "annoyingvillager:item/srb"
+        "particle": "annoyingvillagers:item/srb"
       }
     },
     "ground": {
@@ -70,7 +70,7 @@
         "3": "annoyingvillagers:item/sr2",
         "4": "annoyingvillagers:item/sr1",
         "5": "annoyingvillagers:item/ptail",
-        "particle": "annoyingvillager:item/srb"
+        "particle": "annoyingvillagers:item/srb"
       }
     },
     "fixed": {
@@ -80,7 +80,7 @@
         "3": "annoyingvillagers:item/sr2",
         "4": "annoyingvillagers:item/sr1",
         "5": "annoyingvillagers:item/ptail",
-        "particle": "annoyingvillager:item/srb"
+        "particle": "annoyingvillagers:item/srb"
       }
     }
   }

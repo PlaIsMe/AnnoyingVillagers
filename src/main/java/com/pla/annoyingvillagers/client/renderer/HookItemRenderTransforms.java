@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
-import net.minecraftforge.common.ToolActions;
+import net.neoforged.neoforge.common.ItemAbilities;
 import org.jetbrains.annotations.Nullable;
 
 final class HookItemRenderTransforms {
@@ -152,25 +152,25 @@ final class HookItemRenderTransforms {
     private static boolean isPickaxeLike(ItemStack stack) {
         return !stack.isEmpty()
                 && (stack.getItem() instanceof PickaxeItem
-                || stack.canPerformAction(ToolActions.PICKAXE_DIG));
+                || stack.canPerformAction(ItemAbilities.PICKAXE_DIG));
     }
 
     private static boolean isAxeLike(ItemStack stack) {
         return !stack.isEmpty()
                 && !(stack.getItem() instanceof SwordItem)
                 && (stack.getItem() instanceof AxeItem
-                || stack.canPerformAction(ToolActions.AXE_DIG));
+                || stack.canPerformAction(ItemAbilities.AXE_DIG));
     }
 
     private static boolean isHoeLike(ItemStack stack) {
         return !stack.isEmpty()
                 && (stack.getItem() instanceof HoeItem
-                || stack.canPerformAction(ToolActions.HOE_DIG));
+                || stack.canPerformAction(ItemAbilities.HOE_DIG));
     }
 
     private static boolean isShovelLike(ItemStack stack) {
         return !stack.isEmpty()
                 && (stack.getItem() instanceof ShovelItem
-                || stack.canPerformAction(ToolActions.SHOVEL_DIG));
+                || stack.canPerformAction(ItemAbilities.SHOVEL_DIG));
     }
 }

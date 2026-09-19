@@ -12,13 +12,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.level.ExplosionEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.level.ExplosionEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
 public final class ExplosionDamageEvent {
     private ExplosionDamageEvent() {}
 
@@ -30,7 +31,7 @@ public final class ExplosionDamageEvent {
         RigAnimationId animationId = RigAnimationController.getActiveAnimationId(sourceMob);
         if (!isWoopieExplosionAnimation(animationId)) return;
 
-        Vec3 center = event.getExplosion().getPosition();
+        Vec3 center = event.getExplosion().center();
 
         for (Entity entity : event.getAffectedEntities()) {
             if (!(entity instanceof LivingEntity victim) || !victim.isAlive() || victim == source) continue;
@@ -51,8 +52,8 @@ public final class ExplosionDamageEvent {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onLivingDamage(LivingDamageEvent event) {
-        if (event.isCanceled() || event.getAmount() <= 0.0F || !event.getSource().is(DamageTypeTags.IS_EXPLOSION)) return;
+    public static void onLivingDamage(LivingDamageEvent.Post event) {
+        if (event.getNewDamage() <= 0.0F || !event.getSource().is(DamageTypeTags.IS_EXPLOSION)) return;
         if (!(event.getEntity() instanceof Mob victimMob) || !RigStunController.supports(victimMob)) return;
 
         Entity sourceEntity = event.getSource().getEntity();

@@ -315,29 +315,29 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.modelRoot.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-        renderRandomizedUvTiles(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+        this.modelRoot.render(poseStack, buffer, packedLight, packedOverlay, color);
+        renderRandomizedUvTiles(poseStack, buffer, packedLight, packedOverlay, color);
     }
 
     /** Draw only the animated tiles, without putting the helmet shell around the camera. */
     public void renderExtensionTiles(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay) {
-        renderRandomizedUvTiles(poseStack, buffer, packedLight, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
+        renderRandomizedUvTiles(poseStack, buffer, packedLight, packedOverlay, -1);
     }
 
-    private void renderRandomizedUvTiles(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        renderObsidian0Tiles(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-        renderObsidian1Tiles(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-        renderObsidian2Tiles(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+    private void renderRandomizedUvTiles(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+        renderObsidian0Tiles(poseStack, buffer, packedLight, packedOverlay, color);
+        renderObsidian1Tiles(poseStack, buffer, packedLight, packedOverlay, color);
+        renderObsidian2Tiles(poseStack, buffer, packedLight, packedOverlay, color);
     }
 
-    private void renderObsidian0Tiles(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    private void renderObsidian0Tiles(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         if (this.obsidian_0_tile_01.visible) {
             poseStack.pushPose();
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_01.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 58.0F, 4.0F, 56.0F, 7.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 180, 56.0F, 7.0F, 54.0F, 4.0F, 0, 54.0F, 9.0F, 51.0F, 7.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 58.0F, 4.0F, 56.0F, 7.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 180, 56.0F, 7.0F, 54.0F, 4.0F, 0, 54.0F, 9.0F, 51.0F, 7.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_02.visible) {
@@ -345,7 +345,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_02.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 59.0F, 7.0F, 56.0F, 9.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 270, 56.0F, 7.0F, 58.0F, 4.0F, 90, 51.0F, 9.0F, 54.0F, 7.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 59.0F, 7.0F, 56.0F, 9.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 270, 56.0F, 7.0F, 58.0F, 4.0F, 90, 51.0F, 9.0F, 54.0F, 7.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_03.visible) {
@@ -353,7 +353,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_03.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 270, 56.0F, 7.0F, 54.0F, 4.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 59.0F, 9.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 90, 56.0F, 7.0F, 58.0F, 4.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 270, 56.0F, 7.0F, 54.0F, 4.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 59.0F, 9.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 90, 56.0F, 7.0F, 58.0F, 4.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_04.visible) {
@@ -361,7 +361,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_04.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 90, 54.0F, 7.0F, 51.0F, 9.0F, 180, 54.0F, 7.0F, 56.0F, 9.0F, 180, 56.0F, 9.0F, 59.0F, 7.0F, 0, 58.0F, 4.0F, 56.0F, 7.0F, 180, 56.0F, 4.0F, 54.0F, 7.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 90, 54.0F, 7.0F, 51.0F, 9.0F, 180, 54.0F, 7.0F, 56.0F, 9.0F, 180, 56.0F, 9.0F, 59.0F, 7.0F, 0, 58.0F, 4.0F, 56.0F, 7.0F, 180, 56.0F, 4.0F, 54.0F, 7.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_05.visible) {
@@ -369,7 +369,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_05.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_06.visible) {
@@ -377,7 +377,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_06.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 90, 56.0F, 4.0F, 54.0F, 7.0F, 90, 56.0F, 7.0F, 54.0F, 9.0F, 270, 51.0F, 9.0F, 54.0F, 7.0F, 0, 58.0F, 7.0F, 56.0F, 4.0F, 0, 59.0F, 7.0F, 56.0F, 9.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 90, 56.0F, 4.0F, 54.0F, 7.0F, 90, 56.0F, 7.0F, 54.0F, 9.0F, 270, 51.0F, 9.0F, 54.0F, 7.0F, 0, 58.0F, 7.0F, 56.0F, 4.0F, 0, 59.0F, 7.0F, 56.0F, 9.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_07.visible) {
@@ -385,7 +385,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_07.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 180, 58.0F, 4.0F, 56.0F, 7.0F, 90, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 90, 59.0F, 9.0F, 56.0F, 7.0F, 270, 54.0F, 7.0F, 51.0F, 9.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 180, 58.0F, 4.0F, 56.0F, 7.0F, 90, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 90, 59.0F, 9.0F, 56.0F, 7.0F, 270, 54.0F, 7.0F, 51.0F, 9.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_08.visible) {
@@ -393,7 +393,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_08.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 7.0F, 56.0F, 9.0F, 270, 58.0F, 7.0F, 56.0F, 4.0F, 270, 56.0F, 4.0F, 54.0F, 7.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 7.0F, 56.0F, 9.0F, 270, 58.0F, 7.0F, 56.0F, 4.0F, 270, 56.0F, 4.0F, 54.0F, 7.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_09.visible) {
@@ -401,7 +401,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_09.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 180, 54.0F, 7.0F, 56.0F, 4.0F, 270, 54.0F, 7.0F, 56.0F, 9.0F, 270, 58.0F, 7.0F, 56.0F, 4.0F, 90, 56.0F, 9.0F, 59.0F, 7.0F, 270, 54.0F, 9.0F, 51.0F, 7.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 180, 54.0F, 7.0F, 56.0F, 4.0F, 270, 54.0F, 7.0F, 56.0F, 9.0F, 270, 58.0F, 7.0F, 56.0F, 4.0F, 90, 56.0F, 9.0F, 59.0F, 7.0F, 270, 54.0F, 9.0F, 51.0F, 7.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_10.visible) {
@@ -409,7 +409,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_10.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 90, 56.0F, 9.0F, 59.0F, 7.0F, 180, 54.0F, 9.0F, 56.0F, 7.0F, 180, 56.0F, 4.0F, 54.0F, 7.0F, 270, 51.0F, 7.0F, 54.0F, 9.0F, 90, 56.0F, 4.0F, 58.0F, 7.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 90, 56.0F, 9.0F, 59.0F, 7.0F, 180, 54.0F, 9.0F, 56.0F, 7.0F, 180, 56.0F, 4.0F, 54.0F, 7.0F, 270, 51.0F, 7.0F, 54.0F, 9.0F, 90, 56.0F, 4.0F, 58.0F, 7.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_11.visible) {
@@ -417,7 +417,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_11.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 0, 56.0F, 7.0F, 58.0F, 4.0F, 270, 54.0F, 7.0F, 56.0F, 9.0F, 0, 51.0F, 9.0F, 54.0F, 7.0F, 180, 56.0F, 7.0F, 59.0F, 9.0F, 270, 54.0F, 7.0F, 56.0F, 4.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 0, 56.0F, 7.0F, 58.0F, 4.0F, 270, 54.0F, 7.0F, 56.0F, 9.0F, 0, 51.0F, 9.0F, 54.0F, 7.0F, 180, 56.0F, 7.0F, 59.0F, 9.0F, 270, 54.0F, 7.0F, 56.0F, 4.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_12.visible) {
@@ -425,7 +425,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_12.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 90, 56.0F, 7.0F, 59.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 9.0F, 51.0F, 7.0F, 180, 56.0F, 7.0F, 54.0F, 4.0F, 180, 56.0F, 7.0F, 58.0F, 4.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 90, 56.0F, 7.0F, 59.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 9.0F, 51.0F, 7.0F, 180, 56.0F, 7.0F, 54.0F, 4.0F, 180, 56.0F, 7.0F, 58.0F, 4.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_13.visible) {
@@ -433,7 +433,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_13.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 90, 54.0F, 4.0F, 56.0F, 7.0F, 270, 56.0F, 7.0F, 54.0F, 9.0F, 0, 54.0F, 7.0F, 51.0F, 9.0F, 0, 56.0F, 4.0F, 58.0F, 7.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 90, 54.0F, 4.0F, 56.0F, 7.0F, 270, 56.0F, 7.0F, 54.0F, 9.0F, 0, 54.0F, 7.0F, 51.0F, 9.0F, 0, 56.0F, 4.0F, 58.0F, 7.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_14.visible) {
@@ -441,7 +441,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_14.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 270, 58.0F, 7.0F, 56.0F, 4.0F, 90, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 270, 58.0F, 7.0F, 56.0F, 4.0F, 90, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_15.visible) {
@@ -449,7 +449,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_15.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 58.0F, 4.0F, 56.0F, 7.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 90, 56.0F, 7.0F, 54.0F, 4.0F, 0, 54.0F, 9.0F, 51.0F, 7.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 58.0F, 4.0F, 56.0F, 7.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 90, 56.0F, 7.0F, 54.0F, 4.0F, 0, 54.0F, 9.0F, 51.0F, 7.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_16.visible) {
@@ -457,7 +457,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_16.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 270, 54.0F, 7.0F, 56.0F, 4.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 270, 58.0F, 7.0F, 56.0F, 4.0F, 90, 56.0F, 9.0F, 59.0F, 7.0F, 270, 54.0F, 9.0F, 51.0F, 7.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 270, 54.0F, 7.0F, 56.0F, 4.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 270, 58.0F, 7.0F, 56.0F, 4.0F, 90, 56.0F, 9.0F, 59.0F, 7.0F, 270, 54.0F, 9.0F, 51.0F, 7.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_17.visible) {
@@ -465,7 +465,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_17.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 270, 56.0F, 7.0F, 54.0F, 4.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 180, 56.0F, 7.0F, 59.0F, 9.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 90, 56.0F, 7.0F, 58.0F, 4.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 270, 56.0F, 7.0F, 54.0F, 4.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 180, 56.0F, 7.0F, 59.0F, 9.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 90, 56.0F, 7.0F, 58.0F, 4.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_18.visible) {
@@ -473,7 +473,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_18.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 180, 58.0F, 4.0F, 56.0F, 7.0F, 180, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 90, 59.0F, 9.0F, 56.0F, 7.0F, 270, 54.0F, 7.0F, 51.0F, 9.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 180, 58.0F, 4.0F, 56.0F, 7.0F, 180, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 90, 59.0F, 9.0F, 56.0F, 7.0F, 270, 54.0F, 7.0F, 51.0F, 9.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_19.visible) {
@@ -481,7 +481,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_19.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 59.0F, 7.0F, 56.0F, 9.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 58.0F, 4.0F, 90, 51.0F, 9.0F, 54.0F, 7.0F, 0, 54.0F, 4.0F, 56.0F, 7.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 59.0F, 7.0F, 56.0F, 9.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 58.0F, 4.0F, 90, 51.0F, 9.0F, 54.0F, 7.0F, 0, 54.0F, 4.0F, 56.0F, 7.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_20.visible) {
@@ -489,7 +489,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_20.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 90, 58.0F, 4.0F, 56.0F, 7.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 90, 59.0F, 9.0F, 56.0F, 7.0F, 270, 54.0F, 7.0F, 51.0F, 9.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 90, 58.0F, 4.0F, 56.0F, 7.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 90, 59.0F, 9.0F, 56.0F, 7.0F, 270, 54.0F, 7.0F, 51.0F, 9.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_21.visible) {
@@ -497,7 +497,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_21.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 7.0F, 56.0F, 9.0F, 270, 58.0F, 7.0F, 56.0F, 4.0F, 0, 56.0F, 4.0F, 54.0F, 7.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 7.0F, 56.0F, 9.0F, 270, 58.0F, 7.0F, 56.0F, 4.0F, 0, 56.0F, 4.0F, 54.0F, 7.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_22.visible) {
@@ -505,7 +505,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_22.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 54.0F, 7.0F, 51.0F, 9.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 180, 56.0F, 9.0F, 59.0F, 7.0F, 0, 58.0F, 4.0F, 56.0F, 7.0F, 180, 56.0F, 4.0F, 54.0F, 7.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 54.0F, 7.0F, 51.0F, 9.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 180, 56.0F, 9.0F, 59.0F, 7.0F, 0, 58.0F, 4.0F, 56.0F, 7.0F, 180, 56.0F, 4.0F, 54.0F, 7.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_23.visible) {
@@ -513,7 +513,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_23.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 59.0F, 7.0F, 56.0F, 9.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 58.0F, 4.0F, 180, 51.0F, 9.0F, 54.0F, 7.0F, 0, 54.0F, 4.0F, 56.0F, 7.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 59.0F, 7.0F, 56.0F, 9.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 58.0F, 4.0F, 180, 51.0F, 9.0F, 54.0F, 7.0F, 0, 54.0F, 4.0F, 56.0F, 7.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_24.visible) {
@@ -521,7 +521,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_24.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 90, 54.0F, 4.0F, 56.0F, 7.0F, 90, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 7.0F, 51.0F, 9.0F, 0, 56.0F, 4.0F, 58.0F, 7.0F, 270, 56.0F, 9.0F, 59.0F, 7.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 90, 54.0F, 4.0F, 56.0F, 7.0F, 90, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 7.0F, 51.0F, 9.0F, 0, 56.0F, 4.0F, 58.0F, 7.0F, 270, 56.0F, 9.0F, 59.0F, 7.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_25.visible) {
@@ -529,7 +529,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_25.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 58.0F, 4.0F, 90, 51.0F, 9.0F, 54.0F, 7.0F, 90, 54.0F, 4.0F, 56.0F, 7.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 58.0F, 4.0F, 90, 51.0F, 9.0F, 54.0F, 7.0F, 90, 54.0F, 4.0F, 56.0F, 7.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_26.visible) {
@@ -537,7 +537,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_26.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 0, 59.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 4.0F, 56.0F, 7.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 270, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 0, 59.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 4.0F, 56.0F, 7.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 270, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_27.visible) {
@@ -545,7 +545,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_27.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 90, 54.0F, 4.0F, 56.0F, 7.0F, 180, 58.0F, 7.0F, 56.0F, 4.0F, 90, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 90, 54.0F, 4.0F, 56.0F, 7.0F, 180, 58.0F, 7.0F, 56.0F, 4.0F, 90, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_28.visible) {
@@ -553,7 +553,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_28.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 270, 56.0F, 7.0F, 54.0F, 4.0F, 180, 54.0F, 7.0F, 56.0F, 9.0F, 270, 56.0F, 7.0F, 59.0F, 9.0F, 180, 51.0F, 7.0F, 54.0F, 9.0F, 270, 56.0F, 7.0F, 58.0F, 4.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 270, 56.0F, 7.0F, 54.0F, 4.0F, 180, 54.0F, 7.0F, 56.0F, 9.0F, 270, 56.0F, 7.0F, 59.0F, 9.0F, 180, 51.0F, 7.0F, 54.0F, 9.0F, 270, 56.0F, 7.0F, 58.0F, 4.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_29.visible) {
@@ -561,7 +561,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_29.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 180, 54.0F, 9.0F, 56.0F, 7.0F, 0, 56.0F, 4.0F, 54.0F, 7.0F, 270, 51.0F, 7.0F, 54.0F, 9.0F, 270, 56.0F, 4.0F, 58.0F, 7.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 180, 54.0F, 9.0F, 56.0F, 7.0F, 0, 56.0F, 4.0F, 54.0F, 7.0F, 270, 51.0F, 7.0F, 54.0F, 9.0F, 270, 56.0F, 4.0F, 58.0F, 7.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_30.visible) {
@@ -569,7 +569,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_30.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 4.0F, 56.0F, 7.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 4.0F, 56.0F, 7.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_31.visible) {
@@ -577,7 +577,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_31.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 90, 56.0F, 7.0F, 59.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 9.0F, 51.0F, 7.0F, 90, 56.0F, 7.0F, 54.0F, 4.0F, 180, 56.0F, 7.0F, 58.0F, 4.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 90, 56.0F, 7.0F, 59.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 9.0F, 51.0F, 7.0F, 90, 56.0F, 7.0F, 54.0F, 4.0F, 180, 56.0F, 7.0F, 58.0F, 4.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_32.visible) {
@@ -585,7 +585,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_32.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 0, 58.0F, 7.0F, 56.0F, 4.0F, 270, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 270, 59.0F, 7.0F, 56.0F, 9.0F, 90, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 0, 58.0F, 7.0F, 56.0F, 4.0F, 270, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_33.visible) {
@@ -593,7 +593,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_33.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 90, 56.0F, 9.0F, 59.0F, 7.0F, 180, 54.0F, 9.0F, 56.0F, 7.0F, 180, 56.0F, 4.0F, 54.0F, 7.0F, 180, 51.0F, 7.0F, 54.0F, 9.0F, 270, 56.0F, 4.0F, 58.0F, 7.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 90, 56.0F, 9.0F, 59.0F, 7.0F, 180, 54.0F, 9.0F, 56.0F, 7.0F, 180, 56.0F, 4.0F, 54.0F, 7.0F, 180, 51.0F, 7.0F, 54.0F, 9.0F, 270, 56.0F, 4.0F, 58.0F, 7.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_34.visible) {
@@ -601,7 +601,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_34.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 0, 59.0F, 7.0F, 56.0F, 9.0F, 270, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 0, 59.0F, 7.0F, 56.0F, 9.0F, 270, 56.0F, 7.0F, 54.0F, 9.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_35.visible) {
@@ -609,7 +609,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_35.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 59.0F, 7.0F, 56.0F, 9.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 270, 56.0F, 7.0F, 58.0F, 4.0F, 270, 51.0F, 9.0F, 54.0F, 7.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 180, 59.0F, 7.0F, 56.0F, 9.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 270, 56.0F, 7.0F, 58.0F, 4.0F, 270, 51.0F, 9.0F, 54.0F, 7.0F, 270, 54.0F, 4.0F, 56.0F, 7.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_36.visible) {
@@ -617,7 +617,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_36.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 270, 54.0F, 7.0F, 51.0F, 9.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 0, 58.0F, 4.0F, 56.0F, 7.0F, 180, 56.0F, 4.0F, 54.0F, 7.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 9.0F, 61.0F, 7.0F, 270, 54.0F, 7.0F, 51.0F, 9.0F, 90, 54.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 0, 58.0F, 4.0F, 56.0F, 7.0F, 180, 56.0F, 4.0F, 54.0F, 7.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_37.visible) {
@@ -625,7 +625,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_37.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 90, 51.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 7.0F, 56.0F, 9.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 90, 56.0F, 4.0F, 54.0F, 7.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 90, 51.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 7.0F, 56.0F, 9.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 90, 56.0F, 4.0F, 54.0F, 7.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_38.visible) {
@@ -633,7 +633,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_38.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 180, 54.0F, 9.0F, 56.0F, 7.0F, 270, 56.0F, 4.0F, 54.0F, 7.0F, 90, 51.0F, 7.0F, 54.0F, 9.0F, 90, 56.0F, 4.0F, 58.0F, 7.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 7.0F, 59.0F, 9.0F, 0, 56.0F, 9.0F, 59.0F, 7.0F, 180, 54.0F, 9.0F, 56.0F, 7.0F, 270, 56.0F, 4.0F, 54.0F, 7.0F, 90, 51.0F, 7.0F, 54.0F, 9.0F, 90, 56.0F, 4.0F, 58.0F, 7.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_39.visible) {
@@ -641,7 +641,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_39.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 90, 59.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 4.0F, 56.0F, 7.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 59.0F, 7.0F, 61.0F, 9.0F, 90, 59.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 54.0F, 9.0F, 180, 54.0F, 4.0F, 56.0F, 7.0F, 90, 58.0F, 7.0F, 56.0F, 4.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_0_tile_40.visible) {
@@ -649,19 +649,19 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.Head.translateAndRotate(poseStack);
             this.obsidian_0_bone.translateAndRotate(poseStack);
             this.obsidian_0_tile_40.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 0, 56.0F, 7.0F, 54.0F, 4.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 59.0F, 9.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 0, 56.0F, 7.0F, 58.0F, 4.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, -1.0F, 0.0F, 1.0F, 1.0F, 3.0F, 61.0F, 9.0F, 59.0F, 7.0F, 0, 56.0F, 7.0F, 54.0F, 4.0F, 0, 54.0F, 7.0F, 56.0F, 9.0F, 0, 56.0F, 7.0F, 59.0F, 9.0F, 0, 51.0F, 7.0F, 54.0F, 9.0F, 0, 56.0F, 7.0F, 58.0F, 4.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
     }
 
-    private void renderObsidian1Tiles(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    private void renderObsidian1Tiles(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         if (this.obsidian_1_tile_01.visible) {
             poseStack.pushPose();
             this.Head.translateAndRotate(poseStack);
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_01.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 180, 53.0F, 12.0F, 55.0F, 6.0F, 0, 53.0F, 12.0F, 51.0F, 6.0F, 180, 55.0F, 6.0F, 57.0F, 12.0F, 0, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 4.0F, 53.0F, 6.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 180, 53.0F, 12.0F, 55.0F, 6.0F, 0, 53.0F, 12.0F, 51.0F, 6.0F, 180, 55.0F, 6.0F, 57.0F, 12.0F, 0, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 4.0F, 53.0F, 6.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_02.visible) {
@@ -670,7 +670,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_02.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 12.0F, 180, 53.0F, 6.0F, 55.0F, 12.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 4.0F, 270, 53.0F, 6.0F, 55.0F, 4.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 12.0F, 180, 53.0F, 6.0F, 55.0F, 12.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 4.0F, 270, 53.0F, 6.0F, 55.0F, 4.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_03.visible) {
@@ -679,7 +679,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_03.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 180, 55.0F, 12.0F, 53.0F, 6.0F, 180, 57.0F, 6.0F, 55.0F, 12.0F, 0, 55.0F, 4.0F, 57.0F, 6.0F, 270, 53.0F, 6.0F, 55.0F, 4.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 180, 55.0F, 12.0F, 53.0F, 6.0F, 180, 57.0F, 6.0F, 55.0F, 12.0F, 0, 55.0F, 4.0F, 57.0F, 6.0F, 270, 53.0F, 6.0F, 55.0F, 4.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_04.visible) {
@@ -688,7 +688,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_04.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 180, 57.0F, 12.0F, 55.0F, 6.0F, 0, 53.0F, 6.0F, 51.0F, 12.0F, 0, 53.0F, 6.0F, 55.0F, 12.0F, 180, 57.0F, 4.0F, 55.0F, 6.0F, 0, 53.0F, 6.0F, 55.0F, 4.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 180, 57.0F, 12.0F, 55.0F, 6.0F, 0, 53.0F, 6.0F, 51.0F, 12.0F, 0, 53.0F, 6.0F, 55.0F, 12.0F, 180, 57.0F, 4.0F, 55.0F, 6.0F, 0, 53.0F, 6.0F, 55.0F, 4.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_05.visible) {
@@ -697,7 +697,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_05.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 53.0F, 6.0F, 51.0F, 12.0F, 0, 55.0F, 12.0F, 57.0F, 6.0F, 0, 59.0F, 12.0F, 57.0F, 6.0F, 0, 53.0F, 6.0F, 55.0F, 12.0F, 0, 57.0F, 4.0F, 55.0F, 6.0F, 0, 55.0F, 6.0F, 53.0F, 4.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 53.0F, 6.0F, 51.0F, 12.0F, 0, 55.0F, 12.0F, 57.0F, 6.0F, 0, 59.0F, 12.0F, 57.0F, 6.0F, 0, 53.0F, 6.0F, 55.0F, 12.0F, 0, 57.0F, 4.0F, 55.0F, 6.0F, 0, 55.0F, 6.0F, 53.0F, 4.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_06.visible) {
@@ -706,7 +706,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_06.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 55.0F, 6.0F, 57.0F, 12.0F, 0, 51.0F, 12.0F, 53.0F, 6.0F, 0, 55.0F, 12.0F, 53.0F, 6.0F, 0, 57.0F, 12.0F, 59.0F, 6.0F, 0, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 6.0F, 53.0F, 4.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 55.0F, 6.0F, 57.0F, 12.0F, 0, 51.0F, 12.0F, 53.0F, 6.0F, 0, 55.0F, 12.0F, 53.0F, 6.0F, 0, 57.0F, 12.0F, 59.0F, 6.0F, 0, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 6.0F, 53.0F, 4.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_07.visible) {
@@ -715,7 +715,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_07.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 55.0F, 6.0F, 57.0F, 12.0F, 0, 51.0F, 12.0F, 53.0F, 6.0F, 0, 55.0F, 12.0F, 53.0F, 6.0F, 0, 57.0F, 12.0F, 59.0F, 6.0F, 270, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 6.0F, 53.0F, 4.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 55.0F, 6.0F, 57.0F, 12.0F, 0, 51.0F, 12.0F, 53.0F, 6.0F, 0, 55.0F, 12.0F, 53.0F, 6.0F, 0, 57.0F, 12.0F, 59.0F, 6.0F, 270, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 6.0F, 53.0F, 4.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_08.visible) {
@@ -724,7 +724,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_08.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 53.0F, 6.0F, 51.0F, 12.0F, 0, 55.0F, 12.0F, 57.0F, 6.0F, 0, 59.0F, 12.0F, 57.0F, 6.0F, 270, 53.0F, 6.0F, 55.0F, 12.0F, 0, 57.0F, 4.0F, 55.0F, 6.0F, 0, 55.0F, 6.0F, 53.0F, 4.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 53.0F, 6.0F, 51.0F, 12.0F, 0, 55.0F, 12.0F, 57.0F, 6.0F, 0, 59.0F, 12.0F, 57.0F, 6.0F, 270, 53.0F, 6.0F, 55.0F, 12.0F, 0, 57.0F, 4.0F, 55.0F, 6.0F, 0, 55.0F, 6.0F, 53.0F, 4.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_09.visible) {
@@ -733,7 +733,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_09.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 55.0F, 6.0F, 57.0F, 12.0F, 180, 51.0F, 12.0F, 53.0F, 6.0F, 90, 55.0F, 12.0F, 53.0F, 6.0F, 90, 57.0F, 12.0F, 59.0F, 6.0F, 0, 57.0F, 6.0F, 55.0F, 4.0F, 90, 55.0F, 6.0F, 53.0F, 4.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 55.0F, 6.0F, 57.0F, 12.0F, 180, 51.0F, 12.0F, 53.0F, 6.0F, 90, 55.0F, 12.0F, 53.0F, 6.0F, 90, 57.0F, 12.0F, 59.0F, 6.0F, 0, 57.0F, 6.0F, 55.0F, 4.0F, 90, 55.0F, 6.0F, 53.0F, 4.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_10.visible) {
@@ -742,7 +742,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_10.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 180, 53.0F, 12.0F, 55.0F, 6.0F, 0, 53.0F, 12.0F, 51.0F, 6.0F, 180, 55.0F, 6.0F, 57.0F, 12.0F, 90, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 4.0F, 53.0F, 6.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 180, 53.0F, 12.0F, 55.0F, 6.0F, 0, 53.0F, 12.0F, 51.0F, 6.0F, 180, 55.0F, 6.0F, 57.0F, 12.0F, 90, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 4.0F, 53.0F, 6.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_11.visible) {
@@ -751,7 +751,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_11.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 53.0F, 6.0F, 51.0F, 12.0F, 90, 55.0F, 12.0F, 57.0F, 6.0F, 0, 59.0F, 12.0F, 57.0F, 6.0F, 0, 53.0F, 6.0F, 55.0F, 12.0F, 0, 57.0F, 4.0F, 55.0F, 6.0F, 90, 55.0F, 6.0F, 53.0F, 4.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 53.0F, 6.0F, 51.0F, 12.0F, 90, 55.0F, 12.0F, 57.0F, 6.0F, 0, 59.0F, 12.0F, 57.0F, 6.0F, 0, 53.0F, 6.0F, 55.0F, 12.0F, 0, 57.0F, 4.0F, 55.0F, 6.0F, 90, 55.0F, 6.0F, 53.0F, 4.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_12.visible) {
@@ -760,7 +760,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_12.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 53.0F, 6.0F, 51.0F, 12.0F, 0, 55.0F, 12.0F, 57.0F, 6.0F, 0, 59.0F, 12.0F, 57.0F, 6.0F, 0, 53.0F, 6.0F, 55.0F, 12.0F, 0, 57.0F, 4.0F, 55.0F, 6.0F, 180, 55.0F, 6.0F, 53.0F, 4.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 53.0F, 6.0F, 51.0F, 12.0F, 0, 55.0F, 12.0F, 57.0F, 6.0F, 0, 59.0F, 12.0F, 57.0F, 6.0F, 0, 53.0F, 6.0F, 55.0F, 12.0F, 0, 57.0F, 4.0F, 55.0F, 6.0F, 180, 55.0F, 6.0F, 53.0F, 4.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_13.visible) {
@@ -769,7 +769,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_13.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 180, 53.0F, 12.0F, 55.0F, 6.0F, 180, 53.0F, 12.0F, 51.0F, 6.0F, 0, 55.0F, 6.0F, 57.0F, 12.0F, 180, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 4.0F, 53.0F, 6.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 180, 53.0F, 12.0F, 55.0F, 6.0F, 180, 53.0F, 12.0F, 51.0F, 6.0F, 0, 55.0F, 6.0F, 57.0F, 12.0F, 180, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 4.0F, 53.0F, 6.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_14.visible) {
@@ -778,7 +778,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_14.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 180, 55.0F, 6.0F, 57.0F, 12.0F, 180, 53.0F, 6.0F, 55.0F, 12.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 4.0F, 90, 53.0F, 6.0F, 55.0F, 4.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 180, 55.0F, 6.0F, 57.0F, 12.0F, 180, 53.0F, 6.0F, 55.0F, 12.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 4.0F, 90, 53.0F, 6.0F, 55.0F, 4.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_15.visible) {
@@ -787,7 +787,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_15.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 55.0F, 6.0F, 57.0F, 12.0F, 0, 51.0F, 12.0F, 53.0F, 6.0F, 0, 55.0F, 12.0F, 53.0F, 6.0F, 0, 57.0F, 12.0F, 59.0F, 6.0F, 0, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 6.0F, 53.0F, 4.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 55.0F, 6.0F, 57.0F, 12.0F, 0, 51.0F, 12.0F, 53.0F, 6.0F, 0, 55.0F, 12.0F, 53.0F, 6.0F, 0, 57.0F, 12.0F, 59.0F, 6.0F, 0, 57.0F, 6.0F, 55.0F, 4.0F, 0, 55.0F, 6.0F, 53.0F, 4.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_16.visible) {
@@ -796,7 +796,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_16.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 12.0F, 180, 53.0F, 6.0F, 55.0F, 12.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 4.0F, 180, 53.0F, 6.0F, 55.0F, 4.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 12.0F, 180, 53.0F, 6.0F, 55.0F, 12.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 4.0F, 180, 53.0F, 6.0F, 55.0F, 4.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_17.visible) {
@@ -805,7 +805,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_17.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 12.0F, 0, 53.0F, 6.0F, 55.0F, 12.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 90, 55.0F, 6.0F, 57.0F, 4.0F, 270, 53.0F, 6.0F, 55.0F, 4.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 12.0F, 0, 53.0F, 6.0F, 55.0F, 12.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 90, 55.0F, 6.0F, 57.0F, 4.0F, 270, 53.0F, 6.0F, 55.0F, 4.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_18.visible) {
@@ -814,7 +814,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_18.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 12.0F, 270, 53.0F, 6.0F, 55.0F, 12.0F, 90, 51.0F, 6.0F, 53.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 4.0F, 270, 53.0F, 6.0F, 55.0F, 4.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 12.0F, 270, 53.0F, 6.0F, 55.0F, 12.0F, 90, 51.0F, 6.0F, 53.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 4.0F, 270, 53.0F, 6.0F, 55.0F, 4.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_19.visible) {
@@ -823,7 +823,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_19.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 90, 55.0F, 6.0F, 57.0F, 12.0F, 90, 53.0F, 6.0F, 55.0F, 12.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 4.0F, 90, 53.0F, 6.0F, 55.0F, 4.0F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 6.0F, 59.0F, 12.0F, 90, 55.0F, 6.0F, 57.0F, 12.0F, 90, 53.0F, 6.0F, 55.0F, 12.0F, 180, 51.0F, 6.0F, 53.0F, 12.0F, 0, 55.0F, 6.0F, 57.0F, 4.0F, 90, 53.0F, 6.0F, 55.0F, 4.0F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_1_tile_20.visible) {
@@ -832,19 +832,19 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r1.translateAndRotate(poseStack);
             this.obsidian_1_bone.translateAndRotate(poseStack);
             this.obsidian_1_tile_20.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 90, 51.0F, 6.0F, 53.0F, 12.0F, 90, 55.0F, 12.0F, 53.0F, 6.0F, 270, 57.0F, 6.0F, 55.0F, 12.0F, 0, 55.0F, 4.0F, 57.0F, 6.0F, 270, 53.0F, 6.0F, 55.0F, 4.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -1.0F, 0.0F, -1.0F, 1.0F, 6.0F, 1.0F, 57.0F, 12.0F, 59.0F, 6.0F, 90, 51.0F, 6.0F, 53.0F, 12.0F, 90, 55.0F, 12.0F, 53.0F, 6.0F, 270, 57.0F, 6.0F, 55.0F, 12.0F, 0, 55.0F, 4.0F, 57.0F, 6.0F, 270, 53.0F, 6.0F, 55.0F, 4.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
     }
 
-    private void renderObsidian2Tiles(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    private void renderObsidian2Tiles(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         if (this.obsidian_2_tile_01.visible) {
             poseStack.pushPose();
             this.Head.translateAndRotate(poseStack);
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_01.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 8.0F, 52.9F, 5.9F, 0, 52.9F, 8.0F, 51.0F, 5.9F, 180, 62.9F, 5.9F, 57.9F, 4.0F, 180, 57.9F, 5.9F, 52.9F, 4.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 8.0F, 52.9F, 5.9F, 0, 52.9F, 8.0F, 51.0F, 5.9F, 180, 62.9F, 5.9F, 57.9F, 4.0F, 180, 57.9F, 5.9F, 52.9F, 4.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_02.visible) {
@@ -853,7 +853,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_02.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 59.8F, 5.9F, 57.9F, 8.0F, 0, 57.9F, 5.9F, 52.9F, 8.0F, 0, 52.9F, 5.9F, 51.0F, 8.0F, 180, 57.9F, 5.9F, 62.9F, 4.0F, 0, 57.9F, 4.0F, 52.9F, 5.9F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 59.8F, 5.9F, 57.9F, 8.0F, 0, 57.9F, 5.9F, 52.9F, 8.0F, 0, 52.9F, 5.9F, 51.0F, 8.0F, 180, 57.9F, 5.9F, 62.9F, 4.0F, 0, 57.9F, 4.0F, 52.9F, 5.9F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_03.visible) {
@@ -862,7 +862,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_03.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 5.9F, 59.8F, 8.0F, 180, 57.9F, 5.9F, 52.9F, 8.0F, 180, 51.0F, 5.9F, 52.9F, 8.0F, 0, 62.9F, 4.0F, 57.9F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 4.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 5.9F, 59.8F, 8.0F, 180, 57.9F, 5.9F, 52.9F, 8.0F, 180, 51.0F, 5.9F, 52.9F, 8.0F, 0, 62.9F, 4.0F, 57.9F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 4.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_04.visible) {
@@ -871,7 +871,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_04.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 52.9F, 5.9F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 0, 57.9F, 5.9F, 62.9F, 4.0F, 180, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 52.9F, 5.9F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 0, 57.9F, 5.9F, 62.9F, 4.0F, 180, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_05.visible) {
@@ -880,7 +880,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_05.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 5.9F, 64.8F, 8.0F, 0, 59.8F, 5.9F, 57.9F, 8.0F, 180, 52.9F, 8.0F, 57.9F, 5.9F, 0, 51.0F, 5.9F, 52.9F, 8.0F, 180, 57.9F, 4.0F, 62.9F, 5.9F, 0, 52.9F, 5.9F, 57.9F, 4.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 5.9F, 64.8F, 8.0F, 0, 59.8F, 5.9F, 57.9F, 8.0F, 180, 52.9F, 8.0F, 57.9F, 5.9F, 0, 51.0F, 5.9F, 52.9F, 8.0F, 180, 57.9F, 4.0F, 62.9F, 5.9F, 0, 52.9F, 5.9F, 57.9F, 4.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_06.visible) {
@@ -889,7 +889,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_06.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 5.9F, 52.9F, 8.0F, 0, 51.0F, 5.9F, 52.9F, 8.0F, 180, 62.9F, 4.0F, 57.9F, 5.9F, 180, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 5.9F, 52.9F, 8.0F, 0, 51.0F, 5.9F, 52.9F, 8.0F, 180, 62.9F, 4.0F, 57.9F, 5.9F, 180, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_07.visible) {
@@ -898,7 +898,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_07.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 180, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 180, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_08.visible) {
@@ -907,7 +907,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_08.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 59.8F, 5.9F, 0, 52.9F, 8.0F, 57.9F, 5.9F, 180, 51.0F, 8.0F, 52.9F, 5.9F, 180, 62.9F, 5.9F, 57.9F, 4.0F, 0, 57.9F, 5.9F, 52.9F, 4.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 59.8F, 5.9F, 0, 52.9F, 8.0F, 57.9F, 5.9F, 180, 51.0F, 8.0F, 52.9F, 5.9F, 180, 62.9F, 5.9F, 57.9F, 4.0F, 0, 57.9F, 5.9F, 52.9F, 4.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_09.visible) {
@@ -916,7 +916,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_09.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 8.0F, 52.9F, 5.9F, 0, 52.9F, 8.0F, 51.0F, 5.9F, 180, 62.9F, 5.9F, 57.9F, 4.0F, 180, 57.9F, 5.9F, 52.9F, 4.0F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 8.0F, 52.9F, 5.9F, 0, 52.9F, 8.0F, 51.0F, 5.9F, 180, 62.9F, 5.9F, 57.9F, 4.0F, 180, 57.9F, 5.9F, 52.9F, 4.0F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_10.visible) {
@@ -925,7 +925,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_10.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 59.8F, 5.9F, 57.9F, 8.0F, 180, 57.9F, 5.9F, 52.9F, 8.0F, 0, 52.9F, 5.9F, 51.0F, 8.0F, 180, 57.9F, 5.9F, 62.9F, 4.0F, 0, 57.9F, 4.0F, 52.9F, 5.9F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 59.8F, 5.9F, 57.9F, 8.0F, 180, 57.9F, 5.9F, 52.9F, 8.0F, 0, 52.9F, 5.9F, 51.0F, 8.0F, 180, 57.9F, 5.9F, 62.9F, 4.0F, 0, 57.9F, 4.0F, 52.9F, 5.9F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_11.visible) {
@@ -934,7 +934,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_11.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 90, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 90, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 90, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 90, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_12.visible) {
@@ -943,7 +943,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_12.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 180, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 180, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_13.visible) {
@@ -952,7 +952,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_13.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 90, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 180, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 90, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 180, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_14.visible) {
@@ -961,7 +961,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_14.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 59.8F, 5.9F, 0, 52.9F, 8.0F, 57.9F, 5.9F, 180, 51.0F, 8.0F, 52.9F, 5.9F, 90, 62.9F, 5.9F, 57.9F, 4.0F, 90, 57.9F, 5.9F, 52.9F, 4.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 59.8F, 5.9F, 0, 52.9F, 8.0F, 57.9F, 5.9F, 180, 51.0F, 8.0F, 52.9F, 5.9F, 90, 62.9F, 5.9F, 57.9F, 4.0F, 90, 57.9F, 5.9F, 52.9F, 4.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_15.visible) {
@@ -970,7 +970,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_15.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 59.8F, 5.9F, 57.9F, 8.0F, 180, 57.9F, 5.9F, 52.9F, 8.0F, 0, 52.9F, 5.9F, 51.0F, 8.0F, 180, 57.9F, 5.9F, 62.9F, 4.0F, 0, 57.9F, 4.0F, 52.9F, 5.9F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 59.8F, 5.9F, 57.9F, 8.0F, 180, 57.9F, 5.9F, 52.9F, 8.0F, 0, 52.9F, 5.9F, 51.0F, 8.0F, 180, 57.9F, 5.9F, 62.9F, 4.0F, 0, 57.9F, 4.0F, 52.9F, 5.9F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_16.visible) {
@@ -979,7 +979,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_16.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 270, 57.9F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 5.9F, 52.9F, 8.0F, 0, 51.0F, 5.9F, 52.9F, 8.0F, 0, 62.9F, 4.0F, 57.9F, 5.9F, 180, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 270, 57.9F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 5.9F, 52.9F, 8.0F, 0, 51.0F, 5.9F, 52.9F, 8.0F, 0, 62.9F, 4.0F, 57.9F, 5.9F, 180, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_17.visible) {
@@ -988,7 +988,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_17.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 8.0F, 52.9F, 5.9F, 270, 51.0F, 8.0F, 52.9F, 5.9F, 0, 57.9F, 5.9F, 62.9F, 4.0F, 180, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 8.0F, 52.9F, 5.9F, 270, 51.0F, 8.0F, 52.9F, 5.9F, 0, 57.9F, 5.9F, 62.9F, 4.0F, 180, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_18.visible) {
@@ -997,7 +997,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_18.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 52.9F, 5.9F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 180, 57.9F, 5.9F, 62.9F, 4.0F, 90, 52.9F, 4.0F, 57.9F, 5.9F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 52.9F, 5.9F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 180, 57.9F, 5.9F, 62.9F, 4.0F, 90, 52.9F, 4.0F, 57.9F, 5.9F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_19.visible) {
@@ -1006,7 +1006,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_19.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 8.0F, 52.9F, 5.9F, 0, 52.9F, 8.0F, 51.0F, 5.9F, 0, 62.9F, 5.9F, 57.9F, 4.0F, 180, 57.9F, 5.9F, 52.9F, 4.0F, 270, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 8.0F, 52.9F, 5.9F, 0, 52.9F, 8.0F, 51.0F, 5.9F, 0, 62.9F, 5.9F, 57.9F, 4.0F, 180, 57.9F, 5.9F, 52.9F, 4.0F, 270, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_20.visible) {
@@ -1015,7 +1015,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_20.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 5.9F, 52.9F, 8.0F, 0, 51.0F, 5.9F, 52.9F, 8.0F, 90, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 0, 57.9F, 5.9F, 52.9F, 8.0F, 0, 51.0F, 5.9F, 52.9F, 8.0F, 90, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_21.visible) {
@@ -1024,7 +1024,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_21.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 270, 57.9F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 52.9F, 5.9F, 180, 52.9F, 8.0F, 51.0F, 5.9F, 0, 62.9F, 5.9F, 57.9F, 4.0F, 180, 57.9F, 5.9F, 52.9F, 4.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 64.8F, 5.9F, 59.8F, 8.0F, 270, 57.9F, 8.0F, 59.8F, 5.9F, 180, 57.9F, 8.0F, 52.9F, 5.9F, 180, 52.9F, 8.0F, 51.0F, 5.9F, 0, 62.9F, 5.9F, 57.9F, 4.0F, 180, 57.9F, 5.9F, 52.9F, 4.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_22.visible) {
@@ -1033,7 +1033,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_22.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 270, 62.9F, 4.0F, 57.9F, 5.9F, 180, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 270, 62.9F, 4.0F, 57.9F, 5.9F, 180, 52.9F, 4.0F, 57.9F, 5.9F, 0, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_23.visible) {
@@ -1042,7 +1042,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_23.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 5.9F, 64.8F, 8.0F, 270, 59.8F, 5.9F, 57.9F, 8.0F, 180, 52.9F, 8.0F, 57.9F, 5.9F, 0, 51.0F, 5.9F, 52.9F, 8.0F, 180, 57.9F, 4.0F, 62.9F, 5.9F, 0, 52.9F, 5.9F, 57.9F, 4.0F, 180, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 5.9F, 64.8F, 8.0F, 270, 59.8F, 5.9F, 57.9F, 8.0F, 180, 52.9F, 8.0F, 57.9F, 5.9F, 0, 51.0F, 5.9F, 52.9F, 8.0F, 180, 57.9F, 4.0F, 62.9F, 5.9F, 0, 52.9F, 5.9F, 57.9F, 4.0F, 180, 64.0F, 32.0F);
             poseStack.popPose();
         }
         if (this.obsidian_2_tile_24.visible) {
@@ -1051,7 +1051,7 @@ public class ModelHerobrineObsidianDiamondHelmet<T extends Entity> extends Hiera
             this.cube_r2.translateAndRotate(poseStack);
             this.obsidian_2_bone.translateAndRotate(poseStack);
             this.obsidian_2_tile_24.translateAndRotate(poseStack);
-            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 0, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 90, 64.0F, 32.0F);
+            PerFaceUvCubeRenderer.renderBox(poseStack, buffer, packedLight, packedOverlay, color, -5.1F, -1.15F, -1.05F, 0.1F, 1.15F, 1.05F, 59.8F, 8.0F, 64.8F, 5.9F, 0, 57.9F, 8.0F, 59.8F, 5.9F, 180, 52.9F, 5.9F, 57.9F, 8.0F, 0, 51.0F, 8.0F, 52.9F, 5.9F, 0, 62.9F, 4.0F, 57.9F, 5.9F, 0, 52.9F, 4.0F, 57.9F, 5.9F, 90, 64.0F, 32.0F);
             poseStack.popPose();
         }
     }

@@ -6,10 +6,10 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class GiantNetheriteAxeItem extends SwordItem implements RigCombatProfileProvider {
+public class GiantNetheriteAxeItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public GiantNetheriteAxeItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 2031;
             }

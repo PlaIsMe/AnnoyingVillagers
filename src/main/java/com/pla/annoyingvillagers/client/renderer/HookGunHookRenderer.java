@@ -135,7 +135,7 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
         PoseStack.Pose pose = poseStack.last();
         VertexConsumer vertexBuffer = buffer.getBuffer(ROPE_RENDER);
         Vec3 hookPosition = partialPosition(hook, partialTicks);
-        drawSegment(Vec3.ZERO, handPosition.subtract(hookPosition), vertexBuffer, pose.pose(), pose.normal(), packedLight);
+        drawSegment(Vec3.ZERO, handPosition.subtract(hookPosition), vertexBuffer, pose, packedLight);
         poseStack.popPose();
     }
 
@@ -162,8 +162,7 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
             Vec3 start,
             Vec3 finish,
             VertexConsumer vertexBuffer,
-            Matrix4f matrix,
-            Matrix3f normalMatrix,
+            PoseStack.Pose pose,
             int packedLight
     ) {
         if (start.subtract(finish).length() < 0.05D) {
@@ -196,30 +195,29 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
             Vec3 corner1Finish = finish.add(corner1);
             Vec3 corner2Finish = finish.add(corner2);
 
-            vertex(vertexBuffer, matrix, normalMatrix, corner1Start, normal1, 0.0F, 0.0F, packedLight);
-            vertex(vertexBuffer, matrix, normalMatrix, corner2Start, normal2, 1.0F, 0.0F, packedLight);
-            vertex(vertexBuffer, matrix, normalMatrix, corner2Finish, normal2, 1.0F, 1.0F, packedLight);
-            vertex(vertexBuffer, matrix, normalMatrix, corner1Finish, normal1, 0.0F, 1.0F, packedLight);
+            vertex(vertexBuffer, pose, corner1Start, normal1, 0.0F, 0.0F, packedLight);
+            vertex(vertexBuffer, pose, corner2Start, normal2, 1.0F, 0.0F, packedLight);
+            vertex(vertexBuffer, pose, corner2Finish, normal2, 1.0F, 1.0F, packedLight);
+            vertex(vertexBuffer, pose, corner1Finish, normal1, 0.0F, 1.0F, packedLight);
         }
     }
 
     private static void vertex(
             VertexConsumer vertexBuffer,
-            Matrix4f matrix,
-            Matrix3f normalMatrix,
+            PoseStack.Pose pose,
             Vec3 position,
             Vec3 normal,
             float u,
             float v,
             int packedLight
     ) {
-        vertexBuffer.vertex(matrix, (float) position.x, (float) position.y, (float) position.z)
-                .color(255, 255, 255, 255)
-                .uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(packedLight)
-                .normal(normalMatrix, (float) normal.x, (float) normal.y, (float) normal.z)
-                .endVertex();
+        vertexBuffer.addVertex(pose, (float) position.x, (float) position.y, (float) position.z)
+                .setColor(255, 255, 255, 255)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(packedLight)
+                .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z)
+                ;
     }
 
     @Override

@@ -14,10 +14,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class TrapdoorItem extends SwordItem implements RigCombatProfileProvider {
+public class TrapdoorItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public TrapdoorItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 400;
             }
@@ -44,7 +44,7 @@ public class TrapdoorItem extends SwordItem implements RigCombatProfileProvider 
         }, 3, -2.5F, (new Properties()));
     }
 
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.trapdoor"));
     }

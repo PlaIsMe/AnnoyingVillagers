@@ -10,11 +10,11 @@ import java.util.List;
 public class NullShovelItem extends ShovelItem {
 
     public NullShovelItem() {
-        super(Tiers.DIAMOND, 1.5F, -3.0F, new Item.Properties());
+        super(Tiers.DIAMOND, new Item.Properties().attributes(DiggerItem.createAttributes(Tiers.DIAMOND, 1.5F, -3.0F)));
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.null_weapon"));
     }

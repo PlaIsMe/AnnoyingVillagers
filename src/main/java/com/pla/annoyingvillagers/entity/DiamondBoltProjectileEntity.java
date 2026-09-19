@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
+
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.core.BlockPos;
@@ -23,12 +25,11 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,23 +48,19 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
         super(type, level);
     }
 
-    public DiamondBoltProjectileEntity(PlayMessages.SpawnEntity packet, Level level) {
-        this(AnnoyingVillagersModEntities.DIAMOND_BOLT_PROJECTILE.get(), level);
-    }
-
-    public DiamondBoltProjectileEntity(Level level, LivingEntity shooter, ItemStack stack) {
-        super(AnnoyingVillagersModEntities.DIAMOND_BOLT_PROJECTILE.get(), shooter, level);
+        public DiamondBoltProjectileEntity(Level level, LivingEntity shooter, ItemStack stack) {
+        super(AnnoyingVillagersModEntities.DIAMOND_BOLT_PROJECTILE.get(), shooter, level, stack.copyWithCount(1), null);
         this.setThrownStack(stack);
-        this.entityData.set(ID_LOYALTY, (byte) EnchantmentHelper.getLoyalty(stack));
+        this.entityData.set(ID_LOYALTY, (byte) EnchantmentUtil.getLevel(Enchantments.LOYALTY, stack));
         this.entityData.set(ID_FOIL, stack.hasFoil());
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DATA_STACK, ItemStack.EMPTY);
-        this.entityData.define(ID_LOYALTY, (byte) 0);
-        this.entityData.define(ID_FOIL, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_STACK, ItemStack.EMPTY);
+        builder.define(ID_LOYALTY, (byte) 0);
+        builder.define(ID_FOIL, false);
     }
 
     @Override
@@ -116,6 +113,11 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
     }
 
     @Override
+    protected @NotNull ItemStack getDefaultPickupItem() {
+        return new ItemStack(AnnoyingVillagersModItems.DIAMOND_BOLT.get());
+    }
+
+    @Override
     public @NotNull ItemStack getItem() {
         return this.getPickupItem();
     }
@@ -142,7 +144,7 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
         ItemStack thrownStack = this.getThrownStack();
 
         if (target instanceof LivingEntity livingTarget) {
-            damage += EnchantmentHelper.getDamageBonus(thrownStack, livingTarget.getMobType());
+            damage += EnchantmentUtil.getDamageBonus(thrownStack, livingTarget);
         }
 
         Entity owner = this.getOwner();
@@ -159,8 +161,9 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
 
             if (target instanceof LivingEntity livingTarget) {
                 if (owner instanceof LivingEntity livingOwner) {
-                    EnchantmentHelper.doPostHurtEffects(livingTarget, owner);
-                    EnchantmentHelper.doPostDamageEffects(livingOwner, livingTarget);
+                    if (this.level() instanceof ServerLevel serverLevel) {
+                        EnchantmentHelper.doPostAttackEffects(serverLevel, livingTarget, damageSource);
+                    }
                 }
 
                 this.doPostHurtEffects(livingTarget);
@@ -181,7 +184,7 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
                     lightningBolt.moveTo(Vec3.atBottomCenterOf(blockPos));
                     lightningBolt.setCause(owner instanceof ServerPlayer serverPlayer ? serverPlayer : null);
                     this.level().addFreshEntity(lightningBolt);
-                    hitSound = SoundEvents.TRIDENT_THUNDER;
+                    hitSound = SoundEvents.TRIDENT_THUNDER.value();
                     soundVolume = 5.0F;
                 }
             }
@@ -191,7 +194,7 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
     }
 
     public boolean isChanneling() {
-        return EnchantmentHelper.hasChanneling(this.getThrownStack());
+        return EnchantmentUtil.getLevel(Enchantments.CHANNELING, this.getThrownStack()) > 0;
     }
 
     @Override
@@ -221,19 +224,19 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
         super.readAdditionalSaveData(tag);
 
         if (tag.contains("DiamondBolt", 10)) {
-            this.setThrownStack(ItemStack.of(tag.getCompound("DiamondBolt")));
+            this.setThrownStack(ItemStack.parseOptional(this.registryAccess(), tag.getCompound("DiamondBolt")));
         }
 
         this.dealtDamage = tag.getBoolean("DealtDamage");
         ItemStack thrownStack = this.getThrownStack();
-        this.entityData.set(ID_LOYALTY, (byte) EnchantmentHelper.getLoyalty(thrownStack));
+        this.entityData.set(ID_LOYALTY, (byte) EnchantmentUtil.getLevel(Enchantments.LOYALTY, thrownStack));
         this.entityData.set(ID_FOIL, thrownStack.hasFoil());
     }
 
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.put("DiamondBolt", this.getThrownStack().save(new CompoundTag()));
+        tag.put("DiamondBolt", this.getThrownStack().save(this.registryAccess()));
         tag.putBoolean("DealtDamage", this.dealtDamage);
     }
 
@@ -256,12 +259,7 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
         return true;
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    private void setThrownStack(ItemStack stack) {
+        private void setThrownStack(ItemStack stack) {
         this.entityData.set(DATA_STACK, stack.copy());
     }
 

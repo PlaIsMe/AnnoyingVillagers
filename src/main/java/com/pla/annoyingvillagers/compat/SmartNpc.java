@@ -122,8 +122,8 @@ public class SmartNpc {
             return;
         }
 
-        if (ItemStack.isSameItemSameTags(currentMainHand, playerNpcEntity.getMainWeaponItem())
-                || ItemStack.isSameItemSameTags(currentMainHand, playerNpcEntity.getOffWeaponItem())) {
+        if (ItemStack.isSameItemSameComponents(currentMainHand, playerNpcEntity.getMainWeaponItem())
+                || ItemStack.isSameItemSameComponents(currentMainHand, playerNpcEntity.getOffWeaponItem())) {
             return;
         }
 

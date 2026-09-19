@@ -28,7 +28,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class WoopieTheSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class WoopieTheSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
     public static final int VANILLA_ULT_COOLDOWN_TICKS = 20 * 30;
     public static final int VANILLA_EXTRA_ULT_COOLDOWN_TICKS = 20 * 15;
     private static final int VANILLA_ULT_HIT_TICK = 5;
@@ -45,7 +45,7 @@ public class WoopieTheSwordItem extends SwordItem implements RigCombatProfilePro
     private static final double VANILLA_RUSH_SPEED = 2.2D;
 
     public WoopieTheSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1850;
             }
@@ -124,9 +124,9 @@ public class WoopieTheSwordItem extends SwordItem implements RigCombatProfilePro
 
     private static void spawnVanillaWindBurst(ServerLevel serverLevel, Player player, Vec3 windPos) {
         if (windPos == null) windPos = player.position().add(0.0D, player.getBbHeight() * 0.65D, 0.0D);
-        AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
         serverLevel.explode(player, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-        AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientboundWoopieSwordWindFx(windPos));
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new ClientboundWoopieSwordWindFx(windPos));
     }
 
     private static void applyRushMotion(Player player, Vec3 dash) {

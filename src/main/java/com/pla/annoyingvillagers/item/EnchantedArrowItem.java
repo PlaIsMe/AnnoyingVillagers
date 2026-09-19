@@ -20,7 +20,7 @@ public class EnchantedArrowItem extends ArrowItem {
     }
 
     @Override
-    public @NotNull AbstractArrow createArrow(@NotNull Level level, @NotNull ItemStack ammoStack, @NotNull LivingEntity shooter) {
+    public @NotNull AbstractArrow createArrow(@NotNull Level level, @NotNull ItemStack ammoStack, @NotNull LivingEntity shooter, @NotNull ItemStack weapon) {
         EnchantedArrowEntity arrow = new EnchantedArrowEntity(level, shooter);
         arrow.setColorGlint(GlintColorHelper.getRandomColor());
         return arrow;

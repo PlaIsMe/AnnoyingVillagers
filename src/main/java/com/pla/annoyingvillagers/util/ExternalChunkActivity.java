@@ -52,7 +52,7 @@ public final class ExternalChunkActivity {
                 // departure timers alive. UNKNOWN/LIGHT are transient chunk reads by AI.
                 // Vanilla spawn chunks remain loaded after all players travel away. They
                 // are not attendance, otherwise initial-spawn NPCs would never leave.
-                if (type == TicketType.UNKNOWN || type == TicketType.LIGHT || type == TicketType.START
+                if (type == TicketType.UNKNOWN || type == TicketType.START
                         || name.equals("smart_npc:player_npc_force_tick")
                         || name.equals("annoyingvillagers:persistent_player_npc")) continue;
                 minLevel = Math.min(minLevel, ticket.getTicketLevel());

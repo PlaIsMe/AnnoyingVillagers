@@ -27,20 +27,15 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
 public class ArmoredHerobrineEntity extends HerobrineMob implements RollItemUser {
-    public ArmoredHerobrineEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.ARMORED_HEROBRINE.get(), level);
-    }
-
-    public ArmoredHerobrineEntity(EntityType<ArmoredHerobrineEntity> entitytype, Level level) {
+        public ArmoredHerobrineEntity(EntityType<ArmoredHerobrineEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 60;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -128,7 +123,7 @@ public class ArmoredHerobrineEntity extends HerobrineMob implements RollItemUser
             InfectedTheMostMoistBurrit0Entity infectedTheMostMoistBurrit0Entity = new InfectedTheMostMoistBurrit0Entity(AnnoyingVillagersModEntities.INFECTED_THEMOSTMOISTBURRIT0.get(), serverLevel);
 
             infectedTheMostMoistBurrit0Entity.moveTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
-            infectedTheMostMoistBurrit0Entity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(infectedTheMostMoistBurrit0Entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+            infectedTheMostMoistBurrit0Entity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(infectedTheMostMoistBurrit0Entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
             this.setInvisible(true);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(infectedTheMostMoistBurrit0Entity);

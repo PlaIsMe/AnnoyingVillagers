@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
-public class BlueFlameSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class BlueFlameSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
     @Override
     public RigCombatStyle getRigCombatStyle(ItemStack stack) {
         return RigCombatStyle.SPECIAL_SWORD;
@@ -30,13 +30,13 @@ public class BlueFlameSwordItem extends SwordItem implements RigCombatProfilePro
     @Override
     public boolean hurtEnemy(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
         if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !pAttacker.level().isClientSide() && new Random().nextFloat() < 0.1F) {
-            pTarget.setSecondsOnFire(2);
+            pTarget.igniteForSeconds(2);
         }
         return super.hurtEnemy(pStack, pTarget, pAttacker);
     }
 
     public BlueFlameSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }

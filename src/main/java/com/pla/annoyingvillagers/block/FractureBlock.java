@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.block;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.MapCodec;
 import com.pla.annoyingvillagers.blockentity.FractureBlockEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -22,6 +23,7 @@ import javax.annotation.Nullable;
 import java.util.function.Function;
 
 public class FractureBlock extends BaseEntityBlock {
+    public static final MapCodec<FractureBlock> CODEC = simpleCodec(FractureBlock::new);
     protected final StateDefinition<Block, BlockState> stateDefinition;
     private static FractureBlockState fractureBlockState;
 
@@ -34,6 +36,11 @@ public class FractureBlock extends BaseEntityBlock {
 
     public static FractureBlockState getDefaultFractureBlockState(Block block) {
         return fractureBlockState;
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
     @Override

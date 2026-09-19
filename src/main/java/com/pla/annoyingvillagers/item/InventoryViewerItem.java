@@ -15,7 +15,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -42,8 +41,7 @@ public class InventoryViewerItem extends Item {
         }
 
         if (player instanceof ServerPlayer serverPlayer) {
-            NetworkHooks.openScreen(
-                    serverPlayer,
+            serverPlayer.openMenu(
                     new SimpleMenuProvider(
                             (containerId, playerInventory, menuPlayer) -> new InventoryViewerMenu(containerId, playerInventory, target, inventory),
                             target.getDisplayName()
@@ -58,7 +56,7 @@ public class InventoryViewerItem extends Item {
     @Override
     public void appendHoverText(
             @NotNull ItemStack stack,
-            Level level,
+            Item.TooltipContext level,
             @NotNull List<Component> tooltip,
             @NotNull TooltipFlag flag
     ) {

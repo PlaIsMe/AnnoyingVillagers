@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class RubyGreatswordItem extends SwordItem implements RigCombatProfileProvider {
+public class RubyGreatswordItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public RubyGreatswordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 2561;
             }

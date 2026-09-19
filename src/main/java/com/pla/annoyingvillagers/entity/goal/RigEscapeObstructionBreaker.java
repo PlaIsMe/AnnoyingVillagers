@@ -9,7 +9,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.event.ForgeEventFactory;
+import net.neoforged.neoforge.event.EventHooks;
 
 import javax.annotation.Nullable;
 
@@ -51,7 +51,7 @@ final class RigEscapeObstructionBreaker {
         }
         if (this.ticks < needed) return true;
         if (level.getBlockState(obstruction) == found && canBreak(breaker, obstruction, found)
-                && ForgeEventFactory.onEntityDestroyBlock(breaker, obstruction, found)) {
+                && EventHooks.onEntityDestroyBlock(breaker, obstruction, found)) {
             level.destroyBlock(obstruction, true, breaker);
         }
         reset(breaker);
@@ -69,7 +69,7 @@ final class RigEscapeObstructionBreaker {
     static boolean canBreak(Mob breaker, BlockPos pos, BlockState state) {
         return breaker.level() instanceof ServerLevel level && level.hasChunkAt(pos)
                 && level.isInWorldBounds(pos) && level.getWorldBorder().isWithinBounds(pos)
-                && ForgeEventFactory.getMobGriefingEvent(level, breaker)
+                && EventHooks.canEntityGrief(level, breaker)
                 && !state.isAir() && state.getFluidState().isEmpty() && !state.hasBlockEntity()
                 && state.getDestroySpeed(level, pos) >= 0.0F && state.canEntityDestroy(level, pos, breaker)
                 && !state.getCollisionShape(level, pos).isEmpty();

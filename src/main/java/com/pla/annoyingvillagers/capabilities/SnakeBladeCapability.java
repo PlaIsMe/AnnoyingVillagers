@@ -1,44 +1,39 @@
 package com.pla.annoyingvillagers.capabilities;
 
-import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModCapabilities;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.common.util.LazyOptional;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/** Persistent state stored through the 1.21 data-attachment system. */
 public final class SnakeBladeCapability {
-    public static final ResourceLocation ID =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "snake_blade_cap");
-
     private static final String NBT_HAS_SNAKE_BLADE = "hasSnakeBlade";
     private static final String NBT_LAST_ID = "getLastSnakeBladeID";
     private static final String NBT_LAST_UUID = "getLastSnakeBladeUUID";
 
-    private SnakeBladeCapability() {}
+    private SnakeBladeCapability() {
+    }
 
-    public interface ISnakeBladeCapability extends INBTSerializable<CompoundTag> {
+    public interface ISnakeBladeCapability {
         void setHasSnakeBlade(boolean hasSnakeBlade);
+
         boolean hasSnakeBlade();
 
         void setLastSnakeBladeID(int id);
+
         int getLastSnakeBladeID();
 
-        @Nullable UUID getLastSnakeBladeUUID();
+        @Nullable
+        UUID getLastSnakeBladeUUID();
+
         void setLastSnakeBladeUUID(@Nullable UUID uuid);
     }
 
     public static final class SnakeBladeCapabilityImp implements ISnakeBladeCapability {
         private boolean hasSnakeBlade;
         private int lastSnakeBladeId = -1;
-        @Nullable private UUID lastSnakeBladeUuid;
+        @Nullable
+        private UUID lastSnakeBladeUuid;
 
         @Override
         public void setHasSnakeBlade(boolean hasSnakeBlade) {
@@ -70,7 +65,6 @@ public final class SnakeBladeCapability {
             this.lastSnakeBladeUuid = uuid;
         }
 
-        @Override
         public CompoundTag serializeNBT() {
             CompoundTag tag = new CompoundTag();
             tag.putBoolean(NBT_HAS_SNAKE_BLADE, hasSnakeBlade);
@@ -81,34 +75,10 @@ public final class SnakeBladeCapability {
             return tag;
         }
 
-        @Override
-        public void deserializeNBT(CompoundTag nbt) {
-            hasSnakeBlade = nbt.getBoolean(NBT_HAS_SNAKE_BLADE);
-            lastSnakeBladeId = nbt.contains(NBT_LAST_ID) ? nbt.getInt(NBT_LAST_ID) : -1;
-            lastSnakeBladeUuid = nbt.hasUUID(NBT_LAST_UUID) ? nbt.getUUID(NBT_LAST_UUID) : null;
-        }
-    }
-
-    public static final class SnakeBladeProvider implements ICapabilitySerializable<CompoundTag> {
-        private final SnakeBladeCapabilityImp impl = new SnakeBladeCapabilityImp();
-        private final LazyOptional<ISnakeBladeCapability> optional = LazyOptional.of(() -> impl);
-
-        @Override
-        public CompoundTag serializeNBT() {
-            return impl.serializeNBT();
-        }
-
-        @Override
-        public void deserializeNBT(CompoundTag nbt) {
-            impl.deserializeNBT(nbt);
-        }
-
-        @Nonnull
-        @Override
-        public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-            return cap == AnnoyingVillagersModCapabilities.SNAKE_BLADE_CAPABILITY
-                    ? optional.cast()
-                    : LazyOptional.empty();
+        public void deserializeNBT(CompoundTag tag) {
+            hasSnakeBlade = tag.getBoolean(NBT_HAS_SNAKE_BLADE);
+            lastSnakeBladeId = tag.contains(NBT_LAST_ID) ? tag.getInt(NBT_LAST_ID) : -1;
+            lastSnakeBladeUuid = tag.hasUUID(NBT_LAST_UUID) ? tag.getUUID(NBT_LAST_UUID) : null;
         }
     }
 }

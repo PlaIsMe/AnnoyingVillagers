@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.clazz;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -19,6 +19,7 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
+import net.minecraft.world.item.component.ResolvableProfile;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -27,7 +28,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class FakePlayer extends PathfinderMob {
@@ -97,9 +100,9 @@ public class FakePlayer extends PathfinderMob {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(NAME, "");
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(NAME, "");
     }
 
     @Override
@@ -148,8 +151,8 @@ public class FakePlayer extends PathfinderMob {
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData groupData, @Nullable CompoundTag tag) {
-        SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnType, groupData, tag);
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData groupData) {
+        SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnType, groupData);
         if (!this.hasUsername()) {
             this.setUsername(nextHardcodedName(level.getRandom()));
         }
@@ -162,8 +165,9 @@ public class FakePlayer extends PathfinderMob {
         if (this.hasUsername()) {
             tag.putString("Username", this.getUsername().getCombinedNames());
         }
-        if (this.profile != null && this.profile.isComplete()) {
-            tag.put("Profile", NbtUtils.writeGameProfile(new CompoundTag(), this.profile));
+        if (this.profile != null) {
+            ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, new ResolvableProfile(this.profile))
+                    .result().ifPresent(profileTag -> tag.put("Profile", profileTag));
         }
     }
 
@@ -177,7 +181,8 @@ public class FakePlayer extends PathfinderMob {
             this.setUsername(nextHardcodedName(this.getRandom()));
         }
         if (tag.contains("Profile", CompoundTag.TAG_COMPOUND)) {
-            this.profile = NbtUtils.readGameProfile(tag.getCompound("Profile"));
+            this.profile = ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag.get("Profile"))
+                    .result().map(ResolvableProfile::gameProfile).orElse(null);
         }
     }
 
@@ -235,7 +240,12 @@ public class FakePlayer extends PathfinderMob {
 
     public @Nullable GameProfile getProfile() {
         if (this.profile == null && this.hasUsername()) {
-            this.profile = new GameProfile(null, this.getUsername().getSkinName());
+            String skinName = this.getUsername().getSkinName();
+            // Authlib no longer permits the null profile id used by the 1.20 code.
+            // The entity UUID is stable, unique, and still lets ResolvableProfile
+            // enrich the profile with the named player's texture properties.
+            UUID profileId = this.getUUID();
+            this.profile = new GameProfile(profileId, skinName);
             requestProfileUpdate(this);
         }
         return this.profile;
@@ -336,7 +346,10 @@ public class FakePlayer extends PathfinderMob {
             }
             try {
                 FakePlayer target = entity;
-                SkullBlockEntity.updateGameprofile(currentProfile, target::setProfile);
+                // Resolve by name even though the temporary GameProfile needs a
+                // non-null UUID on 1.21. This preserves online skin lookup.
+                new ResolvableProfile(Optional.of(currentProfile.getName()), Optional.empty(), currentProfile.getProperties()).resolve()
+                        .thenAccept(resolved -> target.setProfile(resolved.gameProfile()));
             } catch (Exception ignored) {
                 entity.profileUpdateQueued = false;
             }

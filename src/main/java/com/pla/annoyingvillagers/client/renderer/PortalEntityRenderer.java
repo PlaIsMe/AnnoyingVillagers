@@ -16,8 +16,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -47,12 +47,19 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
             @NotNull MultiBufferSource buffer,
             int packedLight
     ) {
+        if (AnnoyingVillagersClientConfig.shouldPreferAaaParticles(AnnoyingVillagersClientConfig.VfxEffect.TELEPORT_PORTAL)
+                && playAaaPortalVisual(portal)) {
+            super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
+            return;
+        }
+
         if (shouldRenderWithPhoton() && playPhotonPortalVisual(portal)) {
             super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
             return;
         }
 
-        if (shouldRenderWithAaa() && playAaaPortalVisual(portal)) {
+        if (!AnnoyingVillagersClientConfig.shouldPreferAaaParticles(AnnoyingVillagersClientConfig.VfxEffect.TELEPORT_PORTAL)
+                && shouldRenderWithAaa() && playAaaPortalVisual(portal)) {
             super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
             return;
         }
@@ -63,21 +70,20 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
         poseStack.mulPose(Axis.YP.rotationDegrees(-yaw));
 
         VertexConsumer consumer = buffer.getBuffer(RenderType.entityTranslucent(this.getTextureLocation(portal)));
-        Matrix4f matrix = poseStack.last().pose();
-        Matrix3f normal = poseStack.last().normal();
+        PoseStack.Pose pose = poseStack.last();
         int light = LightTexture.FULL_BRIGHT;
 
         float halfWidth = PortalEntity.WIDTH * 0.5F;
         float height = PortalEntity.HEIGHT;
-        drawVertex(consumer, matrix, normal, -halfWidth, 0.0F, 0.0F, 0.0F, 1.0F, light, 1.0F);
-        drawVertex(consumer, matrix, normal, halfWidth, 0.0F, 0.0F, 1.0F, 1.0F, light, 1.0F);
-        drawVertex(consumer, matrix, normal, halfWidth, height, 0.0F, 1.0F, 0.0F, light, 1.0F);
-        drawVertex(consumer, matrix, normal, -halfWidth, height, 0.0F, 0.0F, 0.0F, light, 1.0F);
+        drawVertex(consumer, pose, -halfWidth, 0.0F, 0.0F, 0.0F, 1.0F, light, 1.0F);
+        drawVertex(consumer, pose, halfWidth, 0.0F, 0.0F, 1.0F, 1.0F, light, 1.0F);
+        drawVertex(consumer, pose, halfWidth, height, 0.0F, 1.0F, 0.0F, light, 1.0F);
+        drawVertex(consumer, pose, -halfWidth, height, 0.0F, 0.0F, 0.0F, light, 1.0F);
 
-        drawVertex(consumer, matrix, normal, -halfWidth, height, 0.0F, 0.0F, 0.0F, light, -1.0F);
-        drawVertex(consumer, matrix, normal, halfWidth, height, 0.0F, 1.0F, 0.0F, light, -1.0F);
-        drawVertex(consumer, matrix, normal, halfWidth, 0.0F, 0.0F, 1.0F, 1.0F, light, -1.0F);
-        drawVertex(consumer, matrix, normal, -halfWidth, 0.0F, 0.0F, 0.0F, 1.0F, light, -1.0F);
+        drawVertex(consumer, pose, -halfWidth, height, 0.0F, 0.0F, 0.0F, light, -1.0F);
+        drawVertex(consumer, pose, halfWidth, height, 0.0F, 1.0F, 0.0F, light, -1.0F);
+        drawVertex(consumer, pose, halfWidth, 0.0F, 0.0F, 1.0F, 1.0F, light, -1.0F);
+        drawVertex(consumer, pose, -halfWidth, 0.0F, 0.0F, 0.0F, 1.0F, light, -1.0F);
 
         poseStack.popPose();
         super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
@@ -126,8 +132,7 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
 
     private void drawVertex(
             VertexConsumer consumer,
-            Matrix4f matrix,
-            Matrix3f normal,
+            PoseStack.Pose pose,
             float x,
             float y,
             float z,
@@ -136,13 +141,13 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
             int packedLight,
             float normalZ
     ) {
-        consumer.vertex(matrix, x, y, z)
-                .color(1.0F, 1.0F, 1.0F, 0.9F)
-                .uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(packedLight)
-                .normal(normal, 0.0F, 0.0F, normalZ)
-                .endVertex();
+        consumer.addVertex(pose, x, y, z)
+                .setColor(1.0F, 1.0F, 1.0F, 0.9F)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(packedLight)
+                .setNormal(pose, 0.0F, 0.0F, normalZ)
+                ;
     }
 
     @Override

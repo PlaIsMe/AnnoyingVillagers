@@ -18,7 +18,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 import java.util.Random;
 
@@ -109,7 +109,7 @@ public class CombatBehaviour {
 
     private static boolean consumeHandFood(LivingEntity entity, InteractionHand hand, ItemStack foodStack) {
         ItemStack handStack = entity.getItemInHand(hand);
-        if (handStack.isEmpty() || !ItemStack.isSameItemSameTags(handStack, foodStack)) {
+        if (handStack.isEmpty() || !ItemStack.isSameItemSameComponents(handStack, foodStack)) {
             return false;
         }
 
@@ -133,7 +133,7 @@ public class CombatBehaviour {
 
         FoodProperties foodProperties = foodStack.getFoodProperties(entity);
         if (foodProperties != null) {
-            entity.heal(Math.max(2.0F, foodProperties.getNutrition()));
+            entity.heal(Math.max(2.0F, foodProperties.nutrition()));
         }
     }
 

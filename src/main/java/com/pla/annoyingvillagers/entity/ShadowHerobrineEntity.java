@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.pla.annoyingvillagers.clazz.RollItemUser;
 import com.pla.annoyingvillagers.entity.goal.ObsidianMachineGunGoal;
 import com.pla.annoyingvillagers.entity.goal.ShadowHerobrineShootDarkObGoal;
@@ -33,7 +34,6 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
@@ -114,13 +114,9 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
         return obsidianMachineGunCooldown;
     }
 
-    public ShadowHerobrineEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.SHADOW_HEROBRINE.get(), level);
-    }
-
-    public ShadowHerobrineEntity(EntityType<ShadowHerobrineEntity> entitytype, Level level) {
+        public ShadowHerobrineEntity(EntityType<ShadowHerobrineEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 60;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -206,7 +202,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
             corpse.setUsername(killedName);
             corpse.setCustomName(Component.literal(killedName));
             corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                    MobSpawnType.MOB_SUMMONED, null, null);
+                    MobSpawnType.MOB_SUMMONED, null);
             this.setInvisible(true);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(corpse);
@@ -214,9 +210,9 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
     }
 
     private void enchantGear(ItemStack itemStack) {
-        itemStack.enchant(Enchantments.SHARPNESS, 5);
-        itemStack.enchant(Enchantments.SWEEPING_EDGE, 5);
-        itemStack.enchant(Enchantments.KNOCKBACK, 3);
+        EnchantmentUtil.enchant(itemStack, Enchantments.SHARPNESS, 5);
+        EnchantmentUtil.enchant(itemStack, Enchantments.SWEEPING_EDGE, 5);
+        EnchantmentUtil.enchant(itemStack, Enchantments.KNOCKBACK, 3);
     }
 
     @Override

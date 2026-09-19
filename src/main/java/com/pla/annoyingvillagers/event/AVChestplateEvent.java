@@ -12,14 +12,16 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
-import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
 public final class AVChestplateEvent {
     private AVChestplateEvent() {}
 
@@ -33,8 +35,8 @@ public final class AVChestplateEvent {
     }
 
     @SubscribeEvent
-    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-        ObsidianArmorController.tick(event.getEntity());
+    public static void onLivingTick(EntityTickEvent.Post event) {
+        if (event.getEntity() instanceof LivingEntity living) ObsidianArmorController.tick(living);
     }
 
     @SubscribeEvent
@@ -43,10 +45,10 @@ public final class AVChestplateEvent {
     }
 
     @SubscribeEvent
-    public static void onLivingDamage(LivingHurtEvent event) {
+    public static void onLivingDamage(LivingDamageEvent.Pre event) {
         LivingEntity wearer = event.getEntity();
         if (!(wearer instanceof Player) || !wearer.isAlive()) return;
-        float finalDamage = event.getAmount();
+        float finalDamage = event.getNewDamage();
         if (finalDamage <= 0.0F) return;
 
         ItemStack blueChest = wearer.getItemBySlot(EquipmentSlot.CHEST);
@@ -65,8 +67,8 @@ public final class AVChestplateEvent {
         if (BlueDemonChestplateItem.isBuffActive(chest)) {
             if (sourceEntity instanceof LivingEntity attacker && attacker != wearer) {
                 float chance = wearer.getRandom().nextFloat();
-                if (chance <= 0.2F) attacker.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ELECTRIFY.get(), 20, 2));
-                else if (chance <= 0.6F) attacker.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ELECTRIFY.get(), 20, 1));
+                if (chance <= 0.2F) attacker.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ELECTRIFY, 20, 2));
+                else if (chance <= 0.6F) attacker.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ELECTRIFY, 20, 1));
             }
             return;
         }

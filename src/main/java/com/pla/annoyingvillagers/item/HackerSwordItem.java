@@ -15,7 +15,7 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class HackerSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class HackerSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
     private static final int COMBO_HITS = 4;
     private static final int COMBO_COOLDOWN_TICKS = 20 * 12;
     private static final ThreadLocal<Player> COMBO_ATTACKER = new ThreadLocal<>();
@@ -59,7 +59,7 @@ public class HackerSwordItem extends SwordItem implements RigCombatProfileProvid
     }
 
     public HackerSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 250;
             }

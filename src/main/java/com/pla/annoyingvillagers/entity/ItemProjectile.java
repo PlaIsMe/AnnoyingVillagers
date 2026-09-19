@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.google.common.collect.Multimap;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.item.FishingRodGrappleUtil;
@@ -14,6 +15,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
@@ -33,7 +35,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import net.minecraftforge.network.NetworkHooks;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -115,15 +116,15 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(DATA_STACK, ItemStack.EMPTY);
-        this.entityData.define(DATA_DISARM_LAUNCH_MODE, false);
-        this.entityData.define(DATA_DISARM_DROP_AFTER_TICKS, 18);
-        this.entityData.define(DATA_DISARM_MOTION_X, 0.0F);
-        this.entityData.define(DATA_DISARM_MOTION_Y, 0.0F);
-        this.entityData.define(DATA_DISARM_MOTION_Z, 0.0F);
-        this.entityData.define(DATA_HOOK_ATTACHED, false);
-        this.entityData.define(DATA_DISCARD_WHEN_HOOK_LOST, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_STACK, ItemStack.EMPTY);
+        builder.define(DATA_DISARM_LAUNCH_MODE, false);
+        builder.define(DATA_DISARM_DROP_AFTER_TICKS, 18);
+        builder.define(DATA_DISARM_MOTION_X, 0.0F);
+        builder.define(DATA_DISARM_MOTION_Y, 0.0F);
+        builder.define(DATA_DISARM_MOTION_Z, 0.0F);
+        builder.define(DATA_HOOK_ATTACHED, false);
+        builder.define(DATA_DISCARD_WHEN_HOOK_LOST, false);
     }
 
     private boolean isDisarmLaunchMode() {
@@ -582,22 +583,9 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     private float calculateWeaponDamage(LivingEntity target) {
         ItemStack stack = this.getWeaponStack();
 
-        double damage = 1.0D;
+        double damage = stack.getAttributeModifiers().compute(1.0D, EquipmentSlot.MAINHAND);
 
-        Multimap<Attribute, AttributeModifier> modifiers =
-                stack.getAttributeModifiers(EquipmentSlot.MAINHAND);
-
-        for (AttributeModifier modifier : modifiers.get(Attributes.ATTACK_DAMAGE)) {
-            if (modifier.getOperation() == AttributeModifier.Operation.ADDITION) {
-                damage += modifier.getAmount();
-            } else if (modifier.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE) {
-                damage += damage * modifier.getAmount();
-            } else if (modifier.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL) {
-                damage *= 1.0D + modifier.getAmount();
-            }
-        }
-
-        damage += EnchantmentHelper.getDamageBonus(stack, target.getMobType());
+        damage += EnchantmentUtil.getDamageBonus(stack, target);
 
         return (float) Math.max(1.0D, damage);
     }
@@ -605,13 +593,14 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     private void applyWeaponEnchantEffects(LivingEntity owner, LivingEntity target) {
         ItemStack stack = this.getWeaponStack();
 
-        int fireAspect = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, stack);
+        int fireAspect = EnchantmentUtil.getLevel(Enchantments.FIRE_ASPECT, stack);
         if (fireAspect > 0) {
-            target.setSecondsOnFire(fireAspect * 4);
+            target.igniteForSeconds(fireAspect * 4.0F);
         }
 
-        EnchantmentHelper.doPostHurtEffects(target, owner);
-        EnchantmentHelper.doPostDamageEffects(owner, target);
+        if (owner.level() instanceof ServerLevel serverLevel) {
+            EnchantmentHelper.doPostAttackEffects(serverLevel, target, target.damageSources().mobAttack(owner));
+        }
     }
 
     private void dropBackToItem() {
@@ -667,7 +656,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     @Override
     protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.put("WeaponStack", this.getWeaponStack().save(new CompoundTag()));
+        tag.put("WeaponStack", this.getWeaponStack().save(this.level().registryAccess()));
         tag.putBoolean("DisarmLaunchMode", this.entityData.get(DATA_DISARM_LAUNCH_MODE));
         tag.putInt("DisarmDropAfterTicks", this.entityData.get(DATA_DISARM_DROP_AFTER_TICKS));
         tag.putFloat("DisarmMotionX", this.entityData.get(DATA_DISARM_MOTION_X));
@@ -682,7 +671,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         super.readAdditionalSaveData(tag);
 
         if (tag.contains("WeaponStack", 10)) {
-            this.setWeaponStack(ItemStack.of(tag.getCompound("WeaponStack")));
+            this.setWeaponStack(ItemStack.parseOptional(this.level().registryAccess(), tag.getCompound("WeaponStack")));
         }
         this.entityData.set(DATA_DISARM_LAUNCH_MODE, tag.getBoolean("DisarmLaunchMode"));
 
@@ -706,8 +695,4 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         this.entityData.set(DATA_DISCARD_WHEN_HOOK_LOST, tag.getBoolean("DiscardWhenHookLost"));
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
-}

@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
@@ -28,14 +29,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ShadowObsidianPillarItem extends SwordItem implements RigCombatProfileProvider {
+public class ShadowObsidianPillarItem extends LegacySwordItem implements RigCombatProfileProvider {
     public static final int VANILLA_ABILITY_COOLDOWN_TICKS = 20 * 30;
     public static final String BURST_TAG = "ShadowObsidianBurst";
     private static final String BURST_UNTIL_TAG = "ShadowObsidianBurstUntil";
     private static final int BURST_VISUAL_TICKS = 20;
 
     public ShadowObsidianPillarItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() { return 3000; }
             public float getSpeed() { return 50.0F; }
             public float getAttackDamageBonus() { return 2.0F; }
@@ -46,7 +47,7 @@ public class ShadowObsidianPillarItem extends SwordItem implements RigCombatProf
     }
 
     public static boolean isBurst(ItemStack stack) {
-        return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean(BURST_TAG);
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean(BURST_TAG);
     }
 
     public static void onVanillaCriticalHit(ItemStack stack, Player player) {
@@ -79,17 +80,17 @@ public class ShadowObsidianPillarItem extends SwordItem implements RigCombatProf
 
 
     private static void setBurstForTicks(ItemStack stack, Level level, int ticks) {
-        stack.getOrCreateTag().putBoolean(BURST_TAG, true);
-        stack.getOrCreateTag().putLong(BURST_UNTIL_TAG, level.getGameTime() + Math.max(1, ticks));
+        LegacyItemData.getOrCreate(stack).putBoolean(BURST_TAG, true);
+        LegacyItemData.getOrCreate(stack).putLong(BURST_UNTIL_TAG, level.getGameTime() + Math.max(1, ticks));
     }
 
     @Override
     public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
         super.inventoryTick(stack, level, entity, slot, selected);
-        if (!stack.hasTag() || stack.getTag() == null || !stack.getTag().getBoolean(BURST_TAG)) return;
-        if (level.getGameTime() < stack.getTag().getLong(BURST_UNTIL_TAG)) return;
-        stack.getTag().remove(BURST_TAG);
-        stack.getTag().remove(BURST_UNTIL_TAG);
+        if (!LegacyItemData.has(stack) || LegacyItemData.get(stack) == null || !LegacyItemData.get(stack).getBoolean(BURST_TAG)) return;
+        if (level.getGameTime() < LegacyItemData.get(stack).getLong(BURST_UNTIL_TAG)) return;
+        LegacyItemData.get(stack).remove(BURST_TAG);
+        LegacyItemData.get(stack).remove(BURST_UNTIL_TAG);
     }
 
     public static boolean activateVanillaSpecial(Player player) {
@@ -101,7 +102,7 @@ public class ShadowObsidianPillarItem extends SwordItem implements RigCombatProf
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.shadow_obsidian_pillar"));
     }

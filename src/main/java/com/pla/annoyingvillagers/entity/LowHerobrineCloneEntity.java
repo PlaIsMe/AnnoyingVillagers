@@ -33,11 +33,10 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PlayMessages;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -107,17 +106,13 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
 
     public LowHerobrineCloneEntity(EntityType<? extends LowHerobrineCloneEntity> type, Level level) {
         super(type, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 50;
         this.setPersistenceRequired();
         this.setCustomNameVisible(false);
     }
 
-    public LowHerobrineCloneEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(), level);
-    }
-
-    @Override
+        @Override
     public boolean shouldIgnoreBurstProtection(LivingEntity self,DamageSource source) {
         return true;
     }
@@ -170,11 +165,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
         return Component.literal("§5Low Herobrine Clone§r");
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+        protected void registerGoals() {
         this.goalSelector.getAvailableGoals().clear();
         this.targetSelector.getAvailableGoals().clear();
         this.goalSelector.addGoal(1, new Goal() {
@@ -232,11 +223,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
         CommonGoals.registerGoalForHostileNpc(this);
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEAD;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+        public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -245,11 +232,11 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death")));
     }
 
     @Override
@@ -263,7 +250,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
                 corpse.setUsername(killedName);
                 corpse.setCustomName(Component.literal(killedName));
                 corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                        MobSpawnType.MOB_SUMMONED, null, null);
+                        MobSpawnType.MOB_SUMMONED, null);
                 this.setInvisible(true);
                 this.remove(RemovalReason.KILLED);
                 corpse.setItemSlot(EquipmentSlot.HEAD, this.getItemBySlot(EquipmentSlot.HEAD).copy());
@@ -290,9 +277,9 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
         HerobrineUtil.initialSpawn(serverLevelAccessor, this, 0, mobSpawnType);
-        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, compoundTag);
+        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
     }
 
     @Override
@@ -355,10 +342,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
             if (this.tickCount == 1) {
                 if (this.initialSpawn) {
                     if (this.renderPortal) {
-                        AnnoyingVillagers.PACKET_HANDLER.send(
-                                PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                                new ClientboundHerobrinePortalFx(this.getOnPos().getCenter().add(0.0, 1.5, 0.0))
-                        );
+                        ClientboundHerobrinePortalFx.sendToNearby(this, this.getOnPos().getCenter().add(0.0, 1.5, 0.0));
                         renderPortal = false;
                     }
                     if (this.summoned) {

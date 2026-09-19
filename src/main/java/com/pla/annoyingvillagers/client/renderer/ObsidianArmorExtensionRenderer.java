@@ -25,18 +25,19 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.ModList;
 
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 /** Shared dynamic geometry for first person and renderers that bake the armor shell. */
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class ObsidianArmorExtensionRenderer {
     private static final ResourceLocation CHESTPLATE_TEXTURE = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID,
             "textures/models/armor/herobrine_obsidian_armor_layer_1.png");
@@ -59,7 +60,7 @@ public final class ObsidianArmorExtensionRenderer {
         firstPersonBackend = backend;
     }
 
-    @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
     public static final class Models {
         @SubscribeEvent
         public static void onLayersLoaded(EntityRenderersEvent.AddLayers event) {
@@ -165,8 +166,7 @@ public final class ObsidianArmorExtensionRenderer {
         try {
             // Vanilla requests the fixed glint buffer before the shared armor buffer.
             // Reversing that order leaves a stale consumer ("BufferBuilder not started").
-            return ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(texture),
-                    false, armor.hasFoil());
+            return ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(texture), armor.hasFoil());
         } finally {
             ColoredGlintState.clear();
         }
@@ -185,7 +185,7 @@ public final class ObsidianArmorExtensionRenderer {
         if (player == null || !mc.options.getCameraType().isFirstPerson() || event.getCamera().getEntity() != player
                 || player.isSpectator() || player.isSleeping() || player.isInvisible() || !hasExtensions(player)) return;
 
-        float partial = event.getPartialTick();
+        float partial = event.getPartialTick().getGameTimeDeltaPartialTick(false);
         PoseStack stack = event.getPoseStack();
         Vec3 camera = event.getCamera().getPosition();
         var buffer = mc.renderBuffers().bufferSource();

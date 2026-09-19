@@ -11,16 +11,16 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.ToolAction;
-import net.minecraftforge.common.ToolActions;
+import net.neoforged.neoforge.common.ItemAbility;
+import net.neoforged.neoforge.common.ItemAbilities;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Random;
 
-public class BedrockWeaponItem extends SwordItem {
+public class BedrockWeaponItem extends LegacySwordItem {
     public BedrockWeaponItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 3000;
             }
@@ -56,7 +56,7 @@ public class BedrockWeaponItem extends SwordItem {
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.bedrock_weapon"));
     }
@@ -72,12 +72,12 @@ public class BedrockWeaponItem extends SwordItem {
     }
 
     @Override
-    public boolean canPerformAction(@NotNull ItemStack stack, @NotNull ToolAction action) {
-        return action == ToolActions.PICKAXE_DIG
-                || action == ToolActions.AXE_DIG
-                || action == ToolActions.SHOVEL_DIG
-                || action == ToolActions.HOE_DIG
-                || action == ToolActions.SHEARS_DIG
-                || action == ToolActions.SWORD_DIG;
+    public boolean canPerformAction(@NotNull ItemStack stack, @NotNull ItemAbility action) {
+        return action == ItemAbilities.PICKAXE_DIG
+                || action == ItemAbilities.AXE_DIG
+                || action == ItemAbilities.SHOVEL_DIG
+                || action == ItemAbilities.HOE_DIG
+                || action == ItemAbilities.SHEARS_DIG
+                || action == ItemAbilities.SWORD_DIG;
     }
 }

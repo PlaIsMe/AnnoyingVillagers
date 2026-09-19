@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.compat.photon;
 
 import com.lowdragmc.photon.client.fx.FX;
-import com.lowdragmc.photon.client.fx.EntityEffect;
+import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
 import com.lowdragmc.photon.client.gameobject.emitter.beam.BeamConfig;
@@ -10,8 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
 @OnlyIn(Dist.CLIENT)
-final class PhotonBeamEffect extends EntityEffect {
+final class PhotonBeamEffect extends EntityEffectExecutor {
     private static final Map<String, PhotonBeamEffect> ACTIVE = new HashMap<>();
     private static final double FOLLOW_SMOOTHING = 0.55D;
     private static final double SNAP_DISTANCE_SQR = 64.0D;
@@ -50,7 +50,7 @@ final class PhotonBeamEffect extends EntityEffect {
                              PhotonClientFxUtil.BeamForwardAxis forwardAxis,
                              float visualBaseLength,
                              int lifetimeTicks) {
-        super(fx, level, owner, EntityEffect.AutoRotate.NONE);
+        super(fx, level, owner, EntityEffectExecutor.AutoRotate.NONE);
         this.key = key;
         this.startProvider = startProvider;
         this.endProvider = endProvider;
@@ -278,14 +278,14 @@ final class PhotonBeamEffect extends EntityEffect {
     }
 
     private void removeFromEntityCache() {
-        List<EntityEffect> effects = EntityEffect.CACHE.get(entity);
+        List<EntityEffectExecutor> effects = EntityEffectExecutor.CACHE.get(entity);
         if (effects == null) {
             return;
         }
 
         effects.remove(this);
         if (effects.isEmpty()) {
-            EntityEffect.CACHE.remove(entity);
+            EntityEffectExecutor.CACHE.remove(entity);
         }
     }
 

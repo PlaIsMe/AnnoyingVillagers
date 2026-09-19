@@ -14,7 +14,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.ItemStack;
 
 public class AvGolemArmorLayer extends RenderLayer<AvGolem, ModelAvGolem> {
@@ -35,12 +36,13 @@ public class AvGolemArmorLayer extends RenderLayer<AvGolem, ModelAvGolem> {
         ItemStack stack = entity.getItemBySlot(slot);
         if (!(stack.getItem() instanceof ArmorItem armorItem) || armorItem.getEquipmentSlot() != slot) return;
         ResourceLocation texture = armorTexture(armorItem);
-        VertexConsumer consumer = ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(texture), false, stack.hasFoil());
+        VertexConsumer consumer = ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(texture), stack.hasFoil());
         float red = 1.0F;
         float green = 1.0F;
         float blue = 1.0F;
-        if (stack.getItem() instanceof DyeableLeatherItem dyeable) {
-            int color = dyeable.getColor(stack);
+        DyedItemColor dyedColor = stack.get(DataComponents.DYED_COLOR);
+        if (dyedColor != null) {
+            int color = dyedColor.rgb();
             red = (color >> 16 & 255) / 255.0F;
             green = (color >> 8 & 255) / 255.0F;
             blue = (color & 255) / 255.0F;
@@ -57,14 +59,8 @@ public class AvGolemArmorLayer extends RenderLayer<AvGolem, ModelAvGolem> {
     }
 
     private static ResourceLocation armorTexture(ArmorItem armorItem) {
-        String material = armorItem.getMaterial().getName();
-        String namespace = "minecraft";
-        String path = material;
-        int split = material.indexOf(':');
-        if (split >= 0) {
-            namespace = material.substring(0, split);
-            path = material.substring(split + 1);
-        }
-        return ResourceLocation.fromNamespaceAndPath(namespace, "textures/models/armor/" + path + "_layer_1.png");
+        ResourceLocation material = armorItem.getMaterial().unwrapKey()
+                .map(key -> key.location()).orElse(ResourceLocation.withDefaultNamespace("leather"));
+        return ResourceLocation.fromNamespaceAndPath(material.getNamespace(), "textures/models/armor/" + material.getPath() + "_layer_1.png");
     }
 }

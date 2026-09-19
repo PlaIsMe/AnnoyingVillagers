@@ -13,17 +13,17 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public abstract class VillagerScoutHelmetItem extends ArmorItem {
+public abstract class VillagerScoutHelmetItem extends LegacyArmorItem {
 
     public VillagerScoutHelmetItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(ArmorItem.Type type) {
                 return switch (type) {
@@ -31,6 +31,7 @@ public abstract class VillagerScoutHelmetItem extends ArmorItem {
                     case LEGGINGS   -> 15 * 25;
                     case CHESTPLATE -> 16 * 25;
                     case HELMET     -> 11 * 25;
+                    case BODY       -> 16 * 25;
                 };
             }
 
@@ -41,6 +42,7 @@ public abstract class VillagerScoutHelmetItem extends ArmorItem {
                     case LEGGINGS   -> 3;
                     case CHESTPLATE -> 5;
                     case HELMET     -> 4;
+                    case BODY       -> 5;
                 };
             }
 
@@ -48,7 +50,7 @@ public abstract class VillagerScoutHelmetItem extends ArmorItem {
                 return 9;
             }
 
-            public SoundEvent getEquipSound() {
+            public Object getEquipSound() {
                 return SoundEvents.ARMOR_EQUIP_GENERIC;
             }
 

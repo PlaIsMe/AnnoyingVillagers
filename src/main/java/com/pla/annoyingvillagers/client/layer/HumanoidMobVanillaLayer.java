@@ -27,6 +27,6 @@ public class HumanoidMobVanillaLayer<T extends LivingEntity, M extends HumanoidM
                 ? RenderType.entityCutoutNoCull(texture)
                 : RenderType.eyes(texture);
         VertexConsumer vertexConsumer = buffer.getBuffer(renderType);
-        this.getParentModel().renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        this.getParentModel().renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, -1);
     }
 }

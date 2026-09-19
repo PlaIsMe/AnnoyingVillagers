@@ -318,14 +318,12 @@ private final ModelPart modelRoot;
 	}
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay,
-                               float red, float green, float blue, float alpha) {
-        this.modelRoot.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-        renderPerFaceCubes(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+        this.modelRoot.render(poseStack, buffer, packedLight, packedOverlay, color);
+        renderPerFaceCubes(poseStack, buffer, packedLight, packedOverlay, color);
     }
 
-    private void renderPerFaceCubes(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay,
-                                    float red, float green, float blue, float alpha) {
+    private void renderPerFaceCubes(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         // cube_arm_6_L
         poseStack.pushPose();
         this.Root.translateAndRotate(poseStack);
@@ -339,7 +337,7 @@ private final ModelPart modelRoot;
         this.arm_5_L.translateAndRotate(poseStack);
         this.arm_6_L.translateAndRotate(poseStack);
         this.red_core_L_3.translateAndRotate(poseStack);
-        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha,
+        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, color,
                 -0.6454F, -6.92982F, -1.0F, 0.5546F, 0.07018F, 1.0F,
                 9.0F, 14.0F, 10.0F, 15.0F, 128.0F, 128.0F);
         poseStack.popPose();
@@ -354,7 +352,7 @@ private final ModelPart modelRoot;
         this.arm_3_L.translateAndRotate(poseStack);
         this.arm_4_L.translateAndRotate(poseStack);
         this.red_core_L_2.translateAndRotate(poseStack);
-        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha,
+        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, color,
                 -0.6454F, -6.92774F, -1.0F, 0.5546F, 0.07227F, 1.0F,
                 9.0F, 14.0F, 10.0F, 15.0F, 128.0F, 128.0F);
         poseStack.popPose();
@@ -367,7 +365,7 @@ private final ModelPart modelRoot;
         this.arm_1_L.translateAndRotate(poseStack);
         this.arm_2_L.translateAndRotate(poseStack);
         this.red_core_L_1.translateAndRotate(poseStack);
-        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha,
+        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, color,
                 -0.6454F, -7.02153F, -1.0F, 0.5546F, -0.02153F, 1.0F,
                 9.0F, 14.0F, 10.0F, 15.0F, 128.0F, 128.0F);
         poseStack.popPose();
@@ -384,7 +382,7 @@ private final ModelPart modelRoot;
         this.arm_5_R.translateAndRotate(poseStack);
         this.arm_6_R.translateAndRotate(poseStack);
         this.red_core_R_3.translateAndRotate(poseStack);
-        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha,
+        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, color,
                 -0.5546F, -6.92982F, -1.0F, 0.6454F, 0.07018F, 1.0F,
                 9.0F, 14.0F, 10.0F, 15.0F, 128.0F, 128.0F);
         poseStack.popPose();
@@ -399,7 +397,7 @@ private final ModelPart modelRoot;
         this.arm_3_R.translateAndRotate(poseStack);
         this.arm_4_R.translateAndRotate(poseStack);
         this.red_core_R_2.translateAndRotate(poseStack);
-        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha,
+        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, color,
                 -0.5546F, -6.92774F, -1.0F, 0.6454F, 0.07227F, 1.0F,
                 9.0F, 14.0F, 10.0F, 15.0F, 128.0F, 128.0F);
         poseStack.popPose();
@@ -412,7 +410,7 @@ private final ModelPart modelRoot;
         this.arm_1_R.translateAndRotate(poseStack);
         this.arm_2_R.translateAndRotate(poseStack);
         this.red_core_R_1.translateAndRotate(poseStack);
-        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha,
+        PerFaceCubeRenderer.renderSingleUvBox(poseStack, buffer, packedLight, packedOverlay, color,
                 -0.5546F, -7.02153F, -1.0F, 0.6454F, -0.02153F, 1.0F,
                 9.0F, 14.0F, 10.0F, 15.0F, 128.0F, 128.0F);
         poseStack.popPose();

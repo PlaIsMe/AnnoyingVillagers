@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.event;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.item.*;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
@@ -293,7 +294,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                return;
 //                            }
 //
-//                            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get()) && entity.level() instanceof ServerLevel && holdingItem.getTag() != null && !holdingItem.getTag().getBoolean("SnakeAnimation")) {
+//                            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get()) && entity.level() instanceof ServerLevel && LegacyItemData.get(holdingItem) != null && !LegacyItemData.get(holdingItem).getBoolean("SnakeAnimation")) {
 //                                boolean success = false;
 //                                PlayerPatch<?> playerPatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 //                                if (playerPatch instanceof ServerPlayerPatch) {

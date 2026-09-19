@@ -17,7 +17,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownPotion;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import com.pla.annoyingvillagers.util.PotionUtil;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
@@ -197,8 +197,8 @@ public class ProjectileBlockGoal extends Goal {
         }
 
         if (projectile instanceof ThrownPotion thrownPotion) {
-            var effects = PotionUtils.getMobEffects(thrownPotion.getItem());
-            if (effects.isEmpty() || effects.stream().allMatch(effect -> effect.getEffect().isBeneficial())) {
+            var effects = PotionUtil.getMobEffects(thrownPotion.getItem());
+            if (effects.isEmpty() || effects.stream().allMatch(effect -> effect.getEffect().value().isBeneficial())) {
                 return false;
             }
         }

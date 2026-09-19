@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.clazz.Difficulty;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -14,7 +14,7 @@ public final class ProgressionUtil {
     }
 
     public static boolean isDifficulty(Difficulty difficulty) {
-        MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+        MinecraftServer server = net.neoforged.neoforge.server.ServerLifecycleHooks.getCurrentServer();
         return server != null && isDifficulty(server, difficulty);
     }
 
@@ -23,7 +23,7 @@ public final class ProgressionUtil {
     }
 
     public static boolean isAtLeastDifficulty(Difficulty difficulty) {
-        MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+        MinecraftServer server = net.neoforged.neoforge.server.ServerLifecycleHooks.getCurrentServer();
         return server != null && isAtLeastDifficulty(server, difficulty);
     }
 
@@ -90,7 +90,7 @@ public final class ProgressionUtil {
             return false;
         }
 
-        Advancement advancement = player.server.getAdvancements().getAdvancement(resourceLocation);
+        AdvancementHolder advancement = player.server.getAdvancements().get(resourceLocation);
         return advancement != null && player.getAdvancements().getOrStartProgress(advancement).isDone();
     }
 }

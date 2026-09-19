@@ -18,8 +18,8 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 public class EnchantedEnderPearlItem extends Item {
@@ -34,7 +34,7 @@ public class EnchantedEnderPearlItem extends Item {
     }
 
     @Override
-    public boolean canApplyAtEnchantingTable(@NotNull ItemStack stack, @NotNull Enchantment enchantment) {
+    public boolean supportsEnchantment(@NotNull ItemStack stack, @NotNull net.minecraft.core.Holder<Enchantment> enchantment) {
         return false;
     }
 
@@ -53,7 +53,7 @@ public class EnchantedEnderPearlItem extends Item {
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(interactionhand));
     }
 
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.enchanted_ender_pearl"));
     }
@@ -62,7 +62,7 @@ public class EnchantedEnderPearlItem extends Item {
         return UseAnim.BOW;
     }
 
-    public int getUseDuration(@NotNull ItemStack itemstack) {
+    public int getUseDuration(@NotNull ItemStack itemstack, net.minecraft.world.entity.LivingEntity entity) {
         return 72000;
     }
 
@@ -74,9 +74,7 @@ public class EnchantedEnderPearlItem extends Item {
     public void releaseUsing(@NotNull ItemStack itemstack, Level level, @NotNull LivingEntity livingentity, int i) {
         if (!level.isClientSide() && livingentity instanceof ServerPlayer serverPlayer) {
             EnchantedEnderPearlEntity enchantedEnderPearl = EnchantedEnderPearlEntity.shoot(level, serverPlayer, RandomSource.create(), 1.3F, 0.0D, 0);
-            itemstack.hurtAndBreak(1, serverPlayer, (serverplayer1) -> {
-                serverplayer1.broadcastBreakEvent(serverPlayer.getUsedItemHand());
-            });
+            itemstack.hurtAndBreak(1, serverPlayer, LivingEntity.getSlotForHand(serverPlayer.getUsedItemHand()));
             enchantedEnderPearl.pickup = Pickup.DISALLOWED;
             serverPlayer.getCooldowns().addCooldown(itemstack.getItem(), 20);
         }

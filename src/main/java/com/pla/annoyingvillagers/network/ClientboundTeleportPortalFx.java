@@ -3,13 +3,13 @@ package com.pla.annoyingvillagers.network;
 import com.pla.annoyingvillagers.client.engine.ClientPacketHandlers;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
 
-public record ClientboundTeleportPortalFx(Vec3 pos, Vec3 normal) {
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+
+
+public record ClientboundTeleportPortalFx(Vec3 pos, Vec3 normal)  implements AnnoyingVillagersPayload {
 
     public static void encode(ClientboundTeleportPortalFx msg, FriendlyByteBuf buf) {
         buf.writeDouble(msg.pos.x);
@@ -26,12 +26,7 @@ public record ClientboundTeleportPortalFx(Vec3 pos, Vec3 normal) {
         return new ClientboundTeleportPortalFx(pos, normal);
     }
 
-    public static void handle(ClientboundTeleportPortalFx msg, Supplier<NetworkEvent.Context> ctx) {
-        NetworkEvent.Context context = ctx.get();
-        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(
-                Dist.CLIENT,
-                () -> () -> ClientPacketHandlers.handleTeleportPortalFx(msg)
-        ));
-        context.setPacketHandled(true);
+    public static void handle(ClientboundTeleportPortalFx msg, IPayloadContext context) {
+        context.enqueueWork(() -> ClientPacketHandlers.handleTeleportPortalFx(msg));
     }
 }

@@ -18,8 +18,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.BlockEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.BlockEvent;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -109,7 +109,7 @@ public final class ProjectileBlockBreaker {
 
     private static boolean canBreak(Level level, Entity breaker, BlockPos pos, BlockState state) {
         if (breaker instanceof Player player) {
-            return !MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player));
+            return !NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player)).isCanceled();
         }
 
         return true;

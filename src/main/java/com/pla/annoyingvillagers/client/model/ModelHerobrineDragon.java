@@ -353,39 +353,39 @@ public class ModelHerobrineDragon extends EntityModel<HerobrineDragonEntity>
     }
 
     @Override
-    public void renderToBuffer(PoseStack ps, VertexConsumer vertices, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
+    public void renderToBuffer(PoseStack ps, VertexConsumer vertices, int pPackedLight, int pPackedOverlay, int color)
     {
-        body.render(ps, vertices, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
-        renderHead(ps, vertices, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+        body.render(ps, vertices, pPackedLight, pPackedOverlay, color);
+        renderHead(ps, vertices, pPackedLight, pPackedOverlay, color);
         for (ModelPartProxy proxy : neckProxy)
-            proxy.render(ps, vertices, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+            proxy.render(ps, vertices, pPackedLight, pPackedOverlay, color);
         for (ModelPartProxy proxy : tailProxy)
-            proxy.render(ps, vertices, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
-        renderWings(ps, vertices, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
-        renderLegs(ps, vertices, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+            proxy.render(ps, vertices, pPackedLight, pPackedOverlay, color);
+        renderWings(ps, vertices, pPackedLight, pPackedOverlay, color);
+        renderLegs(ps, vertices, pPackedLight, pPackedOverlay, color);
     }
 
-    protected void renderHead(PoseStack ps, VertexConsumer vertices, int packedLight, int packedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
+    protected void renderHead(PoseStack ps, VertexConsumer vertices, int packedLight, int packedOverlay, int color)
     {
         float headScale = 1.4f / (size + 0.4f);
         //noinspection DataFlowIssue
         ((ModelPartAccess) (Object) head).setRenderScale(headScale, headScale, headScale);
-        head.render(ps, vertices, packedLight, packedOverlay, pRed, pGreen, pBlue, pAlpha);
+        head.render(ps, vertices, packedLight, packedOverlay, color);
     }
 
-    public void renderWings(PoseStack ps, VertexConsumer vertices, int packedLight, int packedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
+    public void renderWings(PoseStack ps, VertexConsumer vertices, int packedLight, int packedOverlay, int color)
     {
         ps.pushPose();
         ps.scale(1.1f, 1.1f, 1.1f);
-        wingArms[0].render(ps, vertices, packedLight, packedOverlay, pRed, pGreen, pBlue, pAlpha);
-        wingArms[1].render(ps, vertices, packedLight, packedOverlay, pRed, pGreen, pBlue, pAlpha);
+        wingArms[0].render(ps, vertices, packedLight, packedOverlay, color);
+        wingArms[1].render(ps, vertices, packedLight, packedOverlay, color);
         ps.popPose();
     }
 
-    protected void renderLegs(PoseStack ps, VertexConsumer vertices, int packedLight, int packedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
+    protected void renderLegs(PoseStack ps, VertexConsumer vertices, int packedLight, int packedOverlay, int color)
     {
         for (ModelPart[] leg : legs)
-            leg[0].render(ps, vertices, packedLight, packedOverlay, pRed, pGreen, pBlue, pAlpha);
+            leg[0].render(ps, vertices, packedLight, packedOverlay, color);
     }
 
     private static CubeListBuilder centerMirroredBox(CubeListBuilder builder, boolean mirror, float pOriginX, float pOriginY, float pOriginZ, float pDimensionX, float pDimensionY, float pDimensionZ)

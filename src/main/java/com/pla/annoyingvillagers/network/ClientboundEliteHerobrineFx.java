@@ -3,13 +3,13 @@ package com.pla.annoyingvillagers.network;
 import com.pla.annoyingvillagers.client.engine.ClientPacketHandlers;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
 
-public record ClientboundEliteHerobrineFx(int entityId, int tickCount, Vec3 pos, boolean extraParticle) {
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+
+
+public record ClientboundEliteHerobrineFx(int entityId, int tickCount, Vec3 pos, boolean extraParticle)  implements AnnoyingVillagersPayload {
 
     public static void encode(ClientboundEliteHerobrineFx msg, FriendlyByteBuf buf) {
         buf.writeInt(msg.entityId);
@@ -27,9 +27,7 @@ public record ClientboundEliteHerobrineFx(int entityId, int tickCount, Vec3 pos,
         return new ClientboundEliteHerobrineFx(entityId, tickCount, pos, buf.readBoolean());
     }
 
-    public static void handle(ClientboundEliteHerobrineFx msg, Supplier<NetworkEvent.Context> ctx) {
-        NetworkEvent.Context c = ctx.get();
-        c.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.handleEliteHerobrineFx(msg)));
-        c.setPacketHandled(true);
+    public static void handle(ClientboundEliteHerobrineFx msg, IPayloadContext context) {
+        context.enqueueWork(() -> ClientPacketHandlers.handleEliteHerobrineFx(msg));
     }
 }

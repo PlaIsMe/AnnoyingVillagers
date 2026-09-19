@@ -2,11 +2,11 @@ package com.pla.annoyingvillagers.network;
 
 import com.pla.annoyingvillagers.client.engine.CameraEngine;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
 
-public class CPApplyShake {
+
+public class CPApplyShake  implements AnnoyingVillagersPayload {
     private final int time;
     private final float strength;
     private final float frequency;
@@ -31,14 +31,13 @@ public class CPApplyShake {
         buf.writeInt(decay_time);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> context) {
-        NetworkEvent.Context ctx = context.get();
+    public void handle(IPayloadContext context) {
+        IPayloadContext ctx = context;
         ctx.enqueueWork(() -> {
             CameraEngine engine = CameraEngine.getInstance();
             if (engine != null) {
                 engine.shakeCamera(strength, time, frequency, decay_time);
             }
         });
-        ctx.setPacketHandled(true);
     }
 }

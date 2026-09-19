@@ -1,34 +1,34 @@
 package com.pla.annoyingvillagers.config;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
 
 public class AnnoyingVillagersConfig {
-    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec SPEC;
-    public static ForgeConfigSpec.BooleanValue FORCE_TICK_MOBS;
-    public static ForgeConfigSpec.BooleanValue NPC_PREFIX;
-    public static ForgeConfigSpec.BooleanValue REMOTE_NPC_DEPARTURE_ENABLED;
-    public static ForgeConfigSpec.IntValue REMOTE_NPC_DEPARTURE_MIN_MINUTES;
-    public static ForgeConfigSpec.IntValue REMOTE_NPC_DEPARTURE_MAX_MINUTES;
+    public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec SPEC;
+    public static ModConfigSpec.BooleanValue FORCE_TICK_MOBS;
+    public static ModConfigSpec.BooleanValue NPC_PREFIX;
+    public static ModConfigSpec.BooleanValue REMOTE_NPC_DEPARTURE_ENABLED;
+    public static ModConfigSpec.IntValue REMOTE_NPC_DEPARTURE_MIN_MINUTES;
+    public static ModConfigSpec.IntValue REMOTE_NPC_DEPARTURE_MAX_MINUTES;
 
-    public static ForgeConfigSpec.ConfigValue<Double> HEROBRINE_POSSESS_RATE;
-    public static ForgeConfigSpec.ConfigValue<Integer> HEROBRINE_RECALL_MIN_TIME;
-    public static ForgeConfigSpec.ConfigValue<Integer> HEROBRINE_RECALL_MAX_TIME;
-    public static ForgeConfigSpec.ConfigValue<Double> ANGRY_STEVE_CHANCE;
-    public static ForgeConfigSpec.ConfigValue<Integer> ANGRY_STEVE_LEAVE_MIN_TIME;
-    public static ForgeConfigSpec.ConfigValue<Integer> ANGRY_STEVE_LEAVE_MAX_TIME;
-    public static ForgeConfigSpec.ConfigValue<Integer> BLUE_DEMON_LEAVE_MIN_TIME;
-    public static ForgeConfigSpec.ConfigValue<Integer> BLUE_DEMON_LEAVE_MAX_TIME;
-    public static ForgeConfigSpec.ConfigValue<Boolean> TRIDENT_FESTIVAL_CAN_BREAK_BLOCK;
-    public static ForgeConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_CHAT;
-    public static ForgeConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_VOICE;
-    public static ForgeConfigSpec.ConfigValue<Boolean> AV_MOB_CAN_BURN_ITEM;
-    public static ForgeConfigSpec.ConfigValue<Boolean> ARROW_CAN_BREAK_BLOCK;
-    public static ForgeConfigSpec.ConfigValue<List<? extends String>> WEAPON_DISARMS_AFFECTED_ENTITY_TYPES;
-    public static ForgeConfigSpec.ConfigValue<List<? extends String>> WEAPON_DISARMS_BLACKLIST;
+    public static ModConfigSpec.ConfigValue<Double> HEROBRINE_POSSESS_RATE;
+    public static ModConfigSpec.ConfigValue<Integer> HEROBRINE_RECALL_MIN_TIME;
+    public static ModConfigSpec.ConfigValue<Integer> HEROBRINE_RECALL_MAX_TIME;
+    public static ModConfigSpec.ConfigValue<Double> ANGRY_STEVE_CHANCE;
+    public static ModConfigSpec.ConfigValue<Integer> ANGRY_STEVE_LEAVE_MIN_TIME;
+    public static ModConfigSpec.ConfigValue<Integer> ANGRY_STEVE_LEAVE_MAX_TIME;
+    public static ModConfigSpec.ConfigValue<Integer> BLUE_DEMON_LEAVE_MIN_TIME;
+    public static ModConfigSpec.ConfigValue<Integer> BLUE_DEMON_LEAVE_MAX_TIME;
+    public static ModConfigSpec.ConfigValue<Boolean> TRIDENT_FESTIVAL_CAN_BREAK_BLOCK;
+    public static ModConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_CHAT;
+    public static ModConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_VOICE;
+    public static ModConfigSpec.ConfigValue<Boolean> AV_MOB_CAN_BURN_ITEM;
+    public static ModConfigSpec.ConfigValue<Boolean> ARROW_CAN_BREAK_BLOCK;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> WEAPON_DISARMS_AFFECTED_ENTITY_TYPES;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> WEAPON_DISARMS_BLACKLIST;
 
     static {
         FORCE_TICK_MOBS = BUILDER.comment(

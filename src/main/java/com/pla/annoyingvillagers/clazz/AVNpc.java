@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.clazz;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.pla.annoyingvillagers.entity.*;
 import com.pla.annoyingvillagers.entity.goal.*;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
@@ -35,7 +37,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
+import net.neoforged.neoforge.common.CommonHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -51,10 +53,10 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private int recoveryStartTick;
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(RECOVERY_DIGGING, false);
-        this.entityData.define(HEALING, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(RECOVERY_DIGGING, false);
+        builder.define(HEALING, false);
     }
 
     public boolean isRecoveryActionActive() { return this.recoveryOwner != null; }
@@ -309,38 +311,38 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         ItemStack bow = new ItemStack(Items.BOW);
 
         if (this instanceof VillagerScoutCaptainEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 1);
-            bow.enchant(Enchantments.PUNCH_ARROWS, 1);
+            EnchantmentUtil.enchant(bow, Enchantments.POWER, 1);
+            EnchantmentUtil.enchant(bow, Enchantments.PUNCH, 1);
         }
         if (this instanceof RedVillagerKnightEntity) {
-            bow.enchant(Enchantments.FLAMING_ARROWS, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.FLAME, 2);
         }
         if (this instanceof BlueVillagerKnightEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.POWER, 2);
         }
         if (this instanceof GreenVillagerKnightEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 1);
-            bow.enchant(Enchantments.FLAMING_ARROWS, 1);
+            EnchantmentUtil.enchant(bow, Enchantments.POWER, 1);
+            EnchantmentUtil.enchant(bow, Enchantments.FLAME, 1);
         }
         if (this instanceof PurpleVillagerKnightEntity) {
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.PUNCH, 2);
         }
         if ((this instanceof SteveEntity steveEntity && steveEntity.getState() == 1)
                 || this instanceof AngrySteveEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.POWER, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.PUNCH, 2);
             if (this instanceof AngrySteveEntity) {
-                bow.enchant(Enchantments.FLAMING_ARROWS, 2);
+                EnchantmentUtil.enchant(bow, Enchantments.FLAME, 2);
             }
         }
         if (this instanceof AlexEntity alexEntity && alexEntity.getState() == 1) {
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-            bow.enchant(Enchantments.FLAMING_ARROWS, 1);
+            EnchantmentUtil.enchant(bow, Enchantments.PUNCH, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.POWER, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.FLAME, 1);
         }
         if (this instanceof ChrisEntity chrisEntity && chrisEntity.getState() == 1) {
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.POWER, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.PUNCH, 2);
         }
 
         return bow;
@@ -450,7 +452,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.put("Inventory", this.inventory.createTag());
+        tag.put("Inventory", this.inventory.createTag(this.registryAccess()));
         tag.putInt("GapCooldown", this.gapCooldown);
         tag.putInt("EnderPearlCooldown", this.enderPearlCooldown);
         tag.putInt("WaterBucketCooldown", this.waterBucketCooldown);
@@ -460,14 +462,10 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         tag.putDouble("BlockProjectileChance", this.placeBlockToParryChance);
         tag.putInt("BlockParryCooldown", this.placeBlockParryCooldown);
         if (!this.mainWeaponItem.isEmpty()) {
-            CompoundTag itemTag = new CompoundTag();
-            this.mainWeaponItem.save(itemTag);
-            tag.put("MainHandItem", itemTag);
+            tag.put("MainHandItem", this.mainWeaponItem.save(this.registryAccess()));
         }
         if (!this.offWeaponItem.isEmpty()) {
-            CompoundTag itemTag = new CompoundTag();
-            this.offWeaponItem.save(itemTag);
-            tag.put("OffHandItem", itemTag);
+            tag.put("OffHandItem", this.offWeaponItem.save(this.registryAccess()));
         }
         tag.putInt("VoiceCooldown", this.voiceCooldown);
         tag.putBoolean("MainWeaponDisarmed", this.mainWeaponDisarmed);
@@ -496,7 +494,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     public void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains("Inventory", Tag.TAG_LIST)) {
-            this.inventory.fromTag(tag.getList("Inventory", Tag.TAG_COMPOUND));
+            this.inventory.fromTag(tag.getList("Inventory", Tag.TAG_COMPOUND), this.registryAccess());
         }
         this.gapCooldown = tag.getInt("GapCooldown");
         this.enderPearlCooldown = tag.getInt("EnderPearlCooldown");
@@ -507,12 +505,12 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.placeBlockToParryChance = tag.getDouble("BlockProjectileChance");
         this.placeBlockParryCooldown = tag.getInt("BlockParryCooldown");
         if (tag.contains("MainHandItem", Tag.TAG_COMPOUND)) {
-            this.mainWeaponItem = ItemStack.of(tag.getCompound("MainHandItem"));
+            this.mainWeaponItem = ItemStack.parseOptional(this.registryAccess(), tag.getCompound("MainHandItem"));
         } else {
             this.mainWeaponItem = ItemStack.EMPTY;
         }
         if (tag.contains("OffHandItem", Tag.TAG_COMPOUND)) {
-            this.offWeaponItem = ItemStack.of(tag.getCompound("OffHandItem"));
+            this.offWeaponItem = ItemStack.parseOptional(this.registryAccess(), tag.getCompound("OffHandItem"));
         } else {
             this.offWeaponItem = ItemStack.EMPTY;
         }
@@ -536,8 +534,9 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+    protected void dropCustomDeathLoot(@NotNull ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
+        super.dropCustomDeathLoot(level, source, recentlyHit);
+        int looting = 0;
 
         for (int i = 0; i < this.inventory.getContainerSize(); i++) {
             ItemStack stack = this.inventory.getItem(i);
@@ -667,8 +666,8 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
 
         ItemStack converted = new ItemStack(replacement);
-        if (equipped.hasTag()) {
-            converted.setTag(equipped.getTag().copy());
+        if (LegacyItemData.has(equipped)) {
+            LegacyItemData.set(converted, LegacyItemData.get(equipped).copy());
         }
         return converted;
     }
@@ -728,9 +727,10 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             return;
         }
 
-        AbstractArrow mobArrow = ProjectileUtil.getMobArrow(this, itemstack, pVelocity);
+        ItemStack weapon = this.getMainHandItem();
+        AbstractArrow mobArrow = ProjectileUtil.getMobArrow(this, itemstack, pVelocity, weapon);
         if (this.getMainHandItem().getItem() instanceof BowItem) {
-            mobArrow = ((BowItem)this.getMainHandItem().getItem()).customArrow(mobArrow);
+            mobArrow = ((BowItem)this.getMainHandItem().getItem()).customArrow(mobArrow, itemstack, weapon);
         }
 
         double x = pTarget.getX() - this.getX();
@@ -780,7 +780,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
                 this.inventory.setItem(i, remaining);
                 remaining = ItemStack.EMPTY;
                 break;
-            } else if (ItemStack.isSameItemSameTags(slotStack, remaining) &&
+            } else if (ItemStack.isSameItemSameComponents(slotStack, remaining) &&
                     slotStack.getCount() < slotStack.getMaxStackSize()) {
                 int transferable = Math.min(
                         remaining.getCount(),
@@ -806,8 +806,8 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag tag) {
-        SpawnGroupData result = super.finalizeSpawn(level,difficulty,spawnType,spawnData,tag);
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnData) {
+        SpawnGroupData result = super.finalizeSpawn(level,difficulty,spawnType,spawnData);
         this.setLeftHanded(false);
         return result;
     }
@@ -883,8 +883,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         if (this.isInvulnerableTo(pDamageSource)) {
             return;
         }
-
-        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
         if (pDamageAmount <= 0.0F) {
             return;
         }
@@ -901,7 +899,9 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             }
         }
 
-        finalDamage = ForgeHooks.onLivingDamage(this, pDamageSource, finalDamage);
+        this.damageContainers.peek().setNewDamage(finalDamage);
+
+        finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
 
         if (this.level() instanceof ServerLevel serverLevel
                 && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {

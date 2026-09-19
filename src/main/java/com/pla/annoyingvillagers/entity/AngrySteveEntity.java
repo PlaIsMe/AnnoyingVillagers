@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.pla.annoyingvillagers.clazz.*;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
@@ -38,10 +39,9 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -82,13 +82,9 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
         return com.pla.annoyingvillagers.util.NpcTabSkin.ANGRY_STEVE;
     }
 
-    public AngrySteveEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.ANGRY_STEVE.get(), level);
-    }
-
-    public AngrySteveEntity(EntityType<AngrySteveEntity> entitytype, Level level) {
+        public AngrySteveEntity(EntityType<AngrySteveEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 8;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -97,14 +93,10 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
         this.setPlaceBlockToParryChance(1.0);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(LEGENDARY_AWAKENED, 0);
+        @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(LEGENDARY_AWAKENED, 0);
     }
 
     public int getLegendaryAwakened() {
@@ -151,9 +143,9 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
             this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get()));
         } else {
             ItemStack woopieTheSword = new ItemStack(AnnoyingVillagersModItems.WOOPIE_THE_SWORD.get());
-            woopieTheSword.enchant(Enchantments.SHARPNESS, 5);
-            woopieTheSword.enchant(Enchantments.SMITE, 5);
-            woopieTheSword.enchant(Enchantments.SWEEPING_EDGE, 5);
+            EnchantmentUtil.enchant(woopieTheSword, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(woopieTheSword, Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(woopieTheSword, Enchantments.SWEEPING_EDGE, 5);
             this.setItemInHand(InteractionHand.OFF_HAND, woopieTheSword);
         }
 
@@ -203,11 +195,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
         return AnnoyingVillagersModSounds.ANGRY_STEVE_SAY.get();
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+        public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -216,11 +204,11 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
     }
 
     @Override
@@ -229,7 +217,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     }
 
     public boolean canBeAffected(MobEffectInstance mobeffectinstance) {
-        return (mobeffectinstance.getEffect().getCategory() == MobEffectCategory.BENEFICIAL || mobeffectinstance.getEffect() == MobEffects.GLOWING) && super.canBeAffected(mobeffectinstance);
+        return (mobeffectinstance.getEffect().value().getCategory() == MobEffectCategory.BENEFICIAL || mobeffectinstance.getEffect() == MobEffects.GLOWING) && super.canBeAffected(mobeffectinstance);
     }
 
     @Override
@@ -250,8 +238,9 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, source, recentlyHit);
         if (!(this.level() instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -268,22 +257,22 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
         List<ItemStack> damagedStacks = new ArrayList<>();
 
         ItemStack compressedDiamondHelmet = new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND_HELMET.get());
-        compressedDiamondHelmet.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-        compressedDiamondHelmet.enchant(Enchantments.PROJECTILE_PROTECTION, 5);
-        compressedDiamondHelmet.enchant(Enchantments.FIRE_PROTECTION, 5);
-        compressedDiamondHelmet.enchant(Enchantments.BLAST_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.PROJECTILE_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.FIRE_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondHelmet, Enchantments.BLAST_PROTECTION, 5);
         damagedStacks.add(compressedDiamondHelmet);
 
         ItemStack compressedDiamondChestplate = new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND_CHESTPLATE.get());
-        compressedDiamondChestplate.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-        compressedDiamondChestplate.enchant(Enchantments.PROJECTILE_PROTECTION, 5);
-        compressedDiamondChestplate.enchant(Enchantments.FIRE_PROTECTION, 5);
-        compressedDiamondChestplate.enchant(Enchantments.BLAST_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.PROJECTILE_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.FIRE_PROTECTION, 5);
+        EnchantmentUtil.enchant(compressedDiamondChestplate, Enchantments.BLAST_PROTECTION, 5);
         damagedStacks.add(compressedDiamondChestplate);
 
         ItemStack diamondSword = new ItemStack(Items.DIAMOND_SWORD);
-        diamondSword.enchant(Enchantments.SHARPNESS, 5);
-        diamondSword.enchant(Enchantments.SMITE, 5);
+        EnchantmentUtil.enchant(diamondSword, Enchantments.SHARPNESS, 5);
+        EnchantmentUtil.enchant(diamondSword, Enchantments.SMITE, 5);
         damagedStacks.add(diamondSword);
 
         if (new Random().nextBoolean()) {
@@ -291,47 +280,47 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
         }
 
         ItemStack bow = this.getBowItem();
-        bow.enchant(Enchantments.POWER_ARROWS, 5);
-        bow.enchant(Enchantments.PUNCH_ARROWS, 5);
+        EnchantmentUtil.enchant(bow, Enchantments.POWER, 5);
+        EnchantmentUtil.enchant(bow, Enchantments.PUNCH, 5);
         damagedStacks.add(bow);
 
         double chance = new Random().nextDouble(0.0, 1.0);
         if (chance < 0.2) {
             ItemStack woodenDoor = new ItemStack(AnnoyingVillagersModItems.WOODEN_DOOR.get());
-            woodenDoor.enchant(Enchantments.SHARPNESS, 5);
-            woodenDoor.enchant(Enchantments.KNOCKBACK, 3);
-            woodenDoor.enchant(Enchantments.MENDING, 5);
+            EnchantmentUtil.enchant(woodenDoor, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(woodenDoor, Enchantments.KNOCKBACK, 3);
+            EnchantmentUtil.enchant(woodenDoor, Enchantments.MENDING, 5);
             damagedStacks.add(woodenDoor);
         } else if (chance < 0.4) {
             ItemStack craftingTable = new ItemStack(AnnoyingVillagersModItems.CRAFTING_TABLE.get());
-            craftingTable.enchant(Enchantments.SMITE, 5);
-            craftingTable.enchant(Enchantments.KNOCKBACK, 3);
-            craftingTable.enchant(Enchantments.MENDING, 5);
+            EnchantmentUtil.enchant(craftingTable, Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(craftingTable, Enchantments.KNOCKBACK, 3);
+            EnchantmentUtil.enchant(craftingTable, Enchantments.MENDING, 5);
             damagedStacks.add(craftingTable);
         } else if (chance < 0.6) {
             ItemStack ladder = new ItemStack(AnnoyingVillagersModItems.LADDER.get());
-            ladder.enchant(Enchantments.SMITE, 5);
-            ladder.enchant(Enchantments.SWEEPING_EDGE, 3);
-            ladder.enchant(Enchantments.MENDING, 5);
+            EnchantmentUtil.enchant(ladder, Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(ladder, Enchantments.SWEEPING_EDGE, 3);
+            EnchantmentUtil.enchant(ladder, Enchantments.MENDING, 5);
             damagedStacks.add(ladder);
         } else if (chance < 0.8) {
             ItemStack trapDoor = new ItemStack(AnnoyingVillagersModItems.TRAPDOOR.get());
-            trapDoor.enchant(Enchantments.KNOCKBACK, 5);
-            trapDoor.enchant(Enchantments.SWEEPING_EDGE, 3);
-            trapDoor.enchant(Enchantments.MENDING, 5);
+            EnchantmentUtil.enchant(trapDoor, Enchantments.KNOCKBACK, 5);
+            EnchantmentUtil.enchant(trapDoor, Enchantments.SWEEPING_EDGE, 3);
+            EnchantmentUtil.enchant(trapDoor, Enchantments.MENDING, 5);
             damagedStacks.add(trapDoor);
         } else {
             ItemStack mendingDiamondSword = new ItemStack(Items.DIAMOND_SWORD);
-            mendingDiamondSword.enchant(Enchantments.SHARPNESS, 5);
-            mendingDiamondSword.enchant(Enchantments.SMITE, 5);
-            mendingDiamondSword.enchant(Enchantments.MENDING, 5);
+            EnchantmentUtil.enchant(mendingDiamondSword, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(mendingDiamondSword, Enchantments.SMITE, 5);
+            EnchantmentUtil.enchant(mendingDiamondSword, Enchantments.MENDING, 5);
             damagedStacks.add(mendingDiamondSword);
         }
 
         ItemStack legendarySword = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
-        legendarySword.enchant(Enchantments.SHARPNESS, 5);
-        legendarySword.enchant(Enchantments.SMITE, 5);
-        legendarySword.enchant(Enchantments.SWEEPING_EDGE, 5);
+        EnchantmentUtil.enchant(legendarySword, Enchantments.SHARPNESS, 5);
+        EnchantmentUtil.enchant(legendarySword, Enchantments.SMITE, 5);
+        EnchantmentUtil.enchant(legendarySword, Enchantments.SWEEPING_EDGE, 5);
         damagedStacks.add(legendarySword);
         damagedStacks.add(new ItemStack(AnnoyingVillagersModItems.TONY_THE_FISHING_ROD.get()));
 
@@ -404,8 +393,6 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
         if (this.isInvulnerableTo(pDamageSource)) {
             return;
         }
-
-        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
         if (pDamageAmount <= 0.0F) {
             return;
         }
@@ -422,7 +409,9 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
             }
         }
 
-        finalDamage = ForgeHooks.onLivingDamage(this, pDamageSource, finalDamage);
+        this.damageContainers.peek().setNewDamage(finalDamage);
+
+        finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
 
         if (this.level() instanceof ServerLevel serverLevel
@@ -439,11 +428,11 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
         this.gameEvent(GameEvent.ENTITY_DAMAGE);
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
         ItemStack legendarySword = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
-        legendarySword.enchant(Enchantments.SHARPNESS, 5);
-        legendarySword.enchant(Enchantments.SMITE, 5);
-        legendarySword.enchant(Enchantments.SWEEPING_EDGE, 5);
+        EnchantmentUtil.enchant(legendarySword, Enchantments.SHARPNESS, 5);
+        EnchantmentUtil.enchant(legendarySword, Enchantments.SMITE, 5);
+        EnchantmentUtil.enchant(legendarySword, Enchantments.SWEEPING_EDGE, 5);
         this.setItemInHand(InteractionHand.MAIN_HAND, legendarySword);
         this.setItemSlot(EquipmentSlot.MAINHAND, legendarySword);
         this.setMainWeaponItem(legendarySword);
@@ -454,7 +443,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
         int randomMin = Math.min(min, max);
         int randomMax = Math.max(min, max);
         this.leaveTicks = (randomMin + new Random().nextInt(randomMax - randomMin + 1)) * 60 * 20;
-        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata, compoundtag);
+        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata);
     }
 
     @Override

@@ -157,7 +157,7 @@ public class InventoryViewerMenu extends AbstractContainerMenu {
             if (this.equipmentSlot == EquipmentSlot.MAINHAND || this.equipmentSlot == EquipmentSlot.OFFHAND) {
                 return true;
             }
-            return LivingEntity.getEquipmentSlotForItem(stack) == this.equipmentSlot;
+            return stack.getEquipmentSlot() == this.equipmentSlot;
         }
     }
 
@@ -205,7 +205,7 @@ public class InventoryViewerMenu extends AbstractContainerMenu {
             EquipmentSlot equipmentSlot = EQUIPMENT_SLOTS[slot];
             return equipmentSlot == EquipmentSlot.MAINHAND
                     || equipmentSlot == EquipmentSlot.OFFHAND
-                    || LivingEntity.getEquipmentSlotForItem(stack) == equipmentSlot;
+                    || stack.getEquipmentSlot() == equipmentSlot;
         }
 
         private void syncSlot(int slot) {

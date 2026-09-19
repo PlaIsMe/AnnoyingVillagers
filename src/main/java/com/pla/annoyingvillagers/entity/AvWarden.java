@@ -38,7 +38,6 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,11 +79,11 @@ public class AvWarden extends Warden implements ForceTickEntity {
     private int avComboIndex;
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DATA_BONE_OPEN, false);
-        this.entityData.define(DATA_AV_CHASING, false);
-        this.entityData.define(DATA_AV_MOVING, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_BONE_OPEN, false);
+        builder.define(DATA_AV_CHASING, false);
+        builder.define(DATA_AV_MOVING, false);
     }
 
     private boolean isBoneOpen() {
@@ -115,11 +114,7 @@ public class AvWarden extends Warden implements ForceTickEntity {
         super(pEntityType, pLevel);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    private void setupIdleAnimationStates() {
+        private void setupIdleAnimationStates() {
         if (this.idleAnimationTimeout <= 0) {
             this.idleAnimationTimeout = 40;
             this.idleAnimationState.start(this.tickCount);
@@ -489,8 +484,8 @@ public class AvWarden extends Warden implements ForceTickEntity {
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
-        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
         this.getBrain().setMemoryWithExpiry(MemoryModuleType.DIG_COOLDOWN, Unit.INSTANCE, 1200L);
 
         this.setPose(Pose.EMERGING);

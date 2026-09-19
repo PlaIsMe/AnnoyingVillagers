@@ -23,8 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.network.PlayMessages;
+import net.neoforged.neoforge.event.EventHooks;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -53,11 +52,7 @@ public class TridentLightningBolt extends LightningBolt {
         this.tridentFlashes = this.random.nextInt(3) + 1;
     }
 
-    public TridentLightningBolt(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.TRIDENT_LIGHTNING_BOLT.get(), level);
-    }
-
-    public void setOwner(@Nullable LivingEntity owner) {
+        public void setOwner(@Nullable LivingEntity owner) {
         this.owner = owner;
     }
 
@@ -153,17 +148,17 @@ public class TridentLightningBolt extends LightningBolt {
                 }
 
                 for (Entity entity : list) {
-                    if (!ForgeEventFactory.onEntityStruckByLightning(entity, this)) {
+                    if (!EventHooks.onEntityStruckByLightning(entity, this)) {
                         if (entity instanceof LivingEntity livingEntity) {
                             if (this.superLightning) {
                                 livingEntity.addEffect(new MobEffectInstance(
-                                        AnnoyingVillagersModMobEffects.ELECTRIFY.get(),
+                                        AnnoyingVillagersModMobEffects.ELECTRIFY,
                                         100,
                                         2
                                 ));
                             } else {
                                 livingEntity.addEffect(new MobEffectInstance(
-                                        AnnoyingVillagersModMobEffects.ELECTRIFY.get(),
+                                        AnnoyingVillagersModMobEffects.ELECTRIFY,
                                         60,
                                         1
                                 ));

@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.RandomSource;
@@ -66,30 +67,30 @@ public final class GlintColorHelper {
         }
 
         if (mode == NONE) {
-            CompoundTag tag = stack.getTag();
+            CompoundTag tag = LegacyItemData.get(stack);
             if (tag != null) {
                 tag.remove(TAG_COLOR_GLINT);
             }
             return;
         }
 
-        stack.getOrCreateTag().putString(TAG_COLOR_GLINT, toName(mode));
+        LegacyItemData.getOrCreate(stack).putString(TAG_COLOR_GLINT, toName(mode));
     }
 
     public static void clearColor(ItemStack stack) {
-        if (!stack.hasTag()) {
+        if (!LegacyItemData.has(stack)) {
             return;
         }
 
-        stack.getTag().remove(TAG_COLOR_GLINT);
+        LegacyItemData.get(stack).remove(TAG_COLOR_GLINT);
 
-        if (stack.getTag().isEmpty()) {
-            stack.setTag(null);
+        if (LegacyItemData.get(stack).isEmpty()) {
+            LegacyItemData.set(stack, null);
         }
     }
 
     public static int getColor(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = LegacyItemData.get(stack);
         if (tag == null) {
             return NONE;
         }

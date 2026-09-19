@@ -25,7 +25,7 @@ public class HerobrineMobEffect extends MobEffect {
         return true;
     }
 
-    public void applyEffectTick(@NotNull LivingEntity livingEntity, int i) {
+    public boolean applyEffectTick(@NotNull LivingEntity livingEntity, int i) {
         if (livingEntity instanceof Player player) {
             player.causeFoodExhaustion(0.1F);
         }
@@ -56,13 +56,10 @@ public class HerobrineMobEffect extends MobEffect {
                     0.1
             );
         }
+        return true;
     }
 
-    public void removeAttributeModifiers(@NotNull LivingEntity livingentity, @NotNull AttributeMap attributemap, int i) {
-        super.removeAttributeModifiers(livingentity, attributemap, i);
-    }
-
-    public boolean isDurationEffectTick(int i, int j) {
+    public boolean shouldApplyEffectTickThisTick(int i, int j) {
         return true;
     }
 

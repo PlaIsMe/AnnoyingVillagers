@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.Item;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,8 +51,8 @@ public class EnchantBedBlock extends Block {
         this.registerDefaultState(this.stateDefinition.any().setValue(EnchantBedBlock.FACING, Direction.NORTH));
     }
 
-    public void appendHoverText(@NotNull ItemStack itemstack, BlockGetter blockgetter, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, blockgetter, list, tooltipflag);
+    public void appendHoverText(@NotNull ItemStack itemstack, Item.TooltipContext context, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, context, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.enchanted_bed"));
     }
 
@@ -109,16 +110,15 @@ public class EnchantBedBlock extends Block {
         return !list.isEmpty() ? list : Collections.singletonList(new ItemStack(AnnoyingVillagersModItems.ENCHANT_BED_ITEM.get()));
     }
 
-    public @NotNull InteractionResult use(@NotNull BlockState blockstate, @NotNull Level level, @NotNull BlockPos blockpos, @NotNull Player player, @NotNull InteractionHand interactionhand, @NotNull BlockHitResult blockHitResult) {
-        super.use(blockstate, level, blockpos, player, interactionhand, blockHitResult);
-        if (player.hasEffect(AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT.get())
+    protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState blockstate, @NotNull Level level, @NotNull BlockPos blockpos, @NotNull Player player, @NotNull BlockHitResult blockHitResult) {
+        if (player.hasEffect(AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT)
                 && !player.level().isClientSide()) {
             player.displayClientMessage(Component.literal("You have already used the Enchant Bed!"), true);
         }
 
         if (player instanceof ServerPlayer serverPlayer) {
             if (player.experienceLevel >= 2) {
-                player.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT.get(), MobEffectInstance.INFINITE_DURATION, 0, false, false));
+                player.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT, MobEffectInstance.INFINITE_DURATION, 0, false, false));
                 player.displayClientMessage(Component.literal("You used the Enchant Bed once. Experience level -1."), true);
                 player.displayClientMessage(Component.literal("Respawn point has been reset."), false);
                 player.giveExperienceLevels(-1);

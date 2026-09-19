@@ -11,9 +11,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DiamondMaceItem extends SwordItem implements RigCombatProfileProvider {
+public class DiamondMaceItem extends LegacySwordItem implements RigCombatProfileProvider {
     public DiamondMaceItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }

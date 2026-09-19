@@ -46,7 +46,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -644,7 +644,7 @@ public final class RigAnimationSpecs {
                 hookAt(2, mob -> {
                     if (mob.level() instanceof ServerLevel serverLevel) {
                         serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingVillagersModSounds.DIAMOND_ATTRACTOR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
-                        AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundDiamondAttractorFx(mob));
+                        PacketDistributor.sendToPlayersTrackingEntityAndSelf(mob, new ClientboundDiamondAttractorFx(mob));
                         DiamondAttractorSwordItem.pullWeapons(mob);
                     }
                 })));
@@ -696,9 +696,9 @@ public final class RigAnimationSpecs {
 
                                     Vec3 offHandPos = RigPoseUtil.getLeftWeaponPosition(mob, RigAnimationId.WOOPIE_THE_SWORD_FLY, 0.0F);
                                     Vec3 windPos = new Vec3(offHandPos.x, mob.getY() + 0.05D, offHandPos.z);
-                                    AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
+                                    PacketDistributor.sendToPlayersTrackingEntityAndSelf(mob, new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
                                     serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-                                    AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundWoopieSwordWindFx(windPos));
+                                    PacketDistributor.sendToPlayersTrackingEntityAndSelf(mob, new ClientboundWoopieSwordWindFx(windPos));
                                 }),
                                 RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> RigAnimationController.play(mob, RigAnimationId.LEGENDARY_SWORD_ULT))
                         ),
@@ -711,11 +711,9 @@ public final class RigAnimationSpecs {
                             if (!(mob.level() instanceof ServerLevel serverLevel)) return;
                             Vec3 windPos = RigPoseUtil.getPartPosition(mob, RigAnimationId.WOOPIE_THE_SWORD_ULT,
                                     4.0F, RigPart.RIGHT_WEAPON, Vec3.ZERO, 4.3D, 0.5D);
-                            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
-                                    new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
+                            PacketDistributor.sendToPlayersTrackingEntityAndSelf(mob, new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
                             serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-                            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
-                                    new ClientboundWoopieSwordWindFx(windPos));
+                            PacketDistributor.sendToPlayersTrackingEntityAndSelf(mob, new ClientboundWoopieSwordWindFx(windPos));
                         }),
                         RigAttackWindow.of(9, 20, RIGHT_SWORD))
                 .damageMultiplier(2.1F));
@@ -1993,9 +1991,9 @@ public final class RigAnimationSpecs {
             Vec3 windPos = offHandWoopie ? RigPoseUtil.getLeftWeaponPosition(mob, animationId, 0.0F) : RigPoseUtil.getRightWeaponPosition(mob, animationId, 0.0F);
             if (windPos == null) return;
 
-            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(mob, new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
             serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundWoopieSwordWindFx(windPos));
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(mob, new ClientboundWoopieSwordWindFx(windPos));
 
             Vec3 dashDir = mob.getLookAngle();
             LivingEntity target = mob.getTarget();

@@ -26,9 +26,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -107,24 +106,24 @@ public class BlueDemonThunderBeamEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(DURATION, 0);
-        this.entityData.define(CASTER, -1);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DURATION, 0);
+        builder.define(CASTER, -1);
 
-        this.entityData.define(START_X, 0.0F);
-        this.entityData.define(START_Y, 0.0F);
-        this.entityData.define(START_Z, 0.0F);
+        builder.define(START_X, 0.0F);
+        builder.define(START_Y, 0.0F);
+        builder.define(START_Z, 0.0F);
 
-        this.entityData.define(END_X, 0.0F);
-        this.entityData.define(END_Y, 0.0F);
-        this.entityData.define(END_Z, 0.0F);
+        builder.define(END_X, 0.0F);
+        builder.define(END_Y, 0.0F);
+        builder.define(END_Z, 0.0F);
 
-        this.entityData.define(BEAM_LEN, 7.5F);
+        builder.define(BEAM_LEN, 7.5F);
 
-        this.entityData.define(LAST_DIR_X, 1.0F);
-        this.entityData.define(LAST_DIR_Z, 0.0F);
+        builder.define(LAST_DIR_X, 1.0F);
+        builder.define(LAST_DIR_Z, 0.0F);
 
-        this.entityData.define(USE_NO_VFX_THUNDER, false);
+        builder.define(USE_NO_VFX_THUNDER, false);
     }
 
     @Override protected void readAdditionalSaveData(@NotNull CompoundTag tag) {}
@@ -138,12 +137,7 @@ public class BlueDemonThunderBeamEntity extends Entity {
         return this.entityData.get(USE_NO_VFX_THUNDER);
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
+        @Override
     public @NotNull PushReaction getPistonPushReaction() {
         return PushReaction.IGNORE;
     }
@@ -385,7 +379,7 @@ public class BlueDemonThunderBeamEntity extends Entity {
 
                 target.hurtMarked = true;
                 target.addEffect(new MobEffectInstance(
-                        AnnoyingVillagersModMobEffects.ELECTRIFY.get(),
+                        AnnoyingVillagersModMobEffects.ELECTRIFY,
                         60,
                         1
                 ));

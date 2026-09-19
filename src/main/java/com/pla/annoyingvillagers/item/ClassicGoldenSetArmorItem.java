@@ -9,10 +9,10 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
-public abstract class ClassicGoldenSetArmorItem extends ArmorItem {
+public abstract class ClassicGoldenSetArmorItem extends LegacyArmorItem {
 
     public ClassicGoldenSetArmorItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(ArmorItem.Type type) {
                 return switch (type) {
@@ -20,6 +20,7 @@ public abstract class ClassicGoldenSetArmorItem extends ArmorItem {
                     case LEGGINGS   -> 15 * 27;
                     case CHESTPLATE -> 16 * 27;
                     case HELMET     -> 11 * 27;
+                    case BODY       -> 16 * 27;
                 };
             }
 
@@ -30,6 +31,7 @@ public abstract class ClassicGoldenSetArmorItem extends ArmorItem {
                     case LEGGINGS   -> 5;
                     case CHESTPLATE -> 6;
                     case HELMET     -> 3;
+                    case BODY       -> 6;
                 };
             }
 
@@ -37,7 +39,7 @@ public abstract class ClassicGoldenSetArmorItem extends ArmorItem {
                 return 9;
             }
 
-            public SoundEvent getEquipSound() {
+            public Object getEquipSound() {
                 return SoundEvents.ARMOR_EQUIP_GENERIC;
             }
 

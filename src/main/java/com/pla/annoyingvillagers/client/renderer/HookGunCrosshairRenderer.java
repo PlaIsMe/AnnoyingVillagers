@@ -10,13 +10,14 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public final class HookGunCrosshairRenderer {
     private static final ResourceLocation GUI_ICONS =
             ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/icons.png");
@@ -25,8 +26,8 @@ public final class HookGunCrosshairRenderer {
     }
 
     @SubscribeEvent
-    public static void onRenderCrosshair(RenderGuiOverlayEvent.Post event) {
-        if (event.getOverlay() != VanillaGuiOverlay.CROSSHAIR.type()) {
+    public static void onRenderCrosshair(RenderGuiLayerEvent.Post event) {
+        if (!event.getName().equals(VanillaGuiLayers.CROSSHAIR)) {
             return;
         }
 
@@ -43,14 +44,14 @@ public final class HookGunCrosshairRenderer {
         if (player.isSpectator()) {
             return;
         }
-        if (options.renderDebug && !options.hideGui && !player.isReducedDebugInfo() && !options.reducedDebugInfo().get()) {
+        if (minecraft.getDebugOverlay().showDebugScreen() && !options.hideGui && !player.isReducedDebugInfo() && !options.reducedDebugInfo().get()) {
             return;
         }
         if (!HookGunItem.isHoldingHookGunInBothHands(player)) {
             return;
         }
 
-        Window window = event.getWindow();
+        Window window = minecraft.getWindow();
         int width = window.getGuiScaledWidth();
         int height = window.getGuiScaledHeight();
         double fov = Math.toRadians(options.fov().get());

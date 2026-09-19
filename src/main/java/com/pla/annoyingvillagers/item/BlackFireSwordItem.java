@@ -19,11 +19,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -31,7 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class BlackFireSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class BlackFireSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
     private static final int BLACK_FIRE_FALLBACK_LOOKUP_TICKS = 80;
     private static final Map<Integer, Long> ACTIVE_BLACK_FIRE_FALLBACKS = new HashMap<>();
     private static Level blackFireFallbackLevel;
@@ -41,7 +44,7 @@ public class BlackFireSwordItem extends SwordItem implements RigCombatProfilePro
             new DustParticleOptions(new Vector3f(0.85F, 0.9F, 0.8F), 0.9F);
 
     public BlackFireSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }
@@ -244,14 +247,14 @@ public class BlackFireSwordItem extends SwordItem implements RigCombatProfilePro
     }
 
     @OnlyIn(Dist.CLIENT)
-    @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
     public static final class ClientEvents {
         private ClientEvents() {
         }
 
         @SubscribeEvent
-        public static void onClientTick(TickEvent.ClientTickEvent event) {
-            if (event.phase == TickEvent.Phase.END) {
+        public static void onClientTick(ClientTickEvent.Post event) {
+            if (true) {
                 tickBlackFireFallbacks(Minecraft.getInstance().level);
             }
         }

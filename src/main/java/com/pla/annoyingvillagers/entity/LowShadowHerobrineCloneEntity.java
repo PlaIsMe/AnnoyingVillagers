@@ -40,11 +40,10 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -139,24 +138,16 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
         this.initialSpawn = initialSpawn;
     }
 
-    public LowShadowHerobrineCloneEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), level);
-    }
-
-    public LowShadowHerobrineCloneEntity(EntityType<LowShadowHerobrineCloneEntity> entitytype, Level level) {
+        public LowShadowHerobrineCloneEntity(EntityType<LowShadowHerobrineCloneEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 50;
         this.setNoAi(false);
         this.setCustomNameVisible(false);
         this.setPersistenceRequired();
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+        protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new Goal() {
             @Override
@@ -213,11 +204,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
         CommonGoals.registerGoalForHostileNpc(this);
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEAD;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+        public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -226,11 +213,11 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
     }
 
     @Override
@@ -292,7 +279,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                 corpse.setUsername(killedName);
                 corpse.setCustomName(Component.literal(killedName));
                 corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                        MobSpawnType.MOB_SUMMONED, null, null);
+                        MobSpawnType.MOB_SUMMONED, null);
                 this.setInvisible(true);
                 this.remove(RemovalReason.KILLED);
                 corpse.setItemSlot(EquipmentSlot.HEAD, this.getItemBySlot(EquipmentSlot.HEAD).copy());
@@ -322,7 +309,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
         if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
             ServerLevel serverLevel = serverLevelAccessor.getLevel();
             HerobrineMobData herobrineMobData = HerobrineMobData.get(serverLevel);
@@ -338,7 +325,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
             this.moveTo(spawnPos, this.getYRot(), this.getXRot());
         }
         HerobrineUtil.initialSpawn(serverLevelAccessor, this, 0, mobSpawnType);
-        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData, compoundTag);
+        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
     }
 
     private void playHerobrinePossessionAnimation() {
@@ -370,10 +357,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
         if (!this.level().isClientSide) {
             if (this.tickCount == 1) {
                 if (this.renderPortal) {
-                    AnnoyingVillagers.PACKET_HANDLER.send(
-                            PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                            new ClientboundHerobrinePortalFx(this.getOnPos().getCenter().add(0.0, 1.5, 0.0))
-                    );
+                    ClientboundHerobrinePortalFx.sendToNearby(this, this.getOnPos().getCenter().add(0.0, 1.5, 0.0));
                     renderPortal = false;
                 }
                 if (this.initialSpawn) {

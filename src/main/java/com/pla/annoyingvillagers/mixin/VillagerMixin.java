@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 @Mixin(value = {AbstractVillager.class}, remap = true)
 public class VillagerMixin {
     @Inject(method = "finalizeSpawn", at = @At("RETURN"))
-    private void villagerTeamJoin(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag, CallbackInfoReturnable<SpawnGroupData> cir) {
+    private void villagerTeamJoin(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, CallbackInfoReturnable<SpawnGroupData> cir) {
         AbstractVillager self = (AbstractVillager) (Object) this;
         if (self.level() instanceof ServerLevel) {
             TeamUtil.addOrJoinTeam(self, "villagers");

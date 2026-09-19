@@ -10,15 +10,16 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public abstract class UnlightDiamondArmorItem extends ArmorItem {
+public abstract class UnlightDiamondArmorItem extends LegacyArmorItem {
 
     public UnlightDiamondArmorItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(ArmorItem.@NotNull Type type) {
                 return switch (type) {
@@ -26,6 +27,7 @@ public abstract class UnlightDiamondArmorItem extends ArmorItem {
                     case LEGGINGS   -> 15 * 46;
                     case CHESTPLATE -> 16 * 46;
                     case HELMET     -> 11 * 46;
+                    case BODY       -> 16 * 46;
                 };
             }
 
@@ -36,14 +38,15 @@ public abstract class UnlightDiamondArmorItem extends ArmorItem {
                     case LEGGINGS   -> 5;
                     case CHESTPLATE -> 8;
                     case HELMET     -> 5;
+                    case BODY       -> 8;
                 };
             }
             public int getEnchantmentValue() {
                 return 10;
             }
 
-            public @NotNull SoundEvent getEquipSound() {
-                return (SoundEvent) Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
+            public Object getEquipSound() {
+                return (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
             }
 
             public @NotNull Ingredient getRepairIngredient() {

@@ -3,14 +3,14 @@ package com.pla.annoyingvillagers.network;
 import com.pla.annoyingvillagers.client.engine.ClientPacketHandlers;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
+
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+
 
 public record ClientboundBlueDemonEffectFx(int entityId, int tickCount, boolean followEntity, Vec3 pos,
-                                           int count, double xOffset, double yOffset, double zOffset, double speed) {
+                                           int count, double xOffset, double yOffset, double zOffset, double speed)  implements AnnoyingVillagersPayload {
 
     public static void encode(ClientboundBlueDemonEffectFx msg, FriendlyByteBuf buf) {
         buf.writeInt(msg.entityId);
@@ -35,9 +35,7 @@ public record ClientboundBlueDemonEffectFx(int entityId, int tickCount, boolean 
                 buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble());
     }
 
-    public static void handle(ClientboundBlueDemonEffectFx msg, Supplier<NetworkEvent.Context> ctx) {
-        NetworkEvent.Context c = ctx.get();
-        c.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.handleBlueDemonEffectFx(msg)));
-        c.setPacketHandled(true);
+    public static void handle(ClientboundBlueDemonEffectFx msg, IPayloadContext context) {
+        context.enqueueWork(() -> ClientPacketHandlers.handleBlueDemonEffectFx(msg));
     }
 }

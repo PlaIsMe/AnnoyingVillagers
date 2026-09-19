@@ -1,14 +1,10 @@
 package com.pla.annoyingvillagers.mixin;
 
 import com.pla.annoyingvillagers.util.EndFireEntity;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModCapabilities;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -22,12 +18,7 @@ public abstract class EndFireEntityMixin implements EndFireEntity {
     @Unique
     private static final String ANNOYINGVILLAGERS_END_FIRE_TAG = "AnnoyingVillagersEndFire";
     @Unique
-    private static final EntityDataAccessor<Boolean> ANNOYINGVILLAGERS_END_FIRE = SynchedEntityData.defineId(Entity.class,EntityDataSerializers.BOOLEAN);
-
-    @Final
-    @Shadow
-    protected SynchedEntityData entityData;
-
+    private boolean annoyingVillagers$pendingLegacyEndFire;
     @Shadow
     public abstract int getRemainingFireTicks();
 
@@ -36,17 +27,13 @@ public abstract class EndFireEntityMixin implements EndFireEntity {
 
     @Override
     public boolean annoyingVillagers$isEndFireBurning() {
-        return this.entityData.get(ANNOYINGVILLAGERS_END_FIRE);
+        return ((Entity) (Object) this).getData(AnnoyingVillagersModCapabilities.END_FIRE);
     }
 
     @Override
     public void annoyingVillagers$setEndFireBurning(boolean endFireBurning) {
-        this.entityData.set(ANNOYINGVILLAGERS_END_FIRE,endFireBurning);
-    }
-
-    @Inject(method = "<init>",at = @At("TAIL"))
-    private void annoyingVillagers$defineEndFireData(EntityType<?> pEntityType, Level pLevel, CallbackInfo ci) {
-        this.entityData.define(ANNOYINGVILLAGERS_END_FIRE,false);
+        Entity self = (Entity) (Object) this;
+        self.setData(AnnoyingVillagersModCapabilities.END_FIRE, endFireBurning);
     }
 
     @Inject(method = "clearFire", at = @At("HEAD"), cancellable = true)
@@ -61,6 +48,16 @@ public abstract class EndFireEntityMixin implements EndFireEntity {
 
     @Inject(method = "baseTick",at = @At("TAIL"))
     private void annoyingVillagers$clearExpiredEndFire(CallbackInfo ci) {
+        // Loading old player NBT happens before ServerPlayer.connection exists.
+        // AttachmentType#setData synchronizes automatically, so migrate the
+        // legacy root tag only after the entity has entered the ticking world.
+        if (!this.level().isClientSide && this.annoyingVillagers$pendingLegacyEndFire) {
+            this.annoyingVillagers$pendingLegacyEndFire = false;
+            if (this.getRemainingFireTicks() > 0 && !this.annoyingVillagers$isEndFireBurning()) {
+                this.annoyingVillagers$setEndFireBurning(true);
+            }
+        }
+
         // The server owns expiration. Keeping the client-side flag until the synced update arrives
         // prevents a one-frame/short vanilla-fire fallback immediately after touching end fire.
         if (!this.level().isClientSide
@@ -77,6 +74,10 @@ public abstract class EndFireEntityMixin implements EndFireEntity {
 
     @Inject(method = "load",at = @At(value = "INVOKE",target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
     private void annoyingVillagers$loadEndFire(CompoundTag tag,CallbackInfo ci) {
-        this.annoyingVillagers$setEndFireBurning(tag.getBoolean(ANNOYINGVILLAGERS_END_FIRE_TAG) && this.getRemainingFireTicks() > 0);
+        // NeoForge deserializes its attachment payload itself. This only
+        // migrates the root tag written by the 1.20.1 implementation.
+        this.annoyingVillagers$pendingLegacyEndFire = !this.level().isClientSide
+                && tag.getBoolean(ANNOYINGVILLAGERS_END_FIRE_TAG)
+                && this.getRemainingFireTicks() > 0;
     }
 }

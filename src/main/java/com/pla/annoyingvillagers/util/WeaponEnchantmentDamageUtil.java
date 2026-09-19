@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,8 +26,8 @@ public final class WeaponEnchantmentDamageUtil {
             return 0.0F;
         }
 
-        int sharpnessLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SHARPNESS, weaponStack);
-        return sharpnessLevel > 0 ? Enchantments.SHARPNESS.getDamageBonus(sharpnessLevel, MobType.UNDEFINED) : 0.0F;
+        int sharpnessLevel = EnchantmentUtil.getLevel(Enchantments.SHARPNESS, weaponStack);
+        return sharpnessLevel > 0 ? 0.5F * sharpnessLevel + 0.5F : 0.0F;
     }
 
     private static ItemStack findWeaponStack(LivingEntity owner, Class<? extends Item> weaponClass) {

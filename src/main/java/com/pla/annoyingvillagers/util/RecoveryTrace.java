@@ -6,11 +6,15 @@ import com.pla.annoyingvillagers.entity.ai.RecoveryAi;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigStunController;
 import net.minecraft.world.item.BlockItem;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,7 +22,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /** Explicit, temporary per-NPC diagnostics. Never invoke goal eligibility/pathfinding from tracing. */
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class RecoveryTrace {
     private static final Map<UUID, Session> SESSIONS = new LinkedHashMap<>();
     private static final class Session {
@@ -39,8 +43,8 @@ public final class RecoveryTrace {
     }
 
     @SubscribeEvent
-    public static void tick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || SESSIONS.isEmpty()) return;
+    public static void tick(ServerTickEvent.Post event) {
+        if (false || SESSIONS.isEmpty()) return;
         long now = event.getServer().overworld().getGameTime();
         if (now % 20 != 0) return;
         var iterator = SESSIONS.values().iterator();
@@ -65,7 +69,7 @@ public final class RecoveryTrace {
         for (int slot = 0; slot < npc.getInventory().getContainerSize(); slot++) {
             var stack = npc.getInventory().getItem(slot);
             if (stack.getItem() instanceof BlockItem) blocks.append(slot).append(':')
-                    .append(ForgeRegistries.ITEMS.getKey(stack.getItem())).append('x').append(stack.getCount()).append(' ');
+                    .append(BuiltInRegistries.ITEM.getKey(stack.getItem())).append('x').append(stack.getCount()).append(' ');
         }
         String goals = npc.goalSelector.getAvailableGoals().stream().filter(g -> g.isRunning())
                 .map(g -> g.getPriority() + ":" + g.getGoal().getClass().getSimpleName()

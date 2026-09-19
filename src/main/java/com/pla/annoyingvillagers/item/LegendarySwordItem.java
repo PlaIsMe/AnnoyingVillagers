@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.entity.ShockWaveBlockEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
@@ -9,7 +10,9 @@ import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.ArmorUtil;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -25,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
@@ -33,17 +37,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
-public class LegendarySwordItem extends SwordItem implements RigCombatProfileProvider {
+public class LegendarySwordItem extends LegacySwordItem implements RigCombatProfileProvider {
     private static final String AWAKENED_TAG = "LegendarySwordAwakened";
     private static final String AWAKEN_UNTIL_TAG = "LegendarySwordAwakenUntil";
     private static final int ACTIVE_DURATION_TICKS = 20 * 30;
     private static final int RECOVERY_COOLDOWN_TICKS = 20 * 60 * 2;
-    private static final UUID ATTACK_SPEED_MODIFIER_UUID = UUID.fromString("db78a10d-0191-4728-8a2c-2cb8efe69dfa");
+    private static final ResourceLocation ATTACK_SPEED_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("annoyingvillagers", "legendary_sword_awakening_attack_speed");
 
     public LegendarySwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() { return 1561; }
             public float getSpeed() { return 4.0F; }
             public float getAttackDamageBonus() { return 6.0F; }
@@ -54,16 +57,18 @@ public class LegendarySwordItem extends SwordItem implements RigCombatProfilePro
     }
 
     public static boolean isAwakened(ItemStack stack, Level level) {
-        return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean(AWAKENED_TAG) && level.getGameTime() < stack.getTag().getLong(AWAKEN_UNTIL_TAG);
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean(AWAKENED_TAG) && level.getGameTime() < LegacyItemData.get(stack).getLong(AWAKEN_UNTIL_TAG);
     }
 
     public static boolean activateVanillaSpecial(Player player) {
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide()) return false;
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof LegendarySwordItem item) || player.getCooldowns().isOnCooldown(item)) return false;
-        stack.getOrCreateTag().putBoolean(AWAKENED_TAG, true);
-        stack.getOrCreateTag().putLong(AWAKEN_UNTIL_TAG, player.level().getGameTime() + ACTIVE_DURATION_TICKS);
-        stack.getOrCreateTag().putInt("CustomModelData", 1);
+        LegacyItemData.update(stack, tag -> {
+            tag.putBoolean(AWAKENED_TAG, true);
+            tag.putLong(AWAKEN_UNTIL_TAG, player.level().getGameTime() + ACTIVE_DURATION_TICKS);
+        });
+        stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(1));
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         applyAttackSpeed(player);
         refreshBuffs(player);
@@ -91,7 +96,7 @@ public class LegendarySwordItem extends SwordItem implements RigCombatProfilePro
     @Override
     public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
         super.inventoryTick(stack, level, entity, slot, selected);
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || level.isClientSide() || !(entity instanceof Player player) || !stack.hasTag() || stack.getTag() == null || !stack.getTag().getBoolean(AWAKENED_TAG)) return;
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || level.isClientSide() || !(entity instanceof Player player) || !LegacyItemData.has(stack) || LegacyItemData.get(stack) == null || !LegacyItemData.get(stack).getBoolean(AWAKENED_TAG)) return;
         if (isAwakened(stack, level)) {
             if (player.tickCount % 10 == 0) refreshBuffs(player);
             applyAttackSpeed(player);
@@ -112,14 +117,17 @@ public class LegendarySwordItem extends SwordItem implements RigCombatProfilePro
     private static void applyAttackSpeed(Player player) {
         AttributeInstance attackSpeed = player.getAttribute(Attributes.ATTACK_SPEED);
         if (attackSpeed == null) return;
-        attackSpeed.removeModifier(ATTACK_SPEED_MODIFIER_UUID);
-        attackSpeed.addTransientModifier(new AttributeModifier(ATTACK_SPEED_MODIFIER_UUID, "Legendary sword awakening attack speed", 0.5D, AttributeModifier.Operation.MULTIPLY_TOTAL));
+        attackSpeed.removeModifier(ATTACK_SPEED_MODIFIER_ID);
+        attackSpeed.addTransientModifier(new AttributeModifier(ATTACK_SPEED_MODIFIER_ID, 0.5D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
 
     private static void clearAwakening(ItemStack stack, Player player) {
-        stack.getTag().remove(AWAKENED_TAG);
-        stack.getTag().remove(AWAKEN_UNTIL_TAG);
-        stack.getTag().remove("CustomModelData");
+        LegacyItemData.update(stack, tag -> {
+            tag.remove(AWAKENED_TAG);
+            tag.remove(AWAKEN_UNTIL_TAG);
+            tag.remove("CustomModelData");
+        });
+        stack.remove(DataComponents.CUSTOM_MODEL_DATA);
         clearVanillaAttackSpeed(player);
     }
 
@@ -136,7 +144,7 @@ public class LegendarySwordItem extends SwordItem implements RigCombatProfilePro
 
     public static void clearVanillaAttackSpeed(Player player) {
         AttributeInstance attackSpeed = player.getAttribute(Attributes.ATTACK_SPEED);
-        if (attackSpeed != null) attackSpeed.removeModifier(ATTACK_SPEED_MODIFIER_UUID);
+        if (attackSpeed != null) attackSpeed.removeModifier(ATTACK_SPEED_MODIFIER_ID);
     }
 
     @Override
@@ -145,7 +153,7 @@ public class LegendarySwordItem extends SwordItem implements RigCombatProfilePro
         return super.hurtEnemy(stack, target, attacker);
     }
 
-    public void appendHoverText(@NotNull ItemStack itemStack, Level level, @NotNull List<Component> componentList, @NotNull TooltipFlag tooltipFlag) {
+    public void appendHoverText(@NotNull ItemStack itemStack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> componentList, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(itemStack, level, componentList, tooltipFlag);
         componentList.add(Component.translatable("tooltip.annoyingvillagers.legendary_sword"));
     }

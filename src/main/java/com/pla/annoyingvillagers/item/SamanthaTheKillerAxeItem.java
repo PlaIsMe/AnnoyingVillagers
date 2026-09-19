@@ -6,9 +6,9 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class SamanthaTheKillerAxeItem extends SwordItem implements RigCombatProfileProvider {
+public class SamanthaTheKillerAxeItem extends LegacySwordItem implements RigCombatProfileProvider {
     public SamanthaTheKillerAxeItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }

@@ -13,10 +13,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 @EventBusSubscriber
 public class EnchantBedDeathEvent {
@@ -42,15 +42,15 @@ public class EnchantBedDeathEvent {
 
             if (entity instanceof LivingEntity) {
                 livingentity = (LivingEntity)entity;
-                if (livingentity.hasEffect((MobEffect) AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT.get())) {
+                if (livingentity.hasEffect(AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT)) {
                     LivingEntity livingentity2;
                     if (entity instanceof LivingEntity) {
                         livingentity2 = (LivingEntity)entity;
                         livingentity2.setHealth(20.0F);
                     }
 
-                    if (event != null && event.isCancelable()) {
-                        event.setCanceled(true);
+                    if (event instanceof net.neoforged.bus.api.ICancellableEvent cancellable) {
+                        cancellable.setCanceled(true);
                     }
 
                     if (entity instanceof Player) {
@@ -64,7 +64,7 @@ public class EnchantBedDeathEvent {
                         if (entity instanceof ServerPlayer) {
                             serverplayer = (ServerPlayer)entity;
                             if (!serverplayer.level().isClientSide()) {
-                                d0 = (double)(serverplayer.getRespawnDimension().equals(serverplayer.level().dimension()) && serverplayer.getRespawnPosition() != null ? serverplayer.getRespawnPosition().getX() : serverplayer.level().getLevelData().getXSpawn());
+                                d0 = (double)(serverplayer.getRespawnDimension().equals(serverplayer.level().dimension()) && serverplayer.getRespawnPosition() != null ? serverplayer.getRespawnPosition().getX() : serverplayer.serverLevel().getSharedSpawnPos().getX());
                                 break label179;
                             }
                         }
@@ -77,7 +77,7 @@ public class EnchantBedDeathEvent {
                         if (entity instanceof ServerPlayer) {
                             serverplayer = (ServerPlayer)entity;
                             if (!serverplayer.level().isClientSide()) {
-                                i = serverplayer.getRespawnDimension().equals(serverplayer.level().dimension()) && serverplayer.getRespawnPosition() != null ? serverplayer.getRespawnPosition().getY() : serverplayer.level().getLevelData().getYSpawn();
+                                i = serverplayer.getRespawnDimension().equals(serverplayer.level().dimension()) && serverplayer.getRespawnPosition() != null ? serverplayer.getRespawnPosition().getY() : serverplayer.serverLevel().getSharedSpawnPos().getY();
                                 break label169;
                             }
                         }
@@ -92,7 +92,7 @@ public class EnchantBedDeathEvent {
                         if (entity instanceof ServerPlayer) {
                             serverplayer = (ServerPlayer)entity;
                             if (!serverplayer.level().isClientSide()) {
-                                d2 = (double)(serverplayer.getRespawnDimension().equals(serverplayer.level().dimension()) && serverplayer.getRespawnPosition() != null ? serverplayer.getRespawnPosition().getZ() : serverplayer.level().getLevelData().getZSpawn());
+                                d2 = (double)(serverplayer.getRespawnDimension().equals(serverplayer.level().dimension()) && serverplayer.getRespawnPosition() != null ? serverplayer.getRespawnPosition().getZ() : serverplayer.serverLevel().getSharedSpawnPos().getZ());
                                 break label160;
                             }
                         }
@@ -110,7 +110,7 @@ public class EnchantBedDeathEvent {
                                 ServerPlayer serverplayer1 = (ServerPlayer)entity;
 
                                 if (!serverplayer1.level().isClientSide()) {
-                                    d0 = (double)(serverplayer1.getRespawnDimension().equals(serverplayer1.level().dimension()) && serverplayer1.getRespawnPosition() != null ? serverplayer1.getRespawnPosition().getX() : serverplayer1.level().getLevelData().getXSpawn());
+                                    d0 = (double)(serverplayer1.getRespawnDimension().equals(serverplayer1.level().dimension()) && serverplayer1.getRespawnPosition() != null ? serverplayer1.getRespawnPosition().getX() : serverplayer1.serverLevel().getSharedSpawnPos().getX());
                                     break label148;
                                 }
                             }
@@ -123,7 +123,7 @@ public class EnchantBedDeathEvent {
                                 ServerPlayer serverplayer2 = (ServerPlayer)entity;
 
                                 if (!serverplayer2.level().isClientSide()) {
-                                    i = serverplayer2.getRespawnDimension().equals(serverplayer2.level().dimension()) && serverplayer2.getRespawnPosition() != null ? serverplayer2.getRespawnPosition().getY() : serverplayer2.level().getLevelData().getYSpawn();
+                                    i = serverplayer2.getRespawnDimension().equals(serverplayer2.level().dimension()) && serverplayer2.getRespawnPosition() != null ? serverplayer2.getRespawnPosition().getY() : serverplayer2.serverLevel().getSharedSpawnPos().getY();
                                     break label138;
                                 }
                             }
@@ -137,7 +137,7 @@ public class EnchantBedDeathEvent {
                                 ServerPlayer serverplayer3 = (ServerPlayer)entity;
 
                                 if (!serverplayer3.level().isClientSide()) {
-                                    d2 = (double)(serverplayer3.getRespawnDimension().equals(serverplayer3.level().dimension()) && serverplayer3.getRespawnPosition() != null ? serverplayer3.getRespawnPosition().getZ() : serverplayer3.level().getLevelData().getZSpawn());
+                                    d2 = (double)(serverplayer3.getRespawnDimension().equals(serverplayer3.level().dimension()) && serverplayer3.getRespawnPosition() != null ? serverplayer3.getRespawnPosition().getZ() : serverplayer3.serverLevel().getSharedSpawnPos().getZ());
                                     break label129;
                                 }
                             }
@@ -150,7 +150,7 @@ public class EnchantBedDeathEvent {
 
                     if (entity instanceof LivingEntity) {
                         livingentity2 = (LivingEntity)entity;
-                        livingentity2.removeEffect((MobEffect)AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT.get());
+                        livingentity2.removeEffect(AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT);
                     }
 
                     if (entity instanceof Player) {

@@ -12,6 +12,7 @@ import com.pla.annoyingvillagers.entity.goal.RecallLandGoal;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
+import com.pla.annoyingvillagers.mixin.LivingEntityAccessor;
 import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import net.minecraft.core.BlockPos;
@@ -51,7 +52,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -244,11 +244,11 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     }
 
     @Override
-    protected void defineSynchedData()
+    protected void defineSynchedData(SynchedEntityData.Builder builder)
     {
-        super.defineSynchedData();
-        this.entityData.define(DATA_CONTROL_LOCKED, false);
-        this.entityData.define(DATA_SPECIAL_ATTACK_DESCENDING, false);
+        super.defineSynchedData(builder);
+        builder.define(DATA_CONTROL_LOCKED, false);
+        builder.define(DATA_SPECIAL_ATTACK_DESCENDING, false);
     }
 
     private boolean isSpecialAttackDescending() {
@@ -298,7 +298,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     }
 
     @Override
-    public boolean canChangeDimensions() {
+    public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
         return false;
     }
 
@@ -353,10 +353,10 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     }
 
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @org.jetbrains.annotations.Nullable CompoundTag pDataTag) {
+    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
         setAge(0);
 
-        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }
 
     public static LivingEntity getNearestLivingEntity(Level level, Entity sourceEntity, double range) {
@@ -494,7 +494,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
             aimPosition = portalAimPosition;
         }
         dragonMeteoriteEntity.setPosToAim(aimPosition);
-        dragonMeteoriteEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+        dragonMeteoriteEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
         dragonMeteoriteEntity.setOwner(this);
         serverLevel.addFreshEntity(dragonMeteoriteEntity);
 
@@ -757,7 +757,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
         if (isFlying() && hasLocalDriver())
         {
             moveForward = moveForward > 0? moveForward : 0;
-            if (driver.jumping) moveY = 1;
+            if (((LivingEntityAccessor) driver).annoyingVillagers$isJumping()) moveY = 1;
             else if (this.isSpecialAttackDescending()) moveY = -1;
             else if (moveForward > 0) moveY = -driver.getXRot() / 90;
         }
@@ -783,7 +783,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
 
         if (isControlledByLocalInstance())
         {
-            if (!isFlying() && canFly() && driver.jumping) liftOff();
+            if (!isFlying() && canFly() && ((LivingEntityAccessor) driver).annoyingVillagers$isJumping()) liftOff();
         }
     }
 
@@ -921,16 +921,9 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     /**
      * Returns the height of the eyes. Used for looking at other entities.
      */
-    @Override
-    protected float getStandingEyeHeight(@NotNull Pose poseIn, EntityDimensions sizeIn)
-    {
-        return sizeIn.height * 1.2f;
-    }
-
     /**
      * Returns the Y offset from the entity's position for any entity riding this one.
      */
-    @Override
     public double getPassengersRidingOffset()
     {
         return getBbHeight() - 0.175;
@@ -1042,9 +1035,10 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     {
         if (hasPassenger(ridden))
         {
-            var rePos = new Vec3(0, getPassengersRidingOffset() + ridden.getMyRidingOffset(), getScale())
+            var rePos = new Vec3(0, getPassengersRidingOffset(), getScale())
                     .yRot((float) Math.toRadians(-yBodyRot))
-                    .add(position());
+                    .add(position())
+                    .subtract(ridden.getVehicleAttachmentPoint(this));
             pCallback.accept(ridden, rePos.x, rePos.y, rePos.z);
 
             if (getFirstPassenger() instanceof LivingEntity)
@@ -1105,11 +1099,11 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose poseIn)
+    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose poseIn)
     {
         var height = isInSittingPose()? 2.15f : BASE_HEIGHT;
         var scale = getScale();
-        return new EntityDimensions(BASE_WIDTH * scale, height * scale, false);
+        return EntityDimensions.fixed(BASE_WIDTH * scale, height * scale).withEyeHeight(height * scale * 1.2F);
     }
 
     @Override
@@ -1124,15 +1118,14 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     }
 
     @Override
-    public boolean canBreatheUnderwater()
+    public boolean fireImmune()
     {
         return true;
     }
 
     @Override
-    public boolean fireImmune()
-    {
-        return true;
+    public boolean isFood(@NotNull ItemStack stack) {
+        return false;
     }
 
     @Override
@@ -1156,13 +1149,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
         return new Vec3(getX(), getY() + getBbHeight(), getZ());
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket()
-    {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    public boolean hasLocalDriver()
+        public boolean hasLocalDriver()
     {
         return getFirstPassenger() instanceof Player p && p.isLocalPlayer();
     }

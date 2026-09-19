@@ -18,7 +18,7 @@ public class ChrisData extends SavedData {
     private static final long COOLDOWN_TICKS = 20L * 60L * 10L;
 
     public static ChrisData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(ChrisData::load, ChrisData::new, ID);
+        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(ChrisData::new, (tag, provider) -> ChrisData.load(tag)), ID);
     }
 
     public static ChrisData load(CompoundTag compoundTag) {
@@ -36,7 +36,7 @@ public class ChrisData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null){
             compoundTag.putUUID("activeId", activeId);
         }

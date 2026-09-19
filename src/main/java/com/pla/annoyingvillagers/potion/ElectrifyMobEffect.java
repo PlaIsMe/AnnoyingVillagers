@@ -59,8 +59,7 @@ public class ElectrifyMobEffect extends MobEffect {
     }
 
     @Override
-    public void applyEffectTick(@NotNull LivingEntity pLivingEntity, int pAmplifier) {
-        super.applyEffectTick(pLivingEntity, pAmplifier);
+    public boolean applyEffectTick(@NotNull LivingEntity pLivingEntity, int pAmplifier) {
         double d0 = pLivingEntity.getX();
         double d1 = pLivingEntity.getY();
         double d2 = pLivingEntity.getZ();
@@ -92,9 +91,10 @@ public class ElectrifyMobEffect extends MobEffect {
         if (Math.random() <= (pAmplifier > 1 ? 1.0D : 0.1D)) {
             pLivingEntity.hurt(pLivingEntity.level().damageSources().generic(),  (pAmplifier > 1 ? 5.0F : 0.2F));
         }
+        return true;
     }
 
-    public boolean isDurationEffectTick(int i, int j) {
+    public boolean shouldApplyEffectTickThisTick(int i, int j) {
         return true;
     }
 }

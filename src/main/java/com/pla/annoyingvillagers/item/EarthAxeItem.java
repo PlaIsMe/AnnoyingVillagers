@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class EarthAxeItem extends SwordItem implements RigCombatProfileProvider {
+public class EarthAxeItem extends LegacySwordItem implements RigCombatProfileProvider {
     public static final int VANILLA_WALL_COOLDOWN_TICKS = 20 * 60;
     public static final int VANILLA_LIFT_COOLDOWN_TICKS = 20 * 10;
     private static final int WALL_WIDTH = 5;
@@ -39,7 +39,7 @@ public class EarthAxeItem extends SwordItem implements RigCombatProfileProvider 
     private static final int RISE_TICKS = 10;
 
     public EarthAxeItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 2031;
             }
@@ -373,7 +373,7 @@ public class EarthAxeItem extends SwordItem implements RigCombatProfileProvider 
             return null;
         }
 
-        return blockEntity.saveWithFullMetadata();
+        return blockEntity.saveWithFullMetadata(level.registryAccess());
     }
 
     @Override

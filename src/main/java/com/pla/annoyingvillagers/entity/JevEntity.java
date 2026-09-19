@@ -32,17 +32,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ThrowablePotionItem;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import com.pla.annoyingvillagers.util.PotionUtil;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -98,13 +97,9 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
         this.followTargetUUID = followTargetUUID;
     }
 
-    public JevEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.JEV.get(), level);
-    }
-
-    public JevEntity(EntityType<JevEntity> entitytype, Level level) {
+        public JevEntity(EntityType<JevEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(1.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(1.0F);
         this.xpReward = 10;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -115,11 +110,7 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
         this.setPlaceBlockToParryChance(0.0);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+        protected void registerGoals() {
         super.registerGoals();
         CommonGoals.registerDangerousReactionGoals(this);
         this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, AlexEntity.class, 12.0F));
@@ -167,8 +158,6 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
         if (this.isInvulnerableTo(pDamageSource)) {
             return;
         }
-
-        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
         if (pDamageAmount <= 0.0F) {
             return;
         }
@@ -185,7 +174,9 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
             }
         }
 
-        finalDamage = ForgeHooks.onLivingDamage(this, pDamageSource, finalDamage);
+        this.damageContainers.peek().setNewDamage(finalDamage);
+
+        finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
 
         if (this.level() instanceof ServerLevel serverLevel
@@ -203,8 +194,8 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
-        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
         TeamUtil.addOrJoinTeam(this, "alex");
         setMainWeaponItem(new ItemStack(AnnoyingVillagersModItems.JEV_PENCIL.get()));
         setOffWeaponItem(new ItemStack(AnnoyingVillagersModItems.JEV_BOOK.get()));
@@ -220,8 +211,9 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, source, recentlyHit);
         this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_GLASSES.get()));
         this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_PENCIL.get()));
         this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_BOOK.get()));
@@ -274,12 +266,12 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     private void addJevSeedPotionStacks(Random random) {
         List<ItemStack> goodPotions = new ArrayList<>(List.of(
                 createStrongHealingPotion(),
-                PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_STRENGTH),
-                PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SWIFTNESS),
-                PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_LEAPING),
+                PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_STRENGTH),
+                PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SWIFTNESS),
+                PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_LEAPING),
                 createHastePotion(),
                 createGoodBuffPotion(),
-                PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION)
+                PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION)
         ));
         List<ItemStack> badPotions = new ArrayList<>(List.of(
                 createPoisonPotion(),
@@ -308,7 +300,7 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
         ItemStack remaining = stack.copy();
         for (int slot = 0; slot < inventory.getContainerSize() && !remaining.isEmpty(); slot++) {
             ItemStack slotStack = inventory.getItem(slot);
-            if (slotStack.isEmpty() || !ItemStack.isSameItemSameTags(slotStack, remaining)) {
+            if (slotStack.isEmpty() || !ItemStack.isSameItemSameComponents(slotStack, remaining)) {
                 continue;
             }
 
@@ -370,12 +362,12 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     public static ItemStack createRandomJevLootPotion(Random random) {
         return switch (random.nextInt(13)) {
             case 0 -> createStrongHealingPotion();
-            case 1 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_STRENGTH);
-            case 2 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SWIFTNESS);
-            case 3 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_LEAPING);
+            case 1 -> PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_STRENGTH);
+            case 2 -> PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SWIFTNESS);
+            case 3 -> PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_LEAPING);
             case 4 -> createHastePotion();
             case 5 -> createGoodBuffPotion();
-            case 6 -> PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION);
+            case 6 -> PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION);
             case 7 -> createPoisonPotion();
             case 8 -> createWeaknessPotion();
             case 9 -> createSlownessPotion();
@@ -386,27 +378,27 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
     private static ItemStack createStrongHealingPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_HEALING);
+        return PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_HEALING);
     }
 
     private static ItemStack createPoisonPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_POISON);
+        return PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_POISON);
     }
 
     private static ItemStack createGoodBuffPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION);
+        return PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_REGENERATION);
     }
 
     private static ItemStack createWeaknessPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.WEAKNESS);
+        return PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.WEAKNESS);
     }
 
     private static ItemStack createSlownessPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SLOWNESS);
+        return PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_SLOWNESS);
     }
 
     private static ItemStack createStrongHarmingPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_HARMING);
+        return PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.STRONG_HARMING);
     }
 
     private static ItemStack createNauseaPotion() {
@@ -426,8 +418,8 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
     private static ItemStack customSplashPotion(MobEffectInstance effect) {
-        ItemStack potion = PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.WATER);
-        PotionUtils.setCustomEffects(potion, List.of(effect));
+        ItemStack potion = PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), Potions.WATER);
+        PotionUtil.setCustomEffects(potion, List.of(effect));
         return potion;
     }
 
@@ -472,11 +464,7 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
         }
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    @Override
+        @Override
     public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         if (followTargetUUID != null) {
@@ -506,15 +494,15 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
     public SoundEvent getAmbientSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.villager.ambient"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.villager.ambient"));
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.villager.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.villager.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.villager.death"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.villager.death"));
     }
 
     public boolean hurt(@NotNull DamageSource damageSource, float f) {

@@ -10,9 +10,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class IronTwinBladeKatanaItem extends SwordItem implements RigCombatProfileProvider {
+public class IronTwinBladeKatanaItem extends LegacySwordItem implements RigCombatProfileProvider {
     public IronTwinBladeKatanaItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 250;
             }

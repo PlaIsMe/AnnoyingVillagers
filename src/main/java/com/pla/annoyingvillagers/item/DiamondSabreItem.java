@@ -14,10 +14,10 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public class DiamondSabreItem extends SwordItem implements RigCombatProfileProvider {
+public class DiamondSabreItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public DiamondSabreItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }

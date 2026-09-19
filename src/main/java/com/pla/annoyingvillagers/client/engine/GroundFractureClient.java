@@ -18,8 +18,8 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -62,7 +62,7 @@ public final class GroundFractureClient {
 
         boolean smallSlam = radius < 1.5D;
         if (!noSound) {
-            level.playLocalSound(center.x, center.y, center.z, smallSlam ? SoundEvents.PLAYER_ATTACK_KNOCKBACK : SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, smallSlam ? 0.8F : 1.4F, smallSlam ? 1.1F : 0.75F + level.random.nextFloat() * 0.1F, false);
+            level.playLocalSound(center.x, center.y, center.z, smallSlam ? SoundEvents.PLAYER_ATTACK_KNOCKBACK : SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, smallSlam ? 0.8F : 1.4F, smallSlam ? 1.1F : 0.75F + level.random.nextFloat() * 0.1F, false);
             level.playLocalSound(center.x, center.y, center.z, SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 0.9F, 0.75F + level.random.nextFloat() * 0.2F, false);
         }
 
@@ -141,8 +141,10 @@ public final class GroundFractureClient {
             FractureBlockState fractureState = FractureBlock.getDefaultFractureBlockState(null);
             if (fractureState == null) return;
             fractureState.setFractureInfo(blockPos, blockState, translator, rotator, bouncing, lifeTime);
-            level.setBlock(blockPos, fractureState, 0);
-            if (!noParticle && blockState.shouldSpawnParticlesOnBreak()) createParticle(level, blockPos, blockState);
+            // ClientLevel needs a visible block update in 1.21 so the newly
+            // created block entity is added to the render dispatcher.
+            level.setBlock(blockPos, fractureState, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+            if (!noParticle && !blockState.isAir()) createParticle(level, blockPos, blockState);
         }
     }
 

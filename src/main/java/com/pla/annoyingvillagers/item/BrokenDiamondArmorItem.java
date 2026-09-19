@@ -8,15 +8,16 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public abstract class BrokenDiamondArmorItem extends ArmorItem {
+public abstract class BrokenDiamondArmorItem extends LegacyArmorItem {
 
     public BrokenDiamondArmorItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(ArmorItem.@NotNull Type type) {
                 return switch (type) {
@@ -24,6 +25,7 @@ public abstract class BrokenDiamondArmorItem extends ArmorItem {
                     case LEGGINGS   -> 15 * 10;
                     case CHESTPLATE -> 16 * 10;
                     case HELMET     -> 11 * 10;
+                    case BODY       -> 16 * 10;
                 };
             }
 
@@ -34,6 +36,7 @@ public abstract class BrokenDiamondArmorItem extends ArmorItem {
                     case LEGGINGS   -> 6;
                     case CHESTPLATE -> 5;
                     case HELMET     -> 3;
+                    case BODY       -> 5;
                 };
             }
 
@@ -41,8 +44,8 @@ public abstract class BrokenDiamondArmorItem extends ArmorItem {
                 return 9;
             }
 
-            public @NotNull SoundEvent getEquipSound() {
-                return (SoundEvent) Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
+            public Object getEquipSound() {
+                return (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
             }
 
             public @NotNull Ingredient getRepairIngredient() {

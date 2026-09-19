@@ -35,7 +35,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import java.util.ArrayList;
@@ -114,17 +113,17 @@ public class DragonBeamEntity extends Entity {
         this.calculateEndPos();
     }
 
-    protected void defineSynchedData() {
-        this.entityData.define(YAW, 0.0F);
-        this.entityData.define(PITCH, 0.0F);
-        this.entityData.define(DURATION, 0);
-        this.entityData.define(CASTER, -1);
-        this.entityData.define(TARGET, -1);
-        this.entityData.define(USE_NO_VFX_THUNDER, false);
-        this.entityData.define(THUNDER_START, new Vector3f());
-        this.entityData.define(THUNDER_STOP,  new Vector3f());
-        this.entityData.define(HAS_TARGET_POS, false);
-        this.entityData.define(TARGET_POS, new Vector3f());
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(YAW, 0.0F);
+        builder.define(PITCH, 0.0F);
+        builder.define(DURATION, 0);
+        builder.define(CASTER, -1);
+        builder.define(TARGET, -1);
+        builder.define(USE_NO_VFX_THUNDER, false);
+        builder.define(THUNDER_START, new Vector3f());
+        builder.define(THUNDER_STOP,  new Vector3f());
+        builder.define(HAS_TARGET_POS, false);
+        builder.define(TARGET_POS, new Vector3f());
     }
 
     public void setTargetID(int id) {
@@ -188,11 +187,7 @@ public class DragonBeamEntity extends Entity {
         return this.targetPos;
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    public @NotNull PushReaction getPistonPushReaction() {
+        public @NotNull PushReaction getPistonPushReaction() {
         return PushReaction.IGNORE;
     }
 
@@ -276,10 +271,7 @@ public class DragonBeamEntity extends Entity {
                 ClientVfxRouter.run(
                         VfxEffect.DRAGON_BEAM_HIT,
                         () -> PhotonClientFxUtil.spawnAt(world, "dragonhitfire", hitVec),
-                        () -> {
-                            AAAParticlesUtil.sendDragonBeamHit(world, hitBlock);
-                            return true;
-                        },
+                        () -> AAAParticlesUtil.sendDragonBeamHit(world, hitBlock),
                         () -> {
                             world.addParticle(
                                     ParticleTypes.EXPLOSION,

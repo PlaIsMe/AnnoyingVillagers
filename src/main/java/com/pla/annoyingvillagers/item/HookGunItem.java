@@ -1,11 +1,13 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.renderer.HookGunItemRenderer;
 import com.pla.annoyingvillagers.entity.HookGunHookEntity;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,16 +24,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -77,7 +82,7 @@ public class HookGunItem extends Item {
     }
 
     @Override
-    public boolean canApplyAtEnchantingTable(@NotNull ItemStack stack, @NotNull Enchantment enchantment) {
+    public boolean supportsEnchantment(@NotNull ItemStack stack, @NotNull net.minecraft.core.Holder<Enchantment> enchantment) {
         return false;
     }
 
@@ -92,7 +97,7 @@ public class HookGunItem extends Item {
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @NotNull Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+    public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         tooltip.add(Component.translatable("tooltip.annoyingvillagers.hook_gun"));
     }
@@ -294,16 +299,11 @@ public class HookGunItem extends Item {
     }
 
     public static ItemStack getBoundItem(ItemStack hookGunStack) {
-        if (hookGunStack.isEmpty() || !(hookGunStack.getItem() instanceof HookGunItem) || !hookGunStack.hasTag()) {
+        if (hookGunStack.isEmpty() || !(hookGunStack.getItem() instanceof HookGunItem)) {
             return ItemStack.EMPTY;
         }
-
-        CompoundTag tag = hookGunStack.getTag();
-        if (tag == null || !tag.contains(TAG_BOUND_ITEM, 10)) {
-            return ItemStack.EMPTY;
-        }
-
-        return ItemStack.of(tag.getCompound(TAG_BOUND_ITEM));
+        ItemContainerContents contents = hookGunStack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+        return contents.getSlots() > 0 ? contents.getStackInSlot(0).copy() : ItemStack.EMPTY;
     }
 
     public static void setBoundItem(ItemStack hookGunStack, ItemStack boundItem) {
@@ -318,14 +318,14 @@ public class HookGunItem extends Item {
 
         ItemStack stored = boundItem.copy();
         stored.setCount(1);
-        hookGunStack.getOrCreateTag().put(TAG_BOUND_ITEM, stored.save(new CompoundTag()));
+        hookGunStack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(stored)));
     }
 
     public static boolean isVisualHookOut(ItemStack hookGunStack) {
         return !hookGunStack.isEmpty()
                 && hookGunStack.getItem() instanceof HookGunItem
-                && hookGunStack.hasTag()
-                && hookGunStack.getOrCreateTag().getBoolean(TAG_VISUAL_HOOK_OUT);
+                && LegacyItemData.has(hookGunStack)
+                && LegacyItemData.getOrCreate(hookGunStack).getBoolean(TAG_VISUAL_HOOK_OUT);
     }
 
     public static void setVisualHookOut(ItemStack hookGunStack, boolean visualHookOut) {
@@ -334,26 +334,27 @@ public class HookGunItem extends Item {
         }
 
         if (visualHookOut) {
-            hookGunStack.getOrCreateTag().putBoolean(TAG_VISUAL_HOOK_OUT, true);
+            LegacyItemData.getOrCreate(hookGunStack).putBoolean(TAG_VISUAL_HOOK_OUT, true);
             return;
         }
 
-        if (!hookGunStack.hasTag()) {
+        if (!LegacyItemData.has(hookGunStack)) {
             return;
         }
 
-        CompoundTag tag = hookGunStack.getTag();
+        CompoundTag tag = LegacyItemData.get(hookGunStack);
         if (tag != null) {
             tag.remove(TAG_VISUAL_HOOK_OUT);
         }
     }
 
     public static void clearBoundItem(ItemStack hookGunStack) {
-        if (!hookGunStack.hasTag()) {
+        hookGunStack.remove(DataComponents.CONTAINER);
+        if (!LegacyItemData.has(hookGunStack)) {
             return;
         }
 
-        CompoundTag tag = hookGunStack.getTag();
+        CompoundTag tag = LegacyItemData.get(hookGunStack);
         if (tag != null) {
             tag.remove(TAG_BOUND_ITEM);
             tag.remove(TAG_VISUAL_HOOK_OUT);
@@ -447,7 +448,7 @@ public class HookGunItem extends Item {
             ItemStack target = player.getInventory().items.get(slot);
             if (target.isEmpty()
                     || !target.isStackable()
-                    || !ItemStack.isSameItemSameTags(target, stack)) {
+                    || !ItemStack.isSameItemSameComponents(target, stack)) {
                 continue;
             }
 
@@ -702,13 +703,7 @@ public class HookGunItem extends Item {
             return;
         }
 
-        stack.hurtAndBreak(1, owner, brokenOwner -> {
-            if (brokenOwner instanceof ServerPlayer serverPlayer) {
-                serverPlayer.broadcastBreakEvent(hand);
-            } else {
-                brokenOwner.broadcastBreakEvent(hand);
-            }
-        });
+        stack.hurtAndBreak(1, owner, LivingEntity.getSlotForHand(hand));
     }
 
     private static void swingBothHands(LivingEntity owner) {
@@ -874,11 +869,11 @@ public class HookGunItem extends Item {
         return null;
     }
 
-    @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    @EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
     public static class Events {
         @SubscribeEvent
-        public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-            LivingEntity owner = event.getEntity();
+        public static void onLivingTick(EntityTickEvent.Post event) {
+            if (!(event.getEntity() instanceof LivingEntity owner)) return;
             if (owner.level().isClientSide) {
                 return;
             }

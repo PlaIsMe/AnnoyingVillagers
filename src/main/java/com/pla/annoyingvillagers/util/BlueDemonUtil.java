@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public final class BlueDemonUtil {
     private BlueDemonUtil() {
@@ -39,10 +39,7 @@ public final class BlueDemonUtil {
             return;
         }
 
-        AnnoyingVillagers.PACKET_HANDLER.send(
-                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> trackingEntity),
-                new ClientboundBlueDemonEffectFx(trackingEntity.getId(), trackingEntity.tickCount, followEntity,
-                        pos, count, xOffset, yOffset, zOffset, speed)
-        );
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(trackingEntity, new ClientboundBlueDemonEffectFx(trackingEntity.getId(), trackingEntity.tickCount, followEntity,
+                        pos, count, xOffset, yOffset, zOffset, speed));
     }
 }

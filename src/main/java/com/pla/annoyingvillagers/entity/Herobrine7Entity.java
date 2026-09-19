@@ -24,19 +24,14 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
 public class Herobrine7Entity extends HerobrineMob {
-    public Herobrine7Entity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.HEROBRINE_7.get(), level);
-    }
-
-    public Herobrine7Entity(EntityType<Herobrine7Entity> entitytype, Level level) {
+        public Herobrine7Entity(EntityType<Herobrine7Entity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 50;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -95,7 +90,7 @@ public class Herobrine7Entity extends HerobrineMob {
             corpse.setUsername(killedName);
             corpse.setCustomName(Component.literal(killedName));
             corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                    MobSpawnType.MOB_SUMMONED, null, null);
+                    MobSpawnType.MOB_SUMMONED, null);
             this.setInvisible(true);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(corpse);

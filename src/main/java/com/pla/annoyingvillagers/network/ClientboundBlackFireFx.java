@@ -3,13 +3,13 @@ package com.pla.annoyingvillagers.network;
 import com.pla.annoyingvillagers.client.engine.ClientPacketHandlers;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
 
-public record ClientboundBlackFireFx(int entityId) {
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+
+
+public record ClientboundBlackFireFx(int entityId)  implements AnnoyingVillagersPayload {
 
     public ClientboundBlackFireFx(Entity entity) {
         this(entity.getId());
@@ -23,16 +23,7 @@ public record ClientboundBlackFireFx(int entityId) {
         return new ClientboundBlackFireFx(buf.readVarInt());
     }
 
-    public static void handle(ClientboundBlackFireFx msg, Supplier<NetworkEvent.Context> ctx) {
-        NetworkEvent.Context c = ctx.get();
-
-        c.enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(
-                    Dist.CLIENT,
-                    () -> () -> ClientPacketHandlers.handleBlackFire(msg)
-            );
-        });
-
-        c.setPacketHandled(true);
+    public static void handle(ClientboundBlackFireFx msg, IPayloadContext context) {
+        context.enqueueWork(() -> ClientPacketHandlers.handleBlackFire(msg));
     }
 }

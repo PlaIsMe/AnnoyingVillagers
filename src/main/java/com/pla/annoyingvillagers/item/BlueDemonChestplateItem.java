@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -31,7 +32,7 @@ import java.util.List;
 
 import static com.pla.annoyingvillagers.util.ArmorUtil.dropArmorSlot;
 
-public abstract class BlueDemonChestplateItem extends ArmorItem {
+public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
     private static final String TAG_CHEST_CHARGE = "BlueDemonChestCharge";
     public static final int MAX_CHEST_CHARGE = 100;
 
@@ -47,7 +48,7 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
     private static final String TAG_BLUE_DEMON_HEALING_FOIL = "BlueDemonHealingFoil";
 
     public BlueDemonChestplateItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(@NotNull Type pType) {
                 return switch (pType) {
@@ -55,6 +56,7 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
                     case LEGGINGS -> 15 * 31;
                     case CHESTPLATE -> 25 * 31;
                     case HELMET -> 11 * 31;
+                    case BODY -> 25 * 31;
                 };
             }
 
@@ -65,6 +67,7 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
                     case LEGGINGS -> 5;
                     case CHESTPLATE -> 30;
                     case HELMET -> 2;
+                    case BODY -> 30;
                 };
             }
 
@@ -74,7 +77,7 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
             }
 
             @Override
-            public @NotNull SoundEvent getEquipSound() {
+            public Object getEquipSound() {
                 return SoundEvents.ARMOR_EQUIP_GENERIC;
             }
 
@@ -109,7 +112,7 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
             return 0;
         }
 
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = LegacyItemData.get(stack);
         return tag == null ? 0 : Mth.clamp(tag.getInt(TAG_CHEST_CHARGE), 0, MAX_CHEST_CHARGE);
     }
 
@@ -118,7 +121,7 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
             return;
         }
 
-        stack.getOrCreateTag().putInt(TAG_CHEST_CHARGE, Mth.clamp(amount, 0, MAX_CHEST_CHARGE));
+        LegacyItemData.getOrCreate(stack).putInt(TAG_CHEST_CHARGE, Mth.clamp(amount, 0, MAX_CHEST_CHARGE));
     }
 
     public static void addStoredCharge(ItemStack stack, int amount) {
@@ -144,7 +147,7 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
             return false;
         }
 
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = LegacyItemData.get(stack);
         return tag != null && tag.getBoolean(TAG_BLUE_DEMON_HEALING_FOIL);
     }
 
@@ -154,13 +157,13 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
         }
 
         if (foil) {
-            stack.getOrCreateTag().putBoolean(TAG_BLUE_DEMON_HEALING_FOIL, true);
+            LegacyItemData.getOrCreate(stack).putBoolean(TAG_BLUE_DEMON_HEALING_FOIL, true);
         } else {
-            CompoundTag tag = stack.getTag();
+            CompoundTag tag = LegacyItemData.get(stack);
             if (tag != null) {
                 tag.remove(TAG_BLUE_DEMON_HEALING_FOIL);
                 if (tag.isEmpty()) {
-                    stack.setTag(null);
+                    LegacyItemData.set(stack, null);
                 }
             }
         }
@@ -179,7 +182,7 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
             return 0;
         }
 
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = LegacyItemData.get(stack);
         return tag == null ? 0 : Math.max(0, tag.getInt(TAG_CHEST_BUFF_TICKS));
     }
 
@@ -189,20 +192,20 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
         }
 
         int clamped = Math.max(0, ticks);
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = LegacyItemData.get(stack);
 
         if (clamped == 0) {
             if (tag != null) {
                 tag.remove(TAG_CHEST_BUFF_TICKS);
 
                 if (tag.isEmpty()) {
-                    stack.setTag(null);
+                    LegacyItemData.set(stack, null);
                 }
             }
             return;
         }
 
-        stack.getOrCreateTag().putInt(TAG_CHEST_BUFF_TICKS, clamped);
+        LegacyItemData.getOrCreate(stack).putInt(TAG_CHEST_BUFF_TICKS, clamped);
     }
 
     public static void stopBuff(ItemStack stack) {
@@ -329,8 +332,9 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
         }
 
         @Override
-        public void onInventoryTick(ItemStack stack, Level level, Player player, int slotIndex, int selectedIndex) {
-            super.onInventoryTick(stack, level, player, slotIndex, selectedIndex);
+        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+            if (!(entity instanceof Player player)) return;
+            super.inventoryTick(stack, level, entity, slotIndex, selected);
 
             if (player.getItemBySlot(EquipmentSlot.CHEST) != stack) {
                 if (isBuffActive(stack)) {
@@ -347,7 +351,7 @@ public abstract class BlueDemonChestplateItem extends ArmorItem {
         }
 
         @Override
-        public void appendHoverText(@NotNull ItemStack stack, Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+        public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
             super.appendHoverText(stack, level, tooltip, flag);
 
             int charge = getStoredCharge(stack);

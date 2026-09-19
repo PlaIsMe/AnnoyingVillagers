@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.CommonUtil;
@@ -7,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -29,7 +31,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,10 +80,10 @@ public class VacuumSliceEntity extends Entity {
     }
 
     public void captureWeaponEnchantments(ItemStack weapon) {
-        this.sharpnessLevel = weapon.isEmpty() ? 0 : EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SHARPNESS, weapon);
-        this.fireAspectLevel = weapon.isEmpty() ? 0 : EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, weapon);
-        this.flameLevel = weapon.isEmpty() ? 0 : EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, weapon);
-        this.knockbackLevel = weapon.isEmpty() ? 0 : EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, weapon);
+        this.sharpnessLevel = weapon.isEmpty() ? 0 : EnchantmentUtil.getLevel(Enchantments.SHARPNESS, weapon);
+        this.fireAspectLevel = weapon.isEmpty() ? 0 : EnchantmentUtil.getLevel(Enchantments.FIRE_ASPECT, weapon);
+        this.flameLevel = weapon.isEmpty() ? 0 : EnchantmentUtil.getLevel(Enchantments.FLAME, weapon);
+        this.knockbackLevel = weapon.isEmpty() ? 0 : EnchantmentUtil.getLevel(Enchantments.KNOCKBACK, weapon);
     }
 
     public float getDamage() { return this.damage; }
@@ -93,7 +94,7 @@ public class VacuumSliceEntity extends Entity {
         return age <= fadeStart ? 1.0F : Mth.clamp((MAX_LIFETIME - age) / 10.0F, 0.0F, 1.0F);
     }
 
-    @Override protected void defineSynchedData() {}
+    @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {}
 
     @Override
     public void tick() {
@@ -225,8 +226,8 @@ public class VacuumSliceEntity extends Entity {
         if (!target.hurt(source, (this.damage + sharpness) * multiplier)) return;
 
         this.hitEntities.add(target.getUUID());
-        if (this.fireAspectLevel > 0) target.setSecondsOnFire(this.fireAspectLevel * 4);
-        else if (this.flameLevel > 0) target.setSecondsOnFire(5);
+        if (this.fireAspectLevel > 0) target.igniteForSeconds(this.fireAspectLevel * 4);
+        else if (this.flameLevel > 0) target.igniteForSeconds(5);
 
         Vec3 horizontal = horizontalDirection(velocity);
         if (this.knockbackLevel > 0) target.knockback(this.knockbackLevel * 0.5D, -horizontal.x, -horizontal.z);
@@ -361,5 +362,4 @@ public class VacuumSliceEntity extends Entity {
         if (this.ownerUuid != null) tag.putUUID("Owner", this.ownerUuid);
     }
 
-    @Override public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() { return NetworkHooks.getEntitySpawningPacket(this); }
-}
+    }

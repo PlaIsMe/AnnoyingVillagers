@@ -1,23 +1,18 @@
 package com.pla.annoyingvillagers.network;
 
 import java.util.Objects;
-import java.util.function.Supplier;
+
 
 import com.pla.annoyingvillagers.event.SpecialAttackOnKeyHeldEvent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.event.SpecialAttackOnKeyPressedEvent;
 
-@EventBusSubscriber(bus = Bus.MOD)
-public class SpecialAttackMessage {
+public class SpecialAttackMessage  implements AnnoyingVillagersPayload {
     int type;
     int presses;
     boolean hasCrosshairTarget;
@@ -62,13 +57,12 @@ public class SpecialAttackMessage {
         }
     }
 
-    public static void handler(SpecialAttackMessage specialAttackMessage, Supplier<Context> supplier) {
-        Context context = supplier.get();
+    public static void handler(SpecialAttackMessage specialAttackMessage, IPayloadContext supplier) {
+        IPayloadContext context = supplier;
 
         context.enqueueWork(() -> {
-            pressAction(Objects.requireNonNull(context.getSender()), specialAttackMessage.type, specialAttackMessage.presses, specialAttackMessage.getCrosshairTarget());
+            pressAction(Objects.requireNonNull(context.player()), specialAttackMessage.type, specialAttackMessage.presses, specialAttackMessage.getCrosshairTarget());
         });
-        context.setPacketHandled(true);
     }
 
     public static void pressAction(Player player, int type, int presses) {
@@ -86,10 +80,5 @@ public class SpecialAttackMessage {
 
     private Vec3 getCrosshairTarget() {
         return this.hasCrosshairTarget ? new Vec3(this.crosshairTargetX, this.crosshairTargetY, this.crosshairTargetZ) : null;
-    }
-
-    @SubscribeEvent
-    public static void registerMessage(FMLCommonSetupEvent fmlcommonsetupevent) {
-        AnnoyingVillagers.addNetworkMessage(SpecialAttackMessage.class, SpecialAttackMessage::buffer, SpecialAttackMessage::new, SpecialAttackMessage::handler);
     }
 }

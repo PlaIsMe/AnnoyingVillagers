@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.clazz;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
+import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -20,6 +22,7 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +32,7 @@ public class ThrowableSpearItem extends SwordItem {
     private static final float SHOOT_POWER = 2.5F;
 
     protected ThrowableSpearItem(Tier tier, int attackDamageModifier, float attackSpeedModifier, Properties properties) {
-        super(tier, attackDamageModifier, attackSpeedModifier, properties);
+        super(tier, properties.attributes(SwordItem.createAttributes(tier, attackDamageModifier, attackSpeedModifier)));
     }
 
     protected AbstractArrow createThrownProjectile(Level level, Player player, ItemStack stack) {
@@ -42,7 +45,7 @@ public class ThrowableSpearItem extends SwordItem {
     }
 
     @Override
-    public int getUseDuration(@NotNull ItemStack stack) {
+    public int getUseDuration(@NotNull ItemStack stack, @NotNull LivingEntity entity) {
         return 72000;
     }
 
@@ -54,7 +57,7 @@ public class ThrowableSpearItem extends SwordItem {
             return InteractionResultHolder.fail(stack);
         }
 
-        if (EnchantmentHelper.getRiptide(stack) > 0 && !player.isInWaterOrRain()) {
+        if (EnchantmentUtil.getLevel(Enchantments.RIPTIDE, stack) > 0 && !player.isInWaterOrRain()) {
             return InteractionResultHolder.fail(stack);
         }
 
@@ -68,12 +71,12 @@ public class ThrowableSpearItem extends SwordItem {
             return;
         }
 
-        int useTicks = this.getUseDuration(stack) - timeLeft;
+        int useTicks = this.getUseDuration(stack, livingEntity) - timeLeft;
         if (useTicks < THROW_THRESHOLD_TIME) {
             return;
         }
 
-        int riptide = EnchantmentHelper.getRiptide(stack);
+        int riptide = EnchantmentUtil.getLevel(Enchantments.RIPTIDE, stack);
         if (riptide > 0 && !player.isInWaterOrRain()) {
             return;
         }
@@ -83,7 +86,7 @@ public class ThrowableSpearItem extends SwordItem {
         }
 
         if (!level.isClientSide()) {
-            stack.hurtAndBreak(1, player, (owner) -> owner.broadcastBreakEvent(livingEntity.getUsedItemHand()));
+            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(livingEntity.getUsedItemHand()));
 
             if (riptide == 0) {
                 AbstractArrow thrownProjectile = this.createThrownProjectile(level, player, stack);
@@ -94,7 +97,7 @@ public class ThrowableSpearItem extends SwordItem {
                 }
 
                 level.addFreshEntity(thrownProjectile);
-                level.playSound(null, thrownProjectile, SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
+                level.playSound(null, thrownProjectile, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
 
                 if (!player.getAbilities().instabuild) {
                     player.getInventory().removeItem(stack);
@@ -110,8 +113,8 @@ public class ThrowableSpearItem extends SwordItem {
     }
 
     @Override
-    public boolean canApplyAtEnchantingTable(@NotNull ItemStack stack, @NotNull Enchantment enchantment) {
-        return enchantment.category.canEnchant(Items.TRIDENT) || super.canApplyAtEnchantingTable(stack, enchantment);
+    public boolean supportsEnchantment(@NotNull ItemStack stack, @NotNull Holder<Enchantment> enchantment) {
+        return enchantment.value().isSupportedItem(new ItemStack(Items.TRIDENT)) || super.supportsEnchantment(stack, enchantment);
     }
 
     private static void playEpicFightShotAnimation(Player player) {
@@ -139,7 +142,7 @@ public class ThrowableSpearItem extends SwordItem {
         motionZ *= riptideStrength / motionLength;
 
         player.push(motionX, motionY, motionZ);
-        player.startAutoSpinAttack(20);
+        player.startAutoSpinAttack(20, 8.0F, player.getUseItem());
 
         if (player.onGround()) {
             player.move(MoverType.SELF, new Vec3(0.0D, 1.1999999D, 0.0D));
@@ -147,11 +150,11 @@ public class ThrowableSpearItem extends SwordItem {
 
         SoundEvent soundEvent;
         if (riptide >= 3) {
-            soundEvent = SoundEvents.TRIDENT_RIPTIDE_3;
+            soundEvent = SoundEvents.TRIDENT_RIPTIDE_3.value();
         } else if (riptide == 2) {
-            soundEvent = SoundEvents.TRIDENT_RIPTIDE_2;
+            soundEvent = SoundEvents.TRIDENT_RIPTIDE_2.value();
         } else {
-            soundEvent = SoundEvents.TRIDENT_RIPTIDE_1;
+            soundEvent = SoundEvents.TRIDENT_RIPTIDE_1.value();
         }
 
         level.playSound(null, player, soundEvent, SoundSource.PLAYERS, 1.0F, 1.0F);

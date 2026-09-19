@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.clazz.BurstProtectEntity;
@@ -32,10 +33,9 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -54,13 +54,9 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     @Override
     public String persistentPlayerIdentity() { return "Chris"; }
 
-    public ChrisEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.CHRIS.get(), level);
-    }
-
-    public ChrisEntity(EntityType<ChrisEntity> entitytype, Level level) {
+        public ChrisEntity(EntityType<ChrisEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(1.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(1.0F);
         this.xpReward = 50;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -89,20 +85,12 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         state = tag.getInt("State");
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+        protected void registerGoals() {
         super.registerGoals();
         CommonGoals.registerGoalForNeutralNpc(this);
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+        public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -111,11 +99,11 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
     }
 
     @Override
@@ -141,8 +129,6 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         if (this.isInvulnerableTo(pDamageSource)) {
             return;
         }
-
-        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
         if (pDamageAmount <= 0.0F) {
             return;
         }
@@ -159,7 +145,9 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
             }
         }
 
-        finalDamage = ForgeHooks.onLivingDamage(this, pDamageSource, finalDamage);
+        this.damageContainers.peek().setNewDamage(finalDamage);
+
+        finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
 
         if (this.level() instanceof ServerLevel serverLevel
@@ -177,8 +165,9 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource source, int looting, boolean recentlyHit) {
-        super.dropCustomDeathLoot(source, looting, recentlyHit);
+    protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
+        int looting = 0;
+        super.dropCustomDeathLoot(level, source, recentlyHit);
         if (this.level() instanceof ServerLevel serverLevel) {
             final double x = this.getX();
             final double y = this.getY() + 1.0D;
@@ -196,38 +185,38 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
             List<ItemStack> damagedStacks = new ArrayList<>();
 
             ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
-            sword.enchant(Enchantments.KNOCKBACK, 5);
-            sword.enchant(Enchantments.SHARPNESS, 5);
-            sword.enchant(Enchantments.UNBREAKING, 5);
+            EnchantmentUtil.enchant(sword, Enchantments.KNOCKBACK, 5);
+            EnchantmentUtil.enchant(sword, Enchantments.SHARPNESS, 5);
+            EnchantmentUtil.enchant(sword, Enchantments.UNBREAKING, 5);
             damagedStacks.add(sword);
 
             ItemStack diamondHelmet = new ItemStack(Items.DIAMOND_HELMET);
-            diamondHelmet.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-            diamondHelmet.enchant(Enchantments.UNBREAKING, 5);
+            EnchantmentUtil.enchant(diamondHelmet, Enchantments.PROTECTION, 5);
+            EnchantmentUtil.enchant(diamondHelmet, Enchantments.UNBREAKING, 5);
             damagedStacks.add(diamondHelmet);
 
             ItemStack diamondChestplate = new ItemStack(Items.DIAMOND_CHESTPLATE);
-            diamondChestplate.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-            diamondChestplate.enchant(Enchantments.UNBREAKING, 5);
+            EnchantmentUtil.enchant(diamondChestplate, Enchantments.PROTECTION, 5);
+            EnchantmentUtil.enchant(diamondChestplate, Enchantments.UNBREAKING, 5);
             damagedStacks.add(diamondChestplate);
 
             ItemStack diamondBoots = new ItemStack(Items.DIAMOND_BOOTS);
-            diamondBoots.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-            diamondBoots.enchant(Enchantments.FROST_WALKER, 2);
-            diamondBoots.enchant(Enchantments.UNBREAKING, 5);
+            EnchantmentUtil.enchant(diamondBoots, Enchantments.PROTECTION, 5);
+            EnchantmentUtil.enchant(diamondBoots, Enchantments.FROST_WALKER, 2);
+            EnchantmentUtil.enchant(diamondBoots, Enchantments.UNBREAKING, 5);
             damagedStacks.add(diamondBoots);
 
             ItemStack bow = this.getBowItem();
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.POWER, 2);
+            EnchantmentUtil.enchant(bow, Enchantments.PUNCH, 2);
             damagedStacks.add(bow);
 
             ItemStack ironPickaxe = new ItemStack(Items.IRON_PICKAXE);
-            ironPickaxe.enchant(Enchantments.UNBREAKING, 3);
+            EnchantmentUtil.enchant(ironPickaxe, Enchantments.UNBREAKING, 3);
             damagedStacks.add(ironPickaxe);
 
             ItemStack ironAxe = new ItemStack(Items.IRON_AXE);
-            ironAxe.enchant(Enchantments.UNBREAKING, 3);
+            EnchantmentUtil.enchant(ironAxe, Enchantments.UNBREAKING, 3);
             damagedStacks.add(ironAxe);
 
             for (ItemStack stack : damagedStacks) {
@@ -237,7 +226,7 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         }
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
         if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
             ServerLevel serverLevel = serverLevelAccessor.getLevel();
             ChrisData chrisData = ChrisData.get(serverLevel);
@@ -248,30 +237,30 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
             }
         }
 
-        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata, compoundtag);
+        SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata);
 
         ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
-        sword.enchant(Enchantments.KNOCKBACK, 5);
-        sword.enchant(Enchantments.SHARPNESS, 5);
-        sword.enchant(Enchantments.UNBREAKING, 5);
+        EnchantmentUtil.enchant(sword, Enchantments.KNOCKBACK, 5);
+        EnchantmentUtil.enchant(sword, Enchantments.SHARPNESS, 5);
+        EnchantmentUtil.enchant(sword, Enchantments.UNBREAKING, 5);
         this.setItemSlot(EquipmentSlot.MAINHAND, sword);
 
         this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.ENDER_PEARL));
 
         ItemStack diamondHelmet = new ItemStack(Items.DIAMOND_HELMET);
-        diamondHelmet.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-        diamondHelmet.enchant(Enchantments.UNBREAKING, 5);
+        EnchantmentUtil.enchant(diamondHelmet, Enchantments.PROTECTION, 5);
+        EnchantmentUtil.enchant(diamondHelmet, Enchantments.UNBREAKING, 5);
         this.setItemSlot(EquipmentSlot.HEAD, diamondHelmet);
 
         ItemStack diamondChestplate = new ItemStack(Items.DIAMOND_CHESTPLATE);
-        diamondChestplate.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-        diamondChestplate.enchant(Enchantments.UNBREAKING, 5);
+        EnchantmentUtil.enchant(diamondChestplate, Enchantments.PROTECTION, 5);
+        EnchantmentUtil.enchant(diamondChestplate, Enchantments.UNBREAKING, 5);
         this.setItemSlot(EquipmentSlot.CHEST, diamondChestplate);
 
         ItemStack diamondBoots = new ItemStack(Items.DIAMOND_BOOTS);
-        diamondBoots.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-        diamondBoots.enchant(Enchantments.FROST_WALKER, 2);
-        diamondBoots.enchant(Enchantments.UNBREAKING, 5);
+        EnchantmentUtil.enchant(diamondBoots, Enchantments.PROTECTION, 5);
+        EnchantmentUtil.enchant(diamondBoots, Enchantments.FROST_WALKER, 2);
+        EnchantmentUtil.enchant(diamondBoots, Enchantments.UNBREAKING, 5);
         this.setItemSlot(EquipmentSlot.FEET, diamondBoots);
 
         TeamUtil.addOrJoinTeam(this, "steve");

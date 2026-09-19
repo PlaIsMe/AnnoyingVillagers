@@ -47,7 +47,7 @@ public abstract class PlayerMixin {
         return original;
     }
     @Inject(method = "disableShield", at = @At("HEAD"), cancellable = true)
-    private void annoyingVillagers$keepEnderAegisUsable(boolean guaranteedDisable, CallbackInfo ci) {
+    private void annoyingVillagers$keepEnderAegisUsable(CallbackInfo ci) {
         Player self = (Player)(Object)this;
         if (VanillaWeaponAbilityUtil.abilitiesEnabled() && self.getUseItem().getItem() instanceof EnderAegisItem) ci.cancel();
     }

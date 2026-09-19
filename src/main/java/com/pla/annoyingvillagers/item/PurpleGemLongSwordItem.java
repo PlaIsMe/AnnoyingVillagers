@@ -15,10 +15,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class PurpleGemLongSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class PurpleGemLongSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public PurpleGemLongSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 2561;
             }

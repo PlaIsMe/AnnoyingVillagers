@@ -245,11 +245,7 @@ public final class RigShieldGuardController {
             return;
         }
 
-        shield.hurtAndBreak(
-                1 + Mth.floor(blockedAmount),
-                mob,
-                entity -> entity.broadcastBreakEvent(guardMode.hand)
-        );
+        shield.hurtAndBreak(1 + Mth.floor(blockedAmount), mob, LivingEntity.getSlotForHand(guardMode.hand));
     }
 
     private enum GuardMode {

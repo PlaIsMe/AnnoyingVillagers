@@ -45,7 +45,7 @@ public enum NpcTabSkin {
         if (profile.getId() == null || !("zzAVN" + profile.getId().toString().replace("-", ""))
                 .substring(0, 16).equals(profile.getName())) return null;
         for (Property property : profile.getProperties().get(PROPERTY)) {
-            for (NpcTabSkin skin : values()) if (skin.key.equals(property.getValue())) return skin;
+            for (NpcTabSkin skin : values()) if (skin.key.equals(property.value())) return skin;
         }
         return null;
     }

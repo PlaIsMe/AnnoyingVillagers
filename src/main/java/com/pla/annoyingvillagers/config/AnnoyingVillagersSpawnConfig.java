@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,27 +46,27 @@ public final class AnnoyingVillagersSpawnConfig {
             fixedGroupEntry("herobrine_greg", 1, "Herobrine Greg")
     );
 
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec SPEC;
 
     private static final Map<String, Entry> entryByEntityId = new HashMap<>();
-    private static final Map<String, ForgeConfigSpec.IntValue> weightValueByEntityId = new HashMap<>();
-    private static final Map<String, ForgeConfigSpec.ConfigValue<List<? extends Number>>> tripleValueByEntityId = new HashMap<>();
+    private static final Map<String, ModConfigSpec.IntValue> weightValueByEntityId = new HashMap<>();
+    private static final Map<String, ModConfigSpec.ConfigValue<List<? extends Number>>> tripleValueByEntityId = new HashMap<>();
 
     static {
-        ForgeConfigSpec.Builder configBuilder = new ForgeConfigSpec.Builder();
+        ModConfigSpec.Builder configBuilder = new ModConfigSpec.Builder();
         configBuilder.push("spawning");
 
         for (Entry entry : ENTRIES) {
             entryByEntityId.put(entry.entityId(), entry);
 
             if (entry.groupSizeConfigurable()) {
-                ForgeConfigSpec.ConfigValue<List<? extends Number>> tripleValue = configBuilder
+                ModConfigSpec.ConfigValue<List<? extends Number>> tripleValue = configBuilder
                         .comment(entry.comment())
                         .defineList(entry.configKey(), toDefaultList(entry.defaultConfig()), element -> element instanceof Number);
 
                 tripleValueByEntityId.put(entry.entityId(), tripleValue);
             } else {
-                ForgeConfigSpec.IntValue weightValue = configBuilder
+                ModConfigSpec.IntValue weightValue = configBuilder
                         .comment(entry.comment())
                         .defineInRange(entry.configKey(), entry.defaultConfig().weight(), WEIGHT_MIN, WEIGHT_MAX);
 
@@ -85,12 +85,12 @@ public final class AnnoyingVillagersSpawnConfig {
         }
 
         if (!entry.groupSizeConfigurable()) {
-            ForgeConfigSpec.IntValue weightValue = weightValueByEntityId.get(entityId);
+            ModConfigSpec.IntValue weightValue = weightValueByEntityId.get(entityId);
             int weight = (weightValue != null) ? weightValue.get() : entry.defaultConfig().weight();
             return new SpawnConfig(weight, 1, 1);
         }
 
-        ForgeConfigSpec.ConfigValue<List<? extends Number>> tripleValue = tripleValueByEntityId.get(entityId);
+        ModConfigSpec.ConfigValue<List<? extends Number>> tripleValue = tripleValueByEntityId.get(entityId);
         if (tripleValue == null) {
             return entry.defaultConfig();
         }

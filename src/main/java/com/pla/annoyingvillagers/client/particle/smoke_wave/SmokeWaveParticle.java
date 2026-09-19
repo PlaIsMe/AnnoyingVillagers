@@ -7,8 +7,8 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -63,10 +63,10 @@ public final class SmokeWaveParticle extends TextureSheetParticle {
 
     private void vertex(VertexConsumer consumer, float x, float y, float z, Vector3f right, Vector3f forward,
                         float rightOffset, float forwardOffset, float u, float v, int light) {
-        consumer.vertex(x + rightOffset * right.x() + forwardOffset * forward.x(),
+        consumer.addVertex(x + rightOffset * right.x() + forwardOffset * forward.x(),
                         y + rightOffset * right.y() + forwardOffset * forward.y(),
                         z + rightOffset * right.z() + forwardOffset * forward.z())
-                .uv(u, v).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(light).endVertex();
+                .setUv(u, v).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(light);
     }
 
     @Override

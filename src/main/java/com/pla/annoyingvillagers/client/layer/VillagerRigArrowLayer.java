@@ -11,6 +11,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -41,7 +43,7 @@ public class VillagerRigArrowLayer<T extends Mob> extends RenderLayer<T, ModelRi
 
     private void renderArrow(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T entity, float directionX, float directionY, float directionZ, float partialTick) {
         float horizontalDistance = Mth.sqrt(directionX * directionX + directionZ * directionZ);
-        Arrow arrow = new Arrow(entity.level(), entity.getX(), entity.getY(), entity.getZ());
+        Arrow arrow = new Arrow(entity.level(), entity, new ItemStack(Items.ARROW), null);
         arrow.setYRot((float) (Math.atan2(directionX, directionZ) * (180.0D / Math.PI)));
         arrow.setXRot((float) (Math.atan2(directionY, horizontalDistance) * (180.0D / Math.PI)));
         arrow.yRotO = arrow.getYRot();

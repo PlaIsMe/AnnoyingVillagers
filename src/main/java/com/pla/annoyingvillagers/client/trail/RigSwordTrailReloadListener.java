@@ -8,17 +8,19 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /** Loads explicitly enabled sword trails and optionally reuses item-skin geometry/timing. */
-@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.MOD)
 public final class RigSwordTrailReloadListener extends SimpleJsonResourceReloadListener {
     public static final RigSwordTrailReloadListener INSTANCE = new RigSwordTrailReloadListener();
     private static final SwordTrailReloadListener SWORD_TRAIL_INSTANCE = new SwordTrailReloadListener();
@@ -42,7 +44,7 @@ public final class RigSwordTrailReloadListener extends SimpleJsonResourceReloadL
         Map<ResourceLocation, RigSwordTrailDefinition> loaded = new HashMap<>();
         objects.forEach((itemId, json) -> {
             try {
-                if (!ForgeRegistries.ITEMS.containsKey(itemId)) return;
+                if (!BuiltInRegistries.ITEM.containsKey(itemId)) return;
                 RigSwordTrailDefinition definition = RigSwordTrailDefinition.fromItemSkin(json);
                 if (definition != null) loaded.put(itemId, definition);
             } catch (RuntimeException exception) {
@@ -58,7 +60,7 @@ public final class RigSwordTrailReloadListener extends SimpleJsonResourceReloadL
         Map<ResourceLocation, RigSwordTrailDefinition> loaded = new HashMap<>();
         objects.forEach((itemId, json) -> {
             try {
-                if (!ForgeRegistries.ITEMS.containsKey(itemId)) return;
+                if (!BuiltInRegistries.ITEM.containsKey(itemId)) return;
                 RigSwordTrailDefinition definition = RigSwordTrailDefinition.fromSwordTrail(json);
                 if (definition != null) loaded.put(itemId, definition);
             } catch (RuntimeException exception) {
@@ -88,13 +90,13 @@ public final class RigSwordTrailReloadListener extends SimpleJsonResourceReloadL
 
     public RigSwordTrailDefinition get(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return null;
-        ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
         return itemId == null ? null : this.definitions.get(itemId);
     }
 
     public ResourceLocation getItemId(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return null;
-        return ForgeRegistries.ITEMS.getKey(stack.getItem());
+        return BuiltInRegistries.ITEM.getKey(stack.getItem());
     }
 
     private static final class SwordTrailReloadListener extends SimpleJsonResourceReloadListener {

@@ -123,7 +123,6 @@ public class RidingUtil {
                     serverLevel,
                     serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
                     MobSpawnType.MOB_SUMMONED,
-                    null,
                     null
             );
             if (entity instanceof VillagerScoutEntity || entity instanceof VillagerScoutCaptainEntity

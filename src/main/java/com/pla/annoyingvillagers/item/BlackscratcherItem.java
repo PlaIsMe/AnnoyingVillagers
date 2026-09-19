@@ -6,10 +6,10 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class BlackscratcherItem extends SwordItem implements RigCombatProfileProvider {
+public class BlackscratcherItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public BlackscratcherItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 250;
             }

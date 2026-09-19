@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.clazz;
 
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.level.block.AbstractGlassBlock;
+import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -11,7 +11,7 @@ import java.util.function.Predicate;
 public enum ProjectileBreakableBlocks {
     GLASS_LIKE(
             s -> neverBreak(s) && (
-                    s.getBlock() instanceof AbstractGlassBlock
+                    s.getBlock() instanceof TransparentBlock
                             || s.getBlock() instanceof StainedGlassPaneBlock
             ),
             0.10f, 0.20f

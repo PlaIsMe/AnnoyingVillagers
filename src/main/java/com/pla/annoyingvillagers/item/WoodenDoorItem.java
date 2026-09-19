@@ -11,10 +11,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 
-public class WoodenDoorItem extends SwordItem implements RigCombatProfileProvider {
+public class WoodenDoorItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public WoodenDoorItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 400;
             }
@@ -41,7 +41,7 @@ public class WoodenDoorItem extends SwordItem implements RigCombatProfileProvide
         }, 3, -2.5F, (new Properties()));
     }
 
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.wooden_door"));
     }

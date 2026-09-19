@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -22,20 +23,15 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SwordsmanHerobrineEntity extends HerobrineMob {
     private boolean snakeStateSanitizedAfterLoad;
 
-    public SwordsmanHerobrineEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.SWORDSMAN_HEROBRINE.get(), level);
-    }
-
-    public SwordsmanHerobrineEntity(EntityType<SwordsmanHerobrineEntity> entitytype, Level level) {
+        public SwordsmanHerobrineEntity(EntityType<SwordsmanHerobrineEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 80;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -83,13 +79,13 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
                 ItemStack itemStack = this.getMainHandItem();
                 if (this.getState() > 0) {
                     if (itemStack.getItem() instanceof DemoniacVoltageReaverItem
-                            && itemStack.getTag() != null && !itemStack.getTag().getBoolean("SecondForm")) {
-                        itemStack.getTag().putBoolean("SecondForm", true);
+                            && (!LegacyItemData.has(itemStack) || !LegacyItemData.get(itemStack).getBoolean("SecondForm"))) {
+                        LegacyItemData.update(itemStack, tag -> tag.putBoolean("SecondForm", true));
                     }
                 } else {
                     if (itemStack.getItem() instanceof DemoniacVoltageReaverItem
-                            && itemStack.getTag() != null && itemStack.getTag().contains("SecondForm")) {
-                        itemStack.getTag().remove("SecondForm");
+                            && LegacyItemData.get(itemStack) != null && LegacyItemData.get(itemStack).contains("SecondForm")) {
+                        LegacyItemData.update(itemStack, tag -> tag.remove("SecondForm"));
                     }
                 }
             }
@@ -110,7 +106,7 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
 
             eliteHerobrineKnockedEntity.moveTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
             eliteHerobrineKnockedEntity.getPersistentData().putString("FromElite", "DemoniacVoltageReaver");
-            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(eliteHerobrineKnockedEntity);
 

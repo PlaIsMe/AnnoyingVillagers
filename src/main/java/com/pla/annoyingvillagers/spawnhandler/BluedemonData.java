@@ -17,7 +17,7 @@ public class BluedemonData extends SavedData {
     private static final long COOLDOWN_TICKS = 20L * 60L * 10L;
 
     public static BluedemonData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(BluedemonData::load, BluedemonData::new, ID);
+        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(BluedemonData::new, (tag, provider) -> BluedemonData.load(tag)), ID);
     }
 
     public static BluedemonData load(CompoundTag compoundTag) {
@@ -32,7 +32,7 @@ public class BluedemonData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null) {
             compoundTag.putUUID("activeId", activeId);
         }

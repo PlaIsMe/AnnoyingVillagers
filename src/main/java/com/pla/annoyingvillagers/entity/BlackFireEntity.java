@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.network.ClientboundBlackFireFx;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -22,15 +23,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class BlackFireEntity extends Entity implements IEntityAdditionalSpawnData {
+public class BlackFireEntity extends Entity implements IEntityWithComplexSpawn {
     private static final String TAG_OWNER_UUID = "OwnerUUID";
     private static final String TAG_HALF_SIZE = "HalfSize";
     private static final String TAG_DURATION_TICKS = "DurationTicks";
@@ -119,9 +119,9 @@ public class BlackFireEntity extends Entity implements IEntityAdditionalSpawnDat
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(DATA_OWNER_ID, -1);
-        this.entityData.define(DATA_MODE, Mode.PROJECTILE.id());
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_OWNER_ID, -1);
+        builder.define(DATA_MODE, Mode.PROJECTILE.id());
     }
 
     private static boolean isHoldingBlackFireSword(LivingEntity owner) {
@@ -200,10 +200,7 @@ public class BlackFireEntity extends Entity implements IEntityAdditionalSpawnDat
         }
 
         if (this.tickCount == 1) {
-            AnnoyingVillagers.PACKET_HANDLER.send(
-                    PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> this),
-                    new ClientboundBlackFireFx(this)
-            );
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(this, new ClientboundBlackFireFx(this));
             this.playSound(AnnoyingVillagersModSounds.BLACK_FIRE.get(), 1.0F, 1.0F);
         }
 
@@ -280,7 +277,7 @@ public class BlackFireEntity extends Entity implements IEntityAdditionalSpawnDat
 
             if (target.hurt(source, this.damageAmount)) {
                 if (this.fireSeconds > 0) {
-                    target.setSecondsOnFire(this.fireSeconds);
+                    target.igniteForSeconds(this.fireSeconds);
                 }
 
                 this.knockbackTarget(target);
@@ -499,7 +496,7 @@ public class BlackFireEntity extends Entity implements IEntityAdditionalSpawnDat
     }
 
     @Override
-    public void writeSpawnData(FriendlyByteBuf buf) {
+    public void writeSpawnData(RegistryFriendlyByteBuf buf) {
         buf.writeVarInt(this.entityData.get(DATA_OWNER_ID));
         buf.writeVarInt(this.entityData.get(DATA_MODE));
         buf.writeDouble(this.projectileVelocity.x);
@@ -508,7 +505,7 @@ public class BlackFireEntity extends Entity implements IEntityAdditionalSpawnDat
     }
 
     @Override
-    public void readSpawnData(FriendlyByteBuf buf) {
+    public void readSpawnData(RegistryFriendlyByteBuf buf) {
         this.entityData.set(DATA_OWNER_ID, buf.readVarInt());
         this.entityData.set(DATA_MODE, buf.readVarInt());
 
@@ -531,8 +528,4 @@ public class BlackFireEntity extends Entity implements IEntityAdditionalSpawnDat
         return false;
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
-}

@@ -14,9 +14,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DiamondClawItem extends SwordItem implements RigCombatProfileProvider {
+public class DiamondClawItem extends LegacySwordItem implements RigCombatProfileProvider {
     public DiamondClawItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }
@@ -51,14 +51,14 @@ public class DiamondClawItem extends SwordItem implements RigCombatProfileProvid
 
         if (!player.level().isClientSide()) {
             target.removeAllEffects();
-            stack.hurtAndBreak(1, player, user -> user.broadcastBreakEvent(hand));
+            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
         }
 
         return InteractionResult.sidedSuccess(player.level().isClientSide());
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemStack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemStack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemStack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.diamond_claw"));
     }

@@ -39,7 +39,7 @@ public abstract class ExplosionMixin {
     private boolean muteAtThisPos() {
         if (!this.level.isClientSide()) return false;
 
-        Vec3 pos = ((Explosion)(Object)this).getPosition();
+        Vec3 pos = ((Explosion)(Object)this).center();
         long key = BlockPos.asLong(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z));
 
         return ExplosionFxMute.shouldMute(key, this.level.getGameTime());

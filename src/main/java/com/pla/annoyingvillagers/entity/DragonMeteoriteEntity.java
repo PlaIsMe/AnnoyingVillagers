@@ -34,8 +34,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,13 +66,9 @@ public class DragonMeteoriteEntity extends PathfinderMob {
         return WeaponEnchantmentDamageUtil.addSharpnessBonus(12.0F, summoner, EnderSlayerScytheItem.class);
     }
 
-    public DragonMeteoriteEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.DRAGON_METEORITE.get(), level);
-    }
-
-    public DragonMeteoriteEntity(EntityType<DragonMeteoriteEntity> entitytype, Level level) {
+        public DragonMeteoriteEntity(EntityType<DragonMeteoriteEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(0.6F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(0.6F);
         this.xpReward = 0;
         this.setNoAi(false);
         this.setPersistenceRequired();
@@ -101,19 +95,11 @@ public class DragonMeteoriteEntity extends PathfinderMob {
         this.motionInited = false;
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected void registerGoals() {
+        protected void registerGoals() {
         super.registerGoals();
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+        public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -137,7 +123,7 @@ public class DragonMeteoriteEntity extends PathfinderMob {
                 && super.hurt(damagesource, f)))))))))))));
     }
 
-    public boolean ignoreExplosion() {
+    public boolean ignoreExplosion(net.minecraft.world.level.Explosion explosion) {
         return true;
     }
 
@@ -146,10 +132,10 @@ public class DragonMeteoriteEntity extends PathfinderMob {
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
         this.setInvulnerable(true);
         this.playSound(AnnoyingVillagersModSounds.MUFFLED_BOOM.get(), new Random().nextFloat(34.0F, 42.0F), new Random().nextFloat(0.0F, 0.2F));
-        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }
 
     public void baseTick() {
@@ -246,7 +232,7 @@ public class DragonMeteoriteEntity extends PathfinderMob {
                     entity.hasImpulse = true;
                 }
 
-                this.playSound(SoundEvents.GENERIC_EXPLODE, 5.0F, 0.0F);
+                this.playSound(SoundEvents.GENERIC_EXPLODE.value(), 5.0F, 0.0F);
                 this.playSound(SoundEvents.FIREWORK_ROCKET_TWINKLE_FAR, 6.0F, 0.0F);
                 this.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 10.0F, 0.0F);
                 this.discard();

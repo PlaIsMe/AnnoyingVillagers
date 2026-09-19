@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.client.engine;
 
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
+import com.pla.annoyingvillagers.mixin.client.CameraAccessor;
 import net.minecraft.client.Camera;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -25,8 +26,9 @@ public class MountCameraManager
     {
         if (Minecraft.getInstance().player.getVehicle() instanceof HerobrineDragonEntity && !Minecraft.getInstance().options.getCameraType().isFirstPerson())
         {
-            camera.move(0, 4, 0);
-            camera.move(-camera.getMaxZoom(6), 0, 0); // do distance calcs AFTER our new position is set
+            CameraAccessor accessor = (CameraAccessor) camera;
+            accessor.annoyingVillagers$move(0, 4, 0);
+            accessor.annoyingVillagers$move(-accessor.annoyingVillagers$getMaxZoom(6), 0, 0); // do distance calcs AFTER our new position is set
         }
     }
 }

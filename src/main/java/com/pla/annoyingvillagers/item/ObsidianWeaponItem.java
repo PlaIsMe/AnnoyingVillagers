@@ -25,11 +25,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ObsidianWeaponItem extends SwordItem implements RigCombatProfileProvider {
+public class ObsidianWeaponItem extends LegacySwordItem implements RigCombatProfileProvider {
     public static final int VANILLA_ABILITY_COOLDOWN_TICKS = 20 * 30;
 
     public ObsidianWeaponItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() { return 3000; }
             public float getSpeed() { return 50.0F; }
             public float getAttackDamageBonus() { return 2.0F; }
@@ -75,7 +75,7 @@ public class ObsidianWeaponItem extends SwordItem implements RigCombatProfilePro
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.obsidian_weapon"));
     }

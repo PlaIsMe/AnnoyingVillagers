@@ -9,10 +9,10 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class CentranosSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class CentranosSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public CentranosSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 2031;
             }

@@ -3,6 +3,7 @@ package com.pla.annoyingvillagers.entity;
 import com.mojang.logging.LogUtils;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -17,8 +18,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -48,7 +49,7 @@ public class FlyingShockwaveProjectile extends Projectile
         }
 
         HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-        if (hitresult.getType() != HitResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, hitresult)) {
+        if (hitresult.getType() != HitResult.Type.MISS && !EventHooks.onProjectileImpact(this, hitresult)) {
             this.onHit(hitresult);
         }
 
@@ -165,7 +166,7 @@ public class FlyingShockwaveProjectile extends Projectile
     }
 
     @Override
-    protected void defineSynchedData()
+    protected void defineSynchedData(SynchedEntityData.Builder builder)
     {
 
     }

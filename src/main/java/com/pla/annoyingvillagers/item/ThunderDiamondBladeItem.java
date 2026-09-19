@@ -15,12 +15,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class ThunderDiamondBladeItem extends SwordItem implements RigCombatProfileProvider {
+public class ThunderDiamondBladeItem extends LegacySwordItem implements RigCombatProfileProvider {
     private static final int VANILLA_RIGHT_CLICK_COOLDOWN_TICKS = 20 * 15;
 
 
     public ThunderDiamondBladeItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 2561;
             }

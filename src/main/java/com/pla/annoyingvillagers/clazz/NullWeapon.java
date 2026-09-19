@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.clazz;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
+
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Random;
@@ -47,13 +49,14 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 public class NullWeapon extends Monster implements ForceTickEntity, RigStunnableEntity {
@@ -296,14 +299,14 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DATA_SPINNING, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_SPINNING, false);
     }
 
     protected NullWeapon(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        this.setMaxUpStep(4.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(4.0F);
         this.xpReward = 80;
         this.setNoAi(false);
         this.setPersistenceRequired();
@@ -313,11 +316,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
         this.refreshDimensions();
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
+        protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
         return new FlyingPathNavigation(this, level);
     }
 
@@ -468,7 +467,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
         return EntityDimensions.fixed(0.0F, 0.0F);
     }
 
@@ -492,11 +491,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
         return false;
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEFINED;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+        public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -505,11 +500,11 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damagesource) {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("", "")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("", "")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("", "")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("", "")));
     }
 
     public boolean causeFallDamage(float f, float f1, @NotNull DamageSource damagesource) {
@@ -520,10 +515,10 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
         return false;
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata) {
         TeamUtil.addOrJoinTeam(this, "herobrine");
         this.setInvulnerable(true);
-        return super.finalizeSpawn(serverlevelaccessor, difficultyinstance, mobspawntype, spawngroupdata, compoundtag);
+        return super.finalizeSpawn(serverlevelaccessor, difficultyinstance, mobspawntype, spawngroupdata);
     }
 
     protected void checkFallDamage(double d0, boolean flag, @NotNull BlockState blockstate, @NotNull BlockPos blockpos) {}
@@ -553,22 +548,25 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
             float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
             float f1 = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
             if (pEntity instanceof LivingEntity) {
-                f += EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)pEntity).getMobType());
-                f1 += (float)EnchantmentHelper.getKnockbackBonus(this);
+                f += EnchantmentUtil.getDamageBonus(this.getMainHandItem(), (LivingEntity) pEntity);
+                f1 += EnchantmentUtil.getLevel(Enchantments.KNOCKBACK, this.getMainHandItem());
             }
 
-            int i = EnchantmentHelper.getFireAspect(this);
+            int i = EnchantmentUtil.getLevel(Enchantments.FIRE_ASPECT, this.getMainHandItem());
             if (i > 0) {
-                pEntity.setSecondsOnFire(i * 4);
+                pEntity.igniteForSeconds(i * 4.0F);
             }
 
-            boolean flag = pEntity.hurt(this.damageSources().playerAttack(this.player), f);
+            DamageSource attackSource = this.damageSources().playerAttack(this.player);
+            boolean flag = pEntity.hurt(attackSource, f);
             if (flag) {
                 if (f1 > 0.0F && pEntity instanceof LivingEntity) {
                     ((LivingEntity)pEntity).knockback(f1 * 0.5F, Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), -Mth.cos(this.getYRot() * ((float)Math.PI / 180F)));
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0F, 0.6));
                 }
-                this.doEnchantDamageEffects(this, pEntity);
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    EnchantmentHelper.doPostAttackEffects(serverLevel, pEntity, attackSource);
+                }
                 this.setLastHurtMob(pEntity);
                 com.pla.annoyingvillagers.item.NullWeaponItem.onOwnedWeaponHit(this.player);
             }
@@ -578,22 +576,25 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
             float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
             float f1 = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
             if (pEntity instanceof LivingEntity) {
-                f += EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)pEntity).getMobType());
-                f1 += (float)EnchantmentHelper.getKnockbackBonus(this);
+                f += EnchantmentUtil.getDamageBonus(this.getMainHandItem(), (LivingEntity) pEntity);
+                f1 += EnchantmentUtil.getLevel(Enchantments.KNOCKBACK, this.getMainHandItem());
             }
 
-            int i = EnchantmentHelper.getFireAspect(this);
+            int i = EnchantmentUtil.getLevel(Enchantments.FIRE_ASPECT, this.getMainHandItem());
             if (i > 0) {
-                pEntity.setSecondsOnFire(i * 4);
+                pEntity.igniteForSeconds(i * 4.0F);
             }
 
-            boolean flag = pEntity.hurt(this.damageSources().mobAttack(this.nullEntity), f);
+            DamageSource attackSource = this.damageSources().mobAttack(this.nullEntity);
+            boolean flag = pEntity.hurt(attackSource, f);
             if (flag) {
                 if (f1 > 0.0F && pEntity instanceof LivingEntity) {
                     ((LivingEntity)pEntity).knockback(f1 * 0.5F, Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), -Mth.cos(this.getYRot() * ((float)Math.PI / 180F)));
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0F, 0.6));
                 }
-                this.doEnchantDamageEffects(this, pEntity);
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    EnchantmentHelper.doPostAttackEffects(serverLevel, pEntity, attackSource);
+                }
                 this.setLastHurtMob(pEntity);
             }
 
@@ -789,7 +790,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
         this.moveTo(summoner.getX() + new Random().nextDouble(-4, 4), summoner.getY() + new Random().nextDouble(-2, 2), summoner.getZ() + new Random().nextDouble(-4, 4));
         this.playerUUID = summoner.getUUID();
         this.player = summoner;
-        this.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+        this.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
         serverLevel.addFreshEntity(this);
         summoner.getPersistentData().putUUID(uuidNbt, this.getUUID());
     }
@@ -798,7 +799,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
         this.moveTo(summoner.getX() + new Random().nextDouble(-4, 4), summoner.getY() + new Random().nextDouble(-2, 2), summoner.getZ() + new Random().nextDouble(-4, 4));
         this.nullUUID = summoner.getUUID();
         this.nullEntity = summoner;
-        this.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+        this.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
         serverLevel.addFreshEntity(this);
         summoner.setNullWeapon(toolName, this);
         spinfor5seconds();

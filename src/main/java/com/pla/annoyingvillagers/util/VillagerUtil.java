@@ -1,9 +1,12 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -16,12 +19,16 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.FireworkExplosion;
+import net.minecraft.world.item.component.Fireworks;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Random;
+import java.util.List;
+import it.unimi.dsi.fastutil.ints.IntList;
 
 public class VillagerUtil {
     public static ItemStack generateMainWeaponItem() {
@@ -39,18 +46,18 @@ public class VillagerUtil {
 
         float enchantChance = new Random().nextFloat();
         if (enchantChance <= 0.2) {
-            itemStack.enchant(Enchantments.FIRE_ASPECT, new Random().nextInt(1, 3));
+            EnchantmentUtil.enchant(itemStack, Enchantments.FIRE_ASPECT, new Random().nextInt(1, 3));
         }
         if (enchantChance <= 0.4) {
-            itemStack.enchant(Enchantments.SWEEPING_EDGE, new Random().nextInt(1, 3));
+            EnchantmentUtil.enchant(itemStack, Enchantments.SWEEPING_EDGE, new Random().nextInt(1, 3));
         }
         if (enchantChance <= 0.6) {
-            itemStack.enchant(Enchantments.SMITE, new Random().nextInt(1, 3));
+            EnchantmentUtil.enchant(itemStack, Enchantments.SMITE, new Random().nextInt(1, 3));
         }
         if (enchantChance <= 0.8) {
-            itemStack.enchant(Enchantments.KNOCKBACK, new Random().nextInt(1, 3));
+            EnchantmentUtil.enchant(itemStack, Enchantments.KNOCKBACK, new Random().nextInt(1, 3));
         }
-        itemStack.enchant(Enchantments.SHARPNESS, new Random().nextInt(1, 3));
+        EnchantmentUtil.enchant(itemStack, Enchantments.SHARPNESS, new Random().nextInt(1, 3));
         return itemStack;
     }
 
@@ -158,7 +165,6 @@ public class VillagerUtil {
                 level,
                 level.getCurrentDifficultyAt(BlockPos.containing(spawnPos)),
                 MobSpawnType.MOB_SUMMONED,
-                null,
                 null
         );
         level.addFreshEntity(mob);
@@ -167,18 +173,7 @@ public class VillagerUtil {
 
     public static void spawnBackupFirework(ServerLevel level, Vec3 origin) {
         ItemStack rocketStack = new ItemStack(Items.FIREWORK_ROCKET);
-
-        CompoundTag fireworksTag = rocketStack.getOrCreateTagElement("Fireworks");
-        fireworksTag.putByte("Flight", (byte)1);
-
-        CompoundTag explosion = new CompoundTag();
-        explosion.putByte("Type", (byte)3); // creeper
-        explosion.putIntArray("Colors", new int[] {0x000000});
-        explosion.putBoolean("Flicker", true);
-
-        ListTag explosions = new ListTag();
-        explosions.add(explosion);
-        fireworksTag.put("Explosions", explosions);
+        rocketStack.set(DataComponents.FIREWORKS, blackCreeperFireworks());
 
         FireworkRocketEntity rocket = new FireworkRocketEntity(
                 level,
@@ -192,55 +187,24 @@ public class VillagerUtil {
 
     public static ItemStack createBlackCreeperSignalFirework() {
         ItemStack stack = new ItemStack(Items.FIREWORK_ROCKET);
-        CompoundTag tag = stack.getOrCreateTag();
-        CompoundTag fireworksTag = new CompoundTag();
-        fireworksTag.putByte("Flight", (byte) 1);
-
-        ListTag explosions = new ListTag();
-        CompoundTag explosion = new CompoundTag();
-        explosion.putByte("Type", (byte) 3); // creeper shape
-        explosion.putIntArray("Colors", new int[]{0x000000}); // black
-        explosion.putBoolean("Flicker", true);
-        explosions.add(explosion);
-
-        fireworksTag.put("Explosions", explosions);
-        tag.put("Fireworks", fireworksTag);
-
-        stack.setHoverName(Component.literal("Black Creeper Firework"));
+        stack.set(DataComponents.FIREWORKS, blackCreeperFireworks());
+        stack.set(DataComponents.CUSTOM_NAME, Component.literal("Black Creeper Firework"));
         return stack;
     }
 
     public static boolean isBlackCreeperSignalFirework(ItemStack stack) {
-        if (stack.isEmpty() || !stack.is(Items.FIREWORK_ROCKET) || !stack.hasTag()) {
-            return false;
-        }
+        Fireworks fireworks = stack.get(DataComponents.FIREWORKS);
+        if (stack.isEmpty() || !stack.is(Items.FIREWORK_ROCKET) || fireworks == null || fireworks.explosions().size() != 1) return false;
+        FireworkExplosion explosion = fireworks.explosions().get(0);
+        return explosion.shape() == FireworkExplosion.Shape.CREEPER
+                && explosion.colors().size() == 1
+                && explosion.colors().getInt(0) == 0x000000;
+    }
 
-        CompoundTag tag = stack.getTag();
-        if (tag == null) {
-            return false;
-        }
-
-        if (!tag.contains("Fireworks", Tag.TAG_COMPOUND)) {
-            return false;
-        }
-
-        CompoundTag fireworksTag = tag.getCompound("Fireworks");
-        if (!fireworksTag.contains("Explosions", Tag.TAG_LIST)) {
-            return false;
-        }
-
-        ListTag explosions = fireworksTag.getList("Explosions", Tag.TAG_COMPOUND);
-        if (explosions.size() != 1) {
-            return false;
-        }
-
-        CompoundTag explosion = explosions.getCompound(0);
-        if (explosion.getByte("Type") != 3) {
-            return false;
-        }
-
-        int[] colors = explosion.getIntArray("Colors");
-        return colors.length == 1 && colors[0] == 0x000000;
+    private static Fireworks blackCreeperFireworks() {
+        FireworkExplosion explosion = new FireworkExplosion(
+                FireworkExplosion.Shape.CREEPER, IntList.of(0x000000), IntList.of(), false, true);
+        return new Fireworks(1, List.of(explosion));
     }
 
     public static void launchBlackCreeperSignalFirework(ServerLevel serverLevel, double x, double y, double z) {
@@ -278,7 +242,6 @@ public class VillagerUtil {
                 serverLevel,
                 serverLevel.getCurrentDifficultyAt(spawnPos),
                 MobSpawnType.MOB_SUMMONED,
-                null,
                 null
         );
 
@@ -366,7 +329,6 @@ public class VillagerUtil {
                 level,
                 level.getCurrentDifficultyAt(BlockPos.containing(spawnPos)),
                 MobSpawnType.MOB_SUMMONED,
-                null,
                 null
         );
 

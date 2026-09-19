@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.item.ThunderDiamondBladeItem;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -26,14 +27,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class ElectricPhaseEntity extends Entity implements IEntityAdditionalSpawnData {
+public class ElectricPhaseEntity extends Entity implements IEntityWithComplexSpawn {
     private static final String TAG_OWNER_UUID = "OwnerUUID";
     private static final String TAG_HALF_SIZE = "HalfSize";
     private static final String TAG_DURATION_TICKS = "DurationTicks";
@@ -132,10 +132,10 @@ public class ElectricPhaseEntity extends Entity implements IEntityAdditionalSpaw
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(DATA_OWNER_ID, -1);
-        this.entityData.define(DATA_MODE, Mode.PROJECTILE.id());
-        this.entityData.define(DATA_OFFHAND, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_OWNER_ID, -1);
+        builder.define(DATA_MODE, Mode.PROJECTILE.id());
+        builder.define(DATA_OFFHAND, false);
     }
 
     public boolean isOffhand() {
@@ -393,7 +393,7 @@ public class ElectricPhaseEntity extends Entity implements IEntityAdditionalSpaw
         }
 
         target.addEffect(new MobEffectInstance(
-                AnnoyingVillagersModMobEffects.ELECTRIFY.get(),
+                AnnoyingVillagersModMobEffects.ELECTRIFY,
                 this.electrifyTicks,
                 this.electrifyAmplifier,
                 false,
@@ -558,7 +558,7 @@ public class ElectricPhaseEntity extends Entity implements IEntityAdditionalSpaw
     }
 
     @Override
-    public void writeSpawnData(FriendlyByteBuf buf) {
+    public void writeSpawnData(RegistryFriendlyByteBuf buf) {
         buf.writeVarInt(this.entityData.get(DATA_OWNER_ID));
         buf.writeVarInt(this.entityData.get(DATA_MODE));
         buf.writeBoolean(this.isOffhand());
@@ -568,7 +568,7 @@ public class ElectricPhaseEntity extends Entity implements IEntityAdditionalSpaw
     }
 
     @Override
-    public void readSpawnData(FriendlyByteBuf buf) {
+    public void readSpawnData(RegistryFriendlyByteBuf buf) {
         this.entityData.set(DATA_OWNER_ID, buf.readVarInt());
         this.entityData.set(DATA_MODE, buf.readVarInt());
         this.entityData.set(DATA_OFFHAND, buf.readBoolean());
@@ -592,8 +592,4 @@ public class ElectricPhaseEntity extends Entity implements IEntityAdditionalSpaw
         return false;
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
-}

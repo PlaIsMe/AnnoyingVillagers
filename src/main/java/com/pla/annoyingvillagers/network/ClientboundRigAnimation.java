@@ -3,11 +3,11 @@ package com.pla.annoyingvillagers.network;
 import com.pla.annoyingvillagers.client.engine.ClientPacketHandlers;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
+
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+
 
 /**
  * Server-authoritative rig animation timing. Trail timing is deliberately sent with the
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * first attack-window start through the final attack-window end.
  */
 public record ClientboundRigAnimation(int entityId, RigAnimationId animationId, int durationTicks,
-                                      int trailStartTick, int trailEndTickExclusive) {
+                                      int trailStartTick, int trailEndTickExclusive)  implements AnnoyingVillagersPayload {
     public static final int NO_TRAIL_TICK = -1;
 
     public static void encode(ClientboundRigAnimation msg, FriendlyByteBuf buf) {
@@ -36,9 +36,7 @@ public record ClientboundRigAnimation(int entityId, RigAnimationId animationId, 
         );
     }
 
-    public static void handle(ClientboundRigAnimation msg, Supplier<NetworkEvent.Context> ctx) {
-        NetworkEvent.Context c = ctx.get();
-        c.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.handleRigAnimation(msg)));
-        c.setPacketHandled(true);
+    public static void handle(ClientboundRigAnimation msg, IPayloadContext context) {
+        context.enqueueWork(() -> ClientPacketHandlers.handleRigAnimation(msg));
     }
 }

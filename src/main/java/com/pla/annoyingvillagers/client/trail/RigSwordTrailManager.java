@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
@@ -39,11 +40,14 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
@@ -55,7 +59,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class RigSwordTrailManager {
     private static final ResourceLocation SOLID_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/particle/swing_trail.png");
@@ -73,8 +77,8 @@ public final class RigSwordTrailManager {
     private RigSwordTrailManager() {}
 
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+    public static void onClientTick(ClientTickEvent.Post event) {
+        if (false) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) {
             STATES.clear();
@@ -169,9 +173,10 @@ public final class RigSwordTrailManager {
 
         try {
             // Solid body first. Every glow pass below reads the exact same TrailEdge list.
-            drawBatch(matrix, event.getPartialTick(), false, 1.0F, BODY_ALPHA);
+            float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
+            drawBatch(matrix, partialTick, false, 1.0F, BODY_ALPHA);
             for (int i = 0; i < GLOW_SCALES.length; i++) {
-                drawBatch(matrix, event.getPartialTick(), true, GLOW_SCALES[i], GLOW_ALPHAS[i]);
+                drawBatch(matrix, partialTick, true, GLOW_SCALES[i], GLOW_ALPHAS[i]);
             }
         } finally {
             restoreRenderState();
@@ -181,7 +186,6 @@ public final class RigSwordTrailManager {
 
     private static void drawBatch(Matrix4f matrix, float partialTick, boolean glow, float widthScale, float passAlpha) {
         Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder builder = tesselator.getBuilder();
 
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
@@ -201,7 +205,7 @@ public final class RigSwordTrailManager {
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         }
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        BufferBuilder builder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         for (TrailState state : STATES.values()) {
             if (state.edges.size() < 2 || state.definition == null) continue;
             if (glow && state.definition.isPureBlack()) continue;
@@ -211,7 +215,7 @@ public final class RigSwordTrailManager {
 
         if (glow) {
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            builder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             for (TrailState state : STATES.values()) {
                 if (state.edges.size() < 2 || state.definition == null || !state.definition.isPureBlack()) continue;
                 emitState(builder, matrix, state, partialTick, widthScale, passAlpha);
@@ -269,10 +273,10 @@ public final class RigSwordTrailManager {
 
     private static void vertex(BufferBuilder builder, Matrix4f matrix, Vec3 p, float u, float v,
                                RigSwordTrailDefinition definition, float alpha) {
-        builder.vertex(matrix, (float) p.x, (float) p.y, (float) p.z)
-                .uv(u, v)
-                .color(definition.redF(), definition.greenF(), definition.blueF(), alpha)
-                .endVertex();
+        builder.addVertex(matrix, (float) p.x, (float) p.y, (float) p.z)
+                .setUv(u, v)
+                .setColor(definition.redF(), definition.greenF(), definition.blueF(), alpha)
+                ;
     }
 
     private static EdgePair scaled(TrailEdge edge, float scale) {
@@ -284,7 +288,7 @@ public final class RigSwordTrailManager {
 
 
     private static void finish(BufferBuilder builder) {
-        BufferBuilder.RenderedBuffer rendered = builder.endOrDiscardIfEmpty();
+        MeshData rendered = builder.build();
         if (rendered != null) BufferUploader.drawWithShader(rendered);
     }
 

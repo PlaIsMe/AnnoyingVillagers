@@ -45,7 +45,7 @@ final class VanillaOverlayTexturePicker {
                 || entity instanceof HerobrineGregEntity herobrineGreg && herobrineGreg.isWhiteEye()) {
             return DEFAULT_HEROBRINE_EYES;
         }
-        if (ObedienceMobEffect.canBeObedientMob(entity) && entity.hasEffect(AnnoyingVillagersModMobEffects.OBEDIENCE.get())) {
+        if (ObedienceMobEffect.canBeObedientMob(entity) && entity.hasEffect(AnnoyingVillagersModMobEffects.OBEDIENCE)) {
             if (entity instanceof ZombieVillager) {
                 return ZOMBIE_VILLAGER_EYES;
             }
@@ -64,7 +64,7 @@ final class VanillaOverlayTexturePicker {
 
     @Nullable
     static ResourceLocation pickIllagerTexture(AbstractIllager entity) {
-        return ObedienceMobEffect.canBeObedientMob(entity) && entity.hasEffect(AnnoyingVillagersModMobEffects.OBEDIENCE.get())
+        return ObedienceMobEffect.canBeObedientMob(entity) && entity.hasEffect(AnnoyingVillagersModMobEffects.OBEDIENCE)
                 ? ILLAGER_EYES
                 : null;
     }

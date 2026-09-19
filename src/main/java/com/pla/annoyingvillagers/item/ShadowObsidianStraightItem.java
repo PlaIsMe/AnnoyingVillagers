@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
@@ -14,7 +15,7 @@ public class ShadowObsidianStraightItem extends Item {
 
     @Override
     public boolean isFoil(@NotNull ItemStack stack) {
-        return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean("foil");
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean("foil");
     }
 
     public boolean isCorrectToolForDrops(@NotNull BlockState blockstate) {

@@ -6,10 +6,10 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class DiamondHalberdItem extends SwordItem implements RigCombatProfileProvider {
+public class DiamondHalberdItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public DiamondHalberdItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }

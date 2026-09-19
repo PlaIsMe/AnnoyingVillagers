@@ -23,8 +23,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
@@ -93,10 +93,7 @@ public final class ClientPacketHandlers {
         ClientVfxRouter.run(
                 VfxEffect.HEROBRINE_PORTAL,
                 () -> PhotonClientFxUtil.spawnAt(level, "normalsummoning", msg.from().add(0.0D, 1.0D, 0.0D)),
-                () -> {
-                    AAAParticlesUtil.sendHerobrinePortal(level, msg.from().x, msg.from().y, msg.from().z);
-                    return true;
-                },
+                () -> AAAParticlesUtil.sendHerobrinePortal(level, msg.from().x, msg.from().y, msg.from().z),
                 () -> NoVfxPortalEvent.spawn(msg.from(), 60));
     }
 
@@ -107,10 +104,7 @@ public final class ClientPacketHandlers {
         ClientVfxRouter.run(
                 VfxEffect.HEROBRINE_ASSISTANCE,
                 () -> PhotonClientFxUtil.spawnAt(level, "requestingassistance",  msg.from().add(0.0D, 1.0D, 0.0D)),
-                () -> {
-                    AAAParticlesUtil.sendHerobrineAssistance(level, msg.from().x, msg.from().y, msg.from().z);
-                    return true;
-                },
+                () -> AAAParticlesUtil.sendHerobrineAssistance(level, msg.from().x, msg.from().y, msg.from().z),
                 () -> NoVfxPortalEvent.spawn(msg.from(), 60));
     }
 
@@ -235,10 +229,7 @@ public final class ClientPacketHandlers {
         ClientVfxRouter.run(
                 VfxEffect.WOOPIE_SWORD_WIND,
                 () -> PhotonClientFxUtil.spawnAt(level, "whoopiewind", msg.from()),
-                () -> {
-                    AAAParticlesUtil.sendWoopieWind(level, msg.from().x, msg.from().y, msg.from().z);
-                    return true;
-                },
+                () -> AAAParticlesUtil.sendWoopieWind(level, msg.from().x, msg.from().y, msg.from().z),
                 () -> {
                     RandomSource rand = level.getRandom();
 

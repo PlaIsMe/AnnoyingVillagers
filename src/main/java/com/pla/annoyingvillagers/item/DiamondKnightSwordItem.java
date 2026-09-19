@@ -10,10 +10,10 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class DiamondKnightSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class DiamondKnightSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public DiamondKnightSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }

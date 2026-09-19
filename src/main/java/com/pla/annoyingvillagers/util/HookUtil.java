@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.util;
 
-import com.google.common.collect.Multimap;
+import com.pla.annoyingvillagers.util.LegacyItemData;
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.mojang.datafixers.util.Pair;
 import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.entity.ArmoredHerobrineEntity;
@@ -52,7 +53,7 @@ import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.ThrowablePotionItem;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import com.pla.annoyingvillagers.util.PotionUtil;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
@@ -69,8 +70,8 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.IForgeShearable;
-import net.minecraftforge.common.ToolActions;
+import net.neoforged.neoforge.common.IShearable;
+import net.neoforged.neoforge.common.ItemAbilities;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -93,7 +94,7 @@ public final class HookUtil {
     public static boolean isPickaxe(ItemStack stack) {
         return !stack.isEmpty()
                 && (stack.getItem() instanceof PickaxeItem
-                || stack.canPerformAction(ToolActions.PICKAXE_DIG));
+                || stack.canPerformAction(ItemAbilities.PICKAXE_DIG));
     }
 
     public static boolean shouldUseShieldFacing(ItemStack stack) {
@@ -110,11 +111,11 @@ public final class HookUtil {
                 || stack.getItem() instanceof HoeItem
                 || stack.getItem() instanceof ShovelItem
                 || stack.getItem() instanceof PickaxeItem
-                || stack.canPerformAction(ToolActions.SWORD_DIG)
-                || stack.canPerformAction(ToolActions.AXE_DIG)
-                || stack.canPerformAction(ToolActions.HOE_DIG)
-                || stack.canPerformAction(ToolActions.SHOVEL_DIG)
-                || stack.canPerformAction(ToolActions.PICKAXE_DIG);
+                || stack.canPerformAction(ItemAbilities.SWORD_DIG)
+                || stack.canPerformAction(ItemAbilities.AXE_DIG)
+                || stack.canPerformAction(ItemAbilities.HOE_DIG)
+                || stack.canPerformAction(ItemAbilities.SHOVEL_DIG)
+                || stack.canPerformAction(ItemAbilities.PICKAXE_DIG);
     }
 
     public static boolean shouldRenderWithoutProjectileSpin(ItemStack stack) {
@@ -193,7 +194,7 @@ public final class HookUtil {
         }
 
         if (boundStack.getItem() instanceof FireChargeItem) {
-            target.setSecondsOnFire(8);
+            target.igniteForSeconds(8);
             boundStack.shrink(1);
             level.playSound(null, target.getX(), target.getY(), target.getZ(),
                     SoundEvents.FIRECHARGE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -201,7 +202,7 @@ public final class HookUtil {
         }
 
         if (boundStack.getItem() instanceof FlintAndSteelItem) {
-            target.setSecondsOnFire(8);
+            target.igniteForSeconds(8);
             damageTool(boundStack, owner);
             level.playSound(null, target.getX(), target.getY(), target.getZ(),
                     SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -289,8 +290,8 @@ public final class HookUtil {
     private static boolean isShears(ItemStack stack) {
         return !stack.isEmpty()
                 && (stack.getItem() instanceof ShearsItem
-                || stack.canPerformAction(ToolActions.SHEARS_DIG)
-                || stack.canPerformAction(ToolActions.SHEARS_HARVEST));
+                || stack.canPerformAction(ItemAbilities.SHEARS_DIG)
+                || stack.canPerformAction(ItemAbilities.SHEARS_HARVEST));
     }
 
     private static boolean canUseBoundItemOnAlly(ItemStack stack, LivingEntity target) {
@@ -311,18 +312,17 @@ public final class HookUtil {
     }
 
     private static HitResult shearEntity(Level level, ItemStack boundStack, @Nullable LivingEntity owner, LivingEntity target) {
-        if (!(target instanceof IForgeShearable shearable)) {
+        if (!(target instanceof IShearable shearable)) {
             return HitResult.PASS;
         }
 
         BlockPos pos = target.blockPosition();
-        if (!shearable.isShearable(boundStack, level, pos)) {
+        Player player = owner instanceof Player ownerPlayer ? ownerPlayer : null;
+        if (!shearable.isShearable(player, boundStack, level, pos)) {
             return HitResult.PASS;
         }
 
-        Player player = owner instanceof Player ownerPlayer ? ownerPlayer : null;
-        int fortune = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BLOCK_FORTUNE, boundStack);
-        List<ItemStack> drops = shearable.onSheared(player, boundStack, level, pos, fortune);
+        List<ItemStack> drops = shearable.onSheared(player, boundStack, level, pos);
         RandomSource random = target.getRandom();
 
         for (ItemStack drop : drops) {
@@ -384,7 +384,7 @@ public final class HookUtil {
             return fillBucketFromBlock(level, boundStack, owner, hitResult);
         }
 
-        if (bucketItem.getFluid() == Fluids.EMPTY) {
+        if (bucketItem.content == Fluids.EMPTY) {
             return pass(boundStack);
         }
 
@@ -394,7 +394,7 @@ public final class HookUtil {
     private static ItemInteractionResult emptyBucket(Level level, ItemStack boundStack, @Nullable LivingEntity owner, BucketItem bucketItem, BlockHitResult hitResult) {
         BlockPos hitPos = hitResult.getBlockPos();
         BlockState hitState = level.getBlockState(hitPos);
-        Fluid fluid = bucketItem.getFluid();
+        Fluid fluid = bucketItem.content;
         BlockPos placePos = canPlaceBucketFluidInBlock(level, hitPos, hitState, fluid)
                 ? hitPos
                 : hitPos.relative(hitResult.getDirection());
@@ -410,7 +410,7 @@ public final class HookUtil {
 
     private static boolean canPlaceBucketFluidInBlock(Level level, BlockPos pos, BlockState state, Fluid fluid) {
         return state.getBlock() instanceof LiquidBlockContainer liquidBlockContainer
-                && liquidBlockContainer.canPlaceLiquid(level, pos, state, fluid);
+                && liquidBlockContainer.canPlaceLiquid(ownerAsPlayer(null), level, pos, state, fluid);
     }
 
     private static ItemInteractionResult fillBucketFromBlock(Level level, ItemStack boundStack, @Nullable LivingEntity owner, BlockHitResult hitResult) {
@@ -422,12 +422,13 @@ public final class HookUtil {
             return pass(boundStack);
         }
 
-        ItemStack filledBucket = bucketPickup.pickupBlock(level, pos, state);
+        Player player = owner instanceof Player ownerPlayer ? ownerPlayer : null;
+        ItemStack filledBucket = bucketPickup.pickupBlock(player, level, pos, state);
         if (filledBucket.isEmpty()) {
             return pass(boundStack);
         }
 
-        bucketPickup.getPickupSound(state).ifPresent(soundEvent ->
+        bucketPickup.getPickupSound().ifPresent(soundEvent ->
                 level.playSound(null, pos, soundEvent, SoundSource.BLOCKS, 1.0F, 1.0F));
         level.gameEvent(owner, GameEvent.FLUID_PICKUP, pos);
 
@@ -485,12 +486,13 @@ public final class HookUtil {
             return false;
         }
 
-        ItemStack pickedBucket = bucketPickup.pickupBlock(level, pos, state);
+        Player player = owner instanceof Player ownerPlayer ? ownerPlayer : null;
+        ItemStack pickedBucket = bucketPickup.pickupBlock(player, level, pos, state);
         if (pickedBucket.isEmpty()) {
             return false;
         }
 
-        bucketPickup.getPickupSound(state).ifPresent(soundEvent ->
+        bucketPickup.getPickupSound().ifPresent(soundEvent ->
                 level.playSound(null, pos, soundEvent, SoundSource.BLOCKS, 1.0F, 1.0F));
         level.gameEvent(owner, GameEvent.FLUID_PICKUP, pos);
         return true;
@@ -511,21 +513,20 @@ public final class HookUtil {
     }
 
     public static float calculateWeaponDamage(ItemStack stack, LivingEntity target) {
-        double damage = 1.0D;
-        Multimap<Attribute, AttributeModifier> modifiers = stack.getAttributeModifiers(EquipmentSlot.MAINHAND);
-
-        for (AttributeModifier modifier : modifiers.get(Attributes.ATTACK_DAMAGE)) {
-            if (modifier.getOperation() == AttributeModifier.Operation.ADDITION) {
-                damage += modifier.getAmount();
-            } else if (modifier.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE) {
-                damage += damage * modifier.getAmount();
-            } else if (modifier.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL) {
-                damage *= 1.0D + modifier.getAmount();
+        final double[] damage = {1.0D};
+        stack.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+            if (!attribute.equals(Attributes.ATTACK_DAMAGE)) return;
+            if (modifier.operation() == AttributeModifier.Operation.ADD_VALUE) {
+                damage[0] += modifier.amount();
+            } else if (modifier.operation() == AttributeModifier.Operation.ADD_MULTIPLIED_BASE) {
+                damage[0] += damage[0] * modifier.amount();
+            } else if (modifier.operation() == AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL) {
+                damage[0] *= 1.0D + modifier.amount();
             }
-        }
+        });
 
-        damage += EnchantmentHelper.getDamageBonus(stack, target.getMobType());
-        return (float) Math.max(1.0D, damage);
+        damage[0] += EnchantmentUtil.getDamageBonus(stack, target);
+        return (float) Math.max(1.0D, damage[0]);
     }
 
     private static boolean isWeaponLike(ItemStack stack) {
@@ -538,7 +539,7 @@ public final class HookUtil {
     }
 
     private static boolean isPotion(ItemStack stack) {
-        return !PotionUtils.getMobEffects(stack).isEmpty()
+        return !PotionUtil.getMobEffects(stack).isEmpty()
                 || stack.getItem() instanceof ThrowablePotionItem;
     }
 
@@ -563,7 +564,7 @@ public final class HookUtil {
             return HitResult.HANDLED;
         }
 
-        EntityType<?> entityType = spawnEggItem.getType(boundStack.getTag());
+        EntityType<?> entityType = spawnEggItem.getType(boundStack);
         Player player = owner instanceof Player ownerPlayer ? ownerPlayer : null;
         Entity spawned = entityType.spawn(
                 serverLevel,
@@ -630,7 +631,7 @@ public final class HookUtil {
         }
 
         if (owner != null) {
-            applyWeaponEnchantEffects(boundStack, owner, target);
+            applyWeaponEnchantEffects(level, boundStack, owner, target, source);
         }
 
         damageTool(boundStack, owner);
@@ -639,14 +640,15 @@ public final class HookUtil {
         return HitResult.HANDLED;
     }
 
-    private static void applyWeaponEnchantEffects(ItemStack stack, LivingEntity owner, LivingEntity target) {
-        int fireAspect = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, stack);
+    private static void applyWeaponEnchantEffects(Level level, ItemStack stack, LivingEntity owner, LivingEntity target, DamageSource source) {
+        int fireAspect = EnchantmentUtil.getLevel(Enchantments.FIRE_ASPECT, stack);
         if (fireAspect > 0) {
-            target.setSecondsOnFire(fireAspect * 4);
+            target.igniteForSeconds(fireAspect * 4);
         }
 
-        EnchantmentHelper.doPostHurtEffects(target, owner);
-        EnchantmentHelper.doPostDamageEffects(owner, target);
+        if (level instanceof ServerLevel serverLevel) {
+            EnchantmentHelper.doPostAttackEffectsWithItemSource(serverLevel, target, source, stack);
+        }
     }
 
     private static HitResult equipArmor(ItemStack boundStack, LivingEntity target, ArmorItem armorItem) {
@@ -676,9 +678,9 @@ public final class HookUtil {
     }
 
     private static HitResult applyPotion(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
-        for (MobEffectInstance effect : PotionUtils.getMobEffects(boundStack)) {
-            if (effect.getEffect().isInstantenous()) {
-                effect.getEffect().applyInstantenousEffect(projectile, owner, target, effect.getAmplifier(), 1.0D);
+        for (MobEffectInstance effect : PotionUtil.getMobEffects(boundStack)) {
+            if (effect.getEffect().value().isInstantenous()) {
+                effect.getEffect().value().applyInstantenousEffect(projectile, owner, target, effect.getAmplifier(), 1.0D);
             } else {
                 target.addEffect(new MobEffectInstance(effect));
             }
@@ -702,13 +704,13 @@ public final class HookUtil {
 
     private static HitResult feedTarget(Level level, ItemStack boundStack, LivingEntity target, FoodProperties food) {
         if (target.isInvertedHealAndHarm()) {
-            float damage = Math.max(1.0F, food.getNutrition());
+            float damage = Math.max(1.0F, food.nutrition());
             target.hurt(level.damageSources().magic(), damage);
         } else {
-            target.heal(Math.max(1.0F, food.getNutrition()));
-            for (Pair<MobEffectInstance, Float> effectPair : food.getEffects()) {
-                if (target.getRandom().nextFloat() < effectPair.getSecond()) {
-                    target.addEffect(new MobEffectInstance(effectPair.getFirst()));
+            target.heal(Math.max(1.0F, food.nutrition()));
+            for (FoodProperties.PossibleEffect possibleEffect : food.effects()) {
+                if (target.getRandom().nextFloat() < possibleEffect.probability()) {
+                    target.addEffect(new MobEffectInstance(possibleEffect.effect()));
                 }
             }
         }
@@ -754,7 +756,7 @@ public final class HookUtil {
         }
 
         if (level instanceof ServerLevel serverLevel
-                && bonemealableBlock.isValidBonemealTarget(level, pos, state, false)
+                && bonemealableBlock.isValidBonemealTarget(level, pos, state)
                 && bonemealableBlock.isBonemealSuccess(level, level.random, pos, state)) {
             bonemealableBlock.performBonemeal(serverLevel, level.random, pos, state);
             level.levelEvent(1505, pos, 0);
@@ -796,11 +798,17 @@ public final class HookUtil {
             return;
         }
 
-        ServerPlayer serverPlayer = owner instanceof ServerPlayer player ? player : null;
-        RandomSource random = owner != null ? owner.getRandom() : RandomSource.create();
-        if (stack.hurt(1, random, serverPlayer)) {
+        if (owner != null && owner.level() instanceof ServerLevel serverLevel) {
+            stack.hurtAndBreak(1, serverLevel, owner, item -> {});
+        } else if (stack.getDamageValue() + 1 >= stack.getMaxDamage()) {
             stack.shrink(1);
             stack.setDamageValue(0);
+        } else {
+            stack.setDamageValue(stack.getDamageValue() + 1);
         }
+    }
+
+    private static Player ownerAsPlayer(@Nullable LivingEntity owner) {
+        return owner instanceof Player player ? player : null;
     }
 }

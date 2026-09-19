@@ -34,9 +34,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -155,7 +156,7 @@ public class CommonUtil {
         if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
             Vec3 fractureCenter = new Vec3(center.x, origin.getY(), center.z);
             double fractureRadius = radius;
-            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_CHUNK.with(() -> serverLevel.getChunkAt(origin)), new ClientboundGroundFracture(fractureCenter, fractureRadius, noSound, noParticle));
+            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new net.minecraft.world.level.ChunkPos(origin), new ClientboundGroundFracture(fractureCenter, fractureRadius, noSound, noParticle));
             if (hurtEntities) damageCircleSlamEntities(caster, level, fractureCenter, radius);
         }
 
@@ -275,7 +276,7 @@ public class CommonUtil {
         level.playSound(
                 null,
                 pos,
-                smallSlam ? SoundEvents.PLAYER_ATTACK_KNOCKBACK : SoundEvents.GENERIC_EXPLODE,
+                smallSlam ? SoundEvents.PLAYER_ATTACK_KNOCKBACK : SoundEvents.GENERIC_EXPLODE.value(),
                 SoundSource.BLOCKS,
                 smallSlam ? 0.8F : 1.4F,
                 smallSlam ? 1.1F : 0.75F + level.random.nextFloat() * 0.1F
@@ -604,7 +605,7 @@ public class CommonUtil {
             return false;
         }
 
-        ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
         if (itemId == null) {
             return false;
@@ -636,7 +637,7 @@ public class CommonUtil {
         }
 
         EntityType<?> type = entity.getType();
-        ResourceLocation typeId = ForgeRegistries.ENTITY_TYPES.getKey(type);
+        ResourceLocation typeId = BuiltInRegistries.ENTITY_TYPE.getKey(type);
 
         if (typeId == null) {
             return false;

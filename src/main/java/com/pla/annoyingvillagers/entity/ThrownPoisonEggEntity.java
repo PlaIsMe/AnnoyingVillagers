@@ -15,15 +15,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 
 public class ThrownPoisonEggEntity extends ThrowableItemProjectile {
-    public ThrownPoisonEggEntity(PlayMessages.SpawnEntity spawnentity, Level level) {
-        super(AnnoyingVillagersModEntities.THROWN_POISON_EGG.get(), level);
-    }
-
-    public ThrownPoisonEggEntity(EntityType<? extends ThrownPoisonEggEntity> entitytype, Level level) {
+        public ThrownPoisonEggEntity(EntityType<? extends ThrownPoisonEggEntity> entitytype, Level level) {
         super(entitytype, level);
     }
 
@@ -52,8 +47,7 @@ public class ThrownPoisonEggEntity extends ThrowableItemProjectile {
         cloud.setRadiusPerTick(-0.05F);
         cloud.setDuration(20);
         cloud.setWaitTime(0);
-        cloud.setFixedColor(0x4E9331);
-        cloud.setParticle(ParticleTypes.ENTITY_EFFECT);
+        cloud.setParticle(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0x4E9331));
         cloud.addEffect(new MobEffectInstance(MobEffects.POISON, 20, 0));
         level.addFreshEntity(cloud);
     }

@@ -14,7 +14,7 @@ public class ProgressionData extends SavedData {
     private boolean manualDifficulty;
 
     public static ProgressionData get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(ProgressionData::load, ProgressionData::new, DATA_NAME);
+        return server.overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(ProgressionData::new, (tag, provider) -> ProgressionData.load(tag)), DATA_NAME);
     }
 
     public static ProgressionData load(CompoundTag tag) {
@@ -25,7 +25,7 @@ public class ProgressionData extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag) {
+    public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
         tag.putString(DIFFICULTY_TAG, this.difficulty.id());
         tag.putBoolean(MANUAL_DIFFICULTY_TAG, this.manualDifficulty);
         return tag;

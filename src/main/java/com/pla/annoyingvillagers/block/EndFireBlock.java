@@ -1,5 +1,6 @@
     package com.pla.annoyingvillagers.block;
 
+    import com.mojang.serialization.MapCodec;
     import net.minecraft.core.BlockPos;
     import net.minecraft.core.Direction;
     import net.minecraft.server.level.ServerLevel;
@@ -20,6 +21,7 @@
     import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
     public class EndFireBlock extends BaseFireBlock {
+        public static final MapCodec<EndFireBlock> CODEC = simpleCodec(EndFireBlock::new);
         public static final IntegerProperty AGE = BlockStateProperties.AGE_15;
 
         public EndFireBlock(BlockBehaviour.Properties properties) {
@@ -33,7 +35,12 @@
             builder.add(AGE);
         }
 
-        @Override public ItemStack getCloneItemStack(BlockGetter g, BlockPos p, BlockState s) {
+        @Override
+        protected MapCodec<? extends BaseFireBlock> codec() {
+            return CODEC;
+        }
+
+        @Override public ItemStack getCloneItemStack(net.minecraft.world.level.LevelReader g, BlockPos p, BlockState s) {
             return ItemStack.EMPTY;
         }
 
@@ -54,7 +61,7 @@
                 EndFireUtil.setEndFireBurning(entity, true);
 
                 if (!level.isClientSide && entity.getRemainingFireTicks() < 160) {
-                    entity.setSecondsOnFire(8);
+                    entity.igniteForSeconds(8.0F);
                 }
             }
 

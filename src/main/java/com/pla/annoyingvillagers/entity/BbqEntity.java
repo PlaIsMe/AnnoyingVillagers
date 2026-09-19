@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.clazz.*;
 import com.pla.annoyingvillagers.compat.SmartNpc;
 import com.pla.annoyingvillagers.entity.goal.EscapeAvoidGoal;
@@ -33,13 +34,13 @@ import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.network.PlayMessages;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -147,13 +148,9 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         this.moveAerialTowards(x, y, z, accel, drag);
     }
 
-    public BbqEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.BBQ.get(), level);
-    }
-
-    public BbqEntity(EntityType<? extends BbqEntity> type, Level level) {
+        public BbqEntity(EntityType<? extends BbqEntity> type, Level level) {
         super(type, level);
-        this.setMaxUpStep(0.6F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(0.6F);
         this.xpReward = 0;
         this.setNoAi(false);
         this.setCustomNameVisible(true);
@@ -699,7 +696,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         target.hurt(this.damageSources().mobAttack(this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE));
 
         if (this.random.nextFloat() < 0.35F) {
-            target.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ELECTRIFY.get(), 20, 1));
+            target.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ELECTRIFY, 20, 1));
         }
 
         this.playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F + this.random.nextFloat() * 0.2F);
@@ -726,7 +723,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
                     this.getNavigation().moveTo(trident.getX(), trident.getY(), trident.getZ(), 1.35D);
                 } else {
                     ItemStack carried = new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get());
-                    carried.getOrCreateTag().putString("CarriedTridentMode", trident.getMode().name());
+                    LegacyItemData.getOrCreate(carried).putString("CarriedTridentMode", trident.getMode().name());
 
                     trident.discard();
                     this.setItemSlot(EquipmentSlot.MAINHAND, carried);
@@ -741,7 +738,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
                 this.getNavigation().moveTo(leader, 1.35D);
             } else if (this.level() instanceof ServerLevel serverLevel) {
                 TridentMode mode = TridentMode.DEFAULT;
-                CompoundTag tag = this.getMainHandItem().getTag();
+                CompoundTag tag = LegacyItemData.get(this.getMainHandItem());
 
                 if (tag != null && tag.contains("CarriedTridentMode")) {
                     try {
@@ -968,8 +965,11 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         this.moveAerialTowards(x, y, z, 0.26D, 0.82D);
 
         if (this.meleeCooldown <= 0 && this.distanceToSqr(target.getX(), target.getEyeY(), target.getZ()) < 2.25D) {
-            target.hurt(this.damageSources().mobAttack(this), (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE));
-            this.doEnchantDamageEffects(this, target);
+            DamageSource attackSource = this.damageSources().mobAttack(this);
+            target.hurt(attackSource, (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE));
+            if (this.level() instanceof ServerLevel serverLevel) {
+                EnchantmentHelper.doPostAttackEffects(serverLevel, target, attackSource);
+            }
             this.playSound(SoundEvents.CHICKEN_HURT, 1.0F, 1.1F + this.random.nextFloat() * 0.2F);
             this.playSound(SoundEvents.CHICKEN_AMBIENT, 0.75F, 1.2F + this.random.nextFloat() * 0.3F);
             this.meleeCooldown = 8;
@@ -1248,8 +1248,6 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         if (this.isInvulnerableTo(pDamageSource)) {
             return;
         }
-
-        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
         if (pDamageAmount <= 0.0F) {
             return;
         }
@@ -1263,7 +1261,8 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             this.setAbsorptionAmount(this.getAbsorptionAmount() - absorbed);
             if (this.getAbsorptionAmount() < 0.0F) this.setAbsorptionAmount(0.0F);
         }
-        f1 = ForgeHooks.onLivingDamage(this, pDamageSource, f1);
+        this.damageContainers.peek().setNewDamage(f1);
+        f1 = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         if (!pDamageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             float cap = this.getMaxHealth() * 0.025F;
             f1 = Mth.clamp(f1, 0.0F, cap);
@@ -1280,9 +1279,8 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level,
                                                  @NotNull DifficultyInstance difficulty,
                                                  @NotNull MobSpawnType reason,
-                                                 @Nullable SpawnGroupData spawnData,
-                                                 @Nullable CompoundTag dataTag) {
-        SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
+                                                 @Nullable SpawnGroupData spawnData) {
+        SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, spawnData);
 
         if (!this.level().isClientSide()) {
             TeamUtil.addOrJoinTeam(this, "blue_demon");

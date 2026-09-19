@@ -27,8 +27,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -81,30 +79,21 @@ public class SnakeBladeEntity extends Entity {
         super(type, level);
     }
 
-    public SnakeBladeEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.SNAKE_BLADE.get(), level);
-    }
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
-    protected void defineSynchedData() {
-        this.entityData.define(CREATOR_ID, Optional.empty());
-        this.entityData.define(PORTAL_GROUP_ID, Optional.empty());
-        this.entityData.define(FROM_ID, -1);
-        this.entityData.define(RENDER_FROM_ID, -1);
-        this.entityData.define(LAST_PORTAL_ORDER, -1);
-        this.entityData.define(TARGET_COUNT, 0);
-        this.entityData.define(CURRENT_TARGET_ID, -1);
-        this.entityData.define(PROGRESS, 0.0F);
-        this.entityData.define(DAMAGE, new Random().nextFloat(10.0F, 15.0F));
-        this.entityData.define(RETRACTING, false);
-        this.entityData.define(HAS_BLADE, true);
-        this.entityData.define(ENCHANTED, false);
-        this.entityData.define(GUARD, false);
+            @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(CREATOR_ID, Optional.empty());
+        builder.define(PORTAL_GROUP_ID, Optional.empty());
+        builder.define(FROM_ID, -1);
+        builder.define(RENDER_FROM_ID, -1);
+        builder.define(LAST_PORTAL_ORDER, -1);
+        builder.define(TARGET_COUNT, 0);
+        builder.define(CURRENT_TARGET_ID, -1);
+        builder.define(PROGRESS, 0.0F);
+        builder.define(DAMAGE, new Random().nextFloat(10.0F, 15.0F));
+        builder.define(RETRACTING, false);
+        builder.define(HAS_BLADE, true);
+        builder.define(ENCHANTED, false);
+        builder.define(GUARD, false);
     }
 
     public void setEnchanted(boolean enchanted) {

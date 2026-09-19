@@ -42,9 +42,9 @@ public class EnchantedArrowEntity extends Arrow {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(COLOR_GLINT, GlintColorHelper.NONE);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(COLOR_GLINT, GlintColorHelper.NONE);
     }
 
     public void setColorGlint(int mode) {
@@ -89,11 +89,11 @@ public class EnchantedArrowEntity extends Arrow {
 
         for (int i = 0; i < amount; i++) {
             this.level().addParticle(
-                    ParticleTypes.ENTITY_EFFECT,
+                    net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, (float) rgb.x, (float) rgb.y, (float) rgb.z),
                     this.getRandomX(0.5D),
                     this.getRandomY(),
                     this.getRandomZ(0.5D),
-                    rgb.x, rgb.y, rgb.z
+                    0.0D, 0.0D, 0.0D
             );
         }
     }

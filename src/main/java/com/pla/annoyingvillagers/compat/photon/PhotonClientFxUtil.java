@@ -7,12 +7,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -26,7 +29,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class PhotonClientFxUtil {
     private static final String PHOTON_MOD_ID = "photon";
     private static final int STALE_TICKS = 5;
@@ -228,8 +231,8 @@ public final class PhotonClientFxUtil {
     }
 
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || ACTIVE_EFFECTS.isEmpty()) {
+    public static void onClientTick(ClientTickEvent.Post event) {
+        if (false || ACTIVE_EFFECTS.isEmpty()) {
             return;
         }
 
@@ -368,8 +371,8 @@ public final class PhotonClientFxUtil {
         try {
             Class<?> fxClass = Class.forName("com.lowdragmc.photon.client.fx.FX");
             Class<?> fxHelperClass = Class.forName("com.lowdragmc.photon.client.fx.FXHelper");
-            Class<?> fxEffectClass = Class.forName("com.lowdragmc.photon.client.fx.FXEffect");
-            Class<?> blockEffectClass = Class.forName("com.lowdragmc.photon.client.fx.BlockEffect");
+            Class<?> fxEffectClass = Class.forName("com.lowdragmc.photon.client.fx.FXEffectExecutor");
+            Class<?> blockEffectClass = Class.forName("com.lowdragmc.photon.client.fx.BlockEffectExecutor");
             Class<?> fxRuntimeClass = Class.forName("com.lowdragmc.photon.client.fx.FXRuntime");
             Class<?> fxObjectClass = Class.forName("com.lowdragmc.photon.client.gameobject.IFXObject");
 

@@ -46,12 +46,12 @@ public class ModelGreenVillagerKnightArmor<T extends Entity> extends EntityModel
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
 
-    public void renderToBuffer(PoseStack posestack, VertexConsumer vertexconsumer, int i, int j, float f, float f1, float f2, float f3) {
-        this.Body.render(posestack, vertexconsumer, i, j, f, f1, f2, f3);
-        this.RightArm.render(posestack, vertexconsumer, i, j, f, f1, f2, f3);
-        this.LeftArm.render(posestack, vertexconsumer, i, j, f, f1, f2, f3);
-        this.RightLeg.render(posestack, vertexconsumer, i, j, f, f1, f2, f3);
-        this.LeftLeg.render(posestack, vertexconsumer, i, j, f, f1, f2, f3);
+    public void renderToBuffer(PoseStack posestack, VertexConsumer vertexconsumer, int i, int j, int color) {
+        this.Body.render(posestack, vertexconsumer, i, j, color);
+        this.RightArm.render(posestack, vertexconsumer, i, j, color);
+        this.LeftArm.render(posestack, vertexconsumer, i, j, color);
+        this.RightLeg.render(posestack, vertexconsumer, i, j, color);
+        this.LeftLeg.render(posestack, vertexconsumer, i, j, color);
     }
 
     public void setupAnim(T t0, float f, float f1, float f2, float f3, float f4) {

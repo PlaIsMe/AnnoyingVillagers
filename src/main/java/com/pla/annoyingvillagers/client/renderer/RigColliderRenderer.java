@@ -25,12 +25,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class RigColliderRenderer {
     private static final int[][] EDGES = {{0, 1}, {0, 2}, {0, 4}, {1, 3}, {1, 5}, {2, 3}, {2, 6}, {3, 7}, {4, 5}, {4, 6}, {5, 7}, {6, 7}};
 
@@ -55,7 +56,8 @@ public final class RigColliderRenderer {
             Entity entity = mc.level.getEntity(entry.getKey());
             if (!(entity instanceof Mob mob)) continue;
 
-            float ageInTicks = mob.tickCount + event.getPartialTick();
+            float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
+            float ageInTicks = mob.tickCount + partialTick;
             RigClientAnimationState.Active active = RigClientAnimationState.getActive(mob, ageInTicks);
             if (active == null) continue;
 
@@ -63,7 +65,7 @@ public final class RigColliderRenderer {
             if (!spec.damagesTarget()) continue;
 
             float elapsed = active.sampleTicks(ageInTicks);
-            float bodyYaw = Mth.rotLerp(event.getPartialTick(), mob.yBodyRotO, mob.yBodyRot);
+            float bodyYaw = Mth.rotLerp(partialTick, mob.yBodyRotO, mob.yBodyRot);
             renderRigBoxes(poseStack, lines, mob, spec, elapsed, bodyYaw);
         }
 
@@ -71,7 +73,8 @@ public final class RigColliderRenderer {
             Entity entity = mc.level.getEntity(entry.getKey());
             if (!(entity instanceof Mob mob)) continue;
 
-            float ageInTicks = mob.tickCount + event.getPartialTick();
+            float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
+            float ageInTicks = mob.tickCount + partialTick;
             SpecialClientAnimationState.Active active = SpecialClientAnimationState.getActive(mob, ageInTicks);
             if (active == null) continue;
 
@@ -79,7 +82,7 @@ public final class RigColliderRenderer {
             if (spec.attackWindows().length == 0) continue;
 
             float elapsed = active.elapsedTicks(ageInTicks);
-            float bodyYaw = Mth.rotLerp(event.getPartialTick(), mob.yBodyRotO, mob.yBodyRot);
+            float bodyYaw = Mth.rotLerp(partialTick, mob.yBodyRotO, mob.yBodyRot);
             renderSpecialBoxes(poseStack, lines, mob, active.animationId(), spec, elapsed, bodyYaw);
         }
 
@@ -133,14 +136,14 @@ public final class RigColliderRenderer {
         if (normal.lengthSqr() < 1.0E-8D) return;
         normal = normal.normalize();
 
-        consumer.vertex(pose.pose(), (float) start.x, (float) start.y, (float) start.z)
-                .color(red, green, blue, 1.0F)
-                .normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z)
-                .endVertex();
+        consumer.addVertex(pose.pose(), (float) start.x, (float) start.y, (float) start.z)
+                .setColor(red, green, blue, 1.0F)
+                .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z)
+                ;
 
-        consumer.vertex(pose.pose(), (float) end.x, (float) end.y, (float) end.z)
-                .color(red, green, blue, 1.0F)
-                .normal(pose.normal(), (float) normal.x, (float) normal.y, (float) normal.z)
-                .endVertex();
+        consumer.addVertex(pose.pose(), (float) end.x, (float) end.y, (float) end.z)
+                .setColor(red, green, blue, 1.0F)
+                .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z)
+                ;
     }
 }

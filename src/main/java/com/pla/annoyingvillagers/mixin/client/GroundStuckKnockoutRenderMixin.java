@@ -20,6 +20,7 @@ public abstract class GroundStuckKnockoutRenderMixin<T extends LivingEntity, M e
             float ageInTicks,
             float rotationYaw,
             float partialTick,
+            float scale,
             CallbackInfo ci
     ) {
         float angle = GroundStuckKnockoutClient.getAngle(entity.getId(), partialTick);

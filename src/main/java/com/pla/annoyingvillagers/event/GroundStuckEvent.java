@@ -15,24 +15,26 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.EntityTeleportEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class GroundStuckEvent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onDamage(LivingDamageEvent event) {
+    public static void onDamage(LivingDamageEvent.Pre event) {
         LivingEntity target = event.getEntity();
-        if (!(target.level() instanceof ServerLevel level) || event.getAmount() <= 0.0F) return;
+        if (!(target.level() instanceof ServerLevel level) || event.getNewDamage() <= 0.0F) return;
 
         LivingEntity attacker = event.getSource().getEntity() instanceof LivingEntity living ? living : null;
-        boolean hasEffect = target.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get());
+        boolean hasEffect = target.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK);
         boolean stuckNbt = target.getPersistentData().getBoolean(GroundStuckMobEffect.NBT_STUCK);
         boolean sledgehammerHit = attacker != null
                 && attacker.getMainHandItem().is(AnnoyingVillagersModItems.OBSIDIAN_SLEDGEHAMMER.get());
@@ -44,8 +46,8 @@ public class GroundStuckEvent {
             return;
         }
 
-        event.setAmount(event.getAmount() * 2.0F);
-        MobEffectInstance instance = target.getEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get());
+        event.setNewDamage(event.getNewDamage() * 2.0F);
+        MobEffectInstance instance = target.getEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK);
         int amplifier = instance == null ? 0 : instance.getAmplifier();
         float chance = GroundStuckMobEffect.getKnockoutChance(amplifier);
         float roll = level.random.nextFloat();
@@ -60,19 +62,19 @@ public class GroundStuckEvent {
 
     @SubscribeEvent
     public static void onEnderPearl(EntityTeleportEvent.EnderPearl event) {
-        if (event.getPlayer().hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get())) {
+        if (event.getPlayer().hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK)) {
             GroundStuckMobEffect.clear(event.getPlayer());
         }
     }
 
     @SubscribeEvent
-    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-        LivingEntity entity = event.getEntity();
+    public static void onLivingTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
         if (!(entity.level() instanceof ServerLevel level)) return;
         CompoundTag tag = entity.getPersistentData();
 
         if (tag.getBoolean(GroundStuckMobEffect.NBT_STUCK)
-                && !entity.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get())) {
+                && !entity.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK)) {
             GroundStuckMobEffect.clear(entity);
         }
 

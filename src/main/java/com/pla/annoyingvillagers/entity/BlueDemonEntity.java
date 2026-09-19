@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import javax.annotation.Nullable;
 
 import com.pla.annoyingvillagers.clazz.*;
@@ -50,13 +52,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
+import net.neoforged.neoforge.common.CommonHooks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 
@@ -181,9 +182,9 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(STATE, 0);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(STATE, 0);
     }
 
     public int getStunEscapeCooldown() {
@@ -353,10 +354,10 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         this.squadArrivalTicks = 20 * 20;
 
         ItemStack armorStack = new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_CHESTPLATE.get());
-        armorStack.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 5);
-        armorStack.enchant(Enchantments.PROJECTILE_PROTECTION, 5);
-        armorStack.enchant(Enchantments.FIRE_PROTECTION, 5);
-        armorStack.enchant(Enchantments.BLAST_PROTECTION, 5);
+        EnchantmentUtil.enchant(armorStack, Enchantments.PROTECTION, 5);
+        EnchantmentUtil.enchant(armorStack, Enchantments.PROJECTILE_PROTECTION, 5);
+        EnchantmentUtil.enchant(armorStack, Enchantments.FIRE_PROTECTION, 5);
+        EnchantmentUtil.enchant(armorStack, Enchantments.BLAST_PROTECTION, 5);
         this.setItemSlot(EquipmentSlot.CHEST, armorStack);
 
         this.setSwapWeaponCooldown(new Random().nextInt(200, 600));
@@ -500,7 +501,6 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
                 serverLevel,
                 serverLevel.getCurrentDifficultyAt(sauce.blockPosition()),
                 MobSpawnType.MOB_SUMMONED,
-                null,
                 null
         );
 
@@ -592,15 +592,11 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         return best;
     }
 
-    public BlueDemonEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.BLUE_DEMON.get(), level);
-    }
-
-    public BlueDemonEntity(EntityType<? extends BlueDemonEntity> type, Level level) {
+        public BlueDemonEntity(EntityType<? extends BlueDemonEntity> type, Level level) {
         super(type, level);
-        this.setMaxUpStep(2.0F);
-        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
-        this.setPathfindingMalus(BlockPathTypes.WATER_BORDER, 0.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
+        this.setPathfindingMalus(PathType.WATER, 0.0F);
+        this.setPathfindingMalus(PathType.WATER_BORDER, 0.0F);
         this.xpReward = 0;
         this.setNoAi(false);
         this.setCustomName(this.getDisplayName());
@@ -632,8 +628,8 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         }
 
         @Override
-        protected boolean hasValidPathType(@NotNull BlockPathTypes type) {
-            if (type == BlockPathTypes.WATER || type == BlockPathTypes.WATER_BORDER) {
+        protected boolean hasValidPathType(@NotNull PathType type) {
+            if (type == PathType.WATER || type == PathType.WATER_BORDER) {
                 return true;
             }
             return super.hasValidPathType(type);
@@ -709,7 +705,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     }
 
     public boolean canBeAffected(MobEffectInstance mobeffectinstance) {
-        return (mobeffectinstance.getEffect().getCategory() == MobEffectCategory.BENEFICIAL || mobeffectinstance.getEffect() == MobEffects.GLOWING) && super.canBeAffected(mobeffectinstance);
+        return (mobeffectinstance.getEffect().value().getCategory() == MobEffectCategory.BENEFICIAL || mobeffectinstance.getEffect() == MobEffects.GLOWING) && super.canBeAffected(mobeffectinstance);
     }
 
     private boolean isAliveSauce(@Nullable BbqEntity sauce) {
@@ -726,7 +722,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             return;
         }
 
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = LegacyItemData.get(stack);
         if (tag != null && tag.contains("CarriedTridentMode")) {
             sweet.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }
@@ -1521,15 +1517,13 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
                     playStateTransformEndAnimation();
                 } else if (stateTransformCooldown == 10) {
                     ItemStack legendaryStack = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
-                    legendaryStack.enchant(Enchantments.SHARPNESS, 5);
-                    legendaryStack.enchant(Enchantments.SMITE, 5);
-                    legendaryStack.enchant(Enchantments.SWEEPING_EDGE, 5);
-
+                    EnchantmentUtil.enchant(legendaryStack, Enchantments.SHARPNESS, 5);
+                    EnchantmentUtil.enchant(legendaryStack, Enchantments.SMITE, 5);
+                    EnchantmentUtil.enchant(legendaryStack, Enchantments.SWEEPING_EDGE, 5);
                     ItemStack tridentStack = new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get());
-                    tridentStack.enchant(Enchantments.SHARPNESS, 5);
-                    tridentStack.enchant(Enchantments.SMITE, 5);
-                    tridentStack.enchant(Enchantments.SWEEPING_EDGE, 5);
-
+                    EnchantmentUtil.enchant(tridentStack, Enchantments.SHARPNESS, 5);
+                    EnchantmentUtil.enchant(tridentStack, Enchantments.SMITE, 5);
+                    EnchantmentUtil.enchant(tridentStack, Enchantments.SWEEPING_EDGE, 5);
                     this.setItemInHand(InteractionHand.MAIN_HAND, legendaryStack);
                     this.setItemInHand(InteractionHand.OFF_HAND, tridentStack);
                     this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 4, 300));
@@ -1689,14 +1683,13 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     @Override
     public void rollItem() {
         ItemStack legendaryStack = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
-        legendaryStack.enchant(Enchantments.SHARPNESS, 5);
-        legendaryStack.enchant(Enchantments.SMITE, 5);
-        legendaryStack.enchant(Enchantments.SWEEPING_EDGE, 5);
-
+        EnchantmentUtil.enchant(legendaryStack, Enchantments.SHARPNESS, 5);
+        EnchantmentUtil.enchant(legendaryStack, Enchantments.SMITE, 5);
+        EnchantmentUtil.enchant(legendaryStack, Enchantments.SWEEPING_EDGE, 5);
         ItemStack tridentStack = new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get());
-        tridentStack.enchant(Enchantments.SHARPNESS, 5);
-        tridentStack.enchant(Enchantments.SMITE, 5);
-        tridentStack.enchant(Enchantments.SWEEPING_EDGE, 5);
+        EnchantmentUtil.enchant(tridentStack, Enchantments.SHARPNESS, 5);
+        EnchantmentUtil.enchant(tridentStack, Enchantments.SMITE, 5);
+        EnchantmentUtil.enchant(tridentStack, Enchantments.SWEEPING_EDGE, 5);
         if (this.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
             this.setItemInHand(InteractionHand.MAIN_HAND, legendaryStack);
             this.setItemInHand(InteractionHand.OFF_HAND, tridentStack);
@@ -1714,8 +1707,8 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         }
     }
 
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
-        SpawnGroupData data = super.finalizeSpawn(serverlevelaccessor, difficultyinstance, mobspawntype, spawngroupdata, compoundtag);
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata) {
+        SpawnGroupData data = super.finalizeSpawn(serverlevelaccessor, difficultyinstance, mobspawntype, spawngroupdata);
         this.setLeftHanded(false);
         if (!this.level().isClientSide()) {
             TeamUtil.addOrJoinTeam(this, "blue_demon");
@@ -1764,8 +1757,6 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         if (this.isInvulnerableTo(pDamageSource)) {
             return;
         }
-
-        pDamageAmount = ForgeHooks.onLivingHurt(this, pDamageSource, pDamageAmount);
         if (pDamageAmount <= 0.0F) {
             return;
         }
@@ -1779,7 +1770,8 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             this.setAbsorptionAmount(this.getAbsorptionAmount() - absorbed);
             if (this.getAbsorptionAmount() < 0.0F) this.setAbsorptionAmount(0.0F);
         }
-        f1 = ForgeHooks.onLivingDamage(this, pDamageSource, f1);
+        this.damageContainers.peek().setNewDamage(f1);
+        f1 = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         f1 = this.applyBurstProtection(this, pDamageSource, f1);
         if (this.level() instanceof ServerLevel
                 && this.getState() == 0 && (this.getHealth() - f1) <= 1.0F) {
@@ -1788,7 +1780,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             BlueDemonTridentItem.addStormEnergy(this.getOffhandItem(), 100);
 
             /*
-             * ForgeHooks.onLivingDamage(...) has already fired above. That event can
+             * CommonHooks.onLivingDamage(...) has already fired above. That event can
              * apply a rig stun from the very same hit that pushed Blue Demon to 1 HP.
              * A normal RigAnimationController.play(...) refuses to start while stunned,
              * which used to leave him stranded at 1 HP.
@@ -1817,7 +1809,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
         /*
          * The lethal hit may already have entered RigStunController through
-         * ForgeHooks.onLivingDamage before the 1 HP phase check runs.
+         * CommonHooks.onLivingDamage before the 1 HP phase check runs.
          *
          * Clear that stun first. Its delayed cleanup task is reference-checked, so
          * clearing it here is safe and prevents the stun from restoring NoAI later.

@@ -58,8 +58,6 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
 
     private void renderRays(BlackHoleEntity entity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int alpha) {
         PoseStack.Pose pose = poseStack.last();
-        Matrix4f matrix = pose.pose();
-        Matrix3f normalMatrix = pose.normal();
         VertexConsumer consumer = bufferSource.getBuffer(RAY_RENDER_TYPE);
         float age = entity.tickCount + partialTick;
         float radius = 3.0F * entity.getSizeMultiplier();
@@ -102,10 +100,10 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
             float innerZ2 = endZ2 / length2 * INNER_RADIUS;
 
             // Front face: opaque centre of ray.png at U=0, fading outward toward U=1.
-            vertex(consumer, matrix, normalMatrix, innerX1, innerY1, innerZ1, 0.0F, 0.0F, alpha);
-            vertex(consumer, matrix, normalMatrix, innerX2, innerY2, innerZ2, 0.0F, 1.0F, alpha);
-            vertex(consumer, matrix, normalMatrix, endX2, endY2, endZ2, 1.0F, 1.0F, alpha);
-            vertex(consumer, matrix, normalMatrix, endX1, endY1, endZ1, 1.0F, 0.0F, alpha);
+            vertex(consumer, pose, innerX1, innerY1, innerZ1, 0.0F, 0.0F, alpha);
+            vertex(consumer, pose, innerX2, innerY2, innerZ2, 0.0F, 1.0F, alpha);
+            vertex(consumer, pose, endX2, endY2, endZ2, 1.0F, 1.0F, alpha);
+            vertex(consumer, pose, endX1, endY1, endZ1, 1.0F, 0.0F, alpha);
 
         }
     }
@@ -114,26 +112,24 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
         poseStack.pushPose();
         poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
         PoseStack.Pose pose = poseStack.last();
-        Matrix4f matrix = pose.pose();
-        Matrix3f normalMatrix = pose.normal();
         VertexConsumer consumer = bufferSource.getBuffer(CENTRE_RENDER_TYPE);
         float halfSize = 0.8F;
 
-        vertex(consumer, matrix, normalMatrix, -halfSize, halfSize, 0.0F, 0.0F, 0.0F, alpha);
-        vertex(consumer, matrix, normalMatrix, halfSize, halfSize, 0.0F, 1.0F, 0.0F, alpha);
-        vertex(consumer, matrix, normalMatrix, halfSize, -halfSize, 0.0F, 1.0F, 1.0F, alpha);
-        vertex(consumer, matrix, normalMatrix, -halfSize, -halfSize, 0.0F, 0.0F, 1.0F, alpha);
+        vertex(consumer, pose, -halfSize, halfSize, 0.0F, 0.0F, 0.0F, alpha);
+        vertex(consumer, pose, halfSize, halfSize, 0.0F, 1.0F, 0.0F, alpha);
+        vertex(consumer, pose, halfSize, -halfSize, 0.0F, 1.0F, 1.0F, alpha);
+        vertex(consumer, pose, -halfSize, -halfSize, 0.0F, 0.0F, 1.0F, alpha);
         poseStack.popPose();
     }
 
-    private static void vertex(VertexConsumer consumer, Matrix4f matrix, Matrix3f normalMatrix, float x, float y, float z, float u, float v, int alpha) {
-        consumer.vertex(matrix, x, y, z)
-                .color(0, 0, 0, alpha)
-                .uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(LightTexture.FULL_BRIGHT)
-                .normal(normalMatrix, 0.0F, 1.0F, 0.0F)
-                .endVertex();
+    private static void vertex(VertexConsumer consumer, PoseStack.Pose pose, float x, float y, float z, float u, float v, int alpha) {
+        consumer.addVertex(pose, x, y, z)
+                .setColor(0, 0, 0, alpha)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(LightTexture.FULL_BRIGHT)
+                .setNormal(pose, 0.0F, 1.0F, 0.0F)
+                ;
     }
 
     private static float getSmoothScale(BlackHoleEntity entity, float partialTick) {

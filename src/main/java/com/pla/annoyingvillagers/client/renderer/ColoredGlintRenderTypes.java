@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.client.renderer;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
@@ -26,7 +26,7 @@ public final class ColoredGlintRenderTypes extends RenderType {
                 false,
                 false,
                 CompositeState.builder()
-                        .setShaderState(RenderStateShard.RENDERTYPE_GLINT_DIRECT_SHADER)
+                        .setShaderState(RenderStateShard.RENDERTYPE_GLINT_SHADER)
                         .setTextureState(new TextureStateShard(tex, true, false))
                         .setWriteMaskState(RenderStateShard.COLOR_WRITE)
                         .setCullState(RenderStateShard.NO_CULL)
@@ -304,7 +304,7 @@ public final class ColoredGlintRenderTypes extends RenderType {
     public static final RenderType ENTITY_GLINT_YELLOW = entityGlint("yellow", YELLOW_TEX);
     public static final RenderType ARMOR_ENTITY_GLINT_YELLOW = armorEntityGlint("yellow", YELLOW_TEX);
 
-    public static void registerIntoFixed(Object2ObjectLinkedOpenHashMap<RenderType, BufferBuilder> map) {
+    public static void registerIntoFixed(Object2ObjectLinkedOpenHashMap<RenderType, ByteBufferBuilder> map) {
         put(map,
                 GLINT_DIRECT_ORANGE, ENTITY_GLINT_DIRECT_ORANGE, GLINT_ORANGE, ENTITY_GLINT_ORANGE, ARMOR_ENTITY_GLINT_ORANGE,
                 GLINT_DIRECT_CYAN, ENTITY_GLINT_DIRECT_CYAN, GLINT_CYAN, ENTITY_GLINT_CYAN, ARMOR_ENTITY_GLINT_CYAN,
@@ -320,10 +320,10 @@ public final class ColoredGlintRenderTypes extends RenderType {
         );
     }
 
-    private static void put(Object2ObjectLinkedOpenHashMap<RenderType, BufferBuilder> map, RenderType... types) {
+    private static void put(Object2ObjectLinkedOpenHashMap<RenderType, ByteBufferBuilder> map, RenderType... types) {
         for (RenderType rt : types) {
             if (!map.containsKey(rt)) {
-                map.put(rt, new BufferBuilder(rt.bufferSize()));
+                map.put(rt, new ByteBufferBuilder(rt.bufferSize()));
             }
         }
     }

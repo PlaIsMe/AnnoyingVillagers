@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
-public class ClowSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class ClowSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
     @Override
     public RigCombatStyle getRigCombatStyle(ItemStack stack) {
         return RigCombatStyle.SPECIAL_SWORD;
@@ -36,7 +36,7 @@ public class ClowSwordItem extends SwordItem implements RigCombatProfileProvider
     }
 
     public ClowSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }

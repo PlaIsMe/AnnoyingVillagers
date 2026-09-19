@@ -41,9 +41,8 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,13 +72,9 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
             AnnoyingVillagersModItems.DIAMOND_MOON_BLADE.get()
     ));
 
-    public EliteHerobrineKnockedEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.ELITE_HEROBRINE_KNOCKED.get(), level);
-    }
-
-    public EliteHerobrineKnockedEntity(EntityType<EliteHerobrineKnockedEntity> entitytype, Level level) {
+        public EliteHerobrineKnockedEntity(EntityType<EliteHerobrineKnockedEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(0.6F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(0.6F);
         this.xpReward = 0;
         this.setNoAi(true);
         this.setCustomNameVisible(false);
@@ -108,15 +103,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
         pCompound.putBoolean("InitialSpawn", this.initialSpawn);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEAD;
-    }
-
-    public boolean removeWhenFarAway(double d0) {
+            public boolean removeWhenFarAway(double d0) {
         return false;
     }
 
@@ -125,7 +112,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt"));
     }
 
     @Override
@@ -158,7 +145,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
     }
 
     public SoundEvent getDeathSound() {
-        return ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death"));
     }
 
     private void solidifyFeetAndStandOnTop() {
@@ -256,7 +243,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
                 warden.setYHeadRot(this.yBodyRot);
 
                 warden.finalizeSpawn(level, level.getCurrentDifficultyAt(this.blockPosition()),
-                        MobSpawnType.MOB_SUMMONED, null, null);
+                        MobSpawnType.MOB_SUMMONED, null);
 
                 warden.setEatingUUID(this.getUUID());
                 level.addFreshEntity(warden);
@@ -297,8 +284,8 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
-        SpawnGroupData spawnGroupData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+        SpawnGroupData spawnGroupData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
         if (!pLevel.isClientSide()) {
             int d0 = (int) this.getX();
             int d1 = (int) this.getY();

@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -88,9 +87,9 @@ public class ShockWaveBlockEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(SOURCE_BLOCK_POS, BlockPos.ZERO);
-        this.entityData.define(RENDER_BLOCK_STATE, Blocks.AIR.defaultBlockState());
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(SOURCE_BLOCK_POS, BlockPos.ZERO);
+        builder.define(RENDER_BLOCK_STATE, Blocks.AIR.defaultBlockState());
     }
 
     public BlockPos getSourceBlockPos() {
@@ -242,7 +241,7 @@ public class ShockWaveBlockEntity extends Entity {
                 this.level().holderLookup(Registries.BLOCK),
                 tag.getCompound("BlockState")
         ));
-        this.setSourceBlockPos(NbtUtils.readBlockPos(tag.getCompound("SourceBlockPos")));
+        this.setSourceBlockPos(NbtUtils.readBlockPos(tag, "SourceBlockPos").orElse(BlockPos.ZERO));
         this.lifetimeTicks = Math.max(1, tag.getInt("LifetimeTicks"));
         this.ownerUuid = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
     }
@@ -252,8 +251,4 @@ public class ShockWaveBlockEntity extends Entity {
         return false;
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
-}

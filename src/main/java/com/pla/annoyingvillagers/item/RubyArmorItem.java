@@ -11,12 +11,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-public abstract class RubyArmorItem extends ArmorItem {
+public abstract class RubyArmorItem extends LegacyArmorItem {
 
     public RubyArmorItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(ArmorItem.Type type) {
                 return switch (type) {
@@ -24,6 +25,7 @@ public abstract class RubyArmorItem extends ArmorItem {
                     case LEGGINGS   -> 15 * 25;
                     case CHESTPLATE -> 16 * 25;
                     case HELMET     -> 11 * 25;
+                    case BODY       -> 16 * 25;
                 };
             }
 
@@ -34,6 +36,7 @@ public abstract class RubyArmorItem extends ArmorItem {
                     case LEGGINGS   -> 6;
                     case CHESTPLATE -> 9;
                     case HELMET     -> 5;
+                    case BODY       -> 9;
                 };
             }
 
@@ -41,8 +44,8 @@ public abstract class RubyArmorItem extends ArmorItem {
                 return 9;
             }
 
-            public SoundEvent getEquipSound() {
-                return (SoundEvent) ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond"));
+            public Object getEquipSound() {
+                return (SoundEvent) BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond"));
             }
 
             public Ingredient getRepairIngredient() {

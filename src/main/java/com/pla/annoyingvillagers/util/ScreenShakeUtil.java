@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class ScreenShakeUtil {
     public static void applyScreenShake(ServerLevel level, Vec3 center, double range,
@@ -20,10 +20,7 @@ public class ScreenShakeUtil {
             double distSq = player.distanceToSqr(center.x, center.y, center.z);
             if (distSq > rangeSq) continue;
 
-            AnnoyingVillagers.PACKET_HANDLER.send(
-                    PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                    new CPApplyShake(durationTicks, amplifier, (float) durationTicks / 10, 1)
-            );
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new CPApplyShake(durationTicks, amplifier, (float) durationTicks / 10, 1));
         }
     }
 }

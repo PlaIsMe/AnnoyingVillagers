@@ -3,13 +3,13 @@ package com.pla.annoyingvillagers.network;
 import com.pla.annoyingvillagers.client.engine.ClientPacketHandlers;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
 
-public record ClientboundHerobrineAssistanceFx(Vec3 from) {
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+
+
+public record ClientboundHerobrineAssistanceFx(Vec3 from)  implements AnnoyingVillagersPayload {
 
     public static void encode(ClientboundHerobrineAssistanceFx msg, FriendlyByteBuf buf) {
         buf.writeDouble(msg.from.x);
@@ -22,11 +22,7 @@ public record ClientboundHerobrineAssistanceFx(Vec3 from) {
         return new ClientboundHerobrineAssistanceFx(f);
     }
 
-    public static void handle(ClientboundHerobrineAssistanceFx msg, Supplier<NetworkEvent.Context> ctx) {
-        NetworkEvent.Context c = ctx.get();
-        c.enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandlers.handleHerobrineAssistanceFx(msg));
-        });
-        c.setPacketHandled(true);
+    public static void handle(ClientboundHerobrineAssistanceFx msg, IPayloadContext context) {
+        context.enqueueWork(() -> ClientPacketHandlers.handleHerobrineAssistanceFx(msg));
     }
 }

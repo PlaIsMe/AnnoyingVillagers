@@ -19,7 +19,7 @@ public final class ForceTickEntityData extends SavedData {
 
     public static ForceTickEntityData get(MinecraftServer server) {
         return server.overworld().getDataStorage().computeIfAbsent(
-                ForceTickEntityData::load, ForceTickEntityData::new, "annoyingvillagers_force_tick_entities");
+                new SavedData.Factory<>(ForceTickEntityData::new, (tag, provider) -> ForceTickEntityData.load(tag)), "annoyingvillagers_force_tick_entities");
     }
 
     public static ForceTickEntityData load(CompoundTag tag) {
@@ -37,7 +37,7 @@ public final class ForceTickEntityData extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag) {
+    public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
         ListTag list = new ListTag();
         for (Entry entry : entries.values()) {
             CompoundTag saved = new CompoundTag();

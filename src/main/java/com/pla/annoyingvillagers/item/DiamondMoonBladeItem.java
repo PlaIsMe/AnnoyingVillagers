@@ -7,9 +7,9 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
-public class DiamondMoonBladeItem extends SwordItem implements RigCombatProfileProvider {
+public class DiamondMoonBladeItem extends LegacySwordItem implements RigCombatProfileProvider {
     public DiamondMoonBladeItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }

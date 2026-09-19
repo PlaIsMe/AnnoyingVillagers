@@ -1,11 +1,13 @@
 {
   "required": true,
   "package": "com.pla.annoyingvillagers.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "refmap": "annoyingvillagers.mixins.refmap.json",
+  "compatibilityLevel": "JAVA_21",
   "plugin": "com.pla.annoyingvillagers.mixin.plugin.CompatMixinPlugin",
   "mixins": [
     "BrainAccessor",
+    "LivingEntityAccessor",
+    "AbstractArrowAccessor",
+    "ThrownTridentAccessor",
     "DistanceManagerAccessor",
     "ServerChunkCacheAccessor",
     "MobMixin",
@@ -14,7 +16,6 @@
     "ZombieMixin",
     "ExplosionMixin",
     "RaiderMixin",
-    "RenderBuffersMixin",
     "VillagerMixin",
     "VindicatorMixin",
     "IllagerMixin",
@@ -32,6 +33,9 @@
     "PlayerMixin"
   ],
   "client": [
+    "client.CameraAccessor",
+    "client.ParticleAccessor",
+    "RenderBuffersMixin",
     "client.PlayerInfoMixin",
     "client.PlayerFaceRendererMixin",
     "client.ClientSuggestionProviderMixin",

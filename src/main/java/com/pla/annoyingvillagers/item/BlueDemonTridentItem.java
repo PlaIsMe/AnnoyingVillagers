@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.clazz.TridentMode;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.entity.BlueDemonThrownTridentEntity;
@@ -37,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileProvider {
+public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatProfileProvider {
     private static final double OWNER_HALF_BOX = 50.0D;
 
     private static final int DAMAGE_ZONE_DURATION = 100;
@@ -65,7 +66,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
     private static final double FESTIVAL_GATHER_MIN_OWNER_DISTANCE_SQR  = 2.25D;
 
     public BlueDemonTridentItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }
@@ -126,7 +127,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
             return 0;
         }
 
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = LegacyItemData.get(stack);
         return tag == null ? 0 : Mth.clamp(tag.getInt(TAG_STORM_ENERGY), 0, MAX_STORM_ENERGY);
     }
 
@@ -139,7 +140,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
             return 0;
         }
 
-        CompoundTag tag = stack.getOrCreateTag();
+        CompoundTag tag = LegacyItemData.getOrCreate(stack);
         return Mth.clamp(tag.getInt(TAG_STORM_ENERGY), 0, MAX_STORM_ENERGY);
     }
 
@@ -148,7 +149,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
             return;
         }
 
-        stack.getOrCreateTag().putInt(TAG_STORM_ENERGY, Mth.clamp(value, 0, MAX_STORM_ENERGY));
+        LegacyItemData.getOrCreate(stack).putInt(TAG_STORM_ENERGY, Mth.clamp(value, 0, MAX_STORM_ENERGY));
     }
 
     public static boolean isFullyCharged(ItemStack stack) {
@@ -578,7 +579,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
     }
 
     @Override
-    public int getUseDuration(@NotNull ItemStack stack) {
+    public int getUseDuration(@NotNull ItemStack stack, net.minecraft.world.entity.LivingEntity entity) {
         return 72000;
     }
 
@@ -602,7 +603,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
     @Override
     public void releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity livingEntity, int timeLeft) {
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || !(livingEntity instanceof Player player)) return;
-        int chargeTicks = getUseDuration(stack) - timeLeft;
+        int chargeTicks = getUseDuration(stack, livingEntity) - timeLeft;
         if (chargeTicks < VANILLA_TRIDENT_MIN_CHARGE_TICKS || level.isClientSide() || !(level instanceof ServerLevel serverLevel)) return;
         InteractionHand hand = player.getUsedItemHand();
         if (hand == InteractionHand.OFF_HAND && player.isShiftKeyDown() && isBlueDemonTrident(player.getMainHandItem()) && isBlueDemonTrident(player.getOffhandItem())) {
@@ -629,8 +630,8 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
         trident.setPos(player.getX() + side.x, player.getEyeY() - 0.1D, player.getZ() + side.z);
         trident.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, VANILLA_TRIDENT_THROW_SPEED, VANILLA_TRIDENT_INACCURACY);
         serverLevel.addFreshEntity(trident);
-        sourceStack.hurtAndBreak(1, player, brokenPlayer -> brokenPlayer.broadcastBreakEvent(hand));
-        serverLevel.playSound(null, trident, SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
+        sourceStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+        serverLevel.playSound(null, trident, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
     public static void activateVanillaElectricField(Player player) {
@@ -719,7 +720,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+    public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
         int energy = getStormEnergy(stack);
         tooltip.add(Component.translatable("tooltip.annoyingvillagers.blue_demon_trident"));

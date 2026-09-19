@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -34,7 +35,7 @@ public final class HerobrineObsidianArmorCharge {
     public static int getCharge(ItemStack stack) {
         int max = maxCharge(stack);
         if (max <= 0) return 0;
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = LegacyItemData.get(stack);
         if (tag == null) return 0;
         return Mth.clamp(tag.getInt(tagName(stack)), 0, max);
     }
@@ -42,7 +43,7 @@ public final class HerobrineObsidianArmorCharge {
     public static void setCharge(ItemStack stack, int charge) {
         int max = maxCharge(stack);
         if (max <= 0) return;
-        stack.getOrCreateTag().putInt(tagName(stack), Mth.clamp(charge, 0, max));
+        LegacyItemData.getOrCreate(stack).putInt(tagName(stack), Mth.clamp(charge, 0, max));
     }
 
     public static void addCharge(ItemStack stack, int charge) {
@@ -58,13 +59,13 @@ public final class HerobrineObsidianArmorCharge {
     }
 
     public static boolean hasForcedPurpleFoil(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
+        CompoundTag tag = LegacyItemData.get(stack);
         return isObsidianArmor(stack) && tag != null && tag.getBoolean(FORCED_PURPLE_FOIL_TAG);
     }
 
     public static void setForcedPurpleFoil(ItemStack stack, boolean value) {
         if (!isObsidianArmor(stack)) return;
-        stack.getOrCreateTag().putBoolean(FORCED_PURPLE_FOIL_TAG, value);
+        LegacyItemData.getOrCreate(stack).putBoolean(FORCED_PURPLE_FOIL_TAG, value);
     }
 
     private static String tagName(ItemStack stack) {

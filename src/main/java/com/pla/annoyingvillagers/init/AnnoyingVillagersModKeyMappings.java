@@ -1,5 +1,7 @@
 package com.pla.annoyingvillagers.init;
 
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.network.ServerboundActivateArmor;
 import com.pla.annoyingvillagers.network.SpecialAttackMessage;
@@ -9,13 +11,15 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
@@ -52,7 +56,7 @@ public class AnnoyingVillagersModKeyMappings {
                         : 0;
 
                 int type = heldTicks >= HOLD_THRESHOLD_TICKS ? 1 : 0;
-                AnnoyingVillagers.PACKET_HANDLER.sendToServer(createSpecialAttackMessage(type, heldTicks));
+                PacketDistributor.sendToServer(createSpecialAttackMessage(type, heldTicks));
                 this.pressedAtTick = -1;
             }
 
@@ -70,7 +74,7 @@ public class AnnoyingVillagersModKeyMappings {
         public void setDown(boolean flag) {
             super.setDown(flag);
             if (this.isDownOld != flag && flag && Minecraft.getInstance().player != null) {
-                AnnoyingVillagers.PACKET_HANDLER.sendToServer(new ThrowingEnderPearlMessage(0, 0));
+                PacketDistributor.sendToServer(new ThrowingEnderPearlMessage(0, 0));
                 ThrowingEnderPearlMessage.pressAction(Minecraft.getInstance().player, 0, 0);
             }
 
@@ -121,8 +125,8 @@ public class AnnoyingVillagersModKeyMappings {
     @EventBusSubscriber(value = Dist.CLIENT)
     public static class KeyEventListener {
         @SubscribeEvent
-        public static void onClientTick(ClientTickEvent event) {
-            if (event.phase != TickEvent.Phase.END) {
+        public static void onClientTick(ClientTickEvent.Post event) {
+            if (false) {
                 return;
             }
 
@@ -131,7 +135,7 @@ public class AnnoyingVillagersModKeyMappings {
             if (mc.screen == null) {
                 SPECIAL_ATTACK.consumeClick();
                 THROW_ENDER_PEARL.consumeClick();
-                while (ACTIVATE_ARMOR.consumeClick()) AnnoyingVillagers.PACKET_HANDLER.sendToServer(new ServerboundActivateArmor());
+                while (ACTIVATE_ARMOR.consumeClick()) PacketDistributor.sendToServer(new ServerboundActivateArmor());
             }
         }
     }

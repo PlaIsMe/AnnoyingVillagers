@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.entity;
 
+import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.util.TeamUtil;
@@ -27,8 +28,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -42,11 +41,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
     protected UUID playerUUID;
     protected Player player;
 
-    public NullSkeletonEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.NULL_SKELETON.get(), level);
-    }
-
-    public void setPlayer(Player player) {
+        public void setPlayer(Player player) {
         this.playerUUID = player.getUUID();
         this.player = player;
     }
@@ -62,7 +57,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
 
     public NullSkeletonEntity(EntityType<NullSkeletonEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 2;
         this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
         this.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
@@ -72,11 +67,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
         this.setDropChance(EquipmentSlot.FEET, 0.0F);
     }
 
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    private boolean isOwner(LivingEntity livingEntity) {
+        private boolean isOwner(LivingEntity livingEntity) {
         return livingEntity instanceof Player playerEntity && playerUUID != null && playerUUID.equals(playerEntity.getUUID());
     }
 
@@ -166,11 +157,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
         ));
     }
 
-    public @NotNull MobType getMobType() {
-        return MobType.UNDEAD;
-    }
-
-    public double getMyRidingOffset() {
+        public double getMyRidingOffset() {
         return -0.35D;
     }
 
@@ -190,7 +177,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
         return SoundEvents.WITHER_SKELETON_STEP;
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata, @Nullable CompoundTag compoundtag) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
         if (this.nullEntity != null) {
             TeamUtil.addOrJoinTeam(this, "herobrine");
         }
@@ -200,7 +187,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
                     this.createCommandSourceStack().withSuppressedOutput().withPermission(4));
         } catch (CommandSyntaxException ignored) {
         }
-        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata, compoundtag);
+        return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata);
     }
 
     @Override
@@ -216,22 +203,25 @@ public class NullSkeletonEntity extends AbstractSkeleton {
             float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
             float f1 = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
             if (pEntity instanceof LivingEntity) {
-                f += EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)pEntity).getMobType());
-                f1 += (float)EnchantmentHelper.getKnockbackBonus(this);
+                f += EnchantmentUtil.getDamageBonus(this.getMainHandItem(), (LivingEntity) pEntity);
+                f1 += EnchantmentUtil.getLevel(Enchantments.KNOCKBACK, this.getMainHandItem());
             }
 
-            int i = EnchantmentHelper.getFireAspect(this);
+            int i = EnchantmentUtil.getLevel(Enchantments.FIRE_ASPECT, this.getMainHandItem());
             if (i > 0) {
-                pEntity.setSecondsOnFire(i * 4);
+                pEntity.igniteForSeconds(i * 4.0F);
             }
 
-            boolean flag = pEntity.hurt(this.damageSources().playerAttack(this.player), f);
+            DamageSource attackSource = this.damageSources().playerAttack(this.player);
+            boolean flag = pEntity.hurt(attackSource, f);
             if (flag) {
                 if (f1 > 0.0F && pEntity instanceof LivingEntity) {
                     ((LivingEntity)pEntity).knockback(f1 * 0.5F, Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), -Mth.cos(this.getYRot() * ((float)Math.PI / 180F)));
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0F, 0.6));
                 }
-                this.doEnchantDamageEffects(this, pEntity);
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    EnchantmentHelper.doPostAttackEffects(serverLevel, pEntity, attackSource);
+                }
                 this.setLastHurtMob(pEntity);
             }
 
@@ -247,15 +237,15 @@ public class NullSkeletonEntity extends AbstractSkeleton {
         if (this.level() instanceof ServerLevel serverLevel) {
             if (this.tickCount == 1) {
                 ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
-                sword.enchant(Enchantments.FIRE_ASPECT, 1);
-                sword.enchant(Enchantments.UNBREAKING, 1);
-                sword.enchant(Enchantments.KNOCKBACK, 1);
-                sword.enchant(Enchantments.SHARPNESS, 1);
+                EnchantmentUtil.enchant(sword, Enchantments.FIRE_ASPECT, 1);
+                EnchantmentUtil.enchant(sword, Enchantments.UNBREAKING, 1);
+                EnchantmentUtil.enchant(sword, Enchantments.KNOCKBACK, 1);
+                EnchantmentUtil.enchant(sword, Enchantments.SHARPNESS, 1);
                 this.setItemSlot(EquipmentSlot.MAINHAND, sword);
                 ItemStack helmet = new ItemStack(Items.DIAMOND_HELMET);
-                helmet.enchant(Enchantments.THORNS, 1);
-                helmet.enchant(Enchantments.UNBREAKING, 1);
-                helmet.enchant(Enchantments.ALL_DAMAGE_PROTECTION, 1);
+                EnchantmentUtil.enchant(helmet, Enchantments.THORNS, 1);
+                EnchantmentUtil.enchant(helmet, Enchantments.UNBREAKING, 1);
+                EnchantmentUtil.enchant(helmet, Enchantments.PROTECTION, 1);
                 this.setItemSlot(EquipmentSlot.HEAD, helmet);
             }
             if (nullEntity == null && nullUUID != null) {

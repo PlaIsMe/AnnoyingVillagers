@@ -11,11 +11,11 @@ import java.util.List;
 public class NullPickaxeItem extends PickaxeItem {
 
     public NullPickaxeItem() {
-        super(Tiers.DIAMOND, 1, -2.8F, new Item.Properties());
+        super(Tiers.DIAMOND, new Item.Properties().attributes(DiggerItem.createAttributes(Tiers.DIAMOND, 1.0F, -2.8F)));
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.null_weapon"));
     }

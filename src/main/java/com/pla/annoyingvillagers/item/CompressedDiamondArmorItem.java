@@ -10,15 +10,16 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public abstract class CompressedDiamondArmorItem extends ArmorItem {
+public abstract class CompressedDiamondArmorItem extends LegacyArmorItem {
 
     public CompressedDiamondArmorItem(ArmorItem.Type type, Properties properties) {
-        super(new ArmorMaterial() {
+        super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(ArmorItem.@NotNull Type type) {
                 return switch (type) {
@@ -26,6 +27,7 @@ public abstract class CompressedDiamondArmorItem extends ArmorItem {
                     case LEGGINGS   -> 15 * 71;  // 1065
                     case CHESTPLATE -> 16 * 71;  // 1136
                     case HELMET     -> 11 * 71;  // 781
+                    case BODY       -> 16 * 71;
                 };
             }
 
@@ -36,6 +38,7 @@ public abstract class CompressedDiamondArmorItem extends ArmorItem {
                     case LEGGINGS   -> 8;
                     case CHESTPLATE -> 9;
                     case HELMET     -> 7;
+                    case BODY       -> 9;
                 };
             }
 
@@ -43,8 +46,8 @@ public abstract class CompressedDiamondArmorItem extends ArmorItem {
                 return 10;
             }
 
-            public @NotNull SoundEvent getEquipSound() {
-                return Objects.requireNonNull(ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
+            public Object getEquipSound() {
+                return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
             }
 
             public @NotNull Ingredient getRepairIngredient() {

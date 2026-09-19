@@ -6,25 +6,35 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class ShieldRendererEvent extends BlockEntityWithoutLevelRenderer {
     public static ShieldRendererEvent instance;
+    private ShieldModel customShieldModel;
 
     public ShieldRendererEvent(BlockEntityRenderDispatcher blockEntityRenderDispatcher, EntityModelSet entityModelSet) {
         super(blockEntityRenderDispatcher, entityModelSet);
+    }
+
+    @Override
+    public void onResourceManagerReload(ResourceManager resourceManager) {
+        super.onResourceManagerReload(resourceManager);
+        this.customShieldModel = new ShieldModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.SHIELD));
     }
 
     @SubscribeEvent
@@ -52,9 +62,9 @@ public class ShieldRendererEvent extends BlockEntityWithoutLevelRenderer {
         } else if (shield == AnnoyingVillagersModItems.ENDER_AEGIS.get()) {
             renderMaterial = ModModelPredicateProvider.LOCATION_ENDER_AEGIS;
         }
-        VertexConsumer ivertexBuilder = renderMaterial.sprite().wrap(ItemRenderer.getFoilBufferDirect(buffer, shieldModel.renderType(renderMaterial.atlasLocation()), true, stack.hasFoil()));
-        this.shieldModel.handle().render(matrixStack, ivertexBuilder, combinedLight, combinedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
-        this.shieldModel.plate().render(matrixStack, ivertexBuilder, combinedLight, combinedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
+        VertexConsumer ivertexBuilder = renderMaterial.sprite().wrap(ItemRenderer.getFoilBufferDirect(buffer, customShieldModel.renderType(renderMaterial.atlasLocation()), true, stack.hasFoil()));
+        this.customShieldModel.handle().render(matrixStack, ivertexBuilder, combinedLight, combinedOverlay, -1);
+        this.customShieldModel.plate().render(matrixStack, ivertexBuilder, combinedLight, combinedOverlay, -1);
         matrixStack.popPose();
     }
 }

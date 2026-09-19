@@ -1,14 +1,17 @@
 package com.pla.annoyingvillagers.task;
 
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class TaskScheduler {
     private static final List<ScheduledTask> tasks = new LinkedList<>();
     private static final List<ScheduledTask> pendingTasks = new LinkedList<>();
@@ -20,8 +23,8 @@ public class TaskScheduler {
     }
 
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+    public static void onServerTick(ServerTickEvent.Post event) {
+        if (false) return;
 
         synchronized (pendingTasks) {
             tasks.addAll(pendingTasks);

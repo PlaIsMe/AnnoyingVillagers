@@ -12,10 +12,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class HolyLlamaHammerItem extends SwordItem {
+public class HolyLlamaHammerItem extends LegacySwordItem {
 
     public HolyLlamaHammerItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }
@@ -43,7 +43,7 @@ public class HolyLlamaHammerItem extends SwordItem {
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.future_update"));
     }

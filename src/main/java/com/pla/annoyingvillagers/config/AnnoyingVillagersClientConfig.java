@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.fml.ModList;
 
 import java.util.EnumMap;
 import java.util.Locale;
@@ -11,17 +11,17 @@ public final class AnnoyingVillagersClientConfig {
     private static final String PHOTON_MOD_ID = "photon";
     private static final String AAA_PARTICLES_MOD_ID = "aaa_particles";
 
-    private static final Map<VfxEffect, ForgeConfigSpec.ConfigValue<String>> VFX_VALUES =
+    private static final Map<VfxEffect, ModConfigSpec.ConfigValue<String>> VFX_VALUES =
             new EnumMap<>(VfxEffect.class);
 
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec SPEC;
 
     static {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
         builder.comment(
                 "Client VFX selection.",
-                "DEFAULT keeps the old priority: photon > aaa_particles > vanilla.",
+                "DEFAULT uses bundled aaa_particles effects first, then photon, then vanilla.",
                 "If the selected option is unavailable at runtime, the effect falls back to DEFAULT behavior. Example: choosing AAA_PARTICLE without aaa_particles installed will use DEFAULT routing.",
                 "All options default to DEFAULT."
         ).push("vfx");
@@ -40,7 +40,7 @@ public final class AnnoyingVillagersClientConfig {
     }
 
     public static VfxMode getMode(VfxEffect effect) {
-        ForgeConfigSpec.ConfigValue<String> value = VFX_VALUES.get(effect);
+        ModConfigSpec.ConfigValue<String> value = VFX_VALUES.get(effect);
         if (value == null) {
             return VfxMode.DEFAULT;
         }
@@ -80,6 +80,13 @@ public final class AnnoyingVillagersClientConfig {
         }
 
         return true;
+    }
+
+    public static boolean shouldPreferAaaParticles(VfxEffect effect) {
+        return effect != null
+                && effect.supportsAaa()
+                && isAaaParticlesLoaded()
+                && (getMode(effect) == VfxMode.DEFAULT || getMode(effect) == VfxMode.AAA_PARTICLE);
     }
 
     private static boolean isValidMode(Object rawValue, boolean supportsAaa) {

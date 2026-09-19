@@ -223,7 +223,7 @@ public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 		this.Root.getAllParts().forEach(part -> part.skipDraw = true);
 		this.ear_R.skipDraw = false;
 		this.ear_L.skipDraw = false;
-		this.Root.render(poseStack, consumer, packedLight, overlay, 1.0F, 1.0F, 1.0F, alpha);
+		this.Root.render(poseStack, consumer, packedLight, overlay, net.minecraft.util.FastColor.ARGB32.colorFromFloat(alpha, 1.0F, 1.0F, 1.0F));
 		this.Root.getAllParts().forEach(part -> part.skipDraw = false);
 	}
 

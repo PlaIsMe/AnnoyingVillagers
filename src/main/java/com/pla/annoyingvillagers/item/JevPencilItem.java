@@ -24,7 +24,7 @@ public class JevPencilItem extends Item {
         return true;
     }
 
-    public void appendHoverText(ItemStack itemstack, Level level, List<Component> list, TooltipFlag tooltipflag) {
+    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, List<Component> list, TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
     }
 

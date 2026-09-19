@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.potion;
 
+import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -14,6 +15,9 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -21,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public class ObedienceMobEffect extends MobEffect {
     private static final String OWNER_UUID_KEY = "AVObedienceOwner";
     private static final String TEAM_CAPTURED_KEY = "AVObedienceTeamCaptured";
@@ -35,23 +40,22 @@ public class ObedienceMobEffect extends MobEffect {
         return "effect.annoyingvillagers.obedience";
     }
     @Override
-    public void applyEffectTick(LivingEntity entity, int amplifier) {
+    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
         if (!entity.level().isClientSide() && entity instanceof Mob mob) {
             tickObedience(mob);
         }
-    }
-
-    @Override
-    public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
 
     @Override
-    public void removeAttributeModifiers(@NotNull LivingEntity entity,
-                                         @NotNull AttributeMap attributes,
-                                         int amplifier) {
-        super.removeAttributeModifiers(entity, attributes, amplifier);
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+        return true;
+    }
 
+    @SubscribeEvent
+    public static void onEffectRemoved(MobEffectEvent.Remove event) {
+        LivingEntity entity = event.getEntity();
+        if (!event.getEffect().is(AnnoyingVillagersModMobEffects.OBEDIENCE.getKey())) return;
         if (!entity.level().isClientSide() && entity instanceof Mob mob) {
             CompoundTag tag = mob.getPersistentData();
             if (tag.getBoolean(REFRESHING_KEY)) {
@@ -91,7 +95,7 @@ public class ObedienceMobEffect extends MobEffect {
         CompoundTag tag = targetMob.getPersistentData();
 
         boolean alreadyHasObedience =
-                targetMob.hasEffect(AnnoyingVillagersModMobEffects.OBEDIENCE.get());
+                targetMob.hasEffect(AnnoyingVillagersModMobEffects.OBEDIENCE);
 
         if (alreadyHasObedience) {
             tag.putBoolean(REFRESHING_KEY, true);
@@ -104,7 +108,7 @@ public class ObedienceMobEffect extends MobEffect {
 
             targetMob.addEffect(
                     new MobEffectInstance(
-                            AnnoyingVillagersModMobEffects.OBEDIENCE.get(),
+                            AnnoyingVillagersModMobEffects.OBEDIENCE,
                             durationTicks,
                             0,
                             false,
@@ -130,7 +134,7 @@ public class ObedienceMobEffect extends MobEffect {
         }
 
         if (!canBeObedientMob(mob)) {
-            mob.removeEffect(AnnoyingVillagersModMobEffects.OBEDIENCE.get());
+            mob.removeEffect(AnnoyingVillagersModMobEffects.OBEDIENCE);
             return;
         }
 
@@ -139,13 +143,13 @@ public class ObedienceMobEffect extends MobEffect {
 
         UUID ownerUuid = getOwnerUUID(mob);
         if (ownerUuid == null) {
-            mob.removeEffect(AnnoyingVillagersModMobEffects.OBEDIENCE.get());
+            mob.removeEffect(AnnoyingVillagersModMobEffects.OBEDIENCE);
             return;
         }
 
         Entity ownerEntity = serverLevel.getEntity(ownerUuid);
         if (!(ownerEntity instanceof LivingEntity owner) || !owner.isAlive()) {
-            mob.removeEffect(AnnoyingVillagersModMobEffects.OBEDIENCE.get());
+            mob.removeEffect(AnnoyingVillagersModMobEffects.OBEDIENCE);
             return;
         }
 
@@ -274,7 +278,7 @@ public class ObedienceMobEffect extends MobEffect {
 
     public static boolean isObedientMob(Entity entity) {
         return entity instanceof Mob mob
-                && mob.hasEffect(AnnoyingVillagersModMobEffects.OBEDIENCE.get())
+                && mob.hasEffect(AnnoyingVillagersModMobEffects.OBEDIENCE)
                 && getOwnerUUID(mob) != null;
     }
 

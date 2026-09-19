@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.ModList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -26,21 +25,21 @@ public abstract class ItemRendererMixin {
     private void av$setSnakeItemOwner(LivingEntity entity, ItemStack stack, ItemDisplayContext context,
                                       boolean leftHand, PoseStack pose, MultiBufferSource buffer,
                                       Level level, int light, int overlay, int seed, CallbackInfo ci) {
-        if (ModList.get().isLoaded("bettercombat")) BetterCombatSnakeAttachment.setItemOwner(entity);
+        BetterCombatSnakeAttachment.setItemOwner(entity);
     }
 
     @Inject(method = "renderStatic(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;III)V", at = @At("RETURN"))
     private void av$clearSnakeItemOwner(LivingEntity entity, ItemStack stack, ItemDisplayContext context,
                                         boolean leftHand, PoseStack pose, MultiBufferSource buffer,
                                         Level level, int light, int overlay, int seed, CallbackInfo ci) {
-        if (ModList.get().isLoaded("bettercombat")) BetterCombatSnakeAttachment.setItemOwner(null);
+        BetterCombatSnakeAttachment.setItemOwner(null);
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/model/BakedModel;isCustomRenderer()Z"))
     private void av$captureSnakeSocket(ItemStack stack, ItemDisplayContext context, boolean leftHand,
                                        PoseStack pose, MultiBufferSource buffer, int light, int overlay,
                                        BakedModel model, CallbackInfo ci) {
-        if (ModList.get().isLoaded("bettercombat")) BetterCombatSnakeAttachment.capture(stack, context, pose);
+        BetterCombatSnakeAttachment.capture(stack, context, pose);
     }
 
     @Inject(method = "render", at = @At("HEAD"))

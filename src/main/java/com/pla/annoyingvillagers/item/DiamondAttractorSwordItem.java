@@ -25,17 +25,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiamondAttractorSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class DiamondAttractorSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public DiamondAttractorSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }
@@ -69,7 +69,7 @@ public class DiamondAttractorSwordItem extends SwordItem implements RigCombatPro
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), AnnoyingVillagersModSounds.DIAMOND_ATTRACTOR.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
-            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientboundDiamondAttractorFx(player));
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new ClientboundDiamondAttractorFx(player));
             pullWeapons(player);
             player.getCooldowns().addCooldown(this, 20 * 60);
         }

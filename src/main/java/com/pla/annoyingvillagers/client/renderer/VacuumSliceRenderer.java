@@ -34,7 +34,7 @@ public final class VacuumSliceRenderer extends EntityRenderer<VacuumSliceEntity>
         float pulse = 1.0F + Mth.sin((entity.tickCount + partialTick) * 0.65F) * 0.025F;
         poseStack.scale(pulse, pulse, pulse);
         VertexConsumer consumer = bufferSource.getBuffer(RENDER_TYPE);
-        this.model.renderToBuffer(poseStack,consumer,LightTexture.FULL_BRIGHT,OverlayTexture.NO_OVERLAY,1.0F,1.0F,1.0F,entity.getRenderAlpha(partialTick));
+        this.model.renderToBuffer(poseStack, consumer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, net.minecraft.util.FastColor.ARGB32.colorFromFloat(entity.getRenderAlpha(partialTick), 1.0F, 1.0F, 1.0F));
         poseStack.popPose();
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }

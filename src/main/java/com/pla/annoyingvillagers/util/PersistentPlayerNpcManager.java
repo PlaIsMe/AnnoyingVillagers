@@ -19,21 +19,24 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import java.util.*;
 
 /** Owns runtime tickets and tab rows; SavedData owns only identity and restoration coordinates. */
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class PersistentPlayerNpcManager {
     private static final TicketType<UUID> TICKET = ForceTickEntityManager.TICKET;
     private static final Map<UUID, Session> SESSIONS = new LinkedHashMap<>();
@@ -168,8 +171,8 @@ public final class PersistentPlayerNpcManager {
     }
 
     @SubscribeEvent
-    public static void tick(TickEvent.ServerTickEvent event) {
-        if (stopping || event.phase != TickEvent.Phase.END) return;
+    public static void tick(ServerTickEvent.Post event) {
+        if (stopping || false) return;
         MinecraftServer server = event.getServer();
         for (Session session : new ArrayList<>(SESSIONS.values())) {
             if (Math.floorMod(server.getTickCount(), 20) != Math.floorMod(session.id.hashCode(), 20)) continue;

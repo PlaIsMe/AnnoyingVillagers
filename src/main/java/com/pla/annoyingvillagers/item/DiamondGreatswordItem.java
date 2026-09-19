@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DiamondGreatswordItem extends SwordItem implements RigCombatProfileProvider {
+public class DiamondGreatswordItem extends LegacySwordItem implements RigCombatProfileProvider {
 
     public DiamondGreatswordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 1561;
             }

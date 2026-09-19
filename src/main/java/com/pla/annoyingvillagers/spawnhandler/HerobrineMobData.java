@@ -18,7 +18,7 @@ public class HerobrineMobData extends SavedData {
     private static final long COOLDOWN_TICKS = 20L * 60L * 10L;
 
     public static HerobrineMobData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(HerobrineMobData::load, HerobrineMobData::new, ID);
+        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(HerobrineMobData::new, (tag, provider) -> HerobrineMobData.load(tag)), ID);
     }
 
     public static HerobrineMobData load(CompoundTag compoundTag) {
@@ -33,7 +33,7 @@ public class HerobrineMobData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null) {
             compoundTag.putUUID("activeId", activeId);
         }

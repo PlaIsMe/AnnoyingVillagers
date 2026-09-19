@@ -21,7 +21,7 @@ import java.util.Random;
 @Mixin(value = {Vindicator.class}, remap = true)
 public class VindicatorMixin {
     @Inject(method = "finalizeSpawn", at = @At("RETURN"))
-    private void monsterJoinHerobrineTeam(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag, CallbackInfoReturnable<SpawnGroupData> cir) {
+    private void monsterJoinHerobrineTeam(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, CallbackInfoReturnable<SpawnGroupData> cir) {
 //        Vindicator self = (Vindicator) (Object) this;
 //        if (!self.level().isClientSide() && self.getServer() != null) {
 //            Random random = new Random();

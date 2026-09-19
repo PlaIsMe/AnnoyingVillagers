@@ -25,13 +25,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class EnderGlaiveItem extends SwordItem implements RigCombatProfileProvider {
+public class EnderGlaiveItem extends LegacySwordItem implements RigCombatProfileProvider {
     private static final double DEFAULT_SPEED = 1.60D;
     private static final double DEFAULT_DOWN_ANGLE_DEGREES = 24.0D;
     private static final int VANILLA_ABILITY_COOLDOWN_TICKS = 20 * 30;
     public static final float DEFAULT_DAMAGE = 10.0F;
 
-    private static final Tier TIER = new Tier() {
+    private static final Tier TIER = new LegacyTier() {
         @Override public int getUses() { return 1561; }
         @Override public float getSpeed() { return 4.0F; }
         @Override public float getAttackDamageBonus() { return 5.0F; }
@@ -109,7 +109,7 @@ public class EnderGlaiveItem extends SwordItem implements RigCombatProfileProvid
     }
 
     @Override
-    public void appendHoverText(ItemStack itemstack, Level level, List<Component> list, TooltipFlag tooltipflag) {
+    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, List<Component> list, TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.ender_glaive"));
     }

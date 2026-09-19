@@ -6,22 +6,21 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
 
-public final class ServerboundActivateArmor {
+
+public final class ServerboundActivateArmor  implements AnnoyingVillagersPayload {
     public static void encode(ServerboundActivateArmor msg, FriendlyByteBuf buf) {}
 
     public static ServerboundActivateArmor decode(FriendlyByteBuf buf) {
         return new ServerboundActivateArmor();
     }
 
-    public static void handle(ServerboundActivateArmor msg, Supplier<NetworkEvent.Context> ctx) {
-        NetworkEvent.Context context = ctx.get();
+    public static void handle(ServerboundActivateArmor msg, IPayloadContext ctx) {
+        IPayloadContext context = ctx;
         context.enqueueWork(() -> {
-            ServerPlayer player = context.getSender();
-            if (player != null && player.isAlive() && !player.isRemoved() && !player.isSpectator()) {
+            if (context.player() instanceof ServerPlayer player && player.isAlive() && !player.isRemoved() && !player.isSpectator()) {
                 ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
                 if (BlueDemonChestplateItem.isBlueDemonChestplate(chest)
                         && BlueDemonChestplateItem.isFullyCharged(chest)) {
@@ -30,6 +29,5 @@ public final class ServerboundActivateArmor {
                 ObsidianArmorController.activateChargedArmor(player);
             }
         });
-        context.setPacketHandled(true);
     }
 }

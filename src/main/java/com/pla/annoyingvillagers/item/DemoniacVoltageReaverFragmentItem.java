@@ -14,7 +14,7 @@ public class DemoniacVoltageReaverFragmentItem extends Item {
         super((new Properties()).stacksTo(64).rarity(Rarity.COMMON));
     }
 
-    public void appendHoverText(ItemStack itemstack, Level level, List<Component> list, TooltipFlag tooltipflag) {
+    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, List<Component> list, TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.demoniac_voltage_reaver_fragment"));
     }

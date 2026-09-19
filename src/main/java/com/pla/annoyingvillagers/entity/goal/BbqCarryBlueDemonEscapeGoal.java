@@ -13,7 +13,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.event.ForgeEventFactory;
+import net.neoforged.neoforge.event.EventHooks;
 
 import javax.annotation.Nullable;
 
@@ -162,7 +162,7 @@ public final class BbqCarryBlueDemonEscapeGoal extends Goal {
         }
         if (this.breakTicks < needed) return true;
         if (level.getBlockState(obstruction) == state && canBreak(level, obstruction, state)
-                && ForgeEventFactory.onEntityDestroyBlock(this.bbq, obstruction, state)) {
+                && EventHooks.onEntityDestroyBlock(this.bbq, obstruction, state)) {
             level.destroyBlock(obstruction, true, this.bbq);
         } else {
             this.vetoedPos = obstruction.immutable();
@@ -194,7 +194,7 @@ public final class BbqCarryBlueDemonEscapeGoal extends Goal {
     private boolean canBreak(ServerLevel level, BlockPos pos, BlockState state) {
         return level.hasChunkAt(pos) && level.isInWorldBounds(pos)
                 && level.getWorldBorder().isWithinBounds(pos)
-                && ForgeEventFactory.getMobGriefingEvent(level, this.bbq)
+                && EventHooks.canEntityGrief(level, this.bbq)
                 && !state.isAir() && state.getFluidState().isEmpty() && !state.hasBlockEntity()
                 && state.canEntityDestroy(level, pos, this.bbq)
                 && state.getDestroySpeed(level, pos) >= 0.0F

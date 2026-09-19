@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.scores.Team;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -110,8 +110,8 @@ public final class RigAnimationController {
     private static void playNow(Mob mob, RigAnimationSpec spec, LivingEntity target) {
         if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
         if (mob instanceof com.pla.annoyingvillagers.clazz.AVNpc npc
-                && net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
-                new com.pla.annoyingvillagers.event.AVNpcRigAnimationEvent(npc, spec, target))) return;
+                && net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
+                new com.pla.annoyingvillagers.event.AVNpcRigAnimationEvent(npc, spec, target)).isCanceled()) return;
         if (target != null && target.isAlive()) faceTarget(mob, target);
         if (spec.animationId().isAttack()) mob.swing(InteractionHand.MAIN_HAND, true);
         if (spec.jumpOnStart() && mob.onGround()) mob.getJumpControl().jump();
@@ -248,18 +248,12 @@ public final class RigAnimationController {
             trailEndTickExclusive = spec.durationTicks();
         }
 
-        AnnoyingVillagers.PACKET_HANDLER.send(
-                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
-                new ClientboundRigAnimation(mob.getId(), spec.animationId(), spec.durationTicks(), trailStartTick, trailEndTickExclusive)
-        );
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(mob, new ClientboundRigAnimation(mob.getId(), spec.animationId(), spec.durationTicks(), trailStartTick, trailEndTickExclusive));
     }
 
     private static void sendAnimationStop(Mob mob, RigAnimationId animationId) {
-        AnnoyingVillagers.PACKET_HANDLER.send(
-                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
-                new ClientboundRigAnimation(mob.getId(), animationId, 0,
-                        ClientboundRigAnimation.NO_TRAIL_TICK, ClientboundRigAnimation.NO_TRAIL_TICK)
-        );
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(mob, new ClientboundRigAnimation(mob.getId(), animationId, 0,
+                        ClientboundRigAnimation.NO_TRAIL_TICK, ClientboundRigAnimation.NO_TRAIL_TICK));
     }
 
     private static void scheduleAnimationEnd(Mob mob, RigAnimationSpec spec, ActiveAnimationState state) {

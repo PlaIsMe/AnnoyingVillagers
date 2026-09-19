@@ -12,18 +12,21 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class NoVfxPortalEvent {
 
     private static final ResourceLocation TEXTURE =
@@ -47,8 +50,8 @@ public final class NoVfxPortalEvent {
     }
 
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent e) {
-        if (e.phase != TickEvent.Phase.END) return;
+    public static void onClientTick(ClientTickEvent.Post e) {
+        if (false) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) {
@@ -74,7 +77,7 @@ public final class NoVfxPortalEvent {
 
         PoseStack poseStack = e.getPoseStack();
         Vec3 cam = e.getCamera().getPosition();
-        float partial = e.getPartialTick();
+        float partial = e.getPartialTick().getGameTimeDeltaPartialTick(false);
 
         poseStack.pushPose();
         poseStack.translate(-cam.x, -cam.y, -cam.z);
@@ -117,25 +120,25 @@ public final class NoVfxPortalEvent {
 
         int r = 255, g = 255, b = 255, a = alpha;
 
-        vc.vertex(mat, -PORTAL_HALF_SIZE, 0, -PORTAL_HALF_SIZE)
-                .color(r, g, b, a).uv(0, 0)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(FULL_BRIGHT_LIGHT)
-                .normal(pose.normal(), 0, 1, 0).endVertex();
+        vc.addVertex(mat, -PORTAL_HALF_SIZE, 0, -PORTAL_HALF_SIZE)
+                .setColor(r, g, b, a).setUv(0, 0)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
+                .setNormal(pose, 0, 1, 0);
 
-        vc.vertex(mat,  PORTAL_HALF_SIZE, 0, -PORTAL_HALF_SIZE)
-                .color(r, g, b, a).uv(1, 0)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(FULL_BRIGHT_LIGHT)
-                .normal(pose.normal(), 0, 1, 0).endVertex();
+        vc.addVertex(mat,  PORTAL_HALF_SIZE, 0, -PORTAL_HALF_SIZE)
+                .setColor(r, g, b, a).setUv(1, 0)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
+                .setNormal(pose, 0, 1, 0);
 
-        vc.vertex(mat,  PORTAL_HALF_SIZE, 0,  PORTAL_HALF_SIZE)
-                .color(r, g, b, a).uv(1, 1)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(FULL_BRIGHT_LIGHT)
-                .normal(pose.normal(), 0, 1, 0).endVertex();
+        vc.addVertex(mat,  PORTAL_HALF_SIZE, 0,  PORTAL_HALF_SIZE)
+                .setColor(r, g, b, a).setUv(1, 1)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
+                .setNormal(pose, 0, 1, 0);
 
-        vc.vertex(mat, -PORTAL_HALF_SIZE, 0,  PORTAL_HALF_SIZE)
-                .color(r, g, b, a).uv(0, 1)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(FULL_BRIGHT_LIGHT)
-                .normal(pose.normal(), 0, 1, 0).endVertex();
+        vc.addVertex(mat, -PORTAL_HALF_SIZE, 0,  PORTAL_HALF_SIZE)
+                .setColor(r, g, b, a).setUv(0, 1)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
+                .setNormal(pose, 0, 1, 0);
 
         poseStack.popPose();
     }

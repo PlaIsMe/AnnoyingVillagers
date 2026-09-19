@@ -12,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -26,7 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +53,7 @@ public class GroundStuckMobEffect extends MobEffect {
 
     public GroundStuckMobEffect() {
         super(MobEffectCategory.HARMFUL, 0x594636);
-        addAttributeModifier(Attributes.MOVEMENT_SPEED, "d5feeedf-a102-45d0-9528-5918efe5b5b5", -1.0D, AttributeModifier.Operation.MULTIPLY_TOTAL);
+        addAttributeModifier(Attributes.MOVEMENT_SPEED, ResourceLocation.fromNamespaceAndPath("annoyingvillagers", "ground_stuck_speed"), -1.0D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     }
 
     @Override
@@ -61,8 +62,8 @@ public class GroundStuckMobEffect extends MobEffect {
     }
 
     @Override
-    public void applyEffectTick(@NotNull LivingEntity entity, int amplifier) {
-        if (!(entity.level() instanceof ServerLevel level)) return;
+    public boolean applyEffectTick(@NotNull LivingEntity entity, int amplifier) {
+        if (!(entity.level() instanceof ServerLevel level)) return true;
         CompoundTag tag = entity.getPersistentData();
 
         /*
@@ -73,17 +74,17 @@ public class GroundStuckMobEffect extends MobEffect {
          * knockout succeeds.
          */
         if (tag.getInt(NBT_KNOCKOUT_TICKS) > 0) {
-            entity.removeEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get());
-            return;
+            entity.removeEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK);
+            return true;
         }
 
         if (!tag.getBoolean(NBT_STUCK) && !startStuck(level, entity)) {
-            entity.removeEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get());
-            return;
+            entity.removeEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK);
+            return true;
         }
         if (!isAnchorValid(level, entity)) {
             clear(entity);
-            return;
+            return true;
         }
 
         double x = tag.getDouble(NBT_ANCHOR_X);
@@ -97,7 +98,7 @@ public class GroundStuckMobEffect extends MobEffect {
         // Ground Stuck explicitly in GroundStuckEvent before their teleport happens.
         if (!(entity instanceof ServerPlayer) && anchorDistanceSqr > 6.25D) {
             clear(entity);
-            return;
+            return true;
         }
 
         entity.xxa = 0.0F;
@@ -116,10 +117,11 @@ public class GroundStuckMobEffect extends MobEffect {
         } else {
             tag.putInt(NBT_STUN_TICKS, stunTicks - 1);
         }
+        return true;
     }
 
     @Override
-    public boolean isDurationEffectTick(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 
@@ -135,7 +137,7 @@ public class GroundStuckMobEffect extends MobEffect {
             return;
         }
 
-        entity.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.GROUND_STUCK.get(), duration, amplifier, false, false, false));
+        entity.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.GROUND_STUCK, duration, amplifier, false, false, false));
 
         // Start the anchor immediately instead of waiting for the next potion tick. This
         // matters most for ServerPlayer because its own client is authoritative enough to
@@ -154,7 +156,7 @@ public class GroundStuckMobEffect extends MobEffect {
     public static void clear(LivingEntity entity) {
         if (!entity.level().isClientSide()) {
             releasePlayerAnchor(entity);
-            entity.removeEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK.get());
+            entity.removeEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK);
         }
         clearData(entity);
     }
@@ -226,10 +228,7 @@ public class GroundStuckMobEffect extends MobEffect {
 
     public static void syncKnockout(LivingEntity entity, int ticks) {
         if (!entity.level().isClientSide()) {
-            AnnoyingVillagers.PACKET_HANDLER.send(
-                    PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity),
-                    new ClientboundGroundStuckKnockoutFx(entity.getId(), ticks)
-            );
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new ClientboundGroundStuckKnockoutFx(entity.getId(), ticks));
         }
     }
 

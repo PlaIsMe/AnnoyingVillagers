@@ -16,7 +16,7 @@ public class CompressedDiamondItem extends Item {
         super((new Properties()).stacksTo(64).rarity(Rarity.EPIC));
     }
 
-    public void appendHoverText(@NotNull ItemStack itemStack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipFlag) {
+    public void appendHoverText(@NotNull ItemStack itemStack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(itemStack, level, list, tooltipFlag);
         list.add(Component.translatable("tooltip.annoyingvillagers.compressessed_diamond"));
     }

@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.clazz.HerobrineObsidianBlock;
 import com.pla.annoyingvillagers.entity.BlockProjectileEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
@@ -30,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ShadowObsidianSwordItem extends SwordItem implements RigCombatProfileProvider {
+public class ShadowObsidianSwordItem extends LegacySwordItem implements RigCombatProfileProvider {
     public static final int VANILLA_ULT_COOLDOWN_TICKS = 20 * 30;
     public static final int VANILLA_PROJECTILE_COOLDOWN_TICKS = 20 * 10;
     public static final int VANILLA_STRAIGHT_FORM_TICKS = 20;
@@ -38,7 +39,7 @@ public class ShadowObsidianSwordItem extends SwordItem implements RigCombatProfi
     private static final String STRAIGHT_FORM_UNTIL_TAG = "ShadowObsidianSwordStraightFormUntil";
 
     public ShadowObsidianSwordItem() {
-        super(new Tier() {
+        super(new LegacyTier() {
             public int getUses() {
                 return 3000;
             }
@@ -66,7 +67,7 @@ public class ShadowObsidianSwordItem extends SwordItem implements RigCombatProfi
     }
 
     public static boolean isStraightForm(ItemStack stack) {
-        return stack.hasTag() && stack.getTag() != null && stack.getTag().getBoolean(STRAIGHT_FORM_TAG);
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean(STRAIGHT_FORM_TAG);
     }
 
     @Override
@@ -111,17 +112,17 @@ public class ShadowObsidianSwordItem extends SwordItem implements RigCombatProfi
     }
 
     private static void setStraightFormForTicks(ItemStack stack, Level level, int ticks) {
-        stack.getOrCreateTag().putBoolean(STRAIGHT_FORM_TAG, true);
-        stack.getOrCreateTag().putLong(STRAIGHT_FORM_UNTIL_TAG, level.getGameTime() + Math.max(1, ticks));
+        LegacyItemData.getOrCreate(stack).putBoolean(STRAIGHT_FORM_TAG, true);
+        LegacyItemData.getOrCreate(stack).putLong(STRAIGHT_FORM_UNTIL_TAG, level.getGameTime() + Math.max(1, ticks));
     }
 
     @Override
     public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull net.minecraft.world.entity.Entity entity, int slot, boolean selected) {
         super.inventoryTick(stack, level, entity, slot, selected);
-        if (!stack.hasTag() || stack.getTag() == null || !stack.getTag().getBoolean(STRAIGHT_FORM_TAG)) return;
-        if (level.getGameTime() < stack.getTag().getLong(STRAIGHT_FORM_UNTIL_TAG)) return;
-        stack.getTag().remove(STRAIGHT_FORM_TAG);
-        stack.getTag().remove(STRAIGHT_FORM_UNTIL_TAG);
+        if (!LegacyItemData.has(stack) || LegacyItemData.get(stack) == null || !LegacyItemData.get(stack).getBoolean(STRAIGHT_FORM_TAG)) return;
+        if (level.getGameTime() < LegacyItemData.get(stack).getLong(STRAIGHT_FORM_UNTIL_TAG)) return;
+        LegacyItemData.get(stack).remove(STRAIGHT_FORM_TAG);
+        LegacyItemData.get(stack).remove(STRAIGHT_FORM_UNTIL_TAG);
     }
 
     public static boolean activateVanillaSpecial(Player player) {
@@ -153,7 +154,7 @@ public class ShadowObsidianSwordItem extends SwordItem implements RigCombatProfi
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.shadow_obsidian_sword"));
     }

@@ -5,6 +5,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -16,7 +17,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -64,7 +64,7 @@ public class ElectricAreaEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData() {
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
     }
 
     @Override
@@ -104,7 +104,7 @@ public class ElectricAreaEntity extends Entity {
                 this.makeDamageBox(),
                 living -> this.isValidTarget(owner, living))) {
             target.setDeltaMovement(0, 0, 0);
-            target.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ELECTRIFY.get(), 12, 2));
+            target.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ELECTRIFY, 12, 2));
         }
     }
 
@@ -174,8 +174,4 @@ public class ElectricAreaEntity extends Entity {
         return false;
     }
 
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
-}

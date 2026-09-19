@@ -31,7 +31,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -159,13 +158,9 @@ public class NullEntity extends HerobrineMob {
         return true;
     }
 
-    public NullEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.NULL.get(), level);
-    }
-
-    public NullEntity(EntityType<NullEntity> entitytype, Level level) {
+        public NullEntity(EntityType<NullEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(3.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(3.0F);
         this.xpReward = 80;
         this.setNoAi(false);
         this.setPersistenceRequired();
@@ -570,7 +565,7 @@ public class NullEntity extends HerobrineMob {
             corpse.setUsername(killedName);
             corpse.setCustomName(Component.literal(killedName));
             corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                    MobSpawnType.MOB_SUMMONED, null, null);
+                    MobSpawnType.MOB_SUMMONED, null);
             this.setInvisible(true);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(corpse);

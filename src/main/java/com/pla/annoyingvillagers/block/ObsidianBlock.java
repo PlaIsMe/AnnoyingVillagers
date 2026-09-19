@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
@@ -24,19 +25,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.util.ForgeSoundType;
+import net.minecraft.world.level.block.SoundType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ObsidianBlock extends HerobrineObsidianBlock implements EntityBlock {
     public ObsidianBlock() {
         super(Properties.of()
-                .sound(new ForgeSoundType(1.0F, 1.0F,
-                        () -> SoundEvents.STONE_BREAK,
-                        () -> SoundEvents.STONE_STEP,
-                        () -> SoundEvents.STONE_PLACE,
-                        () -> SoundEvents.STONE_HIT,
-                        () -> SoundEvents.STONE_FALL
+                .sound(new SoundType(1.0F, 1.0F,
+                        SoundEvents.STONE_BREAK,
+                        SoundEvents.STONE_STEP,
+                        SoundEvents.STONE_PLACE,
+                        SoundEvents.STONE_HIT,
+                        SoundEvents.STONE_FALL
                 ))
                 .strength(60.0F, 40.0F)
                 .lightLevel((blockstate) -> 4)
@@ -46,8 +47,8 @@ public class ObsidianBlock extends HerobrineObsidianBlock implements EntityBlock
                 .isRedstoneConductor((blockstate, blockgetter, blockpos) -> false));
     }
 
-    public void appendHoverText(@NotNull ItemStack itemstack, BlockGetter blockgetter, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, blockgetter, list, tooltipflag);
+    public void appendHoverText(@NotNull ItemStack itemstack, Item.TooltipContext context, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, context, list, tooltipflag);
         list.add(Component.translatable("tooltip.annoyingvillagers.obsidian"));
     }
 

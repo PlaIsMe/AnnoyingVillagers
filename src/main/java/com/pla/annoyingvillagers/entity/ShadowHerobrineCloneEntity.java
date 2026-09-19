@@ -23,19 +23,14 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ShadowHerobrineCloneEntity extends HerobrineMob {
-    public ShadowHerobrineCloneEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.SHADOW_HEROBRINE_CLONE.get(), level);
-    }
-
-    public ShadowHerobrineCloneEntity(EntityType<ShadowHerobrineCloneEntity> entitytype, Level level) {
+        public ShadowHerobrineCloneEntity(EntityType<ShadowHerobrineCloneEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 300;
         this.setNoAi(false);
         this.setChatName(this.getDisplayName().getString());
@@ -91,7 +86,7 @@ public class ShadowHerobrineCloneEntity extends HerobrineMob {
             corpse.setUsername(killedName);
             corpse.setCustomName(Component.literal(killedName));
             corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                    MobSpawnType.MOB_SUMMONED, null, null);
+                    MobSpawnType.MOB_SUMMONED, null);
             this.setInvisible(true);
             this.remove(RemovalReason.KILLED);
             corpse.setItemSlot(EquipmentSlot.HEAD, this.getItemBySlot(EquipmentSlot.HEAD).copy());

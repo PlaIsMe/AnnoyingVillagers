@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.util;
 
+import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.compat.BetterCombatCompat;
 import com.pla.annoyingvillagers.network.ClientboundBetterCombatAnimation;
@@ -14,8 +15,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 public final class VanillaWeaponAbilityUtil {
@@ -55,8 +56,7 @@ public final class VanillaWeaponAbilityUtil {
         if (!ModList.get().isLoaded(BETTER_COMBAT_MOD_ID)) swingMainHand(player);
         if (player instanceof ServerPlayer) {
             // Also send without Better Combat: client-only Punchy can animate every combo strike.
-            AnnoyingVillagers.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                    new ClientboundBetterCombatAnimation(player.getId(),
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new ClientboundBetterCombatAnimation(player.getId(),
                             ClientboundBetterCombatAnimation.AnimatedHand.MAIN_HAND,
                             animation, durationTicks, BETTER_COMBAT_UPSWING));
         }
@@ -93,10 +93,7 @@ public final class VanillaWeaponAbilityUtil {
                 ? ClientboundBetterCombatAnimation.AnimatedHand.OFF_HAND
                 : ClientboundBetterCombatAnimation.AnimatedHand.MAIN_HAND;
 
-        AnnoyingVillagers.PACKET_HANDLER.send(
-                PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                new ClientboundBetterCombatAnimation(player.getId(), animatedHand, animation, swingDurationTicks, BETTER_COMBAT_UPSWING)
-        );
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new ClientboundBetterCombatAnimation(player.getId(), animatedHand, animation, swingDurationTicks, BETTER_COMBAT_UPSWING));
         return true;
     }
 
@@ -104,7 +101,7 @@ public final class VanillaWeaponAbilityUtil {
         if (amount <= 0) return;
         ItemStack stack = player.getItemInHand(hand);
         if (stack.isEmpty()) return;
-        stack.hurtAndBreak(amount, player, brokenPlayer -> brokenPlayer.broadcastBreakEvent(hand));
+        stack.hurtAndBreak(amount, player, LivingEntity.getSlotForHand(hand));
     }
 
     public static boolean isInternalCooldownReady(Player player, String tag) {
@@ -186,17 +183,17 @@ public final class VanillaWeaponAbilityUtil {
     }
 
     public static int getCharge(ItemStack stack, String tag, int max) {
-        return Math.max(0, Math.min(max, stack.getOrCreateTag().getInt(tag)));
+        return Math.max(0, Math.min(max, LegacyItemData.getOrCreate(stack).getInt(tag)));
     }
 
     public static int addCharge(ItemStack stack, String tag, int amount, int max) {
         int charge = Math.max(0, Math.min(max, getCharge(stack, tag, max) + amount));
-        stack.getOrCreateTag().putInt(tag, charge);
+        LegacyItemData.getOrCreate(stack).putInt(tag, charge);
         return charge;
     }
 
     public static void setCharge(ItemStack stack, String tag, int amount, int max) {
-        stack.getOrCreateTag().putInt(tag, Math.max(0, Math.min(max, amount)));
+        LegacyItemData.getOrCreate(stack).putInt(tag, Math.max(0, Math.min(max, amount)));
     }
 
     public static boolean hasPersistentFlag(Entity entity, String tag) {

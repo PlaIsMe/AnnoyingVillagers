@@ -24,7 +24,6 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraftforge.network.PlayMessages.SpawnEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,13 +31,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Random;
 
 public class HerobrineCloneEntity extends HerobrineMob {
-    public HerobrineCloneEntity(SpawnEntity spawnEntity, Level level) {
-        this(AnnoyingVillagersModEntities.HEROBRINE_CLONE.get(), level);
-    }
-
-    public HerobrineCloneEntity(EntityType<HerobrineCloneEntity> entitytype, Level level) {
+        public HerobrineCloneEntity(EntityType<HerobrineCloneEntity> entitytype, Level level) {
         super(entitytype, level);
-        this.setMaxUpStep(2.0F);
+        this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
         this.xpReward = 300;
         this.setNoAi(false);
         this.setPersistenceRequired();
@@ -90,7 +85,7 @@ public class HerobrineCloneEntity extends HerobrineMob {
                 InfectedChrisEntity corpse = new InfectedChrisEntity(AnnoyingVillagersModEntities.INFECTED_CHRIS.get(), serverLevel);
                 corpse.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
                 corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                        MobSpawnType.MOB_SUMMONED, null, null);
+                        MobSpawnType.MOB_SUMMONED, null);
                 this.setInvisible(true);
                 this.remove(RemovalReason.KILLED);
                 serverLevel.addFreshEntity(corpse);
@@ -105,7 +100,7 @@ public class HerobrineCloneEntity extends HerobrineMob {
                 corpse.setUsername(killedName);
                 corpse.setCustomName(Component.literal(killedName));
                 corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                        MobSpawnType.MOB_SUMMONED, null, null);
+                        MobSpawnType.MOB_SUMMONED, null);
                 this.setInvisible(true);
                 this.remove(RemovalReason.KILLED);
                 corpse.setItemSlot(EquipmentSlot.HEAD, this.getItemBySlot(EquipmentSlot.HEAD).copy());
