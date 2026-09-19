@@ -21,7 +21,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 
-@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public class VillagerHeadSetEvent {
     private static final String VILLAGER_HEAD_MODE_KEY = "villager_head";
     private static final String VILLAGER_HEAD_COOLDOWN_KEY = "villager_head_used";

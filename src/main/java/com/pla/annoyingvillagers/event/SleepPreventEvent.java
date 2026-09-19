@@ -18,7 +18,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.UUID;
 
-@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public class SleepPreventEvent {
     @SubscribeEvent
     public static void onPlayerSleep(CanPlayerSleepEvent event) {

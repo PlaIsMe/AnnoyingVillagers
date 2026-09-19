@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class RigMobClashBladeEvent {
     private static final double FRONT_DOT_THRESHOLD = 0.0D;
     private static final double CLASH_RECOIL = 0.2D;

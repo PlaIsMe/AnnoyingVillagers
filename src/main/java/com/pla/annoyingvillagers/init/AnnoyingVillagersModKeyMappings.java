@@ -19,11 +19,10 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
-@EventBusSubscriber(bus = Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class AnnoyingVillagersModKeyMappings {
     private static final double SPECIAL_ATTACK_CROSSHAIR_RANGE = 32.0D;
 

@@ -60,7 +60,7 @@ public final class ObsidianArmorExtensionRenderer {
         firstPersonBackend = backend;
     }
 
-    @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
     public static final class Models {
         @SubscribeEvent
         public static void onLayersLoaded(EntityRenderersEvent.AddLayers event) {

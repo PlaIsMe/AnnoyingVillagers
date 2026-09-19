@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Loads explicitly enabled sword trails and optionally reuses item-skin geometry/timing. */
-@EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID)
 public final class RigSwordTrailReloadListener extends SimpleJsonResourceReloadListener {
     public static final RigSwordTrailReloadListener INSTANCE = new RigSwordTrailReloadListener();
     private static final SwordTrailReloadListener SWORD_TRAIL_INSTANCE = new SwordTrailReloadListener();

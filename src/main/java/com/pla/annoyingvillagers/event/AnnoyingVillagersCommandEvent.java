@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class AnnoyingVillagersCommandEvent {
     private AnnoyingVillagersCommandEvent() {
     }

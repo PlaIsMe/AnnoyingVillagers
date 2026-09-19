@@ -22,11 +22,8 @@ import javax.annotation.Nullable;
 @Mixin(AbstractArrow.class)
 public abstract class AbstractArrowMixin {
     @Redirect(
-            method = "onHitEntity(Lnet/minecraft/world/phys/EntityHitResult;)V",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/damagesource/DamageSources;arrow(Lnet/minecraft/world/entity/projectile/AbstractArrow;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/damagesource/DamageSource;"
-            )
+            method = "onHitEntity",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/damagesource/DamageSources;arrow(Lnet/minecraft/world/entity/projectile/AbstractArrow;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/damagesource/DamageSource;")
     )
     private DamageSource redirectArrowDamage(DamageSources sources, AbstractArrow arrow, @Nullable Entity shooter) {
         if (arrow instanceof EnderAegisProjectile) {

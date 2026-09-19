@@ -6,7 +6,6 @@
   "mixins": [
     "BrainAccessor",
     "LivingEntityAccessor",
-    "AbstractArrowAccessor",
     "ThrownTridentAccessor",
     "DistanceManagerAccessor",
     "ServerChunkCacheAccessor",
@@ -22,7 +21,6 @@
     "AbstractArrowMixin",
     "ItemCooldownsMixin",
     "EnsureSafeFlyingVehicleMixin",
-    "AbstractArrowBreakMixin",
     "FishingHookAccessor",
     "FishingHookReturnMixin",
     "BoatMixin",

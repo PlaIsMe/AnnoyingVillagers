@@ -1,18 +1,14 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.util.LegacyItemData;
-import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.EnderAegisProjectile;
-import com.pla.annoyingvillagers.mixin.AbstractArrowAccessor;
 import com.pla.annoyingvillagers.event.ShieldRendererEvent;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundEnderAegisSparkFx;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
-import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.nbt.CompoundTag;
@@ -24,7 +20,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
@@ -59,7 +54,7 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(new IClientItemExtensions() {
             @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+            public @NotNull BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 return ShieldRendererEvent.instance;
             }
         });
@@ -147,7 +142,7 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
             proj.setBaseDamage(15.0F);
             proj.setKnockback(5);
             proj.setSilent(true);
-            ((AbstractArrowAccessor) proj).annoyingVillagers$setPierceLevel((byte) 5);
+            proj.setPierceLevel((byte) 5);
 
             proj.setPos(spawnPos.x, spawnPos.y, spawnPos.z);
             proj.shoot(dir.x, dir.y, dir.z, velocity, inaccuracy);

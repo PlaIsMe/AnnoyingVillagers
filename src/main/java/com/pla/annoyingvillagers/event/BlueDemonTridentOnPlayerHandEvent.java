@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class BlueDemonTridentOnPlayerHandEvent {
     private static final String TAG_NEXT_STORM_ROLL = "BlueDemonNextStormRoll";
     private static final String TAG_LAST_LIGHTNING_UUID = "BlueDemonLastLightningUUID";

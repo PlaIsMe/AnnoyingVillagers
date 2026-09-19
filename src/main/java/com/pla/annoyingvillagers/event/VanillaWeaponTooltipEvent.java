@@ -17,7 +17,7 @@ import net.neoforged.fml.common.Mod;
 
 import java.util.List;
 
-@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class VanillaWeaponTooltipEvent {
     private static final int METER_STEPS = 18;
 

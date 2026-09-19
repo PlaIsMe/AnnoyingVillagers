@@ -22,7 +22,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
-@EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID)
 public class ShieldRendererEvent extends BlockEntityWithoutLevelRenderer {
     public static ShieldRendererEvent instance;
     private ShieldModel customShieldModel;

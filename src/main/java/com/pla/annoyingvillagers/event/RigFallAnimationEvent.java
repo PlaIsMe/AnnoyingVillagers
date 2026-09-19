@@ -13,7 +13,7 @@ import net.neoforged.fml.common.Mod;
 
 /** Mirrors Epic Fight's useful distinction: a fast airborne pose while falling, then
  * LANDING only when vanilla actually applies meaningful fall damage. */
-@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class RigFallAnimationEvent {
     private static final double FALLING_Y_VELOCITY = -0.55D;
     private static final float MIN_FALL_DISTANCE = 3.0F;

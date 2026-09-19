@@ -869,7 +869,7 @@ public class HookGunItem extends Item {
         return null;
     }
 
-    @EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
+    @EventBusSubscriber(modid = AnnoyingVillagers.MODID)
     public static class Events {
         @SubscribeEvent
         public static void onLivingTick(EntityTickEvent.Post event) {

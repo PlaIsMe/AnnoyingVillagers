@@ -28,7 +28,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
-@EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID)
 public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
             ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "item/hook_gun_body"));
