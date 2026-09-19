@@ -10,16 +10,14 @@ import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
 
 import javax.annotation.Nullable;
 
-@EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public class MobTargetRedirectEvent {
     public static boolean shouldPreserveRedirectTarget(Mob mob) {
         LivingEntity currentTarget = mob.getTarget();

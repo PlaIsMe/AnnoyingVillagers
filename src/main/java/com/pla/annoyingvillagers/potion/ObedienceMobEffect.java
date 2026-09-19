@@ -5,19 +5,22 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -57,11 +60,40 @@ public class ObedienceMobEffect extends MobEffect {
         LivingEntity entity = event.getEntity();
         if (!event.getEffect().is(AnnoyingVillagersModMobEffects.OBEDIENCE.getKey())) return;
         if (!entity.level().isClientSide() && entity instanceof Mob mob) {
+            syncObedienceRemoval(mob);
             CompoundTag tag = mob.getPersistentData();
             if (tag.getBoolean(REFRESHING_KEY)) {
                 return;
             }
             restoreOriginalTeamAndClear(mob);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onEffectExpired(MobEffectEvent.Expired event) {
+        MobEffectInstance effect = event.getEffectInstance();
+        LivingEntity entity = event.getEntity();
+        if (effect == null
+                || !effect.is(AnnoyingVillagersModMobEffects.OBEDIENCE)
+                || entity.level().isClientSide()
+                || !(entity instanceof Mob mob)) {
+            return;
+        }
+
+        syncObedienceRemoval(mob);
+        restoreOriginalTeamAndClear(mob);
+    }
+
+    @SubscribeEvent
+    public static void onStartTracking(PlayerEvent.StartTracking event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)
+                || !(event.getTarget() instanceof Mob mob)) {
+            return;
+        }
+
+        MobEffectInstance effect = mob.getEffect(AnnoyingVillagersModMobEffects.OBEDIENCE);
+        if (effect != null) {
+            player.connection.send(new ClientboundUpdateMobEffectPacket(mob.getId(), effect, true));
         }
     }
 
@@ -106,7 +138,7 @@ public class ObedienceMobEffect extends MobEffect {
 
             tag.putUUID(OWNER_UUID_KEY, owner.getUUID());
 
-            targetMob.addEffect(
+            boolean added = targetMob.addEffect(
                     new MobEffectInstance(
                             AnnoyingVillagersModMobEffects.OBEDIENCE,
                             durationTicks,
@@ -117,6 +149,10 @@ public class ObedienceMobEffect extends MobEffect {
                     ),
                     owner
             );
+            MobEffectInstance appliedEffect = targetMob.getEffect(AnnoyingVillagersModMobEffects.OBEDIENCE);
+            if (added && appliedEffect != null) {
+                syncObedienceUpdate(targetMob, appliedEffect, !alreadyHasObedience);
+            }
             captureOriginalTeamAndLeave(targetMob);
             tag.putUUID(OWNER_UUID_KEY, owner.getUUID());
 
@@ -163,6 +199,24 @@ public class ObedienceMobEffect extends MobEffect {
 
         if (bestTarget != null && mob.getTarget() != bestTarget) {
             mob.setTarget(bestTarget);
+        }
+    }
+
+    private static void syncObedienceUpdate(Mob mob, MobEffectInstance effect, boolean newEffect) {
+        if (mob.level() instanceof ServerLevel serverLevel) {
+            serverLevel.getChunkSource().broadcast(
+                    mob,
+                    new ClientboundUpdateMobEffectPacket(mob.getId(), effect, newEffect)
+            );
+        }
+    }
+
+    private static void syncObedienceRemoval(Mob mob) {
+        if (mob.level() instanceof ServerLevel serverLevel) {
+            serverLevel.getChunkSource().broadcast(
+                    mob,
+                    new ClientboundRemoveMobEffectPacket(mob.getId(), AnnoyingVillagersModMobEffects.OBEDIENCE)
+            );
         }
     }
 

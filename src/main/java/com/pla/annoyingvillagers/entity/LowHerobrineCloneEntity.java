@@ -133,7 +133,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
                     this.kill();
                     return false;
                 } else {
-                    return super.hurt(damageSource, f / 2.0F);
+                    return super.hurt(damageSource, f);
                 }
             }
         }
@@ -151,7 +151,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
             this.kill();
             return false;
         } else {
-            return super.hurt(damageSource, f / 2.0F);
+            return super.hurt(damageSource, f);
         }
     }
 

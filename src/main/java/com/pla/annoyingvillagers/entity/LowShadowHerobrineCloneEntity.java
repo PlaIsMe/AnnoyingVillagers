@@ -241,7 +241,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                     this.kill();
                     return false;
                 } else {
-                    return super.hurt(damageSource, f / 2.0F);
+                    return super.hurt(damageSource, f);
                 }
             }
         }
@@ -261,7 +261,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
             this.kill();
             return false;
         } else {
-            return super.hurt(damageSource, f / 2.0F);
+            return super.hurt(damageSource, f);
         }
     }
 
