@@ -91,7 +91,7 @@ dependencies {
     implementation "curse.maven:cloth-config-348521:5729127"
     implementation "curse.maven:playeranimator-658587:7389814"
     implementation "curse.maven:better-combat-by-daedelus-639842:8430183"
-    implementation "curse.maven:punchy-1374153:8891106"
+    compileOnly "curse.maven:punchy-1374153:8891106"
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
 }

@@ -8,7 +8,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +27,8 @@ public final class AVWorldSpawns {
                                  AnnoyingVillagersSpawnConfig.SpawnConfig spawnConfig) {
 
         if (spawnConfig.weight() <= 0) return;
-        EntityType<?> rawType = BuiltInRegistries.ENTITY_TYPE.get(entityId);
+        // This is a defaulted registry: get() returns minecraft:pig for unknown IDs.
+        EntityType<?> rawType = BuiltInRegistries.ENTITY_TYPE.getOptional(entityId).orElse(null);
         if (rawType == null) {
             LOGGER.warn("Spawn config refers to missing entity type: {}", entityId);
             return;
