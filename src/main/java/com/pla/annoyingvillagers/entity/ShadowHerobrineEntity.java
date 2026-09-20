@@ -28,7 +28,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
@@ -127,8 +127,8 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
 //        this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get()));
     }
 
-    public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        if (!this.isSacrificing() && this.level() instanceof ServerLevel serverLevel) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
+        if (!this.isSacrificing() && true) {
             if (Math.random() <= 0.5D
                     && !damageSource.is(DamageTypes.IN_WALL)
                     && !damageSource.is(DamageTypes.IN_FIRE)
@@ -139,7 +139,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
                 && damageSource.getEntity() instanceof LivingEntity livingEntity
                 && this.darkObParryCooldown == 0) {
                 if (this.darkObUp != null) {
-                    this.darkObUp.moveTo(livingEntity.blockPosition().getCenter());
+                    this.darkObUp.snapTo(livingEntity.blockPosition().getCenter());
                     shootOne(this.darkObUp, livingEntity.getOnPos().getCenter(), 2.0F, "up", this);
                     this.darkObParryCooldown = 40;
                     CommonUtil.damageBlocked(damageSource, this.darkObUp, serverLevel);
@@ -148,7 +148,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
                     }
                     return false;
                 } else if (this.darkObRight != null) {
-                    this.darkObRight.moveTo(livingEntity.blockPosition().getCenter());
+                    this.darkObRight.snapTo(livingEntity.blockPosition().getCenter());
                     shootOne(this.darkObRight, livingEntity.getOnPos().getCenter(), 2.0F, "right", this);
                     this.darkObParryCooldown = 40;
                     CommonUtil.damageBlocked(damageSource, this.darkObRight, serverLevel);
@@ -157,7 +157,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
                     }
                     return false;
                 } if (this.darkObLeft != null) {
-                    this.darkObLeft.moveTo(livingEntity.blockPosition().getCenter());
+                    this.darkObLeft.snapTo(livingEntity.blockPosition().getCenter());
                     shootOne(this.darkObLeft, livingEntity.getOnPos().getCenter(), 2.0F, "left", this);
                     this.darkObParryCooldown = 40;
                     CommonUtil.damageBlocked(damageSource, this.darkObLeft, serverLevel);
@@ -177,7 +177,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
         if (!(damageSource.getDirectEntity() instanceof EnchantedArrowEntity)
                 && damageSource.getDirectEntity() instanceof AbstractArrow
                 && !(damageSource.getDirectEntity() instanceof BlueDemonThrownTridentEntity)) return false;
-        return super.hurt(damageSource, f);
+        return super.hurtServer(serverLevel, damageSource, f);
     }
 
     public void die(@NotNull DamageSource damagesource) {
@@ -193,8 +193,8 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
         }
         if (this.level() instanceof ServerLevel serverLevel) {
             InfectedPlayerNpcEntity corpse = new InfectedPlayerNpcEntity(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), serverLevel);
-            corpse.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-            String killedName = this.getPersistentData().getString("killed_name");
+            corpse.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+            String killedName = this.getPersistentData().getStringOr("killed_name", "");
             corpse.getPersistentData().putString("possessed_by", "shadow_herobrine");
             if (killedName.isEmpty()) {
                 killedName = FakePlayer.getRandomHardcodedName(this.getRandom());
@@ -202,7 +202,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
             corpse.setUsername(killedName);
             corpse.setCustomName(Component.literal(killedName));
             corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                    MobSpawnType.MOB_SUMMONED, null);
+                    EntitySpawnReason.MOB_SUMMONED, null);
             this.setInvisible(true);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(corpse);
@@ -350,36 +350,40 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (this.getPersistentData().contains("Shooting")) {
-            tag.putInt("Shooting", this.getPersistentData().getInt("Shooting"));
+            tag.putInt("Shooting", this.getPersistentData().getIntOr("Shooting", 0));
         }
         if (darkObUpUUID != null) {
-            tag.putUUID("DarkObUpUUID", darkObUpUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "DarkObUpUUID", darkObUpUUID);
         }
         if (darkObLeftUUID != null) {
-            tag.putUUID("DarkObLeftUUID", darkObLeftUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "DarkObLeftUUID", darkObLeftUUID);
         }
         if (darkObRightUUID != null) {
-            tag.putUUID("DarkObRightUUID", darkObRightUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "DarkObRightUUID", darkObRightUUID);
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
         if (tag.contains("Shooting")) {
-            this.getPersistentData().putInt("Shooting", tag.getInt("Shooting"));
+            this.getPersistentData().putInt("Shooting", tag.getIntOr("Shooting", 0));
         }
-        if (tag.hasUUID("DarkObUpUUID")) {
-            darkObUpUUID = tag.getUUID("DarkObUpUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "DarkObUpUUID")) {
+            darkObUpUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "DarkObUpUUID");
         }
-        if (tag.hasUUID("DarkObLeftUUID")) {
-            darkObLeftUUID = tag.getUUID("DarkObLeftUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "DarkObLeftUUID")) {
+            darkObLeftUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "DarkObLeftUUID");
         }
-        if (tag.hasUUID("DarkObRightUUID")) {
-            darkObRightUUID = tag.getUUID("DarkObRightUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "DarkObRightUUID")) {
+            darkObRightUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "DarkObRightUUID");
         }
     }
 
@@ -438,7 +442,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
                 );
                 darkObbyUp.setNoGravity(true);
                 darkObbyUp.setNotReadyForShoot(true);
-                darkObbyUp.moveTo(getUpBlockPos());
+                darkObbyUp.snapTo(getUpBlockPos());
                 darkObbyUp.setOwnerUUID(this.getUUID());
                 serverLevel.addFreshEntity(darkObbyUp);
                 this.darkObUpUUID = darkObbyUp.getUUID();
@@ -454,7 +458,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
                 darkObbyRight.setNoGravity(true);
                 darkObbyRight.setNotReadyForShoot(true);
                 darkObbyRight.setOwnerUUID(this.getUUID());
-                darkObbyRight.moveTo(getRightBlockPos());
+                darkObbyRight.snapTo(getRightBlockPos());
                 serverLevel.addFreshEntity(darkObbyRight);
                 this.darkObRightUUID = darkObbyRight.getUUID();
                 this.darkObRight = darkObbyRight;
@@ -469,7 +473,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
                 darkObbyLeft.setNoGravity(true);
                 darkObbyLeft.setNotReadyForShoot(true);
                 darkObbyLeft.setOwnerUUID(this.getUUID());
-                darkObbyLeft.moveTo(getLeftBlockPos());
+                darkObbyLeft.snapTo(getLeftBlockPos());
                 serverLevel.addFreshEntity(darkObbyLeft);
                 this.darkObLeftUUID = darkObbyLeft.getUUID();
                 this.darkObLeft = darkObbyLeft;
@@ -480,7 +484,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
     public void shootChain(BlockState block, float velocity, int length) {
         Entity shooter = this;
         Level level = shooter.level();
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
 
         double eyeY = shooter.getEyeY();
         Vec3 look = shooter.getLookAngle().normalize();
@@ -539,7 +543,7 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
 
     public void shootDarkObsAtTarget(double speed) {
         ShadowHerobrineEntity shadowHerobrineEntity = this;
-        if (shadowHerobrineEntity.level().isClientSide) return;
+        if (shadowHerobrineEntity.level().isClientSide()) return;
 
         Vec3 to;
         LivingEntity target = shadowHerobrineEntity.getTarget();
@@ -609,13 +613,13 @@ public class ShadowHerobrineEntity extends HerobrineMob implements RollItemUser 
                 }
             }
             if (this.darkObUp != null) {
-                this.darkObUp.moveTo(getUpBlockPos());
+                this.darkObUp.snapTo(getUpBlockPos());
             }
             if (this.darkObRight != null) {
-                this.darkObRight.moveTo(getRightBlockPos());
+                this.darkObRight.snapTo(getRightBlockPos());
             }
             if (this.darkObLeft != null) {
-                this.darkObLeft.moveTo(getLeftBlockPos());
+                this.darkObLeft.snapTo(getLeftBlockPos());
             }
         }
     }

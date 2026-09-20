@@ -151,15 +151,14 @@ public class AvWarden extends Warden implements ForceTickEntity {
     }
 
     @Override
-    protected void customServerAiStep() {
-        if (!this.level().isClientSide()) configureAvCombatBrain();
-        super.customServerAiStep();
-        if (this.level().isClientSide()) return;
+    protected void customServerAiStep(ServerLevel serverLevel) {
+        configureAvCombatBrain();
+        super.customServerAiStep(serverLevel);
         tickAvCombat();
         updateAvMovementState();
 
         if (eatingHerobrine == null && eatingUUID != null) {
-            Entity e = ((ServerLevel) level()).getEntity(eatingUUID);
+            Entity e = serverLevel.getEntity(eatingUUID);
             if (e instanceof EliteHerobrineKnockedEntity herobrine && herobrine.isAlive()) {
                 eatingHerobrine = herobrine;
             }
@@ -188,7 +187,7 @@ public class AvWarden extends Warden implements ForceTickEntity {
         brain.eraseMemory(MemoryModuleType.HURT_BY_ENTITY);
         brain.eraseMemory(MemoryModuleType.RECENT_PROJECTILE);
 
-        WardenAi.updateActivity(this);
+        WardenAi.updateActivity(brain);
         brain.getMemory(MemoryModuleType.ATTACK_TARGET);
         this.getEntityAngryAt().map(Entity::getUUID);
     }
@@ -235,7 +234,7 @@ public class AvWarden extends Warden implements ForceTickEntity {
             }
             infectedSculk = true;
         }
-        if (level().isClientSide) {
+        if (level().isClientSide()) {
             this.updateAvClientMovementState();
             this.setupIdleAnimationStates();
             if (this.roarAnimationState.isStarted()) this.roarAnimationState.stop();
@@ -301,7 +300,7 @@ public class AvWarden extends Warden implements ForceTickEntity {
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity pEntity) {
+    public boolean doHurtTarget(net.minecraft.server.level.ServerLevel serverLevel, Entity pEntity) {
         return false;
     }
 
@@ -436,32 +435,36 @@ public class AvWarden extends Warden implements ForceTickEntity {
         }
         this.playSound(net.minecraft.sounds.SoundEvents.WARDEN_SONIC_BOOM, 3.0F, 1.0F);
         target.invulnerableTime = 0;
-        if (target.hurt(this.damageSources().sonicBoom(this), damage)) {
+        if (target.hurtOrSimulate(this.damageSources().sonicBoom(this), damage)) {
             double resistance = 1.0D - target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
             target.push(direction.x * 2.5D * resistance, direction.y * 0.5D * resistance, direction.z * 2.5D * resistance);
         }
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (eatingUUID != null) {
-            tag.putUUID("EatingUUID", eatingUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "EatingUUID", eatingUUID);
         }
         tag.putBoolean("BurrowStarted", burrowStarted);
         tag.putInt("BurrowRemoveAt", burrowRemoveAt);
         tag.putBoolean("InfectedSculk", infectedSculk);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("EatingUUID")) {
-            eatingUUID = tag.getUUID("EatingUUID");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "EatingUUID")) {
+            eatingUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "EatingUUID");
         }
-        burrowStarted = tag.getBoolean("BurrowStarted");
-        burrowRemoveAt = tag.getInt("BurrowRemoveAt");
-        infectedSculk = tag.getBoolean("InfectedSculk");
+        burrowStarted = tag.getBooleanOr("BurrowStarted", false);
+        burrowRemoveAt = tag.getIntOr("BurrowRemoveAt", 0);
+        infectedSculk = tag.getBooleanOr("InfectedSculk", false);
     }
 
     @Override
@@ -484,7 +487,7 @@ public class AvWarden extends Warden implements ForceTickEntity {
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
         this.getBrain().setMemoryWithExpiry(MemoryModuleType.DIG_COOLDOWN, Unit.INSTANCE, 1200L);
 
@@ -495,12 +498,12 @@ public class AvWarden extends Warden implements ForceTickEntity {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource pSource, float pAmount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pSource, float pAmount) {
         if (pSource.is(DamageTypes.FELL_OUT_OF_WORLD)
                 || pSource.is(DamageTypes.GENERIC_KILL)) {
-            return super.hurt(pSource, pAmount);
+            return super.hurtServer(serverLevel, pSource, pAmount);
         }
-        if (this.level() instanceof ServerLevel serverLevel) {
+        if (true) {
             CommonUtil.damageBlocked(pSource, this, serverLevel);
         }
         return false;

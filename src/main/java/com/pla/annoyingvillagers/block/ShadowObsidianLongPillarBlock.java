@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -30,15 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ShadowObsidianLongPillarBlock extends HerobrineObsidianBlock implements EntityBlock {
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public ShadowObsidianLongPillarBlock() {
-        super(Properties.of()
+    public ShadowObsidianLongPillarBlock(Properties properties) {
+        super(properties
                 .sound(SoundType.STONE)
                 .offsetType(OffsetType.XYZ)
                 .strength(3.0F, 50.0F)
                 .noOcclusion()
-                .hasPostProcess((blockstate, blockgetter, blockpos) -> true)
+                .postProcess((blockstate, blockgetter, blockpos) -> blockpos)
                 .emissiveRendering((blockstate, blockgetter, blockpos) -> true)
                 .isRedstoneConductor((blockstate, blockgetter, blockpos) -> false)
                 .dynamicShape());
@@ -102,17 +102,17 @@ public class ShadowObsidianLongPillarBlock extends HerobrineObsidianBlock implem
                 0.1
         );
         if (entity instanceof Mob mob) {
-            mob.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 2, 8, false, false));
+            mob.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 2, 8, false, false));
             applyEpicFightShortStun(entity);
         }
         if (owner != null) {
             if (owner instanceof Player player) {
-                entity.hurt(entity.level().damageSources().playerAttack(player), 1.0F);
+                entity.hurtOrSimulate(entity.level().damageSources().playerAttack(player), 1.0F);
             } else {
-                entity.hurt(entity.level().damageSources().mobAttack((LivingEntity) owner), 1.0F);
+                entity.hurtOrSimulate(entity.level().damageSources().mobAttack((LivingEntity) owner), 1.0F);
             }
         } else {
-            entity.hurt(entity.level().damageSources().generic(), 1.0F);
+            entity.hurtOrSimulate(entity.level().damageSources().generic(), 1.0F);
         }
         entity.setDeltaMovement(new Vec3(0.0D, 0.0D, 0.0D));
         if (Math.random() <= 0.2D && entity.tickCount % 10 == 0) {

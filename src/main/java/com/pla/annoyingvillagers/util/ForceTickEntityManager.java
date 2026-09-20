@@ -4,6 +4,7 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.ForceTickEntity;
 import com.pla.annoyingvillagers.clazz.PersistentPlayerNpc;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModTicketTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -31,8 +32,9 @@ import java.util.*;
 public final class ForceTickEntityManager {
     // Shared with PersistentPlayerNpcManager. Keep the established ticket name so both
     // mods' unattended-player checks recognize all AV-owned NPC tickets as non-attendance.
-    static final TicketType<UUID> TICKET = TicketType.create(
-            "annoyingvillagers:persistent_player_npc", Comparator.<UUID>naturalOrder());
+    static TicketType ticket() {
+        return AnnoyingVillagersModTicketTypes.PERSISTENT_PLAYER_NPC.get();
+    }
     private static final Map<UUID, Tracked> TRACKED = new LinkedHashMap<>();
     private static Boolean lastEnabled;
 
@@ -123,7 +125,7 @@ public final class ForceTickEntityManager {
                 tracked.update(server, entity);
             } else if (enabled) {
                 tracked.ensureTicket(server);
-                if (level.hasChunk(tracked.center.x, tracked.center.z)) tracked.unresolvedTicks += 20;
+                if (level.hasChunk(tracked.center.x(), tracked.center.z())) tracked.unresolvedTicks += 20;
                 if (tracked.unresolvedTicks >= 600) forget(server, tracked);
             } else {
                 tracked.unresolvedTicks = 0; // A disabled/unloaded mob is not a stale entry.
@@ -181,14 +183,14 @@ public final class ForceTickEntityManager {
             if (!ticketed && level != null) {
                 // Exactly one moving level-31 entity-ticking anchor, without additional
                 // Forge natural-spawn/random-tick activation at a remote mob's center.
-                level.getChunkSource().addRegionTicket(TICKET, center, 2, id, false);
+                level.getChunkSource().addTicketWithRadius(ticket(), center, 2);
                 ticketed = true;
             }
         }
 
         void release(MinecraftServer server) {
             ServerLevel level = server.getLevel(dimension);
-            if (ticketed && level != null) level.getChunkSource().removeRegionTicket(TICKET, center, 2, id, false);
+            if (ticketed && level != null) level.getChunkSource().removeTicketWithRadius(ticket(), center, 2);
             ticketed = false;
         }
     }

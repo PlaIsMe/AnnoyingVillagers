@@ -25,7 +25,7 @@ public final class RigShieldGuardController {
 
     public static void start(Mob mob, int durationTicks, int hitBudget, @Nullable LivingEntity target) {
         GuardMode guardMode = resolveGuardMode(mob);
-        if (mob.level().isClientSide || durationTicks <= 0 || guardMode == null) {
+        if (mob.level().isClientSide() || durationTicks <= 0 || guardMode == null) {
             return;
         }
 
@@ -245,7 +245,7 @@ public final class RigShieldGuardController {
             return;
         }
 
-        shield.hurtAndBreak(1 + Mth.floor(blockedAmount), mob, LivingEntity.getSlotForHand(guardMode.hand));
+        shield.hurtAndBreak(1 + Mth.floor(blockedAmount), mob, guardMode.hand.asEquipmentSlot());
     }
 
     private enum GuardMode {

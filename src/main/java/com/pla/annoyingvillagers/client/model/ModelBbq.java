@@ -1,18 +1,21 @@
 package com.pla.annoyingvillagers.client.model;
 
-import net.minecraft.client.model.ChickenModel;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.animal.chicken.ChickenModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.entity.animal.Chicken;
 
-public class ModelBbq<T extends Chicken> extends ChickenModel<T> {
+public class ModelBbq extends ChickenModel {
+    private final ModelPart head;
     private final ModelPart beak;
 
     public ModelBbq(ModelPart root) {
         super(root);
-        this.beak = root.getChild("beak");
+        this.head = root.getChild("head");
+        this.beak = this.head.getChild("beak");
     }
 
-    public ModelPart getBeak() {
-        return this.beak;
+    public void translateToBeak(PoseStack poseStack) {
+        this.head.translateAndRotate(poseStack);
+        this.beak.translateAndRotate(poseStack);
     }
 }

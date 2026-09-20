@@ -14,7 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -74,15 +74,19 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         tag.putInt("State", this.state);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        state = tag.getInt("State");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        state = tag.getIntOr("State", 0);
     }
 
         protected void registerGoals() {
@@ -99,11 +103,11 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.generic.death"));
     }
 
     @Override
@@ -120,13 +124,13 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+    protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
         if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            super.actuallyHurt(pDamageSource, pDamageAmount);
+            super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }
 
-        if (this.isInvulnerableTo(pDamageSource)) {
+        if (this.isInvulnerableTo(serverLevel, pDamageSource)) {
             return;
         }
         if (pDamageAmount <= 0.0F) {
@@ -150,7 +154,7 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
 
-        if (this.level() instanceof ServerLevel serverLevel
+        if (true
                 && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {
             return;
         }
@@ -226,8 +230,8 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         }
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
-        if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
+        if (mobSpawnType == EntitySpawnReason.NATURAL || mobSpawnType == EntitySpawnReason.CHUNK_GENERATION) {
             ServerLevel serverLevel = serverLevelAccessor.getLevel();
             ChrisData chrisData = ChrisData.get(serverLevel);
 
@@ -268,7 +272,7 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     public void awardKillScore(@NotNull Entity entity, int i, @NotNull DamageSource damagesource) {
-        super.awardKillScore(entity, i, damagesource);
+        super.awardKillScore(entity, damagesource);
     }
 
     @Override
@@ -308,7 +312,7 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         }
     }
 
-    public static boolean canSpawn(EntityType<ChrisEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
+    public static boolean canSpawn(EntityType<ChrisEntity> entityType, ServerLevelAccessor level, EntitySpawnReason spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
         if (ChrisData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
@@ -328,7 +332,7 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     @Override
     public void tick() {
         super.tick();
-        if (!level().isClientSide) {
+        if (!level().isClientSide()) {
             if (this.state == 0
                     && this.getHealth() <= 20
                     && !this.getItemInHand(InteractionHand.OFF_HAND).getItem().equals(Items.TOTEM_OF_UNDYING)) {
@@ -340,7 +344,7 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     @Override
     public void remove(@NotNull RemovalReason reason) {
         super.remove(reason);
-        if (!level().isClientSide && level() instanceof ServerLevel serverLevel &&
+        if (!level().isClientSide() && level() instanceof ServerLevel serverLevel &&
                 (reason == RemovalReason.KILLED || reason == RemovalReason.DISCARDED)) {
             ChrisData.get(serverLevel).releaseIfMatches(serverLevel, this.getUUID());
         }

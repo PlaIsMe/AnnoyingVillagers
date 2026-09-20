@@ -3,7 +3,10 @@ package com.pla.annoyingvillagers.blockentity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -29,21 +32,21 @@ public class ObsidianBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        if (owner != null) tag.putUUID("Owner", owner);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        if (owner != null) output.store("Owner", UUIDUtil.CODEC, owner);
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        owner = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        owner = input.read("Owner", UUIDUtil.CODEC).orElse(null);
     }
 
     @Override
     public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        if (owner != null) tag.putUUID("Owner", owner);
+        if (owner != null) tag.putIntArray("Owner", UUIDUtil.uuidToIntArray(owner));
         return tag;
     }
 }

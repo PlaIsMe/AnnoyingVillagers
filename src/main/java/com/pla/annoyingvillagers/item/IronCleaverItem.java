@@ -35,9 +35,9 @@ public class IronCleaverItem extends LegacySwordItem implements RigCombatProfile
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.IRON_INGOT));
+                return Ingredient.of(Items.IRON_INGOT);
             }
-        }, 3, -3.2F, (new Properties()));
+        }, 3, -3.2F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

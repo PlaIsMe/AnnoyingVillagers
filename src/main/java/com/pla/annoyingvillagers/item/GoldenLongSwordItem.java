@@ -29,8 +29,8 @@ public class GoldenLongSwordItem extends LegacySwordItem {
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.GOLD_INGOT));
+                return Ingredient.of(Items.GOLD_INGOT);
             }
-        }, 3, -2.5F, (new Properties()));
+        }, 3, -2.5F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 }

@@ -5,8 +5,11 @@ import com.pla.annoyingvillagers.clazz.RigMobRenderer;
 import com.pla.annoyingvillagers.client.model.ModelRig;
 import com.pla.annoyingvillagers.entity.LowHerobrineCloneEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public class LowHerobrineCloneRenderer extends RigMobRenderer<LowHerobrineCloneEntity> {
@@ -20,18 +23,19 @@ public class LowHerobrineCloneRenderer extends RigMobRenderer<LowHerobrineCloneE
     }
 
     @Override
-    public void render(@NotNull LowHerobrineCloneEntity entity,float entityYaw,float partialTick,@NotNull PoseStack poseStack,@NotNull MultiBufferSource buffer,int packedLight) {
-        this.model = FakePlayerTextureUtils.getPlayerSkinType(entity.getProfile()) == FakePlayerTextureUtils.SkinType.SLIM ? this.slimModel : this.defaultModel;
-        super.render(entity,entityYaw,partialTick,poseStack,buffer,packedLight);
+    public void submit(LegacyEntityRenderState<LowHerobrineCloneEntity> state, PoseStack poseStack,
+                       SubmitNodeCollector collector, CameraRenderState camera) {
+        this.model = FakePlayerTextureUtils.getPlayerSkinType(state.entity.getProfile()) == FakePlayerTextureUtils.SkinType.SLIM ? this.slimModel : this.defaultModel;
+        super.submit(state, poseStack, collector, camera);
     }
 
     @Override
-    protected void scale(@NotNull LowHerobrineCloneEntity entity,@NotNull PoseStack poseStack,float partialTickTime) {
+    protected void scale(@NotNull LegacyEntityRenderState<LowHerobrineCloneEntity> state,@NotNull PoseStack poseStack) {
         poseStack.scale(0.9375F,0.9375F,0.9375F);
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull LowHerobrineCloneEntity entity) {
+    public @NotNull Identifier getTextureLocation(@NotNull LowHerobrineCloneEntity entity) {
         return FakePlayerTextureUtils.getPlayerSkin(entity);
     }
 }

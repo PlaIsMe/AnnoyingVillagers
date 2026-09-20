@@ -164,7 +164,7 @@ public class MountOrDismountDragonGoal extends AnimatedMobGoal {
     }
 
     private boolean isReaperUsable() {
-        return !this.reaper.level().isClientSide
+        return !this.reaper.level().isClientSide()
                 && this.reaper.isAlive()
                 && !this.reaper.isRemoved()
                 && !this.reaper.isDeadOrDying()

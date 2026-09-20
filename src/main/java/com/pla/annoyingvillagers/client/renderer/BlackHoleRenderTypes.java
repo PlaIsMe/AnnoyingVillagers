@@ -1,43 +1,35 @@
 package com.pla.annoyingvillagers.client.renderer;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.DestFactor;
+import com.mojang.blaze3d.platform.SourceFactor;
+import com.pla.annoyingvillagers.AnnoyingVillagers;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
-/** Alpha-masked darkness: source RGB cannot turn the vortex into a white emitter. */
-public final class BlackHoleRenderTypes extends RenderType {
-    private static final TransparencyStateShard DARKNESS = new TransparencyStateShard(
-            "black_hole_darkness", () -> {
-                RenderSystem.enableBlend();
-                RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ZERO,
-                        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            }, () -> {
-                RenderSystem.disableBlend();
-                RenderSystem.defaultBlendFunc();
-            });
+/** Alpha-masked darkness: source RGB removes destination light instead of emitting white. */
+public final class BlackHoleRenderTypes {
+    private static final RenderPipeline DARKNESS_PIPELINE = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
+            .withLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "pipeline/black_hole_darkness"))
+            .withCull(false)
+            .withColorTargetState(new ColorTargetState(new BlendFunction(
+                    SourceFactor.ZERO, DestFactor.ONE_MINUS_SRC_ALPHA,
+                    SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA)))
+            .build();
 
-    private BlackHoleRenderTypes(String name, VertexFormat format, VertexFormat.Mode mode,
-                                 int size, boolean crumbling, boolean sorted, Runnable setup, Runnable clear) {
-        super(name, format, mode, size, crumbling, sorted, setup, clear);
+    private BlackHoleRenderTypes() {}
+
+    public static RenderType darkness(Identifier texture) {
+        return RenderType.create("annoyingvillagers_black_hole", RenderSetup.builder(DARKNESS_PIPELINE)
+                .withTexture("Sampler0", texture).useLightmap().useOverlay().sortOnUpload().createRenderSetup());
     }
 
-    public static RenderType darkness(ResourceLocation texture) {
-        return create("annoyingvillagers_black_hole", DefaultVertexFormat.NEW_ENTITY,
-                VertexFormat.Mode.QUADS, 256, false, true,
-                CompositeState.builder()
-                        .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
-                        .setTextureState(new TextureStateShard(texture, false, false))
-                        .setTransparencyState(DARKNESS)
-                        .setCullState(NO_CULL)
-                        .setLightmapState(LIGHTMAP)
-                        .setOverlayState(OVERLAY)
-                        .setDepthTestState(LEQUAL_DEPTH_TEST)
-                        // Transparent ray quads must not hide the central disk or other rays.
-                        .setWriteMaskState(COLOR_WRITE)
-                        .createCompositeState(false));
+    public static void registerPipelines(RegisterRenderPipelinesEvent event) {
+        event.registerPipeline(DARKNESS_PIPELINE);
     }
 }

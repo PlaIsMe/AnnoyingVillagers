@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -100,7 +100,7 @@ public class AnnoyingVillagersModSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> BLACK_HOLE_CHARGE = register("entity.black_hole.charge");
 
     private static DeferredHolder<SoundEvent, SoundEvent> register(String name) {
-        return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, name)));
+        return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, name)));
     }
 
     public static void register(IEventBus bus) {

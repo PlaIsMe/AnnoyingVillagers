@@ -14,13 +14,12 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -39,9 +38,9 @@ public class BlackFireSwordItem extends LegacySwordItem implements RigCombatProf
     private static final Map<Integer, Long> ACTIVE_BLACK_FIRE_FALLBACKS = new HashMap<>();
     private static Level blackFireFallbackLevel;
     private static final DustParticleOptions BLACK_FIRE_DUST =
-            new DustParticleOptions(new Vector3f(0.03F, 0.03F, 0.035F), 1.35F);
+            new DustParticleOptions(0x080809, 1.35F);
     private static final DustParticleOptions BLACK_FIRE_FLASH_DUST =
-            new DustParticleOptions(new Vector3f(0.85F, 0.9F, 0.8F), 0.9F);
+            new DustParticleOptions(0xD9E6CC, 0.9F);
 
     public BlackFireSwordItem() {
         super(new LegacyTier() {
@@ -66,21 +65,21 @@ public class BlackFireSwordItem extends LegacySwordItem implements RigCombatProf
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.DIAMOND));
+                return Ingredient.of(Items.DIAMOND);
             }
-        }, 3, -2.1F, (new Properties()));
+        }, 3, -2.1F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) return InteractionResult.PASS;
         if (!level.isClientSide()) {
             BlackFireEntity.shootFromOwnerLook(level, player);
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
-            player.getCooldowns().addCooldown(this, 20 * 15);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), 20 * 15);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -236,7 +235,7 @@ public class BlackFireSwordItem extends LegacySwordItem implements RigCombatProf
     }
 
     private static void spawnParticle(Level level, ParticleOptions particle, Vec3 pos, Vec3 velocity) {
-        level.addParticle(particle, true, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
+        level.addParticle(particle, true, true, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
     }
 
     private static Vec3 randomUnit(RandomSource rand) {
@@ -246,7 +245,6 @@ public class BlackFireSwordItem extends LegacySwordItem implements RigCombatProf
         return new Vec3(radius * Math.cos(angle), z, radius * Math.sin(angle));
     }
 
-    @OnlyIn(Dist.CLIENT)
     @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
     public static final class ClientEvents {
         private ClientEvents() {

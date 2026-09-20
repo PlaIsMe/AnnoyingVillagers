@@ -23,7 +23,7 @@ public final class RigFallAnimationEvent {
     @SubscribeEvent
     public static void onLivingTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof Mob mob)
-                || mob.level().isClientSide
+                || mob.level().isClientSide()
                 || !RigStunController.supports(mob)
                 || !mob.isAlive()
                 || mob.isRemoved()
@@ -66,7 +66,7 @@ public final class RigFallAnimationEvent {
 
     @SubscribeEvent
     public static void onLivingFall(LivingFallEvent event) {
-        if (!(event.getEntity() instanceof Mob mob) || mob.level().isClientSide) return;
+        if (!(event.getEntity() instanceof Mob mob) || mob.level().isClientSide()) return;
         transitionToLanding(mob);
     }
 

@@ -21,7 +21,6 @@ import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.phys.Vec3;
 
 public class AnimationUtil {
@@ -29,7 +28,7 @@ public class AnimationUtil {
     private static final double FAST_SPEED_ATTRIBUTE_RATIO = 0.38D;
 
     public static boolean shouldUseRunAnimation(Mob mob) {
-        if (mob.isInWaterOrBubble()) return false;
+        if (mob.isInWater()) return false;
         return mob.isSprinting() || isMovingFasterThanRegularSpeed(mob);
     }
 
@@ -100,11 +99,11 @@ public class AnimationUtil {
             return customRun;
         }
 
-        if (mainHand.getItem() instanceof SwordItem && offHand.getItem() instanceof SwordItem) {
+        if (com.pla.annoyingvillagers.item.LegacySwordItem.isSword(mainHand) && com.pla.annoyingvillagers.item.LegacySwordItem.isSword(offHand)) {
             return RunAnimations.RUN_HOLDING_DUAL_WEAPON;
         }
 
-        if (mainHand.getItem() instanceof SwordItem) {
+        if (com.pla.annoyingvillagers.item.LegacySwordItem.isSword(mainHand)) {
             return RunAnimations.RUN_HOLDING_WEAPON;
         }
 
@@ -141,8 +140,8 @@ public class AnimationUtil {
             return customIdle;
         }
 
-        if (mainHand.getItem() instanceof SwordItem
-                && offHand.getItem() instanceof SwordItem) {
+        if (com.pla.annoyingvillagers.item.LegacySwordItem.isSword(mainHand)
+                && com.pla.annoyingvillagers.item.LegacySwordItem.isSword(offHand)) {
             return LivingAnimations.IDLE_DUAL;
         }
 

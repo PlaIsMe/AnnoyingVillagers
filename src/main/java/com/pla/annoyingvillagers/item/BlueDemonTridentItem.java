@@ -23,7 +23,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -89,9 +89,9 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of();
+                return null;
             }
-        }, 3, -2.7F, (new Properties()));
+        }, 3, -2.7F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     public static Vec3 getTridentThrowDirection(LivingEntity livingEntity, Vec3 startPos) {
@@ -129,7 +129,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
         }
 
         CompoundTag tag = LegacyItemData.get(stack);
-        return tag == null ? 0 : Mth.clamp(tag.getInt(TAG_STORM_ENERGY), 0, MAX_STORM_ENERGY);
+        return tag == null ? 0 : Mth.clamp(tag.getIntOr(TAG_STORM_ENERGY, 0), 0, MAX_STORM_ENERGY);
     }
 
     public static boolean checkOnlyFullyCharged(ItemStack stack) {
@@ -145,7 +145,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
         if (tag == null) {
             return 0;
         }
-        return Mth.clamp(tag.getInt(TAG_STORM_ENERGY), 0, MAX_STORM_ENERGY);
+        return Mth.clamp(tag.getIntOr(TAG_STORM_ENERGY, 0), 0, MAX_STORM_ENERGY);
     }
 
     public static void setStormEnergy(ItemStack stack, int value) {
@@ -226,7 +226,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
                     ? BlueDemonTridentItem.getTridentThrowDirection(owner, trident.position())
                     : null;
 
-            int extraDelay = 2 + i * 2 + serverLevel.random.nextInt(3);
+            int extraDelay = 2 + i * 2 + serverLevel.getRandom().nextInt(3);
             trident.beginAnimatedRelaunch(target, fallback, RELAUNCH_SPEED, 0.0F, extraDelay);
         }
     }
@@ -307,7 +307,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
             }
         }
 
-        Collections.shuffle(result, new Random(serverLevel.random.nextLong()));
+        Collections.shuffle(result, new Random(serverLevel.getRandom().nextLong()));
         return result;
     }
 
@@ -481,7 +481,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
                 AnnoyingVillagersModSounds.ELECTRIFY.get(),
                 SoundSource.NEUTRAL,
                 0.8F,
-                0.9F + serverLevel.random.nextFloat() * 0.2F
+                0.9F + serverLevel.getRandom().nextFloat() * 0.2F
         );
 
         return trident;
@@ -570,17 +570,17 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
     private static AABB makeOwnerBox(Entity owner) {
         return new AABB(
                 owner.getX() - OWNER_HALF_BOX,
-                owner.level().getMinBuildHeight(),
+                owner.level().getMinY(),
                 owner.getZ() - OWNER_HALF_BOX,
                 owner.getX() + OWNER_HALF_BOX,
-                owner.level().getMaxBuildHeight(),
+                owner.level().getMaxY(),
                 owner.getZ() + OWNER_HALF_BOX
         );
     }
 
     @Override
-    public UseAnim getUseAnimation(@NotNull ItemStack stack) {
-        return UseAnim.SPEAR;
+    public ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
+        return ItemUseAnimation.SPEAR;
     }
 
     @Override
@@ -589,43 +589,44 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled()) return InteractionResultHolder.pass(stack);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled()) return InteractionResult.PASS;
         boolean dualTridents = isBlueDemonTrident(player.getMainHandItem()) && isBlueDemonTrident(player.getOffhandItem());
         if (hand == InteractionHand.MAIN_HAND && player.isShiftKeyDown() && dualTridents) {
             ItemStack offhandStack = player.getOffhandItem();
-            if (offhandStack.getDamageValue() >= offhandStack.getMaxDamage() - 1) return InteractionResultHolder.fail(stack);
+            if (offhandStack.getDamageValue() >= offhandStack.getMaxDamage() - 1) return InteractionResult.FAIL;
             player.startUsingItem(InteractionHand.OFF_HAND);
-            return InteractionResultHolder.consume(stack);
+            return InteractionResult.CONSUME;
         }
-        if (hand == InteractionHand.OFF_HAND && isBlueDemonTrident(player.getMainHandItem())) return InteractionResultHolder.pass(stack);
-        if (stack.getDamageValue() >= stack.getMaxDamage() - 1) return InteractionResultHolder.fail(stack);
+        if (hand == InteractionHand.OFF_HAND && isBlueDemonTrident(player.getMainHandItem())) return InteractionResult.PASS;
+        if (stack.getDamageValue() >= stack.getMaxDamage() - 1) return InteractionResult.FAIL;
         player.startUsingItem(hand);
-        return InteractionResultHolder.consume(stack);
+        return InteractionResult.CONSUME;
     }
 
     @Override
-    public void releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity livingEntity, int timeLeft) {
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || !(livingEntity instanceof Player player)) return;
+    public boolean releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity livingEntity, int timeLeft) {
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || !(livingEntity instanceof Player player)) return false;
         int chargeTicks = getUseDuration(stack, livingEntity) - timeLeft;
-        if (chargeTicks < VANILLA_TRIDENT_MIN_CHARGE_TICKS || level.isClientSide() || !(level instanceof ServerLevel serverLevel)) return;
+        if (chargeTicks < VANILLA_TRIDENT_MIN_CHARGE_TICKS || level.isClientSide() || !(level instanceof ServerLevel serverLevel)) return false;
         InteractionHand hand = player.getUsedItemHand();
         if (hand == InteractionHand.OFF_HAND && player.isShiftKeyDown() && isBlueDemonTrident(player.getMainHandItem()) && isBlueDemonTrident(player.getOffhandItem())) {
             throwVanillaTrident(serverLevel, player, stack, InteractionHand.OFF_HAND, 0.28D);
             VanillaWeaponAbilityUtil.swingOffHand(player);
             player.awardStat(Stats.ITEM_USED.get(this));
-            return;
+            return true;
         }
         throwVanillaTrident(serverLevel, player, stack, hand, 0.0D);
         player.awardStat(Stats.ITEM_USED.get(this));
+        return true;
     }
 
     private static void throwVanillaTrident(ServerLevel serverLevel, Player player, ItemStack sourceStack, InteractionHand hand, double sideOffset) {
         BlueDemonThrownTridentEntity trident = new BlueDemonThrownTridentEntity(serverLevel, player, sourceStack.copy());
         trident.assignSpawnSequence(player);
         trident.trimOldGroundedTridentsAroundOwnerOnSpawn();
-        double roll = serverLevel.random.nextDouble();
+        double roll = serverLevel.getRandom().nextDouble();
         if (roll < 0.10D) trident.setMode(TridentMode.LIGHTNING);
         else if (roll < 0.20D) trident.setMode(TridentMode.EXPLOSION);
         else trident.setMode(TridentMode.DEFAULT);
@@ -635,7 +636,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
         trident.setPos(player.getX() + side.x, player.getEyeY() - 0.1D, player.getZ() + side.z);
         trident.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, VANILLA_TRIDENT_THROW_SPEED, VANILLA_TRIDENT_INACCURACY);
         serverLevel.addFreshEntity(trident);
-        sourceStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+        sourceStack.hurtAndBreak(1, player, hand.asEquipmentSlot());
         serverLevel.playSound(null, trident, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
@@ -648,7 +649,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
         new DelayedTask(20) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) spawnDamageZones(serverLevel, player); } };
         VanillaWeaponAbilityUtil.setInternalCooldown(player, VANILLA_ABILITY_COOLDOWN_TAG, VANILLA_SPECIAL_COOLDOWN_TICKS);
-        player.getCooldowns().addCooldown(item, VANILLA_SPECIAL_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), VANILLA_SPECIAL_COOLDOWN_TICKS);
     }
 
     public static void activateVanillaThunderAttack(Player player) {
@@ -661,7 +662,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
         new DelayedTask(20) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) relaunchGroundedTridents(serverLevel, player); } };
         new DelayedTask(80) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) summonLightningAtGroundedTridents(serverLevel, player); } };
         VanillaWeaponAbilityUtil.setInternalCooldown(player, VANILLA_ABILITY_COOLDOWN_TAG, VANILLA_SPECIAL_COOLDOWN_TICKS);
-        player.getCooldowns().addCooldown(item, VANILLA_SPECIAL_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), VANILLA_SPECIAL_COOLDOWN_TICKS);
     }
 
     public static boolean activateVanillaFestival(Player player) {
@@ -681,7 +682,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
         new DelayedTask(24) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) relaunchGroundedTridents(serverLevel, player, true); } };
         new DelayedTask(70) { @Override public void run() { if (!player.isAlive() || player.isRemoved()) return; summonSuperLightningAtGroundedTridents(serverLevel, player); clearPendingStormEnergy(player, resetAt); } };
         VanillaWeaponAbilityUtil.setInternalCooldown(player, VANILLA_ABILITY_COOLDOWN_TAG, VANILLA_FESTIVAL_COOLDOWN_TICKS);
-        player.getCooldowns().addCooldown(item, VANILLA_FESTIVAL_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), VANILLA_FESTIVAL_COOLDOWN_TICKS);
         return true;
     }
 
@@ -689,11 +690,13 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
         return VanillaWeaponAbilityUtil.abilitiesEnabled() && !player.level().isClientSide() && isBlueDemonTrident(player.getMainHandItem()) && isBlueDemonTrident(player.getOffhandItem());
     }
 
-    public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
-        super.inventoryTick(itemstack, level, entity, i, flag);
+    public void inventoryTick(net.minecraft.world.item.ItemStack itemstack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int i = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, itemstack);
+        boolean flag = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        super.inventoryTick(itemstack, level, entity, equipmentSlot);
         if (!level.isClientSide()) {
             CompoundTag tag = LegacyItemData.get(itemstack);
-            if (tag != null && tag.getLong(TAG_STORM_RESET_AT) > 0L && level.getGameTime() >= tag.getLong(TAG_STORM_RESET_AT)) {
+            if (tag != null && tag.getLongOr(TAG_STORM_RESET_AT, 0L) > 0L && level.getGameTime() >= tag.getLongOr(TAG_STORM_RESET_AT, 0L)) {
                 clearStormEnergy(itemstack);
             }
         }
@@ -711,9 +714,9 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
 //                        if (Math.random() <= 0.1D) {
 //                            BlueDemonUtil.spawnBlueDemonEffect(serverLevel, entity);
 //
-//                            if (serverLevel.random.nextDouble() <= 0.8D) {
-//                                float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
-//                                float pitch = (float) Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
+//                            if (serverLevel.getRandom().nextDouble() <= 0.8D) {
+//                                float volume = (float) Mth.nextDouble(serverLevel.getRandom(), 0.05D, 0.5D);
+//                                float pitch = (float) Mth.nextDouble(serverLevel.getRandom(), 0.8D, 1.1D);
 //
 //                                serverLevel.playSound(
 //                                        null,
@@ -738,14 +741,14 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
     }
 
     private static void clearPendingStormEnergy(Player player, long resetAt) {
-        for (ItemStack stack : player.getInventory().items) clearPendingStormEnergy(stack, resetAt);
-        for (ItemStack stack : player.getInventory().offhand) clearPendingStormEnergy(stack, resetAt);
+        for (ItemStack stack : player.getInventory().getNonEquipmentItems()) clearPendingStormEnergy(stack, resetAt);
+        clearPendingStormEnergy(player.getOffhandItem(), resetAt);
     }
 
     private static void clearPendingStormEnergy(ItemStack stack, long resetAt) {
         if (!isBlueDemonTrident(stack)) return;
         CompoundTag tag = LegacyItemData.get(stack);
-        if (tag != null && tag.getLong(TAG_STORM_RESET_AT) == resetAt) clearStormEnergy(stack);
+        if (tag != null && tag.getLongOr(TAG_STORM_RESET_AT, 0L) == resetAt) clearStormEnergy(stack);
     }
 
     private static void clearStormEnergy(ItemStack stack) {
@@ -756,28 +759,28 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
+    public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> tooltip, @NotNull TooltipFlag flag) {
+        super.appendHoverText(stack, level, display, tooltip, flag);
         int energy = getStormEnergy(stack);
-        tooltip.add(Component.translatable("tooltip.annoyingvillagers.blue_demon_trident"));
+        tooltip.accept(Component.translatable("tooltip.annoyingvillagers.blue_demon_trident"));
         addStormChargeTooltip(tooltip, energy);
     }
 
-    private static void addStormChargeTooltip(List<Component> tooltip, int energy) {
-        tooltip.add(
+    private static void addStormChargeTooltip(java.util.function.Consumer<Component> tooltip, int energy) {
+        tooltip.accept(
                 Component.translatable("tooltip.annoyingvillagers.blue_demon_trident_thunder_charge")
                         .withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(ENERGY_COLOR)))
         );
 
-        tooltip.add(
+        tooltip.accept(
                 Component.literal(energy + " / " + MAX_STORM_ENERGY)
                         .withStyle(style -> style.withColor(TextColor.fromRgb(ENERGY_TEXT_COLOR)))
         );
 
-        tooltip.add(buildStormMeter(energy));
+        tooltip.accept(buildStormMeter(energy));
 
         if (energy >= MAX_STORM_ENERGY) {
-            tooltip.add(
+            tooltip.accept(
                     Component.translatable("tooltip.annoyingvillagers.thunder_charged")
                             .withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(ENERGY_FULL_COLOR)))
             );
@@ -791,7 +794,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
         MutableComponent meter = Component.empty();
 
         meter.append(
-                Component.literal("⚡ ")
+                Component.literal("âš¡ ")
                         .withStyle(style -> style.withColor(TextColor.fromRgb(ENERGY_COLOR)))
         );
 
@@ -799,7 +802,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
             boolean filled = i < filledSteps;
 
             meter.append(
-                    Component.literal(filled ? "▰" : "▱")
+                    Component.literal(filled ? "â–°" : "â–±")
                             .withStyle(style -> style.withColor(TextColor.fromRgb(filled ? ENERGY_COLOR : ENERGY_DIM_COLOR)))
             );
         }

@@ -31,9 +31,9 @@ public class KnifeItem extends LegacySwordItem implements RigCombatProfileProvid
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.IRON_INGOT));
+                return Ingredient.of(Items.IRON_INGOT);
             }
-        }, 3, -1.5F, (new Properties()));
+        }, 3, -1.5F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

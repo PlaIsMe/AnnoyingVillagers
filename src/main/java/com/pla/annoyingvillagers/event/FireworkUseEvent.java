@@ -50,7 +50,7 @@ public class FireworkUseEvent {
             return false;
         }
 
-        player.getCooldowns().addCooldown(usedStack.getItem(), 250);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(usedStack.getItem()), 250);
         player.giveExperienceLevels(-5);
 
         if (!player.getAbilities().instabuild) {

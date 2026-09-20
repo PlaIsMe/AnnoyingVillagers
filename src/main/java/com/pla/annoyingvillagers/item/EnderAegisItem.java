@@ -39,7 +39,7 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
     private static final int SECOND_FORM_DURATION_TICKS = 20 * 60;
     private static final int SPECIAL_COOLDOWN_TICKS = 20;
     public EnderAegisItem() {
-        super(new Properties().stacksTo(1).durability(1561).fireResistant().attributes(
+        super(com.pla.annoyingvillagers.util.LegacyItemProperties.create().stacksTo(1).durability(1561).fireResistant().attributes(
                 ItemAttributeModifiers.builder()
                         .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, ATTACK_DAMAGE_MODIFIER, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                         .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, ATTACK_SPEED_MODIFIER, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
@@ -47,7 +47,7 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
     }
 
     public static boolean isSecondForm(ItemStack stack) {
-        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean(SECOND_FORM_TAG);
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBooleanOr(SECOND_FORM_TAG, false);
     }
 
     public static void setSecondForm(ItemStack stack,boolean secondForm) {
@@ -63,7 +63,7 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
 
     public static float getCharge(ItemStack stack) {
         CompoundTag tag = LegacyItemData.get(stack);
-        return Mth.clamp(tag == null ? 0.0F : tag.getFloat(CHARGE_TAG), 0.0F, MAX_CHARGE);
+        return Mth.clamp(tag == null ? 0.0F : tag.getFloatOr(CHARGE_TAG, 0.0F), 0.0F, MAX_CHARGE);
     }
 
     public static void addBlockedCharge(ItemStack stack, Player player, float blockedDamage) {
@@ -73,7 +73,7 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
         if (charge >= MAX_CHARGE) {
             setSecondForm(stack, true);
             LegacyItemData.update(stack, tag -> tag.putLong(SECOND_FORM_UNTIL_TAG, player.level().getGameTime() + SECOND_FORM_DURATION_TICKS));
-            player.getCooldowns().addCooldown(stack.getItem(), SECOND_FORM_DURATION_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(stack.getItem()), SECOND_FORM_DURATION_TICKS);
         }
     }
 
@@ -129,7 +129,8 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
             proj.setBaseDamage(15.0F);
             proj.setKnockback(5);
             proj.setSilent(true);
-            proj.setPierceLevel((byte) 5);
+            ((com.pla.annoyingvillagers.mixin.AbstractArrowAccessor) (Object) proj)
+                    .annoyingVillagers$setPierceLevel((byte) 5);
 
             proj.setPos(spawnPos.x, spawnPos.y, spawnPos.z);
             proj.shoot(dir.x, dir.y, dir.z, velocity, inaccuracy);
@@ -150,10 +151,10 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
 //        if (playerPatch instanceof ServerPlayerPatch serverPlayerPatch) {
 //            SkillContainer skillContainer = serverPlayerPatch.getSkill(AVSkills.ENDER_AEGIS);
 //            if (skillContainer != null && LegacyItemData.get(itemstack) != null) {
-//                if (!skillContainer.isActivated() && LegacyItemData.get(itemstack).getBoolean("SecondForm")) {
+//                if (!skillContainer.isActivated() && LegacyItemData.get(itemstack).getBooleanOr("SecondForm", false)) {
 //                    LegacyItemData.get(itemstack).putBoolean("SecondForm", false);
 //                }
-//                if (skillContainer.isActivated() && !LegacyItemData.get(itemstack).getBoolean("SecondForm")) {
+//                if (skillContainer.isActivated() && !LegacyItemData.get(itemstack).getBooleanOr("SecondForm", false)) {
 //                    LegacyItemData.get(itemstack).putBoolean("SecondForm", true);
 //                }
 //            }
@@ -161,17 +162,19 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
 //        Handle vanilla code
     }
 
-    public void inventoryTick(@NotNull ItemStack itemstack,@NotNull Level level,@NotNull Entity entity,int i,boolean flag) {
-        super.inventoryTick(itemstack,level,entity,i,flag);
+    public void inventoryTick(net.minecraft.world.item.ItemStack itemstack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int i = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, itemstack);
+        boolean flag = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        super.inventoryTick(itemstack, level, entity, equipmentSlot);
         if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && entity instanceof Player player && !isSecondForm(itemstack) && getCharge(itemstack) >= MAX_CHARGE) {
             setSecondForm(itemstack, true);
             LegacyItemData.update(itemstack, tag -> tag.putLong(SECOND_FORM_UNTIL_TAG, level.getGameTime() + SECOND_FORM_DURATION_TICKS));
-            player.getCooldowns().addCooldown(itemstack.getItem(), SECOND_FORM_DURATION_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(itemstack.getItem()), SECOND_FORM_DURATION_TICKS);
         }
         if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && isSecondForm(itemstack)) {
             CompoundTag tag = LegacyItemData.get(itemstack);
             long remaining = tag != null && tag.contains(SECOND_FORM_UNTIL_TAG)
-                    ? tag.getLong(SECOND_FORM_UNTIL_TAG) - level.getGameTime()
+                    ? tag.getLongOr(SECOND_FORM_UNTIL_TAG, 0L) - level.getGameTime()
                     : 0L;
             if (remaining <= 0L) {
                 setSecondForm(itemstack, false);
@@ -179,16 +182,16 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
                     data.remove(SECOND_FORM_UNTIL_TAG);
                     data.putFloat(CHARGE_TAG, 0.0F);
                 });
-            } else if (entity instanceof Player player && player.getCooldowns().getCooldownPercent(itemstack.getItem(), 0.0F) <= 0.0F) {
-                player.getCooldowns().addCooldown(itemstack.getItem(), (int)Math.min(Integer.MAX_VALUE, remaining));
+            } else if (entity instanceof Player player && player.getCooldowns().getCooldownPercent(new net.minecraft.world.item.ItemStack(itemstack.getItem()), 0.0F) <= 0.0F) {
+                player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(itemstack.getItem()), (int)Math.min(Integer.MAX_VALUE, remaining));
             }
         }
         if (VanillaWeaponAbilityUtil.abilitiesEnabled() && flag && isSecondForm(itemstack)) HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
     }
 
-    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.ender_aegis"));
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.ender_aegis"));
     }
 
     @Override

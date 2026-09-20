@@ -17,11 +17,12 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -74,8 +75,8 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
 
         if (loyalty > 0 && (this.dealtDamage || this.isNoPhysics()) && owner != null) {
             if (!this.isAcceptableReturnOwner()) {
-                if (!this.level().isClientSide && this.pickup == Pickup.ALLOWED) {
-                    this.spawnAtLocation(this.getPickupItem(), 0.1F);
+                if (!this.level().isClientSide() && this.pickup == Pickup.ALLOWED) {
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, this.getPickupItem(), 0.1F);
                 }
 
                 this.discard();
@@ -84,7 +85,7 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
                 Vec3 returnVector = owner.getEyePosition().subtract(this.position());
                 this.setPosRaw(this.getX(), this.getY() + returnVector.y * 0.015D * (double) loyalty, this.getZ());
 
-                if (this.level().isClientSide) {
+                if (this.level().isClientSide()) {
                     this.yOld = this.getY();
                 }
 
@@ -154,7 +155,7 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
         SoundEvent hitSound = SoundEvents.TRIDENT_HIT;
         float soundVolume = 1.0F;
 
-        if (target.hurt(damageSource, damage)) {
+        if (target.hurtOrSimulate(damageSource, damage)) {
             if (target.getType() == EntityType.ENDERMAN) {
                 return;
             }
@@ -172,16 +173,16 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
 
         this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
 
-        if (this.level() instanceof ServerLevel
+        if (this.level() instanceof ServerLevel serverLevel
                 && this.level().isThundering()
                 && this.isChanneling()) {
             BlockPos blockPos = target.blockPosition();
 
             if (this.level().canSeeSky(blockPos)) {
-                LightningBolt lightningBolt = EntityType.LIGHTNING_BOLT.create(this.level());
+                LightningBolt lightningBolt = EntityType.LIGHTNING_BOLT.create(serverLevel, EntitySpawnReason.TRIGGERED);
 
                 if (lightningBolt != null) {
-                    lightningBolt.moveTo(Vec3.atBottomCenterOf(blockPos));
+                    lightningBolt.snapTo(Vec3.atBottomCenterOf(blockPos));
                     lightningBolt.setCause(owner instanceof ServerPlayer serverPlayer ? serverPlayer : null);
                     this.level().addFreshEntity(lightningBolt);
                     hitSound = SoundEvents.TRIDENT_THUNDER.value();
@@ -210,8 +211,8 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
 
     @Override
     public void playerTouch(@NotNull Player player) {
-        if (!this.level().isClientSide
-                && (this.inGround || this.isNoPhysics() || this.dealtDamage)
+        if (!this.level().isClientSide()
+                && (this.isInGround() || this.isNoPhysics() || this.dealtDamage)
                 && this.shakeTime <= 0
                 && this.tryPickup(player)) {
             player.take(this, 1);
@@ -220,24 +221,28 @@ public class DiamondBoltProjectileEntity extends AbstractArrow implements ItemSu
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
 
-        if (tag.contains("DiamondBolt", 10)) {
-            this.setThrownStack(ItemStack.parseOptional(this.registryAccess(), tag.getCompound("DiamondBolt")));
+        if (tag.contains("DiamondBolt")) {
+            this.setThrownStack(com.pla.annoyingvillagers.util.LegacyNbt.loadItem(tag.getCompound("DiamondBolt").orElseGet(net.minecraft.nbt.CompoundTag::new), this.registryAccess()));
         }
 
-        this.dealtDamage = tag.getBoolean("DealtDamage");
+        this.dealtDamage = tag.getBooleanOr("DealtDamage", false);
         ItemStack thrownStack = this.getThrownStack();
         this.entityData.set(ID_LOYALTY, (byte) EnchantmentUtil.getLevel(Enchantments.LOYALTY, thrownStack));
         this.entityData.set(ID_FOIL, thrownStack.hasFoil());
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        tag.put("DiamondBolt", this.getThrownStack().save(this.registryAccess()));
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
+        tag.put("DiamondBolt", com.pla.annoyingvillagers.util.LegacyNbt.saveItem(this.getThrownStack(), this.registryAccess()));
         tag.putBoolean("DealtDamage", this.dealtDamage);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override

@@ -346,7 +346,7 @@ public class UseLiquidBucketGoal extends Goal {
 
     private void giveOrDrop(ItemStack stack) {
         if (!InventoryUtils.addItem(this.avNpc, stack)) {
-            this.avNpc.spawnAtLocation(stack);
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this.avNpc, stack);
         }
     }
 

@@ -35,7 +35,7 @@ public class GroundStuckEvent {
 
         LivingEntity attacker = event.getSource().getEntity() instanceof LivingEntity living ? living : null;
         boolean hasEffect = target.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK);
-        boolean stuckNbt = target.getPersistentData().getBoolean(GroundStuckMobEffect.NBT_STUCK);
+        boolean stuckNbt = target.getPersistentData().getBooleanOr(GroundStuckMobEffect.NBT_STUCK, false);
         boolean sledgehammerHit = attacker != null
                 && attacker.getMainHandItem().is(AnnoyingVillagersModItems.OBSIDIAN_SLEDGEHAMMER.get());
 
@@ -50,7 +50,7 @@ public class GroundStuckEvent {
         MobEffectInstance instance = target.getEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK);
         int amplifier = instance == null ? 0 : instance.getAmplifier();
         float chance = GroundStuckMobEffect.getKnockoutChance(amplifier);
-        float roll = level.random.nextFloat();
+        float roll = level.getRandom().nextFloat();
 
         if (sledgehammerHit && roll < chance) {
             GroundStuckMobEffect.knockOut(target, attacker);
@@ -73,12 +73,12 @@ public class GroundStuckEvent {
         if (!(entity.level() instanceof ServerLevel level)) return;
         CompoundTag tag = entity.getPersistentData();
 
-        if (tag.getBoolean(GroundStuckMobEffect.NBT_STUCK)
+        if (tag.getBooleanOr(GroundStuckMobEffect.NBT_STUCK, false)
                 && !entity.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK)) {
             GroundStuckMobEffect.clear(entity);
         }
 
-        int ticks = tag.getInt(GroundStuckMobEffect.NBT_KNOCKOUT_TICKS);
+        int ticks = tag.getIntOr(GroundStuckMobEffect.NBT_KNOCKOUT_TICKS, 0);
         if (ticks <= 0) return;
         if (ticks < GroundStuckMobEffect.KNOCKOUT_TICKS - 4
                 && (entity.onGround() || entity.horizontalCollision || entity.verticalCollision)) {
@@ -91,7 +91,7 @@ public class GroundStuckEvent {
         entity.yya = 0.0F;
         entity.zza = 0.0F;
         if (entity instanceof Mob mob) mob.getNavigation().stop();
-        entity.hasImpulse = true;
+        entity.hurtMarked = true;
         entity.hurtMarked = true;
         hurtProjectileCollisions(level, entity, tag);
         if (ticks <= 1) clearKnockout(entity);
@@ -101,8 +101,8 @@ public class GroundStuckEvent {
         Vec3 motion = projectile.getDeltaMovement();
         if (motion.lengthSqr() < 0.01D) return;
 
-        UUID sourceUuid = tag.hasUUID(GroundStuckMobEffect.NBT_KNOCKOUT_SOURCE)
-                ? tag.getUUID(GroundStuckMobEffect.NBT_KNOCKOUT_SOURCE)
+        UUID sourceUuid = com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, GroundStuckMobEffect.NBT_KNOCKOUT_SOURCE)
+                ? com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, GroundStuckMobEffect.NBT_KNOCKOUT_SOURCE)
                 : null;
         AABB hitBox = projectile.getBoundingBox().expandTowards(motion).inflate(0.3D);
         for (LivingEntity target : level.getEntitiesOfClass(
@@ -116,7 +116,7 @@ public class GroundStuckEvent {
             DamageSource damageSource = projectile instanceof Player player
                     ? level.damageSources().playerAttack(player)
                     : level.damageSources().mobAttack(projectile);
-            if (target.hurt(damageSource, damage)) {
+            if (target.hurtOrSimulate(damageSource, damage)) {
                 target.knockback(0.8D, -motion.x, -motion.z);
             }
         }

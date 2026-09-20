@@ -13,7 +13,7 @@ import com.pla.annoyingvillagers.specialanimation.SpecialAnimationFamily;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationId;
 import com.pla.annoyingvillagers.specialanimation.pose.SpecialPoseLibrary;
 import net.minecraft.client.animation.AnimationDefinition;
-import net.minecraft.client.model.HierarchicalModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -22,14 +22,14 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public class ModelAvGolem extends HierarchicalModel<AvGolem> {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_av_golem"), "main");
+public class ModelAvGolem extends LegacyHierarchicalModel<AvGolem> {
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_av_golem"), "main");
 
 private final ModelPart modelRoot;
     private final ModelPart Root;
@@ -70,6 +70,7 @@ private final ModelPart modelRoot;
     private final ModelPart arm_s_R;
 
     public ModelAvGolem(ModelPart root) {
+        super(root);
         this.modelRoot = root;
         this.Root = root.getChild("Root");
         this.body = this.Root.getChild("body");
@@ -186,11 +187,6 @@ private final ModelPart modelRoot;
         PartDefinition arm_s_R = partdefinition.addOrReplaceChild("arm_s_R", CubeListBuilder.create(), PartPose.offsetAndRotation(-10.95461F, -7.50712F, 0.0F, 0.0F, 0.0F, 3.141593F));
 
         return LayerDefinition.create(meshdefinition, 128, 128);
-    }
-
-    @Override
-    public @NotNull ModelPart root() {
-        return this.modelRoot;
     }
 
 	@Override
@@ -316,9 +312,7 @@ private final ModelPart modelRoot;
 		this.body.translateAndRotate(poseStack);
 		this.chest.translateAndRotate(poseStack);
 	}
-
-    @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+    public void renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         this.modelRoot.render(poseStack, buffer, packedLight, packedOverlay, color);
         renderPerFaceCubes(poseStack, buffer, packedLight, packedOverlay, color);
     }

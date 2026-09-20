@@ -47,9 +47,8 @@ public class TridentLightningBolt extends LightningBolt {
 
     public TridentLightningBolt(EntityType<? extends LightningBolt> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        this.noCulling = true;
         this.tridentLife = 2;
-        this.tridentFlashes = this.random.nextInt(3) + 1;
+        this.tridentFlashes = this.getRandom().nextInt(3) + 1;
     }
 
         public void setOwner(@Nullable LivingEntity owner) {
@@ -72,7 +71,7 @@ public class TridentLightningBolt extends LightningBolt {
                         SoundEvents.LIGHTNING_BOLT_THUNDER,
                         SoundSource.WEATHER,
                         10000.0F,
-                        0.8F + this.random.nextFloat() * 0.2F,
+                        0.8F + this.getRandom().nextFloat() * 0.2F,
                         false
                 );
                 this.level().playLocalSound(
@@ -80,7 +79,7 @@ public class TridentLightningBolt extends LightningBolt {
                         SoundEvents.LIGHTNING_BOLT_IMPACT,
                         SoundSource.WEATHER,
                         2.0F,
-                        0.5F + this.random.nextFloat() * 0.2F,
+                        0.5F + this.getRandom().nextFloat() * 0.2F,
                         false
                 );
             } else {
@@ -111,7 +110,7 @@ public class TridentLightningBolt extends LightningBolt {
                 }
 
                 this.discard();
-            } else if (this.tridentLife < -this.random.nextInt(10)) {
+            } else if (this.tridentLife < -this.getRandom().nextInt(10)) {
                 --this.tridentFlashes;
                 this.tridentLife = 1;
             }
@@ -141,7 +140,7 @@ public class TridentLightningBolt extends LightningBolt {
                             this.getX(),
                             this.getY(),
                             this.getZ(),
-                            serverLevel.random.nextFloat() * 5.0F + 5.0F,
+                            serverLevel.getRandom().nextFloat() * 5.0F + 5.0F,
                             false,
                             AnnoyingVillagersConfig.TRIDENT_FESTIVAL_CAN_BREAK_BLOCK.get() ? Level.ExplosionInteraction.BLOCK : Level.ExplosionInteraction.NONE
                     );
@@ -166,9 +165,9 @@ public class TridentLightningBolt extends LightningBolt {
                         }
 
                         if (this.superLightning) {
-                            entity.hurt(level().damageSources().indirectMagic(this, owner), 50.0F);
+                            entity.hurtOrSimulate(level().damageSources().indirectMagic(this, owner), 50.0F);
                         } else {
-                            entity.hurt(level().damageSources().indirectMagic(this, owner), 5.0F);
+                            entity.hurtOrSimulate(level().damageSources().indirectMagic(this, owner), 5.0F);
                         }
                     }
                 }

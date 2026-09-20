@@ -35,7 +35,7 @@ public final class RigStunCombatEvent {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onCriticalHit(CriticalHitEvent event) {
-        if (event.getEntity().level().isClientSide || !event.isCriticalHit() || !(event.getTarget() instanceof LivingEntity target)) return;
+        if (event.getEntity().level().isClientSide() || !event.isCriticalHit() || !(event.getTarget() instanceof LivingEntity target)) return;
         RigCriticalUtil.markVanillaPlayerCritical(event.getEntity(), target);
     }
 
@@ -69,13 +69,13 @@ public final class RigStunCombatEvent {
     public static void onLivingDamage(LivingDamageEvent.Post event) {
         LivingEntity victim = event.getEntity();
         DamageSource source = event.getSource();
-        if (event.getNewDamage() <= 0.0F || !(victim instanceof Mob mobVictim) || !RigStunController.supports(mobVictim)) return;
+        if (event.getHealthDamage() <= 0.0F || !(victim instanceof Mob mobVictim) || !RigStunController.supports(mobVictim)) return;
 
         // Ground Stuck owns its reaction animation while active. This is the vanilla-rig
         // equivalent of the old Epic Fight EntityStunEvent cancellation.
         if (victim.hasEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK)) return;
 
-        if (source.is(DamageTypes.FALL) && event.getNewDamage() > 1.0F) {
+        if (source.is(DamageTypes.FALL) && event.getHealthDamage() > 1.0F) {
             RigAnimationController.stop(mobVictim, RigAnimationId.FALL);
             RigStunController.applyLanding(mobVictim);
             return;
@@ -96,7 +96,7 @@ public final class RigStunCombatEvent {
 
     @SubscribeEvent
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
-        if (!event.getLevel().isClientSide && event.getEntity() instanceof Mob mob) RigStunController.restoreStaleState(mob);
+        if (!event.getLevel().isClientSide() && event.getEntity() instanceof Mob mob) RigStunController.restoreStaleState(mob);
     }
 
     @SubscribeEvent

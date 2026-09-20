@@ -112,7 +112,7 @@ public class PlayIdleAnimationGoal extends Goal {
     }
 
     private boolean baseCanRun() {
-        if (avNpc.level().isClientSide) return false;
+        if (avNpc.level().isClientSide()) return false;
         if (avNpc instanceof JevEntity) return false;
         if (avNpc.tickCount <= 30) return false;
         if (!avNpc.isAlive() || avNpc.isRemoved() || avNpc.isDeadOrDying()) return false;

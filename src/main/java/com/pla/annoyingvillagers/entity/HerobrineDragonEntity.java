@@ -209,10 +209,9 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     {
         super(type, level);
 
-        noCulling = true;
 
         moveControl = new DragonMoveController(this);
-        animator = level.isClientSide? new DragonAnimator(this) : null;
+        animator = level.isClientSide()? new DragonAnimator(this) : null;
 
         flyingNavigation = new FlyingPathNavigation(this, level);
         groundNavigation = new GroundPathNavigation(this, level);
@@ -279,26 +278,28 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag compound)
-    {
-        super.addAdditionalSaveData(compound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag compound = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (summonerUUID != null) {
-            compound.putUUID("SummonerUUID", summonerUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(compound, "SummonerUUID", summonerUUID);
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, compound);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag compound)
-    {
-        super.readAdditionalSaveData(compound);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag compound = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
         setAge(0);
-        if (compound.hasUUID("SummonerUUID")) {
-            summonerUUID = compound.getUUID("SummonerUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(compound, "SummonerUUID")) {
+            summonerUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(compound, "SummonerUUID");
         }
     }
 
     @Override
-    public boolean canChangeDimensions(Level oldLevel, Level newLevel) {
+    public boolean canUsePortal(boolean ignorePassenger) {
         return false;
     }
 
@@ -353,7 +354,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     }
 
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         setAge(0);
 
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
@@ -362,16 +363,12 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     public static LivingEntity getNearestLivingEntity(Level level, Entity sourceEntity, double range) {
         AABB searchBox = sourceEntity.getBoundingBox().inflate(range);
 
-        return level.getNearestEntity(
-                level.getEntitiesOfClass(LivingEntity.class, searchBox,
+        return level.getEntitiesOfClass(LivingEntity.class, searchBox,
                         e -> e != sourceEntity
                                 && !(e instanceof HerobrineDragonEntity)
                                 && !e.isAlliedTo(sourceEntity)
-                                && e.isAlive()),
-                TargetingConditions.DEFAULT,
-                (LivingEntity) sourceEntity,
-                sourceEntity.getX(), sourceEntity.getY(), sourceEntity.getZ()
-        );
+                                && e.isAlive())
+                .stream().min(java.util.Comparator.comparingDouble(sourceEntity::distanceToSqr)).orElse(null);
     }
 
     private void aimBodyAndHeadAt(LivingEntity target) {
@@ -487,14 +484,14 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
                 .add(0.0, heightOffset, 0.0);
 
         DragonMeteoriteEntity dragonMeteoriteEntity = new DragonMeteoriteEntity(AnnoyingVillagersModEntities.DRAGON_METEORITE.get(), serverLevel);
-        dragonMeteoriteEntity.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, 0F, 0F);
+        dragonMeteoriteEntity.snapTo(spawnPos.x, spawnPos.y, spawnPos.z, 0F, 0F);
         Vec3 aimPosition = new Vec3(target.getX(), target.getY(0.5D), target.getZ());
         Vec3 portalAimPosition = HerobrineUtil.getProjectilePortalAim(this, target);
         if (portalAimPosition != null) {
             aimPosition = portalAimPosition;
         }
         dragonMeteoriteEntity.setPosToAim(aimPosition);
-        dragonMeteoriteEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+        dragonMeteoriteEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
         dragonMeteoriteEntity.setOwner(this);
         serverLevel.addFreshEntity(dragonMeteoriteEntity);
 
@@ -522,18 +519,16 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
         this.setSpecialAttackDescending(true);
         Vec3 movement = this.getDeltaMovement();
         this.setDeltaMovement(movement.x, Math.min(movement.y, -0.35D), movement.z);
-        this.hasImpulse = true;
+        this.hurtMarked = true;
         this.hurtMarked = true;
         return true;
     }
 
     private static boolean hasEnderSlayerScythe(Player p) {
-        for (ItemStack s : p.getInventory().items) {
+        for (ItemStack s : p.getInventory().getNonEquipmentItems()) {
             if (s.getItem() instanceof EnderSlayerScytheItem) return true;
         }
-        for (ItemStack s : p.getInventory().offhand) {
-            if (s.getItem() instanceof EnderSlayerScytheItem) return true;
-        }
+        if (p.getOffhandItem().getItem() instanceof EnderSlayerScytheItem) return true;
         return false;
     }
 
@@ -571,7 +566,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
             }
         }
 
-        if (this.random.nextInt(10) == 0) {
+        if (this.getRandom().nextInt(10) == 0) {
             List<EndCrystal> list = this.level().getEntitiesOfClass(EndCrystal.class, this.getBoundingBox().inflate((double)32.0F));
             EndCrystal endcrystalTemp = null;
             double d0 = Double.MAX_VALUE;
@@ -679,7 +674,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
 
             if (summoner != null && summoner.isAlive() && summoner instanceof Player player) {
                 if (summoner.getPersistentData().contains("DragonUUID")
-                        && !this.getUUID().equals(summoner.getPersistentData().getUUID("DragonUUID"))) {
+                        && !this.getUUID().equals(com.pla.annoyingvillagers.util.LegacyNbt.getUUID(summoner.getPersistentData(), "DragonUUID"))) {
                     this.discard();
                     return;
                 } else if (!summoner.getPersistentData().contains("DragonUUID")) {
@@ -704,8 +699,8 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
 
                     double toY = Mth.clamp(
                             summoner.getY() + 18.0D,
-                            level().getMinBuildHeight() + 6.0D,
-                            level().getMaxBuildHeight() - 6.0D
+                            level().getMinY() + 6.0D,
+                            level().getMaxY() - 6.0D
                     );
 
                     getMoveControl().setWantedPosition(summoner.getX(), toY, summoner.getZ(), 1.8D);
@@ -730,7 +725,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     {
         if (isFlying())
         {
-            if (isControlledByLocalInstance())
+            if (isLocalInstanceAuthoritative())
             {
                 moveRelative(getSpeed(), vec3);
                 move(MoverType.SELF, getDeltaMovement());
@@ -781,18 +776,10 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
 
         setYRot(Mth.rotateIfNecessary(yHeadRot, getYRot(), 4));
 
-        if (isControlledByLocalInstance())
+        if (isLocalInstanceAuthoritative())
         {
             if (!isFlying() && canFly() && ((LivingEntityAccessor) driver).annoyingVillagers$isJumping()) liftOff();
         }
-    }
-
-    @Override
-    public boolean isControlledByLocalInstance() {
-        if (isControlLocked()) {
-            return false;
-        }
-        return super.isControlledByLocalInstance();
     }
 
     @Override
@@ -823,7 +810,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     }
 
     @Override
-    public boolean causeFallDamage(float pFallDistance, float pMultiplier, @NotNull DamageSource pSource)
+    public boolean causeFallDamage(double pFallDistance, float pMultiplier, @NotNull DamageSource pSource)
     {
         return !canFly() && super.causeFallDamage(pFallDistance, pMultiplier, pSource);
     }
@@ -869,10 +856,9 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
         return AnnoyingVillagersModSounds.DRAGON_DEATH_SOUND.get();
     }
 
-    @Override
     public @NotNull SoundEvent getEatingSound(@NotNull ItemStack itemStackIn)
     {
-        return SoundEvents.GENERIC_EAT;
+        return SoundEvents.GENERIC_EAT.value();
     }
 
     public SoundEvent getWingsSound()
@@ -962,12 +948,12 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource src, float par2)
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource src, float par2)
     {
-        if (isInvulnerableTo(src)) return false;
+        if (isInvulnerableTo(serverLevel, src)) return false;
         if (src.getEntity() == summoner) return false;
-        if (src.getEntity() instanceof Projectile) return super.hurt(src, par2 * 0.1F);
-        return super.hurt(src, par2);
+        if (src.getEntity() instanceof Projectile) return super.hurtServer(serverLevel, src, par2 * 0.1F);
+        return super.hurtServer(serverLevel, src, par2);
     }
 
     @Override
@@ -983,7 +969,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     @SuppressWarnings("ConstantConditions")
     public AgeableMob getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob mob)
     {
-        return AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get().create(level);
+        return AnnoyingVillagersModEntities.HEROBRINE_DRAGON.get().create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
     }
 
     @Override
@@ -1051,12 +1037,12 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     }
 
     @Override
-    public boolean isInvulnerableTo(DamageSource src)
+    public boolean isInvulnerableTo(ServerLevel serverLevel, DamageSource src)
     {
         Entity srcEnt = src.getEntity();
         if (srcEnt != null && (srcEnt == this || hasPassenger(srcEnt))) return true;
 
-        return super.isInvulnerableTo(src);
+        return super.isInvulnerableTo(serverLevel, src);
     }
 
     public float getHealthFraction()
@@ -1073,7 +1059,7 @@ public class HerobrineDragonEntity extends TamableAnimal implements ForceTickEnt
     public void remove(@NotNull RemovalReason pReason) {
         if (this.getFirstPassenger() instanceof EndCrystal endCrystal
                 && this.level() instanceof ServerLevel serverLevel) {
-            endCrystal.hurt(serverLevel.damageSources().generic(), 1.0F);
+            endCrystal.hurtOrSimulate(serverLevel.damageSources().generic(), 1.0F);
         }
         if (this.getFirstPassenger() != null && this.getFirstPassenger() instanceof EndCrystal) {
             return;

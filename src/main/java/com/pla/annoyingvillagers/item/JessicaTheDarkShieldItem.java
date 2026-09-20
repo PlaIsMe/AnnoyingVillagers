@@ -5,7 +5,7 @@ import net.minecraft.world.item.ShieldItem;
 
 public class JessicaTheDarkShieldItem extends ShieldItem {
     public JessicaTheDarkShieldItem() {
-        super(new Item.Properties()
+        super(com.pla.annoyingvillagers.util.LegacyItemProperties.create()
                 .stacksTo(1)
                 .durability(1561)
         );

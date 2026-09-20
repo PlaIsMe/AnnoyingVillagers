@@ -8,16 +8,18 @@ import com.pla.annoyingvillagers.compat.photon.PhotonClientFxUtil;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig;
 import com.pla.annoyingvillagers.entity.PortalEntity;
 import com.pla.annoyingvillagers.util.AAAParticlesUtil;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -25,10 +27,9 @@ import org.joml.Matrix4f;
 import java.util.HashMap;
 import java.util.Map;
 
-@OnlyIn(Dist.CLIENT)
-public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/portal.png");
+public class PortalEntityRenderer extends LegacyEntityRenderer<PortalEntity> {
+    private static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/portal.png");
     private static final String PHOTON_PORTAL_EFFECT = "snakeportal";
     private static final int PHOTON_PORTAL_LIFETIME_TICKS = 12;
     private static final int AAA_PORTAL_REFRESH_TICKS = 10;
@@ -39,28 +40,22 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
     }
 
     @Override
-    public void render(
-            @NotNull PortalEntity portal,
-            float entityYaw,
-            float partialTicks,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int packedLight
-    ) {
+    public void submit(LegacyEntityRenderState<PortalEntity> state, PoseStack poseStack,
+                       SubmitNodeCollector collector, CameraRenderState camera) {
+        PortalEntity portal = state.entity;
+        float partialTicks = state.partialTick;
+        super.submit(state, poseStack, collector, camera);
         if (AnnoyingVillagersClientConfig.shouldPreferAaaParticles(AnnoyingVillagersClientConfig.VfxEffect.TELEPORT_PORTAL)
                 && playAaaPortalVisual(portal)) {
-            super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
             return;
         }
 
         if (shouldRenderWithPhoton() && playPhotonPortalVisual(portal)) {
-            super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
             return;
         }
 
         if (!AnnoyingVillagersClientConfig.shouldPreferAaaParticles(AnnoyingVillagersClientConfig.VfxEffect.TELEPORT_PORTAL)
                 && shouldRenderWithAaa() && playAaaPortalVisual(portal)) {
-            super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
             return;
         }
 
@@ -69,24 +64,23 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
         float yaw = Mth.lerp(partialTicks, portal.yRotO, portal.getYRot());
         poseStack.mulPose(Axis.YP.rotationDegrees(-yaw));
 
-        VertexConsumer consumer = buffer.getBuffer(RenderType.entityTranslucent(this.getTextureLocation(portal)));
-        PoseStack.Pose pose = poseStack.last();
-        int light = LightTexture.FULL_BRIGHT;
-
-        float halfWidth = PortalEntity.WIDTH * 0.5F;
-        float height = PortalEntity.HEIGHT;
-        drawVertex(consumer, pose, -halfWidth, 0.0F, 0.0F, 0.0F, 1.0F, light, 1.0F);
-        drawVertex(consumer, pose, halfWidth, 0.0F, 0.0F, 1.0F, 1.0F, light, 1.0F);
-        drawVertex(consumer, pose, halfWidth, height, 0.0F, 1.0F, 0.0F, light, 1.0F);
-        drawVertex(consumer, pose, -halfWidth, height, 0.0F, 0.0F, 0.0F, light, 1.0F);
-
-        drawVertex(consumer, pose, -halfWidth, height, 0.0F, 0.0F, 0.0F, light, -1.0F);
-        drawVertex(consumer, pose, halfWidth, height, 0.0F, 1.0F, 0.0F, light, -1.0F);
-        drawVertex(consumer, pose, halfWidth, 0.0F, 0.0F, 1.0F, 1.0F, light, -1.0F);
-        drawVertex(consumer, pose, -halfWidth, 0.0F, 0.0F, 0.0F, 1.0F, light, -1.0F);
+        collector.submitCustomGeometry(poseStack,
+                net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(this.getTextureLocation(portal)),
+                (pose, consumer) -> {
+                    int light = LightCoordsUtil.FULL_BRIGHT;
+                    float halfWidth = PortalEntity.WIDTH * 0.5F;
+                    float height = PortalEntity.HEIGHT;
+                    drawVertex(consumer, pose, -halfWidth, 0.0F, 0.0F, 0.0F, 1.0F, light, 1.0F);
+                    drawVertex(consumer, pose, halfWidth, 0.0F, 0.0F, 1.0F, 1.0F, light, 1.0F);
+                    drawVertex(consumer, pose, halfWidth, height, 0.0F, 1.0F, 0.0F, light, 1.0F);
+                    drawVertex(consumer, pose, -halfWidth, height, 0.0F, 0.0F, 0.0F, light, 1.0F);
+                    drawVertex(consumer, pose, -halfWidth, height, 0.0F, 0.0F, 0.0F, light, -1.0F);
+                    drawVertex(consumer, pose, halfWidth, height, 0.0F, 1.0F, 0.0F, light, -1.0F);
+                    drawVertex(consumer, pose, halfWidth, 0.0F, 0.0F, 1.0F, 1.0F, light, -1.0F);
+                    drawVertex(consumer, pose, -halfWidth, 0.0F, 0.0F, 0.0F, 1.0F, light, -1.0F);
+                });
 
         poseStack.popPose();
-        super.render(portal, entityYaw, partialTicks, poseStack, buffer, packedLight);
     }
 
     private static boolean shouldRenderWithPhoton() {
@@ -94,7 +88,7 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
     }
 
     private static boolean playPhotonPortalVisual(PortalEntity portal) {
-        if (!portal.level().isClientSide || portal.isRemoved()) {
+        if (!portal.level().isClientSide() || portal.isRemoved()) {
             return false;
         }
 
@@ -113,7 +107,7 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
     }
 
     private static boolean playAaaPortalVisual(PortalEntity portal) {
-        if (!portal.level().isClientSide || portal.isRemoved()) {
+        if (!portal.level().isClientSide() || portal.isRemoved()) {
             LAST_AAA_PORTAL_PLAY_TICK.remove(portal.getId());
             return false;
         }
@@ -151,7 +145,7 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull PortalEntity portal) {
+    public @NotNull Identifier getTextureLocation(@NotNull PortalEntity portal) {
         return TEXTURE;
     }
 }

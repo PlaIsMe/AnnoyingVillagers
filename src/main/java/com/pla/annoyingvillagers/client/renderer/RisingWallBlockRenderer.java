@@ -1,43 +1,46 @@
 package com.pla.annoyingvillagers.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
 import com.pla.annoyingvillagers.entity.RisingWallBlockEntity;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderer;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.Level;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
-@OnlyIn(Dist.CLIENT)
-public class RisingWallBlockRenderer extends EntityRenderer<RisingWallBlockEntity> {
-    private final BlockRenderDispatcher blockRenderDispatcher;
-
+public class RisingWallBlockRenderer extends LegacyEntityRenderer<RisingWallBlockEntity> {
     public RisingWallBlockRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.blockRenderDispatcher = context.getBlockRenderDispatcher();
         this.shadowRadius = 0.0F;
     }
 
     @Override
-    public void render(
-            RisingWallBlockEntity entity,
-            float entityYaw,
-            float partialTicks,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource bufferSource,
-            int packedLight
-    ) {
+    public void extractRenderState(RisingWallBlockEntity entity,
+                                   LegacyEntityRenderState<RisingWallBlockEntity> state, float partialTicks) {
+        super.extractRenderState(entity, state, partialTicks);
+        BlockPos renderPos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
+        state.movingBlock.randomSeedPos = entity.getFinalBlockPos();
+        state.movingBlock.blockPos = renderPos;
+        state.movingBlock.blockState = entity.getBlockState();
+        if (entity.level() instanceof ClientLevel level) {
+            state.movingBlock.biome = level.getBiome(renderPos);
+            state.movingBlock.cardinalLighting = level.cardinalLighting();
+            state.movingBlock.lightEngine = level.getLightEngine();
+        }
+    }
+
+    @Override
+    public void submit(LegacyEntityRenderState<RisingWallBlockEntity> state, PoseStack poseStack,
+                       SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        RisingWallBlockEntity entity = state.entity;
         if (!entity.isRiseStarted()) {
             return;
         }
@@ -46,42 +49,15 @@ public class RisingWallBlockRenderer extends EntityRenderer<RisingWallBlockEntit
             return;
         }
 
-        Level level = entity.level();
-
         poseStack.pushPose();
         poseStack.translate(-0.5D, 0.0D, -0.5D);
-
-        BlockPos renderPos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
-
-        var model = this.blockRenderDispatcher.getBlockModel(blockState);
-
-        BlockPos seedPos = entity.getFinalBlockPos();
-        long seed = blockState.getSeed(seedPos);
-        RandomSource seededRandom = RandomSource.create(seed);
-
-        for (var renderType : model.getRenderTypes(blockState, seededRandom, ModelData.EMPTY)) {
-            this.blockRenderDispatcher.getModelRenderer().tesselateBlock(
-                    level,
-                    model,
-                    blockState,
-                    renderPos,
-                    poseStack,
-                    bufferSource.getBuffer(renderType),
-                    false,
-                    RandomSource.create(),
-                    seed,
-                    OverlayTexture.NO_OVERLAY,
-                    ModelData.EMPTY,
-                    renderType
-            );
-        }
-
+        submitNodeCollector.submitMovingBlock(poseStack, state.movingBlock);
         poseStack.popPose();
-        super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
+        super.submit(state, poseStack, submitNodeCollector, camera);
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull RisingWallBlockEntity entity) {
+    public @NotNull Identifier getTextureLocation(@NotNull RisingWallBlockEntity entity) {
         return TextureAtlas.LOCATION_BLOCKS;
     }
 }

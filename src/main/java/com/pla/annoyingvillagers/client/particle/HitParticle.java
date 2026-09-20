@@ -1,18 +1,16 @@
 package com.pla.annoyingvillagers.client.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public abstract class HitParticle extends TextureSheetParticle {
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.SingleQuadParticle;
+import net.neoforged.api.distmarker.Dist;
+
+public abstract class HitParticle extends SingleQuadParticle {
     protected final SpriteSet animatedSprite;
 
     protected HitParticle(ClientLevel clientLevel, double x, double y, double z, SpriteSet animatedSprite) {
-        super(clientLevel, x, y, z);
+        super(clientLevel, x, y, z, animatedSprite.first());
         this.rCol = 1.0F;
         this.gCol = 1.0F;
         this.bCol = 1.0F;
@@ -34,12 +32,12 @@ public abstract class HitParticle extends TextureSheetParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    protected SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.TRANSLUCENT;
     }
 
     @Override
-    public int getLightColor(float partialTick) {
+    protected int getLightCoords(float partialTick) {
         return 15728880;
     }
 }

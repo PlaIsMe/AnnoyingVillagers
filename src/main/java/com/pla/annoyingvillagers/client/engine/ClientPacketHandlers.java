@@ -24,15 +24,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Vector3f;
 
-@OnlyIn(Dist.CLIENT)
 public final class ClientPacketHandlers {
     private static final DustParticleOptions DIAMOND_GREEN_DUST =
-            new DustParticleOptions(new Vector3f(0.0F, 1.0F, 0.3F), 1.15F);
+            new DustParticleOptions(0x00FF4D, 1.15F);
     private static final DustParticleOptions DIAMOND_GLOW_DUST =
-            new DustParticleOptions(new Vector3f(0.9F, 1.0F, 0.2F), 0.9F);
+            new DustParticleOptions(0xE6FF33, 0.9F);
 
     private ClientPacketHandlers() {}
 
@@ -44,7 +42,7 @@ public final class ClientPacketHandlers {
     }
 
     private static void spawnParticle(Level level, ParticleOptions particle, Vec3 pos, Vec3 velocity) {
-        level.addParticle(particle, true, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
+        level.addParticle(particle, true, true, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
     }
 
     private static void spawnSpreadParticle(Level level, ParticleOptions particle, Vec3 center, RandomSource rand,
@@ -259,9 +257,9 @@ public final class ClientPacketHandlers {
                             double vy = 0.01 + rand.nextDouble() * 0.02;
                             double vz = ( cos) * tangentialSpeed + sin * outwardSpeed;
 
-                            level.addParticle(ParticleTypes.CLOUD, true, px, py, pz, vx, vy, vz);
+                            level.addParticle(ParticleTypes.CLOUD, true, true, px, py, pz, vx, vy, vz);
                             if ((i & 3) == 0) {
-                                level.addParticle(ParticleTypes.SMOKE, true, px, py, pz, vx * 0.35, vy * 0.2, vz * 0.35);
+                                level.addParticle(ParticleTypes.SMOKE, true, true, px, py, pz, vx * 0.35, vy * 0.2, vz * 0.35);
                             }
                         }
                     }
@@ -270,10 +268,10 @@ public final class ClientPacketHandlers {
                         double vx = (rand.nextDouble() - 0.5) * 0.25;
                         double vy = 0.03 + rand.nextDouble() * 0.18;
                         double vz = (rand.nextDouble() - 0.5) * 0.25;
-                        level.addParticle(ParticleTypes.POOF, true, msg.from().x, msg.from().y + 0.25, msg.from().z, vx, vy, vz);
+                        level.addParticle(ParticleTypes.POOF, true, true, msg.from().x, msg.from().y + 0.25, msg.from().z, vx, vy, vz);
                     }
 
-                    level.addParticle(ParticleTypes.EXPLOSION, true, msg.from().x, msg.from().y + 0.35, msg.from().z, 0.0, 0.0, 0.0);
+                    level.addParticle(ParticleTypes.EXPLOSION, true, true, msg.from().x, msg.from().y + 0.35, msg.from().z, 0.0, 0.0, 0.0);
                 });
 
         level.playLocalSound(msg.from().x, msg.from().y, msg.from().z, AnnoyingVillagersModSounds.WOOPIE_WIND.get(),

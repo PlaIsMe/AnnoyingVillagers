@@ -8,13 +8,16 @@ import com.pla.annoyingvillagers.entity.HookGunHookEntity;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import com.pla.annoyingvillagers.util.HookUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,31 +28,29 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
-    private static final ResourceLocation ROPE_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/hook_gun_rope.png");
-    private static final RenderType ROPE_RENDER = RenderType.entitySolid(ROPE_TEXTURE);
+public class HookGunHookRenderer extends LegacyEntityRenderer<HookGunHookEntity> {
+    private static final Identifier ROPE_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/hook_gun_rope.png");
+    private static final RenderType ROPE_RENDER = net.minecraft.client.renderer.rendertype.RenderTypes.entitySolid(ROPE_TEXTURE);
 
     private final EntityRendererProvider.Context context;
+    private final ItemModelResolver itemModelResolver;
 
     public HookGunHookRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.context = context;
+        this.itemModelResolver = context.getItemModelResolver();
     }
 
     @Override
-    public void render(
-            @NotNull HookGunHookEntity hook,
-            float entityYaw,
-            float partialTicks,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int packedLight
-    ) {
+    public void submit(LegacyEntityRenderState<HookGunHookEntity> state, PoseStack poseStack,
+                       SubmitNodeCollector collector, CameraRenderState camera) {
+        super.submit(state, poseStack, collector, camera);
+        HookGunHookEntity hook = state.entity;
+        float partialTicks = state.partialTick;
         LivingEntity owner = hook.getHookOwner();
         if (owner == null || !owner.isAlive()) {
-            renderHookItem(hook, poseStack, buffer, packedLight, new Vec3(0.0D, 0.0D, 1.0D), 1, partialTicks);
-            super.render(hook, entityYaw, partialTicks, poseStack, buffer, packedLight);
+            renderHookItem(state, poseStack, collector, new Vec3(0.0D, 0.0D, 1.0D), 1, partialTicks);
             return;
         }
 
@@ -57,28 +58,25 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
         Vec3 handPosition = HookGunItem.getHookStartPosition(owner, hook.isRightHand());
         Vec3 attachDirection = getAttachDirection(hook, handPosition, partialTicks);
 
-        renderHookItem(hook, poseStack, buffer, packedLight, attachDirection, handRight, partialTicks);
-        renderRope(hook, handPosition, partialTicks, poseStack, buffer, packedLight);
-
-        super.render(hook, entityYaw, partialTicks, poseStack, buffer, packedLight);
+        renderHookItem(state, poseStack, collector, attachDirection, handRight, partialTicks);
+        renderRope(hook, handPosition, partialTicks, poseStack, collector, state.lightCoords);
     }
 
     private void renderHookItem(
-            HookGunHookEntity hook,
+            LegacyEntityRenderState<HookGunHookEntity> state,
             PoseStack poseStack,
-            MultiBufferSource buffer,
-            int packedLight,
+            SubmitNodeCollector collector,
             Vec3 attachDirection,
             int handRight,
             float partialTicks
     ) {
+        HookGunHookEntity hook = state.entity;
         ItemStack stack = hook.getItem();
         if (stack.isEmpty()) {
             return;
         }
 
-        BakedModel model = this.context.getItemRenderer().getModel(stack, hook.level(), null, hook.getId());
-        ItemDisplayContext displayContext = HookItemRenderTransforms.getHookGunProjectileDisplayContext(stack, model);
+        ItemDisplayContext displayContext = HookItemRenderTransforms.getHookGunProjectileDisplayContext(stack);
         poseStack.pushPose();
         float projectileScale = HookItemRenderTransforms.getHookGunProjectileScale(stack);
         poseStack.scale(projectileScale, projectileScale, projectileScale);
@@ -86,30 +84,21 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
         if (HookUtil.shouldUseShieldFacing(stack)) {
             poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - getOwnerLookYaw(hook, partialTicks)));
             if (displayContext == ItemDisplayContext.FIXED) {
-                HookItemRenderTransforms.applyShieldProjectileTransform(poseStack, model);
+                HookItemRenderTransforms.applyShieldProjectileTransform(poseStack);
             }
         } else if (!HookUtil.shouldRenderWithoutProjectileSpin(stack)) {
             Vec3 shootDirection = attachDirection.scale(-1.0D);
             double horizontal = Math.sqrt(shootDirection.x * shootDirection.x + shootDirection.z * shootDirection.z);
             float yaw = (float) (Mth.atan2(shootDirection.x, shootDirection.z) * Mth.RAD_TO_DEG);
             float pitch = (float) (Mth.atan2(shootDirection.y, horizontal) * Mth.RAD_TO_DEG);
-            HookItemRenderTransforms.applyProjectileFacing(poseStack, stack, model, yaw, pitch);
+            HookItemRenderTransforms.applyProjectileFacing(poseStack, stack, yaw, pitch);
             if (!HookUtil.shouldAlignSharpEdge(stack)) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(45.0F * handRight));
                 poseStack.mulPose(Axis.ZP.rotationDegrees(-45.0F));
             }
         }
 
-        this.context.getItemRenderer().render(
-                stack,
-                displayContext,
-                false,
-                poseStack,
-                buffer,
-                packedLight,
-                OverlayTexture.NO_OVERLAY,
-                model
-        );
+        state.item.submit(poseStack, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
 
         poseStack.popPose();
     }
@@ -128,15 +117,24 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
             Vec3 handPosition,
             float partialTicks,
             PoseStack poseStack,
-            MultiBufferSource buffer,
+            SubmitNodeCollector collector,
             int packedLight
     ) {
         poseStack.pushPose();
-        PoseStack.Pose pose = poseStack.last();
-        VertexConsumer vertexBuffer = buffer.getBuffer(ROPE_RENDER);
         Vec3 hookPosition = partialPosition(hook, partialTicks);
-        drawSegment(Vec3.ZERO, handPosition.subtract(hookPosition), vertexBuffer, pose, packedLight);
+        Vec3 finish = handPosition.subtract(hookPosition);
+        collector.submitCustomGeometry(poseStack, ROPE_RENDER,
+                (pose, vertexBuffer) -> drawSegment(Vec3.ZERO, finish, vertexBuffer, pose, packedLight));
         poseStack.popPose();
+    }
+
+    @Override
+    public void extractRenderState(HookGunHookEntity hook, LegacyEntityRenderState<HookGunHookEntity> state,
+                                   float partialTick) {
+        super.extractRenderState(hook, state, partialTick);
+        ItemStack stack = hook.getItem();
+        ItemDisplayContext display = HookItemRenderTransforms.getHookGunProjectileDisplayContext(stack);
+        this.itemModelResolver.updateForTopItem(state.item, stack, display, hook.level(), hook, hook.getId());
     }
 
     private static Vec3 getAttachDirection(HookGunHookEntity hook, Vec3 handPosition, float partialTicks) {
@@ -226,7 +224,7 @@ public class HookGunHookRenderer extends EntityRenderer<HookGunHookEntity> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull HookGunHookEntity entity) {
+    public @NotNull Identifier getTextureLocation(@NotNull HookGunHookEntity entity) {
         return ROPE_TEXTURE;
     }
 }

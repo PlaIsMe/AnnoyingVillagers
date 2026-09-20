@@ -8,12 +8,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.level.Level;
@@ -80,9 +81,9 @@ public class FakePlayer extends PathfinderMob {
     private static Thread profileThread;
 
     private GameProfile profile;
-    private ResourceLocation skin;
-    private ResourceLocation cape;
-    private ResourceLocation elytra;
+    private Identifier skin;
+    private Identifier cape;
+    private Identifier elytra;
     private boolean skinAvailable;
     private boolean capeAvailable;
     private boolean elytraAvailable;
@@ -151,7 +152,7 @@ public class FakePlayer extends PathfinderMob {
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData groupData) {
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull EntitySpawnReason spawnType, @Nullable SpawnGroupData groupData) {
         SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnType, groupData);
         if (!this.hasUsername()) {
             this.setUsername(nextHardcodedName(level.getRandom()));
@@ -160,29 +161,33 @@ public class FakePlayer extends PathfinderMob {
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (this.hasUsername()) {
             tag.putString("Username", this.getUsername().getCombinedNames());
         }
         if (this.profile != null) {
-            ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, new ResolvableProfile(this.profile))
+            ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, ResolvableProfile.createResolved(this.profile))
                     .result().ifPresent(profileTag -> tag.put("Profile", profileTag));
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        String username = tag.getString("Username");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        String username = tag.getStringOr("Username", "");
         if (!StringUtil.isNullOrEmpty(username)) {
             this.setUsername(username);
         } else if (!this.level().isClientSide()) {
             this.setUsername(nextHardcodedName(this.getRandom()));
         }
-        if (tag.contains("Profile", CompoundTag.TAG_COMPOUND)) {
+        if (tag.contains("Profile")) {
             this.profile = ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag.get("Profile"))
-                    .result().map(ResolvableProfile::gameProfile).orElse(null);
+                    .result().map(ResolvableProfile::partialProfile).orElse(null);
         }
     }
 
@@ -267,7 +272,7 @@ public class FakePlayer extends PathfinderMob {
         return this.capeAvailable;
     }
 
-    public @Nullable ResourceLocation getTexture(MinecraftProfileTexture.Type type) {
+    public @Nullable Identifier getTexture(MinecraftProfileTexture.Type type) {
         if (type == MinecraftProfileTexture.Type.SKIN) {
             return this.skin;
         }
@@ -277,7 +282,7 @@ public class FakePlayer extends PathfinderMob {
         return this.cape;
     }
 
-    public void setTexture(MinecraftProfileTexture.Type type, ResourceLocation location) {
+    public void setTexture(MinecraftProfileTexture.Type type, Identifier location) {
         if (type == MinecraftProfileTexture.Type.SKIN) {
             this.skin = location;
             this.skinAvailable = true;
@@ -348,8 +353,13 @@ public class FakePlayer extends PathfinderMob {
                 FakePlayer target = entity;
                 // Resolve by name even though the temporary GameProfile needs a
                 // non-null UUID on 1.21. This preserves online skin lookup.
-                new ResolvableProfile(Optional.of(currentProfile.getName()), Optional.empty(), currentProfile.getProperties()).resolve()
-                        .thenAccept(resolved -> target.setProfile(resolved.gameProfile()));
+                if (target.level() instanceof ServerLevel serverLevel) {
+                    ResolvableProfile.createUnresolved(currentProfile.name())
+                            .resolveProfile(serverLevel.getServer().services().profileResolver())
+                            .thenAccept(target::setProfile);
+                } else {
+                    target.profileUpdateQueued = false;
+                }
             } catch (Exception ignored) {
                 entity.profileUpdateQueued = false;
             }

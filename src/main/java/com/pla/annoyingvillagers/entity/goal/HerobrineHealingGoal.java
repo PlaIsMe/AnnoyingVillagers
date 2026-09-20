@@ -26,7 +26,7 @@ public class HerobrineHealingGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        if (this.mob.level().isClientSide || !this.mob.isAlive() || this.mob.isRemoved() || this.mob.isDeadOrDying()) return false;
+        if (this.mob.level().isClientSide() || !this.mob.isAlive() || this.mob.isRemoved() || this.mob.isDeadOrDying()) return false;
         if (this.mob.isSacrificing() || this.mob.isHealing() || this.mob.getHealingCooldown() > 0) return false;
 
         // Only start healing when health is below 50%.
@@ -100,7 +100,7 @@ public class HerobrineHealingGoal extends Goal {
 
         if (this.mob.getRandom().nextBoolean()) {
             LowHerobrineCloneEntity low = new LowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(),serverLevel);
-            low.moveTo(spawnPos.x,spawnPos.y,spawnPos.z,this.mob.getYRot(),this.mob.getXRot());
+            low.snapTo(spawnPos.x,spawnPos.y,spawnPos.z,this.mob.getYRot(),this.mob.getXRot());
             low.setPossessedByEntity(this.mob);
             low.setRenderPortal(false);
             low.setPossessedByUuid(this.mob.getUUID());
@@ -109,7 +109,7 @@ public class HerobrineHealingGoal extends Goal {
             spawned = low;
         } else {
             LowShadowHerobrineCloneEntity low = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(),serverLevel);
-            low.moveTo(spawnPos.x,spawnPos.y,spawnPos.z,this.mob.getYRot(),this.mob.getXRot());
+            low.snapTo(spawnPos.x,spawnPos.y,spawnPos.z,this.mob.getYRot(),this.mob.getXRot());
             low.setPossessedByEntity(this.mob);
             low.setRenderPortal(false);
             low.setPossessedByUuid(this.mob.getUUID());

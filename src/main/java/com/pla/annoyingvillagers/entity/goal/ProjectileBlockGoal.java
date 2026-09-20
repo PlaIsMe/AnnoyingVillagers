@@ -15,7 +15,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion;
 import net.minecraft.world.item.ItemStack;
 import com.pla.annoyingvillagers.util.PotionUtil;
 import net.minecraft.world.level.block.state.BlockState;
@@ -196,7 +196,7 @@ public class ProjectileBlockGoal extends Goal {
             return false;
         }
 
-        if (projectile instanceof ThrownPotion thrownPotion) {
+        if (projectile instanceof AbstractThrownPotion thrownPotion) {
             var effects = PotionUtil.getMobEffects(thrownPotion.getItem());
             if (effects.isEmpty() || effects.stream().allMatch(effect -> effect.getEffect().value().isBeneficial())) {
                 return false;

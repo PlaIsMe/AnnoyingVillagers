@@ -12,7 +12,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -32,8 +32,8 @@ public abstract class AbstractArrowMixin {
                             (shooter instanceof LivingEntity) ? DamageTypes.MOB_ATTACK :
                                     DamageTypes.GENERIC;
 
-            Registry<DamageType> reg = arrow.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE);
-            Holder<DamageType> holder = reg.getHolderOrThrow(key);
+            Registry<DamageType> reg = arrow.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE);
+            Holder<DamageType> holder = reg.getOrThrow(key);
             return new DamageSource(holder, shooter, arrow);
         }
         return sources.arrow(arrow, shooter);

@@ -4,6 +4,8 @@ import com.pla.annoyingvillagers.client.model.ModelHerobrineObsidianDiamondChest
 import com.pla.annoyingvillagers.client.model.ModelHerobrineObsidianDiamondChestplateArmor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
@@ -14,8 +16,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import com.pla.annoyingvillagers.item.LegacyArmorItem;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -35,7 +37,7 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends Legacy
     private static final int CHARGE_TEXT_COLOR = 0xDDBBFF;
     private static final int CHARGE_FULL_COLOR = 0xD37CFF;
 
-    public HerobrineObsidianDiamondArmorChestplateItem(ArmorItem.Type type, Properties properties) {
+    public HerobrineObsidianDiamondArmorChestplateItem(LegacyArmorItem.Type type, Properties properties) {
         super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(Type pType) {
@@ -61,7 +63,7 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends Legacy
 
             public int getEnchantmentValue() { return 0; }
             public Object getEquipSound() { return SoundEvents.ARMOR_EQUIP_GENERIC; }
-            public Ingredient getRepairIngredient() { return Ingredient.of(); }
+            public Ingredient getRepairIngredient() { return null; }
             public String getName() { return "herobrine_obsidian_diamond_armor"; }
             public float getToughness() { return 2.0F; }
             public float getKnockbackResistance() { return 0.0F; }
@@ -73,39 +75,37 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends Legacy
         return super.isFoil(stack) || HerobrineObsidianArmorCharge.isFullyCharged(stack) || HerobrineObsidianArmorCharge.hasForcedPurpleFoil(stack);
     }
 
-    protected static void appendChargeTooltip(ItemStack stack, List<Component> tooltip) {
+    protected static void appendChargeTooltip(ItemStack stack, java.util.function.Consumer<Component> tooltip) {
         int charge = HerobrineObsidianArmorCharge.getCharge(stack);
         int max = HerobrineObsidianArmorCharge.CHESTPLATE_MAX_CHARGE;
-        tooltip.add(Component.translatable("tooltip.annoyingvillagers.herobrine_obsidian_armor_charge").withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(CHARGE_COLOR))));
-        tooltip.add(Component.literal(charge + " / " + max).withStyle(style -> style.withColor(TextColor.fromRgb(CHARGE_TEXT_COLOR))));
-        tooltip.add(buildChargeMeter(charge, max));
+        tooltip.accept(Component.translatable("tooltip.annoyingvillagers.herobrine_obsidian_armor_charge").withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(CHARGE_COLOR))));
+        tooltip.accept(Component.literal(charge + " / " + max).withStyle(style -> style.withColor(TextColor.fromRgb(CHARGE_TEXT_COLOR))));
+        tooltip.accept(buildChargeMeter(charge, max));
     }
 
     private static Component buildChargeMeter(int charge, int max) {
         int filledSteps = Mth.clamp(Math.round((charge / (float)max) * CHARGE_METER_STEPS), 0, CHARGE_METER_STEPS);
         MutableComponent meter = Component.empty();
-        meter.append(Component.literal("❒ ").withStyle(style -> style.withColor(TextColor.fromRgb(CHARGE_COLOR))));
+        meter.append(Component.literal("â’ ").withStyle(style -> style.withColor(TextColor.fromRgb(CHARGE_COLOR))));
         for (int i = 0; i < CHARGE_METER_STEPS; i++) {
             int finalI = i;
-            meter.append(Component.literal(i < filledSteps ? "▰" : "▱").withStyle(style -> style.withColor(TextColor.fromRgb(finalI < filledSteps ? CHARGE_COLOR : CHARGE_DIM_COLOR))));
+            meter.append(Component.literal(i < filledSteps ? "â–°" : "â–±").withStyle(style -> style.withColor(TextColor.fromRgb(finalI < filledSteps ? CHARGE_COLOR : CHARGE_DIM_COLOR))));
         }
         return meter;
     }
 
     public static class Chestplate extends HerobrineObsidianDiamondArmorChestplateItem {
         public Chestplate() {
-            super(Type.CHESTPLATE, new Properties());
+            super(Type.CHESTPLATE, com.pla.annoyingvillagers.util.LegacyItemProperties.create());
         }
 
-        @Override
         public void initializeClient(Consumer<IClientItemExtensions> consumer) {
             consumer.accept(new IClientItemExtensions() {
                 private ModelHerobrineObsidianDiamondChestplateArmor model;
 
                 @Override
-                public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+                public @NotNull Model getHumanoidArmorModel(ItemStack itemStack, EquipmentClientInfo.LayerType layerType, Model original) {
                     if (this.model == null) this.model = new ModelHerobrineObsidianDiamondChestplateArmor(Minecraft.getInstance().getEntityModels().bakeLayer(ModelHerobrineObsidianDiamondChestplate.LAYER_LOCATION));
-                    this.model.prepareForRender(livingEntity, original);
                     return this.model;
                 }
             });
@@ -116,9 +116,11 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends Legacy
         }
 
         @Override
-        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+        public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slotIndex = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean selected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
             if (!(entity instanceof Player player)) return;
-            super.inventoryTick(stack, level, entity, slotIndex, selected);
+            super.inventoryTick(stack, level, entity, equipmentSlot);
             if (player.getItemBySlot(EquipmentSlot.CHEST) == stack) {
                 dropArmorSlot(player, EquipmentSlot.FEET, "Herobrine Obsidian Diamond Chestplate");
                 dropArmorSlot(player, EquipmentSlot.LEGS, "Herobrine Obsidian Diamond Chestplate");
@@ -126,9 +128,9 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends Legacy
         }
 
         @Override
-        public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
-            super.appendHoverText(stack, level, tooltip, flag);
-            tooltip.add(Component.translatable("tooltip.annoyingvillagers.herobrine_obsidian_chestplate"));
+        public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> tooltip, @NotNull TooltipFlag flag) {
+            super.appendHoverText(stack, level, display, tooltip, flag);
+            tooltip.accept(Component.translatable("tooltip.annoyingvillagers.herobrine_obsidian_chestplate"));
             appendChargeTooltip(stack, tooltip);
         }
     }

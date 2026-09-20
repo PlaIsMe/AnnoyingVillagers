@@ -53,7 +53,7 @@ public final class ExplosionDamageEvent {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingDamage(LivingDamageEvent.Post event) {
-        if (event.getNewDamage() <= 0.0F || !event.getSource().is(DamageTypeTags.IS_EXPLOSION)) return;
+        if (event.getHealthDamage() <= 0.0F || !event.getSource().is(DamageTypeTags.IS_EXPLOSION)) return;
         if (!(event.getEntity() instanceof Mob victimMob) || !RigStunController.supports(victimMob)) return;
 
         Entity sourceEntity = event.getSource().getEntity();

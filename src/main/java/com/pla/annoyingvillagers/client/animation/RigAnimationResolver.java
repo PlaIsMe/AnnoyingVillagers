@@ -23,9 +23,7 @@ import com.pla.annoyingvillagers.client.animation.rig_animation.tachi.*;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public final class RigAnimationResolver {
     private RigAnimationResolver() {}
 

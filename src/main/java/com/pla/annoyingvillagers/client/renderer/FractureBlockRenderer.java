@@ -2,64 +2,102 @@ package com.pla.annoyingvillagers.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.blockentity.FractureBlockEntity;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.BlockModelResolver;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
-public class FractureBlockRenderer implements BlockEntityRenderer<FractureBlockEntity> {
-    private final BlockRenderDispatcher blockRenderDispatcher;
+public class FractureBlockRenderer implements BlockEntityRenderer<FractureBlockEntity, FractureBlockRenderer.State> {
+    private final BlockModelResolver blockModelResolver;
 
     public FractureBlockRenderer(BlockEntityRendererProvider.Context context) {
-        this.blockRenderDispatcher = context.getBlockRenderDispatcher();
+        this.blockModelResolver = context.blockModelResolver();
     }
 
     @Override
-    public boolean shouldRender(FractureBlockEntity blockEntity, Vec3 cameraPos) {
-        return Vec3.atCenterOf(blockEntity.getBlockPos()).closerThan(cameraPos, this.getViewDistance());
+    public State createRenderState() {
+        return new State();
     }
 
     @Override
-    public void render(FractureBlockEntity blockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int lightColor, int overlayColor) {
-        if (blockEntity.getOriginalBlockState() == null || blockEntity.getLevel() == null) return;
+    public void extractRenderState(FractureBlockEntity blockEntity, State state, float partialTicks,
+                                   Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
+        state.visible = blockEntity.getOriginalBlockState() != null && blockEntity.getLevel() != null;
+        if (!state.visible) return;
+
+        this.blockModelResolver.update(state.block, blockEntity.getOriginalBlockState(), BlockDisplayContext.create());
+        state.partialTicks = partialTicks;
+        state.translate.set(blockEntity.getTranslate());
+        state.rotation.set(blockEntity.getRotation());
+        state.bouncing = blockEntity.getBouncing();
+        state.maxLifeTime = blockEntity.getMaxLifeTime();
+        state.lifeTime = blockEntity.getLifeTime();
+    }
+
+    @Override
+    public void submit(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        if (!state.visible) return;
 
         float turnBackTime = 5.0F;
-        float lerpAmount = Mth.clamp(partialTicks / turnBackTime + (turnBackTime - (blockEntity.getMaxLifeTime() - blockEntity.getLifeTime())) / turnBackTime, 0.0F, 1.0F);
-        Vector3f translate = blockEntity.getMaxLifeTime() > blockEntity.getLifeTime() + turnBackTime ? blockEntity.getTranslate() : lerpVector(blockEntity.getTranslate(), new Vector3f(), lerpAmount);
-        Quaternionf rotation = blockEntity.getMaxLifeTime() > blockEntity.getLifeTime() + turnBackTime ? blockEntity.getRotation() : lerpQuaternion(blockEntity.getRotation(), new Quaternionf(), lerpAmount);
+        float lerpAmount = Mth.clamp(state.partialTicks / turnBackTime
+                + (turnBackTime - (state.maxLifeTime - state.lifeTime)) / turnBackTime, 0.0F, 1.0F);
+        Vector3f translate = state.maxLifeTime > state.lifeTime + turnBackTime
+                ? state.translate : lerpVector(state.translate, new Vector3f(), lerpAmount);
+        Quaternionf rotation = state.maxLifeTime > state.lifeTime + turnBackTime
+                ? state.rotation : lerpQuaternion(state.rotation, new Quaternionf(), lerpAmount);
 
-        double bounceMaxHeight = blockEntity.getBouncing();
-        double time = Math.max(bounceMaxHeight * 8.0D, 8.0D);
+        double time = Math.max(state.bouncing * 8.0D, 8.0D);
         double extender = 1.0D / Math.pow(time * 0.5D, 2.0D);
-        double moveGraph = Math.sqrt(bounceMaxHeight / extender);
-        double bouncingAnimation = Math.max(-extender * Math.pow(blockEntity.getLifeTime() + partialTicks - moveGraph, 2.0D) + bounceMaxHeight, 0.0D);
+        double moveGraph = Math.sqrt(state.bouncing / extender);
+        double bouncingAnimation = Math.max(-extender * Math.pow(state.lifeTime + state.partialTicks - moveGraph, 2.0D)
+                + state.bouncing, 0.0D);
 
         poseStack.pushPose();
         poseStack.translate(0.5D, 0.5D, 0.5D);
         poseStack.mulPose(rotation);
         poseStack.translate(translate.x(), translate.y() + bouncingAnimation, translate.z());
         poseStack.translate(-0.5D, -0.5D, -0.5D);
-        this.blockRenderDispatcher.renderBreakingTexture(blockEntity.getOriginalBlockState(), blockEntity.getBlockPos().above(), blockEntity.getLevel(), poseStack, bufferSource.getBuffer(RenderType.cutout()), ModelData.EMPTY);
+        state.block.submitMultiLayer(poseStack, submitNodeCollector, state.lightCoords,
+                OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
     }
 
     private static Vector3f lerpVector(Vector3f from, Vector3f to, float delta) {
-        return new Vector3f(from.x() + (to.x() - from.x()) * delta, from.y() + (to.y() - from.y()) * delta, from.z() + (to.z() - from.z()) * delta);
+        return new Vector3f(from.x() + (to.x() - from.x()) * delta,
+                from.y() + (to.y() - from.y()) * delta,
+                from.z() + (to.z() - from.z()) * delta);
     }
 
     private static Quaternionf lerpQuaternion(Quaternionf from, Quaternionf to, float delta) {
         float dot = from.w() * to.w() + from.x() * to.x() + from.y() * to.y() + from.z() * to.z();
         float inverse = 1.0F - delta;
-        float x = inverse * from.x() + delta * (dot < 0.0F ? -to.x() : to.x());
-        float y = inverse * from.y() + delta * (dot < 0.0F ? -to.y() : to.y());
-        float z = inverse * from.z() + delta * (dot < 0.0F ? -to.z() : to.z());
-        float w = inverse * from.w() + delta * (dot < 0.0F ? -to.w() : to.w());
-        return new Quaternionf(x, y, z, w).normalize();
+        return new Quaternionf(
+                inverse * from.x() + delta * (dot < 0.0F ? -to.x() : to.x()),
+                inverse * from.y() + delta * (dot < 0.0F ? -to.y() : to.y()),
+                inverse * from.z() + delta * (dot < 0.0F ? -to.z() : to.z()),
+                inverse * from.w() + delta * (dot < 0.0F ? -to.w() : to.w())).normalize();
+    }
+
+    public static final class State extends BlockEntityRenderState {
+        final BlockModelRenderState block = new BlockModelRenderState();
+        final Vector3f translate = new Vector3f();
+        final Quaternionf rotation = new Quaternionf();
+        double bouncing;
+        int maxLifeTime;
+        int lifeTime;
+        float partialTicks;
+        boolean visible;
     }
 }

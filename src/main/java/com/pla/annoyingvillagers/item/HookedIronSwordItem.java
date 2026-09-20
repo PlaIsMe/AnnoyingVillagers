@@ -5,7 +5,7 @@ import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import com.pla.annoyingvillagers.util.HookSwordVanillaAbilityUtil;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
@@ -37,13 +37,13 @@ public class HookedIronSwordItem extends LegacySwordItem implements RigCombatPro
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.IRON_INGOT));
+                return Ingredient.of(Items.IRON_INGOT);
             }
-        }, 3, -2.5F, (new Properties()));
+        }, 3, -2.5F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         return HookSwordVanillaAbilityUtil.useHookSword(level, player, hand);
     }
 

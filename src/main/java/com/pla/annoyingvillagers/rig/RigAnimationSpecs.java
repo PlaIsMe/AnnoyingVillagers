@@ -36,7 +36,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -691,7 +691,7 @@ public final class RigAnimationSpecs {
                                 RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
                                     if (!(mob.level() instanceof ServerLevel serverLevel)) return;
                                     mob.setDeltaMovement(Vec3.ZERO);
-                                    mob.hasImpulse = true;
+                                    mob.hurtMarked = true;
                                     mob.hurtMarked = true;
 
                                     Vec3 offHandPos = RigPoseUtil.getLeftWeaponPosition(mob, RigAnimationId.WOOPIE_THE_SWORD_FLY, 0.0F);
@@ -933,12 +933,12 @@ public final class RigAnimationSpecs {
                             if (tridentTip == null) return;
 
                             BlockPos.MutableBlockPos checkPos = BlockPos.containing(tridentTip).mutable();
-                            while (checkPos.getY() > serverLevel.getMinBuildHeight() && !serverLevel.getBlockState(checkPos).isSolidRender(serverLevel, checkPos)) checkPos.move(0, -1, 0);
-                            if (!serverLevel.getBlockState(checkPos).isSolidRender(serverLevel, checkPos)) return;
+                            while (checkPos.getY() > serverLevel.getMinY() && !serverLevel.getBlockState(checkPos).isSolidRender()) checkPos.move(0, -1, 0);
+                            if (!serverLevel.getBlockState(checkPos).isSolidRender()) return;
 
                             TridentLightningBolt lightningBolt = new TridentLightningBolt(AnnoyingVillagersModEntities.TRIDENT_LIGHTNING_BOLT.get(), serverLevel);
                             lightningBolt.setOwner(mob);
-                            lightningBolt.moveTo(checkPos.getX() + 0.5D, checkPos.getY() + 1.0D, checkPos.getZ() + 0.5D);
+                            lightningBolt.snapTo(checkPos.getX() + 0.5D, checkPos.getY() + 1.0D, checkPos.getZ() + 0.5D);
                             serverLevel.addFreshEntity(lightningBolt);
                         })),
                 RigAttackWindow.of(15, 25, RIGHT_SPEAR)));
@@ -1076,7 +1076,7 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ATTACK5, 41, false,
                 List.of(
                         RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
-                            mob.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 40, 2, false, false, false));
+                            mob.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 40, 2, false, false, false));
                             CommonUtil.stunImmunity(mob, 30, 10);
                         }),
                         groundSlamTimedHook(14, RigAnimationId.LEGENDARY_SWORD_ATTACK5, 1.5D, 0.7D, 35, 0.7D, 2.5D),
@@ -1242,7 +1242,7 @@ public final class RigAnimationSpecs {
                             if (mob.onGround()) return;
                             Vec3 motion = mob.getDeltaMovement();
                             mob.setDeltaMovement(motion.x,Math.min(motion.y,-0.6D),motion.z);
-                            mob.hasImpulse = true;
+                            mob.hurtMarked = true;
                             mob.hurtMarked = true;
                         }), groundSlamTimedHook(13,RigAnimationId.GLAIVE_HEROBRINE_JUMP_ATTACK,1.4D,0.8D,45,0.7D,2.5D)),
                         RigAttackWindow.of(1,5,RIGHT_GLAIVE),
@@ -2017,7 +2017,7 @@ public final class RigAnimationSpecs {
 
                         Vec3 currentMotion = mob.getDeltaMovement();
                         mob.setDeltaMovement(dash.x, currentMotion.y, dash.z);
-                        mob.hasImpulse = true;
+                        mob.hurtMarked = true;
                         mob.hurtMarked = true;
                     }
                 };
@@ -2040,20 +2040,20 @@ public final class RigAnimationSpecs {
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
         if (!(mob.getMainHandItem().getItem() instanceof BlueDemonTridentItem)) return;
 
-        double forwardOffset = serverLevel.random.nextFloat() * 2.0F - 1.0F;
+        double forwardOffset = serverLevel.getRandom().nextFloat() * 2.0F - 1.0F;
         Vec3 effectPos = RigPoseUtil.getPartPosition(mob, animationId, tick, part, Vec3.ZERO, forwardOffset, 0.0D);
         if (effectPos == null) return;
 
         BlueDemonUtil.spawnBlueDemonEffect(serverLevel, mob, effectPos, 1, 0.0D, 0.0D, 0.0D, 0.0D);
-        float volume = (float)Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
-        float pitch = (float)Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
+        float volume = (float)Mth.nextDouble(serverLevel.getRandom(), 0.05D, 0.5D);
+        float pitch = (float)Mth.nextDouble(serverLevel.getRandom(), 0.8D, 1.1D);
         serverLevel.playSound(null, BlockPos.containing(effectPos), AnnoyingVillagersModSounds.ELECTRIFY.get(), SoundSource.NEUTRAL, volume, pitch);
     }
 
     private static RigAnimationSpec.RigTimedAnimationHook blueDemonSpinHook(int tick) {
         return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {
             if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-            serverLevel.playSound(null, mob.blockPosition(), SoundEvents.TRIDENT_RETURN, SoundSource.NEUTRAL, 0.5F, 1.0F + serverLevel.random.nextFloat() * 0.2F);
+            serverLevel.playSound(null, mob.blockPosition(), SoundEvents.TRIDENT_RETURN, SoundSource.NEUTRAL, 0.5F, 1.0F + serverLevel.getRandom().nextFloat() * 0.2F);
         });
     }
 

@@ -48,7 +48,7 @@ public final class RigAnimationController {
         if (baseSpec.damagesTarget()) {
             throw new IllegalArgumentException("Held rig poses must be non-damaging: " + animationId);
         }
-        if (RigStunController.isStunned(mob) || mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) {
+        if (RigStunController.isStunned(mob) || mob.level().isClientSide() || !mob.isAlive() || mob.isRemoved()) {
             return;
         }
 
@@ -62,7 +62,7 @@ public final class RigAnimationController {
     }
 
     public static void stop(Mob mob, RigAnimationId animationId) {
-        if (animationId == null || mob.level().isClientSide) {
+        if (animationId == null || mob.level().isClientSide()) {
             return;
         }
 
@@ -78,18 +78,18 @@ public final class RigAnimationController {
 
     public static void play(Mob mob, RigAnimationSpec spec, LivingEntity target) {
         if (isInvulnerable(mob) && RigStunController.isStunAnimation(spec.animationId())) return;
-        if (RigStunController.isStunned(mob) || mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
+        if (RigStunController.isStunned(mob) || mob.level().isClientSide() || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
         playNow(mob, spec, target);
     }
 
     static void playStunAnimation(Mob mob, RigAnimationId animationId) {
         RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
-        if (isInvulnerable(mob) || mob.level().isClientSide || !mob.isAlive() || mob.isRemoved()) return;
+        if (isInvulnerable(mob) || mob.level().isClientSide() || !mob.isAlive() || mob.isRemoved()) return;
         playNow(mob, spec, null);
     }
 
     public static void lockProfileAttacksFor(Mob mob, int ticks) {
-        if (mob.level().isClientSide || !(mob instanceof LockableRigAttackAnimation lockable) || ticks <= 0) return;
+        if (mob.level().isClientSide() || !(mob instanceof LockableRigAttackAnimation lockable) || ticks <= 0) return;
         lockable.lock();
         new DelayedTask(ticks) {
             @Override
@@ -108,7 +108,7 @@ public final class RigAnimationController {
     }
 
     private static void playNow(Mob mob, RigAnimationSpec spec, LivingEntity target) {
-        if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
+        if (mob.level().isClientSide() || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
         if (mob instanceof com.pla.annoyingvillagers.clazz.AVNpc npc
                 && net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(
                 new com.pla.annoyingvillagers.event.AVNpcRigAnimationEvent(npc, spec, target)).isCanceled()) return;
@@ -396,7 +396,7 @@ public final class RigAnimationController {
     }
 
     private static float randomPitch(Entity entity, float basePitch, float variance) {
-        return basePitch + (entity.level().random.nextFloat() * 2.0F - 1.0F) * variance;
+        return basePitch + (entity.level().getRandom().nextFloat() * 2.0F - 1.0F) * variance;
     }
 
     private static void playSound(Entity entity, SoundEvent sound, float volume, float pitch) {
@@ -432,10 +432,11 @@ public final class RigAnimationController {
     }
 
     private static boolean hurtTarget(Mob mob, LivingEntity target, RigAnimationSpec spec, boolean critical, boolean forceDamageThroughHurtCooldown) {
+        if (!(mob.level() instanceof ServerLevel serverLevel)) return false;
         RigDamageContext.push(mob, target, spec.damageMultiplier(), critical);
         try {
             if (!forceDamageThroughHurtCooldown) {
-                boolean hurt = mob.doHurtTarget(target);
+                boolean hurt = mob.doHurtTarget(serverLevel, target);
                 if (hurt) spawnHitParticle(mob, target);
                 return hurt;
             }
@@ -443,7 +444,7 @@ public final class RigAnimationController {
             int previousInvulnerableTime = target.invulnerableTime;
             target.invulnerableTime = 0;
             try {
-                boolean hurt = mob.doHurtTarget(target);
+                boolean hurt = mob.doHurtTarget(serverLevel, target);
                 if (hurt) spawnHitParticle(mob, target);
                 return hurt;
             } finally {
@@ -493,7 +494,7 @@ public final class RigAnimationController {
                         mob.fallDistance = 0.0F;
                     }
                     mob.move(MoverType.SELF, delta);
-                    mob.hasImpulse = true;
+                    mob.hurtMarked = true;
                     mob.hurtMarked = true;
                 }
             };

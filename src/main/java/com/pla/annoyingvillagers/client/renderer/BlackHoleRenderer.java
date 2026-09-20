@@ -4,14 +4,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.BlackHoleEntity;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
@@ -20,9 +23,9 @@ import org.joml.Matrix4f;
 
 import java.util.Random;
 
-public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
-    private static final ResourceLocation RAY_TEXTURE = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/black_hole/ray.png");
-    private static final ResourceLocation CENTRE_TEXTURE = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/black_hole/centre.png");
+public class BlackHoleRenderer extends LegacyEntityRenderer<BlackHoleEntity> {
+    private static final Identifier RAY_TEXTURE = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/black_hole/ray.png");
+    private static final Identifier CENTRE_TEXTURE = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/black_hole/centre.png");
     private static final RenderType RAY_RENDER_TYPE = BlackHoleRenderTypes.darkness(RAY_TEXTURE);
     private static final RenderType CENTRE_RENDER_TYPE = BlackHoleRenderTypes.darkness(CENTRE_TEXTURE);
     private static final int RAY_COUNT = 30;
@@ -34,7 +37,11 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
     }
 
     @Override
-    public void render(@NotNull BlackHoleEntity entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+    public void submit(LegacyEntityRenderState<BlackHoleEntity> state, PoseStack poseStack,
+                       SubmitNodeCollector collector, CameraRenderState camera) {
+        super.submit(state, poseStack, collector, camera);
+        BlackHoleEntity entity = state.entity;
+        float partialTick = state.partialTick;
         float scale = getSmoothScale(entity, partialTick);
         if (scale <= 0.001F) return;
 
@@ -45,20 +52,23 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
             poseStack.pushPose();
             float haloScale = 1.0F + layer * 0.12F;
             poseStack.scale(haloScale, haloScale, haloScale);
-            this.renderRays(entity, partialTick, poseStack, bufferSource, 64);
-            this.renderCentre(poseStack, bufferSource, 64);
+            this.submitRays(entity, partialTick, poseStack, collector, 64);
+            this.submitCentre(poseStack, collector, camera, 64);
             poseStack.popPose();
         }
-        this.renderRays(entity, partialTick, poseStack, bufferSource, 255);
-        this.renderCentre(poseStack, bufferSource, 255);
+        this.submitRays(entity, partialTick, poseStack, collector, 255);
+        this.submitCentre(poseStack, collector, camera, 255);
         poseStack.popPose();
-
-        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    private void renderRays(BlackHoleEntity entity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int alpha) {
-        PoseStack.Pose pose = poseStack.last();
-        VertexConsumer consumer = bufferSource.getBuffer(RAY_RENDER_TYPE);
+    private void submitRays(BlackHoleEntity entity, float partialTick, PoseStack poseStack,
+                            SubmitNodeCollector collector, int alpha) {
+        collector.submitCustomGeometry(poseStack, RAY_RENDER_TYPE,
+                (pose, consumer) -> renderRays(entity, partialTick, pose, consumer, alpha));
+    }
+
+    private void renderRays(BlackHoleEntity entity, float partialTick, PoseStack.Pose pose,
+                            VertexConsumer consumer, int alpha) {
         float age = entity.tickCount + partialTick;
         float radius = 3.0F * entity.getSizeMultiplier();
         Random random = new Random(entity.getUUID().getMostSignificantBits() ^ entity.getUUID().getLeastSignificantBits());
@@ -108,17 +118,17 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
         }
     }
 
-    private void renderCentre(PoseStack poseStack, MultiBufferSource bufferSource, int alpha) {
+    private void submitCentre(PoseStack poseStack, SubmitNodeCollector collector,
+                              CameraRenderState camera, int alpha) {
         poseStack.pushPose();
-        poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
-        PoseStack.Pose pose = poseStack.last();
-        VertexConsumer consumer = bufferSource.getBuffer(CENTRE_RENDER_TYPE);
-        float halfSize = 0.8F;
-
-        vertex(consumer, pose, -halfSize, halfSize, 0.0F, 0.0F, 0.0F, alpha);
-        vertex(consumer, pose, halfSize, halfSize, 0.0F, 1.0F, 0.0F, alpha);
-        vertex(consumer, pose, halfSize, -halfSize, 0.0F, 1.0F, 1.0F, alpha);
-        vertex(consumer, pose, -halfSize, -halfSize, 0.0F, 0.0F, 1.0F, alpha);
+        poseStack.mulPose(camera.orientation);
+        collector.submitCustomGeometry(poseStack, CENTRE_RENDER_TYPE, (pose, consumer) -> {
+            float halfSize = 0.8F;
+            vertex(consumer, pose, -halfSize, halfSize, 0.0F, 0.0F, 0.0F, alpha);
+            vertex(consumer, pose, halfSize, halfSize, 0.0F, 1.0F, 0.0F, alpha);
+            vertex(consumer, pose, halfSize, -halfSize, 0.0F, 1.0F, 1.0F, alpha);
+            vertex(consumer, pose, -halfSize, -halfSize, 0.0F, 0.0F, 1.0F, alpha);
+        });
         poseStack.popPose();
     }
 
@@ -127,7 +137,7 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
                 .setColor(0, 0, 0, alpha)
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(LightTexture.FULL_BRIGHT)
+                .setLight(LightCoordsUtil.FULL_BRIGHT)
                 .setNormal(pose, 0.0F, 1.0F, 0.0F)
                 ;
     }
@@ -149,7 +159,7 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull BlackHoleEntity entity) {
+    public @NotNull Identifier getTextureLocation(@NotNull BlackHoleEntity entity) {
         return RAY_TEXTURE;
     }
 }

@@ -15,7 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -88,19 +88,23 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        wardenCallingCooldown = pCompound.getInt("WardenCallingCooldown");
-        eatCount = pCompound.getInt("EatCount");
-        initialSpawn = pCompound.getBoolean("InitialSpawn");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag pCompound = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        wardenCallingCooldown = pCompound.getIntOr("WardenCallingCooldown", 0);
+        eatCount = pCompound.getIntOr("EatCount", 0);
+        initialSpawn = pCompound.getBooleanOr("InitialSpawn", false);
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag pCompound = new CompoundTag();
+        super.addAdditionalSaveData(output);
         pCompound.putInt("WardenCallingCooldown", wardenCallingCooldown);
         pCompound.putInt("EatCount", eatCount);
         pCompound.putBoolean("InitialSpawn", this.initialSpawn);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, pCompound);
     }
 
             public boolean removeWhenFarAway(double d0) {
@@ -112,15 +116,15 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.hurt"));
     }
 
     @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pSource, float pAmount) {
         if (pSource.getEntity() instanceof AvWarden) {
             eatCount = eatCount + 1;
             playBeingEatenAnimation();
-            if (this.level() instanceof ServerLevel serverLevel) {
+            if (true) {
                 if (this.eatCount == 1) {
                     if (AnnoyingVillagersConfig.TURN_ON_NPC_VOICE.get()) {
                         this.playSound(AnnoyingVillagersModSounds.KNOCKED_ELITE_HEROBRINE_SAY_ON_BEING_EATEN.get(), 0.5F, 1.0F);
@@ -129,7 +133,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
                 serverLevel.playSound(
                         null,
                         BlockPos.containing(this.getX(), this.getY(), this.getZ()),
-                        SoundEvents.GENERIC_EAT,
+                        SoundEvents.GENERIC_EAT.value(),
                         SoundSource.NEUTRAL,
                         1.0F,
                         1.0F
@@ -138,14 +142,14 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
             if (eatCount == 10) {
                 this.remove(RemovalReason.DISCARDED);
             }
-            return super.hurt(pSource, 0.0F);
+            return super.hurtServer(serverLevel, pSource, 0.0F);
         }
         if (pSource.is(DamageTypes.IN_WALL)) return false;
-        return super.hurt(pSource, 1.0F);
+        return super.hurtServer(serverLevel, pSource, 1.0F);
     }
 
     public SoundEvent getDeathSound() {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.death"));
     }
 
     private void solidifyFeetAndStandOnTop() {
@@ -238,12 +242,12 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
                     spawn = spawn.subtract(forward.scale(0.3D));
                 }
 
-                warden.moveTo(spawn.x, this.getY(), spawn.z, this.yBodyRot, 0.0F);
+                warden.snapTo(spawn.x, this.getY(), spawn.z, this.yBodyRot, 0.0F);
                 warden.yBodyRot = this.yBodyRot;
                 warden.setYHeadRot(this.yBodyRot);
 
                 warden.finalizeSpawn(level, level.getCurrentDifficultyAt(this.blockPosition()),
-                        MobSpawnType.MOB_SUMMONED, null);
+                        EntitySpawnReason.MOB_SUMMONED, null);
 
                 warden.setEatingUUID(this.getUUID());
                 level.addFreshEntity(warden);
@@ -254,7 +258,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
     public void die(@NotNull DamageSource damageSource) {
         super.die(damageSource);
         if (this.getPersistentData().contains("FromElite")) {
-            String fromElite = this.getPersistentData().getString("FromElite");
+            String fromElite = this.getPersistentData().getStringOr("FromElite", "");
             HerobrineUtil.dropEliteHerobrineLoot(this.level(), this.getX(), this.getY(), this.getZ(), fromElite);
         }
     }
@@ -284,7 +288,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         SpawnGroupData spawnGroupData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
         if (!pLevel.isClientSide()) {
             int d0 = (int) this.getX();
@@ -305,7 +309,7 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
                 double y = this.getY() + Mth.nextDouble(randomSource, 1.0D, 1.5D);
                 double z = this.getZ() + Mth.nextDouble(randomSource, -1.5D, 1.5D);
                 BlockProjectileEntity blockProjectileEntity = new BlockProjectileEntity(pLevel.getLevel(), this, Blocks.CRYING_OBSIDIAN.defaultBlockState());
-                blockProjectileEntity.moveTo(new Vec3(x, y, z));
+                blockProjectileEntity.snapTo(new Vec3(x, y, z));
                 server.addFreshEntity(blockProjectileEntity);
             }
 
@@ -333,14 +337,14 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
             final Vec3 base = this.position().add(forward.scale(forwardDist));
 
             LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntityLeft = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), pLevel.getLevel());
-            lowShadowHerobrineCloneEntityLeft.moveTo(base.subtract(right.scale(sideDist)));
+            lowShadowHerobrineCloneEntityLeft.snapTo(base.subtract(right.scale(sideDist)));
             equipGearForLowClone(lowShadowHerobrineCloneEntityLeft, true);
             lowShadowHerobrineCloneEntityLeft.setProtectUUID(this.getUUID());
             lowShadowHerobrineCloneEntityLeft.setProtectEntity(this);
             pLevel.getLevel().addFreshEntity(lowShadowHerobrineCloneEntityLeft);
 
             LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntityMiddle = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), pLevel.getLevel());
-            lowShadowHerobrineCloneEntityMiddle.moveTo(base);
+            lowShadowHerobrineCloneEntityMiddle.snapTo(base);
             equipGearForLowClone(lowShadowHerobrineCloneEntityMiddle, false);
             lowShadowHerobrineCloneEntityMiddle.setProtectUUID(this.getUUID());
             lowShadowHerobrineCloneEntityMiddle.setProtectEntity(this);
@@ -349,13 +353,13 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
             pLevel.getLevel().addFreshEntity(lowShadowHerobrineCloneEntityMiddle);
 
             LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntityRight = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), pLevel.getLevel());
-            lowShadowHerobrineCloneEntityRight.moveTo(base.add(right.scale(sideDist)));
+            lowShadowHerobrineCloneEntityRight.snapTo(base.add(right.scale(sideDist)));
             equipGearForLowClone(lowShadowHerobrineCloneEntityRight, true);
             lowShadowHerobrineCloneEntityRight.setProtectUUID(this.getUUID());
             lowShadowHerobrineCloneEntityRight.setProtectEntity(this);
             pLevel.getLevel().addFreshEntity(lowShadowHerobrineCloneEntityRight);
 
-            if (this.getPersistentData().contains("FromElite") && this.getPersistentData().getString("FromElite").equals("DemoniacVoltageReaver")) {
+            if (this.getPersistentData().contains("FromElite") && this.getPersistentData().getStringOr("FromElite", "").equals("DemoniacVoltageReaver")) {
                 ItemEntity itemEntity = new ItemEntity(this.level(), d0 + Mth.nextDouble(randomSource, -5.0D, 5.0D), d1, d2 + Mth.nextDouble(randomSource, -5.0D, 5.0D), new ItemStack(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER_FRAGMENT.get()));
                 itemEntity.setPickUpDelay(10);
                 pLevel.addFreshEntity(itemEntity);

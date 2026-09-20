@@ -12,13 +12,13 @@ import java.util.List;
 public class NullAxeItem extends AxeItem implements RigCombatProfileProvider {
 
     public NullAxeItem() {
-        super(Tiers.DIAMOND, new Item.Properties().attributes(DiggerItem.createAttributes(Tiers.DIAMOND, 5.0F, -3.0F)));
+        super(ToolMaterial.DIAMOND, 5.0F, -3.0F, com.pla.annoyingvillagers.util.LegacyItemProperties.create());
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.null_weapon"));
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.null_weapon"));
     }
 
     @Override

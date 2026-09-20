@@ -30,9 +30,9 @@ public class SamanthaTheKillerAxeItem extends LegacySwordItem implements RigComb
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.IRON_BLOCK));
+                return Ingredient.of(Items.IRON_BLOCK);
             }
-        }, 3, -2.3F, (new Properties()));
+        }, 3, -2.3F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

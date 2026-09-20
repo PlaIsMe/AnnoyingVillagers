@@ -18,7 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
@@ -213,11 +213,11 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.death")));
     }
 
     @Override
@@ -225,11 +225,11 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
         return true;
     }
 
-    public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        if (damageSource.is(DamageTypes.FALL)) return super.hurt(damageSource, f);
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
+        if (damageSource.is(DamageTypes.FALL)) return super.hurtServer(serverLevel, damageSource, f);
         if (sacrificing || healing) {
             if (new Random().nextBoolean()
-                    && this.level() instanceof ServerLevel serverLevel) {
+                    && true) {
                 CommonUtil.damageBlocked(damageSource, this, serverLevel);
                 return false;
             } else {
@@ -238,10 +238,10 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                     protectEntity = null;
                     protectUUID = null;
                     autoKill = true;
-                    this.kill();
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                     return false;
                 } else {
-                    return super.hurt(damageSource, f);
+                    return super.hurtServer(serverLevel, damageSource, f);
                 }
             }
         }
@@ -258,10 +258,10 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
             this.healing = false;
             this.sacrificing = false;
             this.forEscaping = false;
-            this.kill();
+            com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
             return false;
         } else {
-            return super.hurt(damageSource, f);
+            return super.hurtServer(serverLevel, damageSource, f);
         }
     }
 
@@ -270,8 +270,8 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
         if (this.level() instanceof ServerLevel serverLevel) {
             if (!autoKill) {
                 InfectedPlayerNpcEntity corpse = new InfectedPlayerNpcEntity(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), serverLevel);
-                corpse.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-                String killedName = this.getPersistentData().getString("killed_name");
+                corpse.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+                String killedName = this.getPersistentData().getStringOr("killed_name", "");
                 corpse.getPersistentData().putString("possessed_by", "low_shadow_herobrine_clone");
                 if (killedName.isEmpty()) {
                     killedName = FakePlayer.getRandomHardcodedName(this.getRandom());
@@ -279,7 +279,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                 corpse.setUsername(killedName);
                 corpse.setCustomName(Component.literal(killedName));
                 corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                        MobSpawnType.MOB_SUMMONED, null);
+                        EntitySpawnReason.MOB_SUMMONED, null);
                 this.setInvisible(true);
                 this.remove(RemovalReason.KILLED);
                 corpse.setItemSlot(EquipmentSlot.HEAD, this.getItemBySlot(EquipmentSlot.HEAD).copy());
@@ -289,7 +289,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                 serverLevel.addFreshEntity(corpse);
             } else {
                 if (this.healing || this.sacrificing) {
-                    this.kill();
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                 }
             }
 
@@ -309,8 +309,8 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
-        if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
+        if (mobSpawnType == EntitySpawnReason.NATURAL || mobSpawnType == EntitySpawnReason.CHUNK_GENERATION) {
             ServerLevel serverLevel = serverLevelAccessor.getLevel();
             HerobrineMobData herobrineMobData = HerobrineMobData.get(serverLevel);
 
@@ -322,7 +322,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
             BlockPos blockPos = this.getOnPos();
             int surfaceY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, blockPos).getY();
             BlockPos spawnPos = new BlockPos(blockPos.getX(), surfaceY, blockPos.getZ());
-            this.moveTo(spawnPos, this.getYRot(), this.getXRot());
+            this.snapTo(spawnPos, this.getYRot(), this.getXRot());
         }
         HerobrineUtil.initialSpawn(serverLevelAccessor, this, 0, mobSpawnType);
         return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
@@ -354,7 +354,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
     @Override
     public void tick() {
         super.tick();
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (this.tickCount == 1) {
                 if (this.renderPortal) {
                     ClientboundHerobrinePortalFx.sendToNearby(this, this.getOnPos().getCenter().add(0.0, 1.5, 0.0));
@@ -392,7 +392,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                 protectEntity = null;
                 protectUUID = null;
                 autoKill = true;
-                this.kill();
+                com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
             }
 
             if (possessedByEntity == null && possessedByUuid != null) {
@@ -428,13 +428,13 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                         possessedByEntity = null;
                         possessedByUuid = null;
                         autoKill = true;
-                        this.kill();
+                        com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                     }
                 } else {
                     possessedByEntity = null;
                     possessedByUuid = null;
                     autoKill = true;
-                    this.kill();
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                 }
             }
             if (this.sacrificing || this.healing) {
@@ -442,7 +442,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                     this.sacrificing = false;
                     this.healing = false;
                     autoKill = true;
-                    this.kill();
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                 }
                 CommonUtil.stunImmunity(this, 3, 3);
                 playAssistanceOrSacrificingAnimation();
@@ -454,13 +454,13 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                         this.sacrificing = false;
                         this.healing = false;
                         autoKill = true;
-                        this.kill();
+                        com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                     }
                     if (this.getHealth() <= 4) {
                         this.sacrificing = false;
                         this.healing = false;
                         autoKill = true;
-                        this.kill();
+                        com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                     } else {
                         this.setHealth(this.getHealth() - 2.0F);
                     }
@@ -527,14 +527,14 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
                     this.sacrificing = false;
                     this.healing = false;
                     autoKill = true;
-                    this.kill();
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                 }
             }
             if (this.forEscaping) {
                 if (this.getHealth() <= 2) {
                     this.forEscaping = false;
                     autoKill = true;
-                    this.kill();
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                 }
 
                 CommonUtil.stunImmunity(this,3,3);
@@ -654,53 +654,57 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
         super.baseTick();
     }
 
-    public static boolean canSpawn(EntityType<LowShadowHerobrineCloneEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
+    public static boolean canSpawn(EntityType<LowShadowHerobrineCloneEntity> entityType, ServerLevelAccessor level, EntitySpawnReason spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
         if (HerobrineMobData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
         }
-        if (!serverLevel.isNight()) {
+        if (!com.pla.annoyingvillagers.util.LegacyLevelTime.isNight(serverLevel)) {
             return false;
         }
         return ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM) && Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        summoned = pCompound.getBoolean("Summoned");
-        renderPortal = pCompound.getBoolean("RenderPortal");
-        initialSpawn = pCompound.getBoolean("InitialSpawn");
-        autoKill = pCompound.getBoolean("AutoKill");
-        if (pCompound.hasUUID("ProtectUUID")) {
-            protectUUID = pCompound.getUUID("ProtectUUID");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag pCompound = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        summoned = pCompound.getBooleanOr("Summoned", false);
+        renderPortal = pCompound.getBooleanOr("RenderPortal", false);
+        initialSpawn = pCompound.getBooleanOr("InitialSpawn", false);
+        autoKill = pCompound.getBooleanOr("AutoKill", false);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(pCompound, "ProtectUUID")) {
+            protectUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(pCompound, "ProtectUUID");
         }
-        if (pCompound.hasUUID("PossessedByUuid")) {
-            possessedByUuid = pCompound.getUUID("PossessedByUuid");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(pCompound, "PossessedByUuid")) {
+            possessedByUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(pCompound, "PossessedByUuid");
         }
-        bound = pCompound.getBoolean("Bound");
-        sacrificing = pCompound.getBoolean("Sacrificing");
-        healing = pCompound.getBoolean("Healing");
-        forEscaping = pCompound.getBoolean("ForEscaping");
+        bound = pCompound.getBooleanOr("Bound", false);
+        sacrificing = pCompound.getBooleanOr("Sacrificing", false);
+        healing = pCompound.getBooleanOr("Healing", false);
+        forEscaping = pCompound.getBooleanOr("ForEscaping", false);
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag pCompound = new CompoundTag();
+        super.addAdditionalSaveData(output);
         pCompound.putBoolean("Summoned", summoned);
         pCompound.putBoolean("RenderPortal", renderPortal);
         pCompound.putBoolean("InitialSpawn", initialSpawn);
         pCompound.putBoolean("AutoKill", autoKill);
         if (protectUUID != null) {
-            pCompound.putUUID("ProtectUUID", protectUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(pCompound, "ProtectUUID", protectUUID);
         }
         if (possessedByUuid != null) {
-            pCompound.putUUID("PossessedByUuid", possessedByUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(pCompound, "PossessedByUuid", possessedByUuid);
         }
         pCompound.putBoolean("Bound", bound);
         pCompound.putBoolean("Sacrificing", sacrificing);
         pCompound.putBoolean("Healing", healing);
         pCompound.putBoolean("ForEscaping", forEscaping);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, pCompound);
     }
 
     public static Builder createAttributes() {

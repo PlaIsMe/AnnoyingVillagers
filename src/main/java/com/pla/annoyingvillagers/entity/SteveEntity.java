@@ -14,7 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -144,11 +144,11 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.generic.death"));
     }
 
     @Override
@@ -179,14 +179,14 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
 
                 AngrySteveEntity angrySteveEntity = new AngrySteveEntity(AnnoyingVillagersModEntities.ANGRY_STEVE.get(), serverLevel);
 
-                angrySteveEntity.moveTo(this.blockPosition(), this.getYRot(), this.getXRot());
+                angrySteveEntity.snapTo(this.blockPosition(), this.getYRot(), this.getXRot());
                 InventoryUtils.transferInventory(this.getInventory(), angrySteveEntity.getInventory());
                 com.pla.annoyingvillagers.util.RemoteNpcDeparture.copy(this, angrySteveEntity);
                 this.discard();
                 SteveData steveData = SteveData.get(serverLevel);
                 steveData.forceClaim(serverLevel, angrySteveEntity.getUUID());
 
-                angrySteveEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(angrySteveEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, (SpawnGroupData) null);
+                angrySteveEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(angrySteveEntity.blockPosition()), EntitySpawnReason.MOB_SUMMONED, (SpawnGroupData) null);
                 serverLevel.addFreshEntity(angrySteveEntity);
                 if (target != null) {
                     angrySteveEntity.setTarget(target);
@@ -351,19 +351,23 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         tag.putInt("State", this.state);
         tag.putInt("SwapWeaponCooldown", this.swapWeaponCooldown);
         tag.putBoolean("SayLegendary", sayLegendary);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        this.state = tag.getInt("State");
-        this.swapWeaponCooldown = tag.getInt("SwapWeaponCooldown");
-        this.sayLegendary = tag.getBoolean("SayLegendary");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        this.state = tag.getIntOr("State", 0);
+        this.swapWeaponCooldown = tag.getIntOr("SwapWeaponCooldown", 0);
+        this.sayLegendary = tag.getBooleanOr("SayLegendary", false);
     }
 
     public void rollItem() {
@@ -509,13 +513,13 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+    protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
         if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            super.actuallyHurt(pDamageSource, pDamageAmount);
+            super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }
 
-        if (this.isInvulnerableTo(pDamageSource)) {
+        if (this.isInvulnerableTo(serverLevel, pDamageSource)) {
             return;
         }
         if (pDamageAmount <= 0.0F) {
@@ -539,7 +543,7 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
 
-        if (this.level() instanceof ServerLevel serverLevel
+        if (true
                 && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {
             return;
         }
@@ -553,11 +557,11 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         this.gameEvent(GameEvent.ENTITY_DAMAGE);
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
         ServerLevel serverLevel = serverLevelAccessor.getLevel();
-        if (mobSpawnType == MobSpawnType.SPAWN_EGG) {
+        if (mobSpawnType == EntitySpawnReason.SPAWN_ITEM_USE) {
             PersistentPlayerNpcManager.replaceIdentityForSpawnEgg(serverLevel.getServer(), "Steve");
-        } else if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
+        } else if (mobSpawnType == EntitySpawnReason.NATURAL || mobSpawnType == EntitySpawnReason.CHUNK_GENERATION) {
             SteveData steveData = SteveData.get(serverLevel);
 
             if (!steveData.tryClaim(serverLevel, this.getUUID())) {
@@ -571,7 +575,7 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
         return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata);
     }
 
-    public static boolean canSpawn(EntityType<SteveEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
+    public static boolean canSpawn(EntityType<SteveEntity> entityType, ServerLevelAccessor level, EntitySpawnReason spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
         if (SteveData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
@@ -582,7 +586,7 @@ public class SteveEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     @Override
     public void remove(@NotNull RemovalReason reason) {
         super.remove(reason);
-        if (!level().isClientSide && level() instanceof ServerLevel serverLevel &&
+        if (!level().isClientSide() && level() instanceof ServerLevel serverLevel &&
                 (reason == RemovalReason.KILLED || reason == RemovalReason.DISCARDED)) {
             SteveData.get(serverLevel).releaseIfMatches(serverLevel, this.getUUID());
         }

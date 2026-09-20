@@ -6,11 +6,10 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.network.ClientboundBetterCombatAnimation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import punchy.client.animation.PunchyAnimationManager;
 import punchy.client.animation.data.AnimationClip;
 import punchy.config.PunchyConfig;
@@ -19,9 +18,8 @@ import java.io.IOException;
 import java.io.Reader;
 
 /** Loaded only when Punchy is installed; ability packets bypass its ordinary BC attack events. */
-@OnlyIn(Dist.CLIENT)
 public final class PunchyClientCompat {
-    private static final ResourceLocation ABILITY_ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier ABILITY_ANIMATIONS = Identifier.fromNamespaceAndPath(
             "minecraft", "punchy/annoyingvillagers/bettercombat_abilities.json");
     private static PendingAbility pending;
     private static boolean reportedFailure;

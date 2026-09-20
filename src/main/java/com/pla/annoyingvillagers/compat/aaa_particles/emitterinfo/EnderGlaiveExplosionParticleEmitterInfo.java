@@ -6,7 +6,7 @@ import mod.chloeprime.aaaparticles.api.client.EffectRegistry;
 import mod.chloeprime.aaaparticles.api.client.effekseer.ParticleEmitter;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
 import mod.chloeprime.aaaparticles.client.installer.NativePlatform;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -22,7 +22,7 @@ public class EnderGlaiveExplosionParticleEmitterInfo extends ParticleEmitterInfo
     private Vec3 from = null;
     private Vec3 to   = null;
 
-    public EnderGlaiveExplosionParticleEmitterInfo(ResourceLocation resourceLocation) {
+    public EnderGlaiveExplosionParticleEmitterInfo(Identifier resourceLocation) {
         super(resourceLocation);
     }
 

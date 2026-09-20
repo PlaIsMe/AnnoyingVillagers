@@ -6,6 +6,6 @@ import net.minecraft.world.item.Rarity;
 public class EliteObsidianBodyItem extends Item {
 
     public EliteObsidianBodyItem() {
-        super((new Properties()).stacksTo(64).rarity(Rarity.COMMON));
+        super((com.pla.annoyingvillagers.util.LegacyItemProperties.create()).stacksTo(64).rarity(Rarity.COMMON));
     }
 }

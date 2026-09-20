@@ -11,11 +11,11 @@ import net.minecraft.world.level.Level;
 public class DemoniacVoltageReaverFragmentItem extends Item {
 
     public DemoniacVoltageReaverFragmentItem() {
-        super((new Properties()).stacksTo(64).rarity(Rarity.COMMON));
+        super((com.pla.annoyingvillagers.util.LegacyItemProperties.create()).stacksTo(64).rarity(Rarity.COMMON));
     }
 
-    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, List<Component> list, TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.demoniac_voltage_reaver_fragment"));
+    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.demoniac_voltage_reaver_fragment"));
     }
 }

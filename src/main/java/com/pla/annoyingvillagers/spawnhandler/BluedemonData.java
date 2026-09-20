@@ -17,24 +17,22 @@ public class BluedemonData extends SavedData {
     private static final long COOLDOWN_TICKS = 20L * 60L * 10L;
 
     public static BluedemonData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(BluedemonData::new, (tag, provider) -> BluedemonData.load(tag)), ID);
+        return com.pla.annoyingvillagers.util.LegacySavedData.computeIfAbsent(serverLevel.getDataStorage(), ID, BluedemonData::new, BluedemonData::load, (value, provider) -> value.save(new CompoundTag(), provider));
     }
 
     public static BluedemonData load(CompoundTag compoundTag) {
         BluedemonData bluedemonData = new BluedemonData();
-        if (compoundTag.hasUUID("activeId")) {
-            bluedemonData.activeId = compoundTag.getUUID("activeId");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(compoundTag, "activeId")) {
+            bluedemonData.activeId = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(compoundTag, "activeId");
         }
-        if (compoundTag.contains("claimTick", Tag.TAG_LONG)) {
-            bluedemonData.claimTick = compoundTag.getLong("claimTick");
+        if (compoundTag.contains("claimTick")) {
+            bluedemonData.claimTick = compoundTag.getLongOr("claimTick", 0L);
         }
         return bluedemonData;
     }
-
-    @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null) {
-            compoundTag.putUUID("activeId", activeId);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(compoundTag, "activeId", activeId);
         }
         compoundTag.putLong("claimTick", claimTick);
         return compoundTag;

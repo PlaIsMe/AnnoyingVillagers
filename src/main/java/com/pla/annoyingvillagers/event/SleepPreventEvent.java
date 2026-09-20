@@ -36,7 +36,7 @@ public class SleepPreventEvent {
             if (entity instanceof HerobrineGregEntity herobrineGregEntity
                     && herobrineGregEntity.isAlive() && herobrineGregEntity.getSummonTimestamp() >= 0) {
                 event.setProblem(Player.BedSleepingProblem.OTHER_PROBLEM);
-                event.getEntity().displayClientMessage(
+                com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(event.getEntity(), 
                         Component.literal("Herobrine is preparing to invade near x: " + herobrineGregEntity.getOnPos().getX() +
                                  " y: " + herobrineGregEntity.getOnPos().getY() + " z: " + herobrineGregEntity.getOnPos().getZ() + ". You cannot sleep now!").withStyle(ChatFormatting.RED),
                         false

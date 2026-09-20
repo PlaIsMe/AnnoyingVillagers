@@ -10,7 +10,8 @@ import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.mixin.client.SnakeAttachmentGameRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.HumanoidArm;
@@ -19,7 +20,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
@@ -82,9 +83,11 @@ public final class BetterCombatSnakeAttachment {
             if (!samplingHand) return;
             // The ordinary hand pass uses a different FOV from the world pass.
             Minecraft mc = Minecraft.getInstance();
-            var accessor = (SnakeAttachmentGameRendererAccessor) mc.gameRenderer;
-            Matrix4f handProjection = mc.gameRenderer.getProjectionMatrix(
-                    accessor.av$handFov(mc.gameRenderer.getMainCamera(), mc.getTimer().getGameTimeDeltaPartialTick(false), false));
+            float handFov = mc.gameRenderer.getGameRenderState()
+                    .levelRenderState.cameraRenderState.hudFov;
+            float aspect = (float) mc.getWindow().getWidth() / (float) mc.getWindow().getHeight();
+            Matrix4f handProjection = new Matrix4f().perspective(
+                    handFov * Mth.DEG_TO_RAD, aspect, 0.05F, 1000.0F);
             new Matrix4f(WORLD_PROJECTION).invert().mul(handProjection).transformProject(socket);
             // First-person items are rendered in view space. Third-person
             // entity items are already world-oriented in their local PoseStack.
@@ -105,10 +108,10 @@ public final class BetterCombatSnakeAttachment {
     }
 
     @SubscribeEvent
-    public static void afterEntities(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES || PENDING.isEmpty()) return;
+    public static void afterEntities(SubmitCustomGeometryEvent event) {
+        if (PENDING.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
+        float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         // Better Combat's punch supplies a third-person-model socket even in first person.
         // After the animation fades, sample the normal hand transforms without drawing them.
         if (mc.player != null && mc.options.getCameraType().isFirstPerson()
@@ -117,12 +120,14 @@ public final class BetterCombatSnakeAttachment {
                 && PENDING.stream().anyMatch(p -> p.snake.getRenderFromEntity() == mc.player)) {
             PoseStack handPose = new PoseStack();
             var accessor = (SnakeAttachmentGameRendererAccessor) mc.gameRenderer;
-            accessor.av$bobHurt(handPose, partialTick);
-            if (mc.options.bobView().get()) accessor.av$bobView(handPose, partialTick);
+            var cameraState = mc.gameRenderer.getGameRenderState()
+                    .levelRenderState.cameraRenderState;
+            accessor.av$bobHurt(cameraState, handPose);
+            if (mc.options.bobView().get()) accessor.av$bobView(cameraState, handPose);
             samplingHand = true;
             try {
                 mc.gameRenderer.itemInHandRenderer.renderHandsWithItems(partialTick, handPose,
-                        SamplingBuffer.INSTANCE, mc.player,
+                        SamplingCollector.INSTANCE, mc.player,
                         mc.getEntityRenderDispatcher().getPackedLightCoords(mc.player, partialTick));
             } finally {
                 samplingHand = false;
@@ -140,8 +145,8 @@ public final class BetterCombatSnakeAttachment {
                     pose.translate(Mth.lerp(pending.partialTick, snake.xo, snake.getX()) - cameraPosition.x,
                             Mth.lerp(pending.partialTick, snake.yo, snake.getY()) - cameraPosition.y,
                             Mth.lerp(pending.partialTick, snake.zo, snake.getZ()) - cameraPosition.z);
-                    pending.renderer.render(snake, pending.yaw, pending.partialTick, pose,
-                            mc.renderBuffers().bufferSource(), pending.light);
+                    pending.renderer.submitGeometry(snake, pending.partialTick, pose,
+                            event.getSubmitNodeCollector());
                 } finally {
                     pose.popPose();
                 }
@@ -156,21 +161,7 @@ public final class BetterCombatSnakeAttachment {
                                 float partialTick, int light) {}
 
     /** Transform-only sampling must never flush the world's buffers or submit duplicate geometry. */
-    private static final class SamplingBuffer extends MultiBufferSource.BufferSource {
-        private static final SamplingBuffer INSTANCE = new SamplingBuffer();
-        private static final VertexConsumer DISCARD = new VertexConsumer() {
-            public VertexConsumer addVertex(float x, float y, float z) { return this; }
-            public VertexConsumer setColor(int r, int g, int b, int a) { return this; }
-            public VertexConsumer setUv(float u, float v) { return this; }
-            public VertexConsumer setUv1(int u, int v) { return this; }
-            public VertexConsumer setUv2(int u, int v) { return this; }
-            public VertexConsumer setNormal(float x, float y, float z) { return this; }
-        };
-
-        private SamplingBuffer() { super(new ByteBufferBuilder(256), new LinkedHashMap<>()); }
-        @Override public VertexConsumer getBuffer(RenderType type) { return DISCARD; }
-        @Override public void endBatch() {}
-        @Override public void endBatch(RenderType type) {}
-        @Override public void endLastBatch() {}
+    private static final class SamplingCollector {
+        private static final SubmitNodeStorage INSTANCE = new SubmitNodeStorage();
     }
 }

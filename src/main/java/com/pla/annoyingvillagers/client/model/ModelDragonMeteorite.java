@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.client.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import net.minecraft.client.model.EntityModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -12,16 +12,17 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
-public class ModelDragonMeteorite<T extends Entity> extends EntityModel<T> {
+public class ModelDragonMeteorite<T extends Entity> extends LegacyHierarchicalModel<T> {
 
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modeldragonmeteorite"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modeldragonmeteorite"), "main");
     public final ModelPart bone;
 
     public ModelDragonMeteorite(ModelPart modelpart) {
+        super(modelpart);
         this.bone = modelpart.getChild("bone");
     }
 
@@ -33,7 +34,7 @@ public class ModelDragonMeteorite<T extends Entity> extends EntityModel<T> {
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
 
-    public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int i, int j, int color) {
+    public void renderLegacy(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int i, int j, int color) {
         this.bone.render(poseStack, vertexConsumer, i, j, color);
     }
 

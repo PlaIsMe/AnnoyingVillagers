@@ -1,14 +1,7 @@
 package com.pla.annoyingvillagers.client.trail;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.animation.RigClientAnimationState;
 import com.pla.annoyingvillagers.client.animation.SpecialClientAnimationState;
@@ -32,8 +25,9 @@ import com.pla.annoyingvillagers.specialanimation.SpecialAttackWindow;
 import com.pla.annoyingvillagers.specialanimation.SpecialCollider;
 import com.pla.annoyingvillagers.specialanimation.pose.SpecialPoseSampler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
@@ -41,7 +35,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -61,8 +55,8 @@ import java.util.Set;
 
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class RigSwordTrailManager {
-    private static final ResourceLocation SOLID_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/particle/swing_trail.png");
+    private static final Identifier SOLID_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/particle/swing_trail.png");
     private static final Map<TrailKey, TrailState> STATES = new HashMap<>();
 
     // A normal rig movement should be much smaller than this in one client tick. A moveTo/
@@ -78,7 +72,6 @@ public final class RigSwordTrailManager {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
-        if (false) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) {
             STATES.clear();
@@ -106,7 +99,7 @@ public final class RigSwordTrailManager {
                 ItemStack visual = RigItemVisualResolver.resolve(mob, original, arm == HumanoidArm.LEFT);
                 if (visual.isEmpty()) continue;
                 RigSwordTrailDefinition definition = RigSwordTrailReloadListener.INSTANCE.get(visual);
-                ResourceLocation itemId = RigSwordTrailReloadListener.INSTANCE.getItemId(visual);
+                Identifier itemId = RigSwordTrailReloadListener.INSTANCE.getItemId(visual);
                 if (definition == null) {
                     definition = RigSwordTrailReloadListener.INSTANCE.get(original);
                     itemId = RigSwordTrailReloadListener.INSTANCE.getItemId(original);
@@ -142,7 +135,7 @@ public final class RigSwordTrailManager {
                 ItemStack stack = stackForArm(golem, arm);
                 if (stack.isEmpty()) continue;
                 RigSwordTrailDefinition definition = RigSwordTrailReloadListener.INSTANCE.get(stack);
-                ResourceLocation itemId = RigSwordTrailReloadListener.INSTANCE.getItemId(stack);
+                Identifier itemId = RigSwordTrailReloadListener.INSTANCE.getItemId(stack);
                 if (definition == null || itemId == null) continue;
 
                 TrailKey key = new TrailKey(golem.getId(), arm, trailWindow.windowIndex() + 1);
@@ -160,71 +153,36 @@ public final class RigSwordTrailManager {
     }
 
     @SubscribeEvent
-    public static void onRenderLevel(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES || STATES.isEmpty()) return;
+    public static void onRenderLevel(SubmitCustomGeometryEvent event) {
+        if (STATES.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
         PoseStack poseStack = event.getPoseStack();
-        Vec3 camera = event.getCamera().getPosition();
+        Vec3 camera = mc.gameRenderer.getMainCamera().position();
         poseStack.pushPose();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
-        Matrix4f matrix = poseStack.last().pose();
-
-        try {
-            // Solid body first. Every glow pass below reads the exact same TrailEdge list.
-            float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
-            drawBatch(matrix, partialTick, false, 1.0F, BODY_ALPHA);
-            for (int i = 0; i < GLOW_SCALES.length; i++) {
-                drawBatch(matrix, partialTick, true, GLOW_SCALES[i], GLOW_ALPHAS[i]);
-            }
-        } finally {
-            restoreRenderState();
-            poseStack.popPose();
+        float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        drawBatch(event.getSubmitNodeCollector(), poseStack, partialTick, false, 1.0F, BODY_ALPHA);
+        for (int i = 0; i < GLOW_SCALES.length; i++) {
+            drawBatch(event.getSubmitNodeCollector(), poseStack, partialTick, true, GLOW_SCALES[i], GLOW_ALPHAS[i]);
         }
+        poseStack.popPose();
     }
 
-    private static void drawBatch(Matrix4f matrix, float partialTick, boolean glow, float widthScale, float passAlpha) {
-        Tesselator tesselator = Tesselator.getInstance();
-
-        RenderSystem.disableCull();
-        RenderSystem.enableBlend();
-        RenderSystem.depthMask(false);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        // This renderer runs during the level render stage, outside Minecraft's
-        // particle batch. The particle shader samples a lightmap texture which
-        // is not guaranteed to be bound here, turning every vertex tint black.
-        // The trail is intentionally full-bright, so render its texture and the
-        // JSON-defined vertex color directly without a lightmap dependency.
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.setShaderTexture(0, SOLID_TEXTURE);
-
-        if (glow) {
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
-        } else {
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        }
-
-        BufferBuilder builder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        for (TrailState state : STATES.values()) {
-            if (state.edges.size() < 2 || state.definition == null) continue;
-            if (glow && state.definition.isPureBlack()) continue;
-            emitState(builder, matrix, state, partialTick, widthScale, passAlpha);
-        }
-        finish(builder);
-
-        if (glow) {
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            builder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+    private static void drawBatch(SubmitNodeCollector collector, PoseStack poseStack, float partialTick,
+                                  boolean glow, float widthScale, float passAlpha) {
+        collector.submitCustomGeometry(poseStack, RenderTypes.entityTranslucent(SOLID_TEXTURE), (pose, vertices) -> {
+            Matrix4f matrix = pose.pose();
             for (TrailState state : STATES.values()) {
-                if (state.edges.size() < 2 || state.definition == null || !state.definition.isPureBlack()) continue;
-                emitState(builder, matrix, state, partialTick, widthScale, passAlpha);
+                if (state.edges.size() < 2 || state.definition == null) continue;
+                if (glow && state.definition.isPureBlack()) continue;
+                emitState(vertices, matrix, state, partialTick, widthScale, passAlpha);
             }
-            finish(builder);
-        }
+        });
     }
 
-    private static boolean emitState(BufferBuilder builder, Matrix4f matrix, TrailState state,
+    private static boolean emitState(VertexConsumer builder, Matrix4f matrix, TrailState state,
                                      float partialTick, float widthScale, float passAlpha) {
         int edgeCount = state.edges.size() - 1;
         if (edgeCount < 1) return false;
@@ -271,7 +229,7 @@ public final class RigSwordTrailManager {
         return wrote;
     }
 
-    private static void vertex(BufferBuilder builder, Matrix4f matrix, Vec3 p, float u, float v,
+    private static void vertex(VertexConsumer builder, Matrix4f matrix, Vec3 p, float u, float v,
                                RigSwordTrailDefinition definition, float alpha) {
         builder.addVertex(matrix, (float) p.x, (float) p.y, (float) p.z)
                 .setUv(u, v)
@@ -284,19 +242,6 @@ public final class RigSwordTrailManager {
         Vec3 center = edge.start.add(edge.end).scale(0.5D);
         return new EdgePair(center.add(edge.start.subtract(center).scale(scale)),
                 center.add(edge.end.subtract(center).scale(scale)));
-    }
-
-
-    private static void finish(BufferBuilder builder) {
-        MeshData rendered = builder.build();
-        if (rendered != null) BufferUploader.drawWithShader(rendered);
-    }
-
-    private static void restoreRenderState() {
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.depthMask(true);
-        RenderSystem.enableCull();
-        RenderSystem.disableBlend();
     }
 
     private static EnumSet<HumanoidArm> emittingArms(Mob mob, RigAnimationSpec spec, RigAnimationId animationId) {
@@ -389,7 +334,7 @@ public final class RigSwordTrailManager {
         private final LinkedList<TrailEdge> edges = new LinkedList<>();
         private final LinkedList<TrailEdge> invisibleEdges = new LinkedList<>();
         private RigSwordTrailDefinition definition;
-        private ResourceLocation itemId;
+        private Identifier itemId;
         private Object animationIdentity;
         private Vec3 lastOwnerPosition;
         private float startEdgeCorrection;
@@ -403,7 +348,7 @@ public final class RigSwordTrailManager {
         }
 
         private void update(Mob mob, TrailPlayback playback, HumanoidArm arm,
-                            RigSwordTrailDefinition newDefinition, ResourceLocation newItemId) {
+                            RigSwordTrailDefinition newDefinition, Identifier newItemId) {
             boolean identityChanged = !Objects.equals(this.animationIdentity, playback.identity())
                     || this.itemId == null || !this.itemId.equals(newItemId)
                     || this.definition == null;

@@ -4,7 +4,7 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.RigMobRenderer;
 import com.pla.annoyingvillagers.entity.AngrySteveEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public class AngrySteveRenderer extends RigMobRenderer<AngrySteveEntity> {
@@ -14,11 +14,11 @@ public class AngrySteveRenderer extends RigMobRenderer<AngrySteveEntity> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull AngrySteveEntity angrySteveEntity) {
+    public @NotNull Identifier getTextureLocation(@NotNull AngrySteveEntity angrySteveEntity) {
         if (angrySteveEntity.isDeadOrDying()) {
-            return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/steve_dead.png");
+            return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/steve_dead.png");
         } else {
-            return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/angry_steve.png");
+            return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/angry_steve.png");
         }
     }
 }

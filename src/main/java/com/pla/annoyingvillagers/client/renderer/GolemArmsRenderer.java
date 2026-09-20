@@ -6,16 +6,17 @@ import com.pla.annoyingvillagers.client.layer.GolemArmsRedGlintLayer;
 import com.pla.annoyingvillagers.client.model.ModelGolemArm;
 import com.pla.annoyingvillagers.entity.GolemArms;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.resources.ResourceLocation;
+import com.pla.annoyingvillagers.client.compat.LegacyMobRenderer;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public class GolemArmsRenderer extends MobRenderer<GolemArms, ModelGolemArm> {
-    private static final ResourceLocation BASE = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/iron_golem/iron_golem.png");
-    private static final ResourceLocation EMISSIVE = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/golem_arms_emissive.png");
+public class GolemArmsRenderer extends LegacyMobRenderer<GolemArms, ModelGolemArm> {
+    private static final Identifier BASE = Identifier.fromNamespaceAndPath("minecraft", "textures/entity/iron_golem/iron_golem.png");
+    private static final Identifier EMISSIVE = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/golem_arms_emissive.png");
 
     public GolemArmsRenderer(EntityRendererProvider.Context context) {
         super(context, new ModelGolemArm(context.bakeLayer(ModelGolemArm.LAYER_LOCATION)), 0.0F);
@@ -24,13 +25,15 @@ public class GolemArmsRenderer extends MobRenderer<GolemArms, ModelGolemArm> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull GolemArms entity) {
+    public @NotNull Identifier getTextureLocation(@NotNull GolemArms entity) {
         return BASE;
     }
 
     @Override
-    public @NotNull Vec3 getRenderOffset(@NotNull GolemArms entity, float partialTick) {
-        Vec3 base = super.getRenderOffset(entity, partialTick);
+    public @NotNull Vec3 getRenderOffset(@NotNull LegacyEntityRenderState<GolemArms> state) {
+        GolemArms entity = state.entity;
+        float partialTick = state.partialTick;
+        Vec3 base = super.getRenderOffset(state);
         LivingEntity owner = entity.getOwnerLiving();
         if (owner == null) return base;
 

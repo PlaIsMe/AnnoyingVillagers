@@ -13,7 +13,7 @@ import com.pla.annoyingvillagers.specialanimation.SpecialAnimationFamily;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationId;
 import com.pla.annoyingvillagers.specialanimation.pose.SpecialPoseLibrary;
 import net.minecraft.client.animation.AnimationDefinition;
-import net.minecraft.client.model.HierarchicalModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -22,15 +22,15 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ModelAvWarden extends HierarchicalModel<AvWarden> {
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_av_warden"), "main");
+public class ModelAvWarden extends LegacyHierarchicalModel<AvWarden> {
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_av_warden"), "main");
 	private final ModelPart modelRoot;
 	private final ModelPart Root;
 	private final ModelPart body;
@@ -56,6 +56,7 @@ public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 	private final ModelPart knee_L;
 
 	public ModelAvWarden(ModelPart root) {
+		super(root);
 		this.modelRoot = root;
 		this.Root = root.getChild("Root");
 		this.body = this.Root.getChild("body");
@@ -143,11 +144,6 @@ public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 	}
 
 	@Override
-	public @NotNull ModelPart root() {
-		return this.modelRoot;
-	}
-
-	@Override
 	public void setupAnim(@NotNull AvWarden entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.root().getAllParts().forEach(ModelPart::resetPose);
 		SpecialClientAnimationState.Active active = SpecialClientAnimationState.getActive(entity, ageInTicks);
@@ -223,7 +219,7 @@ public class ModelAvWarden extends HierarchicalModel<AvWarden> {
 		this.Root.getAllParts().forEach(part -> part.skipDraw = true);
 		this.ear_R.skipDraw = false;
 		this.ear_L.skipDraw = false;
-		this.Root.render(poseStack, consumer, packedLight, overlay, net.minecraft.util.FastColor.ARGB32.colorFromFloat(alpha, 1.0F, 1.0F, 1.0F));
+		this.Root.render(poseStack, consumer, packedLight, overlay, net.minecraft.util.ARGB.colorFromFloat(alpha, 1.0F, 1.0F, 1.0F));
 		this.Root.getAllParts().forEach(part -> part.skipDraw = false);
 	}
 

@@ -25,7 +25,8 @@ public class HerobrineMobEffect extends MobEffect {
         return true;
     }
 
-    public boolean applyEffectTick(@NotNull LivingEntity livingEntity, int i) {
+    @Override
+    public boolean applyEffectTick(ServerLevel effectLevel, @NotNull LivingEntity livingEntity, int i) {
         if (livingEntity instanceof Player player) {
             player.causeFoodExhaustion(0.1F);
         }
@@ -33,9 +34,9 @@ public class HerobrineMobEffect extends MobEffect {
         if (Math.random() <= 0.05D) {
             float damage = Math.min(livingEntity.getHealth(), new Random().nextFloat(0.5F, 1.5F));
             if (damage == livingEntity.getHealth()) {
-                livingEntity.kill();
+                com.pla.annoyingvillagers.util.LegacyEntityOps.kill(livingEntity);
             } else {
-                livingEntity.hurt(livingEntity.level().damageSources().generic(), damage);
+                livingEntity.hurtOrSimulate(livingEntity.level().damageSources().generic(), damage);
             }
         }
 

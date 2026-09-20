@@ -14,7 +14,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
@@ -117,11 +117,11 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
         return true;
     }
 
-    public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        if (damageSource.is(DamageTypes.FALL)) return super.hurt(damageSource, f);
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
+        if (damageSource.is(DamageTypes.FALL)) return super.hurtServer(serverLevel, damageSource, f);
         if (healing) {
             if (new Random().nextBoolean()
-                    && this.level() instanceof ServerLevel serverLevel) {
+                    && true) {
                 CommonUtil.damageBlocked(damageSource, this, serverLevel);
                 return false;
             } else {
@@ -130,10 +130,10 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
                     protectEntity = null;
                     protectUUID = null;
                     autoKill = true;
-                    this.kill();
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                     return false;
                 } else {
-                    return super.hurt(damageSource, f);
+                    return super.hurtServer(serverLevel, damageSource, f);
                 }
             }
         }
@@ -148,10 +148,10 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
             protectUUID = null;
             autoKill = true;
             healing = false;
-            this.kill();
+            com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
             return false;
         } else {
-            return super.hurt(damageSource, f);
+            return super.hurtServer(serverLevel, damageSource, f);
         }
     }
 
@@ -232,11 +232,11 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.generic.hurt")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.generic.death")));
     }
 
     @Override
@@ -244,13 +244,13 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
         if (this.level() instanceof ServerLevel serverLevel) {
             if (!autoKill) {
                 InfectedPlayerNpcEntity corpse = new InfectedPlayerNpcEntity(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), serverLevel);
-                corpse.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+                corpse.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
                 String killedName = this.getCustomName().getString();
                 corpse.getPersistentData().putString("possessed_by", "low_herobrine_clone");
                 corpse.setUsername(killedName);
                 corpse.setCustomName(Component.literal(killedName));
                 corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                        MobSpawnType.MOB_SUMMONED, null);
+                        EntitySpawnReason.MOB_SUMMONED, null);
                 this.setInvisible(true);
                 this.remove(RemovalReason.KILLED);
                 corpse.setItemSlot(EquipmentSlot.HEAD, this.getItemBySlot(EquipmentSlot.HEAD).copy());
@@ -277,43 +277,47 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
         HerobrineUtil.initialSpawn(serverLevelAccessor, this, 0, mobSpawnType);
         return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        summoned = pCompound.getBoolean("Summoned");
-        renderPortal = pCompound.getBoolean("RenderPortal");
-        initialSpawn = pCompound.getBoolean("InitialSpawn");
-        autoKill = pCompound.getBoolean("AutoKill");
-        if (pCompound.hasUUID("ProtectUUID")) {
-            protectUUID = pCompound.getUUID("ProtectUUID");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag pCompound = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        summoned = pCompound.getBooleanOr("Summoned", false);
+        renderPortal = pCompound.getBooleanOr("RenderPortal", false);
+        initialSpawn = pCompound.getBooleanOr("InitialSpawn", false);
+        autoKill = pCompound.getBooleanOr("AutoKill", false);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(pCompound, "ProtectUUID")) {
+            protectUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(pCompound, "ProtectUUID");
         }
-        if (pCompound.hasUUID("PossessedByUuid")) {
-            possessedByUuid = pCompound.getUUID("PossessedByUuid");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(pCompound, "PossessedByUuid")) {
+            possessedByUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(pCompound, "PossessedByUuid");
         }
-        bound = pCompound.getBoolean("Bound");
-        healing = pCompound.getBoolean("Healing");
+        bound = pCompound.getBooleanOr("Bound", false);
+        healing = pCompound.getBooleanOr("Healing", false);
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag pCompound = new CompoundTag();
+        super.addAdditionalSaveData(output);
         pCompound.putBoolean("Summoned", summoned);
         pCompound.putBoolean("InitialSpawn", initialSpawn);
         pCompound.putBoolean("RenderPortal", renderPortal);
         pCompound.putBoolean("AutoKill", autoKill);
         if (protectUUID != null) {
-            pCompound.putUUID("ProtectUUID", protectUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(pCompound, "ProtectUUID", protectUUID);
         }
         if (possessedByUuid != null) {
-            pCompound.putUUID("PossessedByUuid", possessedByUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(pCompound, "PossessedByUuid", possessedByUuid);
         }
         pCompound.putBoolean("Bound", bound);
         pCompound.putBoolean("Healing", healing);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, pCompound);
     }
 
     private void playHerobrineHealingAnimations() {
@@ -338,7 +342,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
     @Override
     public void tick() {
         super.tick();
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (this.tickCount == 1) {
                 if (this.initialSpawn) {
                     if (this.renderPortal) {
@@ -365,7 +369,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
                 protectEntity = null;
                 protectUUID = null;
                 autoKill = true;
-                this.kill();
+                com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
             }
 
             if (possessedByEntity == null && possessedByUuid != null) {
@@ -401,20 +405,20 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
                         possessedByEntity = null;
                         possessedByUuid = null;
                         autoKill = true;
-                        this.kill();
+                        com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                     }
                 } else {
                     possessedByEntity = null;
                     possessedByUuid = null;
                     autoKill = true;
-                    this.kill();
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                 }
             }
             if (this.healing) {
                 if (this.getHealth() <= 2) {
                     this.healing = false;
                     autoKill = true;
-                    this.kill();
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                 }
                 CommonUtil.stunImmunity(this, 3, 3);
                 playHerobrineHealingAnimations();
@@ -427,12 +431,12 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
                     if (this.possessedByEntity.getMaxHealth() == this.possessedByEntity.getHealth()) {
                         this.healing = false;
                         autoKill = true;
-                        this.kill();
+                        com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                     }
                     if (this.getHealth() <= 4) {
                         this.healing = false;
                         autoKill = true;
-                        this.kill();
+                        com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                     } else {
                         this.setHealth(this.getHealth() - 2.0F);
                     }
@@ -491,7 +495,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
                 } else {
                     this.healing = false;
                     autoKill = true;
-                    this.kill();
+                    com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
                 }
             }
         }

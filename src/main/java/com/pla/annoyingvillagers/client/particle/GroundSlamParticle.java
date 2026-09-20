@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.client.particle;
 
-import com.pla.annoyingvillagers.block.FractureBlockState;
+import com.pla.annoyingvillagers.block.FractureBlock;
+import com.pla.annoyingvillagers.blockentity.FractureBlockEntity;
 import com.pla.annoyingvillagers.mixin.client.ParticleAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -13,11 +14,9 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@OnlyIn(Dist.CLIENT)
 public class GroundSlamParticle extends NoRenderParticle {
     protected GroundSlamParticle(
             ClientLevel level,
@@ -38,8 +37,9 @@ public class GroundSlamParticle extends NoRenderParticle {
             blockState = level.getBlockState(blockPos);
         }
 
-        if (blockState instanceof FractureBlockState fractureBlockState) {
-            BlockState originalState = fractureBlockState.getOriginalBlockState(blockPos);
+        if (blockState.getBlock() instanceof FractureBlock
+                && level.getBlockEntity(blockPos) instanceof FractureBlockEntity fractureBlockEntity) {
+            BlockState originalState = fractureBlockEntity.getOriginalBlockState();
             if (originalState != null) blockState = originalState;
         }
 
@@ -93,7 +93,7 @@ public class GroundSlamParticle extends NoRenderParticle {
                 double xSpeed,
                 double ySpeed,
                 double zSpeed
-        ) {
+        , net.minecraft.util.RandomSource random) {
             BlockPos blockPos = new BlockPos.MutableBlockPos(x, y, z);
             BlockState blockState = level.getBlockState(blockPos);
             return new GroundSlamParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, blockPos, blockState);

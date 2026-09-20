@@ -5,15 +5,16 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -29,11 +30,11 @@ import java.util.List;
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class NoVfxPortalEvent {
 
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/portal.png");
-    private static final RenderType PORTAL_TYPE = RenderType.entityTranslucent(TEXTURE);
+    private static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/portal.png");
+    private static final RenderType PORTAL_TYPE = RenderTypes.entityTranslucent(TEXTURE);
 
-    private static final int FULL_BRIGHT_LIGHT = LightTexture.pack(15, 15);
+    private static final int FULL_BRIGHT_LIGHT = LightCoordsUtil.pack(15, 15);
     private static final float PORTAL_HALF_SIZE = 2.5F;
 
     private static final int GROW_TICKS = 20;
@@ -68,35 +69,28 @@ public final class NoVfxPortalEvent {
     }
 
     @SubscribeEvent
-    public static void onRenderLevel(RenderLevelStageEvent e) {
-        // pick a stage that fits your mod; AFTER_PARTICLES is usually fine
-        if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
-
+    public static void onRenderLevel(SubmitCustomGeometryEvent e) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || ACTIVE.isEmpty()) return;
 
         PoseStack poseStack = e.getPoseStack();
-        Vec3 cam = e.getCamera().getPosition();
-        float partial = e.getPartialTick().getGameTimeDeltaPartialTick(false);
+        Vec3 cam = mc.gameRenderer.getMainCamera().position();
+        float partial = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
 
         poseStack.pushPose();
         poseStack.translate(-cam.x, -cam.y, -cam.z);
 
-        MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
-
         long nowTick = mc.level.getGameTime();
         for (PortalInstance p : ACTIVE) {
             float time = (nowTick - p.startTick) + partial;
-            renderPortal(poseStack, buffer, p.pos, time, p.holdTicks);
+            renderPortal(e.getSubmitNodeCollector(), poseStack, p.pos, time, p.holdTicks);
         }
-
-        buffer.endBatch(PORTAL_TYPE);
 
         poseStack.popPose();
     }
 
-    private static void renderPortal(PoseStack poseStack,
-                                     MultiBufferSource bufferSource,
+    private static void renderPortal(net.minecraft.client.renderer.SubmitNodeCollector collector,
+                                     PoseStack poseStack,
                                      Vec3 basePos,
                                      float animationTime,
                                      int holdTicks) {
@@ -114,31 +108,26 @@ public final class NoVfxPortalEvent {
         poseStack.mulPose(Axis.YP.rotationDegrees(rotationDegrees));
         poseStack.scale(scale, 1.0F, scale);
 
-        PoseStack.Pose pose = poseStack.last();
-        Matrix4f mat = pose.pose();
-        VertexConsumer vc = bufferSource.getBuffer(PORTAL_TYPE);
-
         int r = 255, g = 255, b = 255, a = alpha;
-
-        vc.addVertex(mat, -PORTAL_HALF_SIZE, 0, -PORTAL_HALF_SIZE)
-                .setColor(r, g, b, a).setUv(0, 0)
-                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
-                .setNormal(pose, 0, 1, 0);
-
-        vc.addVertex(mat,  PORTAL_HALF_SIZE, 0, -PORTAL_HALF_SIZE)
-                .setColor(r, g, b, a).setUv(1, 0)
-                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
-                .setNormal(pose, 0, 1, 0);
-
-        vc.addVertex(mat,  PORTAL_HALF_SIZE, 0,  PORTAL_HALF_SIZE)
-                .setColor(r, g, b, a).setUv(1, 1)
-                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
-                .setNormal(pose, 0, 1, 0);
-
-        vc.addVertex(mat, -PORTAL_HALF_SIZE, 0,  PORTAL_HALF_SIZE)
-                .setColor(r, g, b, a).setUv(0, 1)
-                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
-                .setNormal(pose, 0, 1, 0);
+        collector.submitCustomGeometry(poseStack, PORTAL_TYPE, (pose, vc) -> {
+            Matrix4f mat = pose.pose();
+            vc.addVertex(mat, -PORTAL_HALF_SIZE, 0, -PORTAL_HALF_SIZE)
+                    .setColor(r, g, b, a).setUv(0, 0)
+                    .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
+                    .setNormal(pose, 0, 1, 0);
+            vc.addVertex(mat, PORTAL_HALF_SIZE, 0, -PORTAL_HALF_SIZE)
+                    .setColor(r, g, b, a).setUv(1, 0)
+                    .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
+                    .setNormal(pose, 0, 1, 0);
+            vc.addVertex(mat, PORTAL_HALF_SIZE, 0, PORTAL_HALF_SIZE)
+                    .setColor(r, g, b, a).setUv(1, 1)
+                    .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
+                    .setNormal(pose, 0, 1, 0);
+            vc.addVertex(mat, -PORTAL_HALF_SIZE, 0, PORTAL_HALF_SIZE)
+                    .setColor(r, g, b, a).setUv(0, 1)
+                    .setOverlay(OverlayTexture.NO_OVERLAY).setLight(FULL_BRIGHT_LIGHT)
+                    .setNormal(pose, 0, 1, 0);
+        });
 
         poseStack.popPose();
     }

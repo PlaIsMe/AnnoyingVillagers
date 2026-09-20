@@ -26,7 +26,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
@@ -130,7 +130,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
         if (this.nullEntity == null || !this.nullEntity.isAlive()) return;
 
         Vec3 returnPosition = this.nullEntity.position().add(0.0D, this.nullEntity.getBbHeight() * 0.65D, 0.0D);
-        this.moveTo(returnPosition.x, returnPosition.y, returnPosition.z, this.getYRot(), this.getXRot());
+        this.snapTo(returnPosition.x, returnPosition.y, returnPosition.z, this.getYRot(), this.getXRot());
         this.setDeltaMovement(Vec3.ZERO);
     }
 
@@ -213,7 +213,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
         this.entityData.set(DATA_SPINNING, spinning);
         this.spinAnimationSequence++;
 
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
         if (spinning) {
             RigAnimationController.playHeldPose(this, RigAnimationId.SPINNING_WEAPON);
         } else {
@@ -234,7 +234,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     public void spinfor5seconds() {
-        if (this.level().isClientSide || !this.isAlive() || this.isRemoved()) return;
+        if (this.level().isClientSide() || !this.isAlive() || this.isRemoved()) return;
 
         if (this.isSpinning()) this.setSpinning(false);
         this.setSpinning(true);
@@ -323,19 +323,19 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     protected void registerGoals() {
         super.registerGoals();
 
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> {
+        this.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> {
             if (!this.released || this.player == null || !this.player.isAlive()) return false;
             LivingEntity lastHurtBy = this.player.getLastHurtByMob();
             LivingEntity lastHurt = this.player.getLastHurtMob();
             return (target == lastHurtBy || target == lastHurt) && target.isAlive() && !target.isAlliedTo(this.player);
         }));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> this.released
+        this.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> this.released
                 && this.nullEntity != null && this.nullEntity.isAlive() && target != null
                 && this.nullEntity.getTarget() == target && this.isValidReleaseTarget(target)));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> this.released
+        this.targetSelector.addGoal(2, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, target -> this.released
                 && this.nullEntity != null && this.nullEntity.isAlive() && target != null
                 && target.getLastHurtMob() == this.nullEntity && this.isValidReleaseTarget(target)));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
+        this.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
                 target -> this.released && this.isValidReleaseTarget(target)));
         this.targetSelector.addGoal(6, new HurtByTargetGoal(this) {
             @Override
@@ -437,33 +437,37 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         tag.putString("Weapon", weapon);
         if (nullUUID != null) {
-            tag.putUUID("NullUUID", nullUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "NullUUID", nullUUID);
         }
         if (playerUUID != null) {
-            tag.putUUID("OwnerUUID", playerUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "OwnerUUID", playerUUID);
         }
         tag.putBoolean("Released", released);
         tag.putInt("ReleaseCooldown", releaseCooldown);
-        if (releaseTargetUUID != null) tag.putUUID("ReleaseTargetUUID", releaseTargetUUID);
+        if (releaseTargetUUID != null) com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "ReleaseTargetUUID", releaseTargetUUID);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("NullUUID")) {
-            nullUUID = tag.getUUID("NullUUID");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "NullUUID")) {
+            nullUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "NullUUID");
         }
-        if (tag.hasUUID("OwnerUUID")) {
-            playerUUID = tag.getUUID("OwnerUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "OwnerUUID")) {
+            playerUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "OwnerUUID");
         }
-        weapon = tag.getString("Weapon");
-        released = tag.getBoolean("Released");
-        releaseCooldown = tag.getInt("ReleaseCooldown");
-        if (tag.hasUUID("ReleaseTargetUUID")) releaseTargetUUID = tag.getUUID("ReleaseTargetUUID");
+        weapon = tag.getStringOr("Weapon", "");
+        released = tag.getBooleanOr("Released", false);
+        releaseCooldown = tag.getIntOr("ReleaseCooldown", 0);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "ReleaseTargetUUID")) releaseTargetUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "ReleaseTargetUUID");
     }
 
     @Override
@@ -482,7 +486,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     @Override
-    public boolean canBeCollidedWith() {
+    public boolean canBeCollidedWith(@Nullable Entity other) {
         return false;
     }
 
@@ -500,22 +504,22 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damagesource) {
-        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("", "")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("", "")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("", "")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("", "")));
     }
 
     public boolean causeFallDamage(float f, float f1, @NotNull DamageSource damagesource) {
         return false;
     }
 
-    public boolean hurt(@NotNull DamageSource damagesource, float f) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damagesource, float f) {
         return false;
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull EntitySpawnReason mobspawntype, @Nullable SpawnGroupData spawngroupdata) {
         TeamUtil.addOrJoinTeam(this, "herobrine");
         this.setInvulnerable(true);
         return super.finalizeSpawn(serverlevelaccessor, difficultyinstance, mobspawntype, spawngroupdata);
@@ -534,7 +538,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity pEntity) {
+    public boolean doHurtTarget(net.minecraft.server.level.ServerLevel serverLevel, Entity pEntity) {
         if (this.player != null && !this.released) return false;
         if (pEntity instanceof LivingEntity livingEntity && !this.isValidReleaseTarget(livingEntity)) return false;
         if (pEntity instanceof Player hurtPlayer && this.playerUUID != null && this.playerUUID.equals(hurtPlayer.getUUID())) {
@@ -558,13 +562,13 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
             }
 
             DamageSource attackSource = this.damageSources().playerAttack(this.player);
-            boolean flag = pEntity.hurt(attackSource, f);
+            boolean flag = pEntity.hurtOrSimulate(attackSource, f);
             if (flag) {
                 if (f1 > 0.0F && pEntity instanceof LivingEntity) {
                     ((LivingEntity)pEntity).knockback(f1 * 0.5F, Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), -Mth.cos(this.getYRot() * ((float)Math.PI / 180F)));
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0F, 0.6));
                 }
-                if (this.level() instanceof ServerLevel serverLevel) {
+                if (true) {
                     EnchantmentHelper.doPostAttackEffects(serverLevel, pEntity, attackSource);
                 }
                 this.setLastHurtMob(pEntity);
@@ -586,13 +590,13 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
             }
 
             DamageSource attackSource = this.damageSources().mobAttack(this.nullEntity);
-            boolean flag = pEntity.hurt(attackSource, f);
+            boolean flag = pEntity.hurtOrSimulate(attackSource, f);
             if (flag) {
                 if (f1 > 0.0F && pEntity instanceof LivingEntity) {
                     ((LivingEntity)pEntity).knockback(f1 * 0.5F, Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), -Mth.cos(this.getYRot() * ((float)Math.PI / 180F)));
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0F, 0.6));
                 }
-                if (this.level() instanceof ServerLevel serverLevel) {
+                if (true) {
                     EnchantmentHelper.doPostAttackEffects(serverLevel, pEntity, attackSource);
                 }
                 this.setLastHurtMob(pEntity);
@@ -600,7 +604,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
 
             return flag;
         } else {
-            return super.doHurtTarget(pEntity);
+            return super.doHurtTarget(serverLevel, pEntity);
         }
     }
 
@@ -609,12 +613,10 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     private static boolean hasNullSword(Player p) {
-        for (ItemStack s : p.getInventory().items) {
+        for (ItemStack s : p.getInventory().getNonEquipmentItems()) {
             if (s.getItem() instanceof NullWeaponItem) return true;
         }
-        for (ItemStack s : p.getInventory().offhand) {
-            if (s.getItem() instanceof NullWeaponItem) return true;
-        }
+        if (p.getOffhandItem().getItem() instanceof NullWeaponItem) return true;
         return false;
     }
 
@@ -645,7 +647,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
             }
             this.setItemSlot(EquipmentSlot.MAINHAND, check);
         }
-        if (!level().isClientSide) {
+        if (!level().isClientSide()) {
             if (nullEntity != null && !nullEntity.isAlive()) {
                 this.discard();
                 return;
@@ -692,7 +694,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
 
         if (this.weaponAttackCooldown > 0) this.weaponAttackCooldown--;
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (this.randomSpinCooldown > 0) this.randomSpinCooldown--;
             if (!this.released && !this.isSpinning() && this.randomSpinCooldown <= 0) {
                 this.randomSpinCooldown = 180 + this.getRandom().nextInt(321);
@@ -710,10 +712,10 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
             }
         }
 
-        if (!this.level().isClientSide) this.correctExcessiveVerticalDrift();
+        if (!this.level().isClientSide()) this.correctExcessiveVerticalDrift();
 
         // Player-owned weapons use this entity tick to drive the legacy ten-tick teleport.
-        if (!this.level().isClientSide && this.player != null && this.tickCount % 10 == 0) this.processTeleportByPlayer();
+        if (!this.level().isClientSide() && this.player != null && this.tickCount % 10 == 0) this.processTeleportByPlayer();
 
         if (this.releaseCooldown > 0) this.releaseCooldown--;
         if (this.releaseCooldown == 0 && this.released) this.stopRelease();
@@ -722,18 +724,14 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     public static LivingEntity getNearestLivingEntity(Level level, Entity sourceEntity, double range) {
         AABB searchBox = sourceEntity.getBoundingBox().inflate(range);
 
-        return level.getNearestEntity(
-                level.getEntitiesOfClass(LivingEntity.class, searchBox,
+        return level.getEntitiesOfClass(LivingEntity.class, searchBox,
                         e -> e != sourceEntity
                                 && !(e instanceof NullWeapon)
                                 && e.isAlive()
                                 && (sourceEntity instanceof NullWeapon weapon
                                 ? weapon.isValidReleaseTarget(e)
-                                : !e.isAlliedTo(sourceEntity))),
-                TargetingConditions.DEFAULT,
-                (LivingEntity) sourceEntity,
-                sourceEntity.getX(), sourceEntity.getY(), sourceEntity.getZ()
-        );
+                                : !e.isAlliedTo(sourceEntity)))
+                .stream().min(java.util.Comparator.comparingDouble(sourceEntity::distanceToSqr)).orElse(null);
     }
 
     public void teleportRandomlyAround(LivingEntity anchor, double horizontalRange, double minYOffset, double maxYOffset) {
@@ -742,7 +740,7 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
         double x = anchor.getX() + (this.getRandom().nextDouble() * 2.0D - 1.0D) * horizontalRange;
         double y = anchor.getY() + minYOffset + this.getRandom().nextDouble() * (maxYOffset - minYOffset);
         double z = anchor.getZ() + (this.getRandom().nextDouble() * 2.0D - 1.0D) * horizontalRange;
-        this.moveTo(x, y, z, this.getYRot(), this.getXRot());
+        this.snapTo(x, y, z, this.getYRot(), this.getXRot());
     }
 
     private void correctExcessiveVerticalDrift() {
@@ -787,19 +785,19 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
     }
 
     public void summonNullWeaponForPlayer(String uuidNbt, ServerLevel serverLevel, Player summoner) {
-        this.moveTo(summoner.getX() + new Random().nextDouble(-4, 4), summoner.getY() + new Random().nextDouble(-2, 2), summoner.getZ() + new Random().nextDouble(-4, 4));
+        this.snapTo(summoner.getX() + new Random().nextDouble(-4, 4), summoner.getY() + new Random().nextDouble(-2, 2), summoner.getZ() + new Random().nextDouble(-4, 4));
         this.playerUUID = summoner.getUUID();
         this.player = summoner;
-        this.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+        this.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
         serverLevel.addFreshEntity(this);
-        summoner.getPersistentData().putUUID(uuidNbt, this.getUUID());
+        com.pla.annoyingvillagers.util.LegacyNbt.putUUID(summoner.getPersistentData(), uuidNbt, this.getUUID());
     }
 
     public void summonNullWeaponForNullEntity(ServerLevel serverLevel, NullEntity summoner, String toolName) {
-        this.moveTo(summoner.getX() + new Random().nextDouble(-4, 4), summoner.getY() + new Random().nextDouble(-2, 2), summoner.getZ() + new Random().nextDouble(-4, 4));
+        this.snapTo(summoner.getX() + new Random().nextDouble(-4, 4), summoner.getY() + new Random().nextDouble(-2, 2), summoner.getZ() + new Random().nextDouble(-4, 4));
         this.nullUUID = summoner.getUUID();
         this.nullEntity = summoner;
-        this.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+        this.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
         serverLevel.addFreshEntity(this);
         summoner.setNullWeapon(toolName, this);
         spinfor5seconds();
@@ -819,21 +817,21 @@ public class NullWeapon extends Monster implements ForceTickEntity, RigStunnable
         if (this.player == null || this.playerUUID == null) return true;
         String trackingKey = this.getPlayerTrackingKey();
         CompoundTag playerData = this.player.getPersistentData();
-        if (!playerData.hasUUID(trackingKey)) {
-            playerData.putUUID(trackingKey, this.getUUID());
+        if (!com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(playerData, trackingKey)) {
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(playerData, trackingKey, this.getUUID());
             return true;
         }
-        return this.getUUID().equals(playerData.getUUID(trackingKey));
+        return this.getUUID().equals(com.pla.annoyingvillagers.util.LegacyNbt.getUUID(playerData, trackingKey));
     }
 
     @Override
     public void remove(@NotNull RemovalReason pReason) {
-        if (this.isSpinning() && !this.level().isClientSide) this.setSpinning(false);
+        if (this.isSpinning() && !this.level().isClientSide()) this.setSpinning(false);
         if (this.level() instanceof ServerLevel serverLevel) {
             if (this.player != null) {
                 String trackingKey = this.getPlayerTrackingKey();
                 CompoundTag playerData = this.player.getPersistentData();
-                if (playerData.hasUUID(trackingKey) && this.getUUID().equals(playerData.getUUID(trackingKey))) {
+                if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(playerData, trackingKey) && this.getUUID().equals(com.pla.annoyingvillagers.util.LegacyNbt.getUUID(playerData, trackingKey))) {
                     playerData.remove(trackingKey);
                 }
             } else if (!this.suppressRemovalDrop) {

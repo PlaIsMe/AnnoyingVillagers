@@ -45,7 +45,7 @@ public final class ProgressionEvent {
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            ProgressionUtil.increaseDifficulty(player.server, Difficulty.MEDIUM);
+            ProgressionUtil.increaseDifficulty(player.level().getServer(), Difficulty.MEDIUM);
         }
     }
 

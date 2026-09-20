@@ -4,7 +4,7 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.RigVillagerRenderer;
 import com.pla.annoyingvillagers.entity.JevEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public class JevRenderer extends RigVillagerRenderer<JevEntity> {
@@ -14,11 +14,11 @@ public class JevRenderer extends RigVillagerRenderer<JevEntity> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull JevEntity jevEntity) {
+    public @NotNull Identifier getTextureLocation(@NotNull JevEntity jevEntity) {
         if (jevEntity.isDeadOrDying()) {
-            return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/jev_dead.png");
+            return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/jev_dead.png");
         } else {
-            return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/jev.png");
+            return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/jev.png");
         }
     }
 }

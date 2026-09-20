@@ -4,17 +4,17 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import com.pla.annoyingvillagers.item.LegacyArmorItem;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public abstract class ClassicGoldenSetArmorItem extends LegacyArmorItem {
 
-    public ClassicGoldenSetArmorItem(ArmorItem.Type type, Properties properties) {
+    public ClassicGoldenSetArmorItem(LegacyArmorItem.Type type, Properties properties) {
         super(new LegacyArmorMaterial() {
             @Override
-            public int getDurabilityForType(ArmorItem.Type type) {
+            public int getDurabilityForType(LegacyArmorItem.Type type) {
                 return switch (type) {
                     case BOOTS      -> 13 * 27;
                     case LEGGINGS   -> 15 * 27;
@@ -25,7 +25,7 @@ public abstract class ClassicGoldenSetArmorItem extends LegacyArmorItem {
             }
 
             @Override
-            public int getDefenseForType(ArmorItem.Type type) {
+            public int getDefenseForType(LegacyArmorItem.Type type) {
                 return switch (type) {
                     case BOOTS      -> 3;
                     case LEGGINGS   -> 5;
@@ -44,7 +44,7 @@ public abstract class ClassicGoldenSetArmorItem extends LegacyArmorItem {
             }
 
             public Ingredient getRepairIngredient() {
-                return Ingredient.of();
+                return null;
             }
 
             public String getName() {
@@ -64,7 +64,7 @@ public abstract class ClassicGoldenSetArmorItem extends LegacyArmorItem {
     public static class Boots extends ClassicGoldenSetArmorItem {
 
         public Boots() {
-            super(Type.BOOTS, (new Properties()));
+            super(Type.BOOTS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -75,7 +75,7 @@ public abstract class ClassicGoldenSetArmorItem extends LegacyArmorItem {
     public static class Leggings extends ClassicGoldenSetArmorItem {
 
         public Leggings() {
-            super(Type.LEGGINGS, (new Properties()));
+            super(Type.LEGGINGS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -86,7 +86,7 @@ public abstract class ClassicGoldenSetArmorItem extends LegacyArmorItem {
     public static class Chestplate extends ClassicGoldenSetArmorItem {
 
         public Chestplate() {
-            super(Type.CHESTPLATE, (new Properties()));
+            super(Type.CHESTPLATE, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -97,7 +97,7 @@ public abstract class ClassicGoldenSetArmorItem extends LegacyArmorItem {
     public static class Helmet extends ClassicGoldenSetArmorItem {
 
         public Helmet() {
-            super(Type.HELMET, (new Properties()));
+            super(Type.HELMET, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {

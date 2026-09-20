@@ -133,7 +133,8 @@ public final class RecoveryAi {
         return !state.isAir() && state.getFluidState().isEmpty() && !state.hasBlockEntity()
                 && state.getDestroySpeed(npc.level(), pos) >= 0.0F
                 && !state.getCollisionShape(npc.level(), pos).isEmpty()
-                && EventHooks.canEntityGrief(npc.level(), npc);
+                && npc.level() instanceof ServerLevel serverLevel
+                && EventHooks.canEntityGrief(serverLevel, npc);
     }
 
     public static boolean intersectsBody(AVNpc npc, BlockPos pos) {
@@ -260,7 +261,8 @@ public final class RecoveryAi {
     public boolean placeUnderFeet(BlockPos pos) {
         if (!canAct(npc) || !npc.level().hasChunkAt(pos) || !npc.level().hasChunkAt(pos.below())
                 || !npc.level().getWorldBorder().isWithinBounds(pos) || !npc.level().isInWorldBounds(pos)
-                || !EventHooks.canEntityGrief(npc.level(), npc)) return placementTrace("world_or_mob_griefing_gate");
+                || !(npc.level() instanceof ServerLevel serverLevel)
+                || !EventHooks.canEntityGrief(serverLevel, npc)) return placementTrace("world_or_mob_griefing_gate");
         ItemStack held = npc.getMainHandItem();
         if (!placeable(held, pos)) return placementTrace("held_item_not_suitable");
         BlockState state = ((BlockItem) held.getItem()).getBlock().defaultBlockState();

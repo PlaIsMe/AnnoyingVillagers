@@ -18,18 +18,21 @@ import com.pla.annoyingvillagers.specialanimation.SpecialAnimationSpecs;
 import com.pla.annoyingvillagers.specialanimation.SpecialAttackWindow;
 import com.pla.annoyingvillagers.specialanimation.SpecialColliderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.components.debug.DebugScreenEntries;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class RigColliderRenderer {
@@ -38,25 +41,19 @@ public final class RigColliderRenderer {
     private RigColliderRenderer() {}
 
     @SubscribeEvent
-    public static void onRenderLevel(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
-
+    public static void onRenderLevel(SubmitCustomGeometryEvent event) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null || !mc.getEntityRenderDispatcher().shouldRenderHitBoxes()) return;
+        if (mc.level == null || !mc.debugEntries.isCurrentlyEnabled(DebugScreenEntries.ENTITY_HITBOXES)) return;
 
         PoseStack poseStack = event.getPoseStack();
-        Vec3 camera = event.getCamera().getPosition();
-        MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
-        VertexConsumer lines = buffer.getBuffer(RenderType.lines());
-
-        poseStack.pushPose();
-        poseStack.translate(-camera.x, -camera.y, -camera.z);
+        Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
+        float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        List<DebugBox> boxes = new ArrayList<>();
 
         for (var entry : RigClientAnimationState.snapshot().entrySet()) {
             Entity entity = mc.level.getEntity(entry.getKey());
             if (!(entity instanceof Mob mob)) continue;
 
-            float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
             float ageInTicks = mob.tickCount + partialTick;
             RigClientAnimationState.Active active = RigClientAnimationState.getActive(mob, ageInTicks);
             if (active == null) continue;
@@ -66,14 +63,13 @@ public final class RigColliderRenderer {
 
             float elapsed = active.sampleTicks(ageInTicks);
             float bodyYaw = Mth.rotLerp(partialTick, mob.yBodyRotO, mob.yBodyRot);
-            renderRigBoxes(poseStack, lines, mob, spec, elapsed, bodyYaw);
+            collectRigBoxes(boxes, mob, spec, elapsed, bodyYaw);
         }
 
         for (var entry : SpecialClientAnimationState.snapshot().entrySet()) {
             Entity entity = mc.level.getEntity(entry.getKey());
             if (!(entity instanceof Mob mob)) continue;
 
-            float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
             float ageInTicks = mob.tickCount + partialTick;
             SpecialClientAnimationState.Active active = SpecialClientAnimationState.getActive(mob, ageInTicks);
             if (active == null) continue;
@@ -83,7 +79,7 @@ public final class RigColliderRenderer {
 
             float elapsed = active.elapsedTicks(ageInTicks);
             float bodyYaw = Mth.rotLerp(partialTick, mob.yBodyRotO, mob.yBodyRot);
-            renderSpecialBoxes(poseStack, lines, mob, active.animationId(), spec, elapsed, bodyYaw);
+            collectSpecialBoxes(boxes, mob, active.animationId(), spec, elapsed, bodyYaw);
         }
 
         for (var entry : ObsidianArmorClientAnimationState.snapshot().entrySet()) {
@@ -95,41 +91,47 @@ public final class RigColliderRenderer {
             boolean attackTime = elapsed >= ObsidianArmorController.ATTACK_START_TICK && elapsed < ObsidianArmorController.ATTACK_END_TICK_EXCLUSIVE;
             float green = attackTime ? 0.0F : 1.0F;
             float blue = attackTime ? 0.0F : 1.0F;
-            for (RigOrientedBox box : ObsidianArmorColliderSystem.collisionBoxes(living, active.animationId(), elapsed)) renderBox(poseStack, lines, box, 1.0F, green, blue);
+            for (RigOrientedBox box : ObsidianArmorColliderSystem.collisionBoxes(living, active.animationId(), elapsed)) {
+                boxes.add(new DebugBox(box, 1.0F, green, blue));
+            }
         }
 
+        if (boxes.isEmpty()) return;
+        poseStack.pushPose();
+        poseStack.translate(-camera.x, -camera.y, -camera.z);
+        event.getSubmitNodeCollector().submitCustomGeometry(poseStack, RenderTypes.lines(),
+                (pose, lines) -> boxes.forEach(box -> renderBox(pose, lines, box.box(), box.red(), box.green(), box.blue())));
         poseStack.popPose();
-        buffer.endBatch(RenderType.lines());
     }
 
-    private static void renderRigBoxes(PoseStack poseStack, VertexConsumer consumer, Mob mob, RigAnimationSpec spec, float elapsed, float bodyYaw) {
+    private static void collectRigBoxes(List<DebugBox> boxes, Mob mob, RigAnimationSpec spec, float elapsed, float bodyYaw) {
         for (RigAttackWindow window : spec.attackWindows()) {
             boolean attackTime = window.contains(elapsed);
             float green = attackTime ? 0.0F : 1.0F;
             float blue = attackTime ? 0.0F : 1.0F;
             for (RigOrientedBox box : RigColliderSystem.collisionBoxes(mob, spec, window, elapsed, bodyYaw)) {
-                renderBox(poseStack, consumer, box, 1.0F, green, blue);
+                boxes.add(new DebugBox(box, 1.0F, green, blue));
             }
         }
     }
 
-    private static void renderSpecialBoxes(PoseStack poseStack, VertexConsumer consumer, Mob mob, com.pla.annoyingvillagers.specialanimation.SpecialAnimationId animationId, SpecialAnimationSpec spec, float elapsed, float bodyYaw) {
+    private static void collectSpecialBoxes(List<DebugBox> boxes, Mob mob, com.pla.annoyingvillagers.specialanimation.SpecialAnimationId animationId, SpecialAnimationSpec spec, float elapsed, float bodyYaw) {
         for (SpecialAttackWindow window : spec.attackWindows()) {
             boolean attackTime = window.contains(elapsed);
             float green = attackTime ? 0.0F : 1.0F;
             float blue = attackTime ? 0.0F : 1.0F;
             for (RigOrientedBox box : SpecialColliderSystem.collisionBoxes(mob, animationId, window, elapsed, bodyYaw)) {
-                renderBox(poseStack, consumer, box, 1.0F, green, blue);
+                boxes.add(new DebugBox(box, 1.0F, green, blue));
             }
         }
     }
 
-    private static void renderBox(PoseStack poseStack, VertexConsumer consumer, RigOrientedBox box, float red, float green, float blue) {
+    private static void renderBox(PoseStack.Pose pose, VertexConsumer consumer, RigOrientedBox box, float red, float green, float blue) {
         Vec3[] corners = box.corners();
-        PoseStack.Pose pose = poseStack.last();
-
         for (int[] edge : EDGES) renderLine(pose, consumer, corners[edge[0]], corners[edge[1]], red, green, blue);
     }
+
+    private record DebugBox(RigOrientedBox box, float red, float green, float blue) {}
 
     private static void renderLine(PoseStack.Pose pose, VertexConsumer consumer, Vec3 start, Vec3 end, float red, float green, float blue) {
         Vec3 normal = end.subtract(start);

@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -25,7 +26,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -36,24 +37,23 @@ import org.jetbrains.annotations.NotNull;
 
 public class EnchantBedBlock extends Block {
 
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
 
-    public EnchantBedBlock() {
-        super(Properties.of()
+    public EnchantBedBlock(Properties properties) {
+        super(properties
                 .sound(SoundType.WOOD)
                 .strength(1.25F, 10.0F)
                 .lightLevel((blockstate) -> 2)
                 .jumpFactor(5.0F)
                 .noOcclusion()
-                .hasPostProcess((blockstate, blockgetter, blockpos) -> true)
+                .postProcess((blockstate, blockgetter, blockpos) -> blockpos)
                 .emissiveRendering((blockstate, blockgetter, blockpos) -> true)
                 .isRedstoneConductor((blockstate, blockgetter, blockpos) -> false));
         this.registerDefaultState(this.stateDefinition.any().setValue(EnchantBedBlock.FACING, Direction.NORTH));
     }
 
-    public void appendHoverText(@NotNull ItemStack itemstack, Item.TooltipContext context, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, context, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.enchanted_bed"));
+    public void appendHoverText(@NotNull ItemStack itemstack, Item.TooltipContext context, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        list.accept(Component.translatable("tooltip.annoyingvillagers.enchanted_bed"));
     }
 
     public boolean propagatesSkylightDown(@NotNull BlockState blockstate, @NotNull BlockGetter blockgetter, @NotNull BlockPos blockpos) {
@@ -113,18 +113,20 @@ public class EnchantBedBlock extends Block {
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState blockstate, @NotNull Level level, @NotNull BlockPos blockpos, @NotNull Player player, @NotNull BlockHitResult blockHitResult) {
         if (player.hasEffect(AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT)
                 && !player.level().isClientSide()) {
-            player.displayClientMessage(Component.literal("You have already used the Enchant Bed!"), true);
+            player.sendOverlayMessage(Component.literal("You have already used the Enchant Bed!"));
         }
 
         if (player instanceof ServerPlayer serverPlayer) {
             if (player.experienceLevel >= 2) {
                 player.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ENCHANT_BED_EFFECT, MobEffectInstance.INFINITE_DURATION, 0, false, false));
-                player.displayClientMessage(Component.literal("You used the Enchant Bed once. Experience level -1."), true);
-                player.displayClientMessage(Component.literal("Respawn point has been reset."), false);
+                player.sendOverlayMessage(Component.literal("You used the Enchant Bed once. Experience level -1."));
+                player.sendSystemMessage(Component.literal("Respawn point has been reset."));
                 player.giveExperienceLevels(-1);
-                serverPlayer.setRespawnPosition(player.level().dimension(), new BlockPos((int) blockHitResult.getLocation().x, (int) blockHitResult.getLocation().y, (int) blockHitResult.getLocation().z), serverPlayer.getYRot(), true, false);
+                BlockPos respawnPos = BlockPos.containing(blockHitResult.getLocation());
+                serverPlayer.setRespawnPosition(new ServerPlayer.RespawnConfig(
+                        LevelData.RespawnData.of(player.level().dimension(), respawnPos, serverPlayer.getYRot(), 0.0F), true), false);
             } else {
-                player.displayClientMessage(Component.literal("Your experience level is too low. You must be above level 2 to use this!"), true);
+                player.sendOverlayMessage(Component.literal("Your experience level is too low. You must be above level 2 to use this!"));
             }
         }
         return InteractionResult.SUCCESS;

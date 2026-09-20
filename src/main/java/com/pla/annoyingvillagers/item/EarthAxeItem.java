@@ -8,7 +8,7 @@ import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -61,17 +61,17 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.NETHERITE_INGOT));
+                return Ingredient.of(Items.NETHERITE_INGOT);
             }
-        }, 3, -2.8F, (new Properties()));
+        }, 3, -2.8F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled()
                 || hand != InteractionHand.MAIN_HAND
-                || player.getCooldowns().isOnCooldown(this)) {
+                || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) {
             return super.use(level, player, hand);
         }
 
@@ -79,10 +79,10 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
             summonEarthWall(serverLevel, player);
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
             VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-            player.getCooldowns().addCooldown(this, VANILLA_WALL_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_WALL_COOLDOWN_TICKS);
         }
 
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     public static boolean activateVanillaSpecial(Player player) {
@@ -94,7 +94,7 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
 
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof EarthAxeItem item)
-                || player.getCooldowns().isOnCooldown(item)) {
+                || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(item))) {
             return false;
         }
 
@@ -107,7 +107,7 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
 
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-        player.getCooldowns().addCooldown(item, VANILLA_LIFT_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), VANILLA_LIFT_COOLDOWN_TICKS);
         return true;
     }
 

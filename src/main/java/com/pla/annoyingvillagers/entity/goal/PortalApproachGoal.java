@@ -28,7 +28,7 @@ public class PortalApproachGoal extends Goal {
         if (target == null || !target.isAlive()) {
             return false;
         }
-        if (this.mob.getPersistentData().getLong(PORTAL_APPROACH_COOLDOWN_TAG) > this.mob.level().getGameTime()) {
+        if (this.mob.getPersistentData().getLongOr(PORTAL_APPROACH_COOLDOWN_TAG, 0L) > this.mob.level().getGameTime()) {
             return false;
         }
 

@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.init;
 
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.network.ServerboundActivateArmor;
@@ -25,11 +25,14 @@ import org.lwjgl.glfw.GLFW;
 @EventBusSubscriber(value = Dist.CLIENT)
 public class AnnoyingVillagersModKeyMappings {
     private static final double SPECIAL_ATTACK_CROSSHAIR_RANGE = 32.0D;
+    private static final KeyMapping.Category CATEGORY = new KeyMapping.Category(
+            net.minecraft.resources.Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "annoyingvillagers")
+    );
 
     public static final KeyMapping SPECIAL_ATTACK = new KeyMapping(
             "key.annoyingvillagers.special_attack",
             GLFW.GLFW_KEY_C,
-            "key.categories.annoyingvillagers") {
+            CATEGORY) {
         private static final int HOLD_THRESHOLD_TICKS = 10;
 
         private boolean isDownOld = false;
@@ -55,7 +58,7 @@ public class AnnoyingVillagersModKeyMappings {
                         : 0;
 
                 int type = heldTicks >= HOLD_THRESHOLD_TICKS ? 1 : 0;
-                PacketDistributor.sendToServer(createSpecialAttackMessage(type, heldTicks));
+                ClientPacketDistributor.sendToServer(createSpecialAttackMessage(type, heldTicks));
                 this.pressedAtTick = -1;
             }
 
@@ -66,14 +69,14 @@ public class AnnoyingVillagersModKeyMappings {
     public static final KeyMapping THROW_ENDER_PEARL = new KeyMapping(
             "key.annoyingvillagers.throw_ender_pearl",
             GLFW.GLFW_KEY_F,
-            "key.categories.annoyingvillagers") {
+            CATEGORY) {
         private boolean isDownOld = false;
 
         @Override
         public void setDown(boolean flag) {
             super.setDown(flag);
             if (this.isDownOld != flag && flag && Minecraft.getInstance().player != null) {
-                PacketDistributor.sendToServer(new ThrowingEnderPearlMessage(0, 0));
+                ClientPacketDistributor.sendToServer(new ThrowingEnderPearlMessage(0, 0));
                 ThrowingEnderPearlMessage.pressAction(Minecraft.getInstance().player, 0, 0);
             }
 
@@ -84,11 +87,12 @@ public class AnnoyingVillagersModKeyMappings {
     public static final KeyMapping ACTIVATE_ARMOR = new KeyMapping(
             "key.annoyingvillagers.activate_armor",
             GLFW.GLFW_KEY_Z,
-            "key.categories.annoyingvillagers"
+            CATEGORY
     );
 
     @SubscribeEvent
     public static void registerKeyBindings(RegisterKeyMappingsEvent event) {
+        event.registerCategory(CATEGORY);
         event.register(SPECIAL_ATTACK);
         event.register(THROW_ENDER_PEARL);
         event.register(ACTIVATE_ARMOR);
@@ -108,8 +112,8 @@ public class AnnoyingVillagersModKeyMappings {
 
         Camera camera = minecraft.gameRenderer.getMainCamera();
         if (camera.isInitialized()) {
-            Vector3f look = camera.getLookVector();
-            return camera.getPosition().add(
+            org.joml.Vector3fc look = camera.forwardVector();
+            return camera.position().add(
                     look.x() * SPECIAL_ATTACK_CROSSHAIR_RANGE,
                     look.y() * SPECIAL_ATTACK_CROSSHAIR_RANGE,
                     look.z() * SPECIAL_ATTACK_CROSSHAIR_RANGE
@@ -134,7 +138,7 @@ public class AnnoyingVillagersModKeyMappings {
             if (mc.screen == null) {
                 SPECIAL_ATTACK.consumeClick();
                 THROW_ENDER_PEARL.consumeClick();
-                while (ACTIVATE_ARMOR.consumeClick()) PacketDistributor.sendToServer(new ServerboundActivateArmor());
+                while (ACTIVATE_ARMOR.consumeClick()) ClientPacketDistributor.sendToServer(new ServerboundActivateArmor());
             }
         }
     }

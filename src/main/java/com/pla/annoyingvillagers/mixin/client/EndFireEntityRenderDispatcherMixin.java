@@ -2,33 +2,60 @@ package com.pla.annoyingvillagers.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.client.layer.VanillaOverlayRenderStateCache;
 import com.pla.annoyingvillagers.util.EndFireUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.feature.FlameFeatureRenderer;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(EntityRenderDispatcher.class)
+/** Selects the end-fire atlas sprites in the extracted flame feature pipeline. */
+@Mixin(FlameFeatureRenderer.class)
 public abstract class EndFireEntityRenderDispatcherMixin {
     @Unique
-    private static final Material ANNOYINGVILLAGERS_END_FIRE_0 = new Material(InventoryMenu.BLOCK_ATLAS,ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID,"block/end_fire_0"));
+    private static final Identifier ANNOYINGVILLAGERS_END_FIRE_0 =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "block/end_fire_0");
     @Unique
-    private static final Material ANNOYINGVILLAGERS_END_FIRE_1 = new Material(InventoryMenu.BLOCK_ATLAS,ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID,"block/end_fire_1"));
+    private static final Identifier ANNOYINGVILLAGERS_END_FIRE_1 =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "block/end_fire_1");
+    @Unique
+    private static final ThreadLocal<Boolean> ANNOYINGVILLAGERS_END_FIRE =
+            ThreadLocal.withInitial(() -> false);
 
-    @Redirect(method = "renderFlame",at = @At(value = "INVOKE",target = "Lnet/minecraft/client/resources/model/Material;sprite()Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;",ordinal = 0))
-    private TextureAtlasSprite annoyingVillagers$endFireSprite0(Material original,PoseStack poseStack,MultiBufferSource buffer,Entity entity) {
-        return EndFireUtil.isEndFireBurning(entity) ? ANNOYINGVILLAGERS_END_FIRE_0.sprite() : original.sprite();
+    @Inject(method = "renderFlame", at = @At("HEAD"))
+    private void annoyingVillagers$captureEndFire(PoseStack.Pose pose,
+                                                   MultiBufferSource bufferSource,
+                                                   EntityRenderState state, Quaternionf rotation,
+                                                   AtlasManager atlasManager, CallbackInfo ci) {
+        LivingEntity entity = state instanceof LivingEntityRenderState livingState
+                ? VanillaOverlayRenderStateCache.getEntity(livingState) : null;
+        ANNOYINGVILLAGERS_END_FIRE.set(entity != null && EndFireUtil.isEndFireBurning(entity));
     }
 
-    @Redirect(method = "renderFlame",at = @At(value = "INVOKE",target = "Lnet/minecraft/client/resources/model/Material;sprite()Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;",ordinal = 1))
-    private TextureAtlasSprite annoyingVillagers$endFireSprite1(Material original,PoseStack poseStack,MultiBufferSource buffer,Entity entity) {
-        return EndFireUtil.isEndFireBurning(entity) ? ANNOYINGVILLAGERS_END_FIRE_1.sprite() : original.sprite();
+    @ModifyArg(method = "renderFlame", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/resources/model/sprite/AtlasManager;get(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;"),
+            index = 0)
+    private Identifier annoyingVillagers$replaceFireSprite(Identifier original) {
+        if (!ANNOYINGVILLAGERS_END_FIRE.get()) return original;
+        return original.getPath().endsWith("fire_0")
+                ? ANNOYINGVILLAGERS_END_FIRE_0 : ANNOYINGVILLAGERS_END_FIRE_1;
+    }
+
+    @Inject(method = "renderFlame", at = @At("RETURN"))
+    private void annoyingVillagers$clearEndFire(PoseStack.Pose pose,
+                                                 MultiBufferSource bufferSource,
+                                                 EntityRenderState state, Quaternionf rotation,
+                                                 AtlasManager atlasManager, CallbackInfo ci) {
+        ANNOYINGVILLAGERS_END_FIRE.remove();
     }
 }

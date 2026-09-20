@@ -160,7 +160,7 @@ public class RisingWallBlockEntity extends Entity {
                 finalPos.getZ() + 0.5D
         );
 
-        if (!this.level().isClientSide && !this.converted && activeTicks >= this.getRiseTicks()) {
+        if (!this.level().isClientSide() && !this.converted && activeTicks >= this.getRiseTicks()) {
             this.converted = true;
             this.convertToRealBlock();
         }
@@ -201,7 +201,7 @@ public class RisingWallBlockEntity extends Entity {
                     blockState.getSoundType().getPlaceSound(),
                     SoundSource.BLOCKS,
                     1.0F,
-                    0.85F + serverLevel.random.nextFloat() * 0.25F
+                    0.85F + serverLevel.getRandom().nextFloat() * 0.25F
             );
         }
 
@@ -218,26 +218,30 @@ public class RisingWallBlockEntity extends Entity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
-        tag.put("FinalBlockPos", NbtUtils.writeBlockPos(this.getFinalBlockPos()));
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        tag.store("FinalBlockPos", BlockPos.CODEC, this.getFinalBlockPos());
         tag.put("BlockState", NbtUtils.writeBlockState(this.getBlockState()));
         tag.putInt("StartDelayTicks", this.getStartDelayTicks());
         tag.putInt("RiseTicks", this.getRiseTicks());
         tag.putBoolean("Converted", this.converted);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag tag) {
-        this.setFinalBlockPos(NbtUtils.readBlockPos(tag, "FinalBlockPos").orElse(BlockPos.ZERO));
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        this.setFinalBlockPos(tag.read("FinalBlockPos", BlockPos.CODEC).orElse(BlockPos.ZERO));
 
         this.setBlockState(NbtUtils.readBlockState(
                 this.level().holderLookup(Registries.BLOCK),
-                tag.getCompound("BlockState")
+                tag.getCompound("BlockState").orElseGet(net.minecraft.nbt.CompoundTag::new)
         ));
 
-        this.setStartDelayTicks(tag.getInt("StartDelayTicks"));
-        this.setRiseTicks(tag.getInt("RiseTicks"));
-        this.converted = tag.getBoolean("Converted");
+        this.setStartDelayTicks(tag.getIntOr("StartDelayTicks", 0));
+        this.setRiseTicks(tag.getIntOr("RiseTicks", 0));
+        this.converted = tag.getBooleanOr("Converted", false);
     }
 
     @Override
@@ -251,7 +255,7 @@ public class RisingWallBlockEntity extends Entity {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource source, float amount) {
         return false;
     }
 

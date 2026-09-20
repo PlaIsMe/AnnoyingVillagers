@@ -15,7 +15,7 @@ import com.pla.annoyingvillagers.rig.RigAnimationId;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -153,10 +153,10 @@ public class CommonUtil {
             return false;
         }
 
-        if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
+        if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
             Vec3 fractureCenter = new Vec3(center.x, origin.getY(), center.z);
             double fractureRadius = radius;
-            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new net.minecraft.world.level.ChunkPos(origin), new ClientboundGroundFracture(fractureCenter, fractureRadius, noSound, noParticle));
+            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, net.minecraft.world.level.ChunkPos.containing(origin), new ClientboundGroundFracture(fractureCenter, fractureRadius, noSound, noParticle));
             if (hurtEntities) damageCircleSlamEntities(caster, level, fractureCenter, radius);
         }
 
@@ -279,7 +279,7 @@ public class CommonUtil {
                 smallSlam ? SoundEvents.PLAYER_ATTACK_KNOCKBACK : SoundEvents.GENERIC_EXPLODE.value(),
                 SoundSource.BLOCKS,
                 smallSlam ? 0.8F : 1.4F,
-                smallSlam ? 1.1F : 0.75F + level.random.nextFloat() * 0.1F
+                smallSlam ? 1.1F : 0.75F + level.getRandom().nextFloat() * 0.1F
         );
         level.playSound(
                 null,
@@ -287,7 +287,7 @@ public class CommonUtil {
                 SoundEvents.STONE_BREAK,
                 SoundSource.BLOCKS,
                 0.9F,
-                0.75F + level.random.nextFloat() * 0.2F
+                0.75F + level.getRandom().nextFloat() * 0.2F
         );
     }
 
@@ -320,12 +320,12 @@ public class CommonUtil {
                 continue;
             }
 
-            if (target.hurt(source, damage)) {
+            if (target.hurtOrSimulate(source, damage)) {
                 Vec3 away = target.position().subtract(center);
                 Vec3 horizontal = new Vec3(away.x, 0.0D, away.z);
 
                 if (horizontal.lengthSqr() < 1.0E-6D) {
-                    horizontal = new Vec3(level.random.nextDouble() - 0.5D, 0.0D, level.random.nextDouble() - 0.5D);
+                    horizontal = new Vec3(level.getRandom().nextDouble() - 0.5D, 0.0D, level.getRandom().nextDouble() - 0.5D);
                 }
 
                 Vec3 push = horizontal.normalize().scale(0.65D);
@@ -596,7 +596,7 @@ public class CommonUtil {
                 )
         );
 
-        entity.hasImpulse = true;
+        entity.hurtMarked = true;
         entity.hurtMarked = true;
     }
 
@@ -605,14 +605,14 @@ public class CommonUtil {
             return false;
         }
 
-        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        Identifier itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
         if (itemId == null) {
             return false;
         }
 
         if (entry.startsWith("#")) {
-            ResourceLocation tagId = ResourceLocation.tryParse(entry.substring(1));
+            Identifier tagId = Identifier.tryParse(entry.substring(1));
 
             if (tagId == null) {
                 return false;
@@ -637,20 +637,20 @@ public class CommonUtil {
         }
 
         EntityType<?> type = entity.getType();
-        ResourceLocation typeId = BuiltInRegistries.ENTITY_TYPE.getKey(type);
+        Identifier typeId = BuiltInRegistries.ENTITY_TYPE.getKey(type);
 
         if (typeId == null) {
             return false;
         }
 
         if (entry.startsWith("#")) {
-            ResourceLocation tagId = ResourceLocation.tryParse(entry.substring(1));
+            Identifier tagId = Identifier.tryParse(entry.substring(1));
 
             if (tagId == null) {
                 return false;
             }
 
-            return type.is(TagKey.create(Registries.ENTITY_TYPE, tagId));
+            return type.builtInRegistryHolder().is(TagKey.create(Registries.ENTITY_TYPE, tagId));
         }
 
         if (entry.endsWith(":*")) {
@@ -672,8 +672,8 @@ public class CommonUtil {
 
         Item item = stack.getItem();
 
-        return item instanceof SwordItem
-                || item instanceof DiggerItem
+        return com.pla.annoyingvillagers.item.LegacySwordItem.isSword(item)
+                || com.pla.annoyingvillagers.item.LegacySwordItem.isTool(item)
                 || item instanceof TridentItem;
     }
 
@@ -759,7 +759,7 @@ public class CommonUtil {
             return;
         }
         InteractionHand chosenHand = candidateHands.get(
-                serverLevel.random.nextInt(candidateHands.size())
+                serverLevel.getRandom().nextInt(candidateHands.size())
         );
         ItemStack chosenStack = target.getItemInHand(chosenHand);
         if (chosenStack.isEmpty()) {

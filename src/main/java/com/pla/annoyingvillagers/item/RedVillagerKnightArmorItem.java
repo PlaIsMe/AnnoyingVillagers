@@ -8,15 +8,17 @@ import java.util.function.Consumer;
 import com.pla.annoyingvillagers.client.model.ModelVillagerKnightArmor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import com.pla.annoyingvillagers.item.LegacyArmorItem;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,10 +27,10 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class RedVillagerKnightArmorItem extends LegacyArmorItem {
 
-    public RedVillagerKnightArmorItem(ArmorItem.Type type, Properties properties) {
+    public RedVillagerKnightArmorItem(LegacyArmorItem.Type type, Properties properties) {
         super(new LegacyArmorMaterial() {
             @Override
-            public int getDurabilityForType(ArmorItem.@NotNull Type type) {
+            public int getDurabilityForType(LegacyArmorItem.@NotNull Type type) {
                 return switch (type) {
                     case BOOTS      -> 13 * 25;
                     case LEGGINGS   -> 15 * 25;
@@ -39,7 +41,7 @@ public abstract class RedVillagerKnightArmorItem extends LegacyArmorItem {
             }
 
             @Override
-            public int getDefenseForType(ArmorItem.@NotNull Type type) {
+            public int getDefenseForType(LegacyArmorItem.@NotNull Type type) {
                 return switch (type) {
                     case BOOTS      -> 4;
                     case LEGGINGS   -> 5;
@@ -54,11 +56,11 @@ public abstract class RedVillagerKnightArmorItem extends LegacyArmorItem {
             }
 
             public Object getEquipSound() {
-                return (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_chain")));
+                return (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "item.armor.equip_chain")));
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of();
+                return null;
             }
 
             public @NotNull String getName() {
@@ -78,7 +80,7 @@ public abstract class RedVillagerKnightArmorItem extends LegacyArmorItem {
     public static class Boots extends RedVillagerKnightArmorItem {
 
         public Boots() {
-            super(Type.BOOTS, (new Properties()));
+            super(Type.BOOTS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -89,7 +91,7 @@ public abstract class RedVillagerKnightArmorItem extends LegacyArmorItem {
     public static class Leggings extends RedVillagerKnightArmorItem {
 
         public Leggings() {
-            super(Type.LEGGINGS, (new Properties()));
+            super(Type.LEGGINGS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -100,7 +102,7 @@ public abstract class RedVillagerKnightArmorItem extends LegacyArmorItem {
     public static class Chestplate extends RedVillagerKnightArmorItem {
 
         public Chestplate() {
-            super(Type.CHESTPLATE, (new Properties()));
+            super(Type.CHESTPLATE, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -111,19 +113,14 @@ public abstract class RedVillagerKnightArmorItem extends LegacyArmorItem {
     public static class Armor extends RedVillagerKnightArmorItem {
 
         public Armor() {
-            super(Type.HELMET, (new Properties()));
+            super(Type.HELMET, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public void initializeClient(Consumer<IClientItemExtensions> consumer) {
             consumer.accept(new IClientItemExtensions() {
                 @Override
-                public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
-                    HumanoidModel humanoidmodel = new HumanoidModel(new ModelPart(Collections.emptyList(), Map.of("head", (new ModelVillagerKnightArmor<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelVillagerKnightArmor.LAYER_LOCATION))).Head, "hat", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "body", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "right_arm", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "left_arm", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "right_leg", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "left_leg", new ModelPart(Collections.emptyList(), Collections.emptyMap()))));
-
-                    humanoidmodel.crouching = livingEntity.isShiftKeyDown();
-                    humanoidmodel.riding = original.riding;
-                    humanoidmodel.young = livingEntity.isBaby();
-                    return humanoidmodel;
+                public @NotNull Model getHumanoidArmorModel(ItemStack itemStack, EquipmentClientInfo.LayerType layerType, Model original) {
+                    return new HumanoidModel<>(com.pla.annoyingvillagers.client.compat.LegacyHumanoidModel.adaptLegacyRoot(new ModelPart(Collections.emptyList(), Map.of("head", (new ModelVillagerKnightArmor<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelVillagerKnightArmor.LAYER_LOCATION))).Head, "hat", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "body", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "right_arm", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "left_arm", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "right_leg", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "left_leg", new ModelPart(Collections.emptyList(), Collections.emptyMap())))));
                 }
             });
         }

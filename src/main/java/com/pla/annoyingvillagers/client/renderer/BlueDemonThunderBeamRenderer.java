@@ -6,20 +6,21 @@ import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.engine.ThunderRender;
 import com.pla.annoyingvillagers.entity.BlueDemonThunderBeamEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-@OnlyIn(Dist.CLIENT)
-public class BlueDemonThunderBeamRenderer extends EntityRenderer<BlueDemonThunderBeamEntity> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/dragon_beam.png");
+public class BlueDemonThunderBeamRenderer extends LegacyEntityRenderer<BlueDemonThunderBeamEntity> {
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/dragon_beam.png");
     private final ThunderRender thunderRender = new ThunderRender();
 
     public BlueDemonThunderBeamRenderer(EntityRendererProvider.Context pContext) {
@@ -27,11 +28,14 @@ public class BlueDemonThunderBeamRenderer extends EntityRenderer<BlueDemonThunde
     }
 
     public @NotNull Vec3 getRenderOffset(BlueDemonThunderBeamEntity dragonBeam, float p_114484_) {
-        return new Vec3(dragonBeam.level().random.nextGaussian() * 0.03, dragonBeam.level().random.nextGaussian() * 0.03, dragonBeam.level().random.nextGaussian() * 0.03);
+        return new Vec3(dragonBeam.level().getRandom().nextGaussian() * 0.03, dragonBeam.level().getRandom().nextGaussian() * 0.03, dragonBeam.level().getRandom().nextGaussian() * 0.03);
     }
 
-    public void render(@NotNull BlueDemonThunderBeamEntity blueDemonThunderBeamEntity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight) {
-        super.render(blueDemonThunderBeamEntity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+    public void submit(LegacyEntityRenderState<BlueDemonThunderBeamEntity> state, PoseStack poseStack,
+                       SubmitNodeCollector collector, CameraRenderState camera) {
+        super.submit(state, poseStack, collector, camera);
+        BlueDemonThunderBeamEntity blueDemonThunderBeamEntity = state.entity;
+        float partialTicks = state.partialTick;
         if (blueDemonThunderBeamEntity.isSetUseNoVfxThunder()) {
             poseStack.pushPose();
             Vec3 from = blueDemonThunderBeamEntity.getStartPos();
@@ -43,12 +47,14 @@ public class BlueDemonThunderBeamRenderer extends EntityRenderer<BlueDemonThunde
                     .spawn(ThunderRender.ThunderData.SpawnFunction.delay(1F));
             thunderRender.update(null, bolt, partialTicks);
             poseStack.translate(-blueDemonThunderBeamEntity.getX(), -blueDemonThunderBeamEntity.getY(), -blueDemonThunderBeamEntity.getZ());
-            thunderRender.render(partialTicks, poseStack, buffer);
+            collector.submitCustomGeometry(poseStack,
+                    net.minecraft.client.renderer.rendertype.RenderTypes.lightning(),
+                    (rootPose, vertices) -> thunderRender.render(partialTicks, rootPose, vertices));
             poseStack.popPose();
         }
     }
 
-    public @NotNull ResourceLocation getTextureLocation(@NotNull BlueDemonThunderBeamEntity dragonBeam) {
+    public @NotNull Identifier getTextureLocation(@NotNull BlueDemonThunderBeamEntity dragonBeam) {
         return TEXTURE;
     }
 

@@ -3,10 +3,10 @@ package com.pla.annoyingvillagers.mixin.compat.punchy;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.client.renderer.ObsidianArmorExtensionRenderer;
 import com.pla.annoyingvillagers.item.HerobrineObsidianArmorCharge;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.neoforged.fml.ModList;
@@ -25,7 +25,7 @@ public abstract class PunchyArmRendererMixin {
     // Older Punchy versions have no renderArmArmor method.
     @Inject(method = "renderArmArmor", at = @At("HEAD"), cancellable = true, require = 0)
     private static void av$skipVanillaObsidianSleeve(
-            PlayerModel<AbstractClientPlayer> model,
+            PlayerModel model,
             AbstractClientPlayer player,
             HumanoidArm arm,
             PoseStack poseStack,
@@ -53,13 +53,13 @@ public abstract class PunchyArmRendererMixin {
             require = 1
     )
     private static void av$renderObsidianRightArm(
-            PlayerModel<AbstractClientPlayer> model,
+            PlayerModel model,
             AbstractClientPlayer player,
             HumanoidArm arm,
             PoseStack poseStack,
             MultiBufferSource buffer,
             int light,
-            ResourceLocation skin,
+            Identifier skin,
             boolean slim,
             float partialTick,
             CallbackInfo ci

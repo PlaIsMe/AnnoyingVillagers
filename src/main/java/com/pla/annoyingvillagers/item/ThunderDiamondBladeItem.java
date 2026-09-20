@@ -8,7 +8,7 @@ import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
@@ -42,9 +42,9 @@ public class ThunderDiamondBladeItem extends LegacySwordItem implements RigComba
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get()));
+                return Ingredient.of(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get());
             }
-        }, 3, -2.0F, (new Properties()));
+        }, 3, -2.0F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override
@@ -53,16 +53,16 @@ public class ThunderDiamondBladeItem extends LegacySwordItem implements RigComba
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) return InteractionResult.PASS;
         if (level instanceof ServerLevel serverLevel) {
             ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, player, false);
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_ONE_HANDED_UPPERCUT_RIGHT);
             VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-            player.getCooldowns().addCooldown(this, VANILLA_RIGHT_CLICK_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_RIGHT_CLICK_COOLDOWN_TICKS);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
 

@@ -36,7 +36,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -317,7 +317,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
     }
 
     public boolean canFishingHookCancelEscape() {
-        return this.escapeTiming >= 0 || this.getPersistentData().getBoolean(HerobrinePortalUtil.NBT_SINKING);
+        return this.escapeTiming >= 0 || this.getPersistentData().getBooleanOr(HerobrinePortalUtil.NBT_SINKING, false);
     }
 
     public boolean tryFishingHookCancelEscape() {
@@ -589,7 +589,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
     private void cancelEscapeAndDropFragment() {
         this.escapeTiming = -1;
         HerobrinePortalUtil.cancelSinkTransition(this);
-        this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get()));
+        com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get()));
     }
 
     private void tickCombatLowCloneSupportSlots() {
@@ -674,9 +674,9 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float amount) {
         if (damageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            return super.hurt(damageSource, amount);
+            return super.hurtServer(serverLevel, damageSource, amount);
         }
 
         if (damageSource.is(DamageTypes.FALL)) return false;
@@ -686,7 +686,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
         if (damageSource.is(DamageTypes.WITHER_SKULL)) return false;
         if (damageSource.is(DamageTypes.DRAGON_BREATH)) return false;
 
-        return super.hurt(damageSource, 1.0F);
+        return super.hurtServer(serverLevel, damageSource, 1.0F);
     }
 
     @Override
@@ -704,42 +704,44 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
         int looting = 0;
         super.dropCustomDeathLoot(level, damageSource, recentlyHit);
         if (this.escapeTiming >= 0 || this.fishingHookCancelledEscape) {
-            this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get()));
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get()));
             return;
         }
         if (this.getRandom().nextFloat() < TRANSPORTER_FRAGMENT_DROP_CHANCE) {
-            this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get()));
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get()));
         }
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag compoundTag) {
-        super.readAdditionalSaveData(compoundTag);
-        this.escapeTiming = compoundTag.contains("TransporterEscapeTiming") ? compoundTag.getInt("TransporterEscapeTiming") : -1;
-        this.escapeRetryCooldown = compoundTag.contains("TransporterEscapeRetryCooldown") ? compoundTag.getInt("TransporterEscapeRetryCooldown") : 0;
-        this.supportAvoidRepathCooldown = compoundTag.contains("SupportAvoidRepathCooldown") ? compoundTag.getInt("SupportAvoidRepathCooldown") : 0;
-        this.fishingHookCancelledEscape = compoundTag.getBoolean("FishingHookCancelledEscape");
-        this.lowCloneSupportCooldown = compoundTag.contains("LowCloneSupportCooldown") ? compoundTag.getInt("LowCloneSupportCooldown") : randomCooldownSeconds(90, 180);
-        this.portalActionCooldown = compoundTag.contains("PortalActionCooldown") ? compoundTag.getInt("PortalActionCooldown") : randomCooldownSeconds(20, 45);
-        this.hookedWaitingForGround = compoundTag.getBoolean("HookedWaitingForGround");
-        this.hookedLeftGround = compoundTag.getBoolean("HookedLeftGround");
-        this.setHooked(compoundTag.getBoolean("Hooked"));
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag compoundTag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        this.escapeTiming = compoundTag.contains("TransporterEscapeTiming") ? compoundTag.getIntOr("TransporterEscapeTiming", 0) : -1;
+        this.escapeRetryCooldown = compoundTag.contains("TransporterEscapeRetryCooldown") ? compoundTag.getIntOr("TransporterEscapeRetryCooldown", 0) : 0;
+        this.supportAvoidRepathCooldown = compoundTag.contains("SupportAvoidRepathCooldown") ? compoundTag.getIntOr("SupportAvoidRepathCooldown", 0) : 0;
+        this.fishingHookCancelledEscape = compoundTag.getBooleanOr("FishingHookCancelledEscape", false);
+        this.lowCloneSupportCooldown = compoundTag.contains("LowCloneSupportCooldown") ? compoundTag.getIntOr("LowCloneSupportCooldown", 0) : randomCooldownSeconds(90, 180);
+        this.portalActionCooldown = compoundTag.contains("PortalActionCooldown") ? compoundTag.getIntOr("PortalActionCooldown", 0) : randomCooldownSeconds(20, 45);
+        this.hookedWaitingForGround = compoundTag.getBooleanOr("HookedWaitingForGround", false);
+        this.hookedLeftGround = compoundTag.getBooleanOr("HookedLeftGround", false);
+        this.setHooked(compoundTag.getBooleanOr("Hooked", false));
         if (this.isHooked() && this.hookedWaitingForGround) {
             this.releaseHookedPhysicsUntilGround();
         }
         this.setNoAi(this.shouldStayNoAiLocked());
         for (int i = 0; i < MAX_COMBAT_LOW_CLONE_SUPPORT; i++) {
             String key = "CombatLowCloneSupportUUID" + i;
-            if (compoundTag.hasUUID(key)) {
-                this.combatLowCloneSupportUUIDs[i] = compoundTag.getUUID(key);
+            if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(compoundTag, key)) {
+                this.combatLowCloneSupportUUIDs[i] = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(compoundTag, key);
             }
         }
         this.enforceTransporterHealthCap();
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag compoundTag) {
-        super.addAdditionalSaveData(compoundTag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag compoundTag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         compoundTag.putInt("TransporterEscapeTiming", this.escapeTiming);
         compoundTag.putInt("TransporterEscapeRetryCooldown", this.escapeRetryCooldown);
         compoundTag.putInt("SupportAvoidRepathCooldown", this.supportAvoidRepathCooldown);
@@ -751,17 +753,19 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
         compoundTag.putBoolean("HookedLeftGround", this.hookedLeftGround);
         for (int i = 0; i < MAX_COMBAT_LOW_CLONE_SUPPORT; i++) {
             if (this.combatLowCloneSupportUUIDs[i] != null) {
-                compoundTag.putUUID("CombatLowCloneSupportUUID" + i, this.combatLowCloneSupportUUIDs[i]);
+                com.pla.annoyingvillagers.util.LegacyNbt.putUUID(compoundTag, "CombatLowCloneSupportUUID" + i, this.combatLowCloneSupportUUIDs[i]);
             }
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, compoundTag);
     }
 
-    public static boolean canSpawn(EntityType<TransporterHerobrineCloneEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
+    public static boolean canSpawn(EntityType<TransporterHerobrineCloneEntity> entityType, ServerLevelAccessor level, EntitySpawnReason spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
         if (HerobrineMobData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
         }
-        if (!serverLevel.isNight()) {
+        if (!com.pla.annoyingvillagers.util.LegacyLevelTime.isNight(serverLevel)) {
             return false;
         }
         return ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM) &&  Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);

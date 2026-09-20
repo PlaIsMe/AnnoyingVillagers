@@ -1,18 +1,13 @@
 package com.pla.annoyingvillagers.blockentity;
 
 import com.pla.annoyingvillagers.block.FractureBlockState;
+import com.pla.annoyingvillagers.client.engine.FractureBlockEntityClient;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlockEntities;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -26,15 +21,14 @@ public class FractureBlockEntity extends BlockEntity {
 
     public FractureBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(AnnoyingVillagersModBlockEntities.FRACTURE_BLOCK.get(), blockPos, blockState);
-    }
-
-    public FractureBlockEntity(BlockPos blockPos, BlockState blockState, FractureBlockState fractureBlockState) {
-        super(AnnoyingVillagersModBlockEntities.FRACTURE_BLOCK.get(), blockPos, blockState);
-        this.originalBlockState = fractureBlockState.getOriginalBlockState(blockPos);
-        this.bouncing = fractureBlockState.getBouncing();
-        this.translate = new Vector3f(fractureBlockState.getTranslate());
-        this.rotation = new Quaternionf(fractureBlockState.getRotation());
-        this.maxLifeTime = fractureBlockState.getLifeTime();
+        FractureBlockState.Data data = FractureBlockState.take(blockPos);
+        if (data != null) {
+            this.originalBlockState = data.originalState();
+            this.bouncing = data.bouncing();
+            this.translate = new Vector3f(data.translate());
+            this.rotation = new Quaternionf(data.rotation());
+            this.maxLifeTime = data.maxLifeTime();
+        }
     }
 
     public BlockState getOriginalBlockState() { return this.originalBlockState; }
@@ -44,7 +38,6 @@ public class FractureBlockEntity extends BlockEntity {
     public int getMaxLifeTime() { return this.maxLifeTime; }
     public int getLifeTime() { return this.lifeTime; }
 
-    @OnlyIn(Dist.CLIENT)
     public static void lifeTimeTick(Level level, BlockPos blockPos, BlockState blockState, FractureBlockEntity blockEntity) {
         if (blockEntity.originalBlockState == null) {
             level.removeBlockEntity(blockPos);
@@ -53,10 +46,7 @@ public class FractureBlockEntity extends BlockEntity {
         }
 
         if (!blockEntity.originalBlockState.isAir() && blockEntity.maxLifeTime - blockEntity.lifeTime < 10) {
-            Particle blockParticle = new TerrainParticle((ClientLevel) level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0D, 0.0D, 0.0D, blockEntity.originalBlockState, blockPos);
-            blockParticle.setParticleSpeed((Math.random() - 0.5D) * 0.3D, Math.random() * 0.5D, (Math.random() - 0.5D) * 0.3D);
-            blockParticle.setLifetime(10 + level.random.nextInt(60));
-            Minecraft.getInstance().particleEngine.add(blockParticle);
+            FractureBlockEntityClient.spawnTerrainParticle(level, blockPos, blockEntity.originalBlockState);
         }
 
         if (blockEntity.lifeTime++ > blockEntity.maxLifeTime) {

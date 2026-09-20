@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -32,10 +33,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class SnakeBladeEntity extends Entity {
-    private static final EntityDataAccessor<Optional<UUID>> CREATOR_ID =
-            SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.OPTIONAL_UUID);
-    private static final EntityDataAccessor<Optional<UUID>> PORTAL_GROUP_ID =
-            SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<String> CREATOR_ID =
+            SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> PORTAL_GROUP_ID =
+            SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> FROM_ID =
             SynchedEntityData.defineId(SnakeBladeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> RENDER_FROM_ID =
@@ -81,8 +82,8 @@ public class SnakeBladeEntity extends Entity {
 
             @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(CREATOR_ID, Optional.empty());
-        builder.define(PORTAL_GROUP_ID, Optional.empty());
+        builder.define(CREATOR_ID, "");
+        builder.define(PORTAL_GROUP_ID, "");
         builder.define(FROM_ID, -1);
         builder.define(RENDER_FROM_ID, -1);
         builder.define(LAST_PORTAL_ORDER, -1);
@@ -196,7 +197,7 @@ public class SnakeBladeEntity extends Entity {
             DamageSource src = (owner != null)
                     ? this.level().damageSources().indirectMagic(this, owner)
                     : this.level().damageSources().generic();
-            target.hurt(src, this.getDamage(owner) / 2);
+            target.hurtOrSimulate(src, this.getDamage(owner) / 2);
             dealStaminaDamage(target, src);
             knockBack(target);
         }
@@ -256,7 +257,7 @@ public class SnakeBladeEntity extends Entity {
 //            }
 //        }
 
-        if (creator instanceof Mob mob && !mob.level().isClientSide) {
+        if (creator instanceof Mob mob && !mob.level().isClientSide()) {
             RigAnimationId activeAnimation = RigAnimationController.getActiveAnimationId(mob);
             if (activeAnimation == RigAnimationId.SWORDSMAN_HEROBRINE_ULT
                     || activeAnimation == RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT) {
@@ -271,7 +272,7 @@ public class SnakeBladeEntity extends Entity {
 
     private void clearSnakeAnimationTag(Entity creator) {
         if (creator instanceof Player player) {
-            for (ItemStack stack : player.getInventory().items) {
+            for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
                 if (stack.is(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get())) {
                     DemoniacVoltageReaverItem.clearSnakeAnimation(stack);
                 }
@@ -307,7 +308,7 @@ public class SnakeBladeEntity extends Entity {
 
         if (currentTarget != null
                 && !(currentTarget instanceof PortalEntity)
-                && !this.level().isClientSide
+                && !this.level().isClientSide()
                 && this.getProgress() >= MAX_EXTEND_TIME) {
             if (this.postHitChainDelayTicks <= 0 && (!this.attemptedCurrentTargetHit || this.tickCount % 2 == 0)) {
                 tryAttackTarget(livingCreator, currentTarget);
@@ -321,7 +322,7 @@ public class SnakeBladeEntity extends Entity {
         if (target instanceof PortalEntity) return;
         if (creator instanceof SwordsmanHerobrineEntity && target instanceof HerobrineGregEntity) return;
 
-        if (target.hurt(this.level().damageSources().indirectMagic(this, creator), this.getDamage(creator))) {
+        if (target.hurtOrSimulate(this.level().damageSources().indirectMagic(this, creator), this.getDamage(creator))) {
             markTouched(target);
             this.postHitChainDelayTicks = Math.max(this.postHitChainDelayTicks, POST_HIT_CHAIN_DELAY_TICKS);
 
@@ -574,7 +575,8 @@ public class SnakeBladeEntity extends Entity {
     }
 
     private UUID getActivePortalGroupUUID() {
-        return this.entityData.get(PORTAL_GROUP_ID).orElse(null);
+        String value = this.entityData.get(PORTAL_GROUP_ID);
+        return value.isEmpty() ? null : UUID.fromString(value);
     }
 
     private int getLastPortalOrder() {
@@ -582,7 +584,7 @@ public class SnakeBladeEntity extends Entity {
     }
 
     private void setPortalChainState(UUID portalGroupUuid, int lastPortalOrder) {
-        this.entityData.set(PORTAL_GROUP_ID, Optional.ofNullable(portalGroupUuid));
+        this.entityData.set(PORTAL_GROUP_ID, portalGroupUuid == null ? "" : portalGroupUuid.toString());
         this.entityData.set(LAST_PORTAL_ORDER, lastPortalOrder);
     }
 
@@ -683,7 +685,7 @@ public class SnakeBladeEntity extends Entity {
     private void createChain(Entity nextTarget) {
         this.entityData.set(HAS_BLADE, false);
 
-        SnakeBladeEntity child = AnnoyingVillagersModEntities.SNAKE_BLADE.get().create(this.level());
+        SnakeBladeEntity child = AnnoyingVillagersModEntities.SNAKE_BLADE.get().create(this.level(), EntitySpawnReason.TRIGGERED);
         if (child == null) return;
 
         if (this.isEnchanted()) {
@@ -708,7 +710,7 @@ public class SnakeBladeEntity extends Entity {
     private void createChainToPortal(PortalEntity nextPortal) {
         this.entityData.set(HAS_BLADE, false);
 
-        SnakeBladeEntity child = AnnoyingVillagersModEntities.SNAKE_BLADE.get().create(this.level());
+        SnakeBladeEntity child = AnnoyingVillagersModEntities.SNAKE_BLADE.get().create(this.level(), EntitySpawnReason.TRIGGERED);
         if (child == null) return;
 
         if (this.isEnchanted()) {
@@ -736,7 +738,7 @@ public class SnakeBladeEntity extends Entity {
     private void createChainFromPortalExit(PortalEntity exitPortal, Entity nextTarget) {
         this.entityData.set(HAS_BLADE, false);
 
-        SnakeBladeEntity child = AnnoyingVillagersModEntities.SNAKE_BLADE.get().create(this.level());
+        SnakeBladeEntity child = AnnoyingVillagersModEntities.SNAKE_BLADE.get().create(this.level(), EntitySpawnReason.TRIGGERED);
         if (child == null) return;
 
         if (this.isEnchanted()) {
@@ -770,7 +772,7 @@ public class SnakeBladeEntity extends Entity {
     private void createChainGuard(String nextDirection) {
         this.entityData.set(HAS_BLADE, false);
 
-        SnakeBladeEntity child = AnnoyingVillagersModEntities.SNAKE_BLADE.get().create(this.level());
+        SnakeBladeEntity child = AnnoyingVillagersModEntities.SNAKE_BLADE.get().create(this.level(), EntitySpawnReason.TRIGGERED);
         if (child == null) return;
 
         if (this.isEnchanted()) {
@@ -798,8 +800,8 @@ public class SnakeBladeEntity extends Entity {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource pSource, float amount) {
-        if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel && !pSource.is(DamageTypes.IN_WALL)) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pSource, float amount) {
+        if (!this.level().isClientSide() && true && !pSource.is(DamageTypes.IN_WALL)) {
             CommonUtil.damageBlocked(pSource, this, serverLevel);
         }
         return false;
@@ -813,11 +815,12 @@ public class SnakeBladeEntity extends Entity {
     }
 
     public UUID getCreatorEntityUUID() {
-        return this.entityData.get(CREATOR_ID).orElse(null);
+        String value = this.entityData.get(CREATOR_ID);
+        return value.isEmpty() ? null : UUID.fromString(value);
     }
 
     public void setCreatorEntityUUID(UUID id) {
-        this.entityData.set(CREATOR_ID, Optional.ofNullable(id));
+        this.entityData.set(CREATOR_ID, id == null ? "" : id.toString());
     }
 
     public Entity getCreatorEntity() {
@@ -898,11 +901,15 @@ public class SnakeBladeEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
     }
 
     @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     public boolean isCreator(Entity mob) {

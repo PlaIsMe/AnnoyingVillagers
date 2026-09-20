@@ -58,7 +58,7 @@ public class HerobrinePortalUtil {
         tag.putInt(NBT_TICKS, 0);
         tag.putInt(NBT_MAX_TICKS, 20 * 5);
 
-        level.playSound(null, entity.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 0.6f, 0.8f + level.random.nextFloat() * 0.2f);
+        level.playSound(null, entity.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 0.6f, 0.8f + level.getRandom().nextFloat() * 0.2f);
 
     }
 
@@ -80,7 +80,7 @@ public class HerobrinePortalUtil {
         tag.putInt(NBT_SINK_TICKS, 0);
         tag.putInt(NBT_SINK_MAX_TICKS, 20 * 5);
 
-        level.playSound(null, entity.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 0.5f, 1.2f + level.random.nextFloat() * 0.2f);
+        level.playSound(null, entity.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 0.5f, 1.2f + level.getRandom().nextFloat() * 0.2f);
 
     }
 
@@ -122,7 +122,7 @@ public class HerobrinePortalUtil {
         if (entity instanceof ServerPlayer serverPlayer) {
             serverPlayer.setPos(x, y, z);
             var tag = serverPlayer.getPersistentData();
-            int transitionTicks = tag.getBoolean(NBT_RISING) ? tag.getInt(NBT_TICKS) : tag.getInt(NBT_SINK_TICKS);
+            int transitionTicks = tag.getBooleanOr(NBT_RISING, false) ? tag.getIntOr(NBT_TICKS, 0) : tag.getIntOr(NBT_SINK_TICKS, 0);
             if (transitionTicks == 0 || transitionTicks % 4 == 0) serverPlayer.connection.teleport(x, y, z, serverPlayer.getYRot(), serverPlayer.getXRot());
         } else {
             entity.setPos(x, y, z);

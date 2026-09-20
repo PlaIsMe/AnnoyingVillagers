@@ -24,11 +24,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -123,35 +123,39 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (thunderHerobrineDragonUUID != null) {
-            tag.putUUID("ThunderHerobrineDragonUUID", thunderHerobrineDragonUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "ThunderHerobrineDragonUUID", thunderHerobrineDragonUUID);
         }
         if (meteoriteHerobrineDragonUUID != null) {
-            tag.putUUID("MeteoriteHerobrineDragonUUID", meteoriteHerobrineDragonUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "MeteoriteHerobrineDragonUUID", meteoriteHerobrineDragonUUID);
         }
         if (healingHerobrineDragonUUID != null) {
-            tag.putUUID("HealingHerobrineDragonUUID", healingHerobrineDragonUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "HealingHerobrineDragonUUID", healingHerobrineDragonUUID);
         }
         tag.putBoolean("SpawnDragonInit", spawnDragonInit);
         tag.putInt("DragonSummonCooldown", dragonSummonCooldown);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("ThunderHerobrineDragonUUID")) {
-            thunderHerobrineDragonUUID = tag.getUUID("ThunderHerobrineDragonUUID");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "ThunderHerobrineDragonUUID")) {
+            thunderHerobrineDragonUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "ThunderHerobrineDragonUUID");
         }
-        if (tag.hasUUID("MeteoriteHerobrineDragonUUID")) {
-            meteoriteHerobrineDragonUUID = tag.getUUID("MeteoriteHerobrineDragonUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "MeteoriteHerobrineDragonUUID")) {
+            meteoriteHerobrineDragonUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "MeteoriteHerobrineDragonUUID");
         }
-        if (tag.hasUUID("HealingHerobrineDragonUUID")) {
-            healingHerobrineDragonUUID = tag.getUUID("HealingHerobrineDragonUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "HealingHerobrineDragonUUID")) {
+            healingHerobrineDragonUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "HealingHerobrineDragonUUID");
         }
-        spawnDragonInit = tag.getBoolean("SpawnDragonInit");
-        dragonSummonCooldown = tag.contains("DragonSummonCooldown") ? tag.getInt("DragonSummonCooldown") : dragonSummonCooldown;
+        spawnDragonInit = tag.getBooleanOr("SpawnDragonInit", false);
+        dragonSummonCooldown = tag.contains("DragonSummonCooldown") ? tag.getIntOr("DragonSummonCooldown", 0) : dragonSummonCooldown;
     }
 
     // 0: thunder dragon
@@ -234,7 +238,7 @@ public class ReaperHerobrineEntity extends HerobrineMob {
         dragon.setYHeadRot(this.getYRot());
         dragon.setYBodyRot(this.getYRot());
         dragon.setXRot(-85.0F);
-        dragon.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(BlockPos.containing(spawnPos)), MobSpawnType.MOB_SUMMONED, null);
+        dragon.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(BlockPos.containing(spawnPos)), EntitySpawnReason.MOB_SUMMONED, null);
         dragon.setPos(spawnPos);
         dragon.setYRot(this.getYRot());
         dragon.setYHeadRot(this.getYRot());
@@ -253,15 +257,15 @@ public class ReaperHerobrineEntity extends HerobrineMob {
     private Vec3 findSummonSpawnPos(ServerLevel serverLevel) {
         double y = Mth.clamp(
                 this.getY() - SUMMON_UNDERGROUND_DISTANCE,
-                serverLevel.getMinBuildHeight() + 2.0D,
-                serverLevel.getMaxBuildHeight() - 8.0D
+                serverLevel.getMinY() + 2.0D,
+                serverLevel.getMaxY() - 8.0D
         );
         return new Vec3(this.getX(), y, this.getZ());
     }
 
     private Vec3 findSummonRiseTarget(ServerLevel serverLevel, HerobrineDragonEntity dragon) {
-        double minY = serverLevel.getMinBuildHeight() + 6.0D;
-        double maxY = serverLevel.getMaxBuildHeight() - 6.0D;
+        double minY = serverLevel.getMinY() + 6.0D;
+        double maxY = serverLevel.getMaxY() - 6.0D;
 
         if (serverLevel.dimensionType().hasCeiling()) {
             BlockPos column = BlockPos.containing(this.getX(), 0.0D, this.getZ());
@@ -363,20 +367,20 @@ public class ReaperHerobrineEntity extends HerobrineMob {
                 || !this.healingHerobrineDragon.getPassengers().isEmpty()) return;
 
         EndCrystal endCrystal = new EndCrystal(EntityType.END_CRYSTAL, serverLevel);
-        endCrystal.moveTo(this.healingHerobrineDragon.getX(), this.healingHerobrineDragon.getY(), this.healingHerobrineDragon.getZ());
+        endCrystal.snapTo(this.healingHerobrineDragon.getX(), this.healingHerobrineDragon.getY(), this.healingHerobrineDragon.getZ());
         serverLevel.addFreshEntity(endCrystal);
-        endCrystal.startRiding(this.healingHerobrineDragon, true);
+        endCrystal.startRiding(this.healingHerobrineDragon);
     }
 
     @Override
-    public boolean canChangeDimensions(Level from, Level to) {
+    public boolean canUsePortal(boolean ignorePassenger) {
         return false;
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (!level().isClientSide) {
+        if (!level().isClientSide()) {
             if (this.dragonSummonAnimationStarted && !this.isDragonSummonAnimationPlaying()) {
                 this.dragonSummonAnimationStarted = false;
                 this.finishDragonSummonAnimation();
@@ -503,7 +507,7 @@ public class ReaperHerobrineEntity extends HerobrineMob {
         }
     }
 
-    public boolean hurt(@NotNull DamageSource damagesource, float f) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damagesource, float f) {
         if (damagesource.is(DamageTypes.FALL)) return false;
         if (damagesource.is(DamageTypes.CACTUS)) return false;
         if (damagesource.is(DamageTypes.WITHER)) return false;
@@ -513,23 +517,23 @@ public class ReaperHerobrineEntity extends HerobrineMob {
         if (!(damagesource.getDirectEntity() instanceof EnchantedArrowEntity)
                 && damagesource.getDirectEntity() instanceof AbstractArrow
                 && !(damagesource.getDirectEntity() instanceof BlueDemonThrownTridentEntity)) return false;
-        return super.hurt(damagesource, f);
+        return super.hurtServer(serverLevel, damagesource, f);
     }
 
     @Override
     public void remove(@NotNull RemovalReason reason) {
         if (this.thunderHerobrineDragon != null) {
-            this.thunderHerobrineDragon.kill();
+            com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this.thunderHerobrineDragon);
             this.thunderHerobrineDragon = null;
             this.thunderHerobrineDragonUUID = null;
         }
         if (this.meteoriteHerobrineDragon != null) {
-            this.meteoriteHerobrineDragon.kill();
+            com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this.meteoriteHerobrineDragon);
             this.meteoriteHerobrineDragon = null;
             this.meteoriteHerobrineDragonUUID = null;
         }
         if (this.healingHerobrineDragon != null) {
-            this.healingHerobrineDragon.kill();
+            com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this.healingHerobrineDragon);
             this.healingHerobrineDragon = null;
             this.healingHerobrineDragonUUID = null;
         }
@@ -541,9 +545,9 @@ public class ReaperHerobrineEntity extends HerobrineMob {
         if (this.level() instanceof ServerLevel serverLevel) {
             EliteHerobrineKnockedEntity eliteHerobrineKnockedEntity = new EliteHerobrineKnockedEntity(AnnoyingVillagersModEntities.ELITE_HEROBRINE_KNOCKED.get(), serverLevel);
 
-            eliteHerobrineKnockedEntity.moveTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
+            eliteHerobrineKnockedEntity.snapTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
             eliteHerobrineKnockedEntity.getPersistentData().putString("FromElite", "EnderSlayerScythe");
-            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(eliteHerobrineKnockedEntity);
 

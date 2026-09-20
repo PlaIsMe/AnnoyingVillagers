@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.world;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersSpawnConfig;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -18,12 +18,12 @@ public final class AVWorldSpawns {
     public static void addBiomeSpawns(ModifiableBiomeInfo.BiomeInfo.Builder builder) {
         for (AnnoyingVillagersSpawnConfig.Entry entry : AnnoyingVillagersSpawnConfig.ENTRIES) {
             AnnoyingVillagersSpawnConfig.SpawnConfig spawnConfig = AnnoyingVillagersSpawnConfig.getSpawnConfig(entry.entityId());
-            addSpawn(builder, ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, entry.entityId()), spawnConfig);
+            addSpawn(builder, Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, entry.entityId()), spawnConfig);
         }
     }
 
     private static void addSpawn(ModifiableBiomeInfo.BiomeInfo.Builder builder,
-                                 ResourceLocation entityId,
+                                 Identifier entityId,
                                  AnnoyingVillagersSpawnConfig.SpawnConfig spawnConfig) {
 
         if (spawnConfig.weight() <= 0) return;
@@ -39,6 +39,6 @@ public final class AVWorldSpawns {
 
         builder.getMobSpawnSettings()
                 .getSpawner(mobType.getCategory())
-                .add(new MobSpawnSettings.SpawnerData(mobType, spawnConfig.weight(), spawnConfig.minCount(), spawnConfig.maxCount()));
+                .add(new MobSpawnSettings.SpawnerData(mobType, spawnConfig.minCount(), spawnConfig.maxCount()), spawnConfig.weight());
     }
 }

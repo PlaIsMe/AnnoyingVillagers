@@ -30,7 +30,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -134,9 +134,9 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             airChance += 0.20F;
         }
 
-        this.escapeFlying = this.random.nextFloat() < airChance;
-        this.escapeLocomotionTicks = this.random.nextInt(25, 60);
-        this.escapeFlightHeight = 1.0F + this.random.nextFloat() * 4.0F; // 1 to 5 blocks
+        this.escapeFlying = this.getRandom().nextFloat() < airChance;
+        this.escapeLocomotionTicks = this.getRandom().nextInt(25, 60);
+        this.escapeFlightHeight = 1.0F + this.getRandom().nextFloat() * 4.0F; // 1 to 5 blocks
 
         if (!this.escapeFlying) {
             this.setNoGravity(false);
@@ -241,7 +241,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     @Override
     public boolean canBeAffected(MobEffectInstance effect) {
         if (effect.getEffect() == MobEffects.POISON) {
-            if (!this.level().isClientSide && this.isAlive()) {
+            if (!this.level().isClientSide() && this.isAlive()) {
                 this.heal(4.0F);
             }
             return false;
@@ -342,7 +342,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             }
         }
 
-        this.moveTo(x + offsetX, y, z + offsetZ);
+        this.snapTo(x + offsetX, y, z + offsetZ);
         this.setNoGravity(false);
         this.fallDistance = 0.0F;
     }
@@ -396,7 +396,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             return this.sauceLeader;
         }
 
-        if (!this.level().isClientSide && this.sauceLeaderUUID != null) {
+        if (!this.level().isClientSide() && this.sauceLeaderUUID != null) {
             Entity entity = ((ServerLevel)this.level()).getEntity(this.sauceLeaderUUID);
             if (entity instanceof BbqEntity bbq && bbq.isAlive()) {
                 this.sauceLeader = bbq;
@@ -415,7 +415,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             return this.leader;
         }
 
-        if (!this.level().isClientSide && this.leaderUUID != null) {
+        if (!this.level().isClientSide() && this.leaderUUID != null) {
             Entity entity = ((ServerLevel) this.level()).getEntity(this.leaderUUID);
             if (entity instanceof BlueDemonEntity blueDemon && blueDemon.isAlive()) {
                 this.leader = blueDemon;
@@ -453,7 +453,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             return null;
         }
 
-        if (!this.level().isClientSide && this.combatTargetUUID != null) {
+        if (!this.level().isClientSide() && this.combatTargetUUID != null) {
             Entity entity = ((ServerLevel) this.level()).getEntity(this.combatTargetUUID);
             if (entity instanceof LivingEntity livingEntity && livingEntity.isAlive()) {
                 return livingEntity;
@@ -479,7 +479,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
 
         this.endHoleCarry(false);
         this.clearCombat();
-        this.retreatTicks = 60 + this.random.nextInt(20);
+        this.retreatTicks = 60 + this.getRandom().nextInt(20);
 
         if (this.level() instanceof ServerLevel serverLevel) {
             serverLevel.getServer().getPlayerList().broadcastSystemMessage(
@@ -503,7 +503,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         away = new Vec3(away.x, 0.0D, away.z);
 
         if (away.lengthSqr() < 1.0E-4D) {
-            away = new Vec3(this.random.nextDouble() - 0.5D, 0.0D, this.random.nextDouble() - 0.5D);
+            away = new Vec3(this.getRandom().nextDouble() - 0.5D, 0.0D, this.getRandom().nextDouble() - 0.5D);
         }
 
         away = away.normalize();
@@ -537,11 +537,11 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         this.combatMode = BbqCombatMode.ORBIT;
         this.combatModeTicks = Math.max(this.combatModeTicks, ticks);
 
-        if (this.random.nextInt(4) == 0) {
+        if (this.getRandom().nextInt(4) == 0) {
             this.orbitRadius = new Random().nextFloat(3.5F, 6.5F);
         }
 
-        if (this.random.nextInt(6) == 0) {
+        if (this.getRandom().nextInt(6) == 0) {
             this.formationSide = -this.formationSide;
         }
     }
@@ -557,7 +557,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         this.combatModeTicks = ticks;
         this.chainShotsRemaining = 0;
         this.chainShotCooldown = 0;
-        this.orbitAngle = this.random.nextFloat() * ((float)Math.PI * 2.0F);
+        this.orbitAngle = this.getRandom().nextFloat() * ((float)Math.PI * 2.0F);
         this.getNavigation().stop();
     }
 
@@ -696,13 +696,13 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             return;
         }
 
-        target.hurt(this.damageSources().mobAttack(this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE));
+        target.hurtOrSimulate(this.damageSources().mobAttack(this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE));
 
-        if (this.random.nextFloat() < 0.35F) {
+        if (this.getRandom().nextFloat() < 0.35F) {
             target.addEffect(new MobEffectInstance(AnnoyingVillagersModMobEffects.ELECTRIFY, 20, 1));
         }
 
-        this.playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F + this.random.nextFloat() * 0.2F);
+        this.playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F + this.getRandom().nextFloat() * 0.2F);
         this.meleeCooldown = 12;
     }
 
@@ -726,7 +726,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
                     this.getNavigation().moveTo(trident.getX(), trident.getY(), trident.getZ(), 1.35D);
                 } else {
                     ItemStack carried = new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get());
-                    LegacyItemData.getOrCreate(carried).putString("CarriedTridentMode", trident.getMode().name());
+                    LegacyItemData.update(carried, tag -> tag.putString("CarriedTridentMode", trident.getMode().name()));
 
                     trident.discard();
                     this.setItemSlot(EquipmentSlot.MAINHAND, carried);
@@ -745,7 +745,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
 
                 if (tag != null && tag.contains("CarriedTridentMode")) {
                     try {
-                        mode = TridentMode.valueOf(tag.getString("CarriedTridentMode"));
+                        mode = TridentMode.valueOf(tag.getStringOr("CarriedTridentMode", ""));
                     } catch (IllegalArgumentException ignored) {
                     }
                 }
@@ -753,9 +753,9 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
                 BlockPos standPos = serverLevel.getHeightmapPos(
                         net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                         BlockPos.containing(
-                                leader.getX() + (this.random.nextDouble() - 0.5D) * 2.0D,
+                                leader.getX() + (this.getRandom().nextDouble() - 0.5D) * 2.0D,
                                 leader.getY(),
-                                leader.getZ() + (this.random.nextDouble() - 0.5D) * 2.0D
+                                leader.getZ() + (this.getRandom().nextDouble() - 0.5D) * 2.0D
                         )
                 );
 
@@ -789,7 +789,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
                 away = new Vec3(1.0D, 0.0D, 0.0D);
             }
 
-            away = away.normalize().scale(8.0D + this.random.nextDouble() * 3.0D);
+            away = away.normalize().scale(8.0D + this.getRandom().nextDouble() * 3.0D);
             Vec3 desired = leader.position().add(away);
 
             this.getNavigation().moveTo(desired.x, leader.getY(), desired.z, 1.4D);
@@ -801,7 +801,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     }
 
     private void firePoisonEgg(LivingEntity target, float power, float inaccuracy) {
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             return;
         }
 
@@ -833,7 +833,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         Vec3 desired = wanted.normalize().scale(accel);
         Vec3 next = this.getDeltaMovement().scale(drag).add(desired);
         this.setDeltaMovement(next);
-        this.hasImpulse = true;
+        this.hurtMarked = true;
 
         float yaw = (float)(Mth.atan2(next.z, next.x) * (180.0F / (float)Math.PI)) - 90.0F;
         this.setYRot(Mth.rotLerp(0.3F, this.getYRot(), yaw));
@@ -852,11 +852,11 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         this.combatModeTicks = Math.max(this.combatModeTicks, ticks);
         this.setNoGravity(false);
 
-        if (this.random.nextInt(4) == 0) {
+        if (this.getRandom().nextInt(4) == 0) {
             this.orbitRadius = new Random().nextFloat(3.5F, 6.5F);
         }
 
-        if (this.random.nextInt(6) == 0) {
+        if (this.getRandom().nextInt(6) == 0) {
             this.formationSide = -this.formationSide;
         }
     }
@@ -865,11 +865,11 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         this.setNoGravity(false);
         this.fallDistance = 0.0F;
 
-        if (this.random.nextInt(70) == 0) {
+        if (this.getRandom().nextInt(70) == 0) {
             this.formationSide = -this.formationSide;
         }
 
-        if (this.random.nextInt(50) == 0) {
+        if (this.getRandom().nextInt(50) == 0) {
             this.orbitRadius = new Random().nextFloat(3.5F, 6.5F);
         }
 
@@ -900,11 +900,11 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             this.setDeltaMovement(this.getDeltaMovement().add(0.0D, 0.32D, 0.0D));
         }
 
-        if (this.random.nextInt(70) == 0) {
+        if (this.getRandom().nextInt(70) == 0) {
             this.formationSide = -this.formationSide;
         }
 
-        if (this.random.nextInt(50) == 0) {
+        if (this.getRandom().nextInt(50) == 0) {
             this.orbitRadius = new Random().nextFloat(3.5F, 6.5F);
         }
 
@@ -924,13 +924,13 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
 
         ItemStack main = this.getMainHandItem();
         if (main.is(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get())) {
-            this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get()));
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get()));
             this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }
 
         ItemStack off = this.getOffhandItem();
         if (off.is(AnnoyingVillagersModItems.BLUE_DEMON_CHESTPLATE.get())) {
-            this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_CHESTPLATE.get()));
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_CHESTPLATE.get()));
             this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
         }
     }
@@ -938,7 +938,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     @Override
     public void die(@NotNull DamageSource source) {
         this.endHoleCarry(false);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.dropSpecialHeldItemsBeforeDeath();
         }
 
@@ -969,12 +969,13 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
 
         if (this.meleeCooldown <= 0 && this.distanceToSqr(target.getX(), target.getEyeY(), target.getZ()) < 2.25D) {
             DamageSource attackSource = this.damageSources().mobAttack(this);
-            target.hurt(attackSource, (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE));
+            target.hurtOrSimulate(attackSource, (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE));
             if (this.level() instanceof ServerLevel serverLevel) {
                 EnchantmentHelper.doPostAttackEffects(serverLevel, target, attackSource);
             }
-            this.playSound(SoundEvents.CHICKEN_HURT, 1.0F, 1.1F + this.random.nextFloat() * 0.2F);
-            this.playSound(SoundEvents.CHICKEN_AMBIENT, 0.75F, 1.2F + this.random.nextFloat() * 0.3F);
+            var chickenSounds = SoundEvents.CHICKEN_SOUNDS.get(net.minecraft.world.entity.animal.chicken.ChickenSoundVariants.SoundSet.CLASSIC).adultSounds();
+            this.playSound(chickenSounds.hurtSound().value(), 1.0F, 1.1F + this.getRandom().nextFloat() * 0.2F);
+            this.playSound(chickenSounds.ambientSound().value(), 0.75F, 1.2F + this.getRandom().nextFloat() * 0.3F);
             this.meleeCooldown = 8;
         }
     }
@@ -1006,7 +1007,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
         this.combatModeTicks = Math.max(this.combatModeTicks, ticks);
         this.setNoGravity(false);
 
-        if (this.random.nextInt(8) == 0) {
+        if (this.getRandom().nextInt(8) == 0) {
             this.formationSide = -this.formationSide;
         }
     }
@@ -1020,7 +1021,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             return;
         }
 
-        if (this.random.nextInt(80) == 0) {
+        if (this.getRandom().nextInt(80) == 0) {
             this.formationSide = -this.formationSide;
         }
 
@@ -1054,12 +1055,12 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     public void tick() {
         super.tick();
 
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             return;
         }
 
         if (this.selfKill) {
-            this.kill();
+            com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
             return;
         }
 
@@ -1164,7 +1165,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     }
 
     public void teleportNearLeaderIfTooFar() {
-        if (this.level().isClientSide || this.retreatTicks > 0 || this.escapeMode) {
+        if (this.level().isClientSide() || this.retreatTicks > 0 || this.escapeMode) {
             return;
         }
 
@@ -1203,12 +1204,12 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float amount) {
         if (damageSource.is(DamageTypes.LIGHTNING_BOLT)) return false;
         if (damageSource.is(DamageTypes.EXPLOSION)) return false;
         if (damageSource.is(DamageTypes.FELL_OUT_OF_WORLD)
                 || damageSource.is(DamageTypes.GENERIC_KILL)) {
-            boolean result = super.hurt(damageSource, amount);
+            boolean result = super.hurtServer(serverLevel, damageSource, amount);
             if (result) {
                 this.sayHurtSound(this, damageSource);
             }
@@ -1218,9 +1219,9 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
             this.selfKill = true;
             return false;
         }
-        boolean result = super.hurt(damageSource, amount);
+        boolean result = super.hurtServer(serverLevel, damageSource, amount);
 
-        if (result && !this.level().isClientSide && damageSource.getEntity() instanceof LivingEntity livingEntity) {
+        if (result && !this.level().isClientSide() && damageSource.getEntity() instanceof LivingEntity livingEntity) {
             if (this.deathAssemblyMode || this.deathWatchMode) {
                 return false;
             }
@@ -1242,13 +1243,13 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+    protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
         if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            super.actuallyHurt(pDamageSource, pDamageAmount);
+            super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }
 
-        if (this.isInvulnerableTo(pDamageSource)) {
+        if (this.isInvulnerableTo(serverLevel, pDamageSource)) {
             return;
         }
         if (pDamageAmount <= 0.0F) {
@@ -1281,7 +1282,7 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     @Override
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level,
                                                  @NotNull DifficultyInstance difficulty,
-                                                 @NotNull MobSpawnType reason,
+                                                 @NotNull EntitySpawnReason reason,
                                                  @Nullable SpawnGroupData spawnData) {
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, spawnData);
 
@@ -1298,48 +1299,52 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
 
         if (this.leaderUUID != null) {
-            tag.putUUID("LeaderUUID", this.leaderUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "LeaderUUID", this.leaderUUID);
         }
 
         tag.putString("SauceType", this.sauceType.name());
         tag.putBoolean("EscapeMode", this.escapeMode);
 
         if (this.sauceLeaderUUID != null) {
-            tag.putUUID("SauceLeaderUUID", this.sauceLeaderUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "SauceLeaderUUID", this.sauceLeaderUUID);
         }
         tag.putInt("VoiceCooldown", this.voiceCooldown);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
 
-        if (tag.hasUUID("LeaderUUID")) {
-            this.leaderUUID = tag.getUUID("LeaderUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "LeaderUUID")) {
+            this.leaderUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "LeaderUUID");
         }
 
         if (tag.contains("SauceType")) {
             try {
-                this.setSauceType(SauceType.valueOf(tag.getString("SauceType")));
+                this.setSauceType(SauceType.valueOf(tag.getStringOr("SauceType", "")));
             } catch (IllegalArgumentException ignored) {
                 this.setSauceType(SauceType.BBQ_SAUCE);
             }
         } else {
             this.setSauceType(SauceType.BBQ_SAUCE);
         }
-        this.escapeMode = tag.getBoolean("EscapeMode");
+        this.escapeMode = tag.getBooleanOr("EscapeMode", false);
 
-        if (tag.hasUUID("SauceLeaderUUID")) {
-            this.sauceLeaderUUID = tag.getUUID("SauceLeaderUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "SauceLeaderUUID")) {
+            this.sauceLeaderUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "SauceLeaderUUID");
         } else {
             this.sauceLeaderUUID = null;
         }
         this.sauceLeader = null;
-        voiceCooldown = tag.getInt("VoiceCooldown");
+        voiceCooldown = tag.getIntOr("VoiceCooldown", 0);
     }
 
     public static @NotNull Builder createAttributes() {

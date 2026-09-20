@@ -7,11 +7,11 @@ import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.monster.Drowned;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.entity.monster.zombie.Drowned;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.Item;
@@ -40,18 +40,12 @@ public class ZombieMixin {
     }
 
     @Inject(method = "finalizeSpawn", at = @At("RETURN"))
-    private void monsterJoinHerobrineTeam(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, CallbackInfoReturnable<SpawnGroupData> cir) {
+    private void monsterJoinHerobrineTeam(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason reason, @Nullable SpawnGroupData spawnData, CallbackInfoReturnable<SpawnGroupData> cir) {
         Zombie self = (Zombie) (Object) this;
-        if (!self.level().isClientSide() && self.getServer() != null) {
+        if (self.level() instanceof net.minecraft.server.level.ServerLevel) {
             TeamUtil.addOrJoinTeam(self, "herobrine");
 
-            try {
-                self.getServer().getCommands().getDispatcher().execute(
-                        "data merge entity @s {CanPickUpLoot: 1b}",
-                        self.createCommandSourceStack().withSuppressedOutput().withPermission(4));
-            } catch (CommandSyntaxException ignored) {
-
-            }
+            self.setCanPickUpLoot(true);
             Random random = new Random();
 
             if (random.nextFloat() < 0.2f) {
@@ -75,7 +69,7 @@ public class ZombieMixin {
         int green = random.nextInt(256);
         int blue = random.nextInt(256);
         int color = (red << 16) | (green << 8) | blue;
-        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(color, false));
+        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(color));
         return stack;
     }
 }

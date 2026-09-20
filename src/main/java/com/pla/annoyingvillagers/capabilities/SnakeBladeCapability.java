@@ -70,15 +70,15 @@ public final class SnakeBladeCapability {
             tag.putBoolean(NBT_HAS_SNAKE_BLADE, hasSnakeBlade);
             tag.putInt(NBT_LAST_ID, lastSnakeBladeId);
             if (lastSnakeBladeUuid != null) {
-                tag.putUUID(NBT_LAST_UUID, lastSnakeBladeUuid);
+                com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, NBT_LAST_UUID, lastSnakeBladeUuid);
             }
             return tag;
         }
 
         public void deserializeNBT(CompoundTag tag) {
-            hasSnakeBlade = tag.getBoolean(NBT_HAS_SNAKE_BLADE);
-            lastSnakeBladeId = tag.contains(NBT_LAST_ID) ? tag.getInt(NBT_LAST_ID) : -1;
-            lastSnakeBladeUuid = tag.hasUUID(NBT_LAST_UUID) ? tag.getUUID(NBT_LAST_UUID) : null;
+            hasSnakeBlade = tag.getBooleanOr(NBT_HAS_SNAKE_BLADE, false);
+            lastSnakeBladeId = tag.contains(NBT_LAST_ID) ? tag.getIntOr(NBT_LAST_ID, 0) : -1;
+            lastSnakeBladeUuid = com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, NBT_LAST_UUID) ? com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, NBT_LAST_UUID) : null;
         }
     }
 }

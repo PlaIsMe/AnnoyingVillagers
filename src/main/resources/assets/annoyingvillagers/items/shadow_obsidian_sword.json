@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "annoyingvillagers:legacy",
+    "kind": "straight_form",
+    "entries": [{
+      "threshold": 1.0,
+      "model": { "type": "minecraft:model", "model": "annoyingvillagers:item/shadow_obsidian_straight" }
+    }],
+    "fallback": { "type": "minecraft:model", "model": "annoyingvillagers:item/shadow_obsidian_sword" }
+  }
+}

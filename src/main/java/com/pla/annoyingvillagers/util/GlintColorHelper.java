@@ -74,7 +74,7 @@ public final class GlintColorHelper {
             return;
         }
 
-        LegacyItemData.getOrCreate(stack).putString(TAG_COLOR_GLINT, toName(mode));
+        LegacyItemData.update(stack, tag -> tag.putString(TAG_COLOR_GLINT, toName(mode)));
     }
 
     public static void clearColor(ItemStack stack) {
@@ -95,12 +95,12 @@ public final class GlintColorHelper {
             return NONE;
         }
 
-        if (tag.contains(TAG_COLOR_GLINT, Tag.TAG_INT)) {
-            return sanitize(tag.getInt(TAG_COLOR_GLINT));
+        if (tag.contains(TAG_COLOR_GLINT)) {
+            return sanitize(tag.getIntOr(TAG_COLOR_GLINT, 0));
         }
 
-        if (tag.contains(TAG_COLOR_GLINT, Tag.TAG_STRING)) {
-            return fromName(tag.getString(TAG_COLOR_GLINT));
+        if (tag.contains(TAG_COLOR_GLINT)) {
+            return fromName(tag.getStringOr(TAG_COLOR_GLINT, ""));
         }
 
         return NONE;

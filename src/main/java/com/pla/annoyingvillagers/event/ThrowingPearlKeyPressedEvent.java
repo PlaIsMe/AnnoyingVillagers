@@ -11,7 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -72,7 +72,7 @@ public class ThrowingPearlKeyPressedEvent {
                 return;
             }
             if (entity instanceof Player player) {
-                boolean used = player.getInventory().items.stream()
+                boolean used = player.getInventory().getNonEquipmentItems().stream()
                         .filter(s -> !s.isEmpty() && s.is(AnnoyingVillagersModItems.ENCHANTED_ENDER_PEARL.get()))
                         .findFirst()
                         .map(stack -> {

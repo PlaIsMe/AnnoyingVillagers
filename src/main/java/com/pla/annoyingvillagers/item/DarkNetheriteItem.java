@@ -6,6 +6,6 @@ import net.minecraft.world.item.Rarity;
 public class DarkNetheriteItem extends Item {
 
     public DarkNetheriteItem() {
-        super((new Properties()).stacksTo(64).rarity(Rarity.RARE));
+        super((com.pla.annoyingvillagers.util.LegacyItemProperties.create()).stacksTo(64).rarity(Rarity.RARE));
     }
 }

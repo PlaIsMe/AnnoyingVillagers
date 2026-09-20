@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -66,18 +66,18 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
     }
 
     public SoundEvent getAmbientSound() {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.villager.ambient"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.villager.ambient"));
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.villager.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.villager.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.villager.death"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.villager.death"));
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
         SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
 
         TeamUtil.addOrJoinTeam(this, "villagers");
@@ -119,7 +119,7 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
             return;
         }
 
-        if (this.random.nextDouble() > 0.11D) {
+        if (this.getRandom().nextDouble() > 0.11D) {
             return;
         }
 
@@ -163,7 +163,7 @@ public class VillagerScoutCaptainEntity extends VillagerArmyEntity {
         }
     }
 
-    public static boolean canSpawn(EntityType<VillagerScoutCaptainEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
+    public static boolean canSpawn(EntityType<VillagerScoutCaptainEntity> entityType, ServerLevelAccessor level, EntitySpawnReason spawnType, BlockPos position, RandomSource random) {
         return ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM) && PathfinderMob.checkMobSpawnRules(entityType, level, spawnType, position, random);
     }
 

@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Random;
 
 public class CryingObsidianBlock extends HerobrineObsidianBlock implements EntityBlock {
-    public CryingObsidianBlock() {
-        super(Properties.of()
+    public CryingObsidianBlock(Properties properties) {
+        super(properties
                 .sound(new SoundType(1.0F, 1.0F,
                         SoundEvents.STONE_BREAK,
                         SoundEvents.STONE_STEP,
@@ -43,14 +43,13 @@ public class CryingObsidianBlock extends HerobrineObsidianBlock implements Entit
                 .strength(60.0F, 40.0F)
                 .lightLevel((blockstate) -> 4)
                 .noOcclusion()
-                .hasPostProcess((blockstate, blockgetter, blockpos) -> true)
+                .postProcess((blockstate, blockgetter, blockpos) -> blockpos)
                 .emissiveRendering((blockstate, blockgetter, blockpos) -> true)
                 .isRedstoneConductor((blockstate, blockgetter, blockpos) -> false));
     }
 
-    public void appendHoverText(@NotNull ItemStack itemstack, Item.TooltipContext context, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, context, list, tooltipflag);
-        list.add(Component.literal("Obsidian Fired by Elite Herobrine"));
+    public void appendHoverText(@NotNull ItemStack itemstack, Item.TooltipContext context, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        list.accept(Component.literal("Obsidian Fired by Elite Herobrine"));
     }
 
     public @NotNull VoxelShape getShape(@NotNull BlockState blockstate, @NotNull BlockGetter blockgetter, @NotNull BlockPos blockpos, @NotNull CollisionContext collisioncontext) {
@@ -99,12 +98,12 @@ public class CryingObsidianBlock extends HerobrineObsidianBlock implements Entit
         );
         if (owner != null) {
             if (owner instanceof Player player) {
-                entity.hurt(entity.level().damageSources().playerAttack(player), 1.0F);
+                entity.hurtOrSimulate(entity.level().damageSources().playerAttack(player), 1.0F);
             } else {
-                entity.hurt(entity.level().damageSources().mobAttack((LivingEntity) owner), 1.0F);
+                entity.hurtOrSimulate(entity.level().damageSources().mobAttack((LivingEntity) owner), 1.0F);
             }
         } else {
-            entity.hurt(entity.level().damageSources().generic(), 1.0F);
+            entity.hurtOrSimulate(entity.level().damageSources().generic(), 1.0F);
         }
         entity.setDeltaMovement(new Vec3(entity.getLookAngle().x * -2.0D, 0.4D, entity.getLookAngle().z * -2.0D));
         applyEpicFightRandomStun(entity);

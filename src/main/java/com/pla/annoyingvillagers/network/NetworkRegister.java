@@ -5,7 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -53,7 +53,7 @@ public final class NetworkRegister {
     @SuppressWarnings({"unchecked", "rawtypes"})
     static <T extends CustomPacketPayload> CustomPacketPayload.Type<T> type(Class<?> payloadClass) {
         String path = payloadClass.getSimpleName().replaceAll("([a-z0-9])([A-Z])", "$1_$2").toLowerCase(Locale.ROOT);
-        return new CustomPacketPayload.Type(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, path));
+        return new CustomPacketPayload.Type(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, path));
     }
 
     private static <T extends AnnoyingVillagersPayload> void client(

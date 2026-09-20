@@ -4,7 +4,7 @@ import com.pla.annoyingvillagers.clazz.AVNpc;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.entity.*;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.boat.Boat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

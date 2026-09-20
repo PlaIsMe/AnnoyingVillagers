@@ -28,7 +28,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.RangedAttackMob;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -276,7 +276,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         return this.placeBlockParryCooldown == 0
                 && this.blockDamage == null
                 && !this.isHealing()
-                && this.random.nextDouble() <= this.placeBlockToParryChance;
+                && this.getRandom().nextDouble() <= this.placeBlockToParryChance;
     }
 
     public boolean hasPlaceBlockParryCooldown() {
@@ -450,9 +450,18 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        tag.put("Inventory", this.inventory.createTag(this.registryAccess()));
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
+        net.minecraft.nbt.ListTag inventoryTag = new net.minecraft.nbt.ListTag();
+        for (int slot = 0; slot < this.inventory.getContainerSize(); slot++) {
+            ItemStack stack = this.inventory.getItem(slot);
+            if (stack.isEmpty()) continue;
+            CompoundTag itemTag = com.pla.annoyingvillagers.util.LegacyNbt.saveItem(stack, this.registryAccess());
+            itemTag.putByte("Slot", (byte) slot);
+            inventoryTag.add(itemTag);
+        }
+        tag.put("Inventory", inventoryTag);
         tag.putInt("GapCooldown", this.gapCooldown);
         tag.putInt("EnderPearlCooldown", this.enderPearlCooldown);
         tag.putInt("WaterBucketCooldown", this.waterBucketCooldown);
@@ -462,59 +471,69 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         tag.putDouble("BlockProjectileChance", this.placeBlockToParryChance);
         tag.putInt("BlockParryCooldown", this.placeBlockParryCooldown);
         if (!this.mainWeaponItem.isEmpty()) {
-            tag.put("MainHandItem", this.mainWeaponItem.save(this.registryAccess()));
+            tag.put("MainHandItem", com.pla.annoyingvillagers.util.LegacyNbt.saveItem(this.mainWeaponItem, this.registryAccess()));
         }
         if (!this.offWeaponItem.isEmpty()) {
-            tag.put("OffHandItem", this.offWeaponItem.save(this.registryAccess()));
+            tag.put("OffHandItem", com.pla.annoyingvillagers.util.LegacyNbt.saveItem(this.offWeaponItem, this.registryAccess()));
         }
         tag.putInt("VoiceCooldown", this.voiceCooldown);
         tag.putBoolean("MainWeaponDisarmed", this.mainWeaponDisarmed);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
     public void onEquipItem(@NotNull EquipmentSlot pSlot, @NotNull ItemStack pOldItem, @NotNull ItemStack pNewItem) {
         if (pSlot == EquipmentSlot.MAINHAND &&
-                (pNewItem.getItem() instanceof SwordItem || pNewItem.getItem() instanceof AxeItem)) {
+                (com.pla.annoyingvillagers.item.LegacySwordItem.isSword(pNewItem) || pNewItem.getItem() instanceof AxeItem)) {
             this.mainWeaponItem = pNewItem.copy();
             this.mainWeaponDisarmed = false;
         }
 
         if (pSlot == EquipmentSlot.OFFHAND &&
-                (pNewItem.getItem() instanceof SwordItem || pNewItem.getItem() instanceof AxeItem || pNewItem.getItem() instanceof ShieldItem)) {
+                (com.pla.annoyingvillagers.item.LegacySwordItem.isSword(pNewItem) || pNewItem.getItem() instanceof AxeItem || pNewItem.getItem() instanceof ShieldItem)) {
             this.offWeaponItem = pNewItem.copy();
         }
 
         super.onEquipItem(pSlot, pOldItem, pNewItem);
 
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
         if (!this.isAlive() || this.isDeadOrDying() || this.getHealth() <= 0.0F) return;
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.contains("Inventory", Tag.TAG_LIST)) {
-            this.inventory.fromTag(tag.getList("Inventory", Tag.TAG_COMPOUND), this.registryAccess());
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        if (tag.contains("Inventory")) {
+            this.inventory.clearContent();
+            for (net.minecraft.nbt.Tag entry : tag.getList("Inventory").orElseGet(net.minecraft.nbt.ListTag::new)) {
+                if (!(entry instanceof CompoundTag itemTag)) continue;
+                int slot = itemTag.getByte("Slot").orElse((byte) -1);
+                if (slot >= 0 && slot < this.inventory.getContainerSize()) {
+                    this.inventory.setItem(slot, com.pla.annoyingvillagers.util.LegacyNbt.loadItem(itemTag, this.registryAccess()));
+                }
+            }
         }
-        this.gapCooldown = tag.getInt("GapCooldown");
-        this.enderPearlCooldown = tag.getInt("EnderPearlCooldown");
-        this.waterBucketCooldown = tag.getInt("WaterBucketCooldown");
-        this.swapToBowCooldown = tag.getInt("SwapToBowCooldown");
-        this.initialSpawn = tag.getBoolean("InitialSpawn");
-        this.useBow = tag.getBoolean("UseBow");
-        this.placeBlockToParryChance = tag.getDouble("BlockProjectileChance");
-        this.placeBlockParryCooldown = tag.getInt("BlockParryCooldown");
-        if (tag.contains("MainHandItem", Tag.TAG_COMPOUND)) {
-            this.mainWeaponItem = ItemStack.parseOptional(this.registryAccess(), tag.getCompound("MainHandItem"));
+        this.gapCooldown = tag.getIntOr("GapCooldown", 0);
+        this.enderPearlCooldown = tag.getIntOr("EnderPearlCooldown", 0);
+        this.waterBucketCooldown = tag.getIntOr("WaterBucketCooldown", 0);
+        this.swapToBowCooldown = tag.getIntOr("SwapToBowCooldown", 0);
+        this.initialSpawn = tag.getBooleanOr("InitialSpawn", false);
+        this.useBow = tag.getBooleanOr("UseBow", false);
+        this.placeBlockToParryChance = tag.getDoubleOr("BlockProjectileChance", 0.0D);
+        this.placeBlockParryCooldown = tag.getIntOr("BlockParryCooldown", 0);
+        if (tag.contains("MainHandItem")) {
+            this.mainWeaponItem = com.pla.annoyingvillagers.util.LegacyNbt.loadItem(tag.getCompound("MainHandItem").orElseGet(net.minecraft.nbt.CompoundTag::new), this.registryAccess());
         } else {
             this.mainWeaponItem = ItemStack.EMPTY;
         }
-        if (tag.contains("OffHandItem", Tag.TAG_COMPOUND)) {
-            this.offWeaponItem = ItemStack.parseOptional(this.registryAccess(), tag.getCompound("OffHandItem"));
+        if (tag.contains("OffHandItem")) {
+            this.offWeaponItem = com.pla.annoyingvillagers.util.LegacyNbt.loadItem(tag.getCompound("OffHandItem").orElseGet(net.minecraft.nbt.CompoundTag::new), this.registryAccess());
         } else {
             this.offWeaponItem = ItemStack.EMPTY;
         }
-        this.mainWeaponDisarmed = tag.getBoolean("MainWeaponDisarmed");
+        this.mainWeaponDisarmed = tag.getBooleanOr("MainWeaponDisarmed", false);
 
         // A bow equipped by AVNpcRangedBowAttackGoal is temporary.  The goal's
         // previous-hands fields are not persisted, so after a reload a temporary
@@ -527,10 +546,10 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             this.setItemSlot(EquipmentSlot.MAINHAND, this.mainWeaponItem.copy());
             this.setUseBow(false);
             if (!InventoryUtils.addItem(this.inventory, temporaryBow)) {
-                this.spawnAtLocation(temporaryBow);
+                com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, temporaryBow);
             }
         }
-        this.voiceCooldown = tag.getInt("VoiceCooldown");
+        this.voiceCooldown = tag.getIntOr("VoiceCooldown", 0);
     }
 
     @Override
@@ -541,7 +560,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         for (int i = 0; i < this.inventory.getContainerSize(); i++) {
             ItemStack stack = this.inventory.getItem(i);
             if (!stack.isEmpty()) {
-                this.spawnAtLocation(stack);
+                com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, stack);
             }
         }
 
@@ -582,13 +601,13 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         }
 
         float chance = Math.min(0.85F, baseChance + looting * VILLAGER_EQUIPMENT_LOOTING_BONUS);
-        if (this.random.nextFloat() > chance) {
+        if (this.getRandom().nextFloat() > chance) {
             return;
         }
 
         ItemStack drop = this.prepareVillagerEquipmentDrop(equipped);
         if (!drop.isEmpty()) {
-            this.spawnAtLocation(drop);
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, drop);
         }
     }
 
@@ -612,14 +631,14 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     private boolean isDroppableMainhandEquipment(ItemStack stack) {
         Item item = stack.getItem();
-        return item instanceof SwordItem
-                || item instanceof DiggerItem
+        return com.pla.annoyingvillagers.item.LegacySwordItem.isSword(item)
+                || com.pla.annoyingvillagers.item.LegacySwordItem.isTool(item)
                 || item instanceof TridentItem;
     }
 
     private boolean isDroppableOffhandEquipment(ItemStack stack) {
         Item item = stack.getItem();
-        return item instanceof SwordItem
+        return com.pla.annoyingvillagers.item.LegacySwordItem.isSword(item)
                 || item instanceof AxeItem
                 || item instanceof ShieldItem;
     }
@@ -632,7 +651,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             int maxDamage = drop.getMaxDamage();
             int minDamage = Math.max(1, maxDamage / 3);
             int maxDamageBound = Math.max(minDamage + 1, maxDamage * 3 / 4);
-            drop.setDamageValue(this.random.nextInt(minDamage, maxDamageBound));
+            drop.setDamageValue(this.getRandom().nextInt(minDamage, maxDamageBound));
         }
 
         return drop;
@@ -703,7 +722,6 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         this.goalSelector.addGoal(8, new FillWaterBucketGoal(this, 1.0D));
     }
 
-    @Override
     public boolean canFireProjectileWeapon(@NotNull ProjectileWeaponItem item) {
         return item instanceof BowItem;
     }
@@ -806,7 +824,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnData) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull EntitySpawnReason spawnType, @Nullable SpawnGroupData spawnData) {
         SpawnGroupData result = super.finalizeSpawn(level,difficulty,spawnType,spawnData);
         this.setLeftHanded(false);
         return result;
@@ -838,7 +856,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
                 motion.y,
                 motion.z + forward.z * strength
         );
-        this.hasImpulse = true;
+        this.hurtMarked = true;
     }
 
     public void shortPillarJump() {
@@ -846,12 +864,12 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
         Vec3 v = this.getDeltaMovement();
         double keepH = 0.02D;
         this.setDeltaMovement(v.x * keepH, 0.42D, v.z * keepH);
-        this.hasImpulse = true;
+        this.hurtMarked = true;
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        boolean result = super.hurt(damageSource, f);
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
+        boolean result = super.hurtServer(serverLevel, damageSource, f);
         if (result) {
             this.sayHurtSound(this, damageSource);
         }
@@ -859,8 +877,8 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity target) {
-        boolean result = super.doHurtTarget(target);
+    public boolean doHurtTarget(net.minecraft.server.level.ServerLevel serverLevel, Entity target) {
+        boolean result = super.doHurtTarget(serverLevel, target);
         if (result) {
             this.sayAttackSound(this, target);
         }
@@ -874,13 +892,13 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+    protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
         if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            super.actuallyHurt(pDamageSource, pDamageAmount);
+            super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }
 
-        if (this.isInvulnerableTo(pDamageSource)) {
+        if (this.isInvulnerableTo(serverLevel, pDamageSource)) {
             return;
         }
         if (pDamageAmount <= 0.0F) {
@@ -903,7 +921,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
         finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
 
-        if (this.level() instanceof ServerLevel serverLevel
+        if (true
                 && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {
             return;
         }

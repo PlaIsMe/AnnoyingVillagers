@@ -43,7 +43,7 @@ public class ModelPartProxy
     {
         this.part = part;
 
-        children = part.getAllParts().skip(1).map(ModelPartProxy::new).toList();
+        children = part.getAllParts().stream().skip(1).map(ModelPartProxy::new).toList();
 
         update();
     }

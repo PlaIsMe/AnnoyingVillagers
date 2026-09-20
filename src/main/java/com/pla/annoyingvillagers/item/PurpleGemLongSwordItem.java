@@ -6,8 +6,7 @@ import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -40,9 +39,9 @@ public class PurpleGemLongSwordItem extends LegacySwordItem implements RigCombat
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.RUBY.get()));
+                return Ingredient.of(AnnoyingVillagersModItems.RUBY.get());
             }
-        }, 3, -2.0F, (new Properties()));
+        }, 3, -2.0F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

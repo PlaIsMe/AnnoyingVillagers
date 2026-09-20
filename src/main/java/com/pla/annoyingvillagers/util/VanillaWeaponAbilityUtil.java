@@ -101,11 +101,11 @@ public final class VanillaWeaponAbilityUtil {
         if (amount <= 0) return;
         ItemStack stack = player.getItemInHand(hand);
         if (stack.isEmpty()) return;
-        stack.hurtAndBreak(amount, player, LivingEntity.getSlotForHand(hand));
+        stack.hurtAndBreak(amount, player, hand.asEquipmentSlot());
     }
 
     public static boolean isInternalCooldownReady(Player player, String tag) {
-        return player.level().getGameTime() >= player.getPersistentData().getLong(tag);
+        return player.level().getGameTime() >= player.getPersistentData().getLongOr(tag, 0L);
     }
 
     public static void setInternalCooldown(Player player, String tag, int ticks) {
@@ -113,7 +113,7 @@ public final class VanillaWeaponAbilityUtil {
     }
 
     public static int getInternalCooldownTicks(Player player, String tag) {
-        return (int)Math.max(0L, player.getPersistentData().getLong(tag) - player.level().getGameTime());
+        return (int)Math.max(0L, player.getPersistentData().getLongOr(tag, 0L) - player.level().getGameTime());
     }
 
     public static void clearInternalCooldown(Player player, String tag) {
@@ -184,7 +184,7 @@ public final class VanillaWeaponAbilityUtil {
 
     public static int getCharge(ItemStack stack, String tag, int max) {
         CompoundTag data = LegacyItemData.get(stack);
-        return Math.max(0, Math.min(max, data == null ? 0 : data.getInt(tag)));
+        return Math.max(0, Math.min(max, data == null ? 0 : data.getIntOr(tag, 0)));
     }
 
     public static int addCharge(ItemStack stack, String tag, int amount, int max) {
@@ -201,6 +201,6 @@ public final class VanillaWeaponAbilityUtil {
 
     public static boolean hasPersistentFlag(Entity entity, String tag) {
         CompoundTag data = entity.getPersistentData();
-        return data.getBoolean(tag);
+        return data.getBooleanOr(tag, false);
     }
 }

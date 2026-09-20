@@ -1,183 +1,91 @@
 package com.pla.annoyingvillagers.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.serialization.MapCodec;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.item.HookGunItem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3fc;
+import org.jspecify.annotations.Nullable;
 
-@EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingVillagers.MODID)
-public class HookGunItemRenderer extends BlockEntityWithoutLevelRenderer {
-    private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "item/hook_gun_body"));
-    private static final ThreadLocal<RenderedHandContext> RENDERED_HAND_CONTEXT = new ThreadLocal<>();
+import java.util.function.Consumer;
 
-    public static HookGunItemRenderer instance;
+/** Dynamic hook-gun attachment implemented with the 26.1 special item-model API. */
+public final class HookGunItemRenderer implements SpecialModelRenderer<ItemStack> {
+    public static final Identifier TYPE = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "hook_gun_attachment");
+    private final ItemModelResolver itemModelResolver;
 
-    public HookGunItemRenderer(BlockEntityRenderDispatcher blockEntityRenderDispatcher, EntityModelSet entityModelSet) {
-        super(blockEntityRenderDispatcher, entityModelSet);
-    }
-
-    @SubscribeEvent
-    public static void onRegisterReloadListener(RegisterClientReloadListenersEvent event) {
-        instance = createInstance();
-        event.registerReloadListener(instance);
-    }
-
-    @SubscribeEvent
-    public static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
-        event.register(BASE_MODEL);
-    }
-
-    public static HookGunItemRenderer getInstance() {
-        if (instance == null) {
-            instance = createInstance();
-        }
-
-        return instance;
-    }
-
-    private static HookGunItemRenderer createInstance() {
-        return new HookGunItemRenderer(
-                Minecraft.getInstance().getBlockEntityRenderDispatcher(),
-                Minecraft.getInstance().getEntityModels()
-        );
-    }
-
-    public static void setRenderedHandContext(LivingEntity entity, InteractionHand hand) {
-        if (entity == null || hand == null) {
-            RENDERED_HAND_CONTEXT.remove();
-            return;
-        }
-
-        RENDERED_HAND_CONTEXT.set(new RenderedHandContext(entity, hand));
-    }
-
-    public static void clearRenderedHandContext() {
-        RENDERED_HAND_CONTEXT.remove();
+    public HookGunItemRenderer() {
+        this.itemModelResolver = Minecraft.getInstance().getItemModelResolver();
     }
 
     @Override
-    public void renderByItem(
-            ItemStack stack,
-            @NotNull ItemDisplayContext itemDisplayContext,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int combinedLight,
-            int combinedOverlay
-    ) {
-        Minecraft minecraft = Minecraft.getInstance();
-        ItemRenderer itemRenderer = minecraft.getItemRenderer();
-        BakedModel baseModel = minecraft.getModelManager().getModel(BASE_MODEL);
-
-        renderBakedModel(itemRenderer, baseModel, stack, poseStack, buffer, combinedLight, combinedOverlay);
-
-        ItemStack boundItem = HookGunItem.getBoundItem(stack);
-        if (boundItem.isEmpty() || HookGunItem.isVisualHookOut(stack) || isHookingWithRenderedStack(minecraft, stack)) {
-            return;
+    public @Nullable ItemStack extractArgument(ItemStack hookGun) {
+        ItemStack boundItem = HookGunItem.getBoundItem(hookGun);
+        if (boundItem.isEmpty() || HookGunItem.isVisualHookOut(hookGun) || isHookingWithRenderedStack(hookGun)) {
+            return null;
         }
+        return boundItem.copy();
+    }
+
+    @Override
+    public void submit(@Nullable ItemStack boundItem, PoseStack poseStack, SubmitNodeCollector submitNodeCollector,
+                       int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor) {
+        if (boundItem == null || boundItem.isEmpty()) return;
 
         poseStack.pushPose();
-        HookItemRenderTransforms.applyHookGunAttachment(poseStack, boundItem, itemDisplayContext);
-        if (HookItemRenderTransforms.shouldUseDisplayAttachmentRenderer(boundItem, itemDisplayContext)) {
-            itemRenderer.renderStatic(
-                    boundItem,
-                    HookItemRenderTransforms.getHookGunAttachmentDisplayContext(boundItem, itemDisplayContext),
-                    combinedLight,
-                    OverlayTexture.NO_OVERLAY,
-                    poseStack,
-                    buffer,
-                    minecraft.level,
-                    0
-            );
-        } else {
-            BakedModel boundModel = itemRenderer.getModel(boundItem, minecraft.level, null, 0);
-            renderBakedModel(itemRenderer, boundModel, boundItem, poseStack, buffer, combinedLight, combinedOverlay);
-        }
+        HookItemRenderTransforms.applyHookGunAttachment(poseStack, boundItem,
+                net.minecraft.world.item.ItemDisplayContext.GUI);
+        ItemStackRenderState boundState = new ItemStackRenderState();
+        this.itemModelResolver.updateForTopItem(boundState, boundItem,
+                HookItemRenderTransforms.getHookGunAttachmentDisplayContext(
+                        boundItem, net.minecraft.world.item.ItemDisplayContext.GUI),
+                Minecraft.getInstance().level, null, 0);
+        boundState.submit(poseStack, submitNodeCollector, lightCoords, OverlayTexture.NO_OVERLAY, outlineColor);
         poseStack.popPose();
     }
 
-    private static boolean isHookingWithRenderedStack(Minecraft minecraft, ItemStack stack) {
-        RenderedHandContext renderedHandContext = RENDERED_HAND_CONTEXT.get();
-        if (renderedHandContext != null && minecraft.level != null) {
-            ItemStack handStack = renderedHandContext.entity.getItemInHand(renderedHandContext.hand);
-            if (stack == handStack || ItemStack.matches(stack, handStack)) {
-                return HookGunItem.hasActiveHook(
-                        minecraft.level,
-                        renderedHandContext.entity,
-                        renderedHandContext.hand == InteractionHand.MAIN_HAND
-                );
-            }
-        }
+    @Override
+    public void getExtents(Consumer<Vector3fc> output) {
+        // The body model supplies the composite model extents; the attachment is dynamic.
+    }
 
+    private static boolean isHookingWithRenderedStack(ItemStack stack) {
+        Minecraft minecraft = Minecraft.getInstance();
         Player player = minecraft.player;
-        if (player == null || minecraft.level == null) {
-            return false;
-        }
+        if (player == null || minecraft.level == null) return false;
 
         ItemStack mainHand = player.getMainHandItem();
         ItemStack offHand = player.getOffhandItem();
-        if (stack == mainHand) {
-            return HookGunItem.hasActiveHook(minecraft.level, player, true);
-        }
-        if (stack == offHand) {
-            return HookGunItem.hasActiveHook(minecraft.level, player, false);
-        }
-
+        if (stack == mainHand) return HookGunItem.hasActiveHook(minecraft.level, player, true);
+        if (stack == offHand) return HookGunItem.hasActiveHook(minecraft.level, player, false);
         boolean matchesMainHand = ItemStack.matches(stack, mainHand);
         boolean matchesOffHand = ItemStack.matches(stack, offHand);
-        if (matchesMainHand && !matchesOffHand) {
-            return HookGunItem.hasActiveHook(minecraft.level, player, true);
-        }
-        if (matchesOffHand && !matchesMainHand) {
-            return HookGunItem.hasActiveHook(minecraft.level, player, false);
-        }
-        if (matchesMainHand) {
-            return HookGunItem.hasActiveHook(minecraft.level, player);
-        }
-
-        return false;
+        if (matchesMainHand && !matchesOffHand) return HookGunItem.hasActiveHook(minecraft.level, player, true);
+        if (matchesOffHand && !matchesMainHand) return HookGunItem.hasActiveHook(minecraft.level, player, false);
+        return matchesMainHand && HookGunItem.hasActiveHook(minecraft.level, player);
     }
 
-    private record RenderedHandContext(LivingEntity entity, InteractionHand hand) {
-    }
+    public record Unbaked() implements SpecialModelRenderer.Unbaked<ItemStack> {
+        public static final Unbaked INSTANCE = new Unbaked();
+        public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(INSTANCE);
 
-    private static void renderBakedModel(
-            ItemRenderer itemRenderer,
-            BakedModel model,
-            ItemStack stack,
-            PoseStack poseStack,
-            MultiBufferSource buffer,
-            int combinedLight,
-            int combinedOverlay
-    ) {
-        for (BakedModel renderPass : model.getRenderPasses(stack, true)) {
-            for (RenderType renderType : renderPass.getRenderTypes(stack, true)) {
-                VertexConsumer vertexConsumer = ItemRenderer.getFoilBufferDirect(buffer, renderType, true, stack.hasFoil());
-                itemRenderer.renderModelLists(renderPass, stack, combinedLight, combinedOverlay, poseStack, vertexConsumer);
-            }
+        @Override
+        public SpecialModelRenderer<ItemStack> bake(SpecialModelRenderer.BakingContext context) {
+            return new HookGunItemRenderer();
+        }
+
+        @Override
+        public MapCodec<? extends SpecialModelRenderer.Unbaked<ItemStack>> type() {
+            return MAP_CODEC;
         }
     }
 }

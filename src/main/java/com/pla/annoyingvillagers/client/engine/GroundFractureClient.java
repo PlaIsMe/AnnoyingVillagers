@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.client.engine;
 
 import com.pla.annoyingvillagers.block.FractureBlock;
 import com.pla.annoyingvillagers.block.FractureBlockState;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.network.ClientboundGroundFracture;
 import net.minecraft.client.Minecraft;
@@ -19,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
 public final class GroundFractureClient {
     private static final Vec3 IMPACT_DIRECTION = new Vec3(0.0D, -1.0D, 0.0D);
 
@@ -62,8 +61,8 @@ public final class GroundFractureClient {
 
         boolean smallSlam = radius < 1.5D;
         if (!noSound) {
-            level.playLocalSound(center.x, center.y, center.z, smallSlam ? SoundEvents.PLAYER_ATTACK_KNOCKBACK : SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, smallSlam ? 0.8F : 1.4F, smallSlam ? 1.1F : 0.75F + level.random.nextFloat() * 0.1F, false);
-            level.playLocalSound(center.x, center.y, center.z, SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 0.9F, 0.75F + level.random.nextFloat() * 0.2F, false);
+            level.playLocalSound(center.x, center.y, center.z, smallSlam ? SoundEvents.PLAYER_ATTACK_KNOCKBACK : SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, smallSlam ? 0.8F : 1.4F, smallSlam ? 1.1F : 0.75F + level.getRandom().nextFloat() * 0.1F, false);
+            level.playLocalSound(center.x, center.y, center.z, SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 0.9F, 0.75F + level.getRandom().nextFloat() * 0.2F, false);
         }
 
         if (!smallSlam && !noParticle) level.addParticle(AnnoyingVillagersModParticleTypes.GROUND_SLAM.get(), center.x, center.y, center.z, 1.0D, radius * 10.0D, 0.5D);
@@ -124,45 +123,45 @@ public final class GroundFractureClient {
             Vec3 centerToBlock = blockCenter.subtract(center);
             double distance = centerToBlock.horizontalDistance();
             if (length < distance) continue;
-            if (!canTransferShockWave(level, blockPos, blockState) || blockState instanceof FractureBlockState || blockState.getBlock() instanceof EntityBlock) continue;
+            if (!canTransferShockWave(level, blockPos, blockState) || blockState.getBlock() instanceof FractureBlock || blockState.getBlock() instanceof EntityBlock) continue;
 
             Vec3 rotationAxis = IMPACT_DIRECTION.cross(centerToBlock);
             if (rotationAxis.lengthSqr() < 1.0E-8D) rotationAxis = new Vec3(1.0D, 0.0D, 0.0D);
             rotationAxis = rotationAxis.normalize();
             Vector3f axis = new Vector3f((float) rotationAxis.x, (float) rotationAxis.y, (float) rotationAxis.z);
             Vector3f translator = new Vector3f(0.0F, Math.max(0.0F, (float) (distance / length) - 0.5F) * 0.5F, 0.0F);
-            Quaternionf rotator = rotationDegrees(axis, (float) (distance / length) * 15.0F + level.random.nextFloat() * 10.0F - 5.0F);
-            rotator.mul(rotationDegrees(new Vector3f(1.0F, 0.0F, 0.0F), level.random.nextFloat() * 15.0F - 7.5F));
-            rotator.mul(rotationDegrees(new Vector3f(0.0F, 1.0F, 0.0F), level.random.nextFloat() * 40.0F - 20.0F));
-            rotator.mul(rotationDegrees(new Vector3f(0.0F, 0.0F, 1.0F), level.random.nextFloat() * 15.0F - 7.5F));
-            int lifeTime = 30 + level.random.nextInt(Math.max(1, (int) length * 80));
+            Quaternionf rotator = rotationDegrees(axis, (float) (distance / length) * 15.0F + level.getRandom().nextFloat() * 10.0F - 5.0F);
+            rotator.mul(rotationDegrees(new Vector3f(1.0F, 0.0F, 0.0F), level.getRandom().nextFloat() * 15.0F - 7.5F));
+            rotator.mul(rotationDegrees(new Vector3f(0.0F, 1.0F, 0.0F), level.getRandom().nextFloat() * 40.0F - 20.0F));
+            rotator.mul(rotationDegrees(new Vector3f(0.0F, 0.0F, 1.0F), level.getRandom().nextFloat() * 15.0F - 7.5F));
+            int lifeTime = 30 + level.getRandom().nextInt(Math.max(1, (int) length * 80));
             double bouncing = distance * distance * bounceExponentCoef;
 
-            FractureBlockState fractureState = FractureBlock.getDefaultFractureBlockState(null);
-            if (fractureState == null) return;
-            fractureState.setFractureInfo(blockPos, blockState, translator, rotator, bouncing, lifeTime);
+            FractureBlockState.prepare(blockPos, blockState, translator, rotator, bouncing, lifeTime);
             // ClientLevel needs a visible block update in 1.21 so the newly
             // created block entity is added to the render dispatcher.
-            level.setBlock(blockPos, fractureState, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+            level.setBlock(blockPos, AnnoyingVillagersModBlocks.FRACTURE_BLOCK.get().defaultBlockState(),
+                    Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
             if (!noParticle && !blockState.isAir()) createParticle(level, blockPos, blockState);
         }
     }
 
     private static void createParticle(ClientLevel level, BlockPos blockPos, BlockState blockState) {
         Minecraft minecraft = Minecraft.getInstance();
-        int count = 1 + level.random.nextInt(4);
+        int count = 1 + level.getRandom().nextInt(4);
         for (int i = 0; i < count; i++) {
-            double x = blockPos.getX() + level.random.nextDouble();
-            double z = blockPos.getZ() + level.random.nextDouble();
+            double x = blockPos.getX() + level.getRandom().nextDouble();
+            double z = blockPos.getZ() + level.getRandom().nextDouble();
             Particle particle = new TerrainParticle(level, x, blockPos.getY() + 1.0D, z, 0.0D, 0.0D, 0.0D, blockState, blockPos);
-            particle.setParticleSpeed((level.random.nextDouble() - 0.5D) * 0.3D, level.random.nextDouble() * 0.5D, (level.random.nextDouble() - 0.5D) * 0.3D);
-            particle.setLifetime(10 + level.random.nextInt(60));
+            particle.setParticleSpeed((level.getRandom().nextDouble() - 0.5D) * 0.3D, level.getRandom().nextDouble() * 0.5D, (level.getRandom().nextDouble() - 0.5D) * 0.3D);
+            particle.setLifetime(10 + level.getRandom().nextInt(60));
             minecraft.particleEngine.add(particle);
         }
     }
 
     private static boolean canTransferShockWave(ClientLevel level, BlockPos blockPos, BlockState blockState) {
-        return Block.isFaceFull(blockState.getCollisionShape(level, blockPos, CollisionContext.empty()), Direction.DOWN) || blockState instanceof FractureBlockState;
+        return Block.isFaceFull(blockState.getCollisionShape(level, blockPos, CollisionContext.empty()), Direction.DOWN)
+                || blockState.getBlock() instanceof FractureBlock;
     }
 
     private static Vec3 snapSlamCenter(Vec3 center) {

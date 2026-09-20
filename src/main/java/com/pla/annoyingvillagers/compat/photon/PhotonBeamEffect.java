@@ -5,12 +5,11 @@ import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
 import com.lowdragmc.photon.client.gameobject.emitter.beam.BeamConfig;
 import com.lowdragmc.photon.client.gameobject.emitter.beam.BeamEmitter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -22,7 +21,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
-@OnlyIn(Dist.CLIENT)
 final class PhotonBeamEffect extends EntityEffectExecutor {
     private static final Map<String, PhotonBeamEffect> ACTIVE = new HashMap<>();
     private static final double FOLLOW_SMOOTHING = 0.55D;
@@ -59,7 +57,7 @@ final class PhotonBeamEffect extends EntityEffectExecutor {
         this.expireTick = lifetimeTicks > 0 ? level.getGameTime() + lifetimeTicks : Long.MAX_VALUE;
     }
 
-    static boolean startOrUpdate(ResourceLocation fxLocation, Level level, Entity owner, String key,
+    static boolean startOrUpdate(Identifier fxLocation, Level level, Entity owner, String key,
                                  PhotonClientFxUtil.BeamPositionProvider startProvider,
                                  PhotonClientFxUtil.BeamPositionProvider endProvider,
                                  BooleanSupplier aliveSupplier,
@@ -141,7 +139,7 @@ final class PhotonBeamEffect extends EntityEffectExecutor {
 
     private boolean isSourceAlive() {
         return level != null
-                && level.isClientSide
+                && level.isClientSide()
                 && level.getGameTime() <= expireTick
                 && aliveSupplier.getAsBoolean();
     }

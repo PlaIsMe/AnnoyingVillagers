@@ -6,7 +6,7 @@ import mod.chloeprime.aaaparticles.api.client.effekseer.ParticleEmitter;
 import mod.chloeprime.aaaparticles.api.common.DynamicParameter;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
 import mod.chloeprime.aaaparticles.client.installer.NativePlatform;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -31,11 +31,11 @@ public class DiamondAttractorParticleEmitterInfo extends ParticleEmitterInfo {
     private double smoothing = 1.0D;
     public Vec3 swordLocalOffset = Vec3.ZERO;
 
-    public DiamondAttractorParticleEmitterInfo(ResourceLocation effek) {
+    public DiamondAttractorParticleEmitterInfo(Identifier effek) {
         super(effek);
     }
 
-    public DiamondAttractorParticleEmitterInfo(ResourceLocation effek, ResourceLocation emitter) {
+    public DiamondAttractorParticleEmitterInfo(Identifier effek, Identifier emitter) {
         super(effek, emitter);
     }
 

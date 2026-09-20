@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -88,14 +88,14 @@ public class VillagerUtil {
         if (!level.getFluidState(feetPos).isEmpty()) return false;
         if (!level.getFluidState(headPos).isEmpty()) return false;
 
-        probe.moveTo(feetPos.getX() + 0.5D, feetPos.getY(), feetPos.getZ() + 0.5D, yaw, 0.0F);
+        probe.snapTo(feetPos.getX() + 0.5D, feetPos.getY(), feetPos.getZ() + 0.5D, yaw, 0.0F);
         return level.noCollision(probe) && !level.containsAnyLiquid(probe.getBoundingBox());
     }
 
     private static @Nullable Vec3 findSurfaceNearDeathY(ServerLevel level, Mob probe, BlockPos columnBase, float yaw, int maxDown, int maxUp) {
         int startY = columnBase.getY();
-        int minY = Math.max(level.getMinBuildHeight() + 1, startY - maxDown);
-        int maxY = Math.min(level.getMaxBuildHeight() - 2, startY + maxUp);
+        int minY = Math.max(level.getMinY() + 1, startY - maxDown);
+        int maxY = Math.min(level.getMaxY() - 2, startY + maxUp);
 
         for (int y = startY; y >= minY; y--) {
             BlockPos feetPos = new BlockPos(columnBase.getX(), y, columnBase.getZ());
@@ -149,7 +149,7 @@ public class VillagerUtil {
             double localY,
             double localZ
     ) {
-        T mob = type.create(level);
+        T mob = type.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if (mob == null) {
             return null;
         }
@@ -160,11 +160,11 @@ public class VillagerUtil {
             return null;
         }
 
-        mob.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, yaw, 0.0F);
+        mob.snapTo(spawnPos.x, spawnPos.y, spawnPos.z, yaw, 0.0F);
         mob.finalizeSpawn(
                 level,
                 level.getCurrentDifficultyAt(BlockPos.containing(spawnPos)),
-                MobSpawnType.MOB_SUMMONED,
+                EntitySpawnReason.MOB_SUMMONED,
                 null
         );
         level.addFreshEntity(mob);
@@ -221,16 +221,16 @@ public class VillagerUtil {
             return;
         }
 
-        T mob = entityType.create(serverLevel);
+        T mob = entityType.create(serverLevel, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if (mob == null) {
             return;
         }
 
-        mob.moveTo(
+        mob.snapTo(
                 spawnPos.getX() + 0.5D,
                 spawnPos.getY(),
                 spawnPos.getZ() + 0.5D,
-                serverLevel.random.nextFloat() * 360.0F,
+                serverLevel.getRandom().nextFloat() * 360.0F,
                 0.0F
         );
 
@@ -241,7 +241,7 @@ public class VillagerUtil {
         mob.finalizeSpawn(
                 serverLevel,
                 serverLevel.getCurrentDifficultyAt(spawnPos),
-                MobSpawnType.MOB_SUMMONED,
+                EntitySpawnReason.MOB_SUMMONED,
                 null
         );
 
@@ -252,7 +252,7 @@ public class VillagerUtil {
     public static BlockPos findSafeSupportSpawn(ServerLevel serverLevel, double x, double y, double z) {
         int baseX = Mth.floor(x);
         int baseZ = Mth.floor(z);
-        int refY = Mth.clamp(Mth.floor(y), serverLevel.getMinBuildHeight() + 1, serverLevel.getMaxBuildHeight() - 2);
+        int refY = Mth.clamp(Mth.floor(y), serverLevel.getMinY() + 1, serverLevel.getMaxY() - 2);
         for (int radius = 0; radius <= 2; radius++) {
             for (int dx = -radius; dx <= radius; dx++) {
                 for (int dz = -radius; dz <= radius; dz++) {
@@ -269,8 +269,8 @@ public class VillagerUtil {
 
     @Nullable
     private static BlockPos findSafeSupportSpawnInColumn(ServerLevel serverLevel, int x, int refY, int z) {
-        int minY = serverLevel.getMinBuildHeight() + 1;
-        int maxUpY = Math.min(serverLevel.getMaxBuildHeight() - 2, refY + 3);
+        int minY = serverLevel.getMinY() + 1;
+        int maxUpY = Math.min(serverLevel.getMaxY() - 2, refY + 3);
 
         for (int y = refY; y >= minY; y--) {
             BlockPos feetPos = new BlockPos(x, y, z);
@@ -307,7 +307,7 @@ public class VillagerUtil {
             double localY,
             double localZ
     ) {
-        Mob mob = type.create(level);
+        Mob mob = type.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if (mob == null) {
             return;
         }
@@ -318,7 +318,7 @@ public class VillagerUtil {
             return;
         }
 
-        mob.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, yaw, 0.0F);
+        mob.snapTo(spawnPos.x, spawnPos.y, spawnPos.z, yaw, 0.0F);
 
         if (!level.noCollision(mob) || level.containsAnyLiquid(mob.getBoundingBox())) {
             mob.discard();
@@ -328,7 +328,7 @@ public class VillagerUtil {
         mob.finalizeSpawn(
                 level,
                 level.getCurrentDifficultyAt(BlockPos.containing(spawnPos)),
-                MobSpawnType.MOB_SUMMONED,
+                EntitySpawnReason.MOB_SUMMONED,
                 null
         );
 

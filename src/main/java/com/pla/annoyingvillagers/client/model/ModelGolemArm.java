@@ -10,7 +10,7 @@ import com.pla.annoyingvillagers.client.animation.rig_special_animation.GolemArm
 import com.pla.annoyingvillagers.entity.GolemArms;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationFamily;
 import net.minecraft.client.animation.AnimationDefinition;
-import net.minecraft.client.model.HierarchicalModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -19,16 +19,16 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class ModelGolemArm extends HierarchicalModel<GolemArms> {
+public class ModelGolemArm extends LegacyHierarchicalModel<GolemArms> {
     private static final float LIVING_TRANSITION_TICKS = 5.0F;
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_golem_arm"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_golem_arm"), "main");
 
 private final ModelPart modelRoot;
     private final ModelPart Root;
@@ -58,6 +58,7 @@ private final ModelPart modelRoot;
     private final Map<GolemArms, LivingBlendState> livingBlendStates = new WeakHashMap<>();
 
     public ModelGolemArm(ModelPart root) {
+        super(root);
         this.modelRoot = root;
         this.Root = root.getChild("Root");
         this.Torso = this.Root.getChild("Torso");
@@ -140,11 +141,6 @@ private final ModelPart modelRoot;
         return LayerDefinition.create(meshdefinition, 128, 128);
     }
 
-    @Override
-    public @NotNull ModelPart root() {
-        return this.modelRoot;
-    }
-
 	@Override
 	public void setupAnim(@NotNull GolemArms entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.Root.getAllParts().forEach(ModelPart::resetPose);
@@ -216,9 +212,7 @@ private final ModelPart modelRoot;
 			this.transitionStartedAt = transitionStartedAt;
 		}
 	}
-
-    @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+    public void renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         this.modelRoot.render(poseStack, buffer, packedLight, packedOverlay, color);
         renderPerFaceCubes(poseStack, buffer, packedLight, packedOverlay, color);
     }

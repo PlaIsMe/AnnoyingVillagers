@@ -13,15 +13,15 @@ public class ArmorUtil {
         ItemStack stack = living.getItemBySlot(slot);
         if (stack.isEmpty()) return;
 
-        if (!living.level().isClientSide) {
-            living.spawnAtLocation(stack.copy());
+        if (!living.level().isClientSide()) {
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(living, stack.copy());
         }
 
         living.setItemSlot(slot, ItemStack.EMPTY);
         if (living instanceof Player p) {
             p.getInventory().setChanged();
             if (!p.level().isClientSide()) {
-                p.displayClientMessage(Component.literal("§eThe " + preventArmor + " rejects this piece!"), true);
+                com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(p, Component.literal("§eThe " + preventArmor + " rejects this piece!"), true);
             }
         }
     }

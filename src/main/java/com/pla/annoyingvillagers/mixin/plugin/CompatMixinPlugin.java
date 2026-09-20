@@ -18,7 +18,8 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
     private static final String END_FIRE_RENDER_MIXIN_PREFIX = "com.pla.annoyingvillagers.mixin.client.EndFire";
 
     private static boolean isModLoadedEarly(String modId) {
-        LoadingModList list = FMLLoader.getLoadingModList();
+        FMLLoader loader = FMLLoader.getCurrentOrNull();
+        LoadingModList list = loader == null ? null : loader.getLoadingModList();
         return list != null && list.getModFileById(modId) != null;
     }
 

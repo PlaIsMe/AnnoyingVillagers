@@ -89,12 +89,12 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
         PillarCycle cycle = ACTIVE_PILLARS.get(this.mob.getUUID());
         if (cycle != null && cycle.mob == this.mob) ACTIVE_PILLARS.remove(this.mob.getUUID(), cycle);
         this.obstructionBreaker.reset(this.mob);
-        if (this.mob.getPersistentData().getBoolean(ESCAPE_TRANSIENT_TAG)) this.recoverAfterLoad();
+        if (this.mob.getPersistentData().getBooleanOr(ESCAPE_TRANSIENT_TAG, false)) this.recoverAfterLoad();
         else this.stopEscapeAnimation();
     }
 
     public void recoverAfterLoad() {
-        if (this.ownsLock() || !this.mob.getPersistentData().getBoolean(ESCAPE_TRANSIENT_TAG)) return;
+        if (this.ownsLock() || !this.mob.getPersistentData().getBooleanOr(ESCAPE_TRANSIENT_TAG, false)) return;
         PillarCycle stale = ACTIVE_PILLARS.get(this.mob.getUUID());
         if (stale != null && stale.mob != this.mob) ACTIVE_PILLARS.remove(this.mob.getUUID(), stale);
         this.stopEscapeAnimation();
@@ -108,7 +108,8 @@ public class HerobrineEscapeHoleGoal extends AdvancedEscapeHoleGoal<HerobrineMob
         this.recoverAfterLoad();
         return this.mob.tickCount >= this.retryAfterTick && !(this.mob instanceof NullEntity)
                 && !this.mob.isHealing() && !this.mob.isSacrificing()
-                && EventHooks.canEntityGrief(this.mob.level(), this.mob);
+                && this.mob.level() instanceof ServerLevel serverLevel
+                && EventHooks.canEntityGrief(serverLevel, this.mob);
     }
 
     @Override

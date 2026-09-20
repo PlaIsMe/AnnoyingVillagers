@@ -19,11 +19,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
-import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
@@ -103,7 +101,7 @@ public class BurnNearbyItemGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        if (mob.level().isClientSide) return false;
+        if (mob.level().isClientSide()) return false;
         if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return false;
         if (mob.isPassenger()) return false;
         if (mob.getTarget() != null) return false;
@@ -288,7 +286,7 @@ public class BurnNearbyItemGoal extends Goal {
                 && head.getCollisionShape(serverLevel, pos.above()).isEmpty()
                 && feet.getFluidState().isEmpty()
                 && head.getFluidState().isEmpty()
-                && serverLevel.getBlockState(floorPos).isSolidRender(serverLevel, floorPos);
+                && serverLevel.getBlockState(floorPos).isSolidRender();
     }
 
     private void tryBroadcastBurnMessage(ServerLevel serverLevel, ItemStack burnedStack) {
@@ -551,7 +549,7 @@ public class BurnNearbyItemGoal extends Goal {
 
     private void giveOrDrop(ItemStack stack) {
         if (!InventoryUtils.addItem(mob, stack)) {
-            mob.spawnAtLocation(stack);
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(mob, stack);
         }
     }
 
@@ -842,9 +840,9 @@ public class BurnNearbyItemGoal extends Goal {
             return false;
         }
 
-        return stack.getItem() instanceof SwordItem
+        return com.pla.annoyingvillagers.item.LegacySwordItem.isSword(stack)
                 || stack.getItem() instanceof AxeItem
-                || stack.getItem() instanceof DiggerItem
+                || stack.has(net.minecraft.core.component.DataComponents.TOOL)
                 || stack.getItem() instanceof TridentItem
                 || stack.getItem() instanceof BowItem
                 || stack.getItem() instanceof CrossbowItem;

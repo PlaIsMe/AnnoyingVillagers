@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPoseClip;
-import net.minecraft.client.model.HierarchicalModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -13,12 +13,12 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 
-public class ModelHerobrineObsidianDiamondChestplate<T extends Entity> extends HierarchicalModel<T> {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelherobrineobsidiandiamondchestplate"), "main");
+public class ModelHerobrineObsidianDiamondChestplate<T extends Entity> extends LegacyHierarchicalModel<T> {
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelherobrineobsidiandiamondchestplate"), "main");
     private final ModelPart modelRoot;
     public final ModelPart Body;
     private final ModelPart obsidian_0_bone;
@@ -263,6 +263,7 @@ public class ModelHerobrineObsidianDiamondChestplate<T extends Entity> extends H
     public final ModelPart LeftArm;
 
     public ModelHerobrineObsidianDiamondChestplate(ModelPart root) {
+        super(root);
         this.modelRoot = root;
         this.Body = root.getChild("Body");
         this.obsidian_0_bone = this.Body.getChild("obsidian_0_bone");
@@ -757,18 +758,11 @@ public class ModelHerobrineObsidianDiamondChestplate<T extends Entity> extends H
     }
 
     @Override
-    public ModelPart root() {
-        return this.modelRoot;
-    }
-
-    @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.RightArm.xRot = Mth.cos(limbSwing * 0.6662F + 3.1415927F) * limbSwingAmount;
         this.LeftArm.xRot = Mth.cos(limbSwing * 0.6662F) * limbSwingAmount;
     }
-
-    @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+    public void renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         this.modelRoot.render(poseStack, buffer, packedLight, packedOverlay, color);
         renderRandomizedUvTiles(poseStack, buffer, packedLight, packedOverlay, color);
     }

@@ -11,25 +11,23 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 /** Loads both current Photon effects and the legacy effects exported by Photon for Minecraft 1.20.1. */
-@OnlyIn(Dist.CLIENT)
 public final class PhotonFxLoader {
-    private static final Map<ResourceLocation, FX> LEGACY_CACHE = new HashMap<>();
+    private static final Map<Identifier, FX> LEGACY_CACHE = new HashMap<>();
     private static ResourceManager cachedResourceManager;
 
     private PhotonFxLoader() {
     }
 
-    public static FX getFX(ResourceLocation location) {
+    public static FX getFX(Identifier location) {
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
 
         synchronized (LEGACY_CACHE) {
@@ -55,18 +53,18 @@ public final class PhotonFxLoader {
         return loaded;
     }
 
-    private static FX loadLegacyFX(ResourceManager resourceManager, ResourceLocation location) {
-        ResourceLocation file = ResourceLocation.fromNamespaceAndPath(
+    private static FX loadLegacyFX(ResourceManager resourceManager, Identifier location) {
+        Identifier file = Identifier.fromNamespaceAndPath(
                 location.getNamespace(), "fx/" + location.getPath() + ".fx");
 
         try (InputStream input = resourceManager.open(file)) {
             CompoundTag root = NbtIo.readCompressed(input, NbtAccounter.unlimitedHeap());
-            if (!root.contains("fx", Tag.TAG_COMPOUND)) {
+            if (!root.contains("fx")) {
                 return null;
             }
 
-            CompoundTag legacyFX = root.getCompound("fx");
-            if (!legacyFX.contains("mainFX", Tag.TAG_COMPOUND)) {
+            CompoundTag legacyFX = root.getCompound("fx").orElseGet(net.minecraft.nbt.CompoundTag::new);
+            if (!legacyFX.contains("mainFX")) {
                 return null;
             }
 

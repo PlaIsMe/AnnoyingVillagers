@@ -18,27 +18,25 @@ public class SteveData extends SavedData {
     private static final long COOLDOWN_TICKS = 20L * 60L * 10L;
 
     public static SteveData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(SteveData::new, (tag, provider) -> SteveData.load(tag)), ID);
+        return com.pla.annoyingvillagers.util.LegacySavedData.computeIfAbsent(serverLevel.getDataStorage(), ID, SteveData::new, SteveData::load, (value, provider) -> value.save(new CompoundTag(), provider));
     }
 
     public static SteveData load(CompoundTag compoundTag) {
         SteveData bluedemonData = new SteveData();
-        if (compoundTag.hasUUID("activeId")) {
-            bluedemonData.activeId = compoundTag.getUUID("activeId");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(compoundTag, "activeId")) {
+            bluedemonData.activeId = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(compoundTag, "activeId");
         }
-        if (compoundTag.contains("claimTick", Tag.TAG_LONG)) {
-            bluedemonData.claimTick = compoundTag.getLong("claimTick");
+        if (compoundTag.contains("claimTick")) {
+            bluedemonData.claimTick = compoundTag.getLongOr("claimTick", 0L);
         }
         // Legacy records describe an existing singleton but contain no chunk coordinates.
         bluedemonData.confirmed = compoundTag.contains("confirmed")
-                ? compoundTag.getBoolean("confirmed") : bluedemonData.activeId != null;
+                ? compoundTag.getBooleanOr("confirmed", false) : bluedemonData.activeId != null;
         return bluedemonData;
     }
-
-    @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null) {
-            compoundTag.putUUID("activeId", activeId);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(compoundTag, "activeId", activeId);
         }
         compoundTag.putLong("claimTick", claimTick);
         compoundTag.putBoolean("confirmed", confirmed);

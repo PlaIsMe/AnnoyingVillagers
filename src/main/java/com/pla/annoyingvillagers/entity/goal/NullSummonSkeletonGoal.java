@@ -6,7 +6,7 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -95,8 +95,8 @@ public class NullSummonSkeletonGoal extends AnimatedMobGoal {
 
         NullSkeletonEntity skeleton = new NullSkeletonEntity(AnnoyingVillagersModEntities.NULL_SKELETON.get(), serverLevel);
         skeleton.setNullEntity(nullEntity);
-        skeleton.moveTo(spawnPosition.x, spawnPosition.y, spawnPosition.z, nullEntity.getYRot(), nullEntity.getXRot());
-        skeleton.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(skeleton.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+        skeleton.snapTo(spawnPosition.x, spawnPosition.y, spawnPosition.z, nullEntity.getYRot(), nullEntity.getXRot());
+        skeleton.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(skeleton.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
         if (!serverLevel.addFreshEntity(skeleton)) {
             nullEntity.resetNullSkeletonSummonCooldown();
             return null;

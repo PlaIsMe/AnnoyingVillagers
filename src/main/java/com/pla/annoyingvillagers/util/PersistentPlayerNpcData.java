@@ -6,7 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -31,44 +31,48 @@ public final class PersistentPlayerNpcData extends SavedData {
     private final Map<UUID, Entry> entries = new LinkedHashMap<>();
 
     public static PersistentPlayerNpcData get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(
-                new SavedData.Factory<>(PersistentPlayerNpcData::new, (tag, provider) -> PersistentPlayerNpcData.load(tag)), DATA_NAME);
+        return LegacySavedData.computeIfAbsent(
+                server.overworld().getDataStorage(),
+                DATA_NAME,
+                PersistentPlayerNpcData::new,
+                PersistentPlayerNpcData::load,
+                (value, provider) -> value.save(new CompoundTag(), provider)
+        );
     }
 
     public static PersistentPlayerNpcData load(CompoundTag tag) {
         PersistentPlayerNpcData data = new PersistentPlayerNpcData();
-        ListTag npcs = tag.getList(NPCS_TAG, Tag.TAG_COMPOUND);
+        ListTag npcs = tag.getList(NPCS_TAG).orElseGet(net.minecraft.nbt.ListTag::new);
         for (int i = 0; i < npcs.size(); i++) {
-            CompoundTag npcTag = npcs.getCompound(i);
-            if (!npcTag.hasUUID(ID_TAG) || !npcTag.contains(DIMENSION_TAG, Tag.TAG_STRING)) {
+            CompoundTag npcTag = npcs.getCompound(i).orElseGet(net.minecraft.nbt.CompoundTag::new);
+            if (!com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(npcTag, ID_TAG) || !npcTag.contains(DIMENSION_TAG)) {
                 continue;
             }
 
-            ResourceLocation dimensionId = ResourceLocation.tryParse(npcTag.getString(DIMENSION_TAG));
+            Identifier dimensionId = Identifier.tryParse(npcTag.getStringOr(DIMENSION_TAG, ""));
             if (dimensionId == null) {
                 continue;
             }
 
-            UUID npcId = npcTag.getUUID(ID_TAG);
+            UUID npcId = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(npcTag, ID_TAG);
             ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, dimensionId);
-            ChunkPos centerChunk = new ChunkPos(npcTag.getInt(CHUNK_X_TAG), npcTag.getInt(CHUNK_Z_TAG));
-            String identity = npcTag.contains(IDENTITY_TAG, Tag.TAG_STRING)
-                    ? npcTag.getString(IDENTITY_TAG)
+            ChunkPos centerChunk = new ChunkPos(npcTag.getIntOr(CHUNK_X_TAG, 0), npcTag.getIntOr(CHUNK_Z_TAG, 0));
+            String identity = npcTag.contains(IDENTITY_TAG)
+                    ? npcTag.getStringOr(IDENTITY_TAG, "")
                     : "";
             data.entries.put(npcId, new Entry(npcId, levelKey, centerChunk, identity));
         }
         return data;
     }
 
-    @Override
     public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
         ListTag npcs = new ListTag();
         for (Entry entry : this.entries.values()) {
             CompoundTag npcTag = new CompoundTag();
-            npcTag.putUUID(ID_TAG, entry.npcId());
-            npcTag.putString(DIMENSION_TAG, entry.levelKey().location().toString());
-            npcTag.putInt(CHUNK_X_TAG, entry.centerChunk().x);
-            npcTag.putInt(CHUNK_Z_TAG, entry.centerChunk().z);
+            LegacyNbt.putUUID(npcTag, ID_TAG, entry.npcId());
+            npcTag.putString(DIMENSION_TAG, entry.levelKey().identifier().toString());
+            npcTag.putInt(CHUNK_X_TAG, entry.centerChunk().x());
+            npcTag.putInt(CHUNK_Z_TAG, entry.centerChunk().z());
             if (!entry.identity().isBlank()) {
                 npcTag.putString(IDENTITY_TAG, entry.identity());
             }

@@ -42,7 +42,7 @@ public final class WeaponEnchantmentDamageUtil {
         }
 
         if (owner instanceof Player player) {
-            for (ItemStack stack : player.getInventory().items) {
+            for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
                 if (isWeapon(stack, weaponClass)) {
                     return stack;
                 }

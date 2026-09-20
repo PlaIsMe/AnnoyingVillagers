@@ -10,7 +10,7 @@ import com.pla.annoyingvillagers.specialanimation.SpecialAnimationController;
 import com.pla.annoyingvillagers.entity.goal.HerobrineEscapeHoleGoal;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
@@ -21,9 +21,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -172,8 +170,8 @@ public final class RigMobClashBladeEvent {
 
     private static boolean hasClashWeapon(Mob defender) {
         ItemStack stack = defender.getItemInHand(InteractionHand.MAIN_HAND);
-        return stack.getItem() instanceof SwordItem
-                || stack.getItem() instanceof DiggerItem
+        return com.pla.annoyingvillagers.item.LegacySwordItem.isSword(stack)
+                || stack.has(net.minecraft.core.component.DataComponents.TOOL)
                 || stack.getItem() instanceof TridentItem;
     }
 
@@ -198,7 +196,7 @@ public final class RigMobClashBladeEvent {
 
         Vec3 recoil = look.normalize().scale(-CLASH_RECOIL);
         entity.setDeltaMovement(recoil.x, 0.0D, recoil.z);
-        entity.hasImpulse = true;
+        entity.hurtMarked = true;
         entity.hurtMarked = true;
     }
 }

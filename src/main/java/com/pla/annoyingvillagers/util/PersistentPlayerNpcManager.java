@@ -38,7 +38,6 @@ import java.util.*;
 /** Owns runtime tickets and tab rows; SavedData owns only identity and restoration coordinates. */
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class PersistentPlayerNpcManager {
-    private static final TicketType<UUID> TICKET = ForceTickEntityManager.TICKET;
     private static final Map<UUID, Session> SESSIONS = new LinkedHashMap<>();
     private static boolean stopping;
     private PersistentPlayerNpcManager() {}
@@ -205,7 +204,7 @@ public final class PersistentPlayerNpcManager {
                 session.ensureTicket(server);
                 // Saved coordinates may refer to an entity removed by an older version.
                 // Only prune after the chunk has actually loaded and had time to load entities.
-                if (level.hasChunk(session.center.x, session.center.z)) session.unresolvedTicks += 20;
+                if (level.hasChunk(session.center.x(), session.center.z())) session.unresolvedTicks += 20;
                 if (session.unresolvedTicks >= 600) {
                     session.removeRow(server);
                     session.releaseTicket(server);
@@ -313,14 +312,14 @@ public final class PersistentPlayerNpcManager {
             if (!ticketed && level != null) {
                 // Distance 2 already gives entity ticking at the center. false avoids
                 // remote natural-spawning/random-tick work and matches removal identity.
-                level.getChunkSource().addRegionTicket(TICKET, center, 2, id, false);
+                level.getChunkSource().addTicketWithRadius(ForceTickEntityManager.ticket(), center, 2);
                 ticketed = true;
             }
         }
 
         void releaseTicket(MinecraftServer server) {
             ServerLevel level = server.getLevel(dimension);
-            if (ticketed && level != null) level.getChunkSource().removeRegionTicket(TICKET, center, 2, id, false);
+            if (ticketed && level != null) level.getChunkSource().removeTicketWithRadius(ForceTickEntityManager.ticket(), center, 2);
             ticketed = false;
         }
 

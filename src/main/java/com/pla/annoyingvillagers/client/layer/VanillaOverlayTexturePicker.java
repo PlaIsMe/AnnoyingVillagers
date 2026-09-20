@@ -8,31 +8,31 @@ import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.util.HerobrineEyesUtil;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.potion.ObedienceMobEffect;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.AbstractIllager;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.monster.ZombieVillager;
+import net.minecraft.world.entity.monster.illager.AbstractIllager;
+import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.monster.zombie.ZombieVillager;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import org.jetbrains.annotations.Nullable;
 
-final class VanillaOverlayTexturePicker {
-    private static final ResourceLocation DEFAULT_HEROBRINE_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/default/default.png");
-    private static final ResourceLocation INFECTED_PLAYER_NPC = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "infected_player_npc");
-    private static final ResourceLocation INFECTED_PLAYER_BLOOD = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/player_mob_blood.png");
-    private static final ResourceLocation ZOMBIE_VILLAGER_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/zombie_villager.png");
-    private static final ResourceLocation ZOMBIE_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/zombie.png");
-    private static final ResourceLocation SKELETON_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/skeleton.png");
-    private static final ResourceLocation PIGLIN_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/piglin.png");
-    private static final ResourceLocation ILLAGER_EYES = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/illager.png");
+public final class VanillaOverlayTexturePicker {
+    private static final Identifier DEFAULT_HEROBRINE_EYES = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/default/default.png");
+    private static final Identifier INFECTED_PLAYER_NPC = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "infected_player_npc");
+    private static final Identifier INFECTED_PLAYER_BLOOD = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/player_mob_blood.png");
+    private static final Identifier ZOMBIE_VILLAGER_EYES = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/zombie_villager.png");
+    private static final Identifier ZOMBIE_EYES = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/zombie.png");
+    private static final Identifier SKELETON_EYES = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/skeleton.png");
+    private static final Identifier PIGLIN_EYES = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/piglin.png");
+    private static final Identifier ILLAGER_EYES = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/obedience/illager.png");
 
     private VanillaOverlayTexturePicker() {
     }
 
     @Nullable
-    static ResourceLocation pickHumanoidTexture(LivingEntity entity) {
+    public static Identifier pickHumanoidTexture(LivingEntity entity) {
         if (entity instanceof LowHerobrineCloneEntity) {
             String name = entity.hasCustomName() ? entity.getCustomName().getString() : entity.getName().getString();
             return HerobrineEyesUtil.getHerobrineEyesTexture(name);
@@ -63,13 +63,13 @@ final class VanillaOverlayTexturePicker {
     }
 
     @Nullable
-    static ResourceLocation pickIllagerTexture(AbstractIllager entity) {
+    public static Identifier pickIllagerTexture(AbstractIllager entity) {
         return ObedienceMobEffect.canBeObedientMob(entity) && entity.hasEffect(AnnoyingVillagersModMobEffects.OBEDIENCE)
                 ? ILLAGER_EYES
                 : null;
     }
 
-    static boolean isBloodTexture(ResourceLocation texture) {
+    public static boolean isBloodTexture(Identifier texture) {
         return INFECTED_PLAYER_BLOOD.equals(texture);
     }
 }

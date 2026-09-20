@@ -17,7 +17,7 @@ public final class HerobrineDragonDismountEvent {
     public static void onMount(EntityMountEvent event) {
         if (!event.isDismounting()) return;
         if (!(event.getEntityBeingMounted() instanceof HerobrineDragonEntity dragon)) return;
-        if (dragon.level().isClientSide) return;
+        if (dragon.level().isClientSide()) return;
 
         if (!dragon.onGround() && !dragon.isNearGround() && event.getEntityMounting() instanceof LivingEntity livingEntity) {
             livingEntity.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 2));

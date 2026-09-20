@@ -16,10 +16,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +49,7 @@ public class GlaiveHerobrineEntity extends HerobrineMob {
         return AnnoyingVillagersModSounds.ELITE_HEROBRINE_SAY.get();
     }
 
-    public boolean hurt(@NotNull DamageSource damagesource, float f) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damagesource, float f) {
         if (damagesource.is(DamageTypes.FALL)) return false;
         if (damagesource.is(DamageTypes.CACTUS)) return false;
         if (damagesource.is(DamageTypes.WITHER)) return false;
@@ -59,7 +59,7 @@ public class GlaiveHerobrineEntity extends HerobrineMob {
         if (!(damagesource.getDirectEntity() instanceof EnchantedArrowEntity)
                 && damagesource.getDirectEntity() instanceof AbstractArrow
                 && !(damagesource.getDirectEntity() instanceof BlueDemonThrownTridentEntity)) return false;
-        return super.hurt(damagesource, f);
+        return super.hurtServer(serverLevel, damagesource, f);
     }
 
 
@@ -68,9 +68,9 @@ public class GlaiveHerobrineEntity extends HerobrineMob {
         if (this.level() instanceof ServerLevel serverLevel) {
             EliteHerobrineKnockedEntity eliteHerobrineKnockedEntity = new EliteHerobrineKnockedEntity(AnnoyingVillagersModEntities.ELITE_HEROBRINE_KNOCKED.get(), serverLevel);
 
-            eliteHerobrineKnockedEntity.moveTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
+            eliteHerobrineKnockedEntity.snapTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
             eliteHerobrineKnockedEntity.getPersistentData().putString("FromElite", "EnderGlaive");
-            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(eliteHerobrineKnockedEntity);
 

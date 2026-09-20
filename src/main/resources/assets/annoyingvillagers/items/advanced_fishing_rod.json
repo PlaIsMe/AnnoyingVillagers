@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "annoyingvillagers:legacy",
+    "kind": "cast",
+    "entries": [{
+      "threshold": 1.0,
+      "model": { "type": "minecraft:model", "model": "annoyingvillagers:item/advanced_fishing_rod_cast" }
+    }],
+    "fallback": { "type": "minecraft:model", "model": "annoyingvillagers:item/advanced_fishing_rod" }
+  }
+}

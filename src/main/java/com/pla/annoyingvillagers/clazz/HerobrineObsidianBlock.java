@@ -95,7 +95,7 @@ public class HerobrineObsidianBlock extends Block {
 //        }
 
         if (entity instanceof Player player) {
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 2, false, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 20, 2, false, false, true));
             return;
         }
 
@@ -143,7 +143,7 @@ public class HerobrineObsidianBlock extends Block {
                 if (!(entity.level() instanceof ServerLevel)) return;
 
                 if (entity instanceof Player player) {
-                    player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 2, false, false, true));
+                    player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 20, 2, false, false, true));
                     return;
                 }
 
@@ -194,7 +194,7 @@ public class HerobrineObsidianBlock extends Block {
         BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
         if (blockEntity != null) {
             CompoundTag data = blockEntity.getPersistentData();
-            int life = data.contains(NBT_LIFE) ? data.getInt(NBT_LIFE) : LIFE_TICKS;
+            int life = data.getIntOr(NBT_LIFE, LIFE_TICKS);
 
             if (life > 0) {
                 data.putInt(NBT_LIFE, life - 1);
@@ -241,7 +241,7 @@ public class HerobrineObsidianBlock extends Block {
         if (!fromPlayer && HerobrineUtil.isHerobrineFaction(entity)) {
             return;
         }
-        if (entity instanceof Player && fromPlayer && !serverLevel.getServer().isPvpAllowed()) {
+        if (entity instanceof Player && fromPlayer && !serverLevel.isPvpAllowed()) {
             return;
         }
 
@@ -289,7 +289,7 @@ public class HerobrineObsidianBlock extends Block {
         if (entity instanceof Player player) {
             CompoundTag data = player.getPersistentData();
             if (data.contains("StunEscapeCooldown")) {
-                int coolDownValue = data.getInt("StunEscapeCooldown");
+                int coolDownValue = data.getIntOr("StunEscapeCooldown", 0);
                 if (coolDownValue < 5) {
                     data.putInt("StunEscapeCooldown", coolDownValue + 1);
                 }

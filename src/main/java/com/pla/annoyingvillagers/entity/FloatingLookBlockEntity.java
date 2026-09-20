@@ -169,7 +169,7 @@ public class FloatingLookBlockEntity extends LivingEntity {
     public void tick() {
         super.tick();
 
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             return;
         }
 
@@ -243,7 +243,7 @@ public class FloatingLookBlockEntity extends LivingEntity {
             tryRestoreIfTouchingSupport(serverLevel);
         }
 
-        if (this.getY() < this.level().getMinBuildHeight() - 8) {
+        if (this.getY() < this.level().getMinY() - 8) {
             this.discard();
         }
     }
@@ -388,7 +388,7 @@ public class FloatingLookBlockEntity extends LivingEntity {
                 tag.putInt("y", placePos.getY());
                 tag.putInt("z", placePos.getZ());
 
-                blockEntity.loadWithComponents(tag, level.registryAccess());
+                com.pla.annoyingvillagers.util.LegacyBlockEntityData.load(blockEntity, tag, level.registryAccess());
                 blockEntity.setChanged();
 
                 level.sendBlockUpdated(placePos, oldState, blockState, 3);
@@ -413,15 +413,15 @@ public class FloatingLookBlockEntity extends LivingEntity {
                 blockState.getSoundType().getPlaceSound(),
                 SoundSource.BLOCKS,
                 1.0F,
-                0.85F + level.random.nextFloat() * 0.25F
+                0.85F + level.getRandom().nextFloat() * 0.25F
         );
 
         this.discard();
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
-        if (this.level().isClientSide) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource source, float amount) {
+        if (this.level().isClientSide()) {
             return true;
         }
 
@@ -503,7 +503,7 @@ public class FloatingLookBlockEntity extends LivingEntity {
                 blockState.getSoundType().getBreakSound(),
                 SoundSource.BLOCKS,
                 1.0F,
-                0.9F + serverLevel.random.nextFloat() * 0.2F
+                0.9F + serverLevel.getRandom().nextFloat() * 0.2F
         );
     }
 
@@ -551,41 +551,45 @@ public class FloatingLookBlockEntity extends LivingEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        tag.put("OriginalPos", NbtUtils.writeBlockPos(this.getOriginalPos()));
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
+        tag.store("OriginalPos", BlockPos.CODEC, this.getOriginalPos());
         tag.put("BlockState", NbtUtils.writeBlockState(this.getCarriedBlock()));
         tag.putInt("Phase", this.getPhase());
         tag.putInt("PhaseTicks", this.phaseTicks);
         tag.putBoolean("Launched", this.launched);
 
         if (this.ownerUuid != null) {
-            tag.putUUID("Owner", this.ownerUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "Owner", this.ownerUuid);
         }
 
         if (this.carriedBlockEntityTag != null) {
             tag.put("BlockEntityTag", this.carriedBlockEntityTag.copy());
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        this.setOriginalPos(NbtUtils.readBlockPos(tag, "OriginalPos").orElse(BlockPos.ZERO));
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        this.setOriginalPos(tag.read("OriginalPos", BlockPos.CODEC).orElse(BlockPos.ZERO));
 
         this.setCarriedBlock(NbtUtils.readBlockState(
                 this.level().holderLookup(Registries.BLOCK),
-                tag.getCompound("BlockState")
+                tag.getCompound("BlockState").orElseGet(net.minecraft.nbt.CompoundTag::new)
         ));
 
-        this.entityData.set(DATA_PHASE, tag.getInt("Phase"));
-        this.phaseTicks = tag.getInt("PhaseTicks");
-        this.launched = tag.getBoolean("Launched");
+        this.entityData.set(DATA_PHASE, tag.getIntOr("Phase", 0));
+        this.phaseTicks = tag.getIntOr("PhaseTicks", 0);
+        this.launched = tag.getBooleanOr("Launched", false);
 
-        this.ownerUuid = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
+        this.ownerUuid = com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "Owner") ? com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "Owner") : null;
 
-        this.carriedBlockEntityTag = tag.contains("BlockEntityTag", Tag.TAG_COMPOUND)
-                ? tag.getCompound("BlockEntityTag").copy()
+        this.carriedBlockEntityTag = tag.contains("BlockEntityTag")
+                ? tag.getCompound("BlockEntityTag").orElseGet(net.minecraft.nbt.CompoundTag::new).copy()
                 : null;
     }
 
@@ -610,7 +614,6 @@ public class FloatingLookBlockEntity extends LivingEntity {
         super.remove(reason);
     }
 
-    @Override
     public @NotNull Iterable<ItemStack> getArmorSlots() {
         return Collections.emptyList();
     }

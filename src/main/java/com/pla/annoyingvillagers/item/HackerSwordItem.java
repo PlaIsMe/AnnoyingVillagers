@@ -5,13 +5,12 @@ import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,17 +24,17 @@ public class HackerSwordItem extends LegacySwordItem implements RigCombatProfile
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public @NotNull InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND
-                || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
+                || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) return InteractionResult.PASS;
         if (!level.isClientSide()) {
             // Leave time for separate swings and the target's vanilla hurt immunity to expire.
             int interval = Math.max(4, (int)Math.ceil(player.getCurrentItemAttackStrengthDelay()));
-            player.getCooldowns().addCooldown(this, COMBO_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), COMBO_COOLDOWN_TICKS);
             strike(player, stack, level, interval, COMBO_HITS);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     private void strike(Player player, ItemStack stack, Level level, int interval, int remaining) {
@@ -81,9 +80,9 @@ public class HackerSwordItem extends LegacySwordItem implements RigCombatProfile
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.IRON_INGOT));
+                return Ingredient.of(Items.IRON_INGOT);
             }
-        }, 3, -1.4F, (new Properties()));
+        }, 3, -1.4F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

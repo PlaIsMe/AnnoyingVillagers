@@ -5,7 +5,7 @@ import mod.chloeprime.aaaparticles.api.client.effekseer.ParticleEmitter;
 import mod.chloeprime.aaaparticles.api.common.DynamicParameter;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
 import mod.chloeprime.aaaparticles.client.installer.NativePlatform;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -18,7 +18,7 @@ public class TeleportPortalParticleEmitterInfo extends ParticleEmitterInfo {
     private ForwardAxis axis = ForwardAxis.PLUS_Z;
     private float roll = 0.0F;
 
-    public TeleportPortalParticleEmitterInfo(ResourceLocation effek) {
+    public TeleportPortalParticleEmitterInfo(Identifier effek) {
         super(effek);
     }
 

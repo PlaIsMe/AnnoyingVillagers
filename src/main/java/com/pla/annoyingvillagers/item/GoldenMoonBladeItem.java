@@ -30,9 +30,9 @@ public class GoldenMoonBladeItem extends LegacySwordItem implements RigCombatPro
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.GOLD_INGOT));
+                return Ingredient.of(Items.GOLD_INGOT);
             }
-        }, 3, 0.8F, (new Properties()));
+        }, 3, 0.8F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -44,38 +44,38 @@ public class RedAxeItem extends LegacySwordItem implements RigCombatProfileProvi
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.WOODEN_PICKAXE));
+                return Ingredient.of(Items.WOODEN_PICKAXE);
             }
-        }, 3, -3.0F, (new Properties()));
+        }, 3, -3.0F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled()
                 || hand != InteractionHand.MAIN_HAND
-                || player.getCooldowns().isOnCooldown(this)) {
+                || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) {
             return super.use(level, player, hand);
         }
 
         if (level instanceof ServerLevel serverLevel) {
-            LegacyItemData.getOrCreate(stack).putLong(GIANT_FORM_UNTIL_TAG, level.getGameTime() + GIANT_FORM_TICKS);
+            LegacyItemData.update(stack, tag -> tag.putLong(GIANT_FORM_UNTIL_TAG, level.getGameTime() + GIANT_FORM_TICKS));
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
             LivingEntity target = VanillaWeaponAbilityUtil.findLookTarget(player, VANILLA_MELEE_RANGE);
             if (target != null) {
                 float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2.0F;
-                target.hurt(serverLevel.damageSources().playerAttack(player), damage);
+                target.hurtOrSimulate(serverLevel.damageSources().playerAttack(player), damage);
             }
-            player.getCooldowns().addCooldown(this, VANILLA_ULT_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_ULT_COOLDOWN_TICKS);
         }
 
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     public static boolean isGiantForm(ItemStack stack, Level level) {
         return level != null
                 && LegacyItemData.has(stack)
-                && level.getGameTime() < LegacyItemData.get(stack).getLong(GIANT_FORM_UNTIL_TAG);
+                && level.getGameTime() < LegacyItemData.get(stack).getLongOr(GIANT_FORM_UNTIL_TAG, 0L);
     }
 
     @Override

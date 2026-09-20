@@ -15,7 +15,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -81,7 +81,7 @@ public class AegisHerobrineEntity extends HerobrineMob {
         }
     }
 
-    public boolean hurt(@NotNull DamageSource damageSource, float f) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
         if (damageSource.is(DamageTypes.FALL)) return false;
         if (damageSource.is(DamageTypes.CACTUS)) return false;
         if (damageSource.is(DamageTypes.WITHER)) return false;
@@ -91,7 +91,7 @@ public class AegisHerobrineEntity extends HerobrineMob {
         if (!(damageSource.getDirectEntity() instanceof EnchantedArrowEntity)
                 && damageSource.getDirectEntity() instanceof AbstractArrow
                 && !(damageSource.getDirectEntity() instanceof BlueDemonThrownTridentEntity)) return false;
-        return super.hurt(damageSource, f);
+        return super.hurtServer(serverLevel, damageSource, f);
     }
 
     public void die(@NotNull DamageSource damageSource) {
@@ -99,9 +99,9 @@ public class AegisHerobrineEntity extends HerobrineMob {
         if (this.level() instanceof ServerLevel serverLevel) {
             EliteHerobrineKnockedEntity eliteHerobrineKnockedEntity = new EliteHerobrineKnockedEntity(AnnoyingVillagersModEntities.ELITE_HEROBRINE_KNOCKED.get(), serverLevel);
 
-            eliteHerobrineKnockedEntity.moveTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
+            eliteHerobrineKnockedEntity.snapTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
             eliteHerobrineKnockedEntity.getPersistentData().putString("FromElite", "EnderAegis");
-            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+            eliteHerobrineKnockedEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(eliteHerobrineKnockedEntity.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(eliteHerobrineKnockedEntity);
 

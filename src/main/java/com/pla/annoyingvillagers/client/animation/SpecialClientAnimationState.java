@@ -4,13 +4,11 @@ import com.pla.annoyingvillagers.specialanimation.SpecialAnimationId;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@OnlyIn(Dist.CLIENT)
 public final class SpecialClientAnimationState {
     private static final Map<Integer, Active> ACTIVE = new ConcurrentHashMap<>();
 

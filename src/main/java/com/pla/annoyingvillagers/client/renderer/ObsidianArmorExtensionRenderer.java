@@ -16,11 +16,12 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -39,13 +40,14 @@ import java.util.function.Predicate;
 /** Shared dynamic geometry for first person and renderers that bake the armor shell. */
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class ObsidianArmorExtensionRenderer {
-    private static final ResourceLocation CHESTPLATE_TEXTURE = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID,
+    private static final Identifier CHESTPLATE_TEXTURE = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID,
             "textures/models/armor/herobrine_obsidian_armor_layer_1.png");
-    private static final ResourceLocation HELMET_TEXTURE = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID,
+    private static final Identifier HELMET_TEXTURE = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID,
             "textures/models/armor/herobrine_obsidian_armor_layer_2.png");
     private static ModelHerobrineObsidianDiamondChestplate<LivingEntity> chestplate;
     private static ModelHerobrineObsidianDiamondHelmet<LivingEntity> helmet;
-    private static HumanoidModel<LivingEntity> firstPersonPose;
+    private static HumanoidModel<HumanoidRenderState> firstPersonPose;
+    private static final HumanoidRenderState FIRST_PERSON_STATE = new HumanoidRenderState();
     private static FirstPersonBackend firstPersonBackend = (entity, stack, buffer, light, partial) -> false;
 
     private ObsidianArmorExtensionRenderer() {}
@@ -75,7 +77,7 @@ public final class ObsidianArmorExtensionRenderer {
         var models = Minecraft.getInstance().getEntityModels();
         chestplate = new ModelHerobrineObsidianDiamondChestplate<>(models.bakeLayer(ModelHerobrineObsidianDiamondChestplate.LAYER_LOCATION));
         helmet = new ModelHerobrineObsidianDiamondHelmet<>(models.bakeLayer(ModelHerobrineObsidianDiamondHelmet.LAYER_LOCATION));
-        firstPersonPose = new HumanoidModel<>(models.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
+        firstPersonPose = new HumanoidModel<>(models.bakeLayer(ModelLayers.PLAYER));
     }
 
     public static boolean hasExtensions(LivingEntity wearer) {
@@ -161,12 +163,12 @@ public final class ObsidianArmorExtensionRenderer {
     }
 
     private static VertexConsumer armorBuffer(LivingEntity wearer, ItemStack armor,
-                                               ResourceLocation texture, MultiBufferSource buffer) {
+                                               Identifier texture, MultiBufferSource buffer) {
         ColoredGlintState.setTargetStack(armor, wearer);
         try {
             // Vanilla requests the fixed glint buffer before the shared armor buffer.
             // Reversing that order leaves a stale consumer ("BufferBuilder not started").
-            return ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(texture), armor.hasFoil());
+            return buffer.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.armorCutoutNoCull(texture));
         } finally {
             ColoredGlintState.clear();
         }
@@ -174,20 +176,19 @@ public final class ObsidianArmorExtensionRenderer {
 
     private static void copyPose(ModelPart target, ModelPart source) {
         target.resetPose();
-        if (source != null) target.copyFrom(source);
+        if (source != null) target.loadPose(source.storePose());
     }
 
     @SubscribeEvent
-    public static void renderFirstPerson(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
+    public static void renderFirstPerson(RenderLevelStageEvent.AfterTranslucentFeatures event) {
         Minecraft mc = Minecraft.getInstance();
         var player = mc.player;
-        if (player == null || !mc.options.getCameraType().isFirstPerson() || event.getCamera().getEntity() != player
+        if (player == null || !mc.options.getCameraType().isFirstPerson() || mc.getCameraEntity() != player
                 || player.isSpectator() || player.isSleeping() || player.isInvisible() || !hasExtensions(player)) return;
 
-        float partial = event.getPartialTick().getGameTimeDeltaPartialTick(false);
+        float partial = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         PoseStack stack = event.getPoseStack();
-        Vec3 camera = event.getCamera().getPosition();
+        Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
         var buffer = mc.renderBuffers().bufferSource();
         int light = mc.getEntityRenderDispatcher().getPackedLightCoords(player, partial);
         stack.pushPose();
@@ -198,12 +199,13 @@ public final class ObsidianArmorExtensionRenderer {
             if (firstPersonBackend.render(player, stack, buffer, light, partial)) return;
             ensureModels();
             float bodyYaw = Mth.rotLerp(partial, player.yBodyRotO, player.yBodyRot);
-            firstPersonPose.crouching = player.isCrouching();
-            firstPersonPose.riding = player.isPassenger();
-            firstPersonPose.attackTime = player.getAttackAnim(partial);
-            firstPersonPose.setupAnim(player, player.walkAnimation.position(partial), player.walkAnimation.speed(partial),
-                    player.tickCount + partial, Mth.rotLerp(partial, player.yHeadRotO, player.yHeadRot) - bodyYaw,
-                    Mth.lerp(partial, player.xRotO, player.getXRot()));
+            HumanoidMobRenderer.extractHumanoidRenderState(player, FIRST_PERSON_STATE, partial, mc.getItemModelResolver());
+            FIRST_PERSON_STATE.walkAnimationPos = player.walkAnimation.position(partial);
+            FIRST_PERSON_STATE.walkAnimationSpeed = player.walkAnimation.speed(partial);
+            FIRST_PERSON_STATE.ageInTicks = player.tickCount + partial;
+            FIRST_PERSON_STATE.yRot = Mth.rotLerp(partial, player.yHeadRotO, player.yHeadRot) - bodyYaw;
+            FIRST_PERSON_STATE.xRot = Mth.lerp(partial, player.xRotO, player.getXRot());
+            firstPersonPose.setupAnim(FIRST_PERSON_STATE);
             stack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyYaw));
             stack.scale(-1.0F, -1.0F, 1.0F);
             stack.translate(0.0D, -1.501D, 0.0D);

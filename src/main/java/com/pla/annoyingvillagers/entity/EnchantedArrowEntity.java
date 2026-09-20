@@ -12,8 +12,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -56,17 +56,20 @@ public class EnchantedArrowEntity extends Arrow {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         tag.putInt(GlintColorHelper.TAG_COLOR_GLINT, this.getColorGlint());
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
     public void tick() {
         super.tick();
 
-        if (this.level().isClientSide) {
-            int amount = this.inGround ? (this.inGroundTime % 5 == 0 ? 1 : 0) : 2;
+        if (this.level().isClientSide()) {
+            int amount = this.isInGround() ? (this.inGroundTime % 5 == 0 ? 1 : 0) : 2;
             if (amount > 0) {
                 spawnColoredParticles(amount);
             }
@@ -74,13 +77,14 @@ public class EnchantedArrowEntity extends Arrow {
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
 
-        if (tag.contains(GlintColorHelper.TAG_COLOR_GLINT, Tag.TAG_INT)) {
-            this.setColorGlint(tag.getInt(GlintColorHelper.TAG_COLOR_GLINT));
-        } else if (tag.contains(GlintColorHelper.TAG_COLOR_GLINT, Tag.TAG_STRING)) {
-            this.setColorGlint(GlintColorHelper.fromName(tag.getString(GlintColorHelper.TAG_COLOR_GLINT)));
+        if (tag.contains(GlintColorHelper.TAG_COLOR_GLINT)) {
+            this.setColorGlint(tag.getIntOr(GlintColorHelper.TAG_COLOR_GLINT, 0));
+        } else if (tag.contains(GlintColorHelper.TAG_COLOR_GLINT)) {
+            this.setColorGlint(GlintColorHelper.fromName(tag.getStringOr(GlintColorHelper.TAG_COLOR_GLINT, "")));
         }
     }
 

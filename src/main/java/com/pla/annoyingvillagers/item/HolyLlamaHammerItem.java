@@ -3,8 +3,7 @@ package com.pla.annoyingvillagers.item;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -37,14 +36,14 @@ public class HolyLlamaHammerItem extends LegacySwordItem {
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.DARK_NETHERITE.get()));
+                return Ingredient.of(AnnoyingVillagersModItems.DARK_NETHERITE.get());
             }
-        }, 3, -1.4F, (new Properties()));
+        }, 3, -1.4F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.future_update"));
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.future_update"));
     }
 }

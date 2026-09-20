@@ -53,7 +53,7 @@ public class GolemArms extends Mob {
         int ownerId = this.entityData.get(OWNER_ID);
         Entity byId = ownerId < 0 ? null : this.level().getEntity(ownerId);
         if (byId instanceof LivingEntity living) return living;
-        if (!this.level().isClientSide && this.ownerUuid != null && this.level() instanceof ServerLevel serverLevel) {
+        if (!this.level().isClientSide() && this.ownerUuid != null && this.level() instanceof ServerLevel serverLevel) {
             Entity byUuid = serverLevel.getEntity(this.ownerUuid);
             if (byUuid instanceof LivingEntity living) {
                 this.entityData.set(OWNER_ID, living.getId());
@@ -89,10 +89,10 @@ public class GolemArms extends Mob {
         super.tick();
         LivingEntity owner = getOwnerLiving();
         if (owner == null || !owner.isAlive()) {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (!(owner.getMainHandItem().getItem() instanceof DestructionEyeItem) || !DestructionEyeItem.isBoundTo(owner.getMainHandItem(), this)) {
                 SpecialAnimationController.clear(this);
                 this.discard();
@@ -169,27 +169,31 @@ public class GolemArms extends Mob {
     }
 
     @Override
-    public boolean canBeCollidedWith() {
+    public boolean canBeCollidedWith(@Nullable Entity other) {
         return false;
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource source, float amount) {
         return false;
     }
 
         @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        if (this.ownerUuid != null) tag.putUUID("Owner", this.ownerUuid);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
+        if (this.ownerUuid != null) com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "Owner", this.ownerUuid);
         tag.putInt("NormalAttackIndex", this.normalAttackIndex);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("Owner")) this.ownerUuid = tag.getUUID("Owner");
-        this.normalAttackIndex = tag.getInt("NormalAttackIndex");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "Owner")) this.ownerUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "Owner");
+        this.normalAttackIndex = tag.getIntOr("NormalAttackIndex", 0);
     }
 
     public static AttributeSupplier.Builder createAttributes() {

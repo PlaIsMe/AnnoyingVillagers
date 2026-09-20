@@ -15,13 +15,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -55,7 +54,7 @@ public class EnderSlayerScytheItem extends LegacySwordItem implements RigCombatP
             public int getLevel() { return 1; }
             public int getEnchantmentValue() { return 2; }
             public @NotNull Ingredient getRepairIngredient() { return Ingredient.of(AnnoyingVillagersModItems.ELITE_OBSIDIAN.get()); }
-        }, 3, -2.3F, new Properties().fireResistant());
+        }, 3, -2.3F, com.pla.annoyingvillagers.util.LegacyItemProperties.create().fireResistant());
     }
 
     public static boolean activateVanillaSpecial(Player player) {
@@ -73,18 +72,18 @@ public class EnderSlayerScytheItem extends LegacySwordItem implements RigCombatP
             return true;
         }
 
-        long recoveryUntil = Math.max(player.getPersistentData().getLong(RECOVERY_EXPIRES_TAG), LegacyItemData.getOrCreate(stack).getLong(RECOVERY_EXPIRES_TAG));
+        long recoveryUntil = Math.max(player.getPersistentData().getLongOr(RECOVERY_EXPIRES_TAG, 0L), LegacyItemData.getOrCreate(stack).getLongOr(RECOVERY_EXPIRES_TAG, 0L));
         if (player.level().getGameTime() < recoveryUntil) return false;
         clearDragonTracking(player);
         player.getPersistentData().remove(RECOVERY_EXPIRES_TAG);
-        LegacyItemData.getOrCreate(stack).remove(RECOVERY_EXPIRES_TAG);
+        LegacyItemData.update(stack, tag -> tag.remove(RECOVERY_EXPIRES_TAG));
         dragon = spawnEnderDragon(player, serverLevel);
         if (dragon == null) return false;
 
-        player.getPersistentData().putUUID(DRAGON_UUID_TAG, dragon.getUUID());
+        com.pla.annoyingvillagers.util.LegacyNbt.putUUID(player.getPersistentData(), DRAGON_UUID_TAG, dragon.getUUID());
         player.getPersistentData().putLong(DRAGON_EXPIRES_TAG, player.level().getGameTime() + DRAGON_LIFETIME_TICKS);
-        LegacyItemData.getOrCreate(stack).putBoolean(ACTIVE_SCYTHE_TAG, true);
-        player.getCooldowns().addCooldown(item, DRAGON_LIFETIME_TICKS);
+        LegacyItemData.update(stack, tag -> tag.putBoolean(ACTIVE_SCYTHE_TAG, true));
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), DRAGON_LIFETIME_TICKS);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         return true;
@@ -127,53 +126,55 @@ public class EnderSlayerScytheItem extends LegacySwordItem implements RigCombatP
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (hand == InteractionHand.MAIN_HAND && commandMeteor(player)) return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
-        return InteractionResultHolder.pass(stack);
+        if (hand == InteractionHand.MAIN_HAND && commandMeteor(player)) return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
-        super.inventoryTick(stack, level, entity, slot, selected);
+    public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slot = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean selected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        super.inventoryTick(stack, level, entity, equipmentSlot);
         if (level.isClientSide() || !(entity instanceof Player player) || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
         CompoundTag tag = LegacyItemData.get(stack);
         if (tag == null) return;
 
-        long recoveryUntil = Math.max(tag.getLong(RECOVERY_EXPIRES_TAG), player.getPersistentData().getLong(RECOVERY_EXPIRES_TAG));
+        long recoveryUntil = Math.max(tag.getLongOr(RECOVERY_EXPIRES_TAG, 0L), player.getPersistentData().getLongOr(RECOVERY_EXPIRES_TAG, 0L));
         if (recoveryUntil > level.getGameTime()) {
             tag.putLong(RECOVERY_EXPIRES_TAG, recoveryUntil);
             player.getPersistentData().putLong(RECOVERY_EXPIRES_TAG, recoveryUntil);
             int remainingTicks = (int)Math.min(Integer.MAX_VALUE, recoveryUntil - level.getGameTime());
-            if (player.getCooldowns().getCooldownPercent(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get(), 0.0F) <= 0.0F) {
-                player.getCooldowns().addCooldown(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get(), remainingTicks);
+            if (player.getCooldowns().getCooldownPercent(new net.minecraft.world.item.ItemStack(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get()), 0.0F) <= 0.0F) {
+                player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get()), remainingTicks);
             }
         } else if (recoveryUntil > 0L) {
             tag.remove(RECOVERY_EXPIRES_TAG);
             player.getPersistentData().remove(RECOVERY_EXPIRES_TAG);
         }
-        if (!tag.getBoolean(ACTIVE_SCYTHE_TAG)) return;
+        if (!tag.getBooleanOr(ACTIVE_SCYTHE_TAG, false)) return;
 
         HerobrineDragonEntity dragon = getTrackedDragon(player);
         boolean switchedAway = player.getMainHandItem() != stack;
-        boolean expired = player.getPersistentData().getLong(DRAGON_EXPIRES_TAG) > 0L && level.getGameTime() >= player.getPersistentData().getLong(DRAGON_EXPIRES_TAG);
+        boolean expired = player.getPersistentData().getLongOr(DRAGON_EXPIRES_TAG, 0L) > 0L && level.getGameTime() >= player.getPersistentData().getLongOr(DRAGON_EXPIRES_TAG, 0L);
         if (switchedAway || expired || dragon == null || dragon.isRemoved()) {
             discardTrackedDragon(player, true);
             tag.remove(ACTIVE_SCYTHE_TAG);
-            tag.putLong(RECOVERY_EXPIRES_TAG, player.getPersistentData().getLong(RECOVERY_EXPIRES_TAG));
+            tag.putLong(RECOVERY_EXPIRES_TAG, player.getPersistentData().getLongOr(RECOVERY_EXPIRES_TAG, 0L));
             return;
         }
 
-        long expiresAt = player.getPersistentData().getLong(DRAGON_EXPIRES_TAG);
+        long expiresAt = player.getPersistentData().getLongOr(DRAGON_EXPIRES_TAG, 0L);
         int remainingTicks = (int)Math.max(0L, expiresAt - level.getGameTime());
-        if (remainingTicks > 0 && player.getCooldowns().getCooldownPercent(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get(), 0.0F) <= 0.0F) player.getCooldowns().addCooldown(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get(), remainingTicks);
+        if (remainingTicks > 0 && player.getCooldowns().getCooldownPercent(new net.minecraft.world.item.ItemStack(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get()), 0.0F) <= 0.0F) player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get()), remainingTicks);
         if (selected) HerobrineUtil.spawnEliteEffect(level, entity.getX(), entity.getY(), entity.getZ(), entity);
     }
 
     @Nullable
     public static HerobrineDragonEntity getTrackedDragon(Player player) {
-        if (!player.getPersistentData().hasUUID(DRAGON_UUID_TAG)) return null;
-        UUID dragonId = player.getPersistentData().getUUID(DRAGON_UUID_TAG);
+        if (!com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(player.getPersistentData(), DRAGON_UUID_TAG)) return null;
+        UUID dragonId = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(player.getPersistentData(), DRAGON_UUID_TAG);
         Entity entity = findTrackedEntity(player, dragonId);
         return entity instanceof HerobrineDragonEntity dragon && dragon.isAlive() && !dragon.isRemoved() ? dragon : null;
     }
@@ -192,16 +193,14 @@ public class EnderSlayerScytheItem extends LegacySwordItem implements RigCombatP
 
     public static void onSummonedDragonDeath(Player player, UUID dragonUuid) {
         if (player.level().isClientSide()
-                || !player.getPersistentData().hasUUID(DRAGON_UUID_TAG)
-                || !dragonUuid.equals(player.getPersistentData().getUUID(DRAGON_UUID_TAG))) return;
+                || !com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(player.getPersistentData(), DRAGON_UUID_TAG)
+                || !dragonUuid.equals(com.pla.annoyingvillagers.util.LegacyNbt.getUUID(player.getPersistentData(), DRAGON_UUID_TAG))) return;
 
         long recoveryUntil = player.level().getGameTime() + POST_DRAGON_COOLDOWN_TICKS;
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
             markScytheRecovering(stack, recoveryUntil);
         }
-        for (ItemStack stack : player.getInventory().offhand) {
-            markScytheRecovering(stack, recoveryUntil);
-        }
+        markScytheRecovering(player.getOffhandItem(), recoveryUntil);
 
         clearDragonTracking(player);
         startRecoveryCooldown(player, recoveryUntil);
@@ -209,8 +208,10 @@ public class EnderSlayerScytheItem extends LegacySwordItem implements RigCombatP
 
     private static void markScytheRecovering(ItemStack stack, long recoveryUntil) {
         if (!(stack.getItem() instanceof EnderSlayerScytheItem) || !isDragonActive(stack)) return;
-        LegacyItemData.getOrCreate(stack).remove(ACTIVE_SCYTHE_TAG);
-        LegacyItemData.getOrCreate(stack).putLong(RECOVERY_EXPIRES_TAG, recoveryUntil);
+        LegacyItemData.update(stack, tag -> {
+            tag.remove(ACTIVE_SCYTHE_TAG);
+            tag.putLong(RECOVERY_EXPIRES_TAG, recoveryUntil);
+        });
     }
 
     private static void startRecoveryCooldown(Player player) {
@@ -219,8 +220,9 @@ public class EnderSlayerScytheItem extends LegacySwordItem implements RigCombatP
 
     private static void startRecoveryCooldown(Player player, long recoveryUntil) {
         player.getPersistentData().putLong(RECOVERY_EXPIRES_TAG, recoveryUntil);
-        player.getCooldowns().removeCooldown(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get());
-        player.getCooldowns().addCooldown(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get(), POST_DRAGON_COOLDOWN_TICKS);
+        player.getCooldowns().removeCooldown(player.getCooldowns().getCooldownGroup(
+                new ItemStack(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get())));
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get()), POST_DRAGON_COOLDOWN_TICKS);
     }
 
     private static void clearDragonTracking(Player player) {
@@ -230,7 +232,7 @@ public class EnderSlayerScytheItem extends LegacySwordItem implements RigCombatP
     }
 
     public static boolean isDragonActive(ItemStack stack) {
-        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean(ACTIVE_SCYTHE_TAG);
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBooleanOr(ACTIVE_SCYTHE_TAG, false);
     }
 
     private static boolean isValidDragonCommandTarget(Player player, HerobrineDragonEntity dragon, @Nullable LivingEntity target) {
@@ -263,7 +265,7 @@ public class EnderSlayerScytheItem extends LegacySwordItem implements RigCombatP
             Entity entity = currentLevel.getEntity(dragonId);
             if (entity != null) return entity;
         }
-        MinecraftServer server = player.getServer();
+        MinecraftServer server = player.level() instanceof ServerLevel level ? level.getServer() : null;
         if (server == null) return null;
         for (ServerLevel serverLevel : server.getAllLevels()) {
             Entity entity = serverLevel.getEntity(dragonId);
@@ -290,13 +292,13 @@ public class EnderSlayerScytheItem extends LegacySwordItem implements RigCombatP
     }
 
     private static Vec3 findSummonSpawnPos(ServerLevel serverLevel, Player player) {
-        double y = Mth.clamp(player.getY() - SUMMON_UNDERGROUND_DISTANCE, serverLevel.getMinBuildHeight() + 2.0D, serverLevel.getMaxBuildHeight() - 8.0D);
+        double y = Mth.clamp(player.getY() - SUMMON_UNDERGROUND_DISTANCE, serverLevel.getMinY() + 2.0D, serverLevel.getMaxY() - 8.0D);
         return new Vec3(player.getX(), y, player.getZ());
     }
 
     private static Vec3 findSummonRiseTarget(ServerLevel serverLevel, Player player, HerobrineDragonEntity dragon) {
-        double minY = serverLevel.getMinBuildHeight() + 6.0D;
-        double maxY = serverLevel.getMaxBuildHeight() - 6.0D;
+        double minY = serverLevel.getMinY() + 6.0D;
+        double maxY = serverLevel.getMaxY() - 6.0D;
         if (serverLevel.dimensionType().hasCeiling()) {
             BlockPos col = BlockPos.containing(player.getX(), 0.0D, player.getZ());
             int roofAirY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, col).getY();
@@ -318,9 +320,9 @@ public class EnderSlayerScytheItem extends LegacySwordItem implements RigCombatP
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.ender_slayer_scythe"));
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.ender_slayer_scythe"));
     }
 
     @Override

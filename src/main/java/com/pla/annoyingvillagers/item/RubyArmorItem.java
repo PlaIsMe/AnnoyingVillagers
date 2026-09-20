@@ -1,12 +1,12 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import com.pla.annoyingvillagers.item.LegacyArmorItem;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -16,10 +16,10 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public abstract class RubyArmorItem extends LegacyArmorItem {
 
-    public RubyArmorItem(ArmorItem.Type type, Properties properties) {
+    public RubyArmorItem(LegacyArmorItem.Type type, Properties properties) {
         super(new LegacyArmorMaterial() {
             @Override
-            public int getDurabilityForType(ArmorItem.Type type) {
+            public int getDurabilityForType(LegacyArmorItem.Type type) {
                 return switch (type) {
                     case BOOTS      -> 13 * 25;
                     case LEGGINGS   -> 15 * 25;
@@ -30,7 +30,7 @@ public abstract class RubyArmorItem extends LegacyArmorItem {
             }
 
             @Override
-            public int getDefenseForType(ArmorItem.Type type) {
+            public int getDefenseForType(LegacyArmorItem.Type type) {
                 return switch (type) {
                     case BOOTS      -> 5;
                     case LEGGINGS   -> 6;
@@ -45,11 +45,11 @@ public abstract class RubyArmorItem extends LegacyArmorItem {
             }
 
             public Object getEquipSound() {
-                return (SoundEvent) BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond"));
+                return (SoundEvent) BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond"));
             }
 
             public Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack[]{new ItemStack((ItemLike) AnnoyingVillagersModItems.DARK_NETHERITE.get()), new ItemStack(Items.GOLD_INGOT)});
+                return Ingredient.of(AnnoyingVillagersModItems.DARK_NETHERITE.get(), Items.GOLD_INGOT);
             }
 
             public String getName() {
@@ -69,7 +69,7 @@ public abstract class RubyArmorItem extends LegacyArmorItem {
     public static class Boots extends RubyArmorItem {
 
         public Boots() {
-            super(Type.BOOTS, (new Properties()));
+            super(Type.BOOTS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -80,7 +80,7 @@ public abstract class RubyArmorItem extends LegacyArmorItem {
     public static class Leggings extends RubyArmorItem {
 
         public Leggings() {
-            super(Type.LEGGINGS, (new Properties()));
+            super(Type.LEGGINGS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -91,7 +91,7 @@ public abstract class RubyArmorItem extends LegacyArmorItem {
     public static class Chestplate extends RubyArmorItem {
 
         public Chestplate() {
-            super(Type.CHESTPLATE, (new Properties()));
+            super(Type.CHESTPLATE, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -102,7 +102,7 @@ public abstract class RubyArmorItem extends LegacyArmorItem {
     public static class Helmet extends RubyArmorItem {
 
         public Helmet() {
-            super(Type.HELMET, (new Properties()));
+            super(Type.HELMET, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {

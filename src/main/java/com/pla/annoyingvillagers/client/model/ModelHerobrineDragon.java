@@ -9,7 +9,7 @@ import com.pla.annoyingvillagers.accessors.ModelPartAccess;
 import com.pla.annoyingvillagers.client.animation.DragonAnimator;
 import com.pla.annoyingvillagers.client.engine.ModelPartProxy;
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
-import net.minecraft.client.model.EntityModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -17,8 +17,8 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.NoSuchElementException;
@@ -29,10 +29,10 @@ import java.util.NoSuchElementException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 @SuppressWarnings("UnnecessaryLocalVariable")
-public class ModelHerobrineDragon extends EntityModel<HerobrineDragonEntity>
+public class ModelHerobrineDragon extends LegacyHierarchicalModel<HerobrineDragonEntity>
 {
     public static final ModelLayerLocation LAYER_LOCATION =
-            new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelherobrinedragon"), "main");
+            new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelherobrinedragon"), "main");
     // model constants
     public static final int NECK_SIZE = 10;
     public static final int TAIL_SIZE = 10;
@@ -71,7 +71,7 @@ public class ModelHerobrineDragon extends EntityModel<HerobrineDragonEntity>
 
     public ModelHerobrineDragon(ModelPart root)
     {
-        super(RenderType::entityCutout);
+        super(root);
 
         this.body = root.getChild("body");
         this.back = body.getChild("back");
@@ -336,7 +336,6 @@ public class ModelHerobrineDragon extends EntityModel<HerobrineDragonEntity>
                 mirrorXPos(toePosX, toePosY, toePosZ, mirror));
     }
 
-    @Override
     public void prepareMobModel(HerobrineDragonEntity dragon, float pLimbSwing, float pLimbSwingAmount, float pPartialTick)
     {
         size = Math.min(dragon.getScale(), 1);
@@ -346,14 +345,13 @@ public class ModelHerobrineDragon extends EntityModel<HerobrineDragonEntity>
     @Override
     public void setupAnim(HerobrineDragonEntity dragon, float pLimbSwing, float pLimbSwingAmount, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch)
     {
+        prepareMobModel(dragon, pLimbSwing, pLimbSwingAmount, pAgeInTicks - dragon.tickCount);
         DragonAnimator animator = dragon.getAnimator();
         animator.setLook(pNetHeadYaw, pHeadPitch);
         animator.setMovement(pLimbSwing, pLimbSwingAmount * dragon.getScale());
         dragon.getAnimator().animate(this);
     }
-
-    @Override
-    public void renderToBuffer(PoseStack ps, VertexConsumer vertices, int pPackedLight, int pPackedOverlay, int color)
+    public void renderLegacy(PoseStack ps, VertexConsumer vertices, int pPackedLight, int pPackedOverlay, int color)
     {
         body.render(ps, vertices, pPackedLight, pPackedOverlay, color);
         renderHead(ps, vertices, pPackedLight, pPackedOverlay, color);

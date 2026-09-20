@@ -21,7 +21,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -99,27 +99,7 @@ public class TransporterFragmentItem extends Item {
     private static final String TAG_ENTITY_DZ = "DZ";
 
     public TransporterFragmentItem() {
-        super(new Properties().stacksTo(1).durability(MAX_DURABILITY).fireResistant().rarity(Rarity.EPIC));
-    }
-
-    @Override
-    public boolean isEnchantable(ItemStack stack) {
-        return false;
-    }
-
-    @Override
-    public boolean supportsEnchantment(ItemStack stack, net.minecraft.core.Holder<Enchantment> enchantment) {
-        return false;
-    }
-
-    @Override
-    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
-        return false;
-    }
-
-    @Override
-    public int getEnchantmentValue() {
-        return 0;
+        super(com.pla.annoyingvillagers.util.LegacyItemProperties.create().stacksTo(1).durability(MAX_DURABILITY).fireResistant().rarity(Rarity.EPIC));
     }
 
     public static UseResult tryUseSpecialAttack(Player player) {
@@ -143,30 +123,30 @@ public class TransporterFragmentItem extends Item {
         if (mainHand) {
             ItemStack stack = player.getMainHandItem();
             UseMode mode = UseMode.MAIN_HAND;
-            if (player.getCooldowns().isOnCooldown(transporterFragment)
-                    || player.getPersistentData().getBoolean(NBT_SAVED_TELEPORT_PENDING)
-                    || player.getPersistentData().getBoolean(HerobrinePortalUtil.NBT_RISING)
-                    || player.getPersistentData().getBoolean(HerobrinePortalUtil.NBT_SINKING)
+            if (player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(transporterFragment))
+                    || player.getPersistentData().getBooleanOr(NBT_SAVED_TELEPORT_PENDING, false)
+                    || player.getPersistentData().getBooleanOr(HerobrinePortalUtil.NBT_RISING, false)
+                    || player.getPersistentData().getBooleanOr(HerobrinePortalUtil.NBT_SINKING, false)
                     || !hasSavedLocation(stack)
                     || !hasDurability(stack, SAVED_TELEPORT_DURABILITY_COST)) {
                 return UseResult.consumed(mode, false);
             }
             if (!(player.level() instanceof ServerLevel serverLevel)) return UseResult.consumed(mode, false);
 
-            CompoundTag savedLocation = LegacyItemData.get(stack).getCompound(TAG_SAVED_LOCATION);
-            if (!savedLocation.getString(TAG_DIMENSION).equals(serverLevel.dimension().location().toString())) return UseResult.consumed(mode, false);
-            Vec3 target = new Vec3(savedLocation.getDouble(TAG_X), savedLocation.getDouble(TAG_Y), savedLocation.getDouble(TAG_Z));
+            CompoundTag savedLocation = LegacyItemData.get(stack).getCompound(TAG_SAVED_LOCATION).orElseGet(net.minecraft.nbt.CompoundTag::new);
+            if (!savedLocation.getStringOr(TAG_DIMENSION, "").equals(serverLevel.dimension().identifier().toString())) return UseResult.consumed(mode, false);
+            Vec3 target = new Vec3(savedLocation.getDoubleOr(TAG_X, 0.0D), savedLocation.getDoubleOr(TAG_Y, 0.0D), savedLocation.getDoubleOr(TAG_Z, 0.0D));
             if (!serverLevel.getWorldBorder().isWithinBounds(BlockPos.containing(target))) return UseResult.consumed(mode, false);
 
             beginSavedTeleport(serverLevel, player, target);
             damageStack(player, stack, InteractionHand.MAIN_HAND, SAVED_TELEPORT_DURABILITY_COST);
-            player.getCooldowns().addCooldown(transporterFragment, COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(transporterFragment), COOLDOWN_TICKS);
             return UseResult.consumed(mode, true);
         }
 
         ItemStack stack = player.getOffhandItem();
         UseMode mode = UseMode.OFF_HAND;
-        if (player.getCooldowns().isOnCooldown(transporterFragment) || !hasDurability(stack, SINGLE_PORTAL_DURABILITY_COST)) return UseResult.consumed(mode, false);
+        if (player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(transporterFragment)) || !hasDurability(stack, SINGLE_PORTAL_DURABILITY_COST)) return UseResult.consumed(mode, false);
         if (!(player.level() instanceof ServerLevel serverLevel)) return UseResult.consumed(mode, false);
 
         List<PortalEntity> activePortals = findOwnedActivePortals(serverLevel, player);
@@ -175,7 +155,7 @@ public class TransporterFragmentItem extends Item {
         if (spawned <= 0) return UseResult.consumed(mode, false);
 
         damageStack(player, stack, InteractionHand.OFF_HAND, spawned);
-        player.getCooldowns().addCooldown(transporterFragment, COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(transporterFragment), COOLDOWN_TICKS);
         return UseResult.consumed(mode, true);
     }
 
@@ -195,7 +175,7 @@ public class TransporterFragmentItem extends Item {
             }
         }
 
-        return InteractionResult.sidedSuccess(context.getLevel().isClientSide());
+        return context.getLevel().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     @Override
@@ -212,11 +192,11 @@ public class TransporterFragmentItem extends Item {
             }
         }
 
-        return InteractionResult.sidedSuccess(player.level().isClientSide());
+        return player.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (hand != InteractionHand.MAIN_HAND || !stack.is(AnnoyingVillagersModItems.TRANSPORTER_FRAGMENT.get())) {
             return super.use(level, player, hand);
@@ -231,25 +211,25 @@ public class TransporterFragmentItem extends Item {
             }
         }
 
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.annoyingvillagers.transporter_fragment"));
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, level, display, tooltip, flag);
+        tooltip.accept(Component.translatable("tooltip.annoyingvillagers.transporter_fragment"));
         if (!hasSavedLocation(stack)) {
-            tooltip.add(Component.literal("Saved Location: none").withStyle(ChatFormatting.DARK_GRAY));
+            tooltip.accept(Component.literal("Saved Location: none").withStyle(ChatFormatting.DARK_GRAY));
             return;
         }
 
-        CompoundTag savedLocation = LegacyItemData.get(stack).getCompound(TAG_SAVED_LOCATION);
-        tooltip.add(Component.literal("Saved Location").withStyle(ChatFormatting.AQUA));
-        tooltip.add(Component.literal("Saved pos: "
-                + Mth.floor(savedLocation.getDouble(TAG_X)) + " "
-                + Mth.floor(savedLocation.getDouble(TAG_Y)) + " "
-                + Mth.floor(savedLocation.getDouble(TAG_Z))).withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.literal(savedLocation.getString(TAG_DIMENSION)).withStyle(ChatFormatting.DARK_GRAY));
+        CompoundTag savedLocation = LegacyItemData.get(stack).getCompound(TAG_SAVED_LOCATION).orElseGet(net.minecraft.nbt.CompoundTag::new);
+        tooltip.accept(Component.literal("Saved Location").withStyle(ChatFormatting.AQUA));
+        tooltip.accept(Component.literal("Saved pos: "
+                + Mth.floor(savedLocation.getDoubleOr(TAG_X, 0.0D)) + " "
+                + Mth.floor(savedLocation.getDoubleOr(TAG_Y, 0.0D)) + " "
+                + Mth.floor(savedLocation.getDoubleOr(TAG_Z, 0.0D))).withStyle(ChatFormatting.GRAY));
+        tooltip.accept(Component.literal(savedLocation.getStringOr(TAG_DIMENSION, "")).withStyle(ChatFormatting.DARK_GRAY));
     }
 
     private static UseMode getUseMode(Player player, Item transporterFragment) {
@@ -296,9 +276,9 @@ public class TransporterFragmentItem extends Item {
         savedLocation.putDouble(TAG_X, pos.x);
         savedLocation.putDouble(TAG_Y, pos.y);
         savedLocation.putDouble(TAG_Z, pos.z);
-        savedLocation.putString(TAG_DIMENSION, level.dimension().location().toString());
-        LegacyItemData.getOrCreate(stack).put(TAG_SAVED_LOCATION, savedLocation);
-        player.displayClientMessage(Component.literal("Saved Location: "
+        savedLocation.putString(TAG_DIMENSION, level.dimension().identifier().toString());
+        LegacyItemData.update(stack, tag -> tag.put(TAG_SAVED_LOCATION, savedLocation));
+        com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(player, Component.literal("Saved Location: "
                 + Mth.floor(pos.x) + " "
                 + Mth.floor(pos.y) + " "
                 + Mth.floor(pos.z)).withStyle(ChatFormatting.AQUA), true);
@@ -308,7 +288,7 @@ public class TransporterFragmentItem extends Item {
         if (LegacyItemData.has(stack)) {
             LegacyItemData.get(stack).remove(TAG_SAVED_LOCATION);
         }
-        player.displayClientMessage(Component.literal("Saved Location cleared").withStyle(ChatFormatting.GRAY), true);
+        com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(player, Component.literal("Saved Location cleared").withStyle(ChatFormatting.GRAY), true);
     }
 
     private static void beginSavedTeleport(ServerLevel level, Player player, Vec3 target) {
@@ -336,7 +316,7 @@ public class TransporterFragmentItem extends Item {
     public static void tickPendingSavedTeleport(Player player) {
         if (player.level().isClientSide()) return;
         CompoundTag tag = player.getPersistentData();
-        if (!tag.getBoolean(NBT_SAVED_TELEPORT_PENDING)) return;
+        if (!tag.getBooleanOr(NBT_SAVED_TELEPORT_PENDING, false)) return;
         if (!player.isAlive() || player.isRemoved()) clearSavedTeleportState(tag);
     }
 
@@ -363,7 +343,7 @@ public class TransporterFragmentItem extends Item {
     private static int addTeleportEntity(CompoundTag entitiesTag, int index, Entity entity, Vec3 origin) {
         CompoundTag entityTag = new CompoundTag();
         Vec3 offset = entity.position().subtract(origin);
-        entityTag.putUUID(TAG_ENTITY_UUID, entity.getUUID());
+        com.pla.annoyingvillagers.util.LegacyNbt.putUUID(entityTag, TAG_ENTITY_UUID, entity.getUUID());
         entityTag.putDouble(TAG_ENTITY_DX, offset.x);
         entityTag.putDouble(TAG_ENTITY_DY, offset.y);
         entityTag.putDouble(TAG_ENTITY_DZ, offset.z);
@@ -377,17 +357,17 @@ public class TransporterFragmentItem extends Item {
         }
 
         CompoundTag tag = caster.getPersistentData();
-        if (!tag.getBoolean(NBT_SAVED_TELEPORT_PENDING)) {
+        if (!tag.getBooleanOr(NBT_SAVED_TELEPORT_PENDING, false)) {
             return;
         }
 
         Vec3 target = new Vec3(
-                tag.getDouble(TAG_TELEPORT_TARGET_X),
-                tag.getDouble(TAG_TELEPORT_TARGET_Y),
-                tag.getDouble(TAG_TELEPORT_TARGET_Z)
+                tag.getDoubleOr(TAG_TELEPORT_TARGET_X, 0.0D),
+                tag.getDoubleOr(TAG_TELEPORT_TARGET_Y, 0.0D),
+                tag.getDoubleOr(TAG_TELEPORT_TARGET_Z, 0.0D)
         );
-        CompoundTag entitiesTag = tag.getCompound(TAG_TELEPORT_ENTITIES);
-        int count = entitiesTag.getInt(TAG_ENTITY_COUNT);
+        CompoundTag entitiesTag = tag.getCompound(TAG_TELEPORT_ENTITIES).orElseGet(net.minecraft.nbt.CompoundTag::new);
+        int count = entitiesTag.getIntOr(TAG_ENTITY_COUNT, 0);
 
         sendGroundPortalFx(caster, target);
         level.playSound(null, BlockPos.containing(target), AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -395,28 +375,28 @@ public class TransporterFragmentItem extends Item {
         Vec3 casterDestination = target;
         UUID casterUuid = caster.getUUID();
         for (int i = 0; i < count; i++) {
-            CompoundTag entityTag = entitiesTag.getCompound(String.valueOf(i));
-            if (!entityTag.hasUUID(TAG_ENTITY_UUID) || !casterUuid.equals(entityTag.getUUID(TAG_ENTITY_UUID))) continue;
-            casterDestination = target.add(entityTag.getDouble(TAG_ENTITY_DX), entityTag.getDouble(TAG_ENTITY_DY), entityTag.getDouble(TAG_ENTITY_DZ));
+            CompoundTag entityTag = entitiesTag.getCompoundOrEmpty(String.valueOf(i));
+            if (!com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(entityTag, TAG_ENTITY_UUID) || !casterUuid.equals(com.pla.annoyingvillagers.util.LegacyNbt.getUUID(entityTag, TAG_ENTITY_UUID))) continue;
+            casterDestination = target.add(entityTag.getDoubleOr(TAG_ENTITY_DX, 0.0D), entityTag.getDoubleOr(TAG_ENTITY_DY, 0.0D), entityTag.getDoubleOr(TAG_ENTITY_DZ, 0.0D));
             break;
         }
         teleportEntityWithRise(level, caster, casterDestination);
 
         for (int i = 0; i < count; i++) {
-            CompoundTag entityTag = entitiesTag.getCompound(String.valueOf(i));
-            if (!entityTag.hasUUID(TAG_ENTITY_UUID)) {
+            CompoundTag entityTag = entitiesTag.getCompoundOrEmpty(String.valueOf(i));
+            if (!com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(entityTag, TAG_ENTITY_UUID)) {
                 continue;
             }
 
-            UUID entityUuid = entityTag.getUUID(TAG_ENTITY_UUID);
+            UUID entityUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(entityTag, TAG_ENTITY_UUID);
             if (casterUuid.equals(entityUuid)) continue;
             Entity entity = level.getEntity(entityUuid);
             if (entity == null || entity.isRemoved()) continue;
 
             Vec3 destination = target.add(
-                    entityTag.getDouble(TAG_ENTITY_DX),
-                    entityTag.getDouble(TAG_ENTITY_DY),
-                    entityTag.getDouble(TAG_ENTITY_DZ)
+                    entityTag.getDoubleOr(TAG_ENTITY_DX, 0.0D),
+                    entityTag.getDoubleOr(TAG_ENTITY_DY, 0.0D),
+                    entityTag.getDoubleOr(TAG_ENTITY_DZ, 0.0D)
             );
             teleportEntityWithRise(level, entity, destination);
         }
@@ -451,7 +431,7 @@ public class TransporterFragmentItem extends Item {
         tag.putDouble(HerobrinePortalUtil.NBT_SPEED, SAVED_TELEPORT_RISE_SPEED);
         tag.putInt(HerobrinePortalUtil.NBT_TICKS, 0);
         tag.putInt(HerobrinePortalUtil.NBT_MAX_TICKS, 20 * 5);
-        level.playSound(null, player.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.PLAYERS, 0.6F, 0.8F + level.random.nextFloat() * 0.2F);
+        level.playSound(null, player.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.PLAYERS, 0.6F, 0.8F + level.getRandom().nextFloat() * 0.2F);
     }
 
     public static void movePlayerTransition(ServerPlayer player, double x, double y, double z) {
@@ -459,9 +439,9 @@ public class TransporterFragmentItem extends Item {
         player.fallDistance = 0.0F;
         player.setPos(x, y, z);
         CompoundTag tag = player.getPersistentData();
-        int transitionTicks = tag.getBoolean(HerobrinePortalUtil.NBT_RISING)
-                ? tag.getInt(HerobrinePortalUtil.NBT_TICKS)
-                : tag.getInt(HerobrinePortalUtil.NBT_SINK_TICKS);
+        int transitionTicks = tag.getBooleanOr(HerobrinePortalUtil.NBT_RISING, false)
+                ? tag.getIntOr(HerobrinePortalUtil.NBT_TICKS, 0)
+                : tag.getIntOr(HerobrinePortalUtil.NBT_SINK_TICKS, 0);
         // Keep the server's connection position authoritative while the lightweight
         // client packet supplies smooth positions on the intervening ticks.
         if (transitionTicks == 0 || transitionTicks % 4 == 0) {
@@ -954,7 +934,7 @@ public class TransporterFragmentItem extends Item {
     }
 
     private static boolean isAreaClear(Level level, Vec3 pos) {
-        if (pos.y < level.getMinBuildHeight() || pos.y + PortalEntity.HEIGHT + 1.0D >= level.getMaxBuildHeight()) {
+        if (pos.y < level.getMinY() || pos.y + PortalEntity.HEIGHT + 1.0D >= level.getMaxY()) {
             return false;
         }
 
@@ -987,7 +967,7 @@ public class TransporterFragmentItem extends Item {
     }
 
     private static PortalEntity createPortal(Level level, LivingEntity caster, UUID portalGroup, int order, Vec3 pos, float yaw, boolean starterPortal) {
-        PortalEntity portal = AnnoyingVillagersModEntities.PORTAL.get().create(level);
+        PortalEntity portal = AnnoyingVillagersModEntities.PORTAL.get().create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if (portal == null) {
             return null;
         }
@@ -1003,8 +983,8 @@ public class TransporterFragmentItem extends Item {
     }
 
     private static boolean spawnPair(Level level, LivingEntity caster, UUID portalGroup, int firstOrder, Vec3 firstPos, Vec3 secondPos) {
-        PortalEntity first = AnnoyingVillagersModEntities.PORTAL.get().create(level);
-        PortalEntity second = AnnoyingVillagersModEntities.PORTAL.get().create(level);
+        PortalEntity first = AnnoyingVillagersModEntities.PORTAL.get().create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
+        PortalEntity second = AnnoyingVillagersModEntities.PORTAL.get().create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if (first == null || second == null) {
             return false;
         }

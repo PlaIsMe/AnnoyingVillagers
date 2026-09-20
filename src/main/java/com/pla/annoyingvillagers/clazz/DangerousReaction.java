@@ -71,7 +71,7 @@ public interface DangerousReaction {
         double strafeMag = (mob.getRandom().nextBoolean() ? 1 : -1) * (0.05D + mob.getRandom().nextDouble() * 0.15D);
         Vec3 impulse = away.scale(backMag).add(right.scale(strafeMag));
         mob.setDeltaMovement(mob.getDeltaMovement().add(impulse.x, 0.0D, impulse.z));
-        mob.hasImpulse = true;
+        mob.hurtMarked = true;
 
         int pulses = 2 + mob.getRandom().nextInt(2);
         for (int i = 1; i <= pulses; i++) {
@@ -83,7 +83,7 @@ public interface DangerousReaction {
                 public void run() {
                     if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying() || DangerousReactionAnimations.isStunned(mob)) return;
                     mob.setDeltaMovement(mob.getDeltaMovement().add(tail.x, 0.0D, tail.z));
-                    mob.hasImpulse = true;
+                    mob.hurtMarked = true;
                 }
             };
         }
@@ -120,7 +120,7 @@ public interface DangerousReaction {
 
     static boolean isPerformingDangerousReaction(Mob mob) {
         if (mob == null || !mob.getPersistentData().contains(NBT_DANGEROUS_REACTION_TICK)) return false;
-        int delta = mob.tickCount - mob.getPersistentData().getInt(NBT_DANGEROUS_REACTION_TICK);
+        int delta = mob.tickCount - mob.getPersistentData().getIntOr(NBT_DANGEROUS_REACTION_TICK, 0);
         if (delta < 0 || delta > DANGEROUS_REACTION_STATE_TICKS) return false;
         return DangerousReactionAnimations.isPlaying(mob, RigAnimationId.ROLL_BACKWARD)
                 || DangerousReactionAnimations.isPlaying(mob, RigAnimationId.STEP_BACKWARD);
@@ -134,7 +134,7 @@ public interface DangerousReaction {
     static boolean canReact(Mob mob) {
         LivingEntity target = mob == null ? null : mob.getTarget();
         return mob != null
-                && !mob.level().isClientSide
+                && !mob.level().isClientSide()
                 && mob.isAlive()
                 && !mob.isRemoved()
                 && !mob.isDeadOrDying()
@@ -178,7 +178,7 @@ public interface DangerousReaction {
 
         LivingEntity target = avNpc.getTarget();
         Direction dir = target != null
-                ? Direction.getNearest(target.getX() - avNpc.getX(), 0.0D, target.getZ() - avNpc.getZ())
+                ? Direction.getApproximateNearest(target.getX() - avNpc.getX(), 0.0D, target.getZ() - avNpc.getZ())
                 : avNpc.getDirection();
 
         int lanes = 1 + avNpc.getRandom().nextInt(3);

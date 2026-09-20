@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.client.animation.SpecialAnimationResolver;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPart;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPoseClip;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPoseLibrary;
+import com.pla.annoyingvillagers.client.compat.LegacyHumanoidModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public final class ModelHerobrineObsidianDiamondChestplateArmor extends HumanoidModel<LivingEntity> {
+public final class ModelHerobrineObsidianDiamondChestplateArmor extends LegacyHumanoidModel<LivingEntity> {
     private final ModelHerobrineObsidianDiamondChestplate<LivingEntity> geometry;
     private LivingEntity wearer;
 
@@ -28,14 +29,11 @@ public final class ModelHerobrineObsidianDiamondChestplateArmor extends Humanoid
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void prepareForRender(LivingEntity wearer, HumanoidModel<?> original) {
-        ((HumanoidModel)original).copyPropertiesTo(this);
         this.wearer = wearer;
         // Mesh-based armor renderers request the model but do not call renderToBuffer.
         applyArmorAnimation();
     }
-
-    @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+    public void renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         applyArmorAnimation();
         this.geometry.renderToBuffer(poseStack, buffer, packedLight, packedOverlay, color);
     }
@@ -61,11 +59,10 @@ public final class ModelHerobrineObsidianDiamondChestplateArmor extends Humanoid
 
     private static ModelPart createHumanoidRoot(ModelPart bakedRoot) {
         ModelHerobrineObsidianDiamondChestplate<LivingEntity> geometry = new ModelHerobrineObsidianDiamondChestplate<>(bakedRoot);
-        ModelPart emptyHead = emptyPart();
-        ModelPart emptyHat = emptyPart();
+        ModelPart emptyHead = new ModelPart(List.of(), Map.of("hat", emptyPart()));
         ModelPart emptyRightLeg = emptyPart();
         ModelPart emptyLeftLeg = emptyPart();
-        return new ModelPart(List.of(), Map.of("head", emptyHead, "hat", emptyHat, "body", geometry.Body, "right_arm", geometry.RightArm, "left_arm", geometry.LeftArm, "right_leg", emptyRightLeg, "left_leg", emptyLeftLeg));
+        return new ModelPart(List.of(), Map.of("head", emptyHead, "body", geometry.Body, "right_arm", geometry.RightArm, "left_arm", geometry.LeftArm, "right_leg", emptyRightLeg, "left_leg", emptyLeftLeg));
     }
 
     private static ModelPart emptyPart() {

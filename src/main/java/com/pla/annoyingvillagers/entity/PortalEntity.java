@@ -43,12 +43,12 @@ public class PortalEntity extends Entity {
     private static final int TELEPORT_COOLDOWN_TICKS = 30;
     private static final double SNAKE_BLADE_ANCHOR_Y_OFFSET = 1.0D;
 
-    private static final EntityDataAccessor<Optional<UUID>> LINKED_PORTAL_UUID =
-            SynchedEntityData.defineId(PortalEntity.class, EntityDataSerializers.OPTIONAL_UUID);
-    private static final EntityDataAccessor<Optional<UUID>> OWNER_UUID =
-            SynchedEntityData.defineId(PortalEntity.class, EntityDataSerializers.OPTIONAL_UUID);
-    private static final EntityDataAccessor<Optional<UUID>> PORTAL_GROUP_UUID =
-            SynchedEntityData.defineId(PortalEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<String> LINKED_PORTAL_UUID =
+            SynchedEntityData.defineId(PortalEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> OWNER_UUID =
+            SynchedEntityData.defineId(PortalEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> PORTAL_GROUP_UUID =
+            SynchedEntityData.defineId(PortalEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> PORTAL_ORDER =
             SynchedEntityData.defineId(PortalEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> STARTER_PORTAL =
@@ -62,9 +62,9 @@ public class PortalEntity extends Entity {
 
         @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(LINKED_PORTAL_UUID, Optional.empty());
-        builder.define(OWNER_UUID, Optional.empty());
-        builder.define(PORTAL_GROUP_UUID, Optional.empty());
+        builder.define(LINKED_PORTAL_UUID, "");
+        builder.define(OWNER_UUID, "");
+        builder.define(PORTAL_GROUP_UUID, "");
         builder.define(PORTAL_ORDER, -1);
         builder.define(STARTER_PORTAL, false);
     }
@@ -76,7 +76,7 @@ public class PortalEntity extends Entity {
         this.setNoGravity(true);
         this.setDeltaMovement(Vec3.ZERO);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (this.tickCount == 1) {
                 this.playPortalSound(AnnoyingVillagersModSounds.PORTAL_OPEN.get());
             }
@@ -116,7 +116,7 @@ public class PortalEntity extends Entity {
         if (entity instanceof Player player && player.isSpectator()) {
             return false;
         }
-        if (entity.getPersistentData().getLong(PORTAL_COOLDOWN_TAG) > this.level().getGameTime()) {
+        if (entity.getPersistentData().getLongOr(PORTAL_COOLDOWN_TAG, 0L) > this.level().getGameTime()) {
             return false;
         }
         return this.canTeleportByOwnerRule(entity);
@@ -230,7 +230,7 @@ public class PortalEntity extends Entity {
     }
 
     private void sendTeleportPortalFx() {
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             return;
         }
 
@@ -307,11 +307,12 @@ public class PortalEntity extends Entity {
     }
 
     public UUID getLinkedPortalUUID() {
-        return this.entityData.get(LINKED_PORTAL_UUID).orElse(null);
+        String value = this.entityData.get(LINKED_PORTAL_UUID);
+        return value.isEmpty() ? null : UUID.fromString(value);
     }
 
     public void setLinkedPortalUUID(UUID uuid) {
-        this.entityData.set(LINKED_PORTAL_UUID, Optional.ofNullable(uuid));
+        this.entityData.set(LINKED_PORTAL_UUID, uuid == null ? "" : uuid.toString());
     }
 
     public PortalEntity getLinkedPortal() {
@@ -325,19 +326,21 @@ public class PortalEntity extends Entity {
     }
 
     public UUID getOwnerUUID() {
-        return this.entityData.get(OWNER_UUID).orElse(null);
+        String value = this.entityData.get(OWNER_UUID);
+        return value.isEmpty() ? null : UUID.fromString(value);
     }
 
     public void setOwnerUUID(UUID uuid) {
-        this.entityData.set(OWNER_UUID, Optional.ofNullable(uuid));
+        this.entityData.set(OWNER_UUID, uuid == null ? "" : uuid.toString());
     }
 
     public UUID getPortalGroupUUID() {
-        return this.entityData.get(PORTAL_GROUP_UUID).orElse(null);
+        String value = this.entityData.get(PORTAL_GROUP_UUID);
+        return value.isEmpty() ? null : UUID.fromString(value);
     }
 
     public void setPortalGroupUUID(UUID uuid) {
-        this.entityData.set(PORTAL_GROUP_UUID, Optional.ofNullable(uuid));
+        this.entityData.set(PORTAL_GROUP_UUID, uuid == null ? "" : uuid.toString());
     }
 
     public int getPortalOrder() {
@@ -367,38 +370,42 @@ public class PortalEntity extends Entity {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource source, float amount) {
         return false;
     }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        this.setLinkedPortalUUID(tag.hasUUID("LinkedPortal") ? tag.getUUID("LinkedPortal") : null);
-        this.setOwnerUUID(tag.hasUUID("Owner") ? tag.getUUID("Owner") : null);
-        this.setPortalGroupUUID(tag.hasUUID("PortalGroup") ? tag.getUUID("PortalGroup") : null);
-        this.setPortalOrder(tag.contains("PortalOrder") ? tag.getInt("PortalOrder") : -1);
-        this.setStarterPortal(tag.getBoolean("StarterPortal"));
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        this.setLinkedPortalUUID(com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "LinkedPortal") ? com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "LinkedPortal") : null);
+        this.setOwnerUUID(com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "Owner") ? com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "Owner") : null);
+        this.setPortalGroupUUID(com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "PortalGroup") ? com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "PortalGroup") : null);
+        this.setPortalOrder(tag.contains("PortalOrder") ? tag.getIntOr("PortalOrder", 0) : -1);
+        this.setStarterPortal(tag.getBooleanOr("StarterPortal", false));
     }
 
     @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
         UUID linkedPortal = this.getLinkedPortalUUID();
         if (linkedPortal != null) {
-            tag.putUUID("LinkedPortal", linkedPortal);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "LinkedPortal", linkedPortal);
         }
 
         UUID owner = this.getOwnerUUID();
         if (owner != null) {
-            tag.putUUID("Owner", owner);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "Owner", owner);
         }
 
         UUID portalGroup = this.getPortalGroupUUID();
         if (portalGroup != null) {
-            tag.putUUID("PortalGroup", portalGroup);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "PortalGroup", portalGroup);
         }
 
         tag.putInt("PortalOrder", this.getPortalOrder());
         tag.putBoolean("StarterPortal", this.isStarterPortal());
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     }

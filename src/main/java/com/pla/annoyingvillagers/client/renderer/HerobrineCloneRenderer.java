@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.client.renderer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.RigMobRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import com.pla.annoyingvillagers.entity.HerobrineCloneEntity;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +14,7 @@ public class HerobrineCloneRenderer extends RigMobRenderer<HerobrineCloneEntity>
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull HerobrineCloneEntity herobrineCloneEntity) {
-        return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine.png");
+    public @NotNull Identifier getTextureLocation(@NotNull HerobrineCloneEntity herobrineCloneEntity) {
+        return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine.png");
     }
 }

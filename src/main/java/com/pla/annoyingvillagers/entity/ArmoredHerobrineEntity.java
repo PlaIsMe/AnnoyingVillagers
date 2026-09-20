@@ -23,7 +23,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -68,7 +68,7 @@ public class ArmoredHerobrineEntity extends HerobrineMob implements RollItemUser
         if (HerobrineObsidianArmorCharge.isObsidianArmor(stack) && !HerobrineObsidianArmorCharge.hasForcedPurpleFoil(stack)) HerobrineObsidianArmorCharge.setForcedPurpleFoil(stack, true);
     }
 
-    public boolean hurt(@NotNull DamageSource damagesource, float f) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damagesource, float f) {
         if (damagesource.is(DamageTypes.FALL)) return false;
         if (damagesource.is(DamageTypes.CACTUS)) return false;
         if (damagesource.is(DamageTypes.WITHER)) return false;
@@ -78,7 +78,7 @@ public class ArmoredHerobrineEntity extends HerobrineMob implements RollItemUser
         if (!(damagesource.getDirectEntity() instanceof EnchantedArrowEntity)
                 && damagesource.getDirectEntity() instanceof AbstractArrow
                 && !(damagesource.getDirectEntity() instanceof BlueDemonThrownTridentEntity)) return false;
-        return super.hurt(damagesource, f);
+        return super.hurtServer(serverLevel, damagesource, f);
     }
 
     @Override
@@ -122,20 +122,20 @@ public class ArmoredHerobrineEntity extends HerobrineMob implements RollItemUser
             }
             InfectedTheMostMoistBurrit0Entity infectedTheMostMoistBurrit0Entity = new InfectedTheMostMoistBurrit0Entity(AnnoyingVillagersModEntities.INFECTED_THEMOSTMOISTBURRIT0.get(), serverLevel);
 
-            infectedTheMostMoistBurrit0Entity.moveTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
-            infectedTheMostMoistBurrit0Entity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(infectedTheMostMoistBurrit0Entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+            infectedTheMostMoistBurrit0Entity.snapTo(this.getX(), this.getY(), this.getZ(), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
+            infectedTheMostMoistBurrit0Entity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(infectedTheMostMoistBurrit0Entity.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
             this.setInvisible(true);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(infectedTheMostMoistBurrit0Entity);
         }
     }
 
-    public static boolean canSpawn(EntityType<ArmoredHerobrineEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
+    public static boolean canSpawn(EntityType<ArmoredHerobrineEntity> entityType, ServerLevelAccessor level, EntitySpawnReason spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
         if (HerobrineMobData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
         }
-        if (!serverLevel.isNight()) {
+        if (!com.pla.annoyingvillagers.util.LegacyLevelTime.isNight(serverLevel)) {
             return false;
         }
         return ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM) && Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);

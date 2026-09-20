@@ -31,9 +31,9 @@ public class DiamondGreataxeItem extends LegacySwordItem implements RigCombatPro
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.DIAMOND));
+                return Ingredient.of(Items.DIAMOND);
             }
-        }, 3, -2.9F, (new Properties()));
+        }, 3, -2.9F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

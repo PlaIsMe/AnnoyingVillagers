@@ -37,7 +37,7 @@ public final class HerobrineObsidianArmorCharge {
         if (max <= 0) return 0;
         CompoundTag tag = LegacyItemData.get(stack);
         if (tag == null) return 0;
-        return Mth.clamp(tag.getInt(tagName(stack)), 0, max);
+        return Mth.clamp(tag.getIntOr(tagName(stack), 0), 0, max);
     }
 
     public static void setCharge(ItemStack stack, int charge) {
@@ -62,7 +62,7 @@ public final class HerobrineObsidianArmorCharge {
 
     public static boolean hasForcedPurpleFoil(ItemStack stack) {
         CompoundTag tag = LegacyItemData.get(stack);
-        return isObsidianArmor(stack) && tag != null && tag.getBoolean(FORCED_PURPLE_FOIL_TAG);
+        return isObsidianArmor(stack) && tag != null && tag.getBooleanOr(FORCED_PURPLE_FOIL_TAG, false);
     }
 
     public static void setForcedPurpleFoil(ItemStack stack, boolean value) {

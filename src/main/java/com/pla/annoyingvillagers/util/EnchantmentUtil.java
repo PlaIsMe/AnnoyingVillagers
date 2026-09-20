@@ -44,10 +44,10 @@ public final class EnchantmentUtil {
         if (sharpness > 0) {
             bonus += 0.5F * sharpness + 0.5F;
         }
-        if (target.getType().is(EntityTypeTags.SENSITIVE_TO_SMITE)) {
+        if (target.getType().builtInRegistryHolder().is(EntityTypeTags.SENSITIVE_TO_SMITE)) {
             bonus += 2.5F * getLevel(net.minecraft.world.item.enchantment.Enchantments.SMITE, stack);
         }
-        if (target.getType().is(EntityTypeTags.SENSITIVE_TO_BANE_OF_ARTHROPODS)) {
+        if (target.getType().builtInRegistryHolder().is(EntityTypeTags.SENSITIVE_TO_BANE_OF_ARTHROPODS)) {
             bonus += 2.5F * getLevel(net.minecraft.world.item.enchantment.Enchantments.BANE_OF_ARTHROPODS, stack);
         }
         return bonus;

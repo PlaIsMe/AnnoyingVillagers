@@ -28,12 +28,12 @@ public class RiseFromGroundEvent {
         if (level.isClientSide()) return;
 
         var tag = entity.getPersistentData();
-        if (tag.getBoolean(HerobrinePortalUtil.NBT_RISING)) {
+        if (tag.getBooleanOr(HerobrinePortalUtil.NBT_RISING, false)) {
 
-            double targetY = tag.getDouble(HerobrinePortalUtil.NBT_TARGET_Y);
-            double speed = tag.getDouble(HerobrinePortalUtil.NBT_SPEED);
-            int ticks = tag.getInt(HerobrinePortalUtil.NBT_TICKS);
-            int max = tag.getInt(HerobrinePortalUtil.NBT_MAX_TICKS);
+            double targetY = tag.getDoubleOr(HerobrinePortalUtil.NBT_TARGET_Y, 0.0D);
+            double speed = tag.getDoubleOr(HerobrinePortalUtil.NBT_SPEED, 0.0D);
+            int ticks = tag.getIntOr(HerobrinePortalUtil.NBT_TICKS, 0);
+            int max = tag.getIntOr(HerobrinePortalUtil.NBT_MAX_TICKS, 0);
 
             double ny = entity.getY() + speed;
             if (ny >= targetY || ticks > max) {
@@ -46,15 +46,15 @@ public class RiseFromGroundEvent {
             return;
         }
 
-        if (tag.getBoolean(HerobrinePortalUtil.NBT_SINKING)) {
-            double speed = tag.getDouble(HerobrinePortalUtil.NBT_SINK_SPEED);
-            int ticks = tag.getInt(HerobrinePortalUtil.NBT_SINK_TICKS);
+        if (tag.getBooleanOr(HerobrinePortalUtil.NBT_SINKING, false)) {
+            double speed = tag.getDoubleOr(HerobrinePortalUtil.NBT_SINK_SPEED, 0.0D);
+            int ticks = tag.getIntOr(HerobrinePortalUtil.NBT_SINK_TICKS, 0);
             int nextTicks = ticks + 1;
 
             moveTransitionEntity(entity, entity.getX(), entity.getY() - speed, entity.getZ());
             tag.putInt(HerobrinePortalUtil.NBT_SINK_TICKS, nextTicks);
 
-            if (tag.getBoolean(TransporterFragmentItem.NBT_SAVED_TELEPORT_PENDING)
+            if (tag.getBooleanOr(TransporterFragmentItem.NBT_SAVED_TELEPORT_PENDING, false)
                     && nextTicks >= TransporterFragmentItem.SAVED_TELEPORT_SINK_TICKS) {
                 TransporterFragmentItem.finishPendingSavedTeleport(entity);
             }

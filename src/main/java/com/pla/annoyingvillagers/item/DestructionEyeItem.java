@@ -5,14 +5,13 @@ import com.pla.annoyingvillagers.entity.GolemArms;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tiers;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,27 +22,29 @@ public class DestructionEyeItem extends LegacySwordItem {
     private static final int USE_DURATION = 72_000;
 
     public DestructionEyeItem() {
-        super(Tiers.IRON, 10, -3.0F, new Properties().stacksTo(1));
+        super(ToolMaterial.IRON, 10, -3.0F, com.pla.annoyingvillagers.util.LegacyItemProperties.create().stacksTo(1));
     }
 
     @Override
-    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
+    public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slotId = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean isSelected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        super.inventoryTick(stack, level, entity, equipmentSlot);
         if (!(entity instanceof Player player) || !(level instanceof ServerLevel serverLevel) || player.getMainHandItem() != stack) return;
         getOrCreateArms(serverLevel, player, stack);
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (hand != InteractionHand.MAIN_HAND) return InteractionResultHolder.pass(stack);
+        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
         player.startUsingItem(hand);
-        return InteractionResultHolder.consume(stack);
+        return InteractionResult.CONSUME;
     }
 
     @Override
-    public @NotNull UseAnim getUseAnimation(@NotNull ItemStack stack) {
-        return UseAnim.BLOCK;
+    public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
+        return ItemUseAnimation.BLOCK;
     }
 
     @Override
@@ -75,12 +76,13 @@ public class DestructionEyeItem extends LegacySwordItem {
     public static GolemArms getOrCreateArms(ServerLevel level, Player player, ItemStack stack) {
         GolemArms arms = findArms(level, stack);
         if (arms == null || !arms.isAlive() || arms.isRemoved()) {
-            arms = AnnoyingVillagersModEntities.GOLEM_ARMS.get().create(level);
+            arms = AnnoyingVillagersModEntities.GOLEM_ARMS.get().create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
             if (arms == null) return null;
             arms.setOwner(player);
-            arms.moveTo(player.getX(), player.getY(), player.getZ(), player.yBodyRot, player.getXRot());
+            arms.snapTo(player.getX(), player.getY(), player.getZ(), player.yBodyRot, player.getXRot());
             level.addFreshEntity(arms);
-            LegacyItemData.getOrCreate(stack).putUUID(ARMS_UUID_TAG, arms.getUUID());
+            UUID armsId = arms.getUUID();
+            LegacyItemData.update(stack, tag -> com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, ARMS_UUID_TAG, armsId));
             return arms;
         }
         arms.setOwner(player);
@@ -88,13 +90,15 @@ public class DestructionEyeItem extends LegacySwordItem {
     }
 
     public static GolemArms findArms(ServerLevel level, ItemStack stack) {
-        if (!LegacyItemData.has(stack) || LegacyItemData.get(stack) == null || !LegacyItemData.get(stack).hasUUID(ARMS_UUID_TAG)) return null;
-        UUID uuid = LegacyItemData.get(stack).getUUID(ARMS_UUID_TAG);
+        if (!LegacyItemData.has(stack) || LegacyItemData.get(stack) == null || !com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(LegacyItemData.get(stack), ARMS_UUID_TAG)) return null;
+        UUID uuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(LegacyItemData.get(stack), ARMS_UUID_TAG);
         Entity entity = level.getEntity(uuid);
         return entity instanceof GolemArms arms ? arms : null;
     }
 
     public static boolean isBoundTo(ItemStack stack, GolemArms arms) {
-        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).hasUUID(ARMS_UUID_TAG) && LegacyItemData.get(stack).getUUID(ARMS_UUID_TAG).equals(arms.getUUID());
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null
+                && com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(LegacyItemData.get(stack), ARMS_UUID_TAG)
+                && com.pla.annoyingvillagers.util.LegacyNbt.getUUID(LegacyItemData.get(stack), ARMS_UUID_TAG).equals(arms.getUUID());
     }
 }

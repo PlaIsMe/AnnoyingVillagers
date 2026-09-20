@@ -41,7 +41,7 @@ public interface CombatVoiceLineEntity {
     }
 
     default boolean canPlayVoiceLine(Mob self) {
-        return !self.level().isClientSide
+        return !self.level().isClientSide()
                 && self.isAlive()
                 && getVoiceCooldown() <= 0
                 && hasValidVoiceTarget(self);

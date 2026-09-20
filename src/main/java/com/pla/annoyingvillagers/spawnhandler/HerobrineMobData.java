@@ -18,24 +18,22 @@ public class HerobrineMobData extends SavedData {
     private static final long COOLDOWN_TICKS = 20L * 60L * 10L;
 
     public static HerobrineMobData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(HerobrineMobData::new, (tag, provider) -> HerobrineMobData.load(tag)), ID);
+        return com.pla.annoyingvillagers.util.LegacySavedData.computeIfAbsent(serverLevel.getDataStorage(), ID, HerobrineMobData::new, HerobrineMobData::load, (value, provider) -> value.save(new CompoundTag(), provider));
     }
 
     public static HerobrineMobData load(CompoundTag compoundTag) {
         HerobrineMobData herobrineData = new HerobrineMobData();
-        if (compoundTag.hasUUID("activeId")) {
-            herobrineData.activeId = compoundTag.getUUID("activeId");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(compoundTag, "activeId")) {
+            herobrineData.activeId = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(compoundTag, "activeId");
         }
-        if (compoundTag.contains("claimTick", Tag.TAG_LONG)) {
-            herobrineData.claimTick = compoundTag.getLong("claimTick");
+        if (compoundTag.contains("claimTick")) {
+            herobrineData.claimTick = compoundTag.getLongOr("claimTick", 0L);
         }
         return herobrineData;
     }
-
-    @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null) {
-            compoundTag.putUUID("activeId", activeId);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(compoundTag, "activeId", activeId);
         }
         compoundTag.putLong("claimTick", claimTick);
         return compoundTag;

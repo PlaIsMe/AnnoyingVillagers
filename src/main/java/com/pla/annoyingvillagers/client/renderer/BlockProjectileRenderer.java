@@ -5,22 +5,30 @@ import com.mojang.math.Axis;
 import com.pla.annoyingvillagers.entity.BlockProjectileEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-public class BlockProjectileRenderer extends EntityRenderer<BlockProjectileEntity> {
+public class BlockProjectileRenderer extends LegacyEntityRenderer<BlockProjectileEntity> {
     public BlockProjectileRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
     }
 
     @Override
-    public void render(BlockProjectileEntity entity, float yaw, float partialTicks,
-                       PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight) {
+    public void submit(LegacyEntityRenderState<BlockProjectileEntity> state, PoseStack poseStack,
+                       SubmitNodeCollector collector, CameraRenderState camera) {
+        BlockProjectileEntity entity = state.entity;
+        float partialTicks = state.partialTick;
+        super.submit(state, poseStack, collector, camera);
         BlockState block = entity.getCarriedBlock();
 
         poseStack.pushPose();
@@ -32,15 +40,28 @@ public class BlockProjectileRenderer extends EntityRenderer<BlockProjectileEntit
         poseStack.mulPose(Axis.YP.rotationDegrees(entity.getRotY() * age));
         poseStack.mulPose(Axis.ZP.rotationDegrees(entity.getRotZ() * age));
 
-        Minecraft.getInstance().getBlockRenderer().renderSingleBlock(block, poseStack, buffer, packedLight,
-                OverlayTexture.NO_OVERLAY);
+        collector.submitMovingBlock(poseStack, state.movingBlock);
 
         poseStack.popPose();
-        super.render(entity, yaw, partialTicks, poseStack, buffer, packedLight);
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull BlockProjectileEntity blockProjectileEntity) {
+    public void extractRenderState(BlockProjectileEntity entity, LegacyEntityRenderState<BlockProjectileEntity> state,
+                                   float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        BlockPos pos = entity.blockPosition();
+        state.movingBlock.randomSeedPos = pos;
+        state.movingBlock.blockPos = pos;
+        state.movingBlock.blockState = entity.getCarriedBlock();
+        if (entity.level() instanceof ClientLevel level) {
+            state.movingBlock.biome = level.getBiome(pos);
+            state.movingBlock.cardinalLighting = level.cardinalLighting();
+            state.movingBlock.lightEngine = level.getLightEngine();
+        }
+    }
+
+    @Override
+    public @NotNull Identifier getTextureLocation(@NotNull BlockProjectileEntity blockProjectileEntity) {
         return TextureAtlas.LOCATION_BLOCKS;
     }
 }

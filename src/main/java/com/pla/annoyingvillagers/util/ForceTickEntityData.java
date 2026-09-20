@@ -5,7 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -18,33 +18,37 @@ public final class ForceTickEntityData extends SavedData {
     private final Map<UUID, Entry> entries = new LinkedHashMap<>();
 
     public static ForceTickEntityData get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(
-                new SavedData.Factory<>(ForceTickEntityData::new, (tag, provider) -> ForceTickEntityData.load(tag)), "annoyingvillagers_force_tick_entities");
+        return LegacySavedData.computeIfAbsent(
+                server.overworld().getDataStorage(),
+                "annoyingvillagers_force_tick_entities",
+                ForceTickEntityData::new,
+                ForceTickEntityData::load,
+                (value, provider) -> value.save(new CompoundTag(), provider)
+        );
     }
 
     public static ForceTickEntityData load(CompoundTag tag) {
         ForceTickEntityData data = new ForceTickEntityData();
-        ListTag list = tag.getList("Entities", Tag.TAG_COMPOUND);
+        ListTag list = tag.getList("Entities").orElseGet(net.minecraft.nbt.ListTag::new);
         for (int i = 0; i < list.size(); i++) {
-            CompoundTag saved = list.getCompound(i);
-            ResourceLocation dimension = ResourceLocation.tryParse(saved.getString("Dimension"));
-            if (!saved.hasUUID("Id") || dimension == null) continue;
-            UUID id = saved.getUUID("Id");
+            CompoundTag saved = list.getCompound(i).orElseGet(net.minecraft.nbt.CompoundTag::new);
+            Identifier dimension = Identifier.tryParse(saved.getStringOr("Dimension", ""));
+            if (!com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(saved, "Id") || dimension == null) continue;
+            UUID id = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(saved, "Id");
             data.entries.put(id, new Entry(id, ResourceKey.create(Registries.DIMENSION, dimension),
-                    new ChunkPos(saved.getInt("ChunkX"), saved.getInt("ChunkZ"))));
+                    new ChunkPos(saved.getIntOr("ChunkX", 0), saved.getIntOr("ChunkZ", 0))));
         }
         return data;
     }
 
-    @Override
     public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
         ListTag list = new ListTag();
         for (Entry entry : entries.values()) {
             CompoundTag saved = new CompoundTag();
-            saved.putUUID("Id", entry.id());
-            saved.putString("Dimension", entry.dimension().location().toString());
-            saved.putInt("ChunkX", entry.center().x);
-            saved.putInt("ChunkZ", entry.center().z);
+            LegacyNbt.putUUID(saved, "Id", entry.id());
+            saved.putString("Dimension", entry.dimension().identifier().toString());
+            saved.putInt("ChunkX", entry.center().x());
+            saved.putInt("ChunkZ", entry.center().z());
             list.add(saved);
         }
         tag.put("Entities", list);

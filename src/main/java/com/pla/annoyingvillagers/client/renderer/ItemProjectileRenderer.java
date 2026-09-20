@@ -5,14 +5,15 @@ import com.mojang.math.Axis;
 
 import com.pla.annoyingvillagers.entity.ItemProjectile;
 import com.pla.annoyingvillagers.util.HookUtil;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderer;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -20,12 +21,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
-    private final ItemRenderer itemRenderer;
+public class ItemProjectileRenderer extends LegacyEntityRenderer<ItemProjectile> {
+    private final ItemModelResolver itemModelResolver;
 
     public ItemProjectileRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.itemRenderer = context.getItemRenderer();
+        this.itemModelResolver = context.getItemModelResolver();
         this.shadowRadius = 0.15F;
     }
 
@@ -163,24 +164,27 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
     }
 
     @Override
-    public void render(
-            ItemProjectile entity,
-            float entityYaw,
-            float partialTick,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int packedLight
-    ) {
+    public void extractRenderState(ItemProjectile entity, LegacyEntityRenderState<ItemProjectile> state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        ItemStack stack = entity.getItem();
+        this.itemModelResolver.updateForNonLiving(
+                state.item, stack, HookItemRenderTransforms.getProjectileDisplayContext(stack), entity);
+    }
+
+    @Override
+    public void submit(LegacyEntityRenderState<ItemProjectile> state, PoseStack poseStack,
+                       SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        ItemProjectile entity = state.entity;
+        float partialTick = state.partialTick;
         ItemStack stack = entity.getItem();
 
         if (!stack.isEmpty()) {
             poseStack.pushPose();
-            BakedModel model = this.itemRenderer.getModel(stack, entity.level(), null, entity.getId());
 
             poseStack.translate(0.0D, 0.15D, 0.0D);
             if (HookUtil.shouldUseShieldFacing(stack)) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - getOwnerLookYaw(entity, partialTick)));
-                HookItemRenderTransforms.applyShieldProjectileTransform(poseStack, model);
+                HookItemRenderTransforms.applyShieldProjectileTransform(poseStack);
             } else if (!HookUtil.shouldRenderWithoutProjectileSpin(stack) || !entity.isHookAttached()) {
                 boolean sharpItem = HookUtil.shouldAlignSharpEdge(stack);
                 float yaw;
@@ -195,7 +199,7 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
                     pitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
                 }
 
-                HookItemRenderTransforms.applyProjectileFacing(poseStack, stack, model, yaw, pitch);
+                HookItemRenderTransforms.applyProjectileFacing(poseStack, stack, yaw, pitch);
                 if (!sharpItem && !entity.isHookAttached()) {
                     float age = entity.tickCount + partialTick;
                     int spinSeed = entity.getUUID().hashCode();
@@ -205,25 +209,17 @@ public class ItemProjectileRenderer extends EntityRenderer<ItemProjectile> {
 
             poseStack.scale(0.85F, 0.85F, 0.85F);
 
-            this.itemRenderer.render(
-                    stack,
-                    HookItemRenderTransforms.getProjectileDisplayContext(stack, model),
-                    false,
-                    poseStack,
-                    buffer,
-                    packedLight,
-                    OverlayTexture.NO_OVERLAY,
-                    model
-            );
+            state.item.submit(poseStack, submitNodeCollector, state.lightCoords,
+                    OverlayTexture.NO_OVERLAY, state.outlineColor);
 
             poseStack.popPose();
         }
 
-        super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
+        super.submit(state, poseStack, submitNodeCollector, camera);
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull ItemProjectile entity) {
+    public @NotNull Identifier getTextureLocation(@NotNull ItemProjectile entity) {
         return TextureAtlas.LOCATION_BLOCKS;
     }
 }

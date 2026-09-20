@@ -3,15 +3,13 @@ package com.pla.annoyingvillagers.client.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
+
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class SparkParticle extends TextureSheetParticle {
+public class SparkParticle extends SingleQuadParticle {
 
     private final SpriteSet spriteSet;
 
@@ -20,7 +18,7 @@ public class SparkParticle extends TextureSheetParticle {
     }
 
     protected SparkParticle(ClientLevel clientlevel, double d0, double d1, double d2, double d3, double d4, double d5, SpriteSet spriteset) {
-        super(clientlevel, d0, d1, d2);
+        super(clientlevel, d0, d1, d2, spriteset.first());
         this.spriteSet = spriteset;
         this.setSize(0.3F, 0.2F);
         this.quadSize *= 0.25F;
@@ -30,15 +28,15 @@ public class SparkParticle extends TextureSheetParticle {
         this.xd = d3 * 1.0D;
         this.yd = d4 * 1.0D;
         this.zd = d5 * 1.0D;
-        this.pickSprite(spriteset);
+        this.setSprite(spriteset.get(this.random));
     }
 
-    public int getLightColor(float f) {
+    protected int getLightCoords(float f) {
         return 15728880;
     }
 
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_LIT;
+    protected SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.TRANSLUCENT;
     }
 
     public void tick() {
@@ -53,7 +51,7 @@ public class SparkParticle extends TextureSheetParticle {
             this.spriteSet = spriteset;
         }
 
-        public Particle createParticle(SimpleParticleType simpleparticletype, ClientLevel clientlevel, double d0, double d1, double d2, double d3, double d4, double d5) {
+        public Particle createParticle(SimpleParticleType simpleparticletype, ClientLevel clientlevel, double d0, double d1, double d2, double d3, double d4, double d5, net.minecraft.util.RandomSource random) {
             return new SparkParticle(clientlevel, d0, d1, d2, d3, d4, d5, this.spriteSet);
         }
     }

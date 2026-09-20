@@ -76,7 +76,7 @@ public final class RecoveryTrace {
                         + ":interruptible=" + g.isInterruptable() + ":flags=" + g.getFlags())
                 .collect(Collectors.joining(","));
         AnnoyingVillagers.LOGGER.info("AV recovery trace: npc={}#{} uuid={} tick={} dim={} pos={} velocity={} ground={} collision={} noAI={} passenger={} healing={} rigLocked={} stunned={} recovery={} rig={} target={} hand={} blocks=[{}] eligibleBlockSlot={} navDone={} running=[{}] decisions={}",
-                npc.getName().getString(), npc.getId(), npc.getUUID(), npc.tickCount, npc.level().dimension().location(),
+                npc.getName().getString(), npc.getId(), npc.getUUID(), npc.tickCount, npc.level().dimension().identifier(),
                 npc.position(), npc.getDeltaMovement(), npc.onGround(), npc.horizontalCollision, npc.isNoAi(), npc.isPassenger(),
                 npc.isHealing(), npc.isLocked(), RigStunController.isStunned(npc), npc.isRecoveryActionActive(),
                 RigAnimationController.getActiveAnimationId(npc),

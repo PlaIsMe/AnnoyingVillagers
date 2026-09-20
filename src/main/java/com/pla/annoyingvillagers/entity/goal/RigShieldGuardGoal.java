@@ -127,7 +127,7 @@ public class RigShieldGuardGoal extends Goal {
 
     private boolean canTryGuard() {
         LivingEntity currentTarget = this.mob.getTarget();
-        return !this.mob.level().isClientSide
+        return !this.mob.level().isClientSide()
                 && this.mob.isAlive()
                 && !this.mob.isRemoved()
                 && !this.mob.isDeadOrDying()

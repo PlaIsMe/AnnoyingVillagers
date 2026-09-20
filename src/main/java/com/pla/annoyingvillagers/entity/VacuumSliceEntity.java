@@ -101,14 +101,14 @@ public class VacuumSliceEntity extends Entity {
         super.tick();
         Vec3 velocity = this.getDeltaMovement();
         if (velocity.lengthSqr() < 1.0E-7D || this.tickCount > MAX_LIFETIME) {
-            if (!this.level().isClientSide) this.discard();
+            if (!this.level().isClientSide()) this.discard();
             return;
         }
 
         this.updateRotationFromVelocity(velocity);
         Vec3 start = this.position(), end = start.add(velocity);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             ServerLevel level = (ServerLevel) this.level();
             if (!level.hasChunkAt(BlockPos.containing(end))) {
                 this.discard();
@@ -223,7 +223,7 @@ public class VacuumSliceEntity extends Entity {
     private void hurtTarget(LivingEntity target, @Nullable LivingEntity owner, Vec3 velocity, float multiplier) {
         DamageSource source = owner == null ? this.damageSources().magic() : this.damageSources().mobProjectile(this, owner);
         float sharpness = this.sharpnessLevel > 0 ? this.sharpnessLevel * 0.5F + 0.5F : 0.0F;
-        if (!target.hurt(source, (this.damage + sharpness) * multiplier)) return;
+        if (!target.hurtOrSimulate(source, (this.damage + sharpness) * multiplier)) return;
 
         this.hitEntities.add(target.getUUID());
         if (this.fireAspectLevel > 0) target.igniteForSeconds(this.fireAspectLevel * 4);
@@ -337,29 +337,33 @@ public class VacuumSliceEntity extends Entity {
     }
     private static float yawFromDirection(Vec3 direction) { return (float) (Mth.atan2(-direction.x, direction.z) * Mth.RAD_TO_DEG); }
 
-    @Override public boolean hurt(@NotNull DamageSource source, float amount) { return false; }
+    @Override public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource source, float amount) { return false; }
     @Override public boolean isPickable() { return false; }
     @Override public boolean isAttackable() { return false; }
     @Override public boolean displayFireAnimation() { return false; }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        this.damage = tag.getFloat("Damage");
-        this.sharpnessLevel = tag.getInt("SharpnessLevel");
-        this.fireAspectLevel = tag.getInt("FireAspectLevel");
-        this.flameLevel = tag.getInt("FlameLevel");
-        this.knockbackLevel = tag.getInt("KnockbackLevel");
-        if (tag.hasUUID("Owner")) this.ownerUuid = tag.getUUID("Owner");
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        this.damage = tag.getFloatOr("Damage", 0.0F);
+        this.sharpnessLevel = tag.getIntOr("SharpnessLevel", 0);
+        this.fireAspectLevel = tag.getIntOr("FireAspectLevel", 0);
+        this.flameLevel = tag.getIntOr("FlameLevel", 0);
+        this.knockbackLevel = tag.getIntOr("KnockbackLevel", 0);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "Owner")) this.ownerUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "Owner");
     }
 
     @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
         tag.putFloat("Damage", this.damage);
         tag.putInt("SharpnessLevel", this.sharpnessLevel);
         tag.putInt("FireAspectLevel", this.fireAspectLevel);
         tag.putInt("FlameLevel", this.flameLevel);
         tag.putInt("KnockbackLevel", this.knockbackLevel);
-        if (this.ownerUuid != null) tag.putUUID("Owner", this.ownerUuid);
+        if (this.ownerUuid != null) com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "Owner", this.ownerUuid);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     }

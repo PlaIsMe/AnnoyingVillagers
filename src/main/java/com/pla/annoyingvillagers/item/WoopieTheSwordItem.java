@@ -15,14 +15,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -67,33 +66,33 @@ public class WoopieTheSwordItem extends LegacySwordItem implements RigCombatProf
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.DIAMOND));
+                return Ingredient.of(Items.DIAMOND);
             }
-        }, 3, -2.8F, (new Properties()).fireResistant());
+        }, 3, -2.8F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()).fireResistant());
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return super.use(level, player, hand);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) return super.use(level, player, hand);
         if (level instanceof ServerLevel serverLevel) {
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_ONE_HANDED_STAB);
             VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-            player.getCooldowns().addCooldown(this, VANILLA_ULT_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_ULT_COOLDOWN_TICKS);
             new DelayedTask(VANILLA_ULT_HIT_TICK) { @Override public void run() { if (canContinueVanillaAbility(player, serverLevel, stack)) damageVanillaUltTarget(serverLevel, player); } };
             new DelayedTask(VANILLA_ULT_WIND_TICK) { @Override public void run() { if (canContinueVanillaAbility(player, serverLevel, stack)) spawnVanillaWindBurst(serverLevel, player, getForwardWindPosition(player)); } };
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     public static boolean activateVanillaSpecial(Player player) {
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide() || !(player.level() instanceof ServerLevel serverLevel)) return false;
         ItemStack stack = player.getMainHandItem();
-        if (!(stack.getItem() instanceof WoopieTheSwordItem item) || player.getCooldowns().isOnCooldown(item)) return false;
+        if (!(stack.getItem() instanceof WoopieTheSwordItem item) || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(item))) return false;
 
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_ONE_HANDED_STAB);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-        player.getCooldowns().addCooldown(item, VANILLA_EXTRA_ULT_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), VANILLA_EXTRA_ULT_COOLDOWN_TICKS);
         spawnVanillaWindBurst(serverLevel, player, CommonUtil.getVanillaSwordOrBodyPosition(player));
 
         LivingEntity lookTarget = VanillaWeaponAbilityUtil.findLookTarget(player, 12.0D);
@@ -132,7 +131,7 @@ public class WoopieTheSwordItem extends LegacySwordItem implements RigCombatProf
     private static void applyRushMotion(Player player, Vec3 dash) {
         Vec3 currentMotion = player.getDeltaMovement();
         player.setDeltaMovement(dash.x, currentMotion.y, dash.z);
-        player.hasImpulse = true;
+        player.hurtMarked = true;
         player.hurtMarked = true;
         if (player instanceof ServerPlayer serverPlayer) serverPlayer.connection.send(new ClientboundSetEntityMotionPacket(player));
     }
@@ -141,7 +140,7 @@ public class WoopieTheSwordItem extends LegacySwordItem implements RigCombatProf
         LivingEntity target = VanillaWeaponAbilityUtil.findLookTarget(player, VANILLA_MELEE_RANGE);
         if (target == null) return;
         float damage = (float)player.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2.1F;
-        target.hurt(serverLevel.damageSources().playerAttack(player), damage);
+        target.hurtOrSimulate(serverLevel.damageSources().playerAttack(player), damage);
     }
 
     private static void damageRushTargets(ServerLevel serverLevel, Player player, Set<UUID> hitTargets) {
@@ -149,7 +148,7 @@ public class WoopieTheSwordItem extends LegacySwordItem implements RigCombatProf
         float damage = (float)player.getAttributeValue(Attributes.ATTACK_DAMAGE);
         for (LivingEntity target : serverLevel.getEntitiesOfClass(LivingEntity.class, hitBox, candidate -> VanillaWeaponAbilityUtil.isValidTarget(player, candidate))) {
             if (!hitTargets.add(target.getUUID())) continue;
-            target.hurt(serverLevel.damageSources().playerAttack(player), damage);
+            target.hurtOrSimulate(serverLevel.damageSources().playerAttack(player), damage);
         }
     }
 

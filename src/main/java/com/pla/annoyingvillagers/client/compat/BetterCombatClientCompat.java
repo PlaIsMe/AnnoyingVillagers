@@ -6,10 +6,8 @@ import net.bettercombat.logic.AnimatedHand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModList;
 
-@OnlyIn(Dist.CLIENT)
 public final class BetterCombatClientCompat {
     private BetterCombatClientCompat() {
     }

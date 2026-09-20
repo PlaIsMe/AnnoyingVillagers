@@ -1,19 +1,16 @@
 package com.pla.annoyingvillagers.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(GameRenderer.class)
 public interface SnakeAttachmentGameRendererAccessor {
-    @Invoker("getFov")
-    double av$handFov(Camera camera, float partialTicks, boolean useFovSetting);
-
     @Invoker("bobHurt")
-    void av$bobHurt(PoseStack pose, float partialTicks);
+    void av$bobHurt(CameraRenderState cameraState, PoseStack pose);
 
     @Invoker("bobView")
-    void av$bobView(PoseStack pose, float partialTicks);
+    void av$bobView(CameraRenderState cameraState, PoseStack pose);
 }

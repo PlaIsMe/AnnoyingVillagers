@@ -140,11 +140,11 @@ public final class RigStunController {
     }
 
     public static void restoreStaleState(Mob mob) {
-        if (mob == null || mob.level().isClientSide) return;
+        if (mob == null || mob.level().isClientSide()) return;
         CompoundTag data = mob.getPersistentData();
-        if (!data.getBoolean(NBT_STUN_ACTIVE)) return;
+        if (!data.getBooleanOr(NBT_STUN_ACTIVE, false)) return;
         STUNNED.remove(mob.getUUID());
-        boolean originalNoAi = data.getBoolean(NBT_STUN_ORIGINAL_NO_AI);
+        boolean originalNoAi = data.getBooleanOr(NBT_STUN_ORIGINAL_NO_AI, false);
         clearPersistentStunData(mob);
         mob.setNoAi(originalNoAi);
     }
@@ -197,7 +197,7 @@ public final class RigStunController {
     }
 
     private static boolean canStun(Mob mob) {
-        return mob != null && supports(mob) && !mob.level().isClientSide && mob.isAlive() && !mob.isRemoved() && !mob.isDeadOrDying() && !RigAnimationController.isInvulnerable(mob);
+        return mob != null && supports(mob) && !mob.level().isClientSide() && mob.isAlive() && !mob.isRemoved() && !mob.isDeadOrDying() && !RigAnimationController.isInvulnerable(mob);
     }
 
     private static void lockMob(Mob mob) {
@@ -207,7 +207,7 @@ public final class RigStunController {
         mob.yya = 0.0F;
         mob.zza = 0.0F;
         mob.setDeltaMovement(Vec3.ZERO);
-        mob.hasImpulse = true;
+        mob.hurtMarked = true;
         mob.setAggressive(false);
         mob.setNoAi(true);
     }

@@ -31,7 +31,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
@@ -386,8 +386,8 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.setPathfindingMalus(PathType.WATER_BORDER, 0.0F);
         this.setPathfindingMalus(PathType.LAVA, 0.0F);
-        this.setPathfindingMalus(PathType.DANGER_FIRE, 0.0F);
-        this.setPathfindingMalus(PathType.DAMAGE_FIRE, 0.0F);
+        this.setPathfindingMalus(PathType.FIRE_IN_NEIGHBOR, 0.0F);
+        this.setPathfindingMalus(PathType.FIRE, 0.0F);
         this.resetSecondFormCooldown();
     }
 
@@ -408,8 +408,8 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
             if (type == PathType.WATER
                     || type == PathType.WATER_BORDER
                     || type == PathType.LAVA
-                    || type == PathType.DANGER_FIRE
-                    || type == PathType.DAMAGE_FIRE) {
+                    || type == PathType.FIRE_IN_NEIGHBOR
+                    || type == PathType.FIRE) {
                 return true;
             }
             return super.hasValidPathType(type);
@@ -554,7 +554,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                     RigAnimationController.play(HerobrineMob.this, RigAnimationId.POINT_LEFT_HAND_MIDDLE);
                     LivingEntity target = HerobrineMob.this.getTarget();
                     Direction dir = target != null
-                            ? Direction.getNearest(target.getX() - HerobrineMob.this.getX(), 0.0D, target.getZ() - HerobrineMob.this.getZ())
+                            ? Direction.getApproximateNearest(target.getX() - HerobrineMob.this.getX(), 0.0D, target.getZ() - HerobrineMob.this.getZ())
                             : HerobrineMob.this.getDirection();
                     int dist = 1 + HerobrineMob.this.getRandom().nextInt(3);
                     int rot = HerobrineMob.this.getRandom().nextInt(4);
@@ -566,7 +566,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                     BlockPos spawnPos = new BlockPos(baseXZ.getX(), surfaceY, baseXZ.getZ());
 
                     LowShadowHerobrineCloneEntity clone = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), serverLevel);
-                    clone.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, dir.toYRot(), 0.0F);
+                    clone.snapTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, dir.toYRot(), 0.0F);
                     clone.setRenderPortal(false);
                     clone.setForEscaping(true);
                     clone.setNoAi(true);
@@ -589,15 +589,15 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource damagesource, boolean flag) {
         int i = 0;
         super.dropCustomDeathLoot(level, damagesource, flag);
-        this.spawnAtLocation(new ItemStack(Blocks.OBSIDIAN));
+        com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(Blocks.OBSIDIAN));
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.death")));
     }
 
     public boolean causeFallDamage(float f, float f1, @NotNull DamageSource damagesource) {
@@ -609,14 +609,14 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         return 0.05F;
     }
 
-    public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        if (this.getPersistentData().getBoolean(NBT_RISING) || this.getPersistentData().getBoolean(NBT_SINKING) || this.sacrificing) {
-            if (this.level() instanceof ServerLevel serverLevel) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
+        if (this.getPersistentData().getBooleanOr(NBT_RISING, false) || this.getPersistentData().getBooleanOr(NBT_SINKING, false) || this.sacrificing) {
+            if (true) {
                 CommonUtil.damageBlocked(damageSource, this, serverLevel);
             }
             return false;
         }
-        boolean result = super.hurt(damageSource, f);
+        boolean result = super.hurtServer(serverLevel, damageSource, f);
         if (result) {
             this.sayHurtSound(this, damageSource);
         }
@@ -624,8 +624,8 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity target) {
-        boolean result = super.doHurtTarget(target);
+    public boolean doHurtTarget(net.minecraft.server.level.ServerLevel serverLevel, Entity target) {
+        boolean result = super.doHurtTarget(serverLevel, target);
         if (result) {
             this.sayAttackSound(this, target);
         }
@@ -679,13 +679,13 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+    protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
         if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            super.actuallyHurt(pDamageSource, pDamageAmount);
+            super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }
 
-        if (this.isInvulnerableTo(pDamageSource)) {
+        if (this.isInvulnerableTo(serverLevel, pDamageSource)) {
             return;
         }
         if (pDamageAmount <= 0.0F) {
@@ -704,7 +704,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         this.damageContainers.peek().setNewDamage(f1);
         f1 = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         f1 = this.applyBurstProtection(this, pDamageSource, f1);
-        if (this.level() instanceof ServerLevel serverLevel
+        if (true
                 && this.getState() < 2
                 && (this instanceof AegisHerobrineEntity
                 || this instanceof SledgehammerHerobrineEntity
@@ -728,39 +728,40 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        swapWeaponCooldown = pCompound.getInt("SwapWeaponCooldown");
-        recallTicks = pCompound.getInt("RecallTicks");
-        renderPortal = pCompound.getBoolean("RenderPortal");
-        neverRecall = pCompound.getBoolean("NeverRecall");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag pCompound = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        swapWeaponCooldown = pCompound.getIntOr("SwapWeaponCooldown", 0);
+        recallTicks = pCompound.getIntOr("RecallTicks", 0);
+        renderPortal = pCompound.getBooleanOr("RenderPortal", false);
+        neverRecall = pCompound.getBooleanOr("NeverRecall", false);
         if (pCompound.contains("GregUUID")) {
-            gregUUID = pCompound.getUUID("GregUUID");
+            gregUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(pCompound, "GregUUID");
         }
-        initialSpawn = pCompound.getBoolean("InitialSpawn");
-        if (pCompound.hasUUID("ProtectUUID")) {
-            protectUUID = pCompound.getUUID("ProtectUUID");
+        initialSpawn = pCompound.getBooleanOr("InitialSpawn", false);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(pCompound, "ProtectUUID")) {
+            protectUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(pCompound, "ProtectUUID");
         }
-        if (pCompound.hasUUID("FirstPossessedHerobrineUuid")) {
-            firstPossessedHerobrineUuid = pCompound.getUUID("FirstPossessedHerobrineUuid");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(pCompound, "FirstPossessedHerobrineUuid")) {
+            firstPossessedHerobrineUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(pCompound, "FirstPossessedHerobrineUuid");
         }
-        if (pCompound.hasUUID("SecondPossessedHerobrineUuid")) {
-            secondPossessedHerobrineUuid = pCompound.getUUID("SecondPossessedHerobrineUuid");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(pCompound, "SecondPossessedHerobrineUuid")) {
+            secondPossessedHerobrineUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(pCompound, "SecondPossessedHerobrineUuid");
         }
-        if (pCompound.hasUUID("ThirdPossessedHerobrineUuid")) {
-            thirdPossessedHerobrineUuid = pCompound.getUUID("ThirdPossessedHerobrineUuid");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(pCompound, "ThirdPossessedHerobrineUuid")) {
+            thirdPossessedHerobrineUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(pCompound, "ThirdPossessedHerobrineUuid");
         }
-        if (pCompound.hasUUID("FourthPossessedHerobrineUuid")) {
-            fourthPossessedHerobrineUuid = pCompound.getUUID("FourthPossessedHerobrineUuid");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(pCompound, "FourthPossessedHerobrineUuid")) {
+            fourthPossessedHerobrineUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(pCompound, "FourthPossessedHerobrineUuid");
         }
-        sacrificing = pCompound.getBoolean("Sacrificing");
-        healing = pCompound.getBoolean("Healing");
-        sacrificingAnimationCooldown = pCompound.getInt("SacrificingAnimationCooldown");
-        state = pCompound.getInt("State");
-        secondFormHitLeft = Math.max(0,pCompound.getInt("SecondFormHitLeft"));
-        if (pCompound.contains("SecondFormCooldown")) secondFormCooldown = Math.max(0,pCompound.getInt("SecondFormCooldown"));
-        healingCooldown = pCompound.getInt("HealingCooldown");
-        voiceCooldown = pCompound.getInt("VoiceCooldown");
+        sacrificing = pCompound.getBooleanOr("Sacrificing", false);
+        healing = pCompound.getBooleanOr("Healing", false);
+        sacrificingAnimationCooldown = pCompound.getIntOr("SacrificingAnimationCooldown", 0);
+        state = pCompound.getIntOr("State", 0);
+        secondFormHitLeft = Math.max(0,pCompound.getIntOr("SecondFormHitLeft", 0));
+        if (pCompound.contains("SecondFormCooldown")) secondFormCooldown = Math.max(0,pCompound.getIntOr("SecondFormCooldown", 0));
+        healingCooldown = pCompound.getIntOr("HealingCooldown", 0);
+        voiceCooldown = pCompound.getIntOr("VoiceCooldown", 0);
     }
 
     public void jump() {
@@ -773,34 +774,35 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                 motion.y,
                 motion.z + forward.z * strength
         );
-        this.hasImpulse = true;
+        this.hurtMarked = true;
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag pCompound = new CompoundTag();
+        super.addAdditionalSaveData(output);
         pCompound.putInt("SwapWeaponCooldown", this.swapWeaponCooldown);
         pCompound.putInt("RecallTicks", recallTicks);
         pCompound.putBoolean("RenderPortal", renderPortal);
         pCompound.putBoolean("NeverRecall", neverRecall);
         if (gregUUID != null) {
-            pCompound.putUUID("GregUUID", gregUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(pCompound, "GregUUID", gregUUID);
         }
         pCompound.putBoolean("InitialSpawn", initialSpawn);
         if (protectUUID != null) {
-            pCompound.putUUID("ProtectUUID", protectUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(pCompound, "ProtectUUID", protectUUID);
         }
         if (firstPossessedHerobrineUuid != null) {
-            pCompound.putUUID("FirstPossessedHerobrineUuid", firstPossessedHerobrineUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(pCompound, "FirstPossessedHerobrineUuid", firstPossessedHerobrineUuid);
         }
         if (secondPossessedHerobrineUuid != null) {
-            pCompound.putUUID("SecondPossessedHerobrineUuid", secondPossessedHerobrineUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(pCompound, "SecondPossessedHerobrineUuid", secondPossessedHerobrineUuid);
         }
         if (thirdPossessedHerobrineUuid != null) {
-            pCompound.putUUID("ThirdPossessedHerobrineUuid", thirdPossessedHerobrineUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(pCompound, "ThirdPossessedHerobrineUuid", thirdPossessedHerobrineUuid);
         }
         if (fourthPossessedHerobrineUuid != null) {
-            pCompound.putUUID("FourthPossessedHerobrineUuid", fourthPossessedHerobrineUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(pCompound, "FourthPossessedHerobrineUuid", fourthPossessedHerobrineUuid);
         }
         pCompound.putBoolean("Sacrificing", sacrificing);
         pCompound.putBoolean("Healing", healing);
@@ -810,6 +812,8 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         pCompound.putInt("SecondFormCooldown", secondFormCooldown);
         pCompound.putInt("HealingCooldown", healingCooldown);
         pCompound.putInt("VoiceCooldown", this.voiceCooldown);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, pCompound);
     }
 
     @Override
@@ -828,7 +832,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         Fluid typeHere = fluidState.getType();
         FluidState above = this.level().getFluidState(pos.above());
 
-        if (collisionContext.isAbove(LiquidBlock.STABLE_SHAPE, pos, true) && above.getType() != typeHere) {
+        if (collisionContext.isAbove(net.minecraft.world.phys.shapes.Shapes.box(0.0D, 0.0D, 0.0D, 1.0D, 0.8888888888888888D, 1.0D), pos, true) && above.getType() != typeHere) {
             this.setOnGround(true);
 
             double surfaceY = pos.getY() + fluidState.getHeight(this.level(), pos);
@@ -1095,7 +1099,6 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
             this.escapeHoleGoal.forceCancel();
         }
         this.floatOnAnyFluid();
-        this.checkInsideBlocks();
         if (this.level() instanceof ServerLevel serverLevel) {
             this.tickVoiceCooldown();
             if (stunEscapeCooldown > 0) stunEscapeCooldown--;
@@ -1141,8 +1144,8 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
             }
 
             if (!(this instanceof NullEntity) && !(this instanceof ShadowHerobrineEntity)
-                    && this.hasEffect(MobEffects.DAMAGE_BOOST) && this.hasEffect(MobEffects.MOVEMENT_SPEED)
-                    && this.hasEffect(MobEffects.JUMP) && this.hasEffect(MobEffects.DAMAGE_RESISTANCE)) {
+                    && this.hasEffect(MobEffects.STRENGTH) && this.hasEffect(MobEffects.SPEED)
+                    && this.hasEffect(MobEffects.JUMP_BOOST) && this.hasEffect(MobEffects.RESISTANCE)) {
                 if (new Random().nextBoolean()) {
                     serverLevel.sendParticles(
                             AnnoyingVillagersModParticleTypes.FULL_COWL.get(),
@@ -1418,7 +1421,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     private void summonLowCloneAt(ServerLevel server, Vec3 pos, int bindSlot) {
         LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), server);
         int surfaceY = server.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, BlockPos.containing(pos)).getY();
-        lowShadowHerobrineCloneEntity.moveTo(pos.x, surfaceY, pos.z, this.getYRot(), this.getXRot());
+        lowShadowHerobrineCloneEntity.snapTo(pos.x, surfaceY, pos.z, this.getYRot(), this.getXRot());
         lowShadowHerobrineCloneEntity.setRenderPortal(false);
         lowShadowHerobrineCloneEntity.setPossessedByEntity(this);
         lowShadowHerobrineCloneEntity.setPossessedByUuid(this.getUUID());
@@ -1445,14 +1448,14 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     public void remove(@NotNull RemovalReason reason) {
         if (this.escapeHoleGoal != null) this.escapeHoleGoal.forceCancel();
         super.remove(reason);
-        if (!level().isClientSide && level() instanceof ServerLevel serverLevel &&
+        if (!level().isClientSide() && level() instanceof ServerLevel serverLevel &&
                 (reason == RemovalReason.KILLED || reason == RemovalReason.DISCARDED)) {
             HerobrineMobData.get(serverLevel).releaseIfMatches(serverLevel, this.getUUID());
         }
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
-        if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
+        if (mobSpawnType == EntitySpawnReason.NATURAL || mobSpawnType == EntitySpawnReason.CHUNK_GENERATION) {
             ServerLevel serverLevel = serverLevelAccessor.getLevel();
             HerobrineMobData herobrineMobData = HerobrineMobData.get(serverLevel);
 
@@ -1464,7 +1467,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
             BlockPos blockPos = this.getOnPos();
             int surfaceY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, blockPos).getY();
             BlockPos spawnPos = new BlockPos(blockPos.getX(), surfaceY, blockPos.getZ());
-            this.moveTo(spawnPos, this.getYRot(), this.getXRot());
+            this.snapTo(spawnPos, this.getYRot(), this.getXRot());
             this.initialSpawn = false;
         }
 
@@ -1475,7 +1478,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     }
 
     public void awardKillScore(@NotNull Entity entity, int i, @NotNull DamageSource damagesource) {
-        super.awardKillScore(entity, i, damagesource);
+        super.awardKillScore(entity, damagesource);
         HerobrineUtil.transformHerobrine(this.level(), this.getX(), this.getY(), this.getZ(), entity, this);
         this.heal(this.getMaxHealth() / 10);
     }

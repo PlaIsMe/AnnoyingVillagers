@@ -1,14 +1,14 @@
 package com.pla.annoyingvillagers.item;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import com.pla.annoyingvillagers.item.LegacyArmorItem;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -21,10 +21,10 @@ import java.util.Objects;
 
 public abstract class EmeraldArmorItem extends LegacyArmorItem {
 
-    public EmeraldArmorItem(ArmorItem.Type type, Properties properties) {
+    public EmeraldArmorItem(LegacyArmorItem.Type type, Properties properties) {
         super(new LegacyArmorMaterial() {
             @Override
-            public int getDurabilityForType(ArmorItem.@NotNull Type type) {
+            public int getDurabilityForType(LegacyArmorItem.@NotNull Type type) {
                 return switch (type) {
                     case BOOTS      -> 13 * 48;  // 624
                     case LEGGINGS   -> 15 * 48;  // 720
@@ -35,7 +35,7 @@ public abstract class EmeraldArmorItem extends LegacyArmorItem {
             }
 
             @Override
-            public int getDefenseForType(ArmorItem.@NotNull Type type) {
+            public int getDefenseForType(LegacyArmorItem.@NotNull Type type) {
                 return switch (type) {
                     case BOOTS      -> 4;
                     case LEGGINGS   -> 5;
@@ -50,11 +50,11 @@ public abstract class EmeraldArmorItem extends LegacyArmorItem {
             }
 
             public Object getEquipSound() {
-                return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
+                return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.EMERALD));
+                return Ingredient.of(Items.EMERALD);
             }
 
             public @NotNull String getName() {
@@ -74,7 +74,7 @@ public abstract class EmeraldArmorItem extends LegacyArmorItem {
     public static class Boots extends EmeraldArmorItem {
 
         public Boots() {
-            super(Type.BOOTS, (new Properties()));
+            super(Type.BOOTS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -82,12 +82,14 @@ public abstract class EmeraldArmorItem extends LegacyArmorItem {
         }
 
         @Override
-        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+        public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slotIndex = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean selected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
             if (!(entity instanceof Player player)) return;
-            super.inventoryTick(stack, level, entity, slotIndex, selected);
+            super.inventoryTick(stack, level, entity, equipmentSlot);
             if (player.getItemBySlot(EquipmentSlot.FEET) == stack) {
                 if (!player.level().isClientSide()) {
-                    player.addEffect(new MobEffectInstance(MobEffects.JUMP, 100, 1));
+                    player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 100, 1));
                 }
             }
         }
@@ -96,7 +98,7 @@ public abstract class EmeraldArmorItem extends LegacyArmorItem {
     public static class Leggings extends EmeraldArmorItem {
 
         public Leggings() {
-            super(Type.LEGGINGS, (new Properties()));
+            super(Type.LEGGINGS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -104,12 +106,14 @@ public abstract class EmeraldArmorItem extends LegacyArmorItem {
         }
 
         @Override
-        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+        public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slotIndex = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean selected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
             if (!(entity instanceof Player player)) return;
-            super.inventoryTick(stack, level, entity, slotIndex, selected);
+            super.inventoryTick(stack, level, entity, equipmentSlot);
             if (player.getItemBySlot(EquipmentSlot.LEGS) == stack) {
                 if (!player.level().isClientSide()) {
-                    player.addEffect(new MobEffectInstance(MobEffects.JUMP, 100, 1));
+                    player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 100, 1));
                 }
             }
         }
@@ -118,7 +122,7 @@ public abstract class EmeraldArmorItem extends LegacyArmorItem {
     public static class Chestplate extends EmeraldArmorItem {
 
         public Chestplate() {
-            super(Type.CHESTPLATE, (new Properties()));
+            super(Type.CHESTPLATE, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -126,12 +130,14 @@ public abstract class EmeraldArmorItem extends LegacyArmorItem {
         }
 
         @Override
-        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+        public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slotIndex = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean selected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
             if (!(entity instanceof Player player)) return;
-            super.inventoryTick(stack, level, entity, slotIndex, selected);
+            super.inventoryTick(stack, level, entity, equipmentSlot);
             if (player.getItemBySlot(EquipmentSlot.CHEST) == stack) {
                 if (!player.level().isClientSide()) {
-                    player.addEffect(new MobEffectInstance(MobEffects.JUMP, 100, 1));
+                    player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 100, 1));
                 }
             }
         }
@@ -140,7 +146,7 @@ public abstract class EmeraldArmorItem extends LegacyArmorItem {
     public static class Helmet extends EmeraldArmorItem {
 
         public Helmet() {
-            super(Type.HELMET, (new Properties()).fireResistant());
+            super(Type.HELMET, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()).fireResistant());
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -148,12 +154,14 @@ public abstract class EmeraldArmorItem extends LegacyArmorItem {
         }
 
         @Override
-        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+        public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slotIndex = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean selected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
             if (!(entity instanceof Player player)) return;
-            super.inventoryTick(stack, level, entity, slotIndex, selected);
+            super.inventoryTick(stack, level, entity, equipmentSlot);
             if (player.getItemBySlot(EquipmentSlot.HEAD) == stack) {
                 if (!player.level().isClientSide()) {
-                    player.addEffect(new MobEffectInstance(MobEffects.JUMP, 100, 1));
+                    player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 100, 1));
                 }
             }
         }

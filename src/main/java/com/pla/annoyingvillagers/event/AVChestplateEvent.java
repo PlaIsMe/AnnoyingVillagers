@@ -41,7 +41,7 @@ public final class AVChestplateEvent {
 
     @SubscribeEvent
     public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
-        if (!event.getLevel().isClientSide && event.getEntity() instanceof LivingEntity living) ObsidianArmorController.clear(living);
+        if (!event.getLevel().isClientSide() && event.getEntity() instanceof LivingEntity living) ObsidianArmorController.clear(living);
     }
 
     @SubscribeEvent

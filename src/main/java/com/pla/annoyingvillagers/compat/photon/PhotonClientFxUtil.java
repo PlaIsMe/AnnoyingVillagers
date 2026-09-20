@@ -3,12 +3,11 @@ package com.pla.annoyingvillagers.compat.photon;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-@OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class PhotonClientFxUtil {
     private static final String PHOTON_MOD_ID = "photon";
@@ -60,8 +58,8 @@ public final class PhotonClientFxUtil {
         return ModList.get().isLoaded(PHOTON_MOD_ID);
     }
 
-    public static ResourceLocation photon(String path) {
-        return ResourceLocation.fromNamespaceAndPath(PHOTON_MOD_ID, path);
+    public static Identifier photon(String path) {
+        return Identifier.fromNamespaceAndPath(PHOTON_MOD_ID, path);
     }
 
     public static boolean spawnAt(Level level, String effectPath, Vec3 pos) {
@@ -304,7 +302,7 @@ public final class PhotonClientFxUtil {
     }
 
     private static boolean canUse(Level level) {
-        return level != null && level.isClientSide && ModList.get().isLoaded(PHOTON_MOD_ID);
+        return level != null && level.isClientSide() && ModList.get().isLoaded(PHOTON_MOD_ID);
     }
 
     private static String normalizeKey(String key, String effectPath) {
@@ -376,7 +374,7 @@ public final class PhotonClientFxUtil {
             Class<?> fxObjectClass = Class.forName("com.lowdragmc.photon.client.gameobject.IFXObject");
 
             reflection = new Reflection(
-                    PhotonFxLoader.class.getMethod("getFX", ResourceLocation.class),
+                    PhotonFxLoader.class.getMethod("getFX", Identifier.class),
                     blockEffectClass.getConstructor(fxClass, Level.class, BlockPos.class),
                     fxEffectClass.getMethod("setOffset", Vector3f.class),
                     fxEffectClass.getMethod("setRotation", Quaternionf.class),

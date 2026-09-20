@@ -5,7 +5,7 @@ import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import com.pla.annoyingvillagers.util.HookSwordVanillaAbilityUtil;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.item.*;
@@ -36,9 +36,9 @@ public class FlankerHookedSwordItem extends LegacySwordItem implements RigCombat
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.GOLD_INGOT));
+                return Ingredient.of(Items.GOLD_INGOT);
             }
-        }, 3, -2.6F, (new Properties()));
+        }, 3, -2.6F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class FlankerHookedSwordItem extends LegacySwordItem implements RigCombat
         return RigCombatStyle.DUAL_HOOKED_SWORD;
     }
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         return HookSwordVanillaAbilityUtil.useHookSword(level, player, hand);
     }
 

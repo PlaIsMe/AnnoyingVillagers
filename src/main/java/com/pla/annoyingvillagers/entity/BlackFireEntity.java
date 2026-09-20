@@ -275,7 +275,7 @@ public class BlackFireEntity extends Entity implements IEntityWithComplexSpawn {
         )) {
             DamageSource source = this.makeDamageSource(owner);
 
-            if (target.hurt(source, this.damageAmount)) {
+            if (target.hurtOrSimulate(source, this.damageAmount)) {
                 if (this.fireSeconds > 0) {
                     target.igniteForSeconds(this.fireSeconds);
                 }
@@ -299,9 +299,9 @@ public class BlackFireEntity extends Entity implements IEntityWithComplexSpawn {
 
         if (dir.lengthSqr() < 1.0E-6D) {
             dir = new Vec3(
-                    this.random.nextDouble() - 0.5D,
+                    this.getRandom().nextDouble() - 0.5D,
                     0.0D,
-                    this.random.nextDouble() - 0.5D
+                    this.getRandom().nextDouble() - 0.5D
             );
         }
 
@@ -433,53 +433,55 @@ public class BlackFireEntity extends Entity implements IEntityWithComplexSpawn {
     }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        if (tag.hasUUID(TAG_OWNER_UUID)) {
-            this.ownerUUID = tag.getUUID(TAG_OWNER_UUID);
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, TAG_OWNER_UUID)) {
+            this.ownerUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, TAG_OWNER_UUID);
         }
 
         if (tag.contains(TAG_HALF_SIZE)) {
-            this.halfSize = tag.getDouble(TAG_HALF_SIZE);
+            this.halfSize = tag.getDoubleOr(TAG_HALF_SIZE, 0.0D);
         }
 
         if (tag.contains(TAG_DURATION_TICKS)) {
-            this.durationTicks = tag.getInt(TAG_DURATION_TICKS);
+            this.durationTicks = tag.getIntOr(TAG_DURATION_TICKS, 0);
         }
 
         if (tag.contains(TAG_DAMAGE_AMOUNT)) {
-            this.damageAmount = tag.getFloat(TAG_DAMAGE_AMOUNT);
+            this.damageAmount = tag.getFloatOr(TAG_DAMAGE_AMOUNT, 0.0F);
         }
 
         if (tag.contains(TAG_DAMAGE_INTERVAL)) {
-            this.damageInterval = Math.max(1, tag.getInt(TAG_DAMAGE_INTERVAL));
+            this.damageInterval = Math.max(1, tag.getIntOr(TAG_DAMAGE_INTERVAL, 0));
         }
 
         if (tag.contains(TAG_KNOCKBACK)) {
-            this.knockback = tag.getDouble(TAG_KNOCKBACK);
+            this.knockback = tag.getDoubleOr(TAG_KNOCKBACK, 0.0D);
         }
 
         if (tag.contains(TAG_FIRE_SECONDS)) {
-            this.fireSeconds = tag.getInt(TAG_FIRE_SECONDS);
+            this.fireSeconds = tag.getIntOr(TAG_FIRE_SECONDS, 0);
         }
 
         if (tag.contains(TAG_MODE)) {
-            this.setMode(Mode.byId(tag.getInt(TAG_MODE)));
+            this.setMode(Mode.byId(tag.getIntOr(TAG_MODE, 0)));
         }
 
         if (tag.contains(TAG_VEL_X) && tag.contains(TAG_VEL_Y) && tag.contains(TAG_VEL_Z)) {
             this.projectileVelocity = new Vec3(
-                    tag.getDouble(TAG_VEL_X),
-                    tag.getDouble(TAG_VEL_Y),
-                    tag.getDouble(TAG_VEL_Z)
+                    tag.getDoubleOr(TAG_VEL_X, 0.0D),
+                    tag.getDoubleOr(TAG_VEL_Y, 0.0D),
+                    tag.getDoubleOr(TAG_VEL_Z, 0.0D)
             );
             this.setDeltaMovement(this.projectileVelocity);
         }
     }
 
     @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
         if (this.ownerUUID != null) {
-            tag.putUUID(TAG_OWNER_UUID, this.ownerUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, TAG_OWNER_UUID, this.ownerUUID);
         }
 
         tag.putDouble(TAG_HALF_SIZE, this.halfSize);
@@ -493,6 +495,8 @@ public class BlackFireEntity extends Entity implements IEntityWithComplexSpawn {
         tag.putDouble(TAG_VEL_X, this.projectileVelocity.x);
         tag.putDouble(TAG_VEL_Y, this.projectileVelocity.y);
         tag.putDouble(TAG_VEL_Z, this.projectileVelocity.z);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
@@ -519,7 +523,7 @@ public class BlackFireEntity extends Entity implements IEntityWithComplexSpawn {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource source, float amount) {
         return false;
     }
 

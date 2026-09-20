@@ -5,8 +5,9 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.PlayerSkin;
+import net.minecraft.world.entity.player.PlayerModelType;
+import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 import java.util.Optional;
@@ -24,33 +25,33 @@ public final class FakePlayerTextureUtils {
             return SkinType.DEFAULT;
         }
 
-        UUID id = profile.getId();
+        UUID id = profile.id();
         SkinType cached = SKIN_TYPE_CACHE.get(id);
         if (cached != null) {
             return cached;
         }
 
-        PlayerSkin skin = Minecraft.getInstance().getSkinManager().getInsecureSkin(profile);
-        SkinType type = skin.model() == PlayerSkin.Model.SLIM ? SkinType.SLIM : SkinType.DEFAULT;
+        PlayerSkin skin = Minecraft.getInstance().getSkinManager().createLookup(profile, false).get();
+        SkinType type = skin.model() == PlayerModelType.SLIM ? SkinType.SLIM : SkinType.DEFAULT;
         SKIN_TYPE_CACHE.put(id, type);
         return type;
     }
 
-    public static ResourceLocation getPlayerSkin(FakePlayer entity) {
+    public static Identifier getPlayerSkin(FakePlayer entity) {
         return getTexture(entity, MinecraftProfileTexture.Type.SKIN).orElseGet(() -> {
             GameProfile profile = entity.getProfile();
             if (isComplete(profile)) {
-                return DefaultPlayerSkin.get(profile).texture();
+                return DefaultPlayerSkin.get(profile).body().texturePath();
             }
-            return DefaultPlayerSkin.getDefaultTexture();
+            return DefaultPlayerSkin.getDefaultSkin().body().texturePath();
         });
     }
 
-    public static Optional<ResourceLocation> getPlayerCape(FakePlayer entity) {
+    public static Optional<Identifier> getPlayerCape(FakePlayer entity) {
         return getTexture(entity, MinecraftProfileTexture.Type.CAPE);
     }
 
-    private static Optional<ResourceLocation> getTexture(FakePlayer entity, MinecraftProfileTexture.Type type) {
+    private static Optional<Identifier> getTexture(FakePlayer entity, MinecraftProfileTexture.Type type) {
         if (entity.isTextureAvailable(type)) {
             return Optional.ofNullable(entity.getTexture(type));
         }
@@ -61,11 +62,11 @@ public final class FakePlayerTextureUtils {
         }
 
         Minecraft minecraft = Minecraft.getInstance();
-        PlayerSkin playerSkin = minecraft.getSkinManager().getInsecureSkin(profile);
-        ResourceLocation location = switch (type) {
-            case SKIN -> playerSkin.texture();
-            case CAPE -> playerSkin.capeTexture();
-            case ELYTRA -> playerSkin.elytraTexture();
+        PlayerSkin playerSkin = minecraft.getSkinManager().createLookup(profile, false).get();
+        Identifier location = switch (type) {
+            case SKIN -> playerSkin.body().texturePath();
+            case CAPE -> playerSkin.cape() == null ? null : playerSkin.cape().texturePath();
+            case ELYTRA -> playerSkin.elytra() == null ? null : playerSkin.elytra().texturePath();
         };
         if (location == null) {
             return Optional.empty();
@@ -75,8 +76,15 @@ public final class FakePlayerTextureUtils {
         return Optional.of(location);
     }
 
+    public static PlayerSkin getPlayerSkinData(FakePlayer entity) {
+        GameProfile profile = entity.getProfile();
+        return isComplete(profile)
+                ? Minecraft.getInstance().getSkinManager().createLookup(profile, false).get()
+                : DefaultPlayerSkin.getDefaultSkin();
+    }
+
     private static boolean isComplete(GameProfile profile) {
-        return profile != null && profile.getId() != null && profile.getName() != null;
+        return profile != null && profile.id() != null && profile.name() != null;
     }
 
     public enum SkinType {

@@ -134,7 +134,7 @@ public class BlackHoleEntity extends Entity {
         this.setNoGravity(true);
         this.setDeltaMovement(Vec3.ZERO);
 
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             this.spawnClientParticles();
             return;
         }
@@ -203,13 +203,13 @@ public class BlackHoleEntity extends Entity {
             target.setDeltaMovement(movement);
             target.fallDistance = 0.0F;
             target.hurtMarked = true;
-            target.hasImpulse = true;
+            target.hurtMarked = true;
 
             if (target instanceof ServerPlayer serverPlayer) serverPlayer.connection.send(new ClientboundSetEntityMotionPacket(target));
 
             if (distance <= DAMAGE_RADIUS) {
                 DamageSource source = owner == null ? this.damageSources().magic() : this.damageSources().indirectMagic(this, owner);
-                target.hurt(source, BASE_DAMAGE * this.damageMultiplier);
+                target.hurtOrSimulate(source, BASE_DAMAGE * this.damageMultiplier);
             }
         }
     }
@@ -233,7 +233,7 @@ public class BlackHoleEntity extends Entity {
             if (movement.lengthSqr() > maxSpeed * maxSpeed) movement = movement.normalize().scale(maxSpeed);
 
             item.setDeltaMovement(movement);
-            item.hasImpulse = true;
+            item.hurtMarked = true;
         }
     }
 
@@ -249,47 +249,51 @@ public class BlackHoleEntity extends Entity {
         if (this.tickCount + 40 >= lifetime) return;
 
         for (int i = 0; i < 5; i++) {
-            Vec3 shell = randomSphereVector(this.random.nextDouble() * 1.8D + 0.35D);
-            Vec3 velocity = shell.scale(-0.025D - this.random.nextDouble() * 0.025D);
+            Vec3 shell = randomSphereVector(this.getRandom().nextDouble() * 1.8D + 0.35D);
+            Vec3 velocity = shell.scale(-0.025D - this.getRandom().nextDouble() * 0.025D);
             this.level().addParticle(AnnoyingVillagersModParticleTypes.NULL.get(), this.getX() + shell.x, this.getY() + shell.y, this.getZ() + shell.z, velocity.x, velocity.y, velocity.z);
         }
 
         if ((this.tickCount & 1) == 0) {
             for (int i = 0; i < 4; i++) {
-                Vec3 shell = randomSphereVector(this.random.nextDouble() * 2.5D + 2.0D);
-                Vec3 velocity = shell.scale(-0.035D - this.random.nextDouble() * 0.02D);
+                Vec3 shell = randomSphereVector(this.getRandom().nextDouble() * 2.5D + 2.0D);
+                Vec3 velocity = shell.scale(-0.035D - this.getRandom().nextDouble() * 0.02D);
                 this.level().addParticle(AnnoyingVillagersModParticleTypes.NULL.get(), this.getX() + shell.x, this.getY() + shell.y, this.getZ() + shell.z, velocity.x, velocity.y, velocity.z);
             }
         }
     }
 
     private Vec3 randomSphereVector(double radius) {
-        double theta = Math.PI * 2.0D * this.random.nextDouble();
-        double phi = Math.acos(2.0D * this.random.nextDouble() - 1.0D);
+        double theta = Math.PI * 2.0D * this.getRandom().nextDouble();
+        double phi = Math.acos(2.0D * this.getRandom().nextDouble() - 1.0D);
         double sinPhi = Math.sin(phi);
         return new Vec3(radius * sinPhi * Math.cos(theta), radius * Math.cos(phi), radius * sinPhi * Math.sin(theta));
     }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        if (tag.hasUUID(TAG_OWNER_UUID)) this.ownerUUID = tag.getUUID(TAG_OWNER_UUID);
-        if (tag.contains(TAG_LIFETIME)) this.setLifetime(tag.getInt(TAG_LIFETIME));
-        if (tag.contains(TAG_SIZE_MULTIPLIER)) this.setSizeMultiplier(tag.getFloat(TAG_SIZE_MULTIPLIER));
-        if (tag.contains(TAG_DAMAGE_MULTIPLIER)) this.damageMultiplier = tag.getFloat(TAG_DAMAGE_MULTIPLIER);
-        if (tag.contains(TAG_SPAWN_BLOCKS_CLEARED)) this.spawnBlocksCleared = tag.getBoolean(TAG_SPAWN_BLOCKS_CLEARED);
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, TAG_OWNER_UUID)) this.ownerUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, TAG_OWNER_UUID);
+        if (tag.contains(TAG_LIFETIME)) this.setLifetime(tag.getIntOr(TAG_LIFETIME, 0));
+        if (tag.contains(TAG_SIZE_MULTIPLIER)) this.setSizeMultiplier(tag.getFloatOr(TAG_SIZE_MULTIPLIER, 0.0F));
+        if (tag.contains(TAG_DAMAGE_MULTIPLIER)) this.damageMultiplier = tag.getFloatOr(TAG_DAMAGE_MULTIPLIER, 0.0F);
+        if (tag.contains(TAG_SPAWN_BLOCKS_CLEARED)) this.spawnBlocksCleared = tag.getBooleanOr(TAG_SPAWN_BLOCKS_CLEARED, false);
     }
 
     @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        if (this.ownerUUID != null) tag.putUUID(TAG_OWNER_UUID, this.ownerUUID);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        if (this.ownerUUID != null) com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, TAG_OWNER_UUID, this.ownerUUID);
         tag.putInt(TAG_LIFETIME, this.getLifetime());
         tag.putFloat(TAG_SIZE_MULTIPLIER, this.getSizeMultiplier());
         tag.putFloat(TAG_DAMAGE_MULTIPLIER, this.damageMultiplier);
         tag.putBoolean(TAG_SPAWN_BLOCKS_CLEARED, this.spawnBlocksCleared);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource source, float amount) {
         return false;
     }
 
@@ -304,7 +308,7 @@ public class BlackHoleEntity extends Entity {
     }
 
     @Override
-    public boolean canBeCollidedWith() {
+    public boolean canBeCollidedWith(@Nullable Entity other) {
         return false;
     }
 

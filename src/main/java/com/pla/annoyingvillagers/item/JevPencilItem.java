@@ -2,7 +2,7 @@ package com.pla.annoyingvillagers.item;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -17,23 +17,25 @@ import java.util.List;
 public class JevPencilItem extends Item {
 
     public JevPencilItem() {
-        super((new Properties()).stacksTo(1).fireResistant().rarity(Rarity.COMMON));
+        super((com.pla.annoyingvillagers.util.LegacyItemProperties.create()).stacksTo(1).fireResistant().rarity(Rarity.COMMON));
     }
 
     public boolean isCorrectToolForDrops(BlockState blockstate) {
         return true;
     }
 
-    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, List<Component> list, TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
+    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
     }
 
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionhand) {
-        InteractionResultHolder<ItemStack> interactionresultholder = super.use(level, player, interactionhand);
+    public InteractionResult use(Level level, Player player, InteractionHand interactionhand) {
+        InteractionResult interactionresultholder = super.use(level, player, interactionhand);
         return interactionresultholder;
     }
 
-    public void inventoryTick(ItemStack itemstack, Level level, Entity entity, int i, boolean flag) {
-        super.inventoryTick(itemstack, level, entity, i, flag);
+    public void inventoryTick(net.minecraft.world.item.ItemStack itemstack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int i = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, itemstack);
+        boolean flag = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        super.inventoryTick(itemstack, level, entity, equipmentSlot);
     }
 }

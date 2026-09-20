@@ -67,6 +67,11 @@ public class ShockWaveBlockEntity extends Entity {
         this.noPhysics = true;
     }
 
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        return false;
+    }
+
 
     public ShockWaveBlockEntity(Level level, double x, double surfaceY, double z, BlockState blockState, int lifetimeTicks) {
         this(AnnoyingVillagersModEntities.SHOCKWAVE_BLOCK.get(), level);
@@ -138,7 +143,7 @@ public class ShockWaveBlockEntity extends Entity {
             }
         }
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             handleEntityHits();
         }
     }
@@ -191,13 +196,13 @@ public class ShockWaveBlockEntity extends Entity {
 //            }
 //        }
 //        Create VANILLA_ANIMATION
-        if (target.level().isClientSide) {
+        if (target.level().isClientSide()) {
             return;
         }
 
         if (target instanceof Player player) {
-            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 0));
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 0));
+            player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 40, 0));
+            player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 40, 0));
             return;
         }
 
@@ -211,13 +216,13 @@ public class ShockWaveBlockEntity extends Entity {
     private void onHitLivingEntity(LivingEntity target) {
         DamageSource source = getShockwaveDamageSource();
 
-        target.hurt(source, DAMAGE);
+        target.hurtOrSimulate(source, DAMAGE);
         playTriedAnimation(target);
         Vec3 dir = target.position().subtract(this.position());
         Vec3 horizontal = new Vec3(dir.x, 0.0D, dir.z);
 
         if (horizontal.lengthSqr() < 1.0E-6D) {
-            horizontal = new Vec3(this.random.nextGaussian(), 0.0D, this.random.nextGaussian());
+            horizontal = new Vec3(this.getRandom().nextGaussian(), 0.0D, this.getRandom().nextGaussian());
         }
 
         Vec3 push = horizontal.normalize().scale(KNOCKBACK);
@@ -226,24 +231,28 @@ public class ShockWaveBlockEntity extends Entity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
         tag.put("BlockState", NbtUtils.writeBlockState(this.getBlockState()));
-        tag.put("SourceBlockPos", NbtUtils.writeBlockPos(this.getSourceBlockPos()));
+        tag.store("SourceBlockPos", BlockPos.CODEC, this.getSourceBlockPos());
         tag.putInt("LifetimeTicks", this.lifetimeTicks);
         if (this.ownerUuid != null) {
-            tag.putUUID("Owner", this.ownerUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "Owner", this.ownerUuid);
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag tag) {
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
         this.setBlockState(NbtUtils.readBlockState(
                 this.level().holderLookup(Registries.BLOCK),
-                tag.getCompound("BlockState")
+                tag.getCompound("BlockState").orElseGet(net.minecraft.nbt.CompoundTag::new)
         ));
-        this.setSourceBlockPos(NbtUtils.readBlockPos(tag, "SourceBlockPos").orElse(BlockPos.ZERO));
-        this.lifetimeTicks = Math.max(1, tag.getInt("LifetimeTicks"));
-        this.ownerUuid = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
+        this.setSourceBlockPos(tag.read("SourceBlockPos", BlockPos.CODEC).orElse(BlockPos.ZERO));
+        this.lifetimeTicks = Math.max(1, tag.getIntOr("LifetimeTicks", 0));
+        this.ownerUuid = com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "Owner") ? com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "Owner") : null;
     }
 
     @Override

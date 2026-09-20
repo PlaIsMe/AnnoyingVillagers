@@ -15,6 +15,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -43,7 +46,7 @@ public class AnnoyingVillagersModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<InfectedChrisEntity>> INFECTED_CHRIS = register("infected_chris", Builder.<InfectedChrisEntity>of(InfectedChrisEntity::new, MobCategory.CREATURE).setShouldReceiveVelocityUpdates(true).clientTrackingRange(64).updateInterval(3).sized(0.6F, 1.8F));
 
     public static final DeferredHolder<EntityType<?>, EntityType<EnderAegisProjectile>> ENDER_AEGIS_PROJECTILE = register("ender_aegis_projectile", Builder.<EnderAegisProjectile>of(EnderAegisProjectile::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).clientTrackingRange(64).updateInterval(1).sized(0.5F, 0.5F));
-    public static final DeferredHolder<EntityType<?>, EntityType<VacuumSliceEntity>> VACUUM_SLICE = REGISTRY.register("vacuum_slice",() -> EntityType.Builder.of(VacuumSliceEntity::new,MobCategory.MISC).sized(1.0F,0.5F).clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true).noSave().fireImmune().build("vacuum_slice"));
+    public static final DeferredHolder<EntityType<?>, EntityType<VacuumSliceEntity>> VACUUM_SLICE = REGISTRY.register("vacuum_slice",() -> EntityType.Builder.of(VacuumSliceEntity::new,MobCategory.MISC).sized(1.0F,0.5F).clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true).noSave().fireImmune().build(entityKey("vacuum_slice")));
     public static final DeferredHolder<EntityType<?>, EntityType<EnchantedEnderPearlEntity>> ENCHANTED_ENDER_PEARL_PROJECTILE = register("projectile_enchanted_ender_pearl", Builder.<EnchantedEnderPearlEntity>of(EnchantedEnderPearlEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).clientTrackingRange(64).updateInterval(1).sized(0.5F, 0.5F));
     public static final DeferredHolder<EntityType<?>, EntityType<ThrownPoisonEggEntity>> THROWN_POISON_EGG = register("thrown_poison_egg", Builder.<ThrownPoisonEggEntity>of(ThrownPoisonEggEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).clientTrackingRange(64).updateInterval(1).sized(0.5F, 0.5F));
     public static final DeferredHolder<EntityType<?>, EntityType<HookGunHookEntity>> HOOK_GUN_HOOK = register("hook_gun_hook", Builder.<HookGunHookEntity>of(HookGunHookEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(true).clientTrackingRange(96).updateInterval(1).sized(0.25F, 0.25F));
@@ -87,19 +90,23 @@ public class AnnoyingVillagersModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<TridentLightningBolt>> TRIDENT_LIGHTNING_BOLT = register("trident_lightning_bolt", Builder.<TridentLightningBolt>of(TridentLightningBolt::new, MobCategory.MISC).noSave().sized(0.0F, 0.0F).clientTrackingRange(16).updateInterval(Integer.MAX_VALUE));
     public static final DeferredHolder<EntityType<?>, EntityType<BlueDemonThrownTridentEntity>> BLUE_DEMON_THROWN_TRIDENT = register("blue_demon_thrown_trident", Builder.<BlueDemonThrownTridentEntity>of(BlueDemonThrownTridentEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(20));
     public static final DeferredHolder<EntityType<?>, EntityType<DiamondBoltProjectileEntity>> DIAMOND_BOLT_PROJECTILE = register("diamond_bolt_projectile", Builder.<DiamondBoltProjectileEntity>of(DiamondBoltProjectileEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(20));
-    public static final DeferredHolder<EntityType<?>, EntityType<ElectricAreaEntity>> ELECTRIC_AREA = REGISTRY.register("electric_area", () -> EntityType.Builder.<ElectricAreaEntity>of(ElectricAreaEntity::new, MobCategory.MISC).sized(0.1F, 0.1F).clientTrackingRange(8).updateInterval(10).build("blue_demon_area_damage_zone"));
-    public static final DeferredHolder<EntityType<?>, EntityType<BlackFireEntity>> BLACK_FIRE = REGISTRY.register("black_fire", () -> EntityType.Builder.<BlackFireEntity>of(BlackFireEntity::new, MobCategory.MISC).sized(0.2F, 0.2F).clientTrackingRange(64).updateInterval(1).build("black_fire"));
+    public static final DeferredHolder<EntityType<?>, EntityType<ElectricAreaEntity>> ELECTRIC_AREA = REGISTRY.register("electric_area", () -> EntityType.Builder.<ElectricAreaEntity>of(ElectricAreaEntity::new, MobCategory.MISC).sized(0.1F, 0.1F).clientTrackingRange(8).updateInterval(10).build(entityKey("electric_area")));
+    public static final DeferredHolder<EntityType<?>, EntityType<BlackFireEntity>> BLACK_FIRE = REGISTRY.register("black_fire", () -> EntityType.Builder.<BlackFireEntity>of(BlackFireEntity::new, MobCategory.MISC).sized(0.2F, 0.2F).clientTrackingRange(64).updateInterval(1).build(entityKey("black_fire")));
     public static final DeferredHolder<EntityType<?>, EntityType<EnchantedArrowEntity>> ENCHANTED_ARROW = register("enchanted_arrow", Builder.<EnchantedArrowEntity>of(EnchantedArrowEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(20));
     public static final DeferredHolder<EntityType<?>, EntityType<ItemProjectile>> ITEM_PROJECTILE = register("item_projectile", Builder.<ItemProjectile>of(ItemProjectile::new, MobCategory.MISC).sized(0.35F, 0.35F).clientTrackingRange(64).updateInterval(1));
     public static final DeferredHolder<EntityType<?>, EntityType<FlyingShockwaveProjectile>> FLYING_SHOCKWAVE = register("flying_shockwave", Builder.of(FlyingShockwaveProjectile::new, MobCategory.MISC).sized(1.5f, 3f).clientTrackingRange(12));
-    public static final DeferredHolder<EntityType<?>, EntityType<ElectricPhaseEntity>> ELECTRIC_PHASE = REGISTRY.register("electric_phase", () -> EntityType.Builder.<ElectricPhaseEntity>of(ElectricPhaseEntity::new, MobCategory.MISC).sized(0.8F, 0.8F).clientTrackingRange(64).updateInterval(1).fireImmune().build("electric_phase"));
-    public static final DeferredHolder<EntityType<?>, EntityType<RisingWallBlockEntity>> RISING_WALL_BLOCK = REGISTRY.register("rising_wall_block", () -> EntityType.Builder.<RisingWallBlockEntity>of(RisingWallBlockEntity::new, MobCategory.MISC).sized(1.0F, 1.0F).clientTrackingRange(64).updateInterval(1).fireImmune().build("rising_wall_block"));
-    public static final DeferredHolder<EntityType<?>, EntityType<FloatingLookBlockEntity>> FLOATING_LOOK_BLOCK = REGISTRY.register("floating_look_block", () -> EntityType.Builder.<FloatingLookBlockEntity>of(FloatingLookBlockEntity::new, MobCategory.MISC).sized(1.0F, 1.0F).clientTrackingRange(64).updateInterval(1).fireImmune().build("floating_look_block"));
+    public static final DeferredHolder<EntityType<?>, EntityType<ElectricPhaseEntity>> ELECTRIC_PHASE = REGISTRY.register("electric_phase", () -> EntityType.Builder.<ElectricPhaseEntity>of(ElectricPhaseEntity::new, MobCategory.MISC).sized(0.8F, 0.8F).clientTrackingRange(64).updateInterval(1).fireImmune().build(entityKey("electric_phase")));
+    public static final DeferredHolder<EntityType<?>, EntityType<RisingWallBlockEntity>> RISING_WALL_BLOCK = REGISTRY.register("rising_wall_block", () -> EntityType.Builder.<RisingWallBlockEntity>of(RisingWallBlockEntity::new, MobCategory.MISC).sized(1.0F, 1.0F).clientTrackingRange(64).updateInterval(1).fireImmune().build(entityKey("rising_wall_block")));
+    public static final DeferredHolder<EntityType<?>, EntityType<FloatingLookBlockEntity>> FLOATING_LOOK_BLOCK = REGISTRY.register("floating_look_block", () -> EntityType.Builder.<FloatingLookBlockEntity>of(FloatingLookBlockEntity::new, MobCategory.MISC).sized(1.0F, 1.0F).clientTrackingRange(64).updateInterval(1).fireImmune().build(entityKey("floating_look_block")));
 
     private static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(String s, Builder<T> builder) {
         return AnnoyingVillagersModEntities.REGISTRY.register(s, () -> {
-            return builder.build(s);
+            return builder.build(entityKey(s));
         });
+    }
+
+    private static ResourceKey<EntityType<?>> entityKey(String name) {
+        return ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, name));
     }
 
     @SubscribeEvent

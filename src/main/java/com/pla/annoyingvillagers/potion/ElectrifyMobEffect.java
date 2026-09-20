@@ -59,7 +59,7 @@ public class ElectrifyMobEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(@NotNull LivingEntity pLivingEntity, int pAmplifier) {
+    public boolean applyEffectTick(ServerLevel effectLevel, @NotNull LivingEntity pLivingEntity, int pAmplifier) {
         double d0 = pLivingEntity.getX();
         double d1 = pLivingEntity.getY();
         double d2 = pLivingEntity.getZ();
@@ -72,9 +72,9 @@ public class ElectrifyMobEffect extends MobEffect {
             if (pLivingEntity.level() instanceof ServerLevel serverLevel) {
                 BlueDemonUtil.spawnBlueDemonEffect(serverLevel, pLivingEntity);
 
-                if (serverLevel.random.nextDouble() <= 0.8D) {
-                    float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
-                    float pitch  = (float) Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
+                if (serverLevel.getRandom().nextDouble() <= 0.8D) {
+                    float volume = (float) Mth.nextDouble(serverLevel.getRandom(), 0.05D, 0.5D);
+                    float pitch  = (float) Mth.nextDouble(serverLevel.getRandom(), 0.8D, 1.1D);
 
                     serverLevel.playSound(
                             null,
@@ -89,7 +89,7 @@ public class ElectrifyMobEffect extends MobEffect {
         }
 
         if (Math.random() <= (pAmplifier > 1 ? 1.0D : 0.1D)) {
-            pLivingEntity.hurt(pLivingEntity.level().damageSources().generic(),  (pAmplifier > 1 ? 5.0F : 0.2F));
+            pLivingEntity.hurtOrSimulate(pLivingEntity.level().damageSources().generic(),  (pAmplifier > 1 ? 5.0F : 0.2F));
         }
         return true;
     }

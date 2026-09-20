@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -21,7 +21,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.ItemStack;
@@ -30,12 +30,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
-@OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
 public class EnchantedEnderPearlEntity extends AbstractArrow implements ItemSupplier {
     private int legacyKnockback;
 
@@ -51,7 +49,7 @@ public class EnchantedEnderPearlEntity extends AbstractArrow implements ItemSupp
         super(entitytype, livingentity, level, ItemStack.EMPTY, null);
     }
 
-        @OnlyIn(Dist.CLIENT)
+    @Override
     public @NotNull ItemStack getItem() {
         return new ItemStack((ItemLike) AnnoyingVillagersModItems.ENCHANTED_ENDER_PEARL.get());
     }
@@ -143,7 +141,7 @@ public class EnchantedEnderPearlEntity extends AbstractArrow implements ItemSupp
         if (this.level().isClientSide()) {
             this.level().addParticle(AnnoyingVillagersModParticleTypes.ENDER.get(), this.getX(), this.getY(), this.getZ(), 0.0D, 0.0D, 0.0D);
         }
-        if (this.inGround) {
+        if (this.isInGround()) {
             this.discard();
         }
 
@@ -158,7 +156,7 @@ public class EnchantedEnderPearlEntity extends AbstractArrow implements ItemSupp
         enchantedEnderPearl.setBaseDamage(d0);
         enchantedEnderPearl.setKnockback(i);
         level.addFreshEntity(enchantedEnderPearl);
-        level.playSound((Player) null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "throw"))), SoundSource.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.5F + 1.0F) + f / 2.0F);
+        level.playSound((Player) null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "throw"))), SoundSource.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.5F + 1.0F) + f / 2.0F);
         return enchantedEnderPearl;
     }
 
@@ -174,7 +172,7 @@ public class EnchantedEnderPearlEntity extends AbstractArrow implements ItemSupp
         enchantedEnderPearl.setKnockback(0);
         enchantedEnderPearl.setCritArrow(false);
         livingentity.level().addFreshEntity(enchantedEnderPearl);
-        livingentity.level().playSound((Player) null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "throw"))), SoundSource.PLAYERS, 1.0F, 1.0F / ((new Random()).nextFloat() * 0.5F + 1.0F));
+        livingentity.level().playSound((Player) null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "throw"))), SoundSource.PLAYERS, 1.0F, 1.0F / ((new Random()).nextFloat() * 0.5F + 1.0F));
         return enchantedEnderPearl;
     }
 }

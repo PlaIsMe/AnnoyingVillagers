@@ -10,13 +10,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -31,7 +30,7 @@ public class EnderGlaiveItem extends LegacySwordItem implements RigCombatProfile
     private static final int VANILLA_ABILITY_COOLDOWN_TICKS = 20 * 30;
     public static final float DEFAULT_DAMAGE = 10.0F;
 
-    private static final Tier TIER = new LegacyTier() {
+    private static final LegacyTier TIER = new LegacyTier() {
         @Override public int getUses() { return 1561; }
         @Override public float getSpeed() { return 4.0F; }
         @Override public float getAttackDamageBonus() { return 5.0F; }
@@ -41,23 +40,25 @@ public class EnderGlaiveItem extends LegacySwordItem implements RigCombatProfile
     };
 
     public EnderGlaiveItem() {
-        super(TIER, 3, -2.5F, new Properties().fireResistant());
+        super(TIER, 3, -2.5F, com.pla.annoyingvillagers.util.LegacyItemProperties.create().fireResistant());
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) return InteractionResult.PASS;
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
             spawnVacuumSlice(serverLevel, player, DEFAULT_DAMAGE);
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLASH_HORIZONTAL_LEFT);
-            player.getCooldowns().addCooldown(this, VANILLA_ABILITY_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_ABILITY_COOLDOWN_TICKS);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
-    public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
-        super.inventoryTick(itemstack, level, entity, i, flag);
+    public void inventoryTick(net.minecraft.world.item.ItemStack itemstack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int i = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, itemstack);
+        boolean flag = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        super.inventoryTick(itemstack, level, entity, equipmentSlot);
     }
 
     public static void spawnVacuumSlice(ServerLevel level, LivingEntity owner) {
@@ -69,7 +70,7 @@ public class EnderGlaiveItem extends LegacySwordItem implements RigCombatProfile
     }
 
     public static void spawnVacuumSlice(ServerLevel level, LivingEntity owner, double speed, double downwardAngleDegrees, float damage) {
-        VacuumSliceEntity slice = AnnoyingVillagersModEntities.VACUUM_SLICE.get().create(level);
+        VacuumSliceEntity slice = AnnoyingVillagersModEntities.VACUUM_SLICE.get().create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if (slice == null) return;
         Vec3 horizontalDirection = getHorizontalDirection(owner);
         double angleRadians = Math.toRadians(Mth.clamp(downwardAngleDegrees, 0.0D, 89.0D));
@@ -109,9 +110,9 @@ public class EnderGlaiveItem extends LegacySwordItem implements RigCombatProfile
     }
 
     @Override
-    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, List<Component> list, TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.ender_glaive"));
+    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.ender_glaive"));
     }
 
     @Override

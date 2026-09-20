@@ -17,7 +17,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.DifficultyInstance;
@@ -121,10 +121,10 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     private void tickLegendaryAwakening() {
         if (this.legendaryAwakenTicks <= 0) return;
 
-        this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 2, 2, false, false, true));
-        this.addEffect(new MobEffectInstance(MobEffects.JUMP, 2, 2, false, false, true));
-        this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 2, 2, false, false, true));
-        this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 2, 2, false, false, true));
+        this.addEffect(new MobEffectInstance(MobEffects.SPEED, 2, 2, false, false, true));
+        this.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, 2, 2, false, false, true));
+        this.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 2, 2, false, false, true));
+        this.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 2, 2, false, false, true));
         this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 2, 0, false, false, true));
 
         this.legendaryAwakenTicks--;
@@ -171,23 +171,27 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        leaveTicks = pCompound.getInt("LeaveTicks");
-        neverLeave = pCompound.getBoolean("NeverLeave");
-        swapWeaponCooldown = pCompound.getInt("SwapWeaponCooldown");
-        legendaryAwakenTicks = pCompound.getInt("LegendaryAwakenTicks");
-        this.setLegendaryAwakened(legendaryAwakenTicks > 0 && pCompound.getInt("LegendaryAwakened") != 0 ? 1 : 0);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag pCompound = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        leaveTicks = pCompound.getIntOr("LeaveTicks", 0);
+        neverLeave = pCompound.getBooleanOr("NeverLeave", false);
+        swapWeaponCooldown = pCompound.getIntOr("SwapWeaponCooldown", 0);
+        legendaryAwakenTicks = pCompound.getIntOr("LegendaryAwakenTicks", 0);
+        this.setLegendaryAwakened(legendaryAwakenTicks > 0 && pCompound.getIntOr("LegendaryAwakened", 0) != 0 ? 1 : 0);
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag pCompound = new CompoundTag();
+        super.addAdditionalSaveData(output);
         pCompound.putInt("LeaveTicks", leaveTicks);
         pCompound.putBoolean("NeverLeave", neverLeave);
         pCompound.putInt("SwapWeaponCooldown", swapWeaponCooldown);
         pCompound.putInt("LegendaryAwakenTicks", legendaryAwakenTicks);
         pCompound.putInt("LegendaryAwakened", this.getLegendaryAwakened());
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, pCompound);
     }
 
     @Override
@@ -204,11 +208,11 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.generic.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.generic.death"));
     }
 
     @Override
@@ -221,11 +225,11 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity pEntity) {
+    public boolean doHurtTarget(net.minecraft.server.level.ServerLevel serverLevel, Entity pEntity) {
         if (!this.level().isClientSide() && pEntity instanceof LivingEntity living) {
             ArmorUtil.damageArmor(living, new Random().nextInt(1, 5));
         }
-        return super.doHurtTarget(pEntity);
+        return super.doHurtTarget(serverLevel, pEntity);
     }
 
     public void die(@NotNull DamageSource damageSource) {
@@ -336,7 +340,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
 //            this.getLivingEntityPatch().playAnimationSynchronized(AVAnimations.STUN_BACK, 0.0F);
 //        }
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             RigAnimationController.play(this, RigAnimationId.STUN_BACK);
         }
     }
@@ -345,7 +349,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
 //      ADD THIS CODE IN AV_EFM
 //        Objects.requireNonNull(this.getLivingEntityPatch()).playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_KNOCKDOWN, 0.0F);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             RigAnimationController.play(this, RigAnimationId.LEGENDARY_SWORD_KNOCKDOWN);
         }
     }
@@ -386,13 +390,13 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+    protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
         if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            super.actuallyHurt(pDamageSource, pDamageAmount);
+            super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }
 
-        if (this.isInvulnerableTo(pDamageSource)) {
+        if (this.isInvulnerableTo(serverLevel, pDamageSource)) {
             return;
         }
         if (pDamageAmount <= 0.0F) {
@@ -416,7 +420,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
         finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
 
-        if (this.level() instanceof ServerLevel serverLevel
+        if (true
                 && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {
             return;
         }
@@ -430,7 +434,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
         this.gameEvent(GameEvent.ENTITY_DAMAGE);
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
         ItemStack legendarySword = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
         EnchantmentUtil.enchant(legendarySword, Enchantments.SHARPNESS, 5);
         EnchantmentUtil.enchant(legendarySword, Enchantments.SMITE, 5);
@@ -451,7 +455,7 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     @Override
     public void remove(@NotNull RemovalReason reason) {
         super.remove(reason);
-        if (!level().isClientSide && level() instanceof ServerLevel serverLevel &&
+        if (!level().isClientSide() && level() instanceof ServerLevel serverLevel &&
                 (reason == RemovalReason.KILLED || reason == RemovalReason.DISCARDED)) {
             SteveData.get(serverLevel).releaseIfMatches(serverLevel, this.getUUID());
         }

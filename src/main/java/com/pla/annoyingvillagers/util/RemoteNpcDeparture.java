@@ -16,18 +16,18 @@ public final class RemoteNpcDeparture {
             return false;
         }
         CompoundTag root = npc.getPersistentData();
-        CompoundTag state = root.getCompound(KEY);
+        CompoundTag state = root.getCompound(KEY).orElseGet(net.minecraft.nbt.CompoundTag::new);
         int min = Math.min(configuredMin, configuredMax);
         int max = Math.max(configuredMin, configuredMax);
-        if (state.getInt("Limit") <= 0 || state.getInt("Min") != min || state.getInt("Max") != max) {
+        if (state.getIntOr("Limit", 0) <= 0 || state.getIntOr("Min", 0) != min || state.getIntOr("Max", 0) != max) {
             state.putInt("Limit", min * 1200 + npc.getRandom().nextInt((max - min) * 1200 + 1));
             state.putInt("Min", min);
             state.putInt("Max", max);
             state.putInt("Elapsed", 0);
         }
         int elapsed = ExternalChunkActivity.isExternallyLoaded(level, npc.chunkPosition())
-                ? 0 : state.getInt("Elapsed") + 20;
-        boolean expired = elapsed >= state.getInt("Limit");
+                ? 0 : state.getIntOr("Elapsed", 0) + 20;
+        boolean expired = elapsed >= state.getIntOr("Limit", 0);
         // Cached observation never authorizes discard: recheck current tickets at commit.
         if (expired && ExternalChunkActivity.isExternallyLoadedNow(level, npc.chunkPosition())) {
             elapsed = 0;
@@ -40,7 +40,7 @@ public final class RemoteNpcDeparture {
 
     public static void copy(Mob from, Mob to) {
         if (from.getPersistentData().contains(KEY)) {
-            to.getPersistentData().put(KEY, from.getPersistentData().getCompound(KEY).copy());
+            to.getPersistentData().put(KEY, from.getPersistentData().getCompound(KEY).orElseGet(net.minecraft.nbt.CompoundTag::new).copy());
         }
     }
 }

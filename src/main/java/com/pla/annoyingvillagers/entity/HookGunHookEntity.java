@@ -130,7 +130,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
     public void tick() {
         super.tick();
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             LivingEntity owner = this.getHookOwner();
             if (owner == null || !owner.isAlive() || !HookGunItem.isHoldingHookGun(owner)) {
                 this.clearOwnerVisualHookOut(owner);
@@ -163,13 +163,13 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
             this.setNoGravity(true);
             this.noPhysics = true;
             this.setPos(this.anchor.x, this.anchor.y, this.anchor.z);
-            if (!this.level().isClientSide && this.isGrappleHook() && this.shouldReturnAttachedGrapple()) {
+            if (!this.level().isClientSide() && this.isGrappleHook() && this.shouldReturnAttachedGrapple()) {
                 this.startReturning();
             }
             return;
         }
 
-        if (!this.level().isClientSide && this.tickCount > this.getMaxFlyingLife()) {
+        if (!this.level().isClientSide() && this.tickCount > this.getMaxFlyingLife()) {
             this.startReturning();
             return;
         }
@@ -271,7 +271,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
 
     @Override
     protected void onHit(@NotNull HitResult hitResult) {
-        if (this.level().isClientSide || this.isAttached()) {
+        if (this.level().isClientSide() || this.isAttached()) {
             return;
         }
 
@@ -353,7 +353,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
                 .scale(ENTITY_YANK_SCALE);
         pull = new Vec3(pull.x, Math.min(pull.y, 1.2D), pull.z);
         target.setDeltaMovement(target.getDeltaMovement().add(pull));
-        target.hasImpulse = true;
+        target.hurtMarked = true;
         target.hurtMarked = true;
         target.fallDistance = 0.0F;
         this.startReturning();
@@ -451,7 +451,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
     private void startAttachedGrappleTimer() {
         this.grappleAttachedAt = this.level().getGameTime();
         this.grappleReturnDelayTicks = GRAPPLE_ATTACHED_RETURN_MIN_TICKS
-                + this.random.nextInt(GRAPPLE_ATTACHED_RETURN_RANDOM_TICKS + 1);
+                + this.getRandom().nextInt(GRAPPLE_ATTACHED_RETURN_RANDOM_TICKS + 1);
     }
 
     private void tickReturning(LivingEntity owner) {
@@ -467,7 +467,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         if (distance <= RETURN_ARRIVE_DISTANCE) {
             this.setDeltaMovement(Vec3.ZERO);
             this.setPos(target.x, target.y, target.z);
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 this.clearOwnerVisualHookOut(owner);
                 this.discard();
             }
@@ -478,7 +478,7 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         this.setDeltaMovement(step);
         this.setPos(current.x + step.x, current.y + step.y, current.z + step.z);
         this.updateRotationFromMotion(step);
-        this.hasImpulse = true;
+        this.hurtMarked = true;
     }
 
     public Vec3 getAnchor() {
@@ -551,10 +551,11 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
     }
 
     @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (this.ownerUuid != null) {
-            tag.putUUID(TAG_OWNER, this.ownerUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, TAG_OWNER, this.ownerUuid);
         }
         tag.putBoolean(TAG_ATTACHED, this.isAttached());
         tag.putBoolean(TAG_DOUBLE_MODE, this.isDoubleMode());
@@ -562,42 +563,44 @@ public class HookGunHookEntity extends Projectile implements ItemSupplier {
         tag.putBoolean(TAG_RETURNING, this.isReturning());
         ItemStack boundStack = this.getBoundItem();
         if (!boundStack.isEmpty()) {
-            tag.put(TAG_BOUND_STACK, boundStack.save(this.level().registryAccess()));
+            tag.put(TAG_BOUND_STACK, com.pla.annoyingvillagers.util.LegacyNbt.saveItem(boundStack, this.level().registryAccess()));
         }
         tag.putDouble(TAG_ANCHOR_X, this.anchor.x);
         tag.putDouble(TAG_ANCHOR_Y, this.anchor.y);
         tag.putDouble(TAG_ANCHOR_Z, this.anchor.z);
         tag.putLong(TAG_GRAPPLE_ATTACHED_AT, this.grappleAttachedAt);
         tag.putInt(TAG_GRAPPLE_RETURN_DELAY, this.grappleReturnDelayTicks);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.hasUUID(TAG_OWNER)) {
-            this.ownerUuid = tag.getUUID(TAG_OWNER);
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, TAG_OWNER)) {
+            this.ownerUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, TAG_OWNER);
         }
-        this.entityData.set(DATA_ATTACHED, tag.getBoolean(TAG_ATTACHED));
-        this.entityData.set(DATA_DOUBLE_MODE, tag.getBoolean(TAG_DOUBLE_MODE));
-        this.entityData.set(DATA_RIGHT_HAND, !tag.contains(TAG_RIGHT_HAND) || tag.getBoolean(TAG_RIGHT_HAND));
-        this.entityData.set(DATA_RETURNING, tag.getBoolean(TAG_RETURNING));
-        if (tag.contains(TAG_BOUND_STACK, 10)) {
-            this.setBoundItem(ItemStack.parseOptional(this.level().registryAccess(), tag.getCompound(TAG_BOUND_STACK)));
+        this.entityData.set(DATA_ATTACHED, tag.getBooleanOr(TAG_ATTACHED, false));
+        this.entityData.set(DATA_DOUBLE_MODE, tag.getBooleanOr(TAG_DOUBLE_MODE, false));
+        this.entityData.set(DATA_RIGHT_HAND, !tag.contains(TAG_RIGHT_HAND) || tag.getBooleanOr(TAG_RIGHT_HAND, false));
+        this.entityData.set(DATA_RETURNING, tag.getBooleanOr(TAG_RETURNING, false));
+        if (tag.contains(TAG_BOUND_STACK)) {
+            this.setBoundItem(com.pla.annoyingvillagers.util.LegacyNbt.loadItem(tag.getCompound(TAG_BOUND_STACK).orElseGet(net.minecraft.nbt.CompoundTag::new), this.level().registryAccess()));
         } else {
             this.setBoundItem(ItemStack.EMPTY);
         }
-        this.setAnchor(new Vec3(tag.getDouble(TAG_ANCHOR_X), tag.getDouble(TAG_ANCHOR_Y), tag.getDouble(TAG_ANCHOR_Z)));
-        this.grappleAttachedAt = tag.contains(TAG_GRAPPLE_ATTACHED_AT) ? tag.getLong(TAG_GRAPPLE_ATTACHED_AT) : -1L;
-        this.grappleReturnDelayTicks = tag.contains(TAG_GRAPPLE_RETURN_DELAY) ? tag.getInt(TAG_GRAPPLE_RETURN_DELAY) : -1;
+        this.setAnchor(new Vec3(tag.getDoubleOr(TAG_ANCHOR_X, 0.0D), tag.getDoubleOr(TAG_ANCHOR_Y, 0.0D), tag.getDoubleOr(TAG_ANCHOR_Z, 0.0D)));
+        this.grappleAttachedAt = tag.contains(TAG_GRAPPLE_ATTACHED_AT) ? tag.getLongOr(TAG_GRAPPLE_ATTACHED_AT, 0L) : -1L;
+        this.grappleReturnDelayTicks = tag.contains(TAG_GRAPPLE_RETURN_DELAY) ? tag.getIntOr(TAG_GRAPPLE_RETURN_DELAY, 0) : -1;
         this.noPhysics = this.isAttached() || this.isReturning();
         this.setNoGravity(this.isAttached() || this.isReturning());
     }
 
-    @Override
     public @NotNull AABB getBoundingBoxForCulling() {
         LivingEntity owner = this.getHookOwner();
         if (owner == null) {
-            return super.getBoundingBoxForCulling();
+            return this.getBoundingBox();
         }
 
         return new AABB(this.position(), owner.getEyePosition()).inflate(1.0D);

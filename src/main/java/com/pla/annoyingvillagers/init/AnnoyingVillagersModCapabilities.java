@@ -2,10 +2,11 @@ package com.pla.annoyingvillagers.init;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.capabilities.SnakeBladeCapability;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
@@ -22,24 +23,28 @@ public final class AnnoyingVillagersModCapabilities {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<SnakeBladeCapability.ISnakeBladeCapability>> SNAKE_BLADE_CAPABILITY =
             REGISTRY.register("snake_blade_cap", () -> AttachmentType
                     .builder(() -> (SnakeBladeCapability.ISnakeBladeCapability) new SnakeBladeCapability.SnakeBladeCapabilityImp())
-                    .serialize(new IAttachmentSerializer<CompoundTag, SnakeBladeCapability.ISnakeBladeCapability>() {
+                    .serialize(new IAttachmentSerializer<SnakeBladeCapability.ISnakeBladeCapability>() {
                         @Override
                         public SnakeBladeCapability.ISnakeBladeCapability read(
                                 IAttachmentHolder holder,
-                                CompoundTag tag,
-                                HolderLookup.Provider provider
+                                ValueInput input
                         ) {
                             SnakeBladeCapability.SnakeBladeCapabilityImp data = new SnakeBladeCapability.SnakeBladeCapabilityImp();
-                            data.deserializeNBT(tag);
+                            data.setHasSnakeBlade(input.getBooleanOr("hasSnakeBlade", false));
+                            data.setLastSnakeBladeID(input.getIntOr("getLastSnakeBladeID", -1));
+                            data.setLastSnakeBladeUUID(input.read("getLastSnakeBladeUUID", UUIDUtil.CODEC).orElse(null));
                             return data;
                         }
 
                         @Override
-                        public CompoundTag write(
+                        public boolean write(
                                 SnakeBladeCapability.ISnakeBladeCapability attachment,
-                                HolderLookup.Provider provider
+                                ValueOutput output
                         ) {
-                            return ((SnakeBladeCapability.SnakeBladeCapabilityImp) attachment).serializeNBT();
+                            output.putBoolean("hasSnakeBlade", attachment.hasSnakeBlade());
+                            output.putInt("getLastSnakeBladeID", attachment.getLastSnakeBladeID());
+                            output.storeNullable("getLastSnakeBladeUUID", UUIDUtil.CODEC, attachment.getLastSnakeBladeUUID());
+                            return true;
                         }
                     })
                     .copyOnDeath()
@@ -47,7 +52,7 @@ public final class AnnoyingVillagersModCapabilities {
 
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> END_FIRE =
             REGISTRY.register("end_fire", () -> AttachmentType.builder(() -> false)
-                    .serialize(com.mojang.serialization.Codec.BOOL)
+                    .serialize(com.mojang.serialization.Codec.BOOL.fieldOf("value"))
                     .sync(ByteBufCodecs.BOOL)
                     .build());
 

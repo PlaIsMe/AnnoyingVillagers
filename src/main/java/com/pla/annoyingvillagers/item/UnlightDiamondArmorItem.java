@@ -1,12 +1,12 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import com.pla.annoyingvillagers.item.LegacyArmorItem;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -18,10 +18,10 @@ import java.util.Objects;
 
 public abstract class UnlightDiamondArmorItem extends LegacyArmorItem {
 
-    public UnlightDiamondArmorItem(ArmorItem.Type type, Properties properties) {
+    public UnlightDiamondArmorItem(LegacyArmorItem.Type type, Properties properties) {
         super(new LegacyArmorMaterial() {
             @Override
-            public int getDurabilityForType(ArmorItem.@NotNull Type type) {
+            public int getDurabilityForType(LegacyArmorItem.@NotNull Type type) {
                 return switch (type) {
                     case BOOTS      -> 13 * 46;
                     case LEGGINGS   -> 15 * 46;
@@ -32,7 +32,7 @@ public abstract class UnlightDiamondArmorItem extends LegacyArmorItem {
             }
 
             @Override
-            public int getDefenseForType(ArmorItem.@NotNull Type type) {
+            public int getDefenseForType(LegacyArmorItem.@NotNull Type type) {
                 return switch (type) {
                     case BOOTS      -> 4;
                     case LEGGINGS   -> 5;
@@ -46,11 +46,11 @@ public abstract class UnlightDiamondArmorItem extends LegacyArmorItem {
             }
 
             public Object getEquipSound() {
-                return (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
+                return (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack[]{new ItemStack(Items.DIAMOND)});
+                return Ingredient.of(Items.DIAMOND);
             }
 
             public @NotNull String getName() {
@@ -70,7 +70,7 @@ public abstract class UnlightDiamondArmorItem extends LegacyArmorItem {
     public static class Boots extends UnlightDiamondArmorItem {
 
         public Boots() {
-            super(Type.BOOTS, (new Properties()).fireResistant());
+            super(Type.BOOTS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()).fireResistant());
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -81,7 +81,7 @@ public abstract class UnlightDiamondArmorItem extends LegacyArmorItem {
     public static class Leggings extends UnlightDiamondArmorItem {
 
         public Leggings() {
-            super(Type.LEGGINGS, (new Properties()).fireResistant());
+            super(Type.LEGGINGS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()).fireResistant());
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -92,7 +92,7 @@ public abstract class UnlightDiamondArmorItem extends LegacyArmorItem {
     public static class Chestplate extends UnlightDiamondArmorItem {
 
         public Chestplate() {
-            super(Type.CHESTPLATE, (new Properties()).fireResistant());
+            super(Type.CHESTPLATE, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()).fireResistant());
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -103,7 +103,7 @@ public abstract class UnlightDiamondArmorItem extends LegacyArmorItem {
     public static class Helmet extends UnlightDiamondArmorItem {
 
         public Helmet() {
-            super(Type.HELMET, (new Properties()).fireResistant());
+            super(Type.HELMET, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()).fireResistant());
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {

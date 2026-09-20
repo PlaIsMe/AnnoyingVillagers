@@ -11,7 +11,7 @@ import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class AAAParticlesUtil {
     public static void sendDragonBeam(Vec3 from, Vec3 to, Level level, HerobrineDragonEntity caster, LivingEntity target) {
-        new DragonBeamParticleEmitterInfo(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "dragon_beam"))
+        new DragonBeamParticleEmitterInfo(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "dragon_beam"))
                 .fromTo(from, to, DragonBeamParticleEmitterInfo.ForwardAxis.PLUS_Z, 0f)
                 .follow(caster, target, 120, DragonBeamParticleEmitterInfo.ForwardAxis.PLUS_Z, 0f)
                 .spawnInWorld(level, null);
@@ -27,7 +27,7 @@ public class AAAParticlesUtil {
 
     private static boolean spawnAt(Level level, String effect, double x, double y, double z) {
         if (level == null || !level.isClientSide()) return false;
-        new ParticleEmitterInfo(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, effect))
+        new ParticleEmitterInfo(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, effect))
                 .position(x, y, z)
                 .spawnInWorld(level, null);
         return true;
@@ -40,7 +40,7 @@ public class AAAParticlesUtil {
 
     public static void sendBlueDemonThunderBeam(Level level, BlueDemonThunderBeamEntity blueDemonThunderBeamEntity) {
         new BlueDemonThunderBeamParticleEmitterInfo(
-                ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "blue_demon_thunder_beam"))
+                Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "blue_demon_thunder_beam"))
                 .followBeam(blueDemonThunderBeamEntity, blueDemonThunderBeamEntity.getDuration(), BlueDemonThunderBeamParticleEmitterInfo.ForwardAxis.PLUS_Z, 0f)
                 .spawnInWorld(level, null);
     }
@@ -63,7 +63,7 @@ public class AAAParticlesUtil {
         }
 
         new TeleportPortalParticleEmitterInfo(
-                ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "teleport_portal"))
+                Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "teleport_portal"))
                 .atPortal(pos, normal, TeleportPortalParticleEmitterInfo.ForwardAxis.PLUS_Z, 0.0F)
                 .spawnInWorld(level, Minecraft.getInstance().player);
         return true;
@@ -79,7 +79,7 @@ public class AAAParticlesUtil {
         }
 
         new BlackFireParticleEmitterInfo(
-                ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "black_fire"))
+                Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "black_fire"))
                 .followEntity(entity, 60, Vec3.ZERO)
                 .smoothing(1.0D)
                 .spawnInWorld(level, Minecraft.getInstance().player);
@@ -94,10 +94,10 @@ public class AAAParticlesUtil {
             return;
         }
 
-        Vec3 pos = CommonUtil.getVanillaSwordOrBodyPosition(entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
+        Vec3 pos = CommonUtil.getVanillaSwordOrBodyPosition(entity, Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false));
 
         new ParticleEmitterInfo(
-                ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_attractor"))
+                Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "diamond_attractor"))
                 .position(pos.x, pos.y, pos.z)
                 .spawnInWorld(level, Minecraft.getInstance().player);
     }

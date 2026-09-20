@@ -2,90 +2,74 @@ package com.pla.annoyingvillagers.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
-import net.minecraft.client.model.HumanoidArmorModel;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
+import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
-import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.item.BowItem;
-import net.minecraft.world.item.CrossbowItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.PlayerModelType;
 import org.jetbrains.annotations.NotNull;
 
-public class FakePlayerRenderer<T extends FakePlayer> extends HumanoidMobRenderer<T, PlayerModel<T>> {
-    private final PlayerModel<T> defaultModel;
-    private final PlayerModel<T> slimModel;
-    private final RenderLayer<T, PlayerModel<T>> defaultArmorLayer;
-    private final RenderLayer<T, PlayerModel<T>> slimArmorLayer;
-    private final int armorLayerIndex;
+public class FakePlayerRenderer<T extends FakePlayer>
+        extends HumanoidMobRenderer<T, AvatarRenderState, PlayerModel> {
+    private final PlayerModel defaultModel;
+    private final PlayerModel slimModel;
 
     public FakePlayerRenderer(EntityRendererProvider.Context context) {
-        super(context, new PlayerModel<>(context.bakeLayer(ModelLayers.PLAYER), false), 0.5F);
+        super(context, new PlayerModel(context.bakeLayer(ModelLayers.PLAYER), false), 0.5F);
         this.defaultModel = this.model;
-        this.slimModel = new PlayerModel<>(context.bakeLayer(ModelLayers.PLAYER_SLIM), true);
-        this.defaultArmorLayer = new HumanoidArmorLayer<>(
-                this,
-                new HumanoidArmorModel<>(context.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)),
-                new HumanoidArmorModel<>(context.bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)),
-                context.getModelManager());
-        this.slimArmorLayer = new HumanoidArmorLayer<>(
-                this,
-                new HumanoidArmorModel<>(context.bakeLayer(ModelLayers.PLAYER_SLIM_INNER_ARMOR)),
-                new HumanoidArmorModel<>(context.bakeLayer(ModelLayers.PLAYER_SLIM_OUTER_ARMOR)),
-                context.getModelManager());
-
-        ArrowLayer<T, PlayerModel<T>> arrowLayer = new ArrowLayer<>(context, this);
-        this.addLayer(arrowLayer);
-        this.armorLayerIndex = this.layers.indexOf(arrowLayer);
-        this.addLayer(new FakePlayerCapeLayer<>(this));
+        this.slimModel = new PlayerModel(context.bakeLayer(ModelLayers.PLAYER_SLIM), true);
+        this.addLayer(new HumanoidArmorLayer<>(this,
+                ArmorModelSet.bake(ModelLayers.PLAYER_ARMOR, context.getModelSet(), part -> new PlayerModel(part, false)),
+                context.getEquipmentRenderer()));
+        this.addLayer(new ArrowLayer<>(this, context));
+        this.addLayer(new CapeLayer(this, context.getModelSet(), context.getEquipmentAssets()));
     }
 
     @Override
-    public void render(@NotNull T entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight) {
-        boolean slim = FakePlayerTextureUtils.getPlayerSkinType(entity.getProfile()) == FakePlayerTextureUtils.SkinType.SLIM;
-        this.model = slim ? this.slimModel : this.defaultModel;
-        this.layers.remove(this.defaultArmorLayer);
-        this.layers.remove(this.slimArmorLayer);
-        this.layers.add(Math.min(this.armorLayerIndex, this.layers.size()), slim ? this.slimArmorLayer : this.defaultArmorLayer);
-
-        this.model.leftArmPose = HumanoidModel.ArmPose.EMPTY;
-        this.model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
-        ItemStack mainHand = entity.getMainHandItem();
-        if (!mainHand.isEmpty()) {
-            if (mainHand.getItem() instanceof CrossbowItem) {
-                setHandPose(entity, entity.isUsingItem() ? HumanoidModel.ArmPose.CROSSBOW_CHARGE : HumanoidModel.ArmPose.CROSSBOW_HOLD);
-            } else if (mainHand.getItem() instanceof BowItem && entity.isAggressive()) {
-                setHandPose(entity, HumanoidModel.ArmPose.BOW_AND_ARROW);
-            } else {
-                setHandPose(entity, HumanoidModel.ArmPose.ITEM);
-            }
-        }
-
-        super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
-    }
-
-    private void setHandPose(T entity, HumanoidModel.ArmPose pose) {
-        if (entity.getMainArm() == HumanoidArm.RIGHT) {
-            this.model.rightArmPose = pose;
-        } else {
-            this.model.leftArmPose = pose;
-        }
+    public void submit(AvatarRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
+        this.model = state.skin.model() == PlayerModelType.SLIM ? this.slimModel : this.defaultModel;
+        super.submit(state, poseStack, collector, camera);
     }
 
     @Override
-    protected void scale(@NotNull T entity, @NotNull PoseStack poseStack, float partialTickTime) {
+    public AvatarRenderState createRenderState() {
+        return new AvatarRenderState();
+    }
+
+    @Override
+    public void extractRenderState(T entity, AvatarRenderState state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        state.skin = FakePlayerTextureUtils.getPlayerSkinData(entity);
+        state.arrowCount = entity.getArrowCount();
+        state.showCape = state.skin.cape() != null;
+
+        double cloakX = Mth.lerp(partialTick, entity.xCloakO, entity.xCloak) - Mth.lerp(partialTick, entity.xo, entity.getX());
+        double cloakY = Mth.lerp(partialTick, entity.yCloakO, entity.yCloak) - Mth.lerp(partialTick, entity.yo, entity.getY());
+        double cloakZ = Mth.lerp(partialTick, entity.zCloakO, entity.zCloak) - Mth.lerp(partialTick, entity.zo, entity.getZ());
+        float bodyRot = Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
+        double bodySin = Mth.sin(bodyRot * ((float)Math.PI / 180.0F));
+        double bodyCos = -Mth.cos(bodyRot * ((float)Math.PI / 180.0F));
+        state.capeFlap = Mth.clamp((float)cloakY * 10.0F, -6.0F, 32.0F);
+        state.capeLean = Mth.clamp((float)(cloakX * bodySin + cloakZ * bodyCos) * 100.0F, 0.0F, 150.0F);
+        state.capeLean2 = Mth.clamp((float)(cloakX * bodyCos - cloakZ * bodySin) * 100.0F, -20.0F, 20.0F);
+    }
+
+    @Override
+    protected void scale(@NotNull AvatarRenderState state, @NotNull PoseStack poseStack) {
         poseStack.scale(0.9375F, 0.9375F, 0.9375F);
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull T entity) {
-        return FakePlayerTextureUtils.getPlayerSkin(entity);
+    public @NotNull Identifier getTextureLocation(@NotNull AvatarRenderState state) {
+        return state.skin.body().texturePath();
     }
 }

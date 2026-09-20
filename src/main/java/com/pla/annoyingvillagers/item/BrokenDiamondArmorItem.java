@@ -1,11 +1,11 @@
 package com.pla.annoyingvillagers.item;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import com.pla.annoyingvillagers.item.LegacyArmorItem;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,10 +16,10 @@ import java.util.Objects;
 
 public abstract class BrokenDiamondArmorItem extends LegacyArmorItem {
 
-    public BrokenDiamondArmorItem(ArmorItem.Type type, Properties properties) {
+    public BrokenDiamondArmorItem(LegacyArmorItem.Type type, Properties properties) {
         super(new LegacyArmorMaterial() {
             @Override
-            public int getDurabilityForType(ArmorItem.@NotNull Type type) {
+            public int getDurabilityForType(LegacyArmorItem.@NotNull Type type) {
                 return switch (type) {
                     case BOOTS      -> 13 * 10;
                     case LEGGINGS   -> 15 * 10;
@@ -30,7 +30,7 @@ public abstract class BrokenDiamondArmorItem extends LegacyArmorItem {
             }
 
             @Override
-            public int getDefenseForType(ArmorItem.@NotNull Type type) {
+            public int getDefenseForType(LegacyArmorItem.@NotNull Type type) {
                 return switch (type) {
                     case BOOTS      -> 2;
                     case LEGGINGS   -> 6;
@@ -45,11 +45,11 @@ public abstract class BrokenDiamondArmorItem extends LegacyArmorItem {
             }
 
             public Object getEquipSound() {
-                return (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
+                return (SoundEvent) Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of();
+                return null;
             }
 
             public @NotNull String getName() {
@@ -69,7 +69,7 @@ public abstract class BrokenDiamondArmorItem extends LegacyArmorItem {
     public static class Boots extends BrokenDiamondArmorItem {
 
         public Boots() {
-            super(Type.BOOTS, (new Properties()));
+            super(Type.BOOTS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -80,7 +80,7 @@ public abstract class BrokenDiamondArmorItem extends LegacyArmorItem {
     public static class Leggings extends BrokenDiamondArmorItem {
 
         public Leggings() {
-            super(Type.LEGGINGS, (new Properties()));
+            super(Type.LEGGINGS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -91,7 +91,7 @@ public abstract class BrokenDiamondArmorItem extends LegacyArmorItem {
     public static class Chestplate extends BrokenDiamondArmorItem {
 
         public Chestplate() {
-            super(Type.CHESTPLATE, (new Properties()));
+            super(Type.CHESTPLATE, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -102,7 +102,7 @@ public abstract class BrokenDiamondArmorItem extends LegacyArmorItem {
     public static class Helmet extends BrokenDiamondArmorItem {
 
         public Helmet() {
-            super(Type.HELMET, (new Properties()));
+            super(Type.HELMET, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {

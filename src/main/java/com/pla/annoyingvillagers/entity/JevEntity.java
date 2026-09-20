@@ -14,7 +14,7 @@ import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.SimpleContainer;
@@ -149,13 +149,13 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+    protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
         if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            super.actuallyHurt(pDamageSource, pDamageAmount);
+            super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }
 
-        if (this.isInvulnerableTo(pDamageSource)) {
+        if (this.isInvulnerableTo(serverLevel, pDamageSource)) {
             return;
         }
         if (pDamageAmount <= 0.0F) {
@@ -179,7 +179,7 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
         finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
 
-        if (this.level() instanceof ServerLevel serverLevel
+        if (true
                 && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {
             return;
         }
@@ -194,7 +194,7 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         SpawnGroupData returnSpawnGroupData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
         TeamUtil.addOrJoinTeam(this, "alex");
         setMainWeaponItem(new ItemStack(AnnoyingVillagersModItems.JEV_PENCIL.get()));
@@ -204,7 +204,7 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
 
     @Override
     public void die(@NotNull DamageSource pDamageSource) {
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             HookGunCombatUtil.onJevDeath(this);
         }
         super.die(pDamageSource);
@@ -214,9 +214,9 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
         int looting = 0;
         super.dropCustomDeathLoot(level, source, recentlyHit);
-        this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_GLASSES.get()));
-        this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_PENCIL.get()));
-        this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.JEV_BOOK.get()));
+        com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(AnnoyingVillagersModItems.JEV_GLASSES.get()));
+        com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(AnnoyingVillagersModItems.JEV_PENCIL.get()));
+        com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(AnnoyingVillagersModItems.JEV_BOOK.get()));
         this.dropHookGunForAlex();
     }
 
@@ -402,7 +402,7 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
     private static ItemStack createNauseaPotion() {
-        return customSplashPotion(new MobEffectInstance(MobEffects.CONFUSION, 220, 0));
+        return customSplashPotion(new MobEffectInstance(MobEffects.NAUSEA, 220, 0));
     }
 
     private static ItemStack createBlindnessPotion() {
@@ -414,7 +414,7 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
     private static ItemStack createHastePotion() {
-        return customSplashPotion(new MobEffectInstance(MobEffects.DIG_SPEED, 360, 1));
+        return customSplashPotion(new MobEffectInstance(MobEffects.HASTE, 360, 1));
     }
 
     private static ItemStack customSplashPotion(MobEffectInstance effect) {
@@ -465,24 +465,28 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
         @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (followTargetUUID != null) {
-            tag.putUUID("FollowTarget", followTargetUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "FollowTarget", followTargetUUID);
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("FollowTarget")) {
-            followTargetUUID = tag.getUUID("FollowTarget");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "FollowTarget")) {
+            followTargetUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "FollowTarget");
         }
     }
 
     private void dropHookGunForAlex() {
         ItemStack hookGun = HookGunCombatUtil.createBoundHookGun(HookGunCombatUtil.createJevPickaxe());
-        this.spawnAtLocation(hookGun);
+        com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, hookGun);
     }
 
     public boolean removeWhenFarAway(double d0) {
@@ -494,19 +498,19 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
     }
 
     public SoundEvent getAmbientSound() {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.villager.ambient"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.villager.ambient"));
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.villager.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.villager.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.villager.death"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.villager.death"));
     }
 
-    public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        return super.hurt(damageSource, f);
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
+        return super.hurtServer(serverLevel, damageSource, f);
     }
 
     public static Builder createAttributes() {

@@ -164,7 +164,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         this.stateTransformCooldown = stateTransformCooldown;
 
         if (stateTransformCooldown > 0) {
-            this.sauceSquadAngle = this.random.nextFloat() * ((float)Math.PI * 2.0F);
+            this.sauceSquadAngle = this.getRandom().nextFloat() * ((float)Math.PI * 2.0F);
         }
     }
 
@@ -267,7 +267,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
         away = new Vec3(away.x, 0.0D, away.z);
         if (away.lengthSqr() < 1.0E-4D) {
-            away = new Vec3(this.random.nextDouble() - 0.5D, 0.0D, this.random.nextDouble() - 0.5D);
+            away = new Vec3(this.getRandom().nextDouble() - 0.5D, 0.0D, this.getRandom().nextDouble() - 0.5D);
         }
 
         this.leaveDirection = away.normalize();
@@ -475,7 +475,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
         if (this.getState() == 3) {
             float angle = this.getSauceSquadAngle();
-            double distance = 18.0D + this.random.nextDouble() * 4.0D;
+            double distance = 18.0D + this.getRandom().nextDouble() * 4.0D;
             double laneOffset = this.getSauceLaneOffset(sauceType);
 
             double forwardX = Mth.cos(angle);
@@ -486,8 +486,8 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             spawnX = this.getX() + forwardX * distance + sideX * laneOffset;
             spawnZ = this.getZ() + forwardZ * distance + sideZ * laneOffset;
         } else {
-            double angle = this.random.nextDouble() * (Math.PI * 2.0D);
-            double radius = 2.5D + this.random.nextDouble() * 1.5D;
+            double angle = this.getRandom().nextDouble() * (Math.PI * 2.0D);
+            double radius = 2.5D + this.getRandom().nextDouble() * 1.5D;
             spawnX = this.getX() + Math.cos(angle) * radius;
             spawnZ = this.getZ() + Math.sin(angle) * radius;
         }
@@ -497,13 +497,13 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
                 BlockPos.containing(spawnX, this.getY(), spawnZ)
         ).getY();
 
-        sauce.moveTo(spawnX, spawnY, spawnZ, this.random.nextFloat() * 360.0F, 0.0F);
+        sauce.snapTo(spawnX, spawnY, spawnZ, this.getRandom().nextFloat() * 360.0F, 0.0F);
         sauce.setLeader(this);
         sauce.setSauceType(sauceType);
         sauce.finalizeSpawn(
                 serverLevel,
                 serverLevel.getCurrentDifficultyAt(sauce.blockPosition()),
-                MobSpawnType.MOB_SUMMONED,
+                EntitySpawnReason.MOB_SUMMONED,
                 null
         );
 
@@ -857,7 +857,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     private void strikeDeathLightning(ServerLevel serverLevel) {
         TridentLightningBolt tridentLightningBolt = new TridentLightningBolt(AnnoyingVillagersModEntities.TRIDENT_LIGHTNING_BOLT.get(), serverLevel);
         tridentLightningBolt.setOwner(this);
-        tridentLightningBolt.moveTo(
+        tridentLightningBolt.snapTo(
                 this.getX(),
                 this.getY(),
                 this.getZ()
@@ -986,11 +986,11 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         }
 
         if (rawChestplateDrop) {
-            this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_CHESTPLATE.get()));
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_CHESTPLATE.get()));
         }
 
         for (int i = 0; i < rawTridentDrops; i++) {
-            this.spawnAtLocation(new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get()));
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this, new ItemStack(AnnoyingVillagersModItems.BLUE_DEMON_TRIDENT.get()));
         }
     }
 
@@ -1020,7 +1020,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         return 0.05F;
     }
 
-    public boolean hurt(DamageSource damagesource, float f) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damagesource, float f) {
         if (damagesource.is(DamageTypes.FALL)) return false;
         if (damagesource.is(DamageTypes.CACTUS)) return false;
         if (damagesource.is(DamageTypes.DROWN)) return false;
@@ -1034,7 +1034,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         // /kill (GENERIC_KILL), must respect rig-animation invulnerability and the
         // Blue Demon phase-transition locks below.
         if (damagesource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            boolean result = super.hurt(damagesource, f);
+            boolean result = super.hurtServer(serverLevel, damagesource, f);
             if (result) {
                 this.sayHurtSound(this, damagesource);
             }
@@ -1042,33 +1042,33 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         }
 
         if (RigAnimationController.isInvulnerable(this)) {
-            if (this.level() instanceof ServerLevel serverLevel) {
+            if (true) {
                 CommonUtil.damageBlocked(damagesource, this, serverLevel);
             }
             return false;
         }
 
-        if (this.level() instanceof ServerLevel serverLevel && (this.getState() == 2 || this.getState() == 1)) {
+        if (true && (this.getState() == 2 || this.getState() == 1)) {
             CommonUtil.damageBlocked(damagesource, this, serverLevel);
             return false;
         }
 
         if (this.dieTick > 0) {
-            if (this.level() instanceof ServerLevel serverLevel) {
+            if (true) {
                 CommonUtil.damageBlocked(damagesource, this, serverLevel);
             }
             return false;
         }
 
         if (damagesource.is(DamageTypes.GENERIC_KILL)) {
-            boolean result = super.hurt(damagesource, f);
+            boolean result = super.hurtServer(serverLevel, damagesource, f);
             if (result) {
                 this.sayHurtSound(this, damagesource);
             }
             return result;
         }
         if (ignoreDamageForSomeEpicFightAnimation()) {
-            boolean result = super.hurt(damagesource, f);
+            boolean result = super.hurtServer(serverLevel, damagesource, f);
             if (result) {
                 this.sayHurtSound(this, damagesource);
             }
@@ -1109,7 +1109,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
         this.bbqResolveCooldown = 20;
 
-        if (!this.level().isClientSide && this.bbqSauceUUID != null) {
+        if (!this.level().isClientSide() && this.bbqSauceUUID != null) {
             Entity entity = ((ServerLevel) this.level()).getEntity(this.bbqSauceUUID);
             if (entity instanceof BbqEntity bbqEntity && bbqEntity.isAlive()) {
                 this.bbqSauce = bbqEntity;
@@ -1224,7 +1224,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         }
 
         if (!bbqEntity.isHeadAttacking() && this.bbqModeCooldown <= 0) {
-            int roll = this.random.nextInt(100);
+            int roll = this.getRandom().nextInt(100);
 
             if (roll < 25) {
                 bbqEntity.startParallelPursuit(bbqTarget, 28);
@@ -1302,13 +1302,13 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             return;
         }
 
-        if (!sauce.isHeadAttacking() && this.tickCount % 60 == 0 && blueDistance < 4.5D && sauceDistance < 6.5D && this.random.nextInt(4) == 0) {
+        if (!sauce.isHeadAttacking() && this.tickCount % 60 == 0 && blueDistance < 4.5D && sauceDistance < 6.5D && this.getRandom().nextInt(4) == 0) {
             sauce.startHeadAttack(sauceTarget, 28);
             return;
         }
 
         if (!sauce.isHeadAttacking() && this.tickCount % 40 == 0) {
-            if (this.random.nextBoolean()) {
+            if (this.getRandom().nextBoolean()) {
                 sauce.startGroundOrbit(sauceTarget, 34);
             } else {
                 sauce.startOrbit(sauceTarget, 28);
@@ -1343,7 +1343,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
     private void tickArmorBuff(ServerLevel serverLevel) {
         this.addEffect(new MobEffectInstance(
-                MobEffects.MOVEMENT_SPEED,
+                MobEffects.SPEED,
                 1,
                 1,
                 false,
@@ -1352,7 +1352,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         ));
 
         this.addEffect(new MobEffectInstance(
-                MobEffects.JUMP,
+                MobEffects.JUMP_BOOST,
                 1,
                 1,
                 false,
@@ -1361,7 +1361,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         ));
 
         this.addEffect(new MobEffectInstance(
-                MobEffects.DAMAGE_RESISTANCE,
+                MobEffects.RESISTANCE,
                 1,
                 2,
                 false,
@@ -1369,12 +1369,12 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
                 false
         ));
 
-        if (serverLevel.random.nextDouble() <= 0.1D) {
+        if (serverLevel.getRandom().nextDouble() <= 0.1D) {
             BlueDemonUtil.spawnBlueDemonEffect(serverLevel, this);
 
-            if (serverLevel.random.nextDouble() <= 0.8D) {
-                float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
-                float pitch = (float) Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
+            if (serverLevel.getRandom().nextDouble() <= 0.8D) {
+                float volume = (float) Mth.nextDouble(serverLevel.getRandom(), 0.05D, 0.5D);
+                float pitch = (float) Mth.nextDouble(serverLevel.getRandom(), 0.8D, 1.1D);
 
                 serverLevel.playSound(
                         null,
@@ -1529,7 +1529,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
                     EnchantmentUtil.enchant(tridentStack, Enchantments.SWEEPING_EDGE, 5);
                     this.setItemInHand(InteractionHand.MAIN_HAND, legendaryStack);
                     this.setItemInHand(InteractionHand.OFF_HAND, tridentStack);
-                    this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 4, 300));
+                    this.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 4, 300));
                 }
                 if (stateTransformCooldown % 2 == 0) {
                     this.heal(1.0F);
@@ -1608,20 +1608,21 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
 
         if (this.bbqSauceUUID != null) {
-            tag.putUUID("BbqSauceUUID", this.bbqSauceUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "BbqSauceUUID", this.bbqSauceUUID);
         }
         if (this.honeyMustardSauceUUID != null) {
-            tag.putUUID("HoneyMustardSauceUUID", this.honeyMustardSauceUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "HoneyMustardSauceUUID", this.honeyMustardSauceUUID);
         }
         if (this.soySauceUUID != null) {
-            tag.putUUID("SoySauceUUID", this.soySauceUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "SoySauceUUID", this.soySauceUUID);
         }
         if (this.sweetOnionSauceUUID != null) {
-            tag.putUUID("SweetOnionSauceUUID", this.sweetOnionSauceUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "SweetOnionSauceUUID", this.sweetOnionSauceUUID);
         }
 
         tag.putInt("HealingCooldown", healingCooldown);
@@ -1630,10 +1631,10 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         tag.putInt("State", getState());
 
         if (this.savedTargetUUID != null) {
-            tag.putUUID("SavedTargetUUID", this.savedTargetUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "SavedTargetUUID", this.savedTargetUUID);
         }
         if (this.savedKillerUUID != null) {
-            tag.putUUID("SavedKillerUUID", this.savedKillerUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "SavedKillerUUID", this.savedKillerUUID);
         }
 
         tag.putInt("SquadArrivalTicks", this.squadArrivalTicks);
@@ -1642,48 +1643,51 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         tag.putInt("LeaveTicks", leaveTicks);
         tag.putBoolean("NeverLeave", neverLeave);
         tag.putInt("VoiceCooldown", this.voiceCooldown);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
 
-        if (tag.hasUUID("BbqSauceUUID")) {
-            this.bbqSauceUUID = tag.getUUID("BbqSauceUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "BbqSauceUUID")) {
+            this.bbqSauceUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "BbqSauceUUID");
         }
-        if (tag.hasUUID("HoneyMustardSauceUUID")) {
-            this.honeyMustardSauceUUID = tag.getUUID("HoneyMustardSauceUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "HoneyMustardSauceUUID")) {
+            this.honeyMustardSauceUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "HoneyMustardSauceUUID");
         }
-        if (tag.hasUUID("SoySauceUUID")) {
-            this.soySauceUUID = tag.getUUID("SoySauceUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "SoySauceUUID")) {
+            this.soySauceUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "SoySauceUUID");
         }
-        if (tag.hasUUID("SweetOnionSauceUUID")) {
-            this.sweetOnionSauceUUID = tag.getUUID("SweetOnionSauceUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "SweetOnionSauceUUID")) {
+            this.sweetOnionSauceUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "SweetOnionSauceUUID");
         }
 
-        healingCooldown = tag.getInt("HealingCooldown");
-        healingTick = tag.getInt("HealingTick");
-        stateTransformCooldown = tag.getInt("StateTransformCooldown");
-        setState(tag.contains("State") ? tag.getInt("State") : 0);
+        healingCooldown = tag.getIntOr("HealingCooldown", 0);
+        healingTick = tag.getIntOr("HealingTick", 0);
+        stateTransformCooldown = tag.getIntOr("StateTransformCooldown", 0);
+        setState(tag.contains("State") ? tag.getIntOr("State", 0) : 0);
 
-        if (tag.hasUUID("SavedTargetUUID")) {
-            this.savedTargetUUID = tag.getUUID("SavedTargetUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "SavedTargetUUID")) {
+            this.savedTargetUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "SavedTargetUUID");
         } else {
             this.savedTargetUUID = null;
         }
 
-        if (tag.hasUUID("SavedKillerUUID")) {
-            this.savedKillerUUID = tag.getUUID("SavedKillerUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "SavedKillerUUID")) {
+            this.savedKillerUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "SavedKillerUUID");
         } else {
             this.savedKillerUUID = null;
         }
 
-        this.squadArrivalTicks = tag.contains("SquadArrivalTicks") ? tag.getInt("SquadArrivalTicks") : -1;
-        this.spawnedBbqSauce = tag.getBoolean("SpawnedBbqSauce");
-        this.dieTick = tag.getInt("DieTick");
-        leaveTicks = tag.getInt("LeaveTicks");
-        neverLeave = tag.getBoolean("NeverLeave");
-        voiceCooldown = tag.getInt("VoiceCooldown");
+        this.squadArrivalTicks = tag.contains("SquadArrivalTicks") ? tag.getIntOr("SquadArrivalTicks", 0) : -1;
+        this.spawnedBbqSauce = tag.getBooleanOr("SpawnedBbqSauce", false);
+        this.dieTick = tag.getIntOr("DieTick", 0);
+        leaveTicks = tag.getIntOr("LeaveTicks", 0);
+        neverLeave = tag.getBooleanOr("NeverLeave", false);
+        voiceCooldown = tag.getIntOr("VoiceCooldown", 0);
     }
 
     @Override
@@ -1713,13 +1717,13 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         }
     }
 
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull MobSpawnType mobspawntype, @Nullable SpawnGroupData spawngroupdata) {
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverlevelaccessor, @NotNull DifficultyInstance difficultyinstance, @NotNull EntitySpawnReason mobspawntype, @Nullable SpawnGroupData spawngroupdata) {
         SpawnGroupData data = super.finalizeSpawn(serverlevelaccessor, difficultyinstance, mobspawntype, spawngroupdata);
         this.setLeftHanded(false);
         if (!this.level().isClientSide()) {
             TeamUtil.addOrJoinTeam(this, "blue_demon");
         }
-        if (mobspawntype == MobSpawnType.NATURAL || mobspawntype == MobSpawnType.CHUNK_GENERATION) {
+        if (mobspawntype == EntitySpawnReason.NATURAL || mobspawntype == EntitySpawnReason.CHUNK_GENERATION) {
             ServerLevel serverLevel = serverlevelaccessor.getLevel();
             BluedemonData bluedemonData = BluedemonData.get(serverLevel);
 
@@ -1731,7 +1735,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             BlockPos blockPos = this.getOnPos();
             int surfaceY = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, blockPos).getY();
             BlockPos spawnPos = new BlockPos(blockPos.getX(), surfaceY, blockPos.getZ());
-            this.moveTo(spawnPos, this.getYRot(), this.getXRot());
+            this.snapTo(spawnPos, this.getYRot(), this.getXRot());
         }
         int min = AnnoyingVillagersConfig.BLUE_DEMON_LEAVE_MIN_TIME.get();
         int max = AnnoyingVillagersConfig.BLUE_DEMON_LEAVE_MAX_TIME.get();
@@ -1741,10 +1745,10 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         return data;
     }
 
-    public static boolean canSpawn(EntityType<BlueDemonEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
+    public static boolean canSpawn(EntityType<BlueDemonEntity> entityType, ServerLevelAccessor level, EntitySpawnReason spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
         if (!serverLevel.isThundering()) return false;
-        if (serverLevel.isNight()) {
+        if (com.pla.annoyingvillagers.util.LegacyLevelTime.isNight(serverLevel)) {
             return false;
         }
         if (BluedemonData.get(serverLevel).isOccupied(serverLevel)) {
@@ -1754,13 +1758,13 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+    protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
         if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            super.actuallyHurt(pDamageSource, pDamageAmount);
+            super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }
 
-        if (this.isInvulnerableTo(pDamageSource)) {
+        if (this.isInvulnerableTo(serverLevel, pDamageSource)) {
             return;
         }
         if (pDamageAmount <= 0.0F) {
@@ -1794,7 +1798,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             beginTridentFestivalPhase();
             return;
         }
-        if (this.level() instanceof ServerLevel serverLevel
+        if (true
                 && this.getState() == 3
                 && (this.getHealth() - f1) <= 1.0F) {
             this.startFinalDeathSequence(serverLevel, pDamageSource);
@@ -1878,7 +1882,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         if (this.escapeHoleGoal != null) this.escapeHoleGoal.forceCancel();
         if (this.waterCarryGoal != null) this.waterCarryGoal.forceCancel();
         super.remove(reason);
-        if (!level().isClientSide && level() instanceof ServerLevel serverLevel &&
+        if (!level().isClientSide() && level() instanceof ServerLevel serverLevel &&
                 (reason == RemovalReason.KILLED || reason == RemovalReason.DISCARDED)) {
             BluedemonData.get(serverLevel).releaseIfMatches(serverLevel, this.getUUID());
         }

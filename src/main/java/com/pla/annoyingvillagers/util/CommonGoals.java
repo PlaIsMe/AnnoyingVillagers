@@ -19,10 +19,10 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraft.world.entity.monster.AbstractIllager;
+import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.monster.illager.AbstractIllager;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.ModList;
 
@@ -84,24 +84,24 @@ public class CommonGoals {
     public static void registerGoalForHostileNpc(PathfinderMob monster) {
         monster.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
         monster.targetSelector.addGoal(1, new HurtByTargetGoal(monster));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Player.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, Player.class, true, false));
         if (ModList.get().isLoaded("smart_npc")) {
             SmartNpc.targetPlayerNpc(monster, 1);
         }
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, SteveEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, AngrySteveEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, ChrisEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, AlexEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, JevEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Villager.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, IronGolem.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, BlueDemonEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, VillagerScoutEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, VillagerScoutCaptainEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, RedVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, BlueVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, SteveEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, AngrySteveEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, ChrisEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, AlexEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, JevEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, Villager.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, IronGolem.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, BlueDemonEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, VillagerScoutEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, VillagerScoutCaptainEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, RedVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, BlueVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
         if (!(monster instanceof TransporterHerobrineCloneEntity)) {
             addRigShieldGuardGoal(monster, 1);
             monster.goalSelector.addGoal(2, createMeleeAttackGoal(monster, 1.2D, false));
@@ -114,23 +114,23 @@ public class CommonGoals {
     public static void registerGoalForBlueDemonNpc(Monster monster) {
         monster.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
         monster.targetSelector.addGoal(1, new HurtByTargetGoal(monster));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, HerobrineMob.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, LowHerobrineCloneEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, LowShadowHerobrineCloneEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, EliteHerobrineKnockedEntity.class, true, false));
-        monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, Player.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, HerobrineMob.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, LowHerobrineCloneEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, LowShadowHerobrineCloneEntity.class, true, false));
+        monster.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, EliteHerobrineKnockedEntity.class, true, false));
+        monster.targetSelector.addGoal(2, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, Player.class, true, false));
         if (ModList.get().isLoaded("smart_npc")) {
             SmartNpc.targetPlayerNpc(monster, 2);
         }
-        monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, AngrySteveEntity.class, true, false));
-        monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, Villager.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, VillagerScoutEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, VillagerScoutCaptainEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, RedVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, BlueVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, AbstractIllager.class, true, false));
+        monster.targetSelector.addGoal(2, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, AngrySteveEntity.class, true, false));
+        monster.targetSelector.addGoal(2, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, Villager.class, true, false));
+        monster.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, VillagerScoutEntity.class, true, false));
+        monster.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, VillagerScoutCaptainEntity.class, true, false));
+        monster.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, RedVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, BlueVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
+        monster.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(monster, AbstractIllager.class, true, false));
         addRigShieldGuardGoal(monster, 2);
         monster.goalSelector.addGoal(3, createMeleeAttackGoal(monster, 1.2D, false));
         monster.goalSelector.addGoal(4, createRandomStrollGoal(monster, 1.0D));
@@ -144,22 +144,22 @@ public class CommonGoals {
             mob.targetSelector.addGoal(1, (new HurtByTargetGoal(mob)).setAlertOthers());
         }
 
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, HerobrineMob.class, true, false));
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowHerobrineCloneEntity.class, true, false));
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowShadowHerobrineCloneEntity.class, true, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, HerobrineMob.class, true, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, LowHerobrineCloneEntity.class, true, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, LowShadowHerobrineCloneEntity.class, true, false));
 
         if (ModList.get().isLoaded("smart_npc")) {
             SmartNpc.targetPlayerNpc(mob, 2);
         }
-        mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, Player.class, true, false));
-        mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, Monster.class, true, false));
-        mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, AbstractIllager.class, true, false));
-        mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, BlueDemonEntity.class, true, false));
+        mob.targetSelector.addGoal(2, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, Player.class, true, false));
+        mob.targetSelector.addGoal(2, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, Monster.class, true, false));
+        mob.targetSelector.addGoal(2, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, AbstractIllager.class, true, false));
+        mob.targetSelector.addGoal(2, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, BlueDemonEntity.class, true, false));
 
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, SteveEntity.class, true, false));
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AngrySteveEntity.class, true, false));
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AlexEntity.class, true, false));
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, ChrisEntity.class, true, false));
+        mob.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, SteveEntity.class, true, false));
+        mob.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, AngrySteveEntity.class, true, false));
+        mob.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, AlexEntity.class, true, false));
+        mob.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, ChrisEntity.class, true, false));
         addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(5, createMeleeAttackGoal(mob, 1.2D, false));
         mob.goalSelector.addGoal(6, new RandomStrollGoal(mob, 1.0D) {
@@ -219,10 +219,10 @@ public class CommonGoals {
     public static void registerGoalForNeutralNpc(PathfinderMob mob) {
         mob.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
 
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, HerobrineMob.class, true, false));
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowHerobrineCloneEntity.class, true, false));
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowShadowHerobrineCloneEntity.class, true, false));
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, EliteHerobrineKnockedEntity.class, true, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, HerobrineMob.class, true, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, LowHerobrineCloneEntity.class, true, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, LowShadowHerobrineCloneEntity.class, true, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, EliteHerobrineKnockedEntity.class, true, false));
         mob.targetSelector.addGoal(2, new HurtByTargetGoal(mob));
         mob.goalSelector.addGoal(2, createMeleeAttackGoal(mob, 1.2D, false));
 
@@ -244,8 +244,8 @@ public class CommonGoals {
         if (!(mob.getTarget() instanceof PurpleVillagerKnightEntity)) {
             mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, PurpleVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
         }
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, Monster.class, false, (target) -> !(target instanceof FakePlayer || target instanceof BlueDemonEntity)));
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AbstractIllager.class, true, false));
+        mob.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, Monster.class, false, (target) -> !(target instanceof FakePlayer || target instanceof BlueDemonEntity)));
+        mob.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, AbstractIllager.class, true, false));
         addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(3, createMeleeAttackGoal(mob, 1.2D, false));
         mob.goalSelector.addGoal(4, createRandomStrollGoal(mob, 1.0D));
@@ -258,25 +258,25 @@ public class CommonGoals {
 
     public static void registerGoalForCrazyNpc(PathfinderMob mob) {
         mob.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, Monster.class, false, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, Monster.class, false, false));
         mob.targetSelector.addGoal(1, new HurtByTargetGoal(mob));
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, HerobrineMob.class, true, false));
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowHerobrineCloneEntity.class, true, false));
-        mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowShadowHerobrineCloneEntity.class, true, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, HerobrineMob.class, true, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, LowHerobrineCloneEntity.class, true, false));
+        mob.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, LowShadowHerobrineCloneEntity.class, true, false));
         if (ModList.get().isLoaded("smart_npc")) {
             SmartNpc.targetPlayerNpc(mob, 2);
         }
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, VillagerScoutEntity.class, false, false));
-        mob.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(mob, VillagerScoutCaptainEntity.class, false, false));
-        mob.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(mob, RedVillagerKnightEntity.class, false, false));
-        mob.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(mob, BlueVillagerKnightEntity.class, false, false));
-        mob.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(mob, GreenVillagerKnightEntity.class, false, false));
-        mob.targetSelector.addGoal(8, new NearestAttackableTargetGoal<>(mob, PurpleVillagerKnightEntity.class, false, false));
-        mob.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(mob, BlueDemonEntity.class, false, false));
-        mob.targetSelector.addGoal(8, new NearestAttackableTargetGoal<>(mob, EliteHerobrineKnockedEntity.class, true, false));
-        mob.targetSelector.addGoal(20, new NearestAttackableTargetGoal<>(mob, AlexEntity.class, false, false));
-        mob.targetSelector.addGoal(20, new NearestAttackableTargetGoal<>(mob, ChrisEntity.class, false, false));
-        mob.targetSelector.addGoal(21, new NearestAttackableTargetGoal<>(mob, Player.class, true, true));
+        mob.targetSelector.addGoal(3, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, VillagerScoutEntity.class, false, false));
+        mob.targetSelector.addGoal(4, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, VillagerScoutCaptainEntity.class, false, false));
+        mob.targetSelector.addGoal(5, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, RedVillagerKnightEntity.class, false, false));
+        mob.targetSelector.addGoal(6, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, BlueVillagerKnightEntity.class, false, false));
+        mob.targetSelector.addGoal(7, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, GreenVillagerKnightEntity.class, false, false));
+        mob.targetSelector.addGoal(8, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, PurpleVillagerKnightEntity.class, false, false));
+        mob.targetSelector.addGoal(6, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, BlueDemonEntity.class, false, false));
+        mob.targetSelector.addGoal(8, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, EliteHerobrineKnockedEntity.class, true, false));
+        mob.targetSelector.addGoal(20, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, AlexEntity.class, false, false));
+        mob.targetSelector.addGoal(20, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, ChrisEntity.class, false, false));
+        mob.targetSelector.addGoal(21, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, Player.class, true, true));
         addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(22, createMeleeAttackGoal(mob, 1.2D, false));
         mob.goalSelector.addGoal(23, createRandomStrollGoal(mob, 1.0D));

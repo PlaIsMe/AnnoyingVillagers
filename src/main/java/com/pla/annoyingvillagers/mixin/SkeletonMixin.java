@@ -5,10 +5,10 @@ import com.pla.annoyingvillagers.util.CommonGoals;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
-import net.minecraft.world.entity.monster.WitherSkeleton;
+import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
+import net.minecraft.world.entity.monster.skeleton.WitherSkeleton;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,16 +29,11 @@ public class SkeletonMixin {
     }
 
     @Inject(method = "finalizeSpawn", at = @At("RETURN"))
-    private void monsterJoinHerobrineTeam(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, CallbackInfoReturnable<SpawnGroupData> cir) {
+    private void monsterJoinHerobrineTeam(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason reason, @Nullable SpawnGroupData spawnData, CallbackInfoReturnable<SpawnGroupData> cir) {
         AbstractSkeleton self = (AbstractSkeleton) (Object) this;
-        if (!self.level().isClientSide() && self.getServer() != null) {
+        if (self.level() instanceof net.minecraft.server.level.ServerLevel) {
             TeamUtil.addOrJoinTeam(self, "herobrine");
-            try {
-                self.getServer().getCommands().getDispatcher().execute(
-                        "data merge entity @s {CanPickUpLoot: 1b}",
-                        self.createCommandSourceStack().withSuppressedOutput().withPermission(4));
-            } catch (CommandSyntaxException e) {
-            }
+            self.setCanPickUpLoot(true);
         }
     }
 }

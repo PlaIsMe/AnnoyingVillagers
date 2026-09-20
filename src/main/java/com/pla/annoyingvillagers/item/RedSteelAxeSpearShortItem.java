@@ -6,6 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class RedSteelAxeSpearShortItem extends Item {
     public RedSteelAxeSpearShortItem() {
-        super((new Properties()).stacksTo(1).rarity(Rarity.UNCOMMON));
+        super((com.pla.annoyingvillagers.util.LegacyItemProperties.create()).stacksTo(1).rarity(Rarity.UNCOMMON));
     }
 }

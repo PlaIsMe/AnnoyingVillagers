@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +27,7 @@ public class HerobrineEnderEyeItem extends Item {
     public static final int VANILLA_MACHINE_GUN_COOLDOWN_TICKS = 20 * 60;
 
     public HerobrineEnderEyeItem() {
-        super((new Properties()).stacksTo(1).durability(300));
+        super((com.pla.annoyingvillagers.util.LegacyItemProperties.create()).stacksTo(1).durability(300));
     }
 
     @Override
@@ -36,22 +36,22 @@ public class HerobrineEnderEyeItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, List<Component> list, TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.herobrine_ender_eye"));
+    public void appendHoverText(ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.herobrine_ender_eye"));
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
+        if (hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) return InteractionResult.PASS;
         if (level instanceof ServerLevel serverLevel) {
             startShadowObsidianMachineGun(serverLevel, player);
             VanillaWeaponAbilityUtil.swingMainHand(player);
             VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 10);
-            player.getCooldowns().addCooldown(this, VANILLA_MACHINE_GUN_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_MACHINE_GUN_COOLDOWN_TICKS);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     public static boolean activateVanillaPressedSpecial(Player player) {
@@ -61,11 +61,11 @@ public class HerobrineEnderEyeItem extends Item {
     public static boolean activateVanillaHeldSpecial(Player player) {
         if (player.level().isClientSide() || !(player.level() instanceof ServerLevel serverLevel)) return false;
         ItemStack stack = player.getOffhandItem();
-        if (!(stack.getItem() instanceof HerobrineEnderEyeItem item) || player.getCooldowns().isOnCooldown(item)) return false;
+        if (!(stack.getItem() instanceof HerobrineEnderEyeItem item) || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(item))) return false;
         spawnAndShootDarkObPillars(serverLevel, player, 10);
         VanillaWeaponAbilityUtil.swingOffHand(player);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 5);
-        player.getCooldowns().addCooldown(item, VANILLA_PILLAR_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), VANILLA_PILLAR_COOLDOWN_TICKS);
         return true;
     }
 
@@ -133,7 +133,7 @@ public class HerobrineEnderEyeItem extends Item {
         BlockProjectileEntity blockProjectileEntity = new BlockProjectileEntity(level, owner, block);
         blockProjectileEntity.setNoGravity(true);
         blockProjectileEntity.setNotReadyForShoot(true);
-        blockProjectileEntity.moveTo(x, y, z, 0.0F, 0.0F);
+        blockProjectileEntity.snapTo(x, y, z, 0.0F, 0.0F);
         if (owner instanceof Player player) blockProjectileEntity.setOwnerUUID(player.getUUID());
         level.addFreshEntity(blockProjectileEntity);
         return blockProjectileEntity;
@@ -154,7 +154,7 @@ public class HerobrineEnderEyeItem extends Item {
 
     private static void shootChain(LivingEntity shooter, BlockState block, float velocity, int length) {
         Level level = shooter.level();
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
 
         double eyeY = shooter.getEyeY();
         Vec3 look = shooter.getLookAngle().normalize();

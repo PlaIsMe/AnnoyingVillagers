@@ -4,11 +4,9 @@ import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxMode;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.function.BooleanSupplier;
 
-@OnlyIn(Dist.CLIENT)
 public final class ClientVfxRouter {
     private ClientVfxRouter() {
     }

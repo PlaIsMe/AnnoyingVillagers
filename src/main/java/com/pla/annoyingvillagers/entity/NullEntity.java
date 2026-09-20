@@ -26,7 +26,7 @@ import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -235,7 +235,7 @@ public class NullEntity extends HerobrineMob {
         if (weapons.isEmpty()) return;
         NullWeapon chosen = weapons.get(this.getRandom().nextInt(weapons.size()));
         CommonUtil.damageBlockedForce(chosen, attacker, serverLevel);
-        chosen.moveTo(this.getX(), this.getY(), this.getZ());
+        chosen.snapTo(this.getX(), this.getY(), this.getZ());
         chosen.spinfor5seconds();
     }
 
@@ -254,59 +254,63 @@ public class NullEntity extends HerobrineMob {
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (nullSwordUUID != null) {
-            tag.putUUID("NullSwordUUID", nullSwordUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "NullSwordUUID", nullSwordUUID);
         }
         if (nullAxeUUID != null) {
-            tag.putUUID("NullAxeUUID", nullAxeUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "NullAxeUUID", nullAxeUUID);
         }
         if (nullPickaxeUUID != null) {
-            tag.putUUID("NullPickaxeUUID", nullPickaxeUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "NullPickaxeUUID", nullPickaxeUUID);
         }
         if (nullShovelUUID != null) {
-            tag.putUUID("NullShovelUUID", nullShovelUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "NullShovelUUID", nullShovelUUID);
         }
         if (nullHoeUUID != null) {
-            tag.putUUID("NullHoeUUID", nullHoeUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "NullHoeUUID", nullHoeUUID);
         }
         if (firstWitherSkeletonUuid != null) {
-            tag.putUUID("FirstWitherSkeletonUuid", firstWitherSkeletonUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "FirstWitherSkeletonUuid", firstWitherSkeletonUuid);
         }
         if (secondWitherSkeletonUuid != null) {
-            tag.putUUID("SecondWitherSkeletonUuid", secondWitherSkeletonUuid);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "SecondWitherSkeletonUuid", secondWitherSkeletonUuid);
         }
         tag.putBoolean("SpawnNullWeapon", spawnNullWeapon);
         tag.putInt("NullSkeletonSummonCooldown", this.nullSkeletonSummonCooldown);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("NullSwordUUID")) {
-            nullSwordUUID = tag.getUUID("NullSwordUUID");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "NullSwordUUID")) {
+            nullSwordUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "NullSwordUUID");
         }
-        if (tag.hasUUID("NullAxeUUID")) {
-            nullAxeUUID = tag.getUUID("NullAxeUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "NullAxeUUID")) {
+            nullAxeUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "NullAxeUUID");
         }
-        if (tag.hasUUID("NullPickaxeUUID")) {
-            nullPickaxeUUID = tag.getUUID("NullPickaxeUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "NullPickaxeUUID")) {
+            nullPickaxeUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "NullPickaxeUUID");
         }
-        if (tag.hasUUID("NullShovelUUID")) {
-            nullShovelUUID = tag.getUUID("NullShovelUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "NullShovelUUID")) {
+            nullShovelUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "NullShovelUUID");
         }
-        if (tag.hasUUID("NullHoeUUID")) {
-            nullHoeUUID = tag.getUUID("NullHoeUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "NullHoeUUID")) {
+            nullHoeUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "NullHoeUUID");
         }
-        if (tag.hasUUID("FirstWitherSkeletonUuid")) {
-            firstWitherSkeletonUuid = tag.getUUID("FirstWitherSkeletonUuid");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "FirstWitherSkeletonUuid")) {
+            firstWitherSkeletonUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "FirstWitherSkeletonUuid");
         }
-        if (tag.hasUUID("SecondWitherSkeletonUuid")) {
-            secondWitherSkeletonUuid = tag.getUUID("SecondWitherSkeletonUuid");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "SecondWitherSkeletonUuid")) {
+            secondWitherSkeletonUuid = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "SecondWitherSkeletonUuid");
         }
-        spawnNullWeapon = tag.getBoolean("SpawnNullWeapon");
-        this.nullSkeletonSummonCooldown = Math.max(0, tag.getInt("NullSkeletonSummonCooldown"));
+        spawnNullWeapon = tag.getBooleanOr("SpawnNullWeapon", false);
+        this.nullSkeletonSummonCooldown = Math.max(0, tag.getIntOr("NullSkeletonSummonCooldown", 0));
     }
 
     private void initialSpawn() {
@@ -497,8 +501,9 @@ public class NullEntity extends HerobrineMob {
                 LivingEntity livingEntity = NullEntity.this.getTarget();
 
                 if (livingEntity != null) {
-                    if (NullEntity.this.getBoundingBox().intersects(livingEntity.getBoundingBox())) {
-                        NullEntity.this.doHurtTarget(livingEntity);
+                    if (NullEntity.this.getBoundingBox().intersects(livingEntity.getBoundingBox())
+                            && NullEntity.this.level() instanceof ServerLevel serverLevel) {
+                        NullEntity.this.doHurtTarget(serverLevel, livingEntity);
                     } else {
                         double d0 = NullEntity.this.distanceToSqr(livingEntity);
                         if (d0 < 16.0D) {
@@ -515,7 +520,7 @@ public class NullEntity extends HerobrineMob {
         return false;
     }
 
-    public boolean hurt(@NotNull DamageSource damageSource, float f) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
         if (damageSource.is(DamageTypes.FALL)) return false;
         if (damageSource.is(DamageTypes.CACTUS)) return false;
         if (damageSource.is(DamageTypes.WITHER)) return false;
@@ -528,12 +533,12 @@ public class NullEntity extends HerobrineMob {
                 && damageSource.getDirectEntity() instanceof AbstractArrow
                 && !(damageSource.getDirectEntity() instanceof BlueDemonThrownTridentEntity)) return false;
         if (new Random().nextFloat() <= (this.getState() == 2 ? 0.5F : 0.25F)) {
-            if (this.level() instanceof ServerLevel serverLevel) {
+            if (true) {
                 randomlyParryWithWeapon(serverLevel, damageSource.getEntity());
             }
             return false;
         }
-        return super.hurt(damageSource, f);
+        return super.hurtServer(serverLevel, damageSource, f);
     }
 
     public void die(@NotNull DamageSource damagesource) {
@@ -556,8 +561,8 @@ public class NullEntity extends HerobrineMob {
             }
 
             InfectedPlayerNpcEntity corpse = new InfectedPlayerNpcEntity(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), serverLevel);
-            corpse.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-            String killedName = this.getPersistentData().getString("killed_name");
+            corpse.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+            String killedName = this.getPersistentData().getStringOr("killed_name", "");
             corpse.getPersistentData().putString("possessed_by", "null");
             if (killedName.isEmpty()) {
                 killedName = FakePlayer.getRandomHardcodedName(this.getRandom());
@@ -565,7 +570,7 @@ public class NullEntity extends HerobrineMob {
             corpse.setUsername(killedName);
             corpse.setCustomName(Component.literal(killedName));
             corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                    MobSpawnType.MOB_SUMMONED, null);
+                    EntitySpawnReason.MOB_SUMMONED, null);
             this.setInvisible(true);
             this.remove(RemovalReason.KILLED);
             serverLevel.addFreshEntity(corpse);
@@ -586,25 +591,25 @@ public class NullEntity extends HerobrineMob {
         double height = Math.max(1.0D, this.getBbHeight());
 
         for (int i = 0; i < 4; i++) {
-            double x = this.getX() + (this.random.nextDouble() - 0.5D) * width * 1.2D;
-            double y = this.getY() + this.random.nextDouble() * height;
-            double z = this.getZ() + (this.random.nextDouble() - 0.5D) * width * 1.2D;
-            double vx = (this.random.nextDouble() - 0.5D) * 0.12D;
-            double vy = (this.random.nextDouble() - 0.5D) * 0.08D;
-            double vz = (this.random.nextDouble() - 0.5D) * 0.12D;
+            double x = this.getX() + (this.getRandom().nextDouble() - 0.5D) * width * 1.2D;
+            double y = this.getY() + this.getRandom().nextDouble() * height;
+            double z = this.getZ() + (this.getRandom().nextDouble() - 0.5D) * width * 1.2D;
+            double vx = (this.getRandom().nextDouble() - 0.5D) * 0.12D;
+            double vy = (this.getRandom().nextDouble() - 0.5D) * 0.08D;
+            double vz = (this.getRandom().nextDouble() - 0.5D) * 0.12D;
 
             this.level().addParticle(AnnoyingVillagersModParticleTypes.NULL.get(), x, y, z, vx, vy, vz);
         }
 
         if ((this.tickCount & 1) == 0) {
             for (int i = 0; i < 3; i++) {
-                double x = this.getX() + (this.random.nextDouble() - 0.5D) * width * 1.8D;
-                double z = this.getZ() + (this.random.nextDouble() - 0.5D) * width * 1.8D;
-                double vx = (this.random.nextDouble() - 0.5D) * 0.18D;
-                double vz = (this.random.nextDouble() - 0.5D) * 0.18D;
+                double x = this.getX() + (this.getRandom().nextDouble() - 0.5D) * width * 1.8D;
+                double z = this.getZ() + (this.getRandom().nextDouble() - 0.5D) * width * 1.8D;
+                double vx = (this.getRandom().nextDouble() - 0.5D) * 0.18D;
+                double vz = (this.getRandom().nextDouble() - 0.5D) * 0.18D;
 
                 this.level().addParticle(
-                        AnnoyingVillagersModParticleTypes.NULL.get(), x, this.getY() + 0.03D, z, vx, (this.random.nextDouble() - 0.5D) * 0.02D, vz
+                        AnnoyingVillagersModParticleTypes.NULL.get(), x, this.getY() + 0.03D, z, vx, (this.getRandom().nextDouble() - 0.5D) * 0.02D, vz
                 );
             }
         }

@@ -36,9 +36,9 @@ public class RubyGreatswordItem extends LegacySwordItem implements RigCombatProf
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.RUBY.get()));
+                return Ingredient.of(AnnoyingVillagersModItems.RUBY.get());
             }
-        }, 3, -2.5F, (new Properties()));
+        }, 3, -2.5F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

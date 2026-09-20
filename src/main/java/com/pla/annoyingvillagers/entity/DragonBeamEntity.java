@@ -21,6 +21,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,6 +38,7 @@ import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +46,11 @@ import java.util.Random;
 
 public class DragonBeamEntity extends Entity {
     public HerobrineDragonEntity caster;
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        return false;
+    }
     public LivingEntity target;
     public double endPosX;
     public double endPosY;
@@ -71,16 +78,15 @@ public class DragonBeamEntity extends Entity {
     private boolean renderBeam = false;
     private boolean playSound = false;
     private static final EntityDataAccessor<Boolean> USE_NO_VFX_THUNDER = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Vector3f> THUNDER_START = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.VECTOR3);
-    private static final EntityDataAccessor<Vector3f> THUNDER_STOP = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.VECTOR3);
+    private static final EntityDataAccessor<Vector3fc> THUNDER_START = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.VECTOR3);
+    private static final EntityDataAccessor<Vector3fc> THUNDER_STOP = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.VECTOR3);
     private static final EntityDataAccessor<Boolean> HAS_TARGET_POS = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Vector3f> TARGET_POS = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.VECTOR3);
+    private static final EntityDataAccessor<Vector3fc> TARGET_POS = SynchedEntityData.defineId(DragonBeamEntity.class, EntityDataSerializers.VECTOR3);
 
     public DragonBeamEntity(EntityType<? extends DragonBeamEntity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         this.on = true;
         this.blockSide = null;
-        this.noCulling = true;
     }
 
     public DragonBeamEntity(EntityType<? extends DragonBeamEntity> type, Level world, HerobrineDragonEntity caster, LivingEntity target, double x, double y, double z, int duration, int pow) {
@@ -101,11 +107,11 @@ public class DragonBeamEntity extends Entity {
         this.setYaw(yawRad);
         this.setPitch(pitchRad);
 
-        if (world.isClientSide) {
+        if (world.isClientSide()) {
             this.renderYaw = yawRad;
             this.renderPitch = pitchRad;
         }
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             this.setCasterID(caster.getId());
             this.setTargetID(target.getId());
         }
@@ -120,10 +126,10 @@ public class DragonBeamEntity extends Entity {
         builder.define(CASTER, -1);
         builder.define(TARGET, -1);
         builder.define(USE_NO_VFX_THUNDER, false);
-        builder.define(THUNDER_START, new Vector3f());
-        builder.define(THUNDER_STOP,  new Vector3f());
+        builder.define(THUNDER_START, (Vector3fc) new Vector3f());
+        builder.define(THUNDER_STOP, (Vector3fc) new Vector3f());
         builder.define(HAS_TARGET_POS, false);
-        builder.define(TARGET_POS, new Vector3f());
+        builder.define(TARGET_POS, (Vector3fc) new Vector3f());
     }
 
     public void setTargetID(int id) {
@@ -134,10 +140,14 @@ public class DragonBeamEntity extends Entity {
         return this.entityData.get(TARGET);
     }
 
-    protected void readAdditionalSaveData(@NotNull CompoundTag compoundTag) {
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag compoundTag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
     }
 
-    protected void addAdditionalSaveData(@NotNull CompoundTag compoundTag) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag compoundTag = new CompoundTag();
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, compoundTag);
     }
 
     public void setUseNoVfxThunder(boolean noVfxThunder) {
@@ -149,18 +159,18 @@ public class DragonBeamEntity extends Entity {
     }
 
     public Vec3 getThunderStartVec3() {
-        Vector3f vector3f = this.entityData.get(THUNDER_START);
-        return new Vec3(vector3f.x, vector3f.y, vector3f.z);
+        Vector3fc vector3f = this.entityData.get(THUNDER_START);
+        return new Vec3(vector3f.x(), vector3f.y(), vector3f.z());
     }
 
     public Vec3 getThunderStopVec3() {
-        Vector3f vector3f = this.entityData.get(THUNDER_STOP);
-        return new Vec3(vector3f.x, vector3f.y, vector3f.z);
+        Vector3fc vector3f = this.entityData.get(THUNDER_STOP);
+        return new Vec3(vector3f.x(), vector3f.y(), vector3f.z());
     }
 
     public void setThunderStartStop(Vec3 from, Vec3 to) {
-        this.entityData.set(THUNDER_START, new Vector3f((float) from.x, (float) from.y, (float) from.z));
-        this.entityData.set(THUNDER_STOP, new Vector3f((float) to.x, (float) to.y, (float) to.z));
+        this.entityData.set(THUNDER_START, (Vector3fc) new Vector3f((float) from.x, (float) from.y, (float) from.z));
+        this.entityData.set(THUNDER_STOP, (Vector3fc) new Vector3f((float) to.x, (float) to.y, (float) to.z));
     }
 
     private void setTargetPos(Vec3 pos) {
@@ -169,7 +179,7 @@ public class DragonBeamEntity extends Entity {
         }
 
         this.targetPos = pos;
-        this.entityData.set(TARGET_POS, new Vector3f((float) pos.x, (float) pos.y, (float) pos.z));
+        this.entityData.set(TARGET_POS, (Vector3fc) new Vector3f((float) pos.x, (float) pos.y, (float) pos.z));
         this.entityData.set(HAS_TARGET_POS, true);
     }
 
@@ -182,8 +192,8 @@ public class DragonBeamEntity extends Entity {
             return null;
         }
 
-        Vector3f stored = this.entityData.get(TARGET_POS);
-        this.targetPos = new Vec3(stored.x, stored.y, stored.z);
+        Vector3fc stored = this.entityData.get(TARGET_POS);
+        this.targetPos = new Vec3(stored.x(), stored.y(), stored.z());
         return this.targetPos;
     }
 
@@ -267,7 +277,7 @@ public class DragonBeamEntity extends Entity {
             this.collidePosZ = hitVec.z;
             this.blockSide = result.blockHit.getDirection();
 
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 ClientVfxRouter.run(
                         VfxEffect.DRAGON_BEAM_HIT,
                         () -> PhotonClientFxUtil.spawnAt(world, "dragonhitfire", hitVec),
@@ -275,23 +285,23 @@ public class DragonBeamEntity extends Entity {
                         () -> {
                             world.addParticle(
                                     ParticleTypes.EXPLOSION,
-                                    true,
+                                    true, true,
                                     hitBlock.getX(), hitBlock.getY() + 1.0D, hitBlock.getZ(),
                                     0, 0, 0);
                             world.addParticle(
                                     AnnoyingVillagersModParticleTypes.METEORITE_TRAIL.get(),
-                                    true,
+                                    true, true,
                                     hitBlock.getX(), hitBlock.getY() + 1.0D, hitBlock.getZ(),
                                     0, 0, 0);
                             world.addParticle(
-                                    ParticleTypes.FLASH,
-                                    true,
+                                    net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFFFF),
+                                    true, true,
                                     hitBlock.getX(), hitBlock.getY() + 1.0D, hitBlock.getZ(),
                                     0, 0, 0);
                         });
             }
 
-            if (!world.isClientSide) {
+            if (!world.isClientSide()) {
                 boolean shouldBreak = true;
 
                 if (this.target != null && this.target.isAlive()) {
@@ -321,7 +331,7 @@ public class DragonBeamEntity extends Entity {
                     }
                 }
 
-                if (world.getBlockState(hitBlock.above()).isAir() && world.getBlockState(hitBlock).isSolidRender(world, hitBlock)) {
+                if (world.getBlockState(hitBlock.above()).isAir() && world.getBlockState(hitBlock).isSolidRender()) {
                     world.setBlockAndUpdate(hitBlock.above(), AnnoyingVillagersModBlocks.END_FIRE.get().defaultBlockState());
                 }
             }
@@ -438,17 +448,17 @@ public class DragonBeamEntity extends Entity {
 
         this.prevYaw = this.renderYaw;
         this.prevPitch = this.renderPitch;
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             this.renderYaw = this.getYaw();
             this.renderPitch = this.getPitch();
         }
 
-        if (this.tickCount == 1 && this.level().isClientSide) {
+        if (this.tickCount == 1 && this.level().isClientSide()) {
             this.caster = (HerobrineDragonEntity) this.level().getEntity(this.getCasterID());
             this.target = (LivingEntity) this.level().getEntity(this.getTargetID());
         }
 
-        if (this.level().isClientSide && this.target == null && this.getTargetID() != -1) {
+        if (this.level().isClientSide() && this.target == null && this.getTargetID() != -1) {
             Entity e = this.level().getEntity(this.getTargetID());
             if (e instanceof LivingEntity living) {
                 this.target = living;
@@ -488,7 +498,7 @@ public class DragonBeamEntity extends Entity {
             this.setYaw(interpolatedYaw);
             this.setPitch(interpolatedPitch);
 
-            if (this.level().isClientSide) {
+            if (this.level().isClientSide()) {
                 this.renderYaw = interpolatedYaw;
                 this.renderPitch = interpolatedPitch;
             }
@@ -509,7 +519,7 @@ public class DragonBeamEntity extends Entity {
             this.setYaw(interpolatedYaw);
             this.setPitch(interpolatedPitch);
 
-            if (this.level().isClientSide) {
+            if (this.level().isClientSide()) {
                 this.renderYaw = interpolatedYaw;
                 this.renderPitch = interpolatedPitch;
             }
@@ -520,7 +530,7 @@ public class DragonBeamEntity extends Entity {
             return;
         }
 
-        if (this.level().isClientSide && this.tickCount <= 10 && this.caster != null) {
+        if (this.level().isClientSide() && this.tickCount <= 10 && this.caster != null) {
             int particleCount = 8;
 
             while (true) {
@@ -533,7 +543,7 @@ public class DragonBeamEntity extends Entity {
 
         this.calculateEndPos();
 
-        if (this.level().isClientSide && this.isRenderable()) {
+        if (this.level().isClientSide() && this.isRenderable()) {
             ClientVfxRouter.run(
                     VfxEffect.DRAGON_BEAM,
                     () -> {
@@ -579,7 +589,7 @@ public class DragonBeamEntity extends Entity {
 
                         if (this.tickCount >= 3) {
                             Vec3 mouthPos = caster.beamMouthPos(1.0F);
-                            this.level().addParticle(ParticleTypes.DRAGON_BREATH, true,
+                            this.level().addParticle(net.minecraft.core.particles.PowerParticleOption.create(ParticleTypes.DRAGON_BREATH, 1.0F), true, true,
                                     mouthPos.x + new Random().nextDouble(-1, 1),
                                     mouthPos.y + new Random().nextDouble(-1, 1),
                                     mouthPos.z + new Random().nextDouble(-1, 1),
@@ -599,14 +609,14 @@ public class DragonBeamEntity extends Entity {
                 this.playSound(AnnoyingVillagersModSounds.BEAM_BREATH.get(), 5.0F, 1.0F);
             }
             List<LivingEntity> hit = this.raytraceEntities(this.level(), new Vec3(this.getX(), this.getY(), this.getZ()), new Vec3(this.endPosX, this.endPosY, this.endPosZ), true).entities;
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 float damage = this.getDamage();
                 for (LivingEntity target : hit) {
-                    target.hurt(damageSources().indirectMagic(this, this.caster.getSummoner()), damage);
+                    target.hurtOrSimulate(damageSources().indirectMagic(this, this.caster.getSummoner()), damage);
                     dealEpicFightStaminaDamage(target);
                     target.hurtMarked = true;
                     target.setDeltaMovement(0.0, 0.0, 0.0);
-                    target.lerpMotion(0.0, 0.0, 0.0);
+                    target.lerpMotion(Vec3.ZERO);
                 }
             }
         }

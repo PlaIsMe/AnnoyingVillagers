@@ -2,12 +2,12 @@ package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.clazz.Difficulty;
 import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.dimension.end.EndDragonFight;
+import net.minecraft.world.level.dimension.end.EnderDragonFight;
 
 public final class ProgressionUtil {
     private ProgressionUtil() {
@@ -64,7 +64,7 @@ public final class ProgressionUtil {
 
         ServerLevel end = server.getLevel(Level.END);
         if (end != null) {
-            EndDragonFight dragonFight = end.getDragonFight();
+            EnderDragonFight dragonFight = end.getDragonFight();
             if (dragonFight != null && dragonFight.hasPreviouslyKilledDragon()) {
                 increaseHistoricalDifficulty(server, Difficulty.HARD);
             }
@@ -72,7 +72,7 @@ public final class ProgressionUtil {
     }
 
     public static void reconcileHistoricalProgression(ServerPlayer player) {
-        MinecraftServer server = player.server;
+        MinecraftServer server = player.level().getServer();
         if (player.level().dimension() != Level.OVERWORLD
                 || hasAdvancement(player, "minecraft:story/enter_the_nether")
                 || hasAdvancement(player, "minecraft:end/root")) {
@@ -85,12 +85,12 @@ public final class ProgressionUtil {
     }
 
     private static boolean hasAdvancement(ServerPlayer player, String id) {
-        ResourceLocation resourceLocation = ResourceLocation.tryParse(id);
+        Identifier resourceLocation = Identifier.tryParse(id);
         if (resourceLocation == null) {
             return false;
         }
 
-        AdvancementHolder advancement = player.server.getAdvancements().get(resourceLocation);
+        AdvancementHolder advancement = player.level().getServer().getAdvancements().get(resourceLocation);
         return advancement != null && player.getAdvancements().getOrStartProgress(advancement).isDone();
     }
 }

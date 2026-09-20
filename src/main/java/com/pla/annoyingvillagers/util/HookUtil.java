@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -25,17 +26,17 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Bucketable;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.ArmorItem;
+import com.pla.annoyingvillagers.item.LegacyArmorItem;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BoneMealItem;
@@ -46,12 +47,10 @@ import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SpawnEggItem;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.ThrowablePotionItem;
 import com.pla.annoyingvillagers.util.PotionUtil;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -71,7 +70,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.IShearable;
-import net.neoforged.neoforge.common.ItemAbilities;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -93,8 +91,7 @@ public final class HookUtil {
 
     public static boolean isPickaxe(ItemStack stack) {
         return !stack.isEmpty()
-                && (stack.getItem() instanceof PickaxeItem
-                || stack.canPerformAction(ItemAbilities.PICKAXE_DIG));
+                && stack.is(ItemTags.PICKAXES);
     }
 
     public static boolean shouldUseShieldFacing(ItemStack stack) {
@@ -106,16 +103,15 @@ public final class HookUtil {
             return false;
         }
 
-        return stack.getItem() instanceof SwordItem
+        return com.pla.annoyingvillagers.item.LegacySwordItem.isSword(stack)
                 || stack.getItem() instanceof AxeItem
                 || stack.getItem() instanceof HoeItem
                 || stack.getItem() instanceof ShovelItem
-                || stack.getItem() instanceof PickaxeItem
-                || stack.canPerformAction(ItemAbilities.SWORD_DIG)
-                || stack.canPerformAction(ItemAbilities.AXE_DIG)
-                || stack.canPerformAction(ItemAbilities.HOE_DIG)
-                || stack.canPerformAction(ItemAbilities.SHOVEL_DIG)
-                || stack.canPerformAction(ItemAbilities.PICKAXE_DIG);
+                || stack.is(ItemTags.SWORDS)
+                || stack.is(ItemTags.AXES)
+                || stack.is(ItemTags.HOES)
+                || stack.is(ItemTags.SHOVELS)
+                || stack.is(ItemTags.PICKAXES);
     }
 
     public static boolean shouldRenderWithoutProjectileSpin(ItemStack stack) {
@@ -180,7 +176,7 @@ public final class HookUtil {
             return result(hitWithWeapon(level, boundStack, projectile, owner, target), boundStack);
         }
 
-        if (boundStack.getItem() instanceof ArmorItem armorItem) {
+        if (boundStack.getItem() instanceof LegacyArmorItem armorItem) {
             return result(equipArmor(boundStack, target, armorItem), boundStack);
         }
 
@@ -188,7 +184,7 @@ public final class HookUtil {
             return result(applyPotion(level, boundStack, projectile, owner, target), boundStack);
         }
 
-        FoodProperties food = boundStack.getFoodProperties(target);
+        FoodProperties food = boundStack.get(net.minecraft.core.component.DataComponents.FOOD);
         if (food != null) {
             return result(feedTarget(level, boundStack, target, food), boundStack);
         }
@@ -290,21 +286,21 @@ public final class HookUtil {
     private static boolean isShears(ItemStack stack) {
         return !stack.isEmpty()
                 && (stack.getItem() instanceof ShearsItem
-                || stack.canPerformAction(ItemAbilities.SHEARS_DIG)
-                || stack.canPerformAction(ItemAbilities.SHEARS_HARVEST));
+               
+               );
     }
 
     private static boolean canUseBoundItemOnAlly(ItemStack stack, LivingEntity target) {
-        return stack.getItem() instanceof ArmorItem
+        return stack.getItem() instanceof LegacyArmorItem
                 || stack.is(Items.WATER_BUCKET)
                 || stack.is(Items.SNOWBALL)
                 || isPotion(stack)
-                || stack.getFoodProperties(target) != null;
+                || stack.get(net.minecraft.core.component.DataComponents.FOOD) != null;
     }
 
     private static HitResult hitWithSnowball(Level level, ItemStack boundStack, LivingEntity target) {
         target.clearFire();
-        target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1));
+        target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 100, 1));
         level.playSound(null, target.getX(), target.getY(), target.getZ(),
                 SoundEvents.SNOWBALL_THROW, SoundSource.PLAYERS, 0.8F, 0.75F);
         boundStack.shrink(1);
@@ -326,7 +322,7 @@ public final class HookUtil {
         RandomSource random = target.getRandom();
 
         for (ItemStack drop : drops) {
-            ItemEntity itemEntity = target.spawnAtLocation(drop, 1.0F);
+            ItemEntity itemEntity = com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(target, drop, 1.0F);
             if (itemEntity != null) {
                 itemEntity.setDeltaMovement(itemEntity.getDeltaMovement().add(
                         (random.nextFloat() - random.nextFloat()) * 0.1F,
@@ -506,7 +502,7 @@ public final class HookUtil {
         ItemStack filledBucket = bucketable.getBucketItemStack();
         bucketable.saveToBucketTag(filledBucket);
         target.playSound(bucketable.getPickupSound(), 1.0F, 1.0F);
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             target.discard();
         }
         return handled(filledBucket);
@@ -530,11 +526,10 @@ public final class HookUtil {
     }
 
     private static boolean isWeaponLike(ItemStack stack) {
-        return stack.getItem() instanceof SwordItem
+        return com.pla.annoyingvillagers.item.LegacySwordItem.isSword(stack)
                 || stack.getItem() instanceof AxeItem
                 || stack.getItem() instanceof HoeItem
                 || stack.getItem() instanceof ShovelItem
-                || stack.getItem() instanceof PickaxeItem
                 || shouldAlignSharpEdge(stack);
     }
 
@@ -571,7 +566,7 @@ public final class HookUtil {
                 boundStack,
                 player,
                 spawnPos,
-                MobSpawnType.SPAWN_EGG,
+                EntitySpawnReason.SPAWN_ITEM_USE,
                 shouldOffsetY,
                 shouldOffsetYMore
         );
@@ -590,15 +585,15 @@ public final class HookUtil {
 
         serverLevel.playSound(null, hitPos.x, hitPos.y, hitPos.z,
                 SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.5F,
-                0.4F / (serverLevel.random.nextFloat() * 0.4F + 0.8F));
+                0.4F / (serverLevel.getRandom().nextFloat() * 0.4F + 0.8F));
 
-        if (serverLevel.random.nextInt(8) == 0) {
-            int count = serverLevel.random.nextInt(32) == 0 ? 4 : 1;
+        if (serverLevel.getRandom().nextInt(8) == 0) {
+            int count = serverLevel.getRandom().nextInt(32) == 0 ? 4 : 1;
             for (int i = 0; i < count; i++) {
-                Chicken chicken = EntityType.CHICKEN.create(serverLevel);
+                Chicken chicken = EntityType.CHICKEN.create(serverLevel, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
                 if (chicken != null) {
                     chicken.setAge(-24000);
-                    chicken.moveTo(hitPos.x, hitPos.y, hitPos.z, 0.0F, 0.0F);
+                    chicken.snapTo(hitPos.x, hitPos.y, hitPos.z, 0.0F, 0.0F);
                     serverLevel.addFreshEntity(chicken);
                 }
             }
@@ -614,7 +609,7 @@ public final class HookUtil {
 
     private static HitResult hitWithShield(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
         DamageSource source = level.damageSources().thrown(projectile, owner);
-        if (!target.hurt(source, 15.0F)) {
+        if (!target.hurtOrSimulate(source, 15.0F)) {
             return HitResult.PASS;
         }
 
@@ -626,7 +621,7 @@ public final class HookUtil {
 
     private static HitResult hitWithWeapon(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
         DamageSource source = level.damageSources().thrown(projectile, owner);
-        if (!target.hurt(source, calculateWeaponDamage(boundStack, target))) {
+        if (!target.hurtOrSimulate(source, calculateWeaponDamage(boundStack, target))) {
             return HitResult.PASS;
         }
 
@@ -651,7 +646,7 @@ public final class HookUtil {
         }
     }
 
-    private static HitResult equipArmor(ItemStack boundStack, LivingEntity target, ArmorItem armorItem) {
+    private static HitResult equipArmor(ItemStack boundStack, LivingEntity target, LegacyArmorItem armorItem) {
         if (isArmorTargetBlacklisted(target)) {
             return HitResult.HANDLED;
         }
@@ -679,15 +674,15 @@ public final class HookUtil {
 
     private static HitResult applyPotion(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {
         for (MobEffectInstance effect : PotionUtil.getMobEffects(boundStack)) {
-            if (effect.getEffect().value().isInstantenous()) {
-                effect.getEffect().value().applyInstantenousEffect(projectile, owner, target, effect.getAmplifier(), 1.0D);
+            if (effect.getEffect().value().isInstantenous() && level instanceof ServerLevel serverLevel) {
+                effect.getEffect().value().applyInstantenousEffect(serverLevel, projectile, owner, target, effect.getAmplifier(), 1.0D);
             } else {
                 target.addEffect(new MobEffectInstance(effect));
             }
         }
 
         if (isFlashPotion(boundStack) && level instanceof ServerLevel serverLevel) {
-            serverLevel.sendParticles(ParticleTypes.FLASH, target.getX(), target.getEyeY(), target.getZ(),
+            serverLevel.sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFFFF), target.getX(), target.getEyeY(), target.getZ(),
                     1, 0.0D, 0.0D, 0.0D, 0.0D);
         }
 
@@ -698,21 +693,18 @@ public final class HookUtil {
     }
 
     private static boolean isFlashPotion(ItemStack stack) {
-        String descriptionId = stack.getDescriptionId().toLowerCase();
+        String descriptionId = stack.getItem().getDescriptionId().toLowerCase();
         return descriptionId.contains("flash");
     }
 
     private static HitResult feedTarget(Level level, ItemStack boundStack, LivingEntity target, FoodProperties food) {
         if (target.isInvertedHealAndHarm()) {
             float damage = Math.max(1.0F, food.nutrition());
-            target.hurt(level.damageSources().magic(), damage);
+            target.hurtOrSimulate(level.damageSources().magic(), damage);
         } else {
             target.heal(Math.max(1.0F, food.nutrition()));
-            for (FoodProperties.PossibleEffect possibleEffect : food.effects()) {
-                if (target.getRandom().nextFloat() < possibleEffect.probability()) {
-                    target.addEffect(new MobEffectInstance(possibleEffect.effect()));
-                }
-            }
+            net.minecraft.world.item.component.Consumable consumable = boundStack.get(net.minecraft.core.component.DataComponents.CONSUMABLE);
+            if (consumable != null) consumable.onConsumeEffects().forEach(effect -> effect.apply(level, boundStack, target));
         }
 
         level.playSound(null, target.getX(), target.getY(), target.getZ(),
@@ -757,8 +749,8 @@ public final class HookUtil {
 
         if (level instanceof ServerLevel serverLevel
                 && bonemealableBlock.isValidBonemealTarget(level, pos, state)
-                && bonemealableBlock.isBonemealSuccess(level, level.random, pos, state)) {
-            bonemealableBlock.performBonemeal(serverLevel, level.random, pos, state);
+                && bonemealableBlock.isBonemealSuccess(level, level.getRandom(), pos, state)) {
+            bonemealableBlock.performBonemeal(serverLevel, level.getRandom(), pos, state);
             level.levelEvent(1505, pos, 0);
             boundStack.shrink(1);
             return HitResult.HANDLED;
@@ -773,7 +765,7 @@ public final class HookUtil {
             return false;
         }
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             PrimedTnt primedTnt = new PrimedTnt(level, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, owner);
             level.addFreshEntity(primedTnt);
             level.removeBlock(pos, false);

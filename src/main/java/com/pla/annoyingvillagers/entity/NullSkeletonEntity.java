@@ -20,7 +20,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
+import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -103,12 +103,12 @@ public class NullSkeletonEntity extends AbstractSkeleton {
                 return nullEntity != null && nullEntity.isAlive() && distanceTo(nullEntity) > 50.0D;
             }
         });
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
+        this.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
                 livingEntity -> validTarget(livingEntity)
                         && player != null && player.isAlive()
                         && player.getLastHurtByMob() == livingEntity
         ));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
+        this.targetSelector.addGoal(2, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
                 livingEntity -> validTarget(livingEntity)
                         && player != null && player.isAlive()
                         && player.getLastHurtMob() == livingEntity
@@ -140,17 +140,17 @@ public class NullSkeletonEntity extends AbstractSkeleton {
                 return player != null && player.isAlive() && distanceTo(player) > 50.0D;
             }
         });
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
+        this.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
                 livingEntity -> validTarget(livingEntity)
                         && nullEntity != null && nullEntity.isAlive()
                         && nullEntity.getTarget() == livingEntity
         ));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
+        this.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
                 livingEntity -> validTarget(livingEntity)
                         && nullEntity != null && nullEntity.isAlive()
                         && nullEntity.getLastHurtByMob() == livingEntity
         ));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
+        this.targetSelector.addGoal(2, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false,
                 livingEntity -> validTarget(livingEntity)
                         && nullEntity != null && nullEntity.isAlive()
                         && nullEntity.getLastHurtMob() == livingEntity
@@ -177,21 +177,16 @@ public class NullSkeletonEntity extends AbstractSkeleton {
         return SoundEvents.WITHER_SKELETON_STEP;
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
         if (this.nullEntity != null) {
             TeamUtil.addOrJoinTeam(this, "herobrine");
         }
-        try {
-            Objects.requireNonNull(this.getServer()).getCommands().getDispatcher().execute(
-                    "data merge entity @s {CanPickUpLoot: 1b}",
-                    this.createCommandSourceStack().withSuppressedOutput().withPermission(4));
-        } catch (CommandSyntaxException ignored) {
-        }
+        this.setCanPickUpLoot(true);
         return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata);
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity pEntity) {
+    public boolean doHurtTarget(net.minecraft.server.level.ServerLevel serverLevel, Entity pEntity) {
         if (pEntity instanceof Player hurtPlayer && this.playerUUID != null && this.playerUUID.equals(hurtPlayer.getUUID())) {
             return false;
         }
@@ -213,13 +208,13 @@ public class NullSkeletonEntity extends AbstractSkeleton {
             }
 
             DamageSource attackSource = this.damageSources().playerAttack(this.player);
-            boolean flag = pEntity.hurt(attackSource, f);
+            boolean flag = pEntity.hurtOrSimulate(attackSource, f);
             if (flag) {
                 if (f1 > 0.0F && pEntity instanceof LivingEntity) {
                     ((LivingEntity)pEntity).knockback(f1 * 0.5F, Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), -Mth.cos(this.getYRot() * ((float)Math.PI / 180F)));
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0F, 0.6));
                 }
-                if (this.level() instanceof ServerLevel serverLevel) {
+                if (true) {
                     EnchantmentHelper.doPostAttackEffects(serverLevel, pEntity, attackSource);
                 }
                 this.setLastHurtMob(pEntity);
@@ -227,7 +222,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
 
             return flag;
         } else {
-            return super.doHurtTarget(pEntity);
+            return super.doHurtTarget(serverLevel, pEntity);
         }
     }
 
@@ -259,7 +254,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
             if (nullEntity != null && !nullEntity.isAlive()) {
                 nullEntity = null;
                 nullUUID = null;
-                this.kill();
+                com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
             }
             if (nullEntity != null && nullEntity.isAlive()) {
                 double distanceSq = this.distanceToSqr(nullEntity);
@@ -279,7 +274,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
             if (player != null && !player.isAlive()) {
                 player = null;
                 playerUUID = null;
-                this.kill();
+                com.pla.annoyingvillagers.util.LegacyEntityOps.kill(this);
             }
             if (player != null && player.isAlive()) {
                 double distanceSq = this.distanceToSqr(player);
@@ -300,7 +295,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource pSource, float pAmount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pSource, float pAmount) {
         if (player != null && pSource.getEntity() == player) return false;
         if (nullEntity != null && pSource.getEntity() == nullEntity) return false;
         if (!pSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
@@ -311,28 +306,32 @@ public class NullSkeletonEntity extends AbstractSkeleton {
                 return true;
             }
         }
-        return super.hurt(pSource, pAmount);
+        return super.hurtServer(serverLevel, pSource, pAmount);
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (nullUUID != null) {
-            tag.putUUID("NullUUID", nullUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "NullUUID", nullUUID);
         }
         if (playerUUID != null) {
-            tag.putUUID("PlayerUUID", playerUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "PlayerUUID", playerUUID);
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("NullUUID")) {
-            nullUUID = tag.getUUID("NullUUID");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "NullUUID")) {
+            nullUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "NullUUID");
         }
-        if (tag.hasUUID("PlayerUUID")) {
-            playerUUID = tag.getUUID("PlayerUUID");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "PlayerUUID")) {
+            playerUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "PlayerUUID");
         }
     }
 

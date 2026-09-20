@@ -86,7 +86,8 @@ public class BlockProjectileEntity extends ThrowableProjectile {
     }
 
     public BlockProjectileEntity(Level level, LivingEntity shooter, BlockState block) {
-        super(AnnoyingVillagersModEntities.BLOCK_PROJECTILE.get(), shooter, level);
+        super(AnnoyingVillagersModEntities.BLOCK_PROJECTILE.get(), shooter.getX(), shooter.getEyeY(), shooter.getZ(), level);
+        this.setOwner(shooter);
         setCarriedBlock(block);
         initRandomRotation();
     }
@@ -99,7 +100,7 @@ public class BlockProjectileEntity extends ThrowableProjectile {
     public float getRotZ(){ return this.entityData.get(ROT_Z); }
 
     private void initRandomRotation() {
-        if (!level().isClientSide) {
+        if (!level().isClientSide()) {
             var r = this.random;
             setRotX((r.nextFloat() - 0.5f) * 10f);
             setRotY((r.nextFloat() - 0.5f) * 10f);
@@ -158,9 +159,9 @@ public class BlockProjectileEntity extends ThrowableProjectile {
 
             float damage = resolveImpactDamage();
             if (this.getOwner() == null) {
-                target.hurt(target.level().damageSources().generic(), damage);
+                target.hurtOrSimulate(target.level().damageSources().generic(), damage);
             } else {
-                target.hurt(target.level().damageSources().indirectMagic(this, this.getOwner()), damage);
+                target.hurtOrSimulate(target.level().damageSources().indirectMagic(this, this.getOwner()), damage);
             }
             applyLongStun(target);
 
@@ -177,7 +178,7 @@ public class BlockProjectileEntity extends ThrowableProjectile {
     public void tick() {
         super.tick();
 
-        if (!level().isClientSide && !this.isRemoved() && !this.notReadyForShoot) {
+        if (!level().isClientSide() && !this.isRemoved() && !this.notReadyForShoot) {
             BlockPos pos = this.blockPosition();
             if (tryPlaceInLiquid(pos)) {
                 this.discard();
@@ -191,7 +192,7 @@ public class BlockProjectileEntity extends ThrowableProjectile {
         BlockPos pos = result.getBlockPos();
         BlockState hitState = level().getBlockState(pos);
 
-        if (!level().isClientSide) {
+        if (!level().isClientSide()) {
             if (tryPlaceInLiquid(pos)) {
                 this.discard();
                 return;
@@ -299,7 +300,8 @@ public class BlockProjectileEntity extends ThrowableProjectile {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
         tag.put("Block", NbtUtils.writeBlockState(getCarriedBlock()));
         tag.putFloat("RotX", getRotX());
         tag.putFloat("RotY", getRotY());
@@ -307,25 +309,28 @@ public class BlockProjectileEntity extends ThrowableProjectile {
         tag.putBoolean("NotReadyForShoot", notReadyForShoot);
         tag.putFloat("DamageOverride", this.damageOverride);
         if (this.ownerUUID != null) {
-            tag.putUUID("OwnerUUID", this.ownerUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "OwnerUUID", this.ownerUUID);
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag tag) {
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
         if (tag.contains("Block")) {
-            setCarriedBlock(NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("Block")));
+            setCarriedBlock(NbtUtils.readBlockState(this.level().holderLookup(net.minecraft.core.registries.Registries.BLOCK), tag.getCompoundOrEmpty("Block")));
         }
-        setRotX(tag.contains("RotX") ? tag.getFloat("RotX") : 0f);
-        setRotY(tag.contains("RotY") ? tag.getFloat("RotY") : 0f);
-        setRotZ(tag.contains("RotZ") ? tag.getFloat("RotZ") : 0f);
-        notReadyForShoot = tag.getBoolean("NotReadyForShoot");
+        setRotX(tag.contains("RotX") ? tag.getFloatOr("RotX", 0.0F) : 0f);
+        setRotY(tag.contains("RotY") ? tag.getFloatOr("RotY", 0.0F) : 0f);
+        setRotZ(tag.contains("RotZ") ? tag.getFloatOr("RotZ", 0.0F) : 0f);
+        notReadyForShoot = tag.getBooleanOr("NotReadyForShoot", false);
         this.damageOverride = tag.contains("DamageOverride")
-                ? tag.getFloat("DamageOverride")
+                ? tag.getFloatOr("DamageOverride", 0.0F)
                 : NO_DAMAGE_OVERRIDE;
 
-        this.ownerUUID = tag.hasUUID("OwnerUUID")
-                ? tag.getUUID("OwnerUUID")
+        this.ownerUUID = com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "OwnerUUID")
+                ? com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "OwnerUUID")
                 : null;
     }
 

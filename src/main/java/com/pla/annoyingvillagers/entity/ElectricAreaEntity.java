@@ -146,31 +146,35 @@ public class ElectricAreaEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        if (tag.hasUUID(TAG_OWNER_UUID)) {
-            this.ownerUUID = tag.getUUID(TAG_OWNER_UUID);
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, TAG_OWNER_UUID)) {
+            this.ownerUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, TAG_OWNER_UUID);
         }
 
-        this.halfSize = tag.getDouble(TAG_HALF_SIZE);
-        this.durationTicks = tag.getInt(TAG_DURATION_TICKS);
-        this.damageAmount = tag.getFloat(TAG_DAMAGE_AMOUNT);
-        this.damageInterval = Math.max(1, tag.getInt(TAG_DAMAGE_INTERVAL));
+        this.halfSize = tag.getDoubleOr(TAG_HALF_SIZE, 0.0D);
+        this.durationTicks = tag.getIntOr(TAG_DURATION_TICKS, 0);
+        this.damageAmount = tag.getFloatOr(TAG_DAMAGE_AMOUNT, 0.0F);
+        this.damageInterval = Math.max(1, tag.getIntOr(TAG_DAMAGE_INTERVAL, 0));
     }
 
     @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
         if (this.ownerUUID != null) {
-            tag.putUUID(TAG_OWNER_UUID, this.ownerUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, TAG_OWNER_UUID, this.ownerUUID);
         }
 
         tag.putDouble(TAG_HALF_SIZE, this.halfSize);
         tag.putInt(TAG_DURATION_TICKS, this.durationTicks);
         tag.putFloat(TAG_DAMAGE_AMOUNT, this.damageAmount);
         tag.putInt(TAG_DAMAGE_INTERVAL, this.damageInterval);
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource source, float amount) {
         return false;
     }
 

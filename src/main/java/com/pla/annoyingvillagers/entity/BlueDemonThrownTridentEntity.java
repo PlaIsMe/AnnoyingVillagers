@@ -27,8 +27,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -132,7 +132,6 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.setDeltaMovement(Vec3.ZERO);
         this.setNoPhysics(false);
         this.setNoGravity(false);
-        this.hasImpulse = false;
         this.setGlowingTag(false);
 
         this.onHitBlock(new BlockHitResult(pos, Direction.UP, standPos.below(), false));
@@ -143,7 +142,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
             return;
         }
 
-        if (!this.inGround || !this.belongsToOwner(entity)) {
+        if (!this.isInGround() || !this.belongsToOwner(entity)) {
             return;
         }
         this.absorbToWearerActive = true;
@@ -154,14 +153,13 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.pickup = AbstractArrow.Pickup.DISALLOWED;
 
         this.setStuckFace(null);
-        this.inGround = false;
+        this.setInGround(false);
         this.inGroundTime = 0;
         this.shakeTime = 0;
 
         this.setNoPhysics(true);
         this.setNoGravity(true);
         this.setDeltaMovement(Vec3.ZERO);
-        this.hasImpulse = false;
         this.setGlowingTag(true);
     }
 
@@ -199,13 +197,12 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
 
         this.setNoPhysics(false);
         this.setNoGravity(false);
-        this.hasImpulse = false;
         this.pickup = AbstractArrow.Pickup.DISALLOWED;
 
         this.setPos(this.absorbStartGroundPos.x, this.absorbStartGroundPos.y, this.absorbStartGroundPos.z);
         this.setDeltaMovement(Vec3.ZERO);
 
-        this.inGround = true;
+        this.setInGround(true);
         this.inGroundTime = 0;
         this.shakeTime = 0;
         this.setStuckFace(this.absorbReturnFace);
@@ -260,7 +257,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.setDeltaMovement(Vec3.ZERO);
         this.updateRotationFromMovement(move);
 
-        if (this.level() instanceof ServerLevel serverLevel && serverLevel.random.nextDouble() <= 0.25D) {
+        if (this.level() instanceof ServerLevel serverLevel && serverLevel.getRandom().nextDouble() <= 0.25D) {
             serverLevel.sendParticles(
                     AnnoyingVillagersModParticleTypes.ELECTRIC_SPARK.get(),
                     this.getX(), this.getY(), this.getZ(),
@@ -337,7 +334,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.entityData.set(DATA_FESTIVAL_START_Y, (float)this.festivalGroundRiseStart.y);
         this.entityData.set(DATA_FESTIVAL_END_Y, (float)this.festivalGroundRiseEnd.y);
 
-        this.inGround = false;
+        this.setInGround(false);
         this.inGroundTime = 0;
         this.shakeTime = 0;
         this.setStuckFace(null);
@@ -347,7 +344,6 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
 
         this.setNoPhysics(true);
         this.setNoGravity(true);
-        this.hasImpulse = false;
 
         this.setGlowingTag(true);
         this.applyFestivalVerticalPose();
@@ -393,7 +389,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
     }
 
     private void finishFestivalGroundRise() {
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.entityData.set(DATA_FESTIVAL_RISE_ACTIVE, false);
         }
 
@@ -405,7 +401,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
 
     @Override
     public boolean shouldBeSaved() {
-        return this.inGround
+        return this.isInGround()
                 && !this.festivalGroundRiseActive
                 && !this.relaunchAnimationActive
                 && !this.relaunchDelayActive
@@ -442,12 +438,11 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
     private void clearFestivalGroundedPose() {
         this.festivalGroundedPoseActive = false;
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.entityData.set(DATA_FESTIVAL_GROUNDED_POSE, false);
         }
 
         this.setDeltaMovement(Vec3.ZERO);
-        this.hasImpulse = false;
         this.setNoPhysics(false);
         this.setNoGravity(false);
     }
@@ -472,7 +467,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         ((ThrownTridentAccessor) this).annoyingVillagers$setDealtDamage(true);
         SoundEvent sound = SoundEvents.TRIDENT_HIT;
 
-        boolean hurtSuccess = target.hurt(damageSource, damage);
+        boolean hurtSuccess = target.hurtOrSimulate(damageSource, damage);
 
         if (hurtSuccess) {
             if (target instanceof LivingEntity livingTarget && new Random().nextFloat() <= 0.15F) {
@@ -483,7 +478,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
                 ));
             }
 
-            if (!this.level().isClientSide && !this.specialImpactTriggered) {
+            if (!this.level().isClientSide() && !this.specialImpactTriggered) {
                 this.specialImpactTriggered = true;
                 this.handleModeImpact(target.blockPosition(), target);
             }
@@ -495,7 +490,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
 
     @Override
     public void tick() {
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             boolean riseActive = this.entityData.get(DATA_FESTIVAL_RISE_ACTIVE);
             boolean groundedPoseActive = this.entityData.get(DATA_FESTIVAL_GROUNDED_POSE);
 
@@ -525,9 +520,8 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
             this.pickup = AbstractArrow.Pickup.DISALLOWED;
 
             this.setDeltaMovement(Vec3.ZERO);
-            this.hasImpulse = false;
 
-            this.inGround = true;
+            this.setInGround(true);
             this.inGroundTime = 0;
             this.shakeTime = 0;
             this.setStuckFace(Direction.UP);
@@ -536,7 +530,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
             this.setNoGravity(true);
             this.applyFestivalVerticalPose();
 
-            if (!this.level().isClientSide && this.tickCount % 10 == 0) {
+            if (!this.level().isClientSide() && this.tickCount % 10 == 0) {
                 this.discardIfGroundedAndFarFromOwner();
                 if (!this.isAlive()) {
                     return;
@@ -547,7 +541,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
             return;
         }
 
-        if (!this.level().isClientSide && this.absorbToWearerActive) {
+        if (!this.level().isClientSide() && this.absorbToWearerActive) {
             this.baseTick();
             this.pickup = AbstractArrow.Pickup.DISALLOWED;
             this.tickAbsorbToWearer();
@@ -555,7 +549,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
             return;
         }
 
-        if (!this.level().isClientSide && (this.relaunchAnimationActive || this.relaunchDelayActive)) {
+        if (!this.level().isClientSide() && (this.relaunchAnimationActive || this.relaunchDelayActive)) {
             this.baseTick();
             this.pickup = AbstractArrow.Pickup.DISALLOWED;
 
@@ -571,7 +565,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
 
         super.tick();
 
-        if (!this.level().isClientSide && this.inGround && this.tickCount % 10 == 0) {
+        if (!this.level().isClientSide() && this.isInGround() && this.tickCount % 10 == 0) {
             this.discardIfGroundedAndFarFromOwner();
             if (!this.isAlive()) {
                 return;
@@ -604,7 +598,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
                 serverLevel
         );
 
-        lightning.moveTo(Vec3.atBottomCenterOf(pos));
+        lightning.snapTo(Vec3.atBottomCenterOf(pos));
         lightning.setDamage(5.0F);
         this.setGlowingTag(false);
 
@@ -623,7 +617,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         );
 
         this.setGlowingTag(false);
-        lightning.moveTo(Vec3.atBottomCenterOf(pos));
+        lightning.snapTo(Vec3.atBottomCenterOf(pos));
         lightning.setSuperLightning(true);
         lightning.setDamage(15.0F);
 
@@ -652,7 +646,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         }
 
         CompoundTag ownerData = owner.getPersistentData();
-        int shotCounter = (ownerData.getInt(TAG_OWNER_SHOT_COUNTER) + 1) & 0xFFFF;
+        int shotCounter = (ownerData.getIntOr(TAG_OWNER_SHOT_COUNTER, 0) + 1) & 0xFFFF;
         ownerData.putInt(TAG_OWNER_SHOT_COUNTER, shotCounter);
 
         this.spawnSequence = (serverLevel.getGameTime() << 16) | (shotCounter & 0xFFFFL);
@@ -664,16 +658,11 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
     }
 
     @Override
-    public boolean isInvulnerableTo(@NotNull DamageSource source) {
-        return source.is(DamageTypeTags.IS_EXPLOSION) || super.isInvulnerableTo(source);
-    }
-
-    @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource source, float amount) {
         if (source.is(DamageTypeTags.IS_EXPLOSION)) {
             return false;
         }
-        return super.hurt(source, amount);
+        return super.hurtServer(serverLevel, source, amount);
     }
 
     public long getSpawnSequence() {
@@ -684,16 +673,16 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         Level level = owner.level();
         return new AABB(
                 owner.getX() - OWNER_BOX_HALF_SIZE,
-                level.getMinBuildHeight(),
+                level.getMinY(),
                 owner.getZ() - OWNER_BOX_HALF_SIZE,
                 owner.getX() + OWNER_BOX_HALF_SIZE,
-                level.getMaxBuildHeight(),
+                level.getMaxY(),
                 owner.getZ() + OWNER_BOX_HALF_SIZE
         );
     }
 
     private boolean isGroundedForLimit() {
-        return this.inGround;
+        return this.isInGround();
     }
 
     private boolean hasSameOwner(UUID ownerUuid) {
@@ -726,7 +715,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.yo = startY;
         this.zo = z;
 
-        this.inGround = false;
+        this.setInGround(false);
         this.inGroundTime = 0;
         this.shakeTime = 0;
         this.setStuckFace(null);
@@ -734,7 +723,6 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.setNoPhysics(true);
         this.setNoGravity(true);
         this.setDeltaMovement(Vec3.ZERO);
-        this.hasImpulse = false;
 
         this.setGlowingTag(true);
         this.applyFestivalVerticalPose();
@@ -745,9 +733,8 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.syncFestivalPoseFromData();
 
         this.setDeltaMovement(Vec3.ZERO);
-        this.hasImpulse = false;
 
-        this.inGround = true;
+        this.setInGround(true);
         this.inGroundTime = 0;
         this.shakeTime = 0;
         this.setStuckFace(Direction.UP);
@@ -766,7 +753,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         Vec3 finalPos = this.festivalGroundRiseEnd;
 
         this.festivalGroundedPoseActive = true;
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.entityData.set(DATA_FESTIVAL_GROUNDED_POSE, true);
         }
 
@@ -776,9 +763,8 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.zo = finalPos.z;
 
         this.setDeltaMovement(Vec3.ZERO);
-        this.hasImpulse = false;
 
-        this.inGround = true;
+        this.setInGround(true);
         this.inGroundTime = 0;
         this.shakeTime = 0;
         this.setStuckFace(Direction.UP);
@@ -791,25 +777,25 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
     }
 
 //    private void rollFestivalPose() {
-//        this.festivalPoseXRot = 90.0F + (this.random.nextFloat() - 0.5F) * 6.0F;
-//        this.festivalPoseYRot = this.random.nextFloat() * 360.0F;
-//        this.festivalPoseYOffset = 0.02D + this.random.nextDouble() * 0.08D;
+//        this.festivalPoseXRot = 90.0F + (this.getRandom().nextFloat() - 0.5F) * 6.0F;
+//        this.festivalPoseYRot = this.getRandom().nextFloat() * 360.0F;
+//        this.festivalPoseYOffset = 0.02D + this.getRandom().nextDouble() * 0.08D;
 //
 //        this.entityData.set(DATA_FESTIVAL_POSE_XROT, this.festivalPoseXRot);
 //        this.entityData.set(DATA_FESTIVAL_POSE_YROT, this.festivalPoseYRot);
 //    }
 
     private void rollFestivalPose() {
-        this.festivalPoseXRot = 90.0F + (this.random.nextFloat() - 0.5F) * 12.0F;
-        this.festivalPoseYRot = this.random.nextFloat() * 360.0F;
-        this.festivalPoseYOffset = 0.05D + this.random.nextDouble() * 0.14D;
+        this.festivalPoseXRot = 90.0F + (this.getRandom().nextFloat() - 0.5F) * 12.0F;
+        this.festivalPoseYRot = this.getRandom().nextFloat() * 360.0F;
+        this.festivalPoseYOffset = 0.05D + this.getRandom().nextDouble() * 0.14D;
 
         this.entityData.set(DATA_FESTIVAL_POSE_XROT, this.festivalPoseXRot);
         this.entityData.set(DATA_FESTIVAL_POSE_YROT, this.festivalPoseYRot);
     }
 
     private void applyFestivalVerticalPose() {
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             this.syncFestivalPoseFromData();
         }
 
@@ -829,14 +815,14 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.clearFestivalGroundedPose();
         this.setGlowingTag(false);
 
-        this.inGround = false;
+        this.setInGround(false);
         this.inGroundTime = 0;
         this.shakeTime = 0;
         this.setStuckFace(null);
 
         this.setNoPhysics(false);
         this.setNoGravity(false);
-        this.hasImpulse = true;
+        this.hurtMarked = true;
 
         this.setPos(this.getX(), this.getY() + 0.25D, this.getZ());
         this.xo = this.getX();
@@ -883,7 +869,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
     }
 
     private void discardIfGroundedAndFarFromOwner() {
-        if (!this.inGround) {
+        if (!this.isInGround()) {
             return;
         }
 
@@ -895,7 +881,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
 
     @Override
     protected void onHitBlock(@NotNull BlockHitResult result) {
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             super.onHitBlock(result);
             return;
         }
@@ -914,8 +900,8 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
             float[] pitchChoices = new float[]{-90.0F, -60.0F, -45.0F, -30.0F};
             float[] yawChoices = new float[]{-90.0F, -60.0F, -45.0F, -30.0F, 0.0F, 30.0F, 45.0F, 60.0F, 90.0F};
 
-            float pitch = pitchChoices[this.random.nextInt(pitchChoices.length)];
-            float yawOffset = yawChoices[this.random.nextInt(yawChoices.length)];
+            float pitch = pitchChoices[this.getRandom().nextInt(pitchChoices.length)];
+            float yawOffset = yawChoices[this.getRandom().nextInt(yawChoices.length)];
 
             this.setXRot(pitch);
             this.xRotO = this.getXRot();
@@ -933,7 +919,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
     }
 
     public boolean isGroundedTrident() {
-        return this.inGround;
+        return this.isInGround();
     }
 
     public boolean belongsToOwner(@NotNull LivingEntity owner) {
@@ -951,7 +937,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         Vec3 normalized = direction.normalize();
 
         this.setStuckFace(null);
-        this.inGround = false;
+        this.setInGround(false);
         this.inGroundTime = 0;
         this.shakeTime = 0;
         ((ThrownTridentAccessor) this).annoyingVillagers$setDealtDamage(false);
@@ -959,7 +945,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
 
         this.setNoPhysics(false);
         this.setNoGravity(false);
-        this.hasImpulse = true;
+        this.hurtMarked = true;
 
         this.setGlowingTag(true);
 
@@ -990,18 +976,18 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         if (this.relaunchAnimationActive || this.relaunchDelayActive) {
             return;
         }
-        int offsetX = this.random.nextInt(3) - 1;
-        int offsetZ = this.random.nextInt(3) - 1;
+        int offsetX = this.getRandom().nextInt(3) - 1;
+        int offsetZ = this.getRandom().nextInt(3) - 1;
 
         if (offsetX == 0 && offsetZ == 0) {
-            if (this.random.nextBoolean()) {
-                offsetX = this.random.nextBoolean() ? 1 : -1;
+            if (this.getRandom().nextBoolean()) {
+                offsetX = this.getRandom().nextBoolean() ? 1 : -1;
             } else {
-                offsetZ = this.random.nextBoolean() ? 1 : -1;
+                offsetZ = this.getRandom().nextBoolean() ? 1 : -1;
             }
         }
 
-        double riseY = 1.0D + this.random.nextDouble() * 2.0D;
+        double riseY = 1.0D + this.getRandom().nextDouble() * 2.0D;
 
         this.relaunchAnimationStart = this.position();
         this.relaunchAnimationEnd = this.relaunchAnimationStart.add(offsetX, riseY, offsetZ);
@@ -1023,7 +1009,7 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.pickup = AbstractArrow.Pickup.DISALLOWED;
 
         this.setStuckFace(null);
-        this.inGround = false;
+        this.setInGround(false);
         this.inGroundTime = 0;
         this.shakeTime = 0;
         ((ThrownTridentAccessor) this).annoyingVillagers$setDealtDamage(false);
@@ -1032,7 +1018,6 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         this.setNoPhysics(true);
         this.setNoGravity(true);
         this.setDeltaMovement(Vec3.ZERO);
-        this.hasImpulse = false;
         this.setGlowingTag(true);
     }
 
@@ -1061,9 +1046,9 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
 
         this.setNoPhysics(false);
         this.setNoGravity(false);
-        this.hasImpulse = true;
+        this.hurtMarked = true;
         this.specialImpactTriggered = false;
-        this.inGround = false;
+        this.setInGround(false);
         this.inGroundTime = 0;
         this.shakeTime = 0;
         ((ThrownTridentAccessor) this).annoyingVillagers$setDealtDamage(false);
@@ -1186,9 +1171,9 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
             if (Math.random() <= 0.1D) {
                 BlueDemonUtil.spawnBlueDemonEffect(serverLevel, this);
 
-                if (serverLevel.random.nextDouble() <= 0.8D) {
-                    float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
-                    float pitch = (float) Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
+                if (serverLevel.getRandom().nextDouble() <= 0.8D) {
+                    float volume = (float) Mth.nextDouble(serverLevel.getRandom(), 0.05D, 0.5D);
+                    float pitch = (float) Mth.nextDouble(serverLevel.getRandom(), 0.8D, 1.1D);
 
                     serverLevel.playSound(
                             null,
@@ -1204,8 +1189,9 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         tag.putString("BlueDemonMode", this.mode.name());
         tag.putBoolean("SpecialImpactTriggered", this.specialImpactTriggered);
         tag.putLong(TAG_SPAWN_SEQUENCE, this.spawnSequence);
@@ -1215,15 +1201,18 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
         if (face != null) {
             tag.putByte("StuckFace", (byte) face.get3DDataValue());
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
 
         if (tag.contains("BlueDemonMode")) {
             try {
-                this.mode = TridentMode.valueOf(tag.getString("BlueDemonMode"));
+                this.mode = TridentMode.valueOf(tag.getStringOr("BlueDemonMode", ""));
             } catch (IllegalArgumentException ignored) {
                 this.mode = TridentMode.DEFAULT;
             }
@@ -1231,12 +1220,12 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
             this.mode = TridentMode.DEFAULT;
         }
 
-        this.specialImpactTriggered = tag.getBoolean("SpecialImpactTriggered");
-        this.spawnSequence = tag.getLong(TAG_SPAWN_SEQUENCE);
-        this.summonedGroundTridentFestival = tag.getBoolean("SummonedGroundTridentFestival");
+        this.specialImpactTriggered = tag.getBooleanOr("SpecialImpactTriggered", false);
+        this.spawnSequence = tag.getLongOr(TAG_SPAWN_SEQUENCE, 0L);
+        this.summonedGroundTridentFestival = tag.getBooleanOr("SummonedGroundTridentFestival", false);
 
         if (tag.contains("StuckFace")) {
-            this.setStuckFace(Direction.from3DDataValue(tag.getByte("StuckFace")));
+            this.setStuckFace(Direction.from3DDataValue(tag.getByte("StuckFace").orElse((byte) 0)));
         } else {
             this.setStuckFace(null);
         }
@@ -1261,7 +1250,6 @@ public class BlueDemonThrownTridentEntity extends ThrownTrident {
 
         this.setNoPhysics(false);
         this.setNoGravity(false);
-        this.hasImpulse = false;
         this.setGlowingTag(false);
         this.festivalGroundRiseActive = false;
         this.festivalGroundRiseTick = 0;

@@ -5,8 +5,7 @@ import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.rig.RigDualWieldGroup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,9 +33,9 @@ public class RubySwordItem extends LegacySwordItem implements RigCombatProfilePr
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.RUBY.get()));
+                return Ingredient.of(AnnoyingVillagersModItems.RUBY.get());
             }
-        }, 3, -2.0F, (new Properties()));
+        }, 3, -2.0F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

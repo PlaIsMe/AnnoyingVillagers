@@ -18,7 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -112,7 +112,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
 
         protected void registerGoals() {
         super.registerGoals();
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, (target) -> jevToProtect != null
+        this.targetSelector.addGoal(1, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, (target) -> jevToProtect != null
                 && jevToProtect.isAlive()
                 && target != null
                 && target.getLastHurtMob() == jevToProtect));
@@ -129,28 +129,32 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (jevUUID != null) {
-            tag.putUUID("JevUUID", jevUUID);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, "JevUUID", jevUUID);
         }
         tag.putInt("State", this.state);
         tag.putBoolean("SpawnJev", spawnJev);
         if (!this.currentBoundHook.isEmpty()) {
-            tag.put("CurrentBoundHook", this.currentBoundHook.save(this.registryAccess()));
+            tag.put("CurrentBoundHook", com.pla.annoyingvillagers.util.LegacyNbt.saveItem(this.currentBoundHook, this.registryAccess()));
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("JevUUID")) {
-            jevUUID = tag.getUUID("JevUUID");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, "JevUUID")) {
+            jevUUID = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, "JevUUID");
         }
-        state = tag.getInt("State");
-        spawnJev = tag.getBoolean("SpawnJev");
-        if (tag.contains("CurrentBoundHook", 10)) {
-            currentBoundHook = ItemStack.parseOptional(this.registryAccess(), tag.getCompound("CurrentBoundHook"));
+        state = tag.getIntOr("State", 0);
+        spawnJev = tag.getBooleanOr("SpawnJev", false);
+        if (tag.contains("CurrentBoundHook")) {
+            currentBoundHook = com.pla.annoyingvillagers.util.LegacyNbt.loadItem(tag.getCompound("CurrentBoundHook").orElseGet(net.minecraft.nbt.CompoundTag::new), this.registryAccess());
         } else {
             currentBoundHook = HookGunCombatUtil.createAlexDefaultPickaxe();
         }
@@ -170,11 +174,11 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
     }
 
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.hurt"));
     }
 
     public SoundEvent getDeathSound() {
-        return BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death"));
+        return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.death"));
     }
 
     @Override
@@ -236,10 +240,10 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
     private void spawnJev() {
         if (this.level() instanceof ServerLevel serverLevel) {
             JevEntity jevEntity = new JevEntity(AnnoyingVillagersModEntities.JEV.get(), serverLevel);
-            jevEntity.moveTo(this.getX() + new Random().nextDouble(1.0D, 10.0D), this.getY() + new Random().nextDouble(1.0D, 10.0D), this.getZ() + new Random().nextDouble(1.0D, 10.0D), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
+            jevEntity.snapTo(this.getX() + new Random().nextDouble(1.0D, 10.0D), this.getY() + new Random().nextDouble(1.0D, 10.0D), this.getZ() + new Random().nextDouble(1.0D, 10.0D), serverLevel.getRandom().nextFloat() * 360.0F, 0.0F);
             jevEntity.setFollowTarget(this);
             jevEntity.setFollowTargetUUID(this.getUUID());
-            jevEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+            jevEntity.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
             serverLevel.addFreshEntity(jevEntity);
 
             this.setJevUUID(jevEntity.getUUID());
@@ -248,13 +252,13 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+    protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
         if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
-            super.actuallyHurt(pDamageSource, pDamageAmount);
+            super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }
 
-        if (this.isInvulnerableTo(pDamageSource)) {
+        if (this.isInvulnerableTo(serverLevel, pDamageSource)) {
             return;
         }
         if (pDamageAmount <= 0.0F) {
@@ -278,7 +282,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
         finalDamage = CommonHooks.onLivingDamagePre(this, this.damageContainers.peek());
         finalDamage = this.applyBurstProtection(this, pDamageSource, finalDamage);
 
-        if (this.level() instanceof ServerLevel serverLevel
+        if (true
                 && this.afterBurstProtection(serverLevel, pDamageSource, finalDamage)) {
             return;
         }
@@ -292,11 +296,11 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
         this.gameEvent(GameEvent.ENTITY_DAMAGE);
     }
 
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
         ServerLevel serverLevel = serverLevelAccessor.getLevel();
-        if (mobSpawnType == MobSpawnType.SPAWN_EGG) {
+        if (mobSpawnType == EntitySpawnReason.SPAWN_ITEM_USE) {
             PersistentPlayerNpcManager.replaceIdentityForSpawnEgg(serverLevel.getServer(), "Alex");
-        } else if (mobSpawnType == MobSpawnType.NATURAL || mobSpawnType == MobSpawnType.CHUNK_GENERATION) {
+        } else if (mobSpawnType == EntitySpawnReason.NATURAL || mobSpawnType == EntitySpawnReason.CHUNK_GENERATION) {
             AlexData alexData = AlexData.get(serverLevel);
 
             if (!alexData.tryClaim(serverLevel, this.getUUID())) {
@@ -360,7 +364,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
 
     @Override
     public void die(@NotNull DamageSource damageSource) {
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             HookGunCombatUtil.onAlexDeath(this);
         }
         super.die(damageSource);
@@ -427,7 +431,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
         return false;
     }
 
-    public static boolean canSpawn(EntityType<AlexEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
+    public static boolean canSpawn(EntityType<AlexEntity> entityType, ServerLevelAccessor level, EntitySpawnReason spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
         if (AlexData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
@@ -438,7 +442,7 @@ public class AlexEntity extends AVNpc implements PersistentPlayerNpc, BurstProte
     @Override
     public void remove(@NotNull RemovalReason reason) {
         super.remove(reason);
-        if (!level().isClientSide && level() instanceof ServerLevel serverLevel &&
+        if (!level().isClientSide() && level() instanceof ServerLevel serverLevel &&
                 (reason == RemovalReason.KILLED || reason == RemovalReason.DISCARDED)) {
             AlexData.get(serverLevel).releaseIfMatches(serverLevel, this.getUUID());
         }

@@ -14,7 +14,7 @@ public final class RigLighting {
 
     public static int getBrightness(Level level, LightLayer layer, BlockPos probe) {
         int brightness = level.getBrightness(layer, probe);
-        if (!level.getBlockState(probe).isSolidRender(level, probe)) {
+        if (!level.getBlockState(probe).isSolidRender()) {
             return brightness;
         }
 
@@ -24,7 +24,7 @@ public final class RigLighting {
         for (Direction direction : NEIGHBORS) {
             neighbor.setWithOffset(probe, direction);
             if (level.hasChunkAt(neighbor)
-                    && !level.getBlockState(neighbor).isSolidRender(level, neighbor)) {
+                    && !level.getBlockState(neighbor).isSolidRender()) {
                 brightness = Math.max(brightness, level.getBrightness(layer, neighbor));
             }
         }

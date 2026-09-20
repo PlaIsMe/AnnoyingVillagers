@@ -4,17 +4,17 @@ import com.pla.annoyingvillagers.client.layer.AvWardenEmissiveLayer;
 import com.pla.annoyingvillagers.client.model.ModelAvWarden;
 import com.pla.annoyingvillagers.entity.AvWarden;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.resources.ResourceLocation;
+import com.pla.annoyingvillagers.client.compat.LegacyMobRenderer;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
-public class AvWardenRenderer extends MobRenderer<AvWarden, ModelAvWarden> {
-    private static final ResourceLocation BASE = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/warden/warden.png");
-    private static final ResourceLocation BIOLUM = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/warden/warden_bioluminescent_layer.png");
-    private static final ResourceLocation HEART = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/warden/warden_heart.png");
-    private static final ResourceLocation SPOTS1 = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/warden/warden_pulsating_spots_1.png");
-    private static final ResourceLocation SPOTS2 = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/warden/warden_pulsating_spots_2.png");
+public class AvWardenRenderer extends LegacyMobRenderer<AvWarden, ModelAvWarden> {
+    private static final Identifier BASE = Identifier.fromNamespaceAndPath("minecraft", "textures/entity/warden/warden.png");
+    private static final Identifier BIOLUM = Identifier.fromNamespaceAndPath("minecraft", "textures/entity/warden/warden_bioluminescent_layer.png");
+    private static final Identifier HEART = Identifier.fromNamespaceAndPath("minecraft", "textures/entity/warden/warden_heart.png");
+    private static final Identifier SPOTS1 = Identifier.fromNamespaceAndPath("minecraft", "textures/entity/warden/warden_pulsating_spots_1.png");
+    private static final Identifier SPOTS2 = Identifier.fromNamespaceAndPath("minecraft", "textures/entity/warden/warden_pulsating_spots_2.png");
 
     public AvWardenRenderer(EntityRendererProvider.Context context) {
         super(context, new ModelAvWarden(context.bakeLayer(ModelAvWarden.LAYER_LOCATION)), 0.9F);
@@ -26,12 +26,12 @@ public class AvWardenRenderer extends MobRenderer<AvWarden, ModelAvWarden> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull AvWarden entity) {
+    public @NotNull Identifier getTextureLocation(@NotNull AvWarden entity) {
         return BASE;
     }
 
     @Override
-    protected float getFlipDegrees(@NotNull AvWarden entity) {
+    protected float getFlipDegrees() {
         return 0.0F;
     }
 }

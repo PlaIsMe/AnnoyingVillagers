@@ -17,7 +17,7 @@ import com.pla.annoyingvillagers.clazz.NullWeapon;
 import com.pla.annoyingvillagers.item.TransporterFragmentItem;
 import com.pla.annoyingvillagers.network.ClientboundHerobrinePortalFx;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.phys.AABB;
@@ -40,7 +40,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -59,7 +58,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -99,7 +97,7 @@ public class HerobrineUtil {
     }
 
     private static void spawnParticle(Level level, ParticleOptions particle, Vec3 pos, Vec3 velocity) {
-        level.addParticle(particle, true, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
+        level.addParticle(particle, true, true, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
     }
 
     public static void placeIfReplaceable(ServerLevel level, BlockPos pos, BlockState state, Entity ownerEntity) {
@@ -178,7 +176,7 @@ public class HerobrineUtil {
             } else {
                 possessed = new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), serverLevel);
             }
-            possessed.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
+            possessed.snapTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
             if (!(entity instanceof LivingEntity victim)) return;
             possessed.getPersistentData().putString("killed_name", victim.getName().getString());
 
@@ -220,12 +218,12 @@ public class HerobrineUtil {
                     lowShadowHerobrineCloneEntity.setPossessedByUuid(herobrineMob.getUUID());
                 }
             }
-            mob.finalizeSpawn(serverLevel, world.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+            mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(entity.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
             serverLevel.addFreshEntity(possessed);
         }
     }
 
-    public static void initialSpawn(LevelAccessor levelaccessor, final Entity entity, int recallTicks, MobSpawnType mobSpawnType) {
+    public static void initialSpawn(LevelAccessor levelaccessor, final Entity entity, int recallTicks, EntitySpawnReason mobSpawnType) {
         int min = AnnoyingVillagersConfig.HEROBRINE_RECALL_MIN_TIME.get();
         int max = AnnoyingVillagersConfig.HEROBRINE_RECALL_MAX_TIME.get();
         int randomMin = Math.min(min, max);
@@ -233,7 +231,7 @@ public class HerobrineUtil {
 
         if (entity != null) {
             if (!levelaccessor.isClientSide() && levelaccessor.getServer() != null) {
-                String killedName = entity.getPersistentData().getString("killed_name");
+                String killedName = entity.getPersistentData().getStringOr("killed_name", "");
                 if (!killedName.isEmpty()) { // Low Herobrine Clone
                     levelaccessor.getServer().getPlayerList().broadcastSystemMessage(
                             Component.literal(killedName + " ")
@@ -249,7 +247,7 @@ public class HerobrineUtil {
                                 herobrineMob.setRecallTicks(recallTicks);
                             }
                         }
-                        if (mobSpawnType.equals(MobSpawnType.NATURAL) || mobSpawnType.equals(MobSpawnType.CHUNK_GENERATION)) { // For natural spawn
+                        if (mobSpawnType.equals(EntitySpawnReason.NATURAL) || mobSpawnType.equals(EntitySpawnReason.CHUNK_GENERATION)) { // For natural spawn
                             if (Math.random() <= 0.5D) { // Natural possessed
                                 levelaccessor.getServer().getPlayerList().broadcastSystemMessage(
                                         Component.translatable("subtitles.possessed_random"), false);
@@ -270,7 +268,7 @@ public class HerobrineUtil {
                             }
                         } else {
                             if (entity instanceof HerobrineMob herobrineMob) {
-                                if (mobSpawnType.equals(MobSpawnType.SPAWN_EGG) || mobSpawnType.equals(MobSpawnType.COMMAND)) {
+                                if (mobSpawnType.equals(EntitySpawnReason.SPAWN_ITEM_USE) || mobSpawnType.equals(EntitySpawnReason.COMMAND)) {
                                     herobrineMob.setRenderPortal(true);
                                 }
                                 HerobrinePortalUtil.spawnHerobrine(herobrineMob);
@@ -384,8 +382,8 @@ public class HerobrineUtil {
         if (level == null || entity == null) return;
         if (!hasGroundWithin(level, entity, 3)) return;
 
-        int minY = level.getMinBuildHeight();
-        int maxY = level.getMaxBuildHeight() - 1;
+        int minY = level.getMinY();
+        int maxY = level.getMaxY() - 1;
 
         BlockPos feet = BlockPos.containing(entity.getX(), entity.getBoundingBox().minY, entity.getZ());
 
@@ -431,7 +429,7 @@ public class HerobrineUtil {
 //            }
 //        }
 
-        float fallbackPartialTick = entity.level().isClientSide ? partialTick : 1.0F;
+        float fallbackPartialTick = entity.level().isClientSide() ? partialTick : 1.0F;
         return CommonUtil.getVanillaSwordOrBodyPosition(entity, fallbackPartialTick);
     }
 
@@ -1130,7 +1128,7 @@ public class HerobrineUtil {
 
     private static ItemStack createRandomModdedEnchantedBook(Level level) {
         List<net.minecraft.core.Holder.Reference<Enchantment>> pool = level.registryAccess()
-                .registryOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT).holders()
+                .lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT).listElements()
                 .filter(enchantment -> !enchantment.is(net.minecraft.tags.EnchantmentTags.CURSE))
                 .toList();
 
@@ -1940,14 +1938,14 @@ public class HerobrineUtil {
         if (spawn == null) return false;
 
         Mob clone = caster.getRandom().nextBoolean() ? new LowShadowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_SHADOW_HEROBRINE_CLONE.get(), serverLevel) : new LowHerobrineCloneEntity(AnnoyingVillagersModEntities.LOW_HEROBRINE_CLONE.get(), serverLevel);
-        clone.moveTo(spawn.x, spawn.y, spawn.z, caster.getYRot(), caster.getXRot());
+        clone.snapTo(spawn.x, spawn.y, spawn.z, caster.getYRot(), caster.getXRot());
         if (!serverLevel.noCollision(clone)) return false;
 
         configureCombatLowClone(clone);
         equipLowCloneGear(clone, caster.getRandom());
         clone.setTarget(enemy);
         clone.lookAt(EntityAnchorArgument.Anchor.EYES, enemy.getEyePosition());
-        clone.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(clone.blockPosition()), MobSpawnType.MOB_SUMMONED, null);
+        clone.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(clone.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
         if (!serverLevel.addFreshEntity(clone)) return false;
         if (!supportCaster.claimCombatLowCloneSupportSlot(clone)) {
             clone.discard();
@@ -2081,8 +2079,8 @@ public class HerobrineUtil {
         float referenceYaw = target.yHeadRot;
         double sin = Math.sin(Math.toRadians(referenceYaw));
         double cos = Math.cos(Math.toRadians(referenceYaw));
-        int minY = serverLevel.getMinBuildHeight() + 1;
-        int maxY = serverLevel.getMaxBuildHeight() - 2;
+        int minY = serverLevel.getMinY() + 1;
+        int maxY = serverLevel.getMaxY() - 2;
         int baseY = Mth.clamp(target.blockPosition().getY(), minY, maxY);
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 

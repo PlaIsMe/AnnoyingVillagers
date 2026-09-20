@@ -79,7 +79,7 @@ public final class ObsidianArmorController {
     }
 
     public static void tick(LivingEntity wearer) {
-        if (wearer.level().isClientSide) return;
+        if (wearer.level().isClientSide()) return;
         ActiveState state = getState(wearer);
         if (state == null) return;
         for (Map.Entry<ObsidianArmorPart, ItemStack> entry : state.equipment().entrySet()) {
@@ -104,7 +104,7 @@ public final class ObsidianArmorController {
     }
 
     public static void clear(LivingEntity wearer) {
-        if (wearer.level().isClientSide) return;
+        if (wearer.level().isClientSide()) return;
         ActiveState state = ACTIVE.remove(wearer.getUUID());
         if (state != null) {
             releaseLock(state);
@@ -119,7 +119,7 @@ public final class ObsidianArmorController {
 
     private static boolean start(LivingEntity wearer, EnumMap<ObsidianArmorPart, SpecialAnimationId> parts,
                                  boolean consumeCharge, boolean allowConcurrentAttack) {
-        if (wearer.level().isClientSide || !wearer.isAlive() || wearer.isRemoved() || ACTIVE.containsKey(wearer.getUUID())) return false;
+        if (wearer.level().isClientSide() || !wearer.isAlive() || wearer.isRemoved() || ACTIVE.containsKey(wearer.getUUID())) return false;
         if (!allowConcurrentAttack && wearer instanceof Mob mob
                 && (RigAnimationController.hasActiveProfileAttack(mob) || SpecialAnimationController.hasActiveAnimation(mob))) return false;
 
@@ -180,7 +180,7 @@ public final class ObsidianArmorController {
         float damage = armorSpikeDamage(wearer, part);
         int previousInvulnerableTime = target.invulnerableTime;
         target.invulnerableTime = 0;
-        boolean hurt = target.hurt(source, damage);
+        boolean hurt = target.hurtOrSimulate(source, damage);
         target.invulnerableTime = previousInvulnerableTime;
         if (!hurt) return;
 
@@ -264,7 +264,7 @@ public final class ObsidianArmorController {
         if (look.lengthSqr() < 1.0E-7D) return;
         Vec3 recoil = look.normalize().scale(-0.2D);
         entity.setDeltaMovement(recoil.x, 0.0D, recoil.z);
-        entity.hasImpulse = true;
+        entity.hurtMarked = true;
         entity.hurtMarked = true;
     }
 
@@ -278,7 +278,7 @@ public final class ObsidianArmorController {
     }
 
     private static ActiveState getState(LivingEntity wearer) {
-        if (wearer.level().isClientSide) return null;
+        if (wearer.level().isClientSide()) return null;
         ActiveState state = ACTIVE.get(wearer.getUUID());
         if (state == null) return null;
         if (state.wearer() != wearer || state.elapsedTicks(wearer) < 0 || state.elapsedTicks(wearer) > DURATION_TICKS) {

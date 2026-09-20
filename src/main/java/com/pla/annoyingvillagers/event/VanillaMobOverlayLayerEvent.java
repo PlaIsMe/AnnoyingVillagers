@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.event;
 import com.pla.annoyingvillagers.client.layer.HumanoidMobVanillaLayer;
 import com.pla.annoyingvillagers.client.layer.IllagerMobVanillaLayer;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.IllagerModel;
+import net.minecraft.client.model.monster.illager.IllagerModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.world.entity.EntityType;
@@ -31,13 +31,13 @@ public final class VanillaMobOverlayLayerEvent {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static void addHumanoidLayer(EntityRenderer<?> renderer) {
+    private static void addHumanoidLayer(EntityRenderer<?, ?> renderer) {
         if (!(renderer instanceof LivingEntityRenderer livingRenderer) || !(livingRenderer.getModel() instanceof HumanoidModel)) return;
         livingRenderer.addLayer(new HumanoidMobVanillaLayer(livingRenderer));
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static void addIllagerLayer(EntityRenderer<?> renderer) {
+    private static void addIllagerLayer(EntityRenderer<?, ?> renderer) {
         if (!(renderer instanceof LivingEntityRenderer livingRenderer) || !(livingRenderer.getModel() instanceof IllagerModel)) return;
         livingRenderer.addLayer(new IllagerMobVanillaLayer(livingRenderer));
     }

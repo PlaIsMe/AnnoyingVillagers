@@ -6,9 +6,9 @@ import mod.chloeprime.aaaparticles.api.client.EffectHolder;
 import mod.chloeprime.aaaparticles.api.client.EffectRegistry;
 import mod.chloeprime.aaaparticles.api.common.DynamicParameter;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
-import net.minecraft.world.entity.boss.EnderDragonPart;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import mod.chloeprime.aaaparticles.api.client.effekseer.ParticleEmitter;
 import mod.chloeprime.aaaparticles.client.installer.NativePlatform;
@@ -31,7 +31,7 @@ public class DragonBeamParticleEmitterInfo extends ParticleEmitterInfo {
     private float roll = 0f;
     private Vec3 lastTargetPos = null;
 
-    public DragonBeamParticleEmitterInfo(ResourceLocation effek) {
+    public DragonBeamParticleEmitterInfo(Identifier effek) {
         super(effek);
     }
 

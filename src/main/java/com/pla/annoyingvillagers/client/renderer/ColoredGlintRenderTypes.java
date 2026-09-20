@@ -1,123 +1,45 @@
 package com.pla.annoyingvillagers.client.renderer;
 
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.TextureTransform;
+import net.minecraft.client.renderer.rendertype.OutputTarget;
+import net.minecraft.client.renderer.rendertype.LayeringTransform;
+import net.minecraft.resources.Identifier;
 
-public final class ColoredGlintRenderTypes extends RenderType {
-    private ColoredGlintRenderTypes(String name, VertexFormat vf, VertexFormat.Mode mode,
-                                    int bufSize, boolean affectsCrumbling, boolean sortOnUpload,
-                                    Runnable setup, Runnable clean) {
-        super(name, vf, mode, bufSize, affectsCrumbling, sortOnUpload, setup, clean);
-        throw new UnsupportedOperationException("Don't instantiate");
+public final class ColoredGlintRenderTypes {
+    private ColoredGlintRenderTypes() {}
+
+    private static RenderType glintDirect(String suffix, Identifier tex) {
+        return RenderType.create("glint_direct_" + suffix, RenderSetup.builder(RenderPipelines.GLINT)
+                .withTexture("Sampler0", tex).setTextureTransform(TextureTransform.GLINT_TEXTURING).createRenderSetup());
     }
 
-    private static RenderType glintDirect(String suffix, ResourceLocation tex) {
-        return RenderType.create(
-                "glint_direct_" + suffix,
-                DefaultVertexFormat.POSITION_TEX,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                false,
-                CompositeState.builder()
-                        .setShaderState(RenderStateShard.RENDERTYPE_GLINT_SHADER)
-                        .setTextureState(new TextureStateShard(tex, true, false))
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .setDepthTestState(RenderStateShard.EQUAL_DEPTH_TEST)
-                        .setTransparencyState(RenderStateShard.GLINT_TRANSPARENCY)
-                        .setTexturingState(RenderStateShard.GLINT_TEXTURING)
-                        .createCompositeState(false)
-        );
+    private static RenderType entityGlintDirect(String suffix, Identifier tex) {
+        return RenderType.create("entity_glint_direct_" + suffix, RenderSetup.builder(RenderPipelines.GLINT)
+                .withTexture("Sampler0", tex).setTextureTransform(TextureTransform.ENTITY_GLINT_TEXTURING).createRenderSetup());
     }
 
-    private static RenderType entityGlintDirect(String suffix, ResourceLocation tex) {
-        return RenderType.create(
-                "entity_glint_direct_" + suffix,
-                DefaultVertexFormat.POSITION_TEX,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                false,
-                CompositeState.builder()
-                        .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_GLINT_DIRECT_SHADER)
-                        .setTextureState(new TextureStateShard(tex, true, false))
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .setDepthTestState(RenderStateShard.EQUAL_DEPTH_TEST)
-                        .setTransparencyState(RenderStateShard.GLINT_TRANSPARENCY)
-                        .setTexturingState(RenderStateShard.ENTITY_GLINT_TEXTURING)
-                        .createCompositeState(false)
-        );
+    private static RenderType glint(String suffix, Identifier tex) {
+        return RenderType.create("glint_" + suffix, RenderSetup.builder(RenderPipelines.GLINT)
+                .withTexture("Sampler0", tex).setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+                .setTextureTransform(TextureTransform.GLINT_TEXTURING).createRenderSetup());
     }
 
-    private static RenderType glint(String suffix, ResourceLocation tex) {
-        return RenderType.create(
-                "glint_" + suffix,
-                DefaultVertexFormat.POSITION_TEX,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                false,
-                CompositeState.builder()
-                        .setShaderState(RenderStateShard.RENDERTYPE_GLINT_SHADER)
-                        .setTextureState(new TextureStateShard(tex, true, false))
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .setDepthTestState(RenderStateShard.EQUAL_DEPTH_TEST)
-                        .setTransparencyState(RenderStateShard.GLINT_TRANSPARENCY)
-                        .setOutputState(RenderStateShard.ITEM_ENTITY_TARGET)
-                        .setTexturingState(RenderStateShard.GLINT_TEXTURING)
-                        .createCompositeState(false)
-        );
+    private static RenderType entityGlint(String suffix, Identifier tex) {
+        return RenderType.create("entity_glint_" + suffix, RenderSetup.builder(RenderPipelines.GLINT)
+                .withTexture("Sampler0", tex).setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+                .setTextureTransform(TextureTransform.ENTITY_GLINT_TEXTURING).createRenderSetup());
     }
 
-    private static RenderType entityGlint(String suffix, ResourceLocation tex) {
-        return RenderType.create(
-                "entity_glint_" + suffix,
-                DefaultVertexFormat.POSITION_TEX,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                false,
-                CompositeState.builder()
-                        .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_GLINT_SHADER)
-                        .setTextureState(new TextureStateShard(tex, true, false))
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .setDepthTestState(RenderStateShard.EQUAL_DEPTH_TEST)
-                        .setTransparencyState(RenderStateShard.GLINT_TRANSPARENCY)
-                        .setOutputState(RenderStateShard.ITEM_ENTITY_TARGET)
-                        .setTexturingState(RenderStateShard.ENTITY_GLINT_TEXTURING)
-                        .createCompositeState(false)
-        );
-    }
-
-    private static RenderType armorEntityGlint(String suffix, ResourceLocation tex) {
-        return RenderType.create(
-                "armor_entity_glint_" + suffix,
-                DefaultVertexFormat.POSITION_TEX,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                false,
-                CompositeState.builder()
-                        .setShaderState(RenderStateShard.RENDERTYPE_ARMOR_ENTITY_GLINT_SHADER)
-                        .setTextureState(new TextureStateShard(tex, true, false))
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .setDepthTestState(RenderStateShard.EQUAL_DEPTH_TEST)
-                        .setTransparencyState(RenderStateShard.GLINT_TRANSPARENCY)
-                        .setTexturingState(RenderStateShard.ENTITY_GLINT_TEXTURING)
-                        .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
-                        .createCompositeState(false)
-        );
+    private static RenderType armorEntityGlint(String suffix, Identifier tex) {
+        return RenderType.create("armor_entity_glint_" + suffix, RenderSetup.builder(RenderPipelines.GLINT)
+                .withTexture("Sampler0", tex).setTextureTransform(TextureTransform.ARMOR_ENTITY_GLINT_TEXTURING)
+                .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING).createRenderSetup());
     }
 
     public static RenderType getGlintDirect(int mode, RenderType fallback) {
@@ -205,38 +127,38 @@ public final class ColoredGlintRenderTypes extends RenderType {
         };
     }
 
-    private static final ResourceLocation ORANGE_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_orange.png");
+    private static final Identifier ORANGE_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_orange.png");
 
-    private static final ResourceLocation CYAN_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_cyan.png");
+    private static final Identifier CYAN_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_cyan.png");
 
-    private static final ResourceLocation BLUE_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_blue.png");
+    private static final Identifier BLUE_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_blue.png");
 
-    private static final ResourceLocation GREEN_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_green.png");
+    private static final Identifier GREEN_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_green.png");
 
-    private static final ResourceLocation LIGHT_BLUE_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_light_blue.png");
+    private static final Identifier LIGHT_BLUE_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_light_blue.png");
 
-    private static final ResourceLocation LIME_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_lime.png");
+    private static final Identifier LIME_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_lime.png");
 
-    private static final ResourceLocation MAGENTA_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_magenta.png");
+    private static final Identifier MAGENTA_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_magenta.png");
 
-    private static final ResourceLocation PINK_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_pink.png");
+    private static final Identifier PINK_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_pink.png");
 
-    private static final ResourceLocation PURPLE_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_purple.png");
+    private static final Identifier PURPLE_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_purple.png");
 
-    private static final ResourceLocation RED_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_red.png");
+    private static final Identifier RED_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_red.png");
 
-    private static final ResourceLocation YELLOW_TEX =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_yellow.png");
+    private static final Identifier YELLOW_TEX =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/glint/enchanted_item_glint_yellow.png");
 
     public static final RenderType GLINT_DIRECT_ORANGE = glintDirect("orange", ORANGE_TEX);
     public static final RenderType ENTITY_GLINT_DIRECT_ORANGE = entityGlintDirect("orange", ORANGE_TEX);

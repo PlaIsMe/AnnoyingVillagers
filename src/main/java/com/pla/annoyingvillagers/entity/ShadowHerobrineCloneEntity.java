@@ -19,7 +19,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -37,7 +37,7 @@ public class ShadowHerobrineCloneEntity extends HerobrineMob {
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_PILLAR.get()));
     }
 
-    public boolean hurt(@NotNull DamageSource damagesource, float f) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damagesource, float f) {
         if (damagesource.is(DamageTypes.FALL)) return false;
         if (damagesource.is(DamageTypes.CACTUS)) return false;
         if (damagesource.is(DamageTypes.WITHER)) return false;
@@ -47,7 +47,7 @@ public class ShadowHerobrineCloneEntity extends HerobrineMob {
         if (!(damagesource.getDirectEntity() instanceof EnchantedArrowEntity)
                 && damagesource.getDirectEntity() instanceof AbstractArrow
                 && !(damagesource.getDirectEntity() instanceof BlueDemonThrownTridentEntity)) return false;
-        return super.hurt(damagesource, f);
+        return super.hurtServer(serverLevel, damagesource, f);
     }
 
     @Override
@@ -77,8 +77,8 @@ public class ShadowHerobrineCloneEntity extends HerobrineMob {
                 this.playSound(AnnoyingVillagersModSounds.HEROBRINE_CLONE_SAY_ON_DEATH.get(), 0.5F, 1.0F);
             }
             InfectedPlayerNpcEntity corpse = new InfectedPlayerNpcEntity(AnnoyingVillagersModEntities.INFECTED_PLAYER_NPC.get(), serverLevel);
-            corpse.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-            String killedName = this.getPersistentData().getString("killed_name");
+            corpse.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+            String killedName = this.getPersistentData().getStringOr("killed_name", "");
             corpse.getPersistentData().putString("possessed_by", "shadow_herobrine_clone");
             if (killedName.isEmpty()) {
                 killedName = FakePlayer.getRandomHardcodedName(this.getRandom());
@@ -86,7 +86,7 @@ public class ShadowHerobrineCloneEntity extends HerobrineMob {
             corpse.setUsername(killedName);
             corpse.setCustomName(Component.literal(killedName));
             corpse.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(this.blockPosition()),
-                    MobSpawnType.MOB_SUMMONED, null);
+                    EntitySpawnReason.MOB_SUMMONED, null);
             this.setInvisible(true);
             this.remove(RemovalReason.KILLED);
             corpse.setItemSlot(EquipmentSlot.HEAD, this.getItemBySlot(EquipmentSlot.HEAD).copy());
@@ -97,12 +97,12 @@ public class ShadowHerobrineCloneEntity extends HerobrineMob {
         }
     }
 
-    public static boolean canSpawn(EntityType<ShadowHerobrineCloneEntity> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos position, RandomSource random) {
+    public static boolean canSpawn(EntityType<ShadowHerobrineCloneEntity> entityType, ServerLevelAccessor level, EntitySpawnReason spawnType, BlockPos position, RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
         if (HerobrineMobData.get(serverLevel).isOccupied(serverLevel)) {
             return false;
         }
-        if (!serverLevel.isNight()) {
+        if (!com.pla.annoyingvillagers.util.LegacyLevelTime.isNight(serverLevel)) {
             return false;
         }
         return ProgressionUtil.isAtLeastDifficulty(Difficulty.MEDIUM) && Monster.checkMonsterSpawnRules(entityType, level, spawnType, position, random);

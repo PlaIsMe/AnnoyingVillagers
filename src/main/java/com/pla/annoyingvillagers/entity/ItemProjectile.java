@@ -165,7 +165,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
 
         this.setDeltaMovement(nextMotion);
 
-        if (!this.level().isClientSide
+        if (!this.level().isClientSide()
                 && (this.tickCount >= this.getDisarmDropAfterTicks()
                 || this.onGround()
                 || this.horizontalCollision
@@ -246,7 +246,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         this.setPos(newPos.x, newPos.y, newPos.z);
         this.updateRotationFromMotion(motion);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.damageEntitiesAlongPath(oldPos, newPos, ownerEntity);
         }
     }
@@ -256,7 +256,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     }
 
     public void giveToOwnerOrDrop(Entity receiver) {
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             return;
         }
 
@@ -312,7 +312,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
             Vec3 flat = new Vec3(direction.x, 0.0D, direction.z).normalize();
 
             this.arcSide = new Vec3(-flat.z, 0.0D, flat.x)
-                    .scale((this.random.nextBoolean() ? 1.0D : -1.0D) * Mth.clamp(distance * 0.12D, 0.15D, 0.55D));
+                    .scale((this.getRandom().nextBoolean() ? 1.0D : -1.0D) * Mth.clamp(distance * 0.12D, 0.15D, 0.55D));
         } else {
             this.arcSide = Vec3.ZERO;
         }
@@ -358,7 +358,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
 
         Entity ownerEntity = this.getOwner();
         if (!(ownerEntity instanceof LivingEntity owner) || !owner.isAlive()) {
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 this.dropBackToItem();
             }
 
@@ -384,7 +384,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         this.setDeltaMovement(motion);
         this.setPos(newPos.x, newPos.y, newPos.z);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.damageEntitiesAlongPath(oldPos, newPos, owner);
         }
 
@@ -392,7 +392,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         this.clearOldHitCooldowns();
 
         if (rawProgress >= 1.0D) {
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 this.dropBackToItem();
             }
 
@@ -405,7 +405,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         this.setNoGravity(true);
         this.clearOldHitCooldowns();
 
-        if (!this.level().isClientSide && !this.hasActiveHookController()) {
+        if (!this.level().isClientSide() && !this.hasActiveHookController()) {
             this.setHookAttached(false);
             if (this.entityData.get(DATA_DISCARD_WHEN_HOOK_LOST)) {
                 this.discard();
@@ -454,7 +454,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     }
 
     private void damageEntitiesAlongPath(Vec3 from, Vec3 to, Entity owner) {
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             return;
         }
 
@@ -489,7 +489,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         }
 
         DamageSource source = this.level().damageSources().thrown(this, owner);
-        if (!target.hurt(source, this.calculateHookAttachedItemDamage(target))) {
+        if (!target.hurtOrSimulate(source, this.calculateHookAttachedItemDamage(target))) {
             return false;
         }
 
@@ -536,7 +536,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         }
 
         DamageSource source = this.level().damageSources().thrown(this, owner);
-        if (!target.hurt(source, this.calculateWeaponDamage(target))) {
+        if (!target.hurtOrSimulate(source, this.calculateWeaponDamage(target))) {
             return false;
         }
 
@@ -583,7 +583,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     private float calculateWeaponDamage(LivingEntity target) {
         ItemStack stack = this.getWeaponStack();
 
-        double damage = stack.getAttributeModifiers().compute(1.0D, EquipmentSlot.MAINHAND);
+        double damage = stack.getAttributeModifiers().compute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE, 1.0D, EquipmentSlot.MAINHAND);
 
         damage += EnchantmentUtil.getDamageBonus(stack, target);
 
@@ -608,7 +608,7 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     }
 
     private void dropBackToItem(Vec3 motion) {
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             ItemStack stack = this.getWeaponStack().copy();
 
             if (!stack.isEmpty()) {
@@ -654,9 +654,10 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
     }
 
     @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        tag.put("WeaponStack", this.getWeaponStack().save(this.level().registryAccess()));
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
+        tag.put("WeaponStack", com.pla.annoyingvillagers.util.LegacyNbt.saveItem(this.getWeaponStack(), this.level().registryAccess()));
         tag.putBoolean("DisarmLaunchMode", this.entityData.get(DATA_DISARM_LAUNCH_MODE));
         tag.putInt("DisarmDropAfterTicks", this.entityData.get(DATA_DISARM_DROP_AFTER_TICKS));
         tag.putFloat("DisarmMotionX", this.entityData.get(DATA_DISARM_MOTION_X));
@@ -664,35 +665,38 @@ public class ItemProjectile extends Projectile implements ItemSupplier {
         tag.putFloat("DisarmMotionZ", this.entityData.get(DATA_DISARM_MOTION_Z));
         tag.putBoolean("HookAttached", this.entityData.get(DATA_HOOK_ATTACHED));
         tag.putBoolean("DiscardWhenHookLost", this.entityData.get(DATA_DISCARD_WHEN_HOOK_LOST));
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
 
-        if (tag.contains("WeaponStack", 10)) {
-            this.setWeaponStack(ItemStack.parseOptional(this.level().registryAccess(), tag.getCompound("WeaponStack")));
+        if (tag.contains("WeaponStack")) {
+            this.setWeaponStack(com.pla.annoyingvillagers.util.LegacyNbt.loadItem(tag.getCompound("WeaponStack").orElseGet(net.minecraft.nbt.CompoundTag::new), this.level().registryAccess()));
         }
-        this.entityData.set(DATA_DISARM_LAUNCH_MODE, tag.getBoolean("DisarmLaunchMode"));
+        this.entityData.set(DATA_DISARM_LAUNCH_MODE, tag.getBooleanOr("DisarmLaunchMode", false));
 
         if (tag.contains("DisarmDropAfterTicks")) {
-            this.entityData.set(DATA_DISARM_DROP_AFTER_TICKS, tag.getInt("DisarmDropAfterTicks"));
+            this.entityData.set(DATA_DISARM_DROP_AFTER_TICKS, tag.getIntOr("DisarmDropAfterTicks", 0));
         }
 
         if (tag.contains("DisarmMotionX")) {
-            this.entityData.set(DATA_DISARM_MOTION_X, tag.getFloat("DisarmMotionX"));
-            this.entityData.set(DATA_DISARM_MOTION_Y, tag.getFloat("DisarmMotionY"));
-            this.entityData.set(DATA_DISARM_MOTION_Z, tag.getFloat("DisarmMotionZ"));
+            this.entityData.set(DATA_DISARM_MOTION_X, tag.getFloatOr("DisarmMotionX", 0.0F));
+            this.entityData.set(DATA_DISARM_MOTION_Y, tag.getFloatOr("DisarmMotionY", 0.0F));
+            this.entityData.set(DATA_DISARM_MOTION_Z, tag.getFloatOr("DisarmMotionZ", 0.0F));
 
             this.setDeltaMovement(
-                    tag.getFloat("DisarmMotionX"),
-                    tag.getFloat("DisarmMotionY"),
-                    tag.getFloat("DisarmMotionZ")
+                    tag.getFloatOr("DisarmMotionX", 0.0F),
+                    tag.getFloatOr("DisarmMotionY", 0.0F),
+                    tag.getFloatOr("DisarmMotionZ", 0.0F)
             );
         }
 
-        this.entityData.set(DATA_HOOK_ATTACHED, tag.getBoolean("HookAttached"));
-        this.entityData.set(DATA_DISCARD_WHEN_HOOK_LOST, tag.getBoolean("DiscardWhenHookLost"));
+        this.entityData.set(DATA_HOOK_ATTACHED, tag.getBooleanOr("HookAttached", false));
+        this.entityData.set(DATA_DISCARD_WHEN_HOOK_LOST, tag.getBooleanOr("DiscardWhenHookLost", false));
     }
 
     }

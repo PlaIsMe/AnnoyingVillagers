@@ -3,23 +3,22 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.entity.FlyingShockwaveProjectile;
-import net.minecraft.client.model.EntityModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
-@OnlyIn(Dist.CLIENT)
-public class ModelFlyingShockwave<T extends FlyingShockwaveProjectile> extends EntityModel<T>
+public class ModelFlyingShockwave<T extends FlyingShockwaveProjectile> extends LegacyHierarchicalModel<T>
 {
     private final ModelPart bb_main;
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "flying_shockwave"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "flying_shockwave"), "main");
 
     public ModelFlyingShockwave(ModelPart root) {
+        super(root);
         this.bb_main = root.getChild("bb_main");
     }
 
@@ -49,11 +48,7 @@ public class ModelFlyingShockwave<T extends FlyingShockwaveProjectile> extends E
 
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
-
-
-
-    @Override
-    public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+    public void renderLegacy(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
         bb_main.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 

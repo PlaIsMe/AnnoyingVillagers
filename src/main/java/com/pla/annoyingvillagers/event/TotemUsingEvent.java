@@ -33,7 +33,7 @@ public class TotemUsingEvent {
 //            livingEntityPatch.playAnimationSynchronized(AVAnimations.STUN_BACK, 0.0F);
 //        }
 
-        if (entity instanceof Mob mob && !entity.level().isClientSide() && entity.getServer() != null) {
+        if (entity instanceof Mob mob && entity.level() instanceof ServerLevel) {
             RigAnimationController.play(mob, RigAnimationId.STUN_BACK);
         }
     }

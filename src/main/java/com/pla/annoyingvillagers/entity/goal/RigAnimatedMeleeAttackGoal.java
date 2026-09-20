@@ -358,7 +358,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         if (this.mob instanceof ReaperHerobrineEntity reaper && reaper.isSecondFormDragonRider()) {
             return false;
         }
-        return !this.mob.level().isClientSide && this.mob.isAlive() && !this.mob.isRemoved() && !this.mob.isDeadOrDying() && !this.mob.isNoAi()
+        return !this.mob.level().isClientSide() && this.mob.isAlive() && !this.mob.isRemoved() && !this.mob.isDeadOrDying() && !this.mob.isNoAi()
                 && !(this.mob.getMainHandItem().getItem() instanceof BowItem) && target != null && target.isAlive() && !target.isRemoved() && !target.isDeadOrDying();
     }
 

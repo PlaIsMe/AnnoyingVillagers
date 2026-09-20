@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -27,15 +27,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ShadowObsidianShortPillarBlock extends HerobrineObsidianBlock implements EntityBlock {
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public ShadowObsidianShortPillarBlock() {
-        super(Properties.of()
+    public ShadowObsidianShortPillarBlock(Properties properties) {
+        super(properties
                 .offsetType(OffsetType.XYZ)
                 .sound(SoundType.STONE)
                 .strength(3.0F, 50.0F)
                 .noOcclusion()
-                .hasPostProcess((state, getter, pos) -> true)
+                .postProcess((state, getter, pos) -> pos)
                 .emissiveRendering((state, getter, pos) -> true)
                 .isRedstoneConductor((state, getter, pos) -> false)
                 .dynamicShape()
@@ -109,12 +109,12 @@ public class ShadowObsidianShortPillarBlock extends HerobrineObsidianBlock imple
         );
         if (owner != null) {
             if (owner instanceof Player player) {
-                entity.hurt(entity.level().damageSources().playerAttack(player), 1.0F);
+                entity.hurtOrSimulate(entity.level().damageSources().playerAttack(player), 1.0F);
             } else {
-                entity.hurt(entity.level().damageSources().mobAttack((LivingEntity) owner), 1.0F);
+                entity.hurtOrSimulate(entity.level().damageSources().mobAttack((LivingEntity) owner), 1.0F);
             }
         } else {
-            entity.hurt(entity.level().damageSources().generic(), 1.0F);
+            entity.hurtOrSimulate(entity.level().damageSources().generic(), 1.0F);
         }
         entity.setDeltaMovement(new Vec3((-6.0 + Math.random() * 5.0) * entity.getLookAngle().x, 0.0D, (-6.0 + Math.random() * 5.0) * entity.getLookAngle().z));
     }

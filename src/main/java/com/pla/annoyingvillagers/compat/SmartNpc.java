@@ -133,7 +133,7 @@ public class SmartNpc {
         }
 
         if (!com.pla.smart_npc.util.InventoryUtils.addItem(playerNpcEntity, stashedStack)) {
-            playerNpcEntity.spawnAtLocation(stashedStack);
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(playerNpcEntity, stashedStack);
         }
     }
 
@@ -176,6 +176,6 @@ public class SmartNpc {
     }
 
     public static void targetPlayerNpc(Mob mob, int priority) {
-        mob.targetSelector.addGoal(priority, new NearestAttackableTargetGoal<>(mob, PlayerNpcEntity.class, true, false));
+        mob.targetSelector.addGoal(priority, new com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal<>(mob, PlayerNpcEntity.class, true, false));
     }
 }

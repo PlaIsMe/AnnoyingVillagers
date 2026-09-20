@@ -12,13 +12,12 @@ import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -42,12 +41,12 @@ public class ShadowObsidianPillarItem extends LegacySwordItem implements RigComb
             public float getAttackDamageBonus() { return 2.0F; }
             public int getLevel() { return 1; }
             public int getEnchantmentValue() { return 0; }
-            public @NotNull Ingredient getRepairIngredient() { return Ingredient.of(new ItemStack(AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_BLOCK.get())); }
-        }, 3, 0.5F, new Properties().fireResistant());
+            public Ingredient getRepairIngredient() { return Ingredient.of(net.minecraft.core.HolderSet.direct(com.pla.annoyingvillagers.init.AnnoyingVillagersModItems.SHADOW_OBSIDIAN_ITEM)); }
+        }, 3, 0.5F, com.pla.annoyingvillagers.util.LegacyItemProperties.create().fireResistant());
     }
 
     public static boolean isBurst(ItemStack stack) {
-        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean(BURST_TAG);
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBooleanOr(BURST_TAG, false);
     }
 
     public static void onVanillaCriticalHit(ItemStack stack, Player player) {
@@ -60,51 +59,55 @@ public class ShadowObsidianPillarItem extends LegacySwordItem implements RigComb
     }
 
     @Override
-    public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
-        return super.hurtEnemy(stack, target, attacker);
+    public void hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
+        super.hurtEnemy(stack, target, attacker);
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return super.use(level, player, hand);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) return super.use(level, player, hand);
         setBurstForTicks(stack, level, BURST_VISUAL_TICKS);
         if (level instanceof ServerLevel serverLevel) {
             BlockState state = AnnoyingVillagersModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, true).setValue(BlockStateProperties.HORIZONTAL_FACING, player.getDirection());
             HerobrineUtil.summonObsidianCube3x3x3(serverLevel, player, state);
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
-            player.getCooldowns().addCooldown(this, VANILLA_ABILITY_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_ABILITY_COOLDOWN_TICKS);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
 
     private static void setBurstForTicks(ItemStack stack, Level level, int ticks) {
-        LegacyItemData.getOrCreate(stack).putBoolean(BURST_TAG, true);
-        LegacyItemData.getOrCreate(stack).putLong(BURST_UNTIL_TAG, level.getGameTime() + Math.max(1, ticks));
+        LegacyItemData.update(stack, tag -> {
+            tag.putBoolean(BURST_TAG, true);
+            tag.putLong(BURST_UNTIL_TAG, level.getGameTime() + Math.max(1, ticks));
+        });
     }
 
     @Override
-    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
-        super.inventoryTick(stack, level, entity, slot, selected);
-        if (!LegacyItemData.has(stack) || LegacyItemData.get(stack) == null || !LegacyItemData.get(stack).getBoolean(BURST_TAG)) return;
-        if (level.getGameTime() < LegacyItemData.get(stack).getLong(BURST_UNTIL_TAG)) return;
+    public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slot = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean selected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        super.inventoryTick(stack, level, entity, equipmentSlot);
+        if (!LegacyItemData.has(stack) || LegacyItemData.get(stack) == null || !LegacyItemData.get(stack).getBooleanOr(BURST_TAG, false)) return;
+        if (level.getGameTime() < LegacyItemData.get(stack).getLongOr(BURST_UNTIL_TAG, 0L)) return;
         LegacyItemData.get(stack).remove(BURST_TAG);
         LegacyItemData.get(stack).remove(BURST_UNTIL_TAG);
     }
 
     public static boolean activateVanillaSpecial(Player player) {
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || !(player.getMainHandItem().getItem() instanceof ShadowObsidianPillarItem item) || player.getCooldowns().isOnCooldown(item) || !(player.level() instanceof ServerLevel serverLevel)) return false;
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || !(player.getMainHandItem().getItem() instanceof ShadowObsidianPillarItem item) || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(item)) || !(player.level() instanceof ServerLevel serverLevel)) return false;
         HerobrineUtil.summonShadowObsidianLongPillarShootToward(serverLevel, player);
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
-        player.getCooldowns().addCooldown(item, VANILLA_ABILITY_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), VANILLA_ABILITY_COOLDOWN_TICKS);
         return true;
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.shadow_obsidian_pillar"));
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.shadow_obsidian_pillar"));
     }
 
     @Override

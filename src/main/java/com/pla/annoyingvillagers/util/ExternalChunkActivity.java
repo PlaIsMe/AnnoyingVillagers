@@ -1,7 +1,8 @@
 package com.pla.annoyingvillagers.util;
 
-import com.pla.annoyingvillagers.mixin.DistanceManagerAccessor;
 import com.pla.annoyingvillagers.mixin.ServerChunkCacheAccessor;
+import com.pla.annoyingvillagers.mixin.TicketStorageAccessor;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.Ticket;
 import net.minecraft.server.level.TicketType;
@@ -40,24 +41,29 @@ public final class ExternalChunkActivity {
     }
 
     private static Snapshot capture(ServerLevel level) {
-        var manager = ((ServerChunkCacheAccessor) level.getChunkSource()).av$getDistanceManager();
-        var tickets = ((DistanceManagerAccessor) manager).av$getTickets();
+        var ticketStorage = ((ServerChunkCacheAccessor) level.getChunkSource()).av$getTicketStorage();
+        var tickets = ((TicketStorageAccessor) ticketStorage).av$getTickets();
         List<Anchor> anchors = new ArrayList<>();
+        for (long chunkKey : level.getChunkSource().getForceLoadedChunks()) {
+            // Force-loaded chunks are external anchors even if no player is nearby.
+            anchors.add(new Anchor(ChunkPos.unpack(chunkKey), 0));
+        }
         for (var entry : tickets.long2ObjectEntrySet()) {
+            long chunkKey = entry.getLongKey();
             int minLevel = 34;
-            for (Ticket<?> ticket : entry.getValue()) {
-                TicketType<?> type = ticket.getType();
-                String name = type.toString();
+            for (Ticket ticket : entry.getValue()) {
+                TicketType type = ticket.getType();
+                String name = String.valueOf(BuiltInRegistries.TICKET_TYPE.getKey(type));
                 // Both mods can be installed together. NPCs must not keep one another's
                 // departure timers alive. UNKNOWN/LIGHT are transient chunk reads by AI.
                 // Vanilla spawn chunks remain loaded after all players travel away. They
                 // are not attendance, otherwise initial-spawn NPCs would never leave.
-                if (type == TicketType.UNKNOWN || type == TicketType.START
+                if (type == TicketType.UNKNOWN || type == TicketType.PLAYER_SPAWN
                         || name.equals("smart_npc:player_npc_force_tick")
                         || name.equals("annoyingvillagers:persistent_player_npc")) continue;
                 minLevel = Math.min(minLevel, ticket.getTicketLevel());
             }
-            if (minLevel <= 33) anchors.add(new Anchor(new ChunkPos(entry.getLongKey()), 33 - minLevel));
+            if (minLevel <= 33) anchors.add(new Anchor(ChunkPos.unpack(chunkKey), 33 - minLevel));
         }
         return new Snapshot(level.getGameTime(), anchors);
     }
@@ -66,8 +72,8 @@ public final class ExternalChunkActivity {
     private record Snapshot(long tick, List<Anchor> anchors) {
         boolean covers(ChunkPos chunk) {
             for (Anchor anchor : anchors) {
-                if (Math.max(Math.abs((long) chunk.x - anchor.center.x),
-                        Math.abs((long) chunk.z - anchor.center.z)) <= anchor.radius) return true;
+                if (Math.max(Math.abs((long) chunk.x() - anchor.center.x()),
+                        Math.abs((long) chunk.z() - anchor.center.z())) <= anchor.radius) return true;
             }
             return false;
         }

@@ -11,7 +11,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -26,8 +26,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -75,20 +75,24 @@ public class DragonMeteoriteEntity extends PathfinderMob {
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (posToAim != null) {
             tag.putDouble("AimX", posToAim.x);
             tag.putDouble("AimY", posToAim.y);
             tag.putDouble("AimZ", posToAim.z);
         }
+    
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
         if (tag.contains("AimX") && tag.contains("AimY") && tag.contains("AimZ")) {
-            this.posToAim = new Vec3(tag.getDouble("AimX"), tag.getDouble("AimY"), tag.getDouble("AimZ"));
+            this.posToAim = new Vec3(tag.getDoubleOr("AimX", 0.0D), tag.getDoubleOr("AimY", 0.0D), tag.getDoubleOr("AimZ", 0.0D));
         } else {
             this.posToAim = null;
         }
@@ -103,11 +107,11 @@ public class DragonMeteoriteEntity extends PathfinderMob {
         return false;
     }
 
-    public boolean hurt(DamageSource damagesource, float f) {
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damagesource, float f) {
         return !damagesource.is(DamageTypes.IN_FIRE)
                 && (!(damagesource.getDirectEntity() instanceof AbstractArrow)
                 && (!(damagesource.getDirectEntity() instanceof Player)
-                && (!(damagesource.getDirectEntity() instanceof ThrownPotion)
+                && (!(damagesource.getDirectEntity() instanceof AbstractThrownPotion)
                 && !(damagesource.getDirectEntity() instanceof AreaEffectCloud)
                 && (!damagesource.is(DamageTypes.FALL)
                 && (!damagesource.is(DamageTypes.CACTUS)
@@ -120,7 +124,7 @@ public class DragonMeteoriteEntity extends PathfinderMob {
                 && (!damagesource.is(DamageTypes.DRAGON_BREATH)
                 && (!damagesource.is(DamageTypes.WITHER)
                 && !damagesource.is(DamageTypes.WITHER_SKULL)
-                && super.hurt(damagesource, f)))))))))))));
+                && super.hurtServer(serverLevel, damagesource, f)))))))))))));
     }
 
     public boolean ignoreExplosion(net.minecraft.world.level.Explosion explosion) {
@@ -132,7 +136,7 @@ public class DragonMeteoriteEntity extends PathfinderMob {
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor pLevel, @NotNull DifficultyInstance pDifficulty, @NotNull EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         this.setInvulnerable(true);
         this.playSound(AnnoyingVillagersModSounds.MUFFLED_BOOM.get(), new Random().nextFloat(34.0F, 42.0F), new Random().nextFloat(0.0F, 0.2F));
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
@@ -195,7 +199,7 @@ public class DragonMeteoriteEntity extends PathfinderMob {
                     double vz = Mth.nextDouble(randomSource, -0.15D, 0.15D);
 
                     fallingBlockEntity.setDeltaMovement(vx, vy, vz);
-                    fallingBlockEntity.hasImpulse = true;
+                    fallingBlockEntity.hurtMarked = true;
                 }
 
                 FallingBlockEntity.fall(serverLevel, BlockPos.containing(d0, d1, d2), Blocks.CRYING_OBSIDIAN.defaultBlockState());
@@ -204,8 +208,8 @@ public class DragonMeteoriteEntity extends PathfinderMob {
                 Vec3 center = new Vec3(d0, d1, d2);
                 AABB box = new AABB(center, center).inflate(10.0D);
 
-                var damageTypeReg = serverLevel.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE);
-                DamageSource damageSource = new DamageSource(damageTypeReg.getHolderOrThrow(DamageTypes.EXPLOSION), this);
+                var damageTypeReg = serverLevel.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE);
+                DamageSource damageSource = new DamageSource(damageTypeReg.getOrThrow(DamageTypes.EXPLOSION), this);
                 LivingEntity summoner = this.owner != null ? this.owner.getSummoner() : null;
                 float damage = this.getExplosionDamage();
 
@@ -225,11 +229,11 @@ public class DragonMeteoriteEntity extends PathfinderMob {
 
                     entity.setDeltaMovement(entity.getDeltaMovement().add(push));
                     if (summoner != null) {
-                        entity.hurt(damageSources().indirectMagic(this, summoner), damage);
+                        entity.hurtOrSimulate(damageSources().indirectMagic(this, summoner), damage);
                     } else {
-                        entity.hurt(damageSource, damage);
+                        entity.hurtOrSimulate(damageSource, damage);
                     }
-                    entity.hasImpulse = true;
+                    entity.hurtMarked = true;
                 }
 
                 this.playSound(SoundEvents.GENERIC_EXPLODE.value(), 5.0F, 0.0F);
@@ -240,7 +244,7 @@ public class DragonMeteoriteEntity extends PathfinderMob {
 
             this.setNoGravity(true);
             this.setDeltaMovement(xd, yd, zd);
-            this.hasImpulse = true;
+            this.hurtMarked = true;
 
             if (posToAim != null) {
                 Vec3 fromEye = this.getEyePosition();
@@ -274,7 +278,7 @@ public class DragonMeteoriteEntity extends PathfinderMob {
                             serverLevel.scheduleTick(BlockPos.containing(d0 + d3, d1 + d4, d2 + d5), serverLevel.getBlockState(BlockPos.containing(d0 + d3, d1 + d4, d2 + d5)).getBlock(), 1);
                         }
 
-                        if (serverLevel.getBlockState(BlockPos.containing(d0 + d3, d1 + d4, d2 + d5)).is(BlockTags.create(ResourceLocation.fromNamespaceAndPath("minecraft", "logs")))) {
+                        if (serverLevel.getBlockState(BlockPos.containing(d0 + d3, d1 + d4, d2 + d5)).is(BlockTags.create(Identifier.fromNamespaceAndPath("minecraft", "logs")))) {
                             serverLevel.destroyBlock(BlockPos.containing(d0 + d3, d1 + d4, d2 + d5), false);
                             serverLevel.updateNeighborsAt(BlockPos.containing(d0 + d3, d1 + d4, d2 + d5), serverLevel.getBlockState(BlockPos.containing(d0 + d3, d1 + d4, d2 + d5)).getBlock());
                             serverLevel.scheduleTick(BlockPos.containing(d0 + d3, d1 + d4, d2 + d5), serverLevel.getBlockState(BlockPos.containing(d0 + d3, d1 + d4, d2 + d5)).getBlock(), 1);
@@ -286,18 +290,18 @@ public class DragonMeteoriteEntity extends PathfinderMob {
                 ++d3;
             }
 
-            if (this.isInWaterOrBubble()) {
+            if (this.isInWater()) {
                 for (int i = 0; i < 10; ++i) {
                     serverLevel.addParticle(AnnoyingVillagersModParticleTypes.BIG_SPLASH.get(), d0 + Mth.nextDouble(RandomSource.create(), -1.0D, 1.0D), d1 + 2.0D, d2 + Mth.nextDouble(RandomSource.create(), -1.0D, 1.0D), 0.0D, 1.0D, 0.0D);
                 }
             }
 
-            if (!this.isInWaterOrBubble()) {
+            if (!this.isInWater()) {
                 Entity entity = this;
                 new DelayedTask(2) {
                     @Override
                     public void run() {
-                        if (entity.isInWaterOrBubble()) {
+                        if (entity.isInWater()) {
                             serverLevel.playSound(null, BlockPos.containing(d0, d1, d2), SoundEvents.PLAYER_SPLASH_HIGH_SPEED, SoundSource.NEUTRAL, 6.0F, 0.0F);
                         }
                     }
@@ -305,7 +309,7 @@ public class DragonMeteoriteEntity extends PathfinderMob {
             }
 
             serverLevel.sendParticles(ParticleTypes.EXPLOSION, d0, d1 + 0.5D, d2, 0, 0.0D, 1.0D, 0.0D, 0.0D);
-            serverLevel.sendParticles(ParticleTypes.FLASH, d0, d1 + 0.5D, d2, 0, 0.0D, 1.0D, 0.0D, 0.0D);
+            serverLevel.sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFFFF), d0, d1 + 0.5D, d2, 0, 0.0D, 1.0D, 0.0D, 0.0D);
             serverLevel.sendParticles(AnnoyingVillagersModParticleTypes.METEORITE_TRAIL.get(), d0, d1 + 0.5D, d2,  0, 0.0D, 0.01D, 0.0D, 0.0D);
 
             for (int i = 0; i < 20; ++i) {

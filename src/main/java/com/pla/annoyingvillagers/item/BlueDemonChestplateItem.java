@@ -18,8 +18,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import com.pla.annoyingvillagers.item.LegacyArmorItem;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
@@ -47,7 +47,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
     public static final double CHEST_TRIDENT_ABSORB_BOX_HALF = 2.5D;
     private static final String TAG_BLUE_DEMON_HEALING_FOIL = "BlueDemonHealingFoil";
 
-    public BlueDemonChestplateItem(ArmorItem.Type type, Properties properties) {
+    public BlueDemonChestplateItem(LegacyArmorItem.Type type, Properties properties) {
         super(new LegacyArmorMaterial() {
             @Override
             public int getDurabilityForType(@NotNull Type pType) {
@@ -83,7 +83,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
 
             @Override
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.PRISMARINE_SHARD), new ItemStack(Items.PRISMARINE_CRYSTALS));
+                return Ingredient.of(Items.PRISMARINE_SHARD, Items.PRISMARINE_CRYSTALS);
             }
 
             @Override
@@ -113,7 +113,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
         }
 
         CompoundTag tag = LegacyItemData.get(stack);
-        return tag == null ? 0 : Mth.clamp(tag.getInt(TAG_CHEST_CHARGE), 0, MAX_CHEST_CHARGE);
+        return tag == null ? 0 : Mth.clamp(tag.getIntOr(TAG_CHEST_CHARGE, 0), 0, MAX_CHEST_CHARGE);
     }
 
     public static void setStoredCharge(ItemStack stack, int amount) {
@@ -149,7 +149,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
         }
 
         CompoundTag tag = LegacyItemData.get(stack);
-        return tag != null && tag.getBoolean(TAG_BLUE_DEMON_HEALING_FOIL);
+        return tag != null && tag.getBooleanOr(TAG_BLUE_DEMON_HEALING_FOIL, false);
     }
 
     public static void setBlueDemonHealingFoil(ItemStack stack, boolean foil) {
@@ -180,7 +180,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
         }
 
         CompoundTag tag = LegacyItemData.get(stack);
-        return tag == null ? 0 : Math.max(0, tag.getInt(TAG_CHEST_BUFF_TICKS));
+        return tag == null ? 0 : Math.max(0, tag.getIntOr(TAG_CHEST_BUFF_TICKS, 0));
     }
 
     public static void setBuffTicks(ItemStack stack, int ticks) {
@@ -238,7 +238,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
 
         if (player.level() instanceof ServerLevel serverLevel) {
             player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-                    net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED,
+                    net.minecraft.world.effect.MobEffects.SPEED,
                     1,
                     1,
                     false,
@@ -247,7 +247,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
             ));
 
             player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-                    net.minecraft.world.effect.MobEffects.JUMP,
+                    net.minecraft.world.effect.MobEffects.JUMP_BOOST,
                     1,
                     1,
                     false,
@@ -256,7 +256,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
             ));
 
             player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-                    net.minecraft.world.effect.MobEffects.DAMAGE_RESISTANCE,
+                    net.minecraft.world.effect.MobEffects.RESISTANCE,
                     1,
                     2,
                     false,
@@ -264,12 +264,12 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
                     false
             ));
 
-            if (serverLevel.random.nextDouble() <= 0.1D) {
+            if (serverLevel.getRandom().nextDouble() <= 0.1D) {
                 BlueDemonUtil.spawnBlueDemonChestplateEffect(serverLevel, player);
 
-                if (serverLevel.random.nextDouble() <= 0.8D) {
-                    float volume = (float) Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
-                    float pitch = (float) Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
+                if (serverLevel.getRandom().nextDouble() <= 0.8D) {
+                    float volume = (float) Mth.nextDouble(serverLevel.getRandom(), 0.05D, 0.5D);
+                    float pitch = (float) Mth.nextDouble(serverLevel.getRandom(), 0.8D, 1.1D);
 
                     serverLevel.playSound(
                             null,
@@ -316,7 +316,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
 
     public static class Chestplate extends BlueDemonChestplateItem {
         public Chestplate() {
-            super(Type.CHESTPLATE, (new Properties()).fireResistant());
+            super(Type.CHESTPLATE, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()).fireResistant());
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -324,9 +324,11 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
         }
 
         @Override
-        public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity, int slotIndex, boolean selected) {
+        public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slotIndex = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean selected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
             if (!(entity instanceof Player player)) return;
-            super.inventoryTick(stack, level, entity, slotIndex, selected);
+            super.inventoryTick(stack, level, entity, equipmentSlot);
 
             if (player.getItemBySlot(EquipmentSlot.CHEST) != stack) {
                 if (isBuffActive(stack)) {
@@ -343,30 +345,30 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
         }
 
         @Override
-        public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
-            super.appendHoverText(stack, level, tooltip, flag);
+        public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> tooltip, @NotNull TooltipFlag flag) {
+            super.appendHoverText(stack, level, display, tooltip, flag);
 
             int charge = getStoredCharge(stack);
 
-            tooltip.add(Component.translatable("tooltip.annoyingvillagers.blue_demon_chestplate"));
+            tooltip.accept(Component.translatable("tooltip.annoyingvillagers.blue_demon_chestplate"));
             addChestChargeTooltip(tooltip, charge);
         }
 
-        private static void addChestChargeTooltip(List<Component> tooltip, int charge) {
-            tooltip.add(
+        private static void addChestChargeTooltip(java.util.function.Consumer<Component> tooltip, int charge) {
+            tooltip.accept(
                     Component.translatable("tooltip.annoyingvillagers.blue_demon_chestplate_thunder_charge")
                             .withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(CHEST_CHARGE_COLOR)))
             );
 
-            tooltip.add(
+            tooltip.accept(
                     Component.literal(charge + " / " + MAX_CHEST_CHARGE)
                             .withStyle(style -> style.withColor(TextColor.fromRgb(CHEST_CHARGE_TEXT_COLOR)))
             );
 
-            tooltip.add(buildChestChargeMeter(charge));
+            tooltip.accept(buildChestChargeMeter(charge));
 
             if (charge >= MAX_CHEST_CHARGE) {
-                tooltip.add(
+                tooltip.accept(
                         Component.translatable("tooltip.annoyingvillagers.thunder_charged")
                                 .withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(CHEST_CHARGE_FULL_COLOR)))
                 );
@@ -380,7 +382,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
             MutableComponent meter = Component.empty();
 
             meter.append(
-                    Component.literal("⛨ ")
+                    Component.literal("â›¨ ")
                             .withStyle(style -> style.withColor(TextColor.fromRgb(CHEST_CHARGE_COLOR)))
             );
 
@@ -388,7 +390,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
                 boolean filled = i < filledSteps;
 
                 meter.append(
-                        Component.literal(filled ? "▰" : "▱")
+                        Component.literal(filled ? "â–°" : "â–±")
                                 .withStyle(style -> style.withColor(TextColor.fromRgb(
                                         filled ? CHEST_CHARGE_COLOR : CHEST_CHARGE_DIM_COLOR
                                 )))

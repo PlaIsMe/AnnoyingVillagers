@@ -3,16 +3,14 @@ package com.pla.annoyingvillagers.client.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
+
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
-@OnlyIn(Dist.CLIENT)
-public class MeteoriteTrailParticle extends TextureSheetParticle {
+public class MeteoriteTrailParticle extends SingleQuadParticle {
 
     private final SpriteSet spriteSet;
     private float angularVelocity;
@@ -23,7 +21,7 @@ public class MeteoriteTrailParticle extends TextureSheetParticle {
     }
 
     protected MeteoriteTrailParticle(ClientLevel clientlevel, double d0, double d1, double d2, double d3, double d4, double d5, SpriteSet spriteset) {
-        super(clientlevel, d0, d1, d2);
+        super(clientlevel, d0, d1, d2, spriteset.first());
         this.spriteSet = spriteset;
         this.setSize(0.2F, 0.2F);
         this.quadSize *= 16.0F;
@@ -38,12 +36,12 @@ public class MeteoriteTrailParticle extends TextureSheetParticle {
         this.setSpriteFromAge(spriteset);
     }
 
-    public int getLightColor(float f) {
+    protected int getLightCoords(float f) {
         return 15728880;
     }
 
-    public @NotNull ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_LIT;
+    protected SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.TRANSLUCENT;
     }
 
     public void tick() {
@@ -64,7 +62,7 @@ public class MeteoriteTrailParticle extends TextureSheetParticle {
             this.spriteSet = spriteset;
         }
 
-        public Particle createParticle(@NotNull SimpleParticleType simpleParticleType, @NotNull ClientLevel clientLevel, double d0, double d1, double d2, double d3, double d4, double d5) {
+        public Particle createParticle(@NotNull SimpleParticleType simpleParticleType, @NotNull ClientLevel clientLevel, double d0, double d1, double d2, double d3, double d4, double d5, net.minecraft.util.RandomSource random) {
 
             return new MeteoriteTrailParticle(clientLevel, d0, d1, d2, d3, d4, d5, this.spriteSet);
         }
