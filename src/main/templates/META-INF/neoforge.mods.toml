@@ -1,5 +1,3 @@
-modLoader="javafml"
-loaderVersion="${loader_version_range}"
 license="${mod_license}"
 
 [[mods]]
@@ -16,7 +14,7 @@ config="annoyingvillagers.mixins.json"
 [[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"
-versionRange="${neo_version_range}"
+versionRange="[${neo_version},)"
 ordering="NONE"
 side="BOTH"
 

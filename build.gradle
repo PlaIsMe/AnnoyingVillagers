@@ -3,7 +3,7 @@ plugins {
     id 'idea'
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '1.0.21'
+    id 'net.neoforged.moddev' version '2.0.147'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -14,20 +14,15 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = 'AnnoyingVillagers-1.21.1'
+    archivesName = 'AnnoyingVillagers-26.1.2'
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 def clientOnlyRuntime = configurations.create('clientOnlyRuntime')
 
 neoForge {
     version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
 
     accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -50,7 +45,7 @@ neoForge {
         }
 
         data {
-            data()
+            clientData()
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').absolutePath, '--existing', file('src/main/resources/').absolutePath
         }
 
@@ -81,17 +76,17 @@ repositories {
 }
 
 dependencies {
-    implementation "libs:SmartNpc-1.21.1:2.0.0"
+    implementation "libs:SmartNpc-26.1.2:3.0.0"
 
-    compileOnly "curse.maven:aaa-particles-979809:8402817"
-    compileOnly "curse.maven:architectury-api-419699:8492726"
-    compileOnly "curse.maven:photon-871522:8824095"
-    compileOnly "curse.maven:ldlib-626676:8866144"
+    implementation "curse.maven:aaa-particles-979809:8402890"
+    implementation "curse.maven:architectury-api-419699:8915038"
+    implementation "curse.maven:photon-871522:8820313"
+    implementation "curse.maven:ldlib-626676:8814440"
 
-    implementation "curse.maven:cloth-config-348521:5729127"
-    implementation "curse.maven:playeranimator-658587:7389814"
-    implementation "curse.maven:better-combat-by-daedelus-639842:8430183"
-    compileOnly "curse.maven:punchy-1374153:8891106"
+    implementation "curse.maven:cloth-config-348521:7817583"
+    implementation "curse.maven:better-combat-by-daedelus-639842:8486482"
+    implementation "curse.maven:player-animation-library-1283899:8674772"
+    compileOnly "curse.maven:punchy-1374153:8891120"
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
 }
@@ -101,8 +96,6 @@ var generateModMetadata = tasks.register('generateModMetadata', ProcessResources
             minecraft_version      : minecraft_version,
             minecraft_version_range: minecraft_version_range,
             neo_version            : neo_version,
-            neo_version_range      : neo_version_range,
-            loader_version_range   : loader_version_range,
             mod_id                 : mod_id,
             mod_name               : mod_name,
             mod_license            : mod_license,
