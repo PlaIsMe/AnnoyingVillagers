@@ -42,7 +42,6 @@ public final class AnnoyingVillagersSpawnConfig {
             fixedGroupEntry("transporter_herobrine_clone", 1, "Transporter Herobrine Clone"),
             fixedGroupEntry("armored_herobrine", 1, "Armored Herobrine"),
             fixedGroupEntry("herobrine_7", 1, "Herobrine 7"),
-            fixedGroupEntry("herobrine_chris", 1, "Herobrine Chris"),
             fixedGroupEntry("herobrine_greg", 1, "Herobrine Greg")
     );
 

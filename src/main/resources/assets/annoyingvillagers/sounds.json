@@ -102,10 +102,6 @@
         "stream": false
       },
       {
-        "name": "annoyingvillagers:entity/weapon/whoosh3",
-        "stream": false
-      },
-      {
         "name": "annoyingvillagers:entity/weapon/whoosh4",
         "stream": false
       },
@@ -223,22 +219,6 @@
       },
       {
         "name": "annoyingvillagers:ob_place3",
-        "stream": false
-      }
-    ]
-  },
-  "metal_hit": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:metal_hit_1",
-        "stream": false
-      },
-      {
-        "name": "annoyingvillagers:metal_hit_2",
-        "stream": false
-      },
-      {
-        "name": "annoyingvillagers:metal_hit_3",
         "stream": false
       }
     ]
@@ -379,26 +359,10 @@
       }
     ]
   },
-  "silent": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:silent",
-        "stream": false
-      }
-    ]
-  },
   "obsidian_place": {
     "sounds": [
       {
         "name": "annoyingvillagers:obsidian_place",
-        "stream": false
-      }
-    ]
-  },
-  "pop": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:pop",
         "stream": false
       }
     ]
@@ -431,14 +395,6 @@
     "sounds": [
       {
         "name": "annoyingvillagers:ender_shot",
-        "stream": false
-      }
-    ]
-  },
-  "second_form_release": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:second_form_release",
         "stream": false
       }
     ]
@@ -491,14 +447,6 @@
     "sounds": [
       {
         "name": "annoyingvillagers:woopie_wind",
-        "stream": false
-      }
-    ]
-  },
-  "kick_guard_break": {
-    "sounds": [
-      {
-        "name": "annoyingvillagers:kick_guard_break",
         "stream": false
       }
     ]
@@ -1174,7 +1122,7 @@
   "beam_breath": {
     "sounds": [
       {
-        "name": "annoyingvillagers:beam_breath",
+        "name": "annoyingvillagers:entity/dragon/beam_breath",
         "stream": false
       }
     ]

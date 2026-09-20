@@ -1425,7 +1425,6 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         List<String> herobrines = new ArrayList<>();
         herobrines.add("annoyingvillagers:herobrine_clone");
         herobrines.add("annoyingvillagers:shadow_herobrine_clone");
-        herobrines.add("annoyingvillagers:herobrine_chris");
         herobrines.add("annoyingvillagers:herobrine_7");
         herobrines.add("annoyingvillagers:armored_herobrine");
         herobrines.add("annoyingvillagers:low_shadow_herobrine_clone");
