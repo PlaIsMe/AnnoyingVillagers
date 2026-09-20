@@ -647,7 +647,7 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
 
     public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.literal(Component.translatable("tooltip.annoyingvillagers.demoniac_voltage_reaver").getString()));
+        list.add(Component.translatable("tooltip.annoyingvillagers.demoniac_voltage_reaver"));
     }
 
     private void secondFormNbtTag(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity) {

@@ -657,8 +657,10 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                     herobrineGregEntity.playSound(AnnoyingVillagersModSounds.GREG_REQUESTING_ASSISTANCE.get(), 1.0F, 1.0F);
                 }
                 Objects.requireNonNull(herobrineGregEntity.level().getServer()).getPlayerList().broadcastSystemMessage(
-                        Component.literal("<" + Component.translatable("entity.annoyingvillagers.herobrine_greg").getString() + "> "
-                                + Component.translatable("subtitles.herobrine_request").getString()), false);
+                        Component.literal("<")
+                                .append(Component.translatable("entity.annoyingvillagers.herobrine_greg"))
+                                .append(Component.literal("> "))
+                                .append(Component.translatable("subtitles.herobrine_request")), false);
                 return;
             }
         }
@@ -671,7 +673,8 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
             this.playSound(AnnoyingVillagersModSounds.SELF_REQUESTING_ASSISTANCE.get(), 1.0F, 1.0F);
         }
         Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(
-                Component.literal("<" + this.getChatName() + "> " + Component.translatable("subtitles.herobrine_request").getString()),
+                Component.literal("<" + this.getChatName() + "> ")
+                        .append(Component.translatable("subtitles.herobrine_request")),
                 false);
     }
 
@@ -1175,7 +1178,9 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
                     HerobrinePortalUtil.sinkIntoGround(serverLevel, this, 0.06);
                 }
                 if (remaining <= 0) {
-                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(Component.literal(this.getChatName() + " " + Component.translatable("subtitles.herobrine_retreat")), false);
+                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(
+                            Component.literal(this.getChatName() + " ")
+                                    .append(Component.translatable("subtitles.herobrine_retreat")), false);
                     this.discard();
                 }
             }

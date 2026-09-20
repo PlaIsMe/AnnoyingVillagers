@@ -137,7 +137,7 @@ public class ObsidianSledgehammerItem extends LegacySwordItem implements RigComb
     @Override
     public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.literal(Component.translatable("tooltip.annoyingvillagers.obsidian_sledgehammer").getString()));
+        list.add(Component.translatable("tooltip.annoyingvillagers.obsidian_sledgehammer"));
     }
 
     @Override

@@ -354,7 +354,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
 
         private static void addChestChargeTooltip(List<Component> tooltip, int charge) {
             tooltip.add(
-                    Component.literal(Component.translatable("tooltip.annoyingvillagers.blue_demon_chestplate_thunder_charge").getString())
+                    Component.translatable("tooltip.annoyingvillagers.blue_demon_chestplate_thunder_charge")
                             .withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(CHEST_CHARGE_COLOR)))
             );
 
@@ -367,7 +367,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
 
             if (charge >= MAX_CHEST_CHARGE) {
                 tooltip.add(
-                        Component.literal(Component.translatable("tooltip.annoyingvillagers.thunder_charged").getString())
+                        Component.translatable("tooltip.annoyingvillagers.thunder_charged")
                                 .withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(CHEST_CHARGE_FULL_COLOR)))
                 );
             }

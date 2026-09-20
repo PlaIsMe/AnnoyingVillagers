@@ -85,6 +85,9 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
     private static final double SECOND_FORM_SUPPORT_SEARCH_RADIUS_SQR = 48.0D * 48.0D;
     private static final double FOLLOW_SUPPORT_SEARCH_RADIUS = 96.0D;
     private static final double FOLLOW_SUPPORT_LEASH_RADIUS_SQR = 128.0D * 128.0D;
+    private static final int LOW_SUPPORT_PRIORITY = 1;
+    private static final int MIDDLE_SUPPORT_PRIORITY = 2;
+    private static final int HIGH_SUPPORT_PRIORITY = 3;
 
     private static final EntityDataAccessor<Boolean> WHITE_EYE =
             SynchedEntityData.defineId(HerobrineGregEntity.class, EntityDataSerializers.BOOLEAN);
@@ -110,10 +113,12 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
     private Entity firstSummonedHerobrine;
     private Entity secondSummonedHerobrine;
     private Entity thirdSummonedHerobrine;
+    private LivingEntity followedSupportHerobrine;
 
     private UUID firstSummonedHerobrineUUID;
     private UUID secondSummonedHerobrineUUID;
     private UUID thirdSummonedHerobrineUUID;
+    private UUID followedSupportHerobrineUUID;
     private final Entity[] combatLowCloneSupport = new Entity[MAX_COMBAT_LOW_CLONE_SUPPORT];
     private final UUID[] combatLowCloneSupportUUIDs = new UUID[MAX_COMBAT_LOW_CLONE_SUPPORT];
 
@@ -325,22 +330,91 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
     }
 
     private static boolean isGregFollowSupportTarget(LivingEntity entity) {
-        return entity instanceof HerobrineMob
-                && !(entity instanceof TransporterHerobrineCloneEntity)
-                && !(entity instanceof LowHerobrineCloneEntity)
-                && !(entity instanceof LowShadowHerobrineCloneEntity);
+        return getGregFollowSupportPriority(entity) > 0;
+    }
+
+    private static int getGregFollowSupportPriority(@Nullable LivingEntity entity) {
+        if (entity instanceof GlaiveHerobrineEntity
+                || entity instanceof SwordsmanHerobrineEntity
+                || entity instanceof ReaperHerobrineEntity
+                || entity instanceof SledgehammerHerobrineEntity
+                || entity instanceof AegisHerobrineEntity
+                || entity instanceof NullEntity
+                || entity instanceof ShadowHerobrineEntity) {
+            return HIGH_SUPPORT_PRIORITY;
+        }
+        if (entity instanceof HerobrineCloneEntity
+                || entity instanceof ShadowHerobrineCloneEntity
+                || entity instanceof Herobrine7Entity
+                || entity instanceof ArmoredHerobrineEntity) {
+            return MIDDLE_SUPPORT_PRIORITY;
+        }
+        if (entity instanceof LowHerobrineCloneEntity
+                || entity instanceof LowShadowHerobrineCloneEntity) {
+            return LOW_SUPPORT_PRIORITY;
+        }
+        return 0;
     }
 
     @Nullable
     public LivingEntity findGregFollowSupportHerobrine() {
+        this.resolveFollowedSupportHerobrine();
+        if (this.followedSupportHerobrine != null
+                && !this.isValidFollowedSupportHerobrine(this.followedSupportHerobrine)) {
+            this.setFollowedSupportHerobrine(null);
+        }
+
+        int currentPriority = getGregFollowSupportPriority(this.followedSupportHerobrine);
+        LivingEntity bestSupport = null;
+        int bestPriority = currentPriority;
+        double bestDistanceSqr = Double.MAX_VALUE;
         for (LivingEntity support : HerobrineUtil.findSupportHerobrines(this, FOLLOW_SUPPORT_SEARCH_RADIUS)) {
             if (support.isAlive()
                     && isGregFollowSupportTarget(support)
                     && !(support.isPassenger() && support.getVehicle() instanceof HerobrineDragonEntity)) {
-                return support;
+                int priority = getGregFollowSupportPriority(support);
+                if (this.followedSupportHerobrine != null && priority <= currentPriority) {
+                    continue;
+                }
+                double distanceSqr = this.distanceToSqr(support);
+                if (priority > bestPriority || priority == bestPriority && distanceSqr < bestDistanceSqr) {
+                    bestSupport = support;
+                    bestPriority = priority;
+                    bestDistanceSqr = distanceSqr;
+                }
             }
         }
-        return null;
+        if (bestSupport != null) {
+            this.setFollowedSupportHerobrine(bestSupport);
+        }
+        return this.followedSupportHerobrine;
+    }
+
+    private boolean isValidFollowedSupportHerobrine(@Nullable LivingEntity support) {
+        return support != null
+                && support.isAlive()
+                && !support.isRemoved()
+                && isGregFollowSupportTarget(support)
+                && !(support.isPassenger() && support.getVehicle() instanceof HerobrineDragonEntity)
+                && this.distanceToSqr(support) <= FOLLOW_SUPPORT_LEASH_RADIUS_SQR;
+    }
+
+    private void setFollowedSupportHerobrine(@Nullable LivingEntity support) {
+        this.followedSupportHerobrine = support;
+        this.followedSupportHerobrineUUID = support == null ? null : support.getUUID();
+    }
+
+    private void resolveFollowedSupportHerobrine() {
+        if (this.followedSupportHerobrine != null
+                || this.followedSupportHerobrineUUID == null
+                || !(this.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        Entity entity = serverLevel.getEntity(this.followedSupportHerobrineUUID);
+        if (entity instanceof LivingEntity livingEntity) {
+            this.followedSupportHerobrine = livingEntity;
+        }
     }
 
     public boolean isSupportingSecondFormCaster(LivingEntity support) {
@@ -402,6 +476,7 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
     private void playSecondFormSupportCastAnimation() {
         if (!this.level().isClientSide()) {
             this.playSound(AnnoyingVillagersModSounds.PORTAL_NATURAL.get(), 1.0F, 1.0F);
+            RigAnimationController.play(this, RigAnimationId.PORTAL_SUMMON);
             this.swing(InteractionHand.MAIN_HAND, true);
         }
     }
@@ -486,6 +561,14 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
             public void tick() {
                 if (!isValidSupport(this.support)) {
                     return;
+                }
+
+                LivingEntity selectedSupport = findGregFollowSupportHerobrine();
+                if (selectedSupport != null && selectedSupport != this.support) {
+                    this.support = selectedSupport;
+                    this.standPosition = null;
+                    this.repathCooldown = 0;
+                    getNavigation().stop();
                 }
 
                 markSupportingHerobrine();
@@ -1032,13 +1115,15 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
             }
             if (this.level().getDayTime() % 24000L == 13001 && this.summonTimestamp == -1) {
                 if (new Random().nextBoolean()) {
-                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(Component.literal("<" + this.getChatName() + "> " +
-                            Component.translatable("subtitles.herobrine_prepare_for_fight").getString()), false);
+                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(
+                            Component.literal("<" + this.getChatName() + "> ")
+                                    .append(Component.translatable("subtitles.herobrine_prepare_for_fight")), false);
                     this.summonTimestamp = new Random().nextInt(13100, 22200);
                     AnnoyingVillagers.LOGGER.info("[AV MOD DEBUG]: Greg will summon elites at {}", this.summonTimestamp);
                 } else {
-                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(Component.literal("<" + this.getChatName() + "> " +
-                            Component.translatable("subtitles.herobrine_no_fight").getString()), false);
+                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(
+                            Component.literal("<" + this.getChatName() + "> ")
+                                    .append(Component.translatable("subtitles.herobrine_no_fight")), false);
                 }
             }
 
@@ -1070,8 +1155,9 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
             }
             if (this.summonTiming == 10) {
                 this.playSound(AnnoyingVillagersModSounds.PORTAL_SUMMON.get(), 1.0F, 1.0F);
-                Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(Component.literal("<" + this.getChatName() + "> " +
-                        Component.translatable("subtitles.herobrine_summon").getString()), false);
+                Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(
+                        Component.literal("<" + this.getChatName() + "> ")
+                                .append(Component.translatable("subtitles.herobrine_summon")), false);
             }
             if (this.summonTiming == 1) {
                 if (this.combatMode) {
@@ -1095,8 +1181,9 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
                 }
             }
             if (this.escapeTiming == 1) {
-                this.level().getServer().getPlayerList().broadcastSystemMessage(Component.literal("<" + this.getChatName() + "> " +
-                        Component.translatable("subtitles.herobrine_will_be_back").getString()), false);
+                this.level().getServer().getPlayerList().broadcastSystemMessage(
+                        Component.literal("<" + this.getChatName() + "> ")
+                                .append(Component.translatable("subtitles.herobrine_will_be_back")), false);
                 if (this.firstSummonedHerobrine instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity) {
                     lowShadowHerobrineCloneEntity.setAutoKill(true);
                     lowShadowHerobrineCloneEntity.kill();
@@ -1740,6 +1827,9 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         if (pCompound.hasUUID("ThirdSummonedHerobrineUUID")) {
             thirdSummonedHerobrineUUID = pCompound.getUUID("ThirdSummonedHerobrineUUID");
         }
+        if (pCompound.hasUUID("FollowedSupportHerobrineUUID")) {
+            this.followedSupportHerobrineUUID = pCompound.getUUID("FollowedSupportHerobrineUUID");
+        }
         for (int i = 0; i < MAX_COMBAT_LOW_CLONE_SUPPORT; i++) {
             String key = "CombatLowCloneSupportUUID" + i;
             if (pCompound.hasUUID(key)) {
@@ -1773,6 +1863,9 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
         }
         if (thirdSummonedHerobrineUUID != null) {
             pCompound.putUUID("ThirdSummonedHerobrineUUID", thirdSummonedHerobrineUUID);
+        }
+        if (this.followedSupportHerobrineUUID != null) {
+            pCompound.putUUID("FollowedSupportHerobrineUUID", this.followedSupportHerobrineUUID);
         }
         for (int i = 0; i < MAX_COMBAT_LOW_CLONE_SUPPORT; i++) {
             if (this.combatLowCloneSupportUUIDs[i] != null) {

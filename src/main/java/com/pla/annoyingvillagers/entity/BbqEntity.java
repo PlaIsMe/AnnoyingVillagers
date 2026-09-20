@@ -483,7 +483,10 @@ public class BbqEntity extends Chicken implements ForceTickEntity, BurstProtectE
 
         if (this.level() instanceof ServerLevel serverLevel) {
             serverLevel.getServer().getPlayerList().broadcastSystemMessage(
-                    Component.literal("<" + this.getName().getString() + "> " + Component.translatable("subtitles.bbq_retreat").getString()),
+                    Component.literal("<")
+                            .append(this.getName())
+                            .append(Component.literal("> "))
+                            .append(Component.translatable("subtitles.bbq_retreat")),
                     false
             );
         }
