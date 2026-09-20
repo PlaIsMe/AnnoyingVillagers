@@ -121,7 +121,8 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
             return;
         }
 
-        LegacyItemData.getOrCreate(stack).putInt(TAG_CHEST_CHARGE, Mth.clamp(amount, 0, MAX_CHEST_CHARGE));
+        int charge = Mth.clamp(amount, 0, MAX_CHEST_CHARGE);
+        LegacyItemData.update(stack, tag -> tag.putInt(TAG_CHEST_CHARGE, charge));
     }
 
     public static void addStoredCharge(ItemStack stack, int amount) {
@@ -157,14 +158,10 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
         }
 
         if (foil) {
-            LegacyItemData.getOrCreate(stack).putBoolean(TAG_BLUE_DEMON_HEALING_FOIL, true);
+            LegacyItemData.update(stack, tag -> tag.putBoolean(TAG_BLUE_DEMON_HEALING_FOIL, true));
         } else {
-            CompoundTag tag = LegacyItemData.get(stack);
-            if (tag != null) {
-                tag.remove(TAG_BLUE_DEMON_HEALING_FOIL);
-                if (tag.isEmpty()) {
-                    LegacyItemData.set(stack, null);
-                }
+            if (LegacyItemData.get(stack) != null) {
+                LegacyItemData.update(stack, tag -> tag.remove(TAG_BLUE_DEMON_HEALING_FOIL));
             }
         }
     }
@@ -192,20 +189,15 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
         }
 
         int clamped = Math.max(0, ticks);
-        CompoundTag tag = LegacyItemData.get(stack);
 
         if (clamped == 0) {
-            if (tag != null) {
-                tag.remove(TAG_CHEST_BUFF_TICKS);
-
-                if (tag.isEmpty()) {
-                    LegacyItemData.set(stack, null);
-                }
+            if (LegacyItemData.get(stack) != null) {
+                LegacyItemData.update(stack, tag -> tag.remove(TAG_CHEST_BUFF_TICKS));
             }
             return;
         }
 
-        LegacyItemData.getOrCreate(stack).putInt(TAG_CHEST_BUFF_TICKS, clamped);
+        LegacyItemData.update(stack, tag -> tag.putInt(TAG_CHEST_BUFF_TICKS, clamped));
     }
 
     public static void stopBuff(ItemStack stack) {

@@ -183,17 +183,20 @@ public final class VanillaWeaponAbilityUtil {
     }
 
     public static int getCharge(ItemStack stack, String tag, int max) {
-        return Math.max(0, Math.min(max, LegacyItemData.getOrCreate(stack).getInt(tag)));
+        CompoundTag data = LegacyItemData.get(stack);
+        return Math.max(0, Math.min(max, data == null ? 0 : data.getInt(tag)));
     }
 
     public static int addCharge(ItemStack stack, String tag, int amount, int max) {
         int charge = Math.max(0, Math.min(max, getCharge(stack, tag, max) + amount));
-        LegacyItemData.getOrCreate(stack).putInt(tag, charge);
+        LegacyItemData.update(stack, data -> data.putInt(tag, charge));
         return charge;
     }
 
     public static void setCharge(ItemStack stack, String tag, int amount, int max) {
-        LegacyItemData.getOrCreate(stack).putInt(tag, Math.max(0, Math.min(max, amount)));
+        int charge = Math.max(0, Math.min(max, amount));
+        if (getCharge(stack, tag, max) == charge) return;
+        LegacyItemData.update(stack, data -> data.putInt(tag, charge));
     }
 
     public static boolean hasPersistentFlag(Entity entity, String tag) {

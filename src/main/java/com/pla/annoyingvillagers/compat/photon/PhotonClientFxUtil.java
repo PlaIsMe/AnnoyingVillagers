@@ -232,7 +232,7 @@ public final class PhotonClientFxUtil {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
-        if (false || ACTIVE_EFFECTS.isEmpty()) {
+        if (ACTIVE_EFFECTS.isEmpty()) {
             return;
         }
 
@@ -370,14 +370,13 @@ public final class PhotonClientFxUtil {
 
         try {
             Class<?> fxClass = Class.forName("com.lowdragmc.photon.client.fx.FX");
-            Class<?> fxHelperClass = Class.forName("com.lowdragmc.photon.client.fx.FXHelper");
             Class<?> fxEffectClass = Class.forName("com.lowdragmc.photon.client.fx.FXEffectExecutor");
             Class<?> blockEffectClass = Class.forName("com.lowdragmc.photon.client.fx.BlockEffectExecutor");
             Class<?> fxRuntimeClass = Class.forName("com.lowdragmc.photon.client.fx.FXRuntime");
             Class<?> fxObjectClass = Class.forName("com.lowdragmc.photon.client.gameobject.IFXObject");
 
             reflection = new Reflection(
-                    fxHelperClass.getMethod("getFX", ResourceLocation.class),
+                    PhotonFxLoader.class.getMethod("getFX", ResourceLocation.class),
                     blockEffectClass.getConstructor(fxClass, Level.class, BlockPos.class),
                     fxEffectClass.getMethod("setOffset", Vector3f.class),
                     fxEffectClass.getMethod("setRotation", Quaternionf.class),

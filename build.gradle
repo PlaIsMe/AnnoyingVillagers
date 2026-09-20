@@ -14,7 +14,7 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = 'AnnoyingVillagers-1.21.1-neoforge'
+    archivesName = 'AnnoyingVillagers-1.21.1'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -83,10 +83,10 @@ repositories {
 dependencies {
     implementation "libs:SmartNpc-1.21.1:2.0.0"
 
-    implementation "curse.maven:aaa-particles-979809:8402817"
-    implementation "curse.maven:architectury-api-419699:8492726"
-    implementation "curse.maven:photon-871522:8824095"
-    implementation "curse.maven:ldlib-626676:8866144"
+    compileOnly "curse.maven:aaa-particles-979809:8402817"
+    compileOnly "curse.maven:architectury-api-419699:8492726"
+    compileOnly "curse.maven:photon-871522:8824095"
+    compileOnly "curse.maven:ldlib-626676:8866144"
 
     implementation "curse.maven:cloth-config-348521:5729127"
     implementation "curse.maven:playeranimator-658587:7389814"

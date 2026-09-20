@@ -47,6 +47,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
 
     private static final float RELAUNCH_SPEED = 2.5F;
     public static final String TAG_STORM_ENERGY = "BlueDemonStormEnergy";
+    private static final String TAG_STORM_RESET_AT = "BlueDemonStormResetAt";
     public static final int MAX_STORM_ENERGY = 100;
     private static final int VANILLA_SPECIAL_COOLDOWN_TICKS = 20 * 60;
     private static final int VANILLA_FESTIVAL_COOLDOWN_TICKS = 20 * 60 * 5;
@@ -140,7 +141,10 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
             return 0;
         }
 
-        CompoundTag tag = LegacyItemData.getOrCreate(stack);
+        CompoundTag tag = LegacyItemData.get(stack);
+        if (tag == null) {
+            return 0;
+        }
         return Mth.clamp(tag.getInt(TAG_STORM_ENERGY), 0, MAX_STORM_ENERGY);
     }
 
@@ -149,7 +153,8 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
             return;
         }
 
-        LegacyItemData.getOrCreate(stack).putInt(TAG_STORM_ENERGY, Mth.clamp(value, 0, MAX_STORM_ENERGY));
+        int energy = Mth.clamp(value, 0, MAX_STORM_ENERGY);
+        LegacyItemData.update(stack, tag -> tag.putInt(TAG_STORM_ENERGY, energy));
     }
 
     public static boolean isFullyCharged(ItemStack stack) {
@@ -665,13 +670,16 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
         ItemStack offHand = player.getOffhandItem();
         BlueDemonTridentItem item = (BlueDemonTridentItem)mainHand.getItem();
         if (!isFullyCharged(mainHand) || !isFullyCharged(offHand) || !VanillaWeaponAbilityUtil.isInternalCooldownReady(player, VANILLA_ABILITY_COOLDOWN_TAG) || !(player.level() instanceof ServerLevel serverLevel)) return false;
+        long resetAt = player.level().getGameTime() + 70L;
+        markStormEnergyReset(mainHand, resetAt);
+        markStormEnergyReset(offHand, resetAt);
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
         new DelayedTask(6) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) summonMissingTridentAndAnimate(serverLevel, player); } };
         new DelayedTask(10) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) { spawnDamageZones(serverLevel, player); relaunchGroundedTridents(serverLevel, player, true); } } };
         new DelayedTask(24) { @Override public void run() { if (player.isAlive() && !player.isRemoved()) relaunchGroundedTridents(serverLevel, player, true); } };
-        new DelayedTask(70) { @Override public void run() { if (!player.isAlive() || player.isRemoved()) return; summonSuperLightningAtGroundedTridents(serverLevel, player); setStormEnergy(mainHand, 0); setStormEnergy(offHand, 0); } };
+        new DelayedTask(70) { @Override public void run() { if (!player.isAlive() || player.isRemoved()) return; summonSuperLightningAtGroundedTridents(serverLevel, player); clearPendingStormEnergy(player, resetAt); } };
         VanillaWeaponAbilityUtil.setInternalCooldown(player, VANILLA_ABILITY_COOLDOWN_TAG, VANILLA_FESTIVAL_COOLDOWN_TICKS);
         player.getCooldowns().addCooldown(item, VANILLA_FESTIVAL_COOLDOWN_TICKS);
         return true;
@@ -683,6 +691,12 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
 
     public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity, int i, boolean flag) {
         super.inventoryTick(itemstack, level, entity, i, flag);
+        if (!level.isClientSide()) {
+            CompoundTag tag = LegacyItemData.get(itemstack);
+            if (tag != null && tag.getLong(TAG_STORM_RESET_AT) > 0L && level.getGameTime() >= tag.getLong(TAG_STORM_RESET_AT)) {
+                clearStormEnergy(itemstack);
+            }
+        }
 //        Add this in AV_EFM
 
 //        if (flag && entity instanceof Player player && entity.level() instanceof ServerLevel serverLevel) {
@@ -717,6 +731,28 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
 //        }
 
 //        Add VANILLA_ANIMATION cover this effect when trident is activated
+    }
+
+    private static void markStormEnergyReset(ItemStack stack, long resetAt) {
+        LegacyItemData.update(stack, tag -> tag.putLong(TAG_STORM_RESET_AT, resetAt));
+    }
+
+    private static void clearPendingStormEnergy(Player player, long resetAt) {
+        for (ItemStack stack : player.getInventory().items) clearPendingStormEnergy(stack, resetAt);
+        for (ItemStack stack : player.getInventory().offhand) clearPendingStormEnergy(stack, resetAt);
+    }
+
+    private static void clearPendingStormEnergy(ItemStack stack, long resetAt) {
+        if (!isBlueDemonTrident(stack)) return;
+        CompoundTag tag = LegacyItemData.get(stack);
+        if (tag != null && tag.getLong(TAG_STORM_RESET_AT) == resetAt) clearStormEnergy(stack);
+    }
+
+    private static void clearStormEnergy(ItemStack stack) {
+        LegacyItemData.update(stack, tag -> {
+            tag.putInt(TAG_STORM_ENERGY, 0);
+            tag.remove(TAG_STORM_RESET_AT);
+        });
     }
 
     @Override

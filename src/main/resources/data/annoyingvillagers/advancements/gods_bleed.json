@@ -20,7 +20,7 @@
       "trigger": "minecraft:player_hurt_entity",
       "conditions": {
         "entity": {
-          "type": "annoyingvillagers:herobrine_chris"
+          "type": "annoyingvillagers:herobrine_clone"
         }
       }
     }

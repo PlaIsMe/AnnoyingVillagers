@@ -18,6 +18,8 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.*;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +44,22 @@ public class ShieldRendererEvent extends BlockEntityWithoutLevelRenderer {
         instance = new ShieldRendererEvent(Minecraft.getInstance().getBlockEntityRenderDispatcher(),
                 Minecraft.getInstance().getEntityModels());
         event.registerReloadListener(instance);
+    }
+
+    @SubscribeEvent
+    public static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
+        IClientItemExtensions extensions = new IClientItemExtensions() {
+            @Override
+            public @NotNull BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return instance;
+            }
+        };
+        event.registerItem(extensions,
+                AnnoyingVillagersModItems.ENDER_AEGIS.get(),
+                AnnoyingVillagersModItems.GEM_SHIELD.get(),
+                AnnoyingVillagersModItems.HEATER_SHIELD.get(),
+                AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get(),
+                AnnoyingVillagersModItems.NETHERITE_SHIELD.get());
     }
 
     @Override

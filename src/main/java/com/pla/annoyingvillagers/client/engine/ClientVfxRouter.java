@@ -46,6 +46,12 @@ public final class ClientVfxRouter {
             return;
         }
 
+        // When Photon is present and this effect has a Photon implementation,
+        // do not hide compatibility failures behind another renderer.
+        if (photon != null && AnnoyingVillagersClientConfig.isPhotonModLoaded()) {
+            return;
+        }
+
         if (!aaaTried && tryAaa(effect, aaa)) {
             return;
         }

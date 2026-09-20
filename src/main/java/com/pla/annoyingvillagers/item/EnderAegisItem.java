@@ -2,7 +2,6 @@ package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.entity.EnderAegisProjectile;
-import com.pla.annoyingvillagers.event.ShieldRendererEvent;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
 import com.pla.annoyingvillagers.network.ClientboundEnderAegisSparkFx;
@@ -10,7 +9,6 @@ import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -24,12 +22,10 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvider {
     private static final double ATTACK_DAMAGE_MODIFIER = 7.0D;
@@ -50,16 +46,6 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
                         .build()));
     }
 
-    @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
-            @Override
-            public @NotNull BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return ShieldRendererEvent.instance;
-            }
-        });
-    }
-
     public static boolean isSecondForm(ItemStack stack) {
         return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean(SECOND_FORM_TAG);
     }
@@ -76,7 +62,8 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
     }
 
     public static float getCharge(ItemStack stack) {
-        return Mth.clamp(LegacyItemData.getOrCreate(stack).getFloat(CHARGE_TAG), 0.0F, MAX_CHARGE);
+        CompoundTag tag = LegacyItemData.get(stack);
+        return Mth.clamp(tag == null ? 0.0F : tag.getFloat(CHARGE_TAG), 0.0F, MAX_CHARGE);
     }
 
     public static void addBlockedCharge(ItemStack stack, Player player, float blockedDamage) {

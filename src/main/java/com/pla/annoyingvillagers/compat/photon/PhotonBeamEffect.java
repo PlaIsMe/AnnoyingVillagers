@@ -2,7 +2,6 @@ package com.pla.annoyingvillagers.compat.photon;
 
 import com.lowdragmc.photon.client.fx.FX;
 import com.lowdragmc.photon.client.fx.EntityEffectExecutor;
-import com.lowdragmc.photon.client.fx.FXHelper;
 import com.lowdragmc.photon.client.gameobject.IFXObject;
 import com.lowdragmc.photon.client.gameobject.emitter.beam.BeamConfig;
 import com.lowdragmc.photon.client.gameobject.emitter.beam.BeamEmitter;
@@ -67,7 +66,7 @@ final class PhotonBeamEffect extends EntityEffectExecutor {
                                  PhotonClientFxUtil.BeamForwardAxis forwardAxis,
                                  float visualBaseLength,
                                  int lifetimeTicks) {
-        FX fx = FXHelper.getFX(fxLocation);
+        FX fx = PhotonFxLoader.getFX(fxLocation);
         if (fx == null || level == null || owner == null || !owner.isAlive()
                 || startProvider == null || endProvider == null || aliveSupplier == null) {
             return false;

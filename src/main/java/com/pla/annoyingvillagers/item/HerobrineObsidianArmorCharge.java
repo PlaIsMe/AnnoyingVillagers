@@ -43,7 +43,9 @@ public final class HerobrineObsidianArmorCharge {
     public static void setCharge(ItemStack stack, int charge) {
         int max = maxCharge(stack);
         if (max <= 0) return;
-        LegacyItemData.getOrCreate(stack).putInt(tagName(stack), Mth.clamp(charge, 0, max));
+        String tagName = tagName(stack);
+        int clampedCharge = Mth.clamp(charge, 0, max);
+        LegacyItemData.update(stack, tag -> tag.putInt(tagName, clampedCharge));
     }
 
     public static void addCharge(ItemStack stack, int charge) {
@@ -65,7 +67,7 @@ public final class HerobrineObsidianArmorCharge {
 
     public static void setForcedPurpleFoil(ItemStack stack, boolean value) {
         if (!isObsidianArmor(stack)) return;
-        LegacyItemData.getOrCreate(stack).putBoolean(FORCED_PURPLE_FOIL_TAG, value);
+        LegacyItemData.update(stack, tag -> tag.putBoolean(FORCED_PURPLE_FOIL_TAG, value));
     }
 
     private static String tagName(ItemStack stack) {

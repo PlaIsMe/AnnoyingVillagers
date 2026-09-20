@@ -7,6 +7,7 @@ import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.task.DelayedTask;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -86,8 +87,11 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
         if (weapons.isEmpty()) return false;
         LivingEntity target = VanillaWeaponAbilityUtil.findCommandTarget(player, 24.0D);
         for (NullWeapon weapon : weapons) weapon.releaseForTicks(target, RELEASE_DURATION_TICKS);
-        LegacyItemData.getOrCreate(stack).putLong(RELEASE_UNTIL_TAG, player.level().getGameTime() + RELEASE_DURATION_TICKS);
-        LegacyItemData.getOrCreate(stack).remove(RECOVERY_UNTIL_TAG);
+        long releaseUntil = player.level().getGameTime() + RELEASE_DURATION_TICKS;
+        LegacyItemData.update(stack, tag -> {
+            tag.putLong(RELEASE_UNTIL_TAG, releaseUntil);
+            tag.remove(RECOVERY_UNTIL_TAG);
+        });
         VanillaWeaponAbilityUtil.swingOffHand(player);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
         player.getCooldowns().addCooldown(item, RELEASE_DURATION_TICKS);
@@ -96,10 +100,15 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
                 if (!player.isAlive() || player.isRemoved()) return;
                 if (player.level() instanceof ServerLevel level) {
                     for (NullWeapon weapon : getOwnedWeapons(level, player)) weapon.stopRelease();
-                    setCharge(stack, 0);
-                    LegacyItemData.getOrCreate(stack).remove(RELEASE_UNTIL_TAG);
-                    LegacyItemData.getOrCreate(stack).putLong(RECOVERY_UNTIL_TAG, player.level().getGameTime() + RECOVERY_COOLDOWN_TICKS);
-                    if (player.getOffhandItem() == stack) syncOwnedWeapons(level, player, stack);
+                    ItemStack releasedStack = findReleasedWeapon(player, releaseUntil);
+                    if (!releasedStack.isEmpty()) {
+                        setCharge(releasedStack, 0);
+                        LegacyItemData.update(releasedStack, tag -> {
+                            tag.remove(RELEASE_UNTIL_TAG);
+                            tag.putLong(RECOVERY_UNTIL_TAG, player.level().getGameTime() + RECOVERY_COOLDOWN_TICKS);
+                        });
+                    }
+                    if (player.getOffhandItem() == releasedStack) syncOwnedWeapons(level, player, releasedStack);
                     else discardOwnedWeapons(level, player);
                 }
                 player.getCooldowns().addCooldown(item, RECOVERY_COOLDOWN_TICKS);
@@ -118,23 +127,27 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
             return;
         }
         long now = level.getGameTime();
-        long releaseUntil = LegacyItemData.getOrCreate(stack).getLong(RELEASE_UNTIL_TAG);
-        long recoveryUntil = LegacyItemData.getOrCreate(stack).getLong(RECOVERY_UNTIL_TAG);
+        CompoundTag tag = LegacyItemData.get(stack);
+        long releaseUntil = tag == null ? 0L : tag.getLong(RELEASE_UNTIL_TAG);
+        long recoveryUntil = tag == null ? 0L : tag.getLong(RECOVERY_UNTIL_TAG);
         if (releaseUntil > 0L && now >= releaseUntil) {
-            LegacyItemData.getOrCreate(stack).remove(RELEASE_UNTIL_TAG);
             setCharge(stack, 0);
             for (NullWeapon weapon : getOwnedWeapons(serverLevel, player)) weapon.stopRelease();
             if (recoveryUntil <= now) {
                 recoveryUntil = now + RECOVERY_COOLDOWN_TICKS;
-                LegacyItemData.getOrCreate(stack).putLong(RECOVERY_UNTIL_TAG, recoveryUntil);
             }
+            long finalRecoveryUntil = recoveryUntil;
+            LegacyItemData.update(stack, data -> {
+                data.remove(RELEASE_UNTIL_TAG);
+                data.putLong(RECOVERY_UNTIL_TAG, finalRecoveryUntil);
+            });
         }
         long cooldownUntil = releaseUntil > now ? releaseUntil : recoveryUntil;
         long remaining = cooldownUntil - now;
         if (remaining > 0L && player.getCooldowns().getCooldownPercent(stack.getItem(), 0.0F) <= 0.0F) {
             player.getCooldowns().addCooldown(stack.getItem(), (int)Math.min(Integer.MAX_VALUE, remaining));
         } else if (recoveryUntil > 0L && recoveryUntil <= now) {
-            LegacyItemData.getOrCreate(stack).remove(RECOVERY_UNTIL_TAG);
+            LegacyItemData.update(stack, data -> data.remove(RECOVERY_UNTIL_TAG));
         }
         if (player.getOffhandItem() != stack) {
             setCharge(stack, 0);
@@ -142,6 +155,22 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
             return;
         }
         if (player.getOffhandItem() == stack) syncOwnedWeapons(serverLevel, player, stack);
+    }
+
+    private static ItemStack findReleasedWeapon(Player player, long releaseUntil) {
+        for (ItemStack candidate : player.getInventory().items) {
+            if (hasReleaseMarker(candidate, releaseUntil)) return candidate;
+        }
+        for (ItemStack candidate : player.getInventory().offhand) {
+            if (hasReleaseMarker(candidate, releaseUntil)) return candidate;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private static boolean hasReleaseMarker(ItemStack stack, long releaseUntil) {
+        if (!(stack.getItem() instanceof NullWeaponItem)) return false;
+        CompoundTag tag = LegacyItemData.get(stack);
+        return tag != null && tag.getLong(RELEASE_UNTIL_TAG) == releaseUntil;
     }
 
     private static void syncOwnedWeapons(ServerLevel level, Player player, ItemStack stack) {

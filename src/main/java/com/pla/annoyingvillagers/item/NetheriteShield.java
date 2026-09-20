@@ -1,11 +1,6 @@
 package com.pla.annoyingvillagers.item;
 
-import com.pla.annoyingvillagers.event.ShieldRendererEvent;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.world.item.ShieldItem;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-
-import java.util.function.Consumer;
 
 public class NetheriteShield extends ShieldItem {
     public NetheriteShield() {
@@ -13,15 +8,5 @@ public class NetheriteShield extends ShieldItem {
                 .stacksTo(1)
                 .durability(1561)
         );
-    }
-
-    @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return ShieldRendererEvent.instance;
-            }
-        });
     }
 }
