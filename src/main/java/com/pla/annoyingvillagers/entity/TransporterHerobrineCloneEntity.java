@@ -18,6 +18,7 @@ import com.pla.annoyingvillagers.rig.RigAnimationSpecs;
 import com.pla.annoyingvillagers.spawnhandler.HerobrineMobData;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrinePortalUtil;
+import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.ProgressionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -59,6 +60,8 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
     private static final float TRANSPORTER_FRAGMENT_DROP_CHANCE = 0.1F;
     private static final float FISHING_HOOK_ESCAPE_CANCEL_CHANCE = 0.3F;
     private static final double SECOND_FORM_SUPPORT_SEARCH_RADIUS_SQR = 48.0D * 48.0D;
+    private static final double FOLLOW_SUPPORT_SEARCH_RADIUS = 96.0D;
+    private static final double FOLLOW_SUPPORT_LEASH_RADIUS_SQR = 128.0D * 128.0D;
     public static final int TICKS_PER_SECOND = 20;
     public static final int ESCAPE_DURATION_TICKS = 70;
     public static final int ESCAPE_RETRY_COOLDOWN_TICKS = 80;
@@ -228,6 +231,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
         this.goalSelector.addGoal(-4, new HerobrineProjectileCounterPortalGoal(this));
         this.goalSelector.addGoal(-3, new HerobrineSupportApproachPortalGoal(this));
         this.goalSelector.addGoal(-2, new HerobrineLowCloneSupportGoal(this));
+        this.goalSelector.addGoal(0, new FollowLowCloneSupportGoal());
         this.goalSelector.addGoal(2, new SafeCombatPositionGoal());
     }
 
@@ -287,7 +291,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
 
     @Override
     public boolean canSupportPortalAlly(LivingEntity ally) {
-        return ally instanceof HerobrineMob || ally instanceof LowHerobrineCloneEntity || ally instanceof LowShadowHerobrineCloneEntity;
+        return isTransporterFollowSupportTarget(ally);
     }
 
     @Override
@@ -308,7 +312,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
     }
 
     public boolean isSupportingSecondFormCaster(LivingEntity support) {
-        return support instanceof HerobrineMob
+        return isTransporterFollowSupportTarget(support)
                 && support.isAlive()
                 && this.distanceToSqr(support) <= SECOND_FORM_SUPPORT_SEARCH_RADIUS_SQR;
     }
@@ -382,6 +386,109 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
         }
 
         return null;
+    }
+
+    private static boolean isTransporterFollowSupportTarget(@Nullable LivingEntity entity) {
+        return entity instanceof LowHerobrineCloneEntity
+                || entity instanceof LowShadowHerobrineCloneEntity;
+    }
+
+    @Nullable
+    private LivingEntity findTransporterFollowSupportHerobrine() {
+        for (LivingEntity support : HerobrineUtil.findSupportHerobrines(this, FOLLOW_SUPPORT_SEARCH_RADIUS)) {
+            if (isTransporterFollowSupportTarget(support)) {
+                return support;
+            }
+        }
+        return null;
+    }
+
+    private class FollowLowCloneSupportGoal extends Goal {
+        @Nullable
+        private LivingEntity support;
+
+        private FollowLowCloneSupportGoal() {
+            this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+        }
+
+        @Override
+        public boolean canUse() {
+            if (!this.canMoveForSupport()) {
+                return false;
+            }
+            this.support = findTransporterFollowSupportHerobrine();
+            return this.isValidSupport();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return this.canMoveForSupport()
+                    && this.isValidSupport()
+                    && distanceToSqr(this.support) <= FOLLOW_SUPPORT_LEASH_RADIUS_SQR;
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
+        public void tick() {
+            if (!this.isValidSupport()) {
+                return;
+            }
+
+            getLookControl().setLookAt(this.support, 30.0F, 30.0F);
+            LivingEntity threat = HerobrineUtil.findThreateningEnemy(
+                    TransporterHerobrineCloneEntity.this, this.support, 24.0D);
+            if (threat == null) {
+                threat = HerobrineUtil.findEnemyForSupport(this.support, getTarget(), 24.0D);
+            }
+            if (threat != null && threat.isAlive()) {
+                setTarget(threat);
+                getLookControl().setLookAt(threat, 30.0F, 30.0F);
+            }
+
+            double supportDistanceSqr = distanceToSqr(this.support);
+            double maxSupportDistanceSqr = threat == null ? 10.0D * 10.0D : 18.0D * 18.0D;
+            if (supportDistanceSqr > maxSupportDistanceSqr) {
+                if (supportAvoidRepathCooldown <= 0 || getNavigation().isDone()) {
+                    getNavigation().moveTo(this.support, threat == null ? 1.15D : 1.25D);
+                    supportAvoidRepathCooldown = threat == null ? 30 : 10;
+                }
+                return;
+            }
+
+            if (threat != null
+                    && distanceToSqr(threat) < SUPPORT_AVOID_SAFE_DISTANCE_SQR
+                    && (supportAvoidRepathCooldown <= 0 || getNavigation().isDone())) {
+                Vec3 retreatPosition = findSupportRetreatPosition(threat);
+                if (retreatPosition != null) {
+                    getNavigation().moveTo(retreatPosition.x, retreatPosition.y, retreatPosition.z, SUPPORT_AVOID_MOVE_SPEED);
+                    supportAvoidRepathCooldown = SUPPORT_AVOID_REPATH_TICKS;
+                    return;
+                }
+            }
+
+            getNavigation().stop();
+        }
+
+        @Override
+        public void stop() {
+            this.support = null;
+            getNavigation().stop();
+        }
+
+        private boolean canMoveForSupport() {
+            return escapeTiming < 0 && !isNoAi() && !isHooked();
+        }
+
+        private boolean isValidSupport() {
+            return this.support != null
+                    && this.support.isAlive()
+                    && !this.support.isRemoved()
+                    && isTransporterFollowSupportTarget(this.support);
+        }
     }
 
     private class SafeCombatPositionGoal extends Goal {

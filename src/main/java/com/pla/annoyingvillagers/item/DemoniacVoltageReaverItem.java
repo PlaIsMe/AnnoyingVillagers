@@ -637,7 +637,7 @@ public class DemoniacVoltageReaverItem extends SwordItem implements RigCombatPro
 
     public void appendHoverText(@NotNull ItemStack itemstack, Level level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
         super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.literal(Component.translatable("tooltip.annoyingvillagers.demoniac_voltage_reaver").getString()));
+        list.add(Component.translatable("tooltip.annoyingvillagers.demoniac_voltage_reaver"));
     }
 
     private void secondFormNbtTag(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull Entity entity) {

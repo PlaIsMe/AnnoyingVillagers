@@ -363,7 +363,10 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
         this.ensureStateSauces();
         serverLevel.getServer().getPlayerList().broadcastSystemMessage(
-                Component.literal("<" + Component.translatable(SauceType.BBQ_SAUCE.getTranslationKey()).getString() + "> " + Component.translatable("subtitles.bbq_sauce_squad_arrived").getString()),
+                Component.literal("<")
+                        .append(Component.translatable(SauceType.BBQ_SAUCE.getTranslationKey()))
+                        .append(Component.literal("> "))
+                        .append(Component.translatable("subtitles.bbq_sauce_squad_arrived")),
                 false
         );
     }
@@ -1567,7 +1570,10 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
                         this.playSound(AnnoyingVillagersModSounds.BLUE_DEMON_SAY_WHEN_RETREAT.get(), 0.5F, 1.0F);
                     }
                     serverLevel.getServer().getPlayerList().broadcastSystemMessage(
-                            Component.literal("<" + this.getName().getString() + "> " + Component.translatable("subtitles.blue_demon_retreat").getString()),
+                            Component.literal("<")
+                                    .append(this.getName())
+                                    .append(Component.literal("> "))
+                                    .append(Component.translatable("subtitles.blue_demon_retreat")),
                             false
                     );
 

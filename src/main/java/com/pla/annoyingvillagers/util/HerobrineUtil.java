@@ -233,10 +233,13 @@ public class HerobrineUtil {
             if (!levelaccessor.isClientSide() && levelaccessor.getServer() != null) {
                 String killedName = entity.getPersistentData().getString("killed_name");
                 if (!killedName.isEmpty()) { // Low Herobrine Clone
-                    levelaccessor.getServer().getPlayerList().broadcastSystemMessage(Component.literal(killedName + " " + Component.translatable("subtitles.possessed_npc").getString()), false);
+                    levelaccessor.getServer().getPlayerList().broadcastSystemMessage(
+                            Component.literal(killedName + " ")
+                                    .append(Component.translatable("subtitles.possessed_npc")), false);
                 } else {
                     if ((entity instanceof LowHerobrineCloneEntity lowHerobrineCloneEntity && !lowHerobrineCloneEntity.isSummoned()) || (entity instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity && !lowShadowHerobrineCloneEntity.isSummoned())) {
-                        levelaccessor.getServer().getPlayerList().broadcastSystemMessage(Component.literal(Component.translatable("subtitles.possessed_random").getString()), false);
+                        levelaccessor.getServer().getPlayerList().broadcastSystemMessage(
+                                Component.translatable("subtitles.possessed_random"), false);
                     } else {
                         if (recallTicks == 0) {
                             recallTicks = (randomMin + new Random().nextInt(randomMax - randomMin + 1)) * 60 * 20;
@@ -246,16 +249,21 @@ public class HerobrineUtil {
                         }
                         if (mobSpawnType.equals(MobSpawnType.NATURAL) || mobSpawnType.equals(MobSpawnType.CHUNK_GENERATION)) { // For natural spawn
                             if (Math.random() <= 0.5D) { // Natural possessed
-                                levelaccessor.getServer().getPlayerList().broadcastSystemMessage(Component.literal(Component.translatable("subtitles.possessed_random").getString()), false);
+                                levelaccessor.getServer().getPlayerList().broadcastSystemMessage(
+                                        Component.translatable("subtitles.possessed_random"), false);
                             } else { // Portal animation
                                 if (entity instanceof HerobrineMob herobrineMob) {
                                     herobrineMob.setRenderPortal(true);
                                     HerobrinePortalUtil.spawnHerobrine(herobrineMob);
-                                    levelaccessor.getServer().getPlayerList().broadcastSystemMessage(Component.literal(herobrineMob.getChatName() + " " + Component.translatable("subtitles.herobrine_arrive").getString()), false);
+                                    levelaccessor.getServer().getPlayerList().broadcastSystemMessage(
+                                            Component.literal(herobrineMob.getChatName() + " ")
+                                                    .append(Component.translatable("subtitles.herobrine_arrive")), false);
                                 } else if (entity instanceof LowShadowHerobrineCloneEntity lowShadowHerobrineCloneEntity) {
                                     lowShadowHerobrineCloneEntity.setRenderPortal(true);
                                     HerobrinePortalUtil.spawnHerobrine(lowShadowHerobrineCloneEntity);
-                                    levelaccessor.getServer().getPlayerList().broadcastSystemMessage(Component.literal("§5Netherite Herobrine§r " + Component.translatable("subtitles.herobrine_arrive").getString()), false);
+                                    levelaccessor.getServer().getPlayerList().broadcastSystemMessage(
+                                            Component.literal("§5Netherite Herobrine§r ")
+                                                    .append(Component.translatable("subtitles.herobrine_arrive")), false);
                                 }
                             }
                         } else {
@@ -264,7 +272,9 @@ public class HerobrineUtil {
                                     herobrineMob.setRenderPortal(true);
                                 }
                                 HerobrinePortalUtil.spawnHerobrine(herobrineMob);
-                                levelaccessor.getServer().getPlayerList().broadcastSystemMessage(Component.literal(herobrineMob.getChatName() + " " + Component.translatable("subtitles.herobrine_arrive").getString()), false);
+                                levelaccessor.getServer().getPlayerList().broadcastSystemMessage(
+                                        Component.literal(herobrineMob.getChatName() + " ")
+                                                .append(Component.translatable("subtitles.herobrine_arrive")), false);
                             } else if (entity instanceof LivingEntity livingEntity) {
                                 // This logic is for #5 and #6 ground spawn
                                 HerobrinePortalUtil.spawnHerobrine(livingEntity);

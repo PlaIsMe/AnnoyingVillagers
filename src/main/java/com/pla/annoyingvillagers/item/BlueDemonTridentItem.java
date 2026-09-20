@@ -728,7 +728,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
 
     private static void addStormChargeTooltip(List<Component> tooltip, int energy) {
         tooltip.add(
-                Component.literal(Component.translatable("tooltip.annoyingvillagers.blue_demon_trident_thunder_charge").getString())
+                Component.translatable("tooltip.annoyingvillagers.blue_demon_trident_thunder_charge")
                         .withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(ENERGY_COLOR)))
         );
 
@@ -741,7 +741,7 @@ public class BlueDemonTridentItem extends SwordItem implements RigCombatProfileP
 
         if (energy >= MAX_STORM_ENERGY) {
             tooltip.add(
-                    Component.literal(Component.translatable("tooltip.annoyingvillagers.thunder_charged").getString())
+                    Component.translatable("tooltip.annoyingvillagers.thunder_charged")
                             .withStyle(style -> style.withBold(true).withColor(TextColor.fromRgb(ENERGY_FULL_COLOR)))
             );
         }

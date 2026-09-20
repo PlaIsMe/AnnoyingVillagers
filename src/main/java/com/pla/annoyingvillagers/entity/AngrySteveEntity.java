@@ -387,7 +387,9 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
                     playTriedAnimation();
                 }
                 if (remaining <= 0) {
-                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(Component.literal("<Steve> " + Component.translatable("subtitles.angry_steve_retreat")), false);
+                    Objects.requireNonNull(this.level().getServer()).getPlayerList().broadcastSystemMessage(
+                            Component.literal("<Steve> ")
+                                    .append(Component.translatable("subtitles.angry_steve_retreat")), false);
                     this.discard();
                 }
             }
