@@ -46,17 +46,17 @@ public abstract class VillagerArmyEntity extends AVNpc implements FishingRodUser
         SimpleContainer inventory = this.getInventory();
         if (super.seedInventory()) {
             Random random = new Random();
-            InventoryUtils.addItem(inventory, new ItemStack(Items.GOLDEN_APPLE, random.nextInt(8, 12)));
+            InventoryUtils.addItem(inventory, new ItemStack(Items.GOLDEN_APPLE, random.nextInt(4, 6)));
 
             List<ItemLike> foods = new ArrayList<>(REGULAR_FOODS);
             for (int i = 0; i < 2 && !foods.isEmpty(); i++) {
                 ItemLike food = foods.remove(random.nextInt(foods.size()));
-                InventoryUtils.addItem(inventory, new ItemStack(food, random.nextInt(12, 32)));
+                InventoryUtils.addItem(inventory, new ItemStack(food, random.nextInt(4, 8)));
             }
 
-            InventoryUtils.addItem(inventory, new ItemStack(Items.ARROW, random.nextInt(16, 32)));
-            InventoryUtils.addItem(inventory, new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get(), random.nextInt(12, 24)));
-            InventoryUtils.addItem(inventory, new ItemStack(Items.ENDER_PEARL, random.nextInt(8, 12)));
+            InventoryUtils.addItem(inventory, new ItemStack(Items.ARROW, random.nextInt(6, 12)));
+            InventoryUtils.addItem(inventory, new ItemStack(AnnoyingVillagersModItems.ENCHANTED_ARROW.get(), random.nextInt(4, 8)));
+            InventoryUtils.addItem(inventory, new ItemStack(Items.ENDER_PEARL, random.nextInt(3, 8)));
             InventoryUtils.addItem(inventory, new ItemStack(Items.WATER_BUCKET));
             if (this.isVillagerKnight() && random.nextFloat() < 0.45F) {
                 InventoryUtils.addItem(inventory, new ItemStack(Items.LAVA_BUCKET));
@@ -66,12 +66,12 @@ public abstract class VillagerArmyEntity extends AVNpc implements FishingRodUser
             int blockStacks = random.nextInt(1, 2);
             for (int i = 0; i < blockStacks && !blocks.isEmpty(); i++) {
                 ItemLike block = blocks.remove(random.nextInt(blocks.size()));
-                InventoryUtils.addItem(inventory, new ItemStack(block, random.nextInt(32, 96)));
+                InventoryUtils.addItem(inventory, new ItemStack(block, random.nextInt(12, 24)));
             }
 
-            InventoryUtils.addItem(inventory, new ItemStack(Items.IRON_INGOT, random.nextInt(2, 11)));
-            InventoryUtils.addItem(inventory, new ItemStack(Items.GOLD_INGOT, random.nextInt(1, 7)));
-            InventoryUtils.addItem(inventory, new ItemStack(Items.EMERALD, random.nextInt(1, 6)));
+            InventoryUtils.addItem(inventory, new ItemStack(Items.IRON_INGOT, random.nextInt(1, 4)));
+            InventoryUtils.addItem(inventory, new ItemStack(Items.GOLD_INGOT, random.nextInt(1, 3)));
+            InventoryUtils.addItem(inventory, new ItemStack(Items.EMERALD, random.nextInt(1, 2)));
 
             return true;
         } else {
