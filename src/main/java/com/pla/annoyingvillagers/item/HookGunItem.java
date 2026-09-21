@@ -2,11 +2,9 @@ package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.client.renderer.HookGunItemRenderer;
 import com.pla.annoyingvillagers.entity.HookGunHookEntity;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.CompoundTag;
@@ -34,14 +32,12 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Consumer;
 
 /*
  * Motor constants and double-hook launch behavior are adapted from the local
@@ -117,16 +113,6 @@ public class HookGunItem extends Item {
         }
 
         setVisualHookOut(stack, false);
-    }
-
-    @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return HookGunItemRenderer.getInstance();
-            }
-        });
     }
 
     @Override

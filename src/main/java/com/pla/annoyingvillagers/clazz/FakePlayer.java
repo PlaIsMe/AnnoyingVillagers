@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.DifficultyInstance;
@@ -120,6 +121,9 @@ public class FakePlayer extends PathfinderMob {
     @Override
     public void tick() {
         super.tick();
+        if (!this.level().isClientSide() && !this.hasUsername()) {
+            this.ensureHardcodedUsername();
+        }
         this.updateCapeMotion();
     }
 
@@ -153,8 +157,9 @@ public class FakePlayer extends PathfinderMob {
     @Override
     public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData groupData) {
         SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnType, groupData);
-        if (!this.hasUsername()) {
-            this.setUsername(nextHardcodedName(level.getRandom()));
+        MinecraftServer server = level.getLevel().getServer();
+        if (server == null || server.isSameThread()) {
+            this.ensureHardcodedUsername();
         }
         return result;
     }
@@ -177,8 +182,6 @@ public class FakePlayer extends PathfinderMob {
         String username = tag.getString("Username");
         if (!StringUtil.isNullOrEmpty(username)) {
             this.setUsername(username);
-        } else if (!this.level().isClientSide()) {
-            this.setUsername(nextHardcodedName(this.getRandom()));
         }
         if (tag.contains("Profile", CompoundTag.TAG_COMPOUND)) {
             this.profile = ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag.get("Profile"))
@@ -212,9 +215,19 @@ public class FakePlayer extends PathfinderMob {
 
     public FakePlayerName getUsername() {
         if (!this.hasUsername() && !this.level().isClientSide()) {
-            this.setUsername(nextHardcodedName(this.getRandom()));
+            MinecraftServer server = this.level().getServer();
+            if (server == null || server.isSameThread()) {
+                this.ensureHardcodedUsername();
+            }
         }
         return new FakePlayerName(this.entityData.get(NAME));
+    }
+
+    /** Defers shared name-pool mutation until the entity is running on the server thread. */
+    protected void ensureHardcodedUsername() {
+        if (!this.hasUsername()) {
+            this.setUsername(nextHardcodedName(this.getRandom()));
+        }
     }
 
     public void setUsername(String username) {
@@ -222,9 +235,14 @@ public class FakePlayer extends PathfinderMob {
     }
 
     public void setUsername(FakePlayerName username) {
-        FakePlayerName newName = username == null || username.isInvalid()
-                ? nextHardcodedName(this.getRandom())
-                : username;
+        FakePlayerName newName = username;
+        if (newName == null || newName.isInvalid()) {
+            MinecraftServer server = this.level().getServer();
+            if (server != null && !server.isSameThread()) {
+                return;
+            }
+            newName = nextHardcodedName(this.getRandom());
+        }
         FakePlayerName oldName = this.hasUsername() ? this.getUsername() : null;
 
         useName(newName);

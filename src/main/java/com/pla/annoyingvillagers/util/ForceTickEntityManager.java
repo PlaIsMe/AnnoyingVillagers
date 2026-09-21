@@ -25,6 +25,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /** Configurable ticket ownership for ordinary mobs, independent of player-like sessions. */
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID)
@@ -34,6 +35,7 @@ public final class ForceTickEntityManager {
     static final TicketType<UUID> TICKET = TicketType.create(
             "annoyingvillagers:persistent_player_npc", Comparator.<UUID>naturalOrder());
     private static final Map<UUID, Tracked> TRACKED = new LinkedHashMap<>();
+    private static final Queue<Entity> PENDING_TRACKS = new ConcurrentLinkedQueue<>();
     private static Boolean lastEnabled;
 
     private ForceTickEntityManager() {}
@@ -52,6 +54,10 @@ public final class ForceTickEntityManager {
     }
 
     private static void track(MinecraftServer server, Entity entity) {
+        if (!server.isSameThread()) {
+            PENDING_TRACKS.add(entity);
+            return;
+        }
         Tracked tracked = TRACKED.computeIfAbsent(entity.getUUID(), id ->
                 new Tracked(id, entity.level().dimension(), entity.chunkPosition()));
         tracked.update(server, entity);
@@ -104,8 +110,15 @@ public final class ForceTickEntityManager {
 
     @SubscribeEvent
     public static void tick(ServerTickEvent.Post event) {
-        if (false) return;
         MinecraftServer server = event.getServer();
+        Entity pending;
+        while ((pending = PENDING_TRACKS.poll()) != null) {
+            if (!pending.isRemoved() && eligible(pending)
+                    && pending.level() instanceof ServerLevel level
+                    && level.getServer() == server) {
+                track(server, pending);
+            }
+        }
         boolean enabled = AnnoyingVillagersConfig.FORCE_TICK_MOBS.get();
         if (!Objects.equals(lastEnabled, enabled)) {
             if (enabled) reconcile(server);
@@ -149,6 +162,7 @@ public final class ForceTickEntityManager {
             tracked.release(server);
         }
         TRACKED.clear();
+        PENDING_TRACKS.clear();
         lastEnabled = null;
     }
 

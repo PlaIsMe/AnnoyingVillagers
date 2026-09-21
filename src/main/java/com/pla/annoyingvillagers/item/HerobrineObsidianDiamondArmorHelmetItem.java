@@ -1,9 +1,5 @@
 package com.pla.annoyingvillagers.item;
 
-import com.pla.annoyingvillagers.client.model.ModelHerobrineObsidianDiamondHelmet;
-import com.pla.annoyingvillagers.client.model.ModelHerobrineObsidianDiamondHelmetArmor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
@@ -12,7 +8,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -20,11 +15,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static com.pla.annoyingvillagers.util.ArmorUtil.dropArmorSlot;
 
@@ -94,20 +87,6 @@ public abstract class HerobrineObsidianDiamondArmorHelmetItem extends LegacyArmo
     public static class Helmet extends HerobrineObsidianDiamondArmorHelmetItem {
         public Helmet() {
             super(Type.HELMET, new Properties());
-        }
-
-        @Override
-        public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-            consumer.accept(new IClientItemExtensions() {
-                private ModelHerobrineObsidianDiamondHelmetArmor model;
-
-                @Override
-                public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
-                    if (this.model == null) this.model = new ModelHerobrineObsidianDiamondHelmetArmor(Minecraft.getInstance().getEntityModels().bakeLayer(ModelHerobrineObsidianDiamondHelmet.LAYER_LOCATION));
-                    this.model.prepareForRender(livingEntity, original);
-                    return this.model;
-                }
-            });
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
