@@ -34,12 +34,14 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /** Owns runtime tickets and tab rows; SavedData owns only identity and restoration coordinates. */
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class PersistentPlayerNpcManager {
     private static final Map<UUID, Session> SESSIONS = new LinkedHashMap<>();
-    private static boolean stopping;
+    private static final Queue<AVNpc> PENDING_ATTACHMENTS = new ConcurrentLinkedQueue<>();
+    private static volatile boolean stopping;
     private PersistentPlayerNpcManager() {}
 
     /** Removes the previous persistent identity so a spawn egg can replace it immediately. */
@@ -96,19 +98,34 @@ public final class PersistentPlayerNpcManager {
                 || !(event.getEntity() instanceof AVNpc npc) || !(npc instanceof PersistentPlayerNpc identity)
                 || !npc.isAlive() || npc.isRemoved()) return;
         MinecraftServer server = level.getServer();
+        if (!server.isSameThread()) {
+            PENDING_ATTACHMENTS.add(npc);
+            return;
+        }
+        if (!attach(server, npc, identity)) {
+            event.setCanceled(true);
+        }
+    }
+
+    private static boolean attach(MinecraftServer server, AVNpc npc, PersistentPlayerNpc identity) {
+        if (stopping || !npc.isAlive() || npc.isRemoved()
+                || !(npc.level() instanceof ServerLevel level)
+                || level.getServer() != server) {
+            return true;
+        }
         PersistentPlayerNpcData data = PersistentPlayerNpcData.get(server);
         // Alternate forms share an identity. A dimension transfer retains the same entity UUID.
         if (data.entries().stream().anyMatch(entry -> entry.identity().equals(identity.persistentPlayerIdentity())
                 && !entry.npcId().equals(npc.getUUID()))) {
-            event.setCanceled(true);
             npc.discard();
-            return;
+            return false;
         }
         Session session = SESSIONS.computeIfAbsent(npc.getUUID(),
                 id -> new Session(id, identity.persistentPlayerIdentity(), level.dimension(), npc.chunkPosition()));
         session.update(server, npc);
         npc.setPersistenceRequired();
         claim(level, session.identity, npc.getUUID());
+        return true;
     }
 
     @SubscribeEvent
@@ -171,8 +188,14 @@ public final class PersistentPlayerNpcManager {
 
     @SubscribeEvent
     public static void tick(ServerTickEvent.Post event) {
-        if (stopping || false) return;
+        if (stopping) return;
         MinecraftServer server = event.getServer();
+        AVNpc pending;
+        while ((pending = PENDING_ATTACHMENTS.poll()) != null) {
+            if (pending instanceof PersistentPlayerNpc identity) {
+                attach(server, pending, identity);
+            }
+        }
         for (Session session : new ArrayList<>(SESSIONS.values())) {
             if (Math.floorMod(server.getTickCount(), 20) != Math.floorMod(session.id.hashCode(), 20)) continue;
             ServerLevel level = server.getLevel(session.dimension);
@@ -238,6 +261,7 @@ public final class PersistentPlayerNpcManager {
             session.releaseTicket(event.getServer());
         }
         SESSIONS.clear();
+        PENDING_ATTACHMENTS.clear();
         ExternalChunkActivity.clear();
         // Entity join events during the next integrated world happen before ServerStarted.
         stopping = false;
