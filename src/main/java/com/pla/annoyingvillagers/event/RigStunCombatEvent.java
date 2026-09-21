@@ -18,14 +18,11 @@ import net.minecraft.world.entity.Mob;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
 
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class RigStunCombatEvent {
@@ -63,10 +60,7 @@ public final class RigStunCombatEvent {
     public static void onLivingHurt(LivingDamageEvent.Pre event) {
         float multiplier = RigDamageContext.finalIncomingMultiplier(event.getEntity(), event.getSource());
         if (multiplier != 1.0F) event.setNewDamage(event.getNewDamage() * multiplier);
-    }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onLivingDamage(LivingDamageEvent.Post event) {
         LivingEntity victim = event.getEntity();
         DamageSource source = event.getSource();
         if (event.getNewDamage() <= 0.0F || !(victim instanceof Mob mobVictim) || !RigStunController.supports(mobVictim)) return;
