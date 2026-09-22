@@ -5,20 +5,21 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.client.animation.ObsidianArmorClientAnimationState;
 import com.pla.annoyingvillagers.client.animation.SpecialAnimationClientUtil;
 import com.pla.annoyingvillagers.client.animation.SpecialAnimationResolver;
+import com.pla.annoyingvillagers.client.layer.VanillaOverlayRenderStateCache;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPart;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPoseClip;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPoseLibrary;
-import com.pla.annoyingvillagers.client.compat.LegacyHumanoidModel;
 import com.pla.annoyingvillagers.client.compat.LegacyCustomRenderable;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public final class ModelHerobrineObsidianDiamondChestplateArmor extends LegacyHumanoidModel<LivingEntity> implements LegacyCustomRenderable {
+public final class ModelHerobrineObsidianDiamondChestplateArmor extends HumanoidModel<HumanoidRenderState> implements LegacyCustomRenderable {
     private final ModelHerobrineObsidianDiamondChestplate<LivingEntity> geometry;
     private LivingEntity wearer;
 
@@ -31,13 +32,21 @@ public final class ModelHerobrineObsidianDiamondChestplateArmor extends LegacyHu
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void prepareForRender(LivingEntity wearer, HumanoidModel<?> original) {
         this.wearer = wearer;
-        // Mesh-based armor renderers request the model but do not call renderToBuffer.
         applyArmorAnimation();
     }
+
+    @Override
+    public void setupAnim(HumanoidRenderState state) {
+        this.wearer = VanillaOverlayRenderStateCache.getEntity(state);
+        if (!HumanoidArmorPoseBridge.copyWearerPose(this.wearer, state, this)) {
+            super.setupAnim(state);
+        }
+        applyArmorAnimation();
+    }
+
     @Override
     public void av$renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-        applyArmorAnimation();
-        this.geometry.renderToBuffer(poseStack, buffer, packedLight, packedOverlay, color);
+        this.geometry.renderLegacy(poseStack, buffer, packedLight, packedOverlay, color);
     }
 
     private void applyArmorAnimation() {

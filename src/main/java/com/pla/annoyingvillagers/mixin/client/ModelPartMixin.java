@@ -1,60 +1,50 @@
 package com.pla.annoyingvillagers.mixin.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.accessors.ModelPartAccess;
 import net.minecraft.client.model.geom.ModelPart;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ModelPart.class)
 public class ModelPartMixin implements ModelPartAccess
 {
-    @Unique public float dm_xScale = 1;
-    @Unique public float dm_yScale = 1;
-    @Unique public float dm_zScale = 1;
-
-    @Inject(method = "translateAndRotate(Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At(value = "TAIL"))
-    public void dragonmounts_scalePoseStack(PoseStack pPoseStack, CallbackInfo cbi)
-    {
-        pPoseStack.scale(dm_xScale, dm_yScale, dm_zScale);
-    }
+    @Shadow public float xScale;
+    @Shadow public float yScale;
+    @Shadow public float zScale;
 
     @Override
     public float getXScale()
     {
-        return dm_xScale;
+        return xScale;
     }
 
     @Override
     public float getYScale()
     {
-        return dm_yScale;
+        return yScale;
     }
 
     @Override
     public float getZScale()
     {
-        return dm_zScale;
+        return zScale;
     }
 
     @Override
     public void setXScale(float x)
     {
-        this.dm_xScale = x;
+        this.xScale = x;
     }
 
     @Override
     public void setYScale(float y)
     {
-        this.dm_yScale = y;
+        this.yScale = y;
     }
 
     @Override
     public void setZScale(float z)
     {
-        this.dm_zScale = z;
+        this.zScale = z;
     }
 }

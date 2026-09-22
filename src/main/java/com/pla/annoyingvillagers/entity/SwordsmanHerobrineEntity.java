@@ -1,6 +1,5 @@
 package com.pla.annoyingvillagers.entity;
 
-import com.pla.annoyingvillagers.util.LegacyItemData;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
@@ -79,13 +78,13 @@ public class SwordsmanHerobrineEntity extends HerobrineMob {
                 ItemStack itemStack = this.getMainHandItem();
                 if (this.getState() > 0) {
                     if (itemStack.getItem() instanceof DemoniacVoltageReaverItem
-                            && (!LegacyItemData.has(itemStack) || !LegacyItemData.get(itemStack).getBooleanOr("SecondForm", false))) {
-                        LegacyItemData.update(itemStack, tag -> tag.putBoolean("SecondForm", true));
+                            && !DemoniacVoltageReaverItem.isSecondForm(itemStack)) {
+                        DemoniacVoltageReaverItem.setSecondForm(itemStack, true);
                     }
                 } else {
                     if (itemStack.getItem() instanceof DemoniacVoltageReaverItem
-                            && LegacyItemData.get(itemStack) != null && LegacyItemData.get(itemStack).contains("SecondForm")) {
-                        LegacyItemData.update(itemStack, tag -> tag.remove("SecondForm"));
+                            && DemoniacVoltageReaverItem.isSecondForm(itemStack)) {
+                        DemoniacVoltageReaverItem.setSecondForm(itemStack, false);
                     }
                 }
             }

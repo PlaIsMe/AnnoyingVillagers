@@ -2,6 +2,8 @@ package com.pla.annoyingvillagers.util;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
+import com.google.common.collect.ImmutableMultimap;
 import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
@@ -25,9 +27,13 @@ public enum NpcTabSkin {
 
     public Identifier texture() { return texture; }
 
-    public void apply(GameProfile profile) {
-        profile.properties().removeAll(PROPERTY);
-        profile.properties().put(PROPERTY, new Property(PROPERTY, key));
+    public GameProfile apply(GameProfile profile) {
+        ImmutableMultimap.Builder<String, Property> properties = ImmutableMultimap.builder();
+        profile.properties().forEach((name, property) -> {
+            if (!PROPERTY.equals(name)) properties.put(name, property);
+        });
+        properties.put(PROPERTY, new Property(PROPERTY, key));
+        return new GameProfile(profile.id(), profile.name(), new PropertyMap(properties.build()));
     }
 
     @Nullable

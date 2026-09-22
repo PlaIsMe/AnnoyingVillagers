@@ -89,7 +89,7 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends Legacy
         meter.append(Component.literal("â’ ").withStyle(style -> style.withColor(TextColor.fromRgb(CHARGE_COLOR))));
         for (int i = 0; i < CHARGE_METER_STEPS; i++) {
             int finalI = i;
-            meter.append(Component.literal(i < filledSteps ? "â–°" : "â–±").withStyle(style -> style.withColor(TextColor.fromRgb(finalI < filledSteps ? CHARGE_COLOR : CHARGE_DIM_COLOR))));
+            meter.append(Component.literal(i < filledSteps ? "\u25B0" : "\u25B1").withStyle(style -> style.withColor(TextColor.fromRgb(finalI < filledSteps ? CHARGE_COLOR : CHARGE_DIM_COLOR))));
         }
         return meter;
     }

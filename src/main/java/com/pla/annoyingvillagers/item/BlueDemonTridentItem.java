@@ -794,7 +794,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
         MutableComponent meter = Component.empty();
 
         meter.append(
-                Component.literal("âš¡ ")
+                Component.literal("\u26A1 ")
                         .withStyle(style -> style.withColor(TextColor.fromRgb(ENERGY_COLOR)))
         );
 
@@ -802,7 +802,7 @@ public class BlueDemonTridentItem extends LegacySwordItem implements RigCombatPr
             boolean filled = i < filledSteps;
 
             meter.append(
-                    Component.literal(filled ? "â–°" : "â–±")
+                    Component.literal(filled ? "\u25B0" : "\u25B1")
                             .withStyle(style -> style.withColor(TextColor.fromRgb(filled ? ENERGY_COLOR : ENERGY_DIM_COLOR)))
             );
         }

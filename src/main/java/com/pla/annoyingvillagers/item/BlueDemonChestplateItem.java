@@ -390,7 +390,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
                 boolean filled = i < filledSteps;
 
                 meter.append(
-                        Component.literal(filled ? "â–°" : "â–±")
+                        Component.literal(filled ? "\u25B0" : "\u25B1")
                                 .withStyle(style -> style.withColor(TextColor.fromRgb(
                                         filled ? CHEST_CHARGE_COLOR : CHEST_CHARGE_DIM_COLOR
                                 )))

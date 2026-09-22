@@ -22,6 +22,7 @@ import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
 import com.pla.annoyingvillagers.util.RigPoseUtil;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -604,6 +605,19 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
         return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBooleanOr("SecondForm", false) && level.getGameTime() < LegacyItemData.get(stack).getLongOr(VANILLA_AWAKEN_EXPIRES_TAG, 0L);
     }
 
+    public static boolean isSecondForm(ItemStack stack) {
+        CompoundTag tag = LegacyItemData.get(stack);
+        return tag != null && tag.getBooleanOr("SecondForm", false);
+    }
+
+    public static void setSecondForm(ItemStack stack, boolean secondForm) {
+        if (secondForm) {
+            LegacyItemData.update(stack, tag -> tag.putBoolean("SecondForm", true));
+        } else if (LegacyItemData.has(stack)) {
+            LegacyItemData.update(stack, tag -> tag.remove("SecondForm"));
+        }
+    }
+
     public static boolean isVanillaRecovering(ItemStack stack, Level level) {
         return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).contains(VANILLA_RECOVERY_UNTIL_TAG) && level.getGameTime() < LegacyItemData.get(stack).getLongOr(VANILLA_RECOVERY_UNTIL_TAG, 0L);
     }
@@ -672,7 +686,10 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
         int i = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, itemstack);
         boolean flag = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
         super.inventoryTick(itemstack, level, entity, equipmentSlot);
-        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && LegacyItemData.has(itemstack) && LegacyItemData.get(itemstack) != null && LegacyItemData.get(itemstack).getBooleanOr("SecondForm", false) && (!LegacyItemData.get(itemstack).contains(VANILLA_AWAKEN_EXPIRES_TAG) || level.getGameTime() >= LegacyItemData.get(itemstack).getLongOr(VANILLA_AWAKEN_EXPIRES_TAG, 0L))) {
+        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && entity instanceof Player
+                && isSecondForm(itemstack)
+                && (!LegacyItemData.get(itemstack).contains(VANILLA_AWAKEN_EXPIRES_TAG)
+                || level.getGameTime() >= LegacyItemData.get(itemstack).getLongOr(VANILLA_AWAKEN_EXPIRES_TAG, 0L))) {
             LegacyItemData.update(itemstack, tag -> {
                 tag.remove("SecondForm");
                 tag.remove(VANILLA_AWAKEN_EXPIRES_TAG);

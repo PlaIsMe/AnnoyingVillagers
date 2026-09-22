@@ -30,12 +30,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Queue;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class FakePlayer extends PathfinderMob {
+    private static final int PROFILE_RETRY_INTERVAL_TICKS = 20 * 30;
 
     /** Keep the legacy humanoid passenger position on 26.1. */
     @Override
@@ -43,6 +42,10 @@ public class FakePlayer extends PathfinderMob {
         return super.getVehicleAttachmentPoint(vehicle).add(0.0D, 0.35D, 0.0D);
     }
     private static final EntityDataAccessor<String> NAME = SynchedEntityData.defineId(FakePlayer.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<ResolvableProfile> PROFILE = SynchedEntityData.defineId(
+            FakePlayer.class,
+            EntityDataSerializers.RESOLVABLE_PROFILE
+    );
     private static final List<FakePlayerName> HARDCODED_NAMES = List.of(
             new FakePlayerName("Gory_Moon"),
             new FakePlayerName("Darkosto"),
@@ -95,6 +98,8 @@ public class FakePlayer extends PathfinderMob {
     private boolean capeAvailable;
     private boolean elytraAvailable;
     private volatile boolean profileUpdateQueued;
+    private boolean profileRefreshRequired;
+    private int profileRetryTicks;
 
     public double xCloakO;
     public double yCloakO;
@@ -111,6 +116,7 @@ public class FakePlayer extends PathfinderMob {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(NAME, "");
+        builder.define(PROFILE, ResolvableProfile.createUnresolved(""));
     }
 
     @Override
@@ -118,10 +124,17 @@ public class FakePlayer extends PathfinderMob {
         super.onSyncedDataUpdated(key);
         if (NAME.equals(key)) {
             this.profile = null;
+            this.profileUpdateQueued = false;
+            this.profileRefreshRequired = !this.level().isClientSide();
+            this.profileRetryTicks = 0;
             this.clearTextureState();
             if (this.hasUsername()) {
                 this.getProfile();
             }
+        } else if (PROFILE.equals(key)) {
+            this.profile = this.entityData.get(PROFILE).partialProfile();
+            this.profileUpdateQueued = false;
+            this.clearTextureState();
         }
     }
 
@@ -130,6 +143,13 @@ public class FakePlayer extends PathfinderMob {
         super.tick();
         if (!this.level().isClientSide() && !this.hasUsername()) {
             this.ensureHardcodedUsername();
+        }
+        if (!this.level().isClientSide() && this.profileRefreshRequired && this.hasUsername()) {
+            if (this.profileRetryTicks > 0) {
+                this.profileRetryTicks--;
+            } else {
+                requestProfileUpdate(this);
+            }
         }
         this.updateCapeMotion();
     }
@@ -178,7 +198,7 @@ public class FakePlayer extends PathfinderMob {
         if (this.hasUsername()) {
             tag.putString("Username", this.getUsername().getCombinedNames());
         }
-        if (this.profile != null) {
+        if (isCompleteProfile(this.profile)) {
             ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, ResolvableProfile.createResolved(this.profile))
                     .result().ifPresent(profileTag -> tag.put("Profile", profileTag));
         }
@@ -195,8 +215,12 @@ public class FakePlayer extends PathfinderMob {
             this.setUsername(username);
         }
         if (tag.contains("Profile")) {
-            this.profile = ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag.get("Profile"))
+            GameProfile savedProfile = ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag.get("Profile"))
                     .result().map(ResolvableProfile::partialProfile).orElse(null);
+            if (savedProfile != null) {
+                this.applyProfile(savedProfile);
+                this.profileRefreshRequired = !this.level().isClientSide();
+            }
         }
     }
 
@@ -262,6 +286,8 @@ public class FakePlayer extends PathfinderMob {
         if (!Objects.equals(oldName, newName)) {
             this.profile = null;
             this.profileUpdateQueued = false;
+            this.profileRefreshRequired = !this.level().isClientSide();
+            this.profileRetryTicks = 0;
             this.clearTextureState();
             this.getProfile();
         }
@@ -270,20 +296,30 @@ public class FakePlayer extends PathfinderMob {
     public @Nullable GameProfile getProfile() {
         if (this.profile == null && this.hasUsername()) {
             String skinName = this.getUsername().getSkinName();
-            // Authlib no longer permits the null profile id used by the 1.20 code.
-            // The entity UUID is stable, unique, and still lets ResolvableProfile
-            // enrich the profile with the named player's texture properties.
-            UUID profileId = this.getUUID();
-            this.profile = new GameProfile(profileId, skinName);
-            requestProfileUpdate(this);
+            GameProfile syncedProfile = this.entityData.get(PROFILE).partialProfile();
+            this.profile = isResolvedProfileForName(syncedProfile, skinName)
+                    ? syncedProfile
+                    : new GameProfile(net.minecraft.core.UUIDUtil.createOfflinePlayerUUID(skinName), skinName);
+            if (!this.level().isClientSide() && !isCompleteProfile(this.profile)) {
+                requestProfileUpdate(this);
+            }
         }
         return this.profile;
     }
 
     public void setProfile(@Nullable GameProfile profile) {
+        this.applyProfile(profile);
+        this.profileRefreshRequired = false;
+        this.profileRetryTicks = 0;
+    }
+
+    private void applyProfile(@Nullable GameProfile profile) {
         this.profile = profile;
         this.profileUpdateQueued = false;
         this.clearTextureState();
+        if (!this.level().isClientSide() && profile != null) {
+            this.entityData.set(PROFILE, ResolvableProfile.createResolved(profile));
+        }
     }
 
     public boolean isTextureAvailable(MinecraftProfileTexture.Type type) {
@@ -375,19 +411,54 @@ public class FakePlayer extends PathfinderMob {
             }
             try {
                 FakePlayer target = entity;
-                // Resolve by name even though the temporary GameProfile needs a
-                // non-null UUID on 1.21. This preserves online skin lookup.
                 if (target.level() instanceof ServerLevel serverLevel) {
-                    ResolvableProfile.createUnresolved(currentProfile.name())
-                            .resolveProfile(serverLevel.getServer().services().profileResolver())
-                            .thenAccept(target::setProfile);
+                    MinecraftServer server = serverLevel.getServer();
+                    String requestedName = currentProfile.name();
+                    GameProfile resolvedProfile = server.services().nameToIdCache().get(requestedName)
+                            .map(nameAndId -> server.services().sessionService().fetchProfile(nameAndId.id(), true))
+                            .map(result -> result.profile())
+                            .orElse(null);
+                    server.execute(() -> target.finishProfileUpdate(requestedName, resolvedProfile));
                 } else {
                     target.profileUpdateQueued = false;
                 }
             } catch (Exception ignored) {
-                entity.profileUpdateQueued = false;
+                FakePlayer target = entity;
+                MinecraftServer server = target.level().getServer();
+                String requestedName = currentProfile.name();
+                if (server != null) {
+                    server.execute(() -> target.finishProfileUpdate(requestedName, null));
+                } else {
+                    target.profileUpdateQueued = false;
+                }
             }
         }
+    }
+
+    private void finishProfileUpdate(String requestedName, @Nullable GameProfile resolvedProfile) {
+        GameProfile latestProfile = this.profile;
+        if (latestProfile == null || !requestedName.equalsIgnoreCase(latestProfile.name())) {
+            return;
+        }
+        if (isCompleteProfile(resolvedProfile)) {
+            this.setProfile(resolvedProfile);
+            return;
+        }
+        this.profileUpdateQueued = false;
+        this.profileRefreshRequired = true;
+        this.profileRetryTicks = PROFILE_RETRY_INTERVAL_TICKS;
+    }
+
+    private static boolean isCompleteProfile(@Nullable GameProfile profile) {
+        return profile != null
+                && profile.id() != null
+                && !StringUtil.isNullOrEmpty(profile.name())
+                && !profile.id().equals(net.minecraft.core.UUIDUtil.createOfflinePlayerUUID(profile.name()));
+    }
+
+    private static boolean isResolvedProfileForName(@Nullable GameProfile profile, String name) {
+        return isCompleteProfile(profile)
+                && profile.name().equalsIgnoreCase(name);
     }
 
     public static final class FakePlayerName {

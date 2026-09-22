@@ -346,6 +346,7 @@ public class ModelHerobrineDragon extends LegacyHierarchicalModel<HerobrineDrago
     @Override
     public void setupAnim(HerobrineDragonEntity dragon, float pLimbSwing, float pLimbSwingAmount, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch)
     {
+        this.root().getAllParts().forEach(ModelPart::resetPose);
         prepareMobModel(dragon, pLimbSwing, pLimbSwingAmount, pAgeInTicks - dragon.tickCount);
         DragonAnimator animator = dragon.getAnimator();
         animator.setLook(pNetHeadYaw, pHeadPitch);

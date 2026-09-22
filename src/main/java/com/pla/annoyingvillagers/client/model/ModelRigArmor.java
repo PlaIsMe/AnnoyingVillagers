@@ -176,6 +176,10 @@ public class ModelRigArmor<T extends Mob> extends LegacyHumanoidModel<T> {
     public void setVisibleForSlot(EquipmentSlot slot) {
         this.allParts().forEach(part -> part.visible = false);
 
+        // 26.1 includes the model root in Model#allParts. Leaving it hidden
+        // suppresses every child even after the slot parts are re-enabled.
+        this.root().visible = true;
+
         this.right_hand.visible = false;
         this.left_hand.visible = false;
         this.right_lower_leg.visible = false;

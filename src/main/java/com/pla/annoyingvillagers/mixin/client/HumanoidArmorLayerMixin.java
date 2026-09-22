@@ -3,12 +3,14 @@ package com.pla.annoyingvillagers.mixin.client;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.client.layer.VanillaOverlayRenderStateCache;
+import com.pla.annoyingvillagers.client.model.HumanoidArmorPoseBridge;
 import com.pla.annoyingvillagers.client.renderer.ColoredGlintRenderTypes;
 import com.pla.annoyingvillagers.client.renderer.ColoredGlintState;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.resources.Identifier;
@@ -40,6 +42,9 @@ public abstract class HumanoidArmorLayerMixin {
                                        CallbackInfo ci) {
         LivingEntity wearer = state instanceof LivingEntityRenderState livingState
                 ? VanillaOverlayRenderStateCache.getEntity(livingState) : null;
+        if (state instanceof HumanoidRenderState humanoidState) {
+            HumanoidArmorPoseBridge.capture(wearer, humanoidState);
+        }
         ColoredGlintState.setTargetStack(stack, wearer);
     }
 

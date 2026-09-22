@@ -315,7 +315,7 @@ public final class PersistentPlayerNpcManager {
                 GameProfile profile = new GameProfile(id,
                         ("zzAVN" + id.toString().replace("-", "")).substring(0, 16));
                 NpcTabSkin skin = ((PersistentPlayerNpc) npc).tabSkin();
-                if (skin != null) skin.apply(profile);
+                if (skin != null) profile = skin.apply(profile);
                 tabPlayer = new FakePlayer(level, profile) {
                     @Override public Component getTabListDisplayName() {
                         if (AnnoyingVillagersConfig.NPC_PREFIX.get()) {
