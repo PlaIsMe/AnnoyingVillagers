@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class FakePlayerTextureUtils {
@@ -30,8 +31,13 @@ public final class FakePlayerTextureUtils {
             return cached;
         }
 
-        PlayerSkin skin = Minecraft.getInstance().getSkinManager().getInsecureSkin(profile);
-        SkinType type = skin.model() == PlayerSkin.Model.SLIM ? SkinType.SLIM : SkinType.DEFAULT;
+        Optional<PlayerSkin> resolvedSkin = getResolvedSkin(profile);
+        if (resolvedSkin.isEmpty()) {
+            return SkinType.DEFAULT;
+        }
+        SkinType type = resolvedSkin.get().model() == PlayerSkin.Model.SLIM
+                ? SkinType.SLIM
+                : SkinType.DEFAULT;
         SKIN_TYPE_CACHE.put(id, type);
         return type;
     }
@@ -60,8 +66,11 @@ public final class FakePlayerTextureUtils {
             return Optional.empty();
         }
 
-        Minecraft minecraft = Minecraft.getInstance();
-        PlayerSkin playerSkin = minecraft.getSkinManager().getInsecureSkin(profile);
+        PlayerSkin playerSkin = getResolvedSkin(profile).orElse(null);
+        if (playerSkin == null) {
+            // The lookup is asynchronous. Do not permanently cache the temporary default skin.
+            return Optional.empty();
+        }
         ResourceLocation location = switch (type) {
             case SKIN -> playerSkin.texture();
             case CAPE -> playerSkin.capeTexture();
@@ -73,6 +82,11 @@ public final class FakePlayerTextureUtils {
 
         entity.setTexture(type, location);
         return Optional.of(location);
+    }
+
+    private static Optional<PlayerSkin> getResolvedSkin(GameProfile profile) {
+        CompletableFuture<PlayerSkin> lookup = Minecraft.getInstance().getSkinManager().getOrLoad(profile);
+        return Optional.ofNullable(lookup.getNow(null));
     }
 
     private static boolean isComplete(GameProfile profile) {
