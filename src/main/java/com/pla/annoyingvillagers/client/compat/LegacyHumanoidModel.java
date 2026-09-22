@@ -46,9 +46,16 @@ public class LegacyHumanoidModel<T extends LivingEntity> extends HumanoidModel<L
     @Override
     public final void setupAnim(LegacyEntityRenderState<T> state) {
         this.activeState = state;
-        setupAnim(state.entity, state.walkAnimationPos, state.walkAnimationSpeed,
-                state.ageInTicks, state.yRot, state.xRot);
+        if (!setupFromCapturedPose(state)) {
+            setupAnim(state.entity, state.walkAnimationPos, state.walkAnimationSpeed,
+                    state.ageInTicks, state.yRot, state.xRot);
+        }
         this.activeState = null;
+    }
+
+    /** Allows deferred armor models to consume the pose captured from their owning model. */
+    protected boolean setupFromCapturedPose(LegacyEntityRenderState<T> state) {
+        return false;
     }
 
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount,

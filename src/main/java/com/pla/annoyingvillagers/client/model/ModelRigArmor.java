@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.client.model;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.compat.LegacyHumanoidModel;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -67,6 +68,11 @@ public class ModelRigArmor<T extends Mob> extends LegacyHumanoidModel<T> {
         this.left_hand = this.leftArm.getChild("left_hand");
         this.right_lower_leg = this.rightLeg.getChild("right_lower_leg");
         this.left_lower_leg = this.leftLeg.getChild("left_lower_leg");
+    }
+
+    @Override
+    protected boolean setupFromCapturedPose(LegacyEntityRenderState<T> state) {
+        return HumanoidArmorPoseBridge.copyWearerPose(state.entity, state, this);
     }
 
     private static ModelPart createRootWithOpenArms(float deformation) {

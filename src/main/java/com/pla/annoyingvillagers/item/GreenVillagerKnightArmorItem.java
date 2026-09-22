@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.model.ModelVillagerKnightArmor;
 import com.pla.annoyingvillagers.client.model.ModelGreenVillagerKnightArmor;
+import com.pla.annoyingvillagers.client.model.ModelPoseSyncedArmor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
@@ -85,9 +86,25 @@ public abstract class GreenVillagerKnightArmorItem extends LegacyArmorItem {
 
         public void initializeClient(Consumer<IClientItemExtensions> consumer) {
             consumer.accept(new IClientItemExtensions() {
+                private Model model;
+
                 @Override
                 public @NotNull Model getHumanoidArmorModel(ItemStack itemStack, EquipmentClientInfo.LayerType layerType, Model original) {
-                    return new HumanoidModel<>(com.pla.annoyingvillagers.client.compat.LegacyHumanoidModel.adaptLegacyRoot(new ModelPart(Collections.emptyList(), Map.of("body", (new ModelGreenVillagerKnightArmor<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelGreenVillagerKnightArmor.LAYER_LOCATION))).Body, "left_arm", (new ModelGreenVillagerKnightArmor<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelGreenVillagerKnightArmor.LAYER_LOCATION))).LeftArm, "right_arm", (new ModelGreenVillagerKnightArmor<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelGreenVillagerKnightArmor.LAYER_LOCATION))).RightArm, "head", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "hat", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "right_leg", new ModelPart(Collections.emptyList(), Collections.emptyMap()), "left_leg", new ModelPart(Collections.emptyList(), Collections.emptyMap())))));
+                    if (this.model == null) {
+                        ModelGreenVillagerKnightArmor<LivingEntity> geometry = new ModelGreenVillagerKnightArmor<>(
+                                Minecraft.getInstance().getEntityModels().bakeLayer(ModelGreenVillagerKnightArmor.LAYER_LOCATION));
+                        ModelPart emptyHead = new ModelPart(Collections.emptyList(), Map.of(
+                                "hat", new ModelPart(Collections.emptyList(), Collections.emptyMap())));
+                        ModelPart root = new ModelPart(Collections.emptyList(), Map.of(
+                                "body", geometry.Body,
+                                "left_arm", geometry.LeftArm,
+                                "right_arm", geometry.RightArm,
+                                "head", emptyHead,
+                                "right_leg", new ModelPart(Collections.emptyList(), Collections.emptyMap()),
+                                "left_leg", new ModelPart(Collections.emptyList(), Collections.emptyMap())));
+                        this.model = new ModelPoseSyncedArmor(root);
+                    }
+                    return this.model;
                 }
             });
         }
