@@ -1,0 +1,13 @@
+{
+  "layers": {
+    "humanoid": [
+      { "texture": "annoyingvillagers:herobrine_obsidian_armor_layer_1" }
+    ],
+    "humanoid_baby": [
+      { "texture": "annoyingvillagers:herobrine_obsidian_armor_layer_1" }
+    ],
+    "humanoid_leggings": [
+      { "texture": "annoyingvillagers:herobrine_obsidian_armor_layer_1" }
+    ]
+  }
+}

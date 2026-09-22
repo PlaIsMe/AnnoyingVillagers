@@ -161,6 +161,11 @@ public class NullSkeletonEntity extends AbstractSkeleton {
         return -0.35D;
     }
 
+    @Override
+    public net.minecraft.world.phys.Vec3 getVehicleAttachmentPoint(net.minecraft.world.entity.Entity vehicle) {
+        return super.getVehicleAttachmentPoint(vehicle).add(0.0D, 0.35D, 0.0D);
+    }
+
     protected SoundEvent getAmbientSound() {
         return SoundEvents.WITHER_SKELETON_AMBIENT;
     }

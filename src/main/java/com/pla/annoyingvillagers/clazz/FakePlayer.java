@@ -36,6 +36,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class FakePlayer extends PathfinderMob {
+
+    /** Keep the legacy humanoid passenger position on 26.1. */
+    @Override
+    public net.minecraft.world.phys.Vec3 getVehicleAttachmentPoint(net.minecraft.world.entity.Entity vehicle) {
+        return super.getVehicleAttachmentPoint(vehicle).add(0.0D, 0.35D, 0.0D);
+    }
     private static final EntityDataAccessor<String> NAME = SynchedEntityData.defineId(FakePlayer.class, EntityDataSerializers.STRING);
     private static final List<FakePlayerName> HARDCODED_NAMES = List.of(
             new FakePlayerName("Gory_Moon"),

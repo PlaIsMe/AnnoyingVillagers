@@ -435,6 +435,9 @@ public class AngrySteveEntity extends AVNpc implements PersistentPlayerNpc, Burs
     }
 
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
+        if (mobSpawnType == EntitySpawnReason.SPAWN_ITEM_USE) {
+            PersistentPlayerNpcManager.replaceIdentityForSpawnEgg(serverLevelAccessor.getLevel().getServer(), "Steve");
+        }
         ItemStack legendarySword = new ItemStack(AnnoyingVillagersModItems.LEGENDARY_SWORD.get());
         EnchantmentUtil.enchant(legendarySword, Enchantments.SHARPNESS, 5);
         EnchantmentUtil.enchant(legendarySword, Enchantments.SMITE, 5);

@@ -1,0 +1,13 @@
+{
+  "layers": {
+    "humanoid": [
+      { "texture": "annoyingvillagers:unlight_diamond_layer_1" }
+    ],
+    "humanoid_baby": [
+      { "texture": "annoyingvillagers:unlight_diamond_layer_1" }
+    ],
+    "humanoid_leggings": [
+      { "texture": "annoyingvillagers:unlight_diamond_layer_2" }
+    ]
+  }
+}

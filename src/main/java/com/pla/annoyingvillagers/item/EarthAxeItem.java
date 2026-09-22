@@ -76,10 +76,11 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
         }
 
         if (level instanceof ServerLevel serverLevel) {
-            summonEarthWall(serverLevel, player);
-            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
-            VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_WALL_COOLDOWN_TICKS);
+            if (summonEarthWall(serverLevel, player)) {
+                VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
+                VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+                player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_WALL_COOLDOWN_TICKS);
+            }
         }
 
         return InteractionResult.SUCCESS;
@@ -111,33 +112,36 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
         return true;
     }
 
-    public static void summonEarthWall(ServerLevel level, LivingEntity caster) {
+    public static boolean summonEarthWall(ServerLevel level, LivingEntity caster) {
         if (caster.isInWater()) {
-            return;
+            return false;
         }
 
-        BlockPos groundPos = caster.getOnPos();
+        // getOnPos no longer consistently identifies the supporting block for every
+        // 26.1 entity pose. Resolve the first liftable ground block below the feet.
+        BlockPos groundPos = findLiftableBlockUnderPoint(level, caster.position().add(0.0D, 0.1D, 0.0D), 3, 0);
+        if (groundPos == null) {
+            return false;
+        }
         BlockState groundState = level.getBlockState(groundPos);
 
         if (groundState.getFluidState().is(FluidTags.WATER)) {
-            return;
+            return false;
         }
 
         BlockState wallState = chooseWallBlock(groundState);
 
         if (wallState == null) {
-            return;
+            return false;
         }
 
         Direction forward = caster.getDirection();
         Direction right = forward.getClockWise();
 
-        BlockPos casterFeet = caster.blockPosition();
-
         BlockPos centerBase = new BlockPos(
-                casterFeet.getX(),
+                groundPos.getX(),
                 groundPos.getY() + 1,
-                casterFeet.getZ()
+                groundPos.getZ()
         ).relative(forward, WALL_DISTANCE);
 
         int halfWidth = WALL_WIDTH / 2;
@@ -165,7 +169,7 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
                 spawnedAny = true;
             }
         }
-
+        return spawnedAny;
     }
 
     private static boolean canLiftBlock(ServerLevel level, BlockPos pos, BlockState state) {

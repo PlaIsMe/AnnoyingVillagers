@@ -115,6 +115,11 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
         return -0.35D;
     }
 
+    @Override
+    public net.minecraft.world.phys.Vec3 getVehicleAttachmentPoint(net.minecraft.world.entity.Entity vehicle) {
+        return super.getVehicleAttachmentPoint(vehicle).add(0.0D, 0.35D, 0.0D);
+    }
+
     public SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
         return BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.hurt"));
     }

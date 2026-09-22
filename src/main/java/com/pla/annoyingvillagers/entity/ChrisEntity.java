@@ -231,8 +231,10 @@ public class ChrisEntity extends AVNpc implements PersistentPlayerNpc, BurstProt
     }
 
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawngroupdata) {
-        if (mobSpawnType == EntitySpawnReason.NATURAL || mobSpawnType == EntitySpawnReason.CHUNK_GENERATION) {
-            ServerLevel serverLevel = serverLevelAccessor.getLevel();
+        ServerLevel serverLevel = serverLevelAccessor.getLevel();
+        if (mobSpawnType == EntitySpawnReason.SPAWN_ITEM_USE) {
+            PersistentPlayerNpcManager.replaceIdentityForSpawnEgg(serverLevel.getServer(), "Chris");
+        } else if (mobSpawnType == EntitySpawnReason.NATURAL || mobSpawnType == EntitySpawnReason.CHUNK_GENERATION) {
             ChrisData chrisData = ChrisData.get(serverLevel);
 
             if (!chrisData.tryClaim(serverLevel, this.getUUID())) {

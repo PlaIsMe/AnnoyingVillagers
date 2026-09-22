@@ -63,7 +63,7 @@ public abstract class HerobrineObsidianDiamondArmorHelmetItem extends LegacyArmo
             public int getEnchantmentValue() { return 0; }
             public Object getEquipSound() { return SoundEvents.ARMOR_EQUIP_GENERIC; }
             public Ingredient getRepairIngredient() { return null; }
-            public String getName() { return "herobrine_obsidian_diamond_armor"; }
+            public String getName() { return "herobrine_obsidian_diamond_helmet"; }
             public float getToughness() { return 2.0F; }
             public float getKnockbackResistance() { return 0.0F; }
         }, type, properties);

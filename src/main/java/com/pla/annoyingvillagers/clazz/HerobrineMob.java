@@ -586,6 +586,12 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
         return -0.35D;
     }
 
+    /** 26.1 replacement for the removed getMyRidingOffset hook. */
+    @Override
+    public Vec3 getVehicleAttachmentPoint(Entity vehicle) {
+        return super.getVehicleAttachmentPoint(vehicle).add(0.0D, 0.35D, 0.0D);
+    }
+
     protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource damagesource, boolean flag) {
         int i = 0;
         super.dropCustomDeathLoot(level, damagesource, flag);

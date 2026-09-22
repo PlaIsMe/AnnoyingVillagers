@@ -309,8 +309,9 @@ public class SnakeBladeEntity extends Entity {
         if (currentTarget != null
                 && !(currentTarget instanceof PortalEntity)
                 && !this.level().isClientSide()
-                && this.getProgress() >= MAX_EXTEND_TIME) {
-            if (this.postHitChainDelayTicks <= 0 && (!this.attemptedCurrentTargetHit || this.tickCount % 2 == 0)) {
+                && this.getProgress() >= MAX_EXTEND_TIME
+                && !this.attemptedCurrentTargetHit) {
+            if (this.postHitChainDelayTicks <= 0) {
                 tryAttackTarget(livingCreator, currentTarget);
                 this.attemptedCurrentTargetHit = true;
             }
@@ -363,7 +364,7 @@ public class SnakeBladeEntity extends Entity {
         int maxChainTargets = this.guardDirection != null
                 ? MAX_GUARD_CHAIN_TARGETS
                 : (isPortalChainMode() ? MAX_PORTAL_CHAIN_TARGETS : MAX_NORMAL_CHAIN_TARGETS);
-        if (this.getTargetsHit() > maxChainTargets) {
+        if (this.getTargetsHit() >= maxChainTargets) {
             this.setRetracting(true);
             return;
         }

@@ -27,7 +27,9 @@ import com.pla.annoyingvillagers.specialanimation.pose.SpecialPoseSampler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
@@ -234,6 +236,9 @@ public final class RigSwordTrailManager {
         builder.addVertex(matrix, (float) p.x, (float) p.y, (float) p.z)
                 .setUv(u, v)
                 .setColor(definition.redF(), definition.greenF(), definition.blueF(), alpha)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(LightCoordsUtil.FULL_BRIGHT)
+                .setNormal(0.0F, 1.0F, 0.0F)
                 ;
     }
 

@@ -48,6 +48,12 @@ import java.util.function.Predicate;
 
 public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoiceLineEntity, LockableRigAttackAnimation, RigStunEscapeEntity {
     private static final EntityDataAccessor<Boolean> RECOVERY_DIGGING = SynchedEntityData.defineId(AVNpc.class, EntityDataSerializers.BOOLEAN);
+
+    /** 26.1 replaced getMyRidingOffset with an entity-type vehicle attachment. */
+    @Override
+    public Vec3 getVehicleAttachmentPoint(Entity vehicle) {
+        return super.getVehicleAttachmentPoint(vehicle).add(0.0D, 0.35D, 0.0D);
+    }
     private static final EntityDataAccessor<Boolean> HEALING = SynchedEntityData.defineId(AVNpc.class, EntityDataSerializers.BOOLEAN);
     private Object recoveryOwner;
     private int recoveryStartTick;

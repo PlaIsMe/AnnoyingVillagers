@@ -9,6 +9,7 @@ import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPart;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPoseClip;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPoseLibrary;
 import com.pla.annoyingvillagers.client.compat.LegacyHumanoidModel;
+import com.pla.annoyingvillagers.client.compat.LegacyCustomRenderable;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public final class ModelHerobrineObsidianDiamondHelmetArmor extends LegacyHumanoidModel<LivingEntity> {
+public final class ModelHerobrineObsidianDiamondHelmetArmor extends LegacyHumanoidModel<LivingEntity> implements LegacyCustomRenderable {
     private final ModelHerobrineObsidianDiamondHelmet<LivingEntity> geometry;
     private LivingEntity wearer;
 
@@ -33,7 +34,8 @@ public final class ModelHerobrineObsidianDiamondHelmetArmor extends LegacyHumano
         // Mesh-based armor renderers request the model but do not call renderToBuffer.
         applyArmorAnimation();
     }
-    public void renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+    @Override
+    public void av$renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         applyArmorAnimation();
         this.geometry.renderToBuffer(poseStack, buffer, packedLight, packedOverlay, color);
     }

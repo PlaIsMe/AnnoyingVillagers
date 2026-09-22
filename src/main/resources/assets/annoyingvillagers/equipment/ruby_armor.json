@@ -1,0 +1,13 @@
+{
+  "layers": {
+    "humanoid": [
+      { "texture": "annoyingvillagers:ruby_armor_layer_1" }
+    ],
+    "humanoid_baby": [
+      { "texture": "annoyingvillagers:ruby_armor_layer_1" }
+    ],
+    "humanoid_leggings": [
+      { "texture": "annoyingvillagers:ruby_armor_layer_2" }
+    ]
+  }
+}

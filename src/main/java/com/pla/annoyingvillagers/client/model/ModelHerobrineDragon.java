@@ -10,6 +10,7 @@ import com.pla.annoyingvillagers.client.animation.DragonAnimator;
 import com.pla.annoyingvillagers.client.engine.ModelPartProxy;
 import com.pla.annoyingvillagers.entity.HerobrineDragonEntity;
 import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
+import com.pla.annoyingvillagers.client.compat.LegacyCustomRenderable;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -29,7 +30,7 @@ import java.util.NoSuchElementException;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 @SuppressWarnings("UnnecessaryLocalVariable")
-public class ModelHerobrineDragon extends LegacyHierarchicalModel<HerobrineDragonEntity>
+public class ModelHerobrineDragon extends LegacyHierarchicalModel<HerobrineDragonEntity> implements LegacyCustomRenderable
 {
     public static final ModelLayerLocation LAYER_LOCATION =
             new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelherobrinedragon"), "main");
@@ -351,7 +352,8 @@ public class ModelHerobrineDragon extends LegacyHierarchicalModel<HerobrineDrago
         animator.setMovement(pLimbSwing, pLimbSwingAmount * dragon.getScale());
         dragon.getAnimator().animate(this);
     }
-    public void renderLegacy(PoseStack ps, VertexConsumer vertices, int pPackedLight, int pPackedOverlay, int color)
+    @Override
+    public void av$renderLegacy(PoseStack ps, VertexConsumer vertices, int pPackedLight, int pPackedOverlay, int color)
     {
         body.render(ps, vertices, pPackedLight, pPackedOverlay, color);
         renderHead(ps, vertices, pPackedLight, pPackedOverlay, color);
