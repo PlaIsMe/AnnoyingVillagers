@@ -11,6 +11,7 @@ import com.pla.annoyingvillagers.entity.GolemArms;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationFamily;
 import net.minecraft.client.animation.AnimationDefinition;
 import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
+import com.pla.annoyingvillagers.client.compat.LegacyCustomRenderable;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -26,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class ModelGolemArm extends LegacyHierarchicalModel<GolemArms> {
+public class ModelGolemArm extends LegacyHierarchicalModel<GolemArms> implements LegacyCustomRenderable {
     private static final float LIVING_TRANSITION_TICKS = 5.0F;
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_golem_arm"), "main");
 
@@ -212,6 +213,11 @@ private final ModelPart modelRoot;
 			this.transitionStartedAt = transitionStartedAt;
 		}
 	}
+    @Override
+    public void av$renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+        renderLegacy(poseStack, buffer, packedLight, packedOverlay, color);
+    }
+
     public void renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         this.modelRoot.render(poseStack, buffer, packedLight, packedOverlay, color);
         renderPerFaceCubes(poseStack, buffer, packedLight, packedOverlay, color);

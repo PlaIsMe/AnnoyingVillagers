@@ -2,6 +2,7 @@ package com.pla.annoyingvillagers.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.blockentity.FractureBlockEntity;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
@@ -37,6 +38,10 @@ public class FractureBlockRenderer implements BlockEntityRenderer<FractureBlockE
         state.visible = blockEntity.getOriginalBlockState() != null && blockEntity.getLevel() != null;
         if (!state.visible) return;
 
+        // The fragment is drawn above the ground, not inside its temporary block.
+        // Keep the 1.21 light sample above the block throughout its return animation.
+        state.lightCoords = LevelRenderer.getLightCoords(LevelRenderer.BrightnessGetter.DEFAULT,
+                blockEntity.getLevel(), blockEntity.getOriginalBlockState(), blockEntity.getBlockPos().above());
         this.blockModelResolver.update(state.block, blockEntity.getOriginalBlockState(), BlockDisplayContext.create());
         state.partialTicks = partialTicks;
         state.translate.set(blockEntity.getTranslate());

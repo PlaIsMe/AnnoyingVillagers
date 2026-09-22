@@ -36,6 +36,7 @@ import java.util.List;
 
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class RigColliderRenderer {
+    private static final float DEBUG_LINE_WIDTH = 2.0F;
     private static final int[][] EDGES = {{0, 1}, {0, 2}, {0, 4}, {1, 3}, {1, 5}, {2, 3}, {2, 6}, {3, 7}, {4, 5}, {4, 6}, {5, 7}, {6, 7}};
 
     private RigColliderRenderer() {}
@@ -141,11 +142,13 @@ public final class RigColliderRenderer {
         consumer.addVertex(pose.pose(), (float) start.x, (float) start.y, (float) start.z)
                 .setColor(red, green, blue, 1.0F)
                 .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z)
+                .setLineWidth(DEBUG_LINE_WIDTH)
                 ;
 
         consumer.addVertex(pose.pose(), (float) end.x, (float) end.y, (float) end.z)
                 .setColor(red, green, blue, 1.0F)
                 .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z)
+                .setLineWidth(DEBUG_LINE_WIDTH)
                 ;
     }
 }

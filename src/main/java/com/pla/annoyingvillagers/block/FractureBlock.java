@@ -46,6 +46,21 @@ public class FractureBlock extends BaseEntityBlock {
     }
 
     @Override
+    public VoxelShape getCollisionShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos,
+                                        CollisionContext collisionContext) {
+        // Fracture blocks are a client-side visual replacement. The server still has
+        // the original block, so using an empty client collision shape causes movement
+        // prediction to fall through it and fight the server's position corrections.
+        if (blockGetter.getBlockEntity(blockPos) instanceof FractureBlockEntity fracture) {
+            BlockState original = fracture.getOriginalBlockState();
+            if (original != null && !original.is(this)) {
+                return original.getCollisionShape(blockGetter, blockPos, collisionContext);
+            }
+        }
+        return Shapes.block();
+    }
+
+    @Override
     public RenderShape getRenderShape(BlockState blockState) {
         return RenderShape.MODEL;
     }

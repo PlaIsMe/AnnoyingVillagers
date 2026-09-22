@@ -14,6 +14,7 @@ import com.pla.annoyingvillagers.specialanimation.SpecialAnimationId;
 import com.pla.annoyingvillagers.specialanimation.pose.SpecialPoseLibrary;
 import net.minecraft.client.animation.AnimationDefinition;
 import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
+import com.pla.annoyingvillagers.client.compat.LegacyCustomRenderable;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -28,7 +29,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public class ModelAvGolem extends LegacyHierarchicalModel<AvGolem> {
+public class ModelAvGolem extends LegacyHierarchicalModel<AvGolem> implements LegacyCustomRenderable {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_av_golem"), "main");
 
 private final ModelPart modelRoot;
@@ -312,6 +313,11 @@ private final ModelPart modelRoot;
 		this.body.translateAndRotate(poseStack);
 		this.chest.translateAndRotate(poseStack);
 	}
+    @Override
+    public void av$renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+        renderLegacy(poseStack, buffer, packedLight, packedOverlay, color);
+    }
+
     public void renderLegacy(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         this.modelRoot.render(poseStack, buffer, packedLight, packedOverlay, color);
         renderPerFaceCubes(poseStack, buffer, packedLight, packedOverlay, color);
