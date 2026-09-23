@@ -19,6 +19,7 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
@@ -160,6 +161,34 @@ public final class ObsidianArmorExtensionRenderer {
         } finally {
             chestplate.RightArm.loadPose(armPose);
         }
+    }
+
+    /** 26.1 submit-node variant used by Punchy's first-person arm renderer. */
+    public static void renderFirstPersonRightArm(LivingEntity wearer, PoseStack stack,
+                                                  SubmitNodeCollector collector, int light) {
+        ItemStack armor = wearer.getItemBySlot(ObsidianArmorPart.CHESTPLATE.slot());
+        if (!HerobrineObsidianArmorCharge.isChestplate(armor)) return;
+        var state = ObsidianArmorClientAnimationState.get(wearer, ObsidianArmorPart.CHESTPLATE);
+        if (state == null) return;
+
+        ensureModels();
+        var clip = ObsidianArmorPoseLibrary.clip(state.animationId());
+        float elapsedTicks = state.elapsedTicks();
+        collector.submitCustomGeometry(stack,
+                net.minecraft.client.renderer.rendertype.RenderTypes.armorCutoutNoCull(CHESTPLATE_TEXTURE),
+                (rootPose, consumer) -> {
+                    PoseStack renderStack = new PoseStack();
+                    renderStack.last().set(rootPose);
+                    chestplate.applyAnimationPose(clip, elapsedTicks);
+                    PartPose armPose = chestplate.RightArm.storePose();
+                    chestplate.RightArm.loadPose(PartPose.ZERO);
+                    try {
+                        chestplate.renderExtensionTiles(true, renderStack, consumer,
+                                light, OverlayTexture.NO_OVERLAY);
+                    } finally {
+                        chestplate.RightArm.loadPose(armPose);
+                    }
+                });
     }
 
     private static VertexConsumer armorBuffer(LivingEntity wearer, ItemStack armor,

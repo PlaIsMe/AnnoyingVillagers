@@ -67,6 +67,7 @@ public class AnnoyingVillagersModCreativeTabs {
                         pOutput.accept(AnnoyingVillagersModItems.TRAPDOOR.get());
                         pOutput.accept(AnnoyingVillagersModItems.LADDER.get());
                         pOutput.accept(AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get());
+                        pOutput.accept(AnnoyingVillagersModItems.DESTRUCTION_EYE.get());
                         pOutput.accept(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_PILLAR.get());
                         pOutput.accept(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get());
                         pOutput.accept(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_WEAPON.get());
@@ -74,7 +75,6 @@ public class AnnoyingVillagersModCreativeTabs {
                         pOutput.accept(AnnoyingVillagersModItems.BEDROCK_WEAPON.get());
                         pOutput.accept(AnnoyingVillagersModItems.ENDER_GLAIVE.get());
                         pOutput.accept(AnnoyingVillagersModItems.ENDER_SLAYER_SCYTHE.get());
-                        pOutput.accept(AnnoyingVillagersModItems.DESTRUCTION_EYE.get());
                         pOutput.accept(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get());
                         pOutput.accept(AnnoyingVillagersModItems.OBSIDIAN_SLEDGEHAMMER.get());
                         pOutput.accept(AnnoyingVillagersModItems.ENDER_AEGIS.get());

@@ -80,13 +80,13 @@ dependencies {
 
     implementation "curse.maven:aaa-particles-979809:8402890"
     implementation "curse.maven:architectury-api-419699:8915038"
-    implementation "curse.maven:photon-871522:8820313"
-    implementation "curse.maven:ldlib-626676:8814440"
+    compileOnly "curse.maven:photon-871522:8820313"
+    compileOnly "curse.maven:ldlib-626676:8814440"
 
     implementation "curse.maven:cloth-config-348521:7817583"
     implementation "curse.maven:better-combat-by-daedelus-639842:8486482"
     implementation "curse.maven:player-animation-library-1283899:8674772"
-    compileOnly "curse.maven:punchy-1374153:8891120"
+    implementation "curse.maven:punchy-1374153:8891120"
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
 }

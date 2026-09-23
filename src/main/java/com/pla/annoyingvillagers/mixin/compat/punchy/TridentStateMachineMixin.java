@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(value = punchy.client.state.TridentStateMachine.class, remap = false)
 public abstract class TridentStateMachineMixin {
-    // Punchy 2.6.2's first boolean local is its vanilla TridentItem type check.
+    // Punchy 2.8a's first boolean local is its vanilla TridentItem type check.
     // Reuse its charge/hold/release state machine, which follows getUsedItemHand().
     @ModifyVariable(method = "tick", at = @At("STORE"), ordinal = 0, require = 1, allow = 1)
     private boolean av$recognizeBlueDemonTrident(boolean isTrident, Minecraft client) {
