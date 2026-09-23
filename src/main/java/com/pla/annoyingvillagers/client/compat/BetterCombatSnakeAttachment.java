@@ -27,10 +27,11 @@ import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /** Client-only sockets from the actual held-item pose, including animated arm bends. */
@@ -38,9 +39,9 @@ import java.util.Map;
 public final class BetterCombatSnakeAttachment {
     private static final Map<LivingEntity, Vec3> SOCKETS = new HashMap<>();
     private static final List<PendingSnake> PENDING = new ArrayList<>();
+    private static final Deque<ItemCapture> ITEM_CAPTURES = new ArrayDeque<>();
     private static final Matrix4f WORLD_PROJECTION = new Matrix4f();
     private static final Matrix4f INVERSE_VIEW = new Matrix4f();
-    private static LivingEntity itemOwner;
     private static boolean drawingSnakes;
     private static boolean samplingHand;
     private static Vec3 cameraPosition = Vec3.ZERO;
@@ -50,17 +51,30 @@ public final class BetterCombatSnakeAttachment {
     public static void beginFrame(Matrix4f view, Matrix4f projection, Vec3 camera) {
         SOCKETS.clear();
         PENDING.clear();
-        itemOwner = null;
+        ITEM_CAPTURES.clear();
         INVERSE_VIEW.set(view).invert();
         WORLD_PROJECTION.set(projection);
         cameraPosition = camera;
     }
 
-    public static void setItemOwner(LivingEntity owner) {
-        itemOwner = owner;
+    /**
+     * Scopes the entity and stack around a 26.1 item-feature submission. The actual
+     * socket is sampled later, after the model's display transform has been applied.
+     */
+    public static void beginItem(LivingEntity owner, ItemStack stack, ItemDisplayContext context) {
+        ITEM_CAPTURES.push(new ItemCapture(owner, stack, context));
     }
 
-    public static void capture(ItemStack stack, ItemDisplayContext context, PoseStack pose) {
+    public static void endItem() {
+        if (!ITEM_CAPTURES.isEmpty()) ITEM_CAPTURES.pop();
+    }
+
+    public static void captureTransformed(PoseStack pose) {
+        ItemCapture capture = ITEM_CAPTURES.peek();
+        if (capture == null) return;
+        LivingEntity itemOwner = capture.owner;
+        ItemStack stack = capture.stack;
+        ItemDisplayContext context = capture.context;
         if (itemOwner == null
                 || !(stack.getItem() instanceof DemoniacVoltageReaverItem)
                 || !ItemStack.isSameItemSameComponents(stack, itemOwner.getMainHandItem())
@@ -131,7 +145,6 @@ public final class BetterCombatSnakeAttachment {
                         mc.getEntityRenderDispatcher().getPackedLightCoords(mc.player, partialTick));
             } finally {
                 samplingHand = false;
-                itemOwner = null;
             }
         }
         // Entity order is arbitrary: wait until every player's held-item layer has run.
@@ -159,6 +172,8 @@ public final class BetterCombatSnakeAttachment {
 
     private record PendingSnake(SnakeBladeRenderer renderer, SnakeBladeEntity snake, float yaw,
                                 float partialTick, int light) {}
+
+    private record ItemCapture(LivingEntity owner, ItemStack stack, ItemDisplayContext context) {}
 
     /** Transform-only sampling must never flush the world's buffers or submit duplicate geometry. */
     private static final class SamplingCollector {

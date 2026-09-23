@@ -92,8 +92,10 @@ public class ShadowObsidianPillarItem extends LegacySwordItem implements RigComb
         super.inventoryTick(stack, level, entity, equipmentSlot);
         if (!LegacyItemData.has(stack) || LegacyItemData.get(stack) == null || !LegacyItemData.get(stack).getBooleanOr(BURST_TAG, false)) return;
         if (level.getGameTime() < LegacyItemData.get(stack).getLongOr(BURST_UNTIL_TAG, 0L)) return;
-        LegacyItemData.get(stack).remove(BURST_TAG);
-        LegacyItemData.get(stack).remove(BURST_UNTIL_TAG);
+        LegacyItemData.update(stack, tag -> {
+            tag.remove(BURST_TAG);
+            tag.remove(BURST_UNTIL_TAG);
+        });
     }
 
     public static boolean activateVanillaSpecial(Player player) {

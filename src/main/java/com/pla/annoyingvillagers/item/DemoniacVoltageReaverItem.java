@@ -569,9 +569,7 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
         if (ent instanceof LivingEntity living && living.level().isClientSide()) {
             Vec3 renderedToolTip = BetterCombatSnakeAttachment.getToolTipPos(living);
             if (renderedToolTip != null) {
-                return ent instanceof SwordsmanHerobrineEntity
-                        ? renderedToolTip.add(0.0D, 0.2D, 0.0D)
-                        : renderedToolTip;
+                return renderedToolTip;
             }
         }
         if (ent instanceof Player player) {
@@ -592,9 +590,7 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
             if (active != null && startTick >= 0) {
                 float elapsedTicks = Math.max(0.0F, mob.tickCount - startTick + partialTicks);
                 Vec3 toolTip = RigPoseUtil.getRightWeaponPosition(mob, active, elapsedTicks, handToTip);
-                if (ent instanceof SwordsmanHerobrineEntity && (active == RigAnimationId.SWORDSMAN_HEROBRINE_ULT || active == RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT)) {
-                    return toolTip.add(0.0D, 0.2D, 0.0D);
-                }
+                return toolTip;
             }
         }
         if (!(ent instanceof LivingEntity)) return null;
@@ -633,7 +629,6 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         HerobrineUtil.spawnEliteEffect(player.level(), player.getX(), player.getY(), player.getZ(), player);
-        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(stack.getItem()), VANILLA_AWAKEN_DURATION_TICKS);
         return true;
     }
 
@@ -700,14 +695,18 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
             if (entity instanceof Player player) releaseSnakeProfileAttackLock(player);
         }
         if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && entity instanceof Player player && LegacyItemData.has(itemstack) && LegacyItemData.get(itemstack) != null) {
-            long cooldownUntil = isVanillaAwakened(itemstack, level)
-                    ? LegacyItemData.get(itemstack).getLongOr(VANILLA_AWAKEN_EXPIRES_TAG, 0L)
+            // An ItemCooldown now prevents Item.use from being called on both the client
+            // and server. Keep it for the recovery period only; SecondForm and its expiry
+            // tag already gate reactivation while allowing snake-blade guard on right-click.
+            boolean awakened = isVanillaAwakened(itemstack, level);
+            long cooldownUntil = awakened
+                    ? 0L
                     : LegacyItemData.get(itemstack).getLongOr(VANILLA_RECOVERY_UNTIL_TAG, 0L);
             long remaining = cooldownUntil - level.getGameTime();
-            if (remaining > 0L && player.getCooldowns().getCooldownPercent(new net.minecraft.world.item.ItemStack(itemstack.getItem()), 0.0F) <= 0.0F) {
+            if (!awakened && remaining > 0L && player.getCooldowns().getCooldownPercent(new net.minecraft.world.item.ItemStack(itemstack.getItem()), 0.0F) <= 0.0F) {
                 player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(itemstack.getItem()), (int)Math.min(Integer.MAX_VALUE, remaining));
             }
-            if (!isVanillaAwakened(itemstack, level) && LegacyItemData.get(itemstack).contains(VANILLA_RECOVERY_UNTIL_TAG) && remaining <= 0L) {
+            if (!awakened && LegacyItemData.get(itemstack).contains(VANILLA_RECOVERY_UNTIL_TAG) && remaining <= 0L) {
                 LegacyItemData.update(itemstack, tag -> tag.remove(VANILLA_RECOVERY_UNTIL_TAG));
             }
         }

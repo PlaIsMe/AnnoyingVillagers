@@ -19,7 +19,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(Minecraft.class)
+// Better Combat also intercepts Minecraft.startAttack at HEAD. Run first so AV
+// ability clicks cannot begin Better Combat's ordinary weapon combo beforehand.
+@Mixin(value = Minecraft.class, priority = 2000)
 public abstract class MinecraftAttackMixin {
     private static boolean annoyingVillagers$blueDemonOffhandNext;
 
@@ -35,6 +37,10 @@ public abstract class MinecraftAttackMixin {
             return;
         }
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
+
+        // Better Combat starts attacks through AttackInteractor rather than the
+        // vanilla swing below. Its compat mixin owns these two ability clicks.
+        if (VanillaWeaponAbilityUtil.isBetterCombatLoaded()) return;
 
         if (player.getMainHandItem().getItem() instanceof EnderSlayerScytheItem && EnderSlayerScytheItem.isDragonActive(player.getMainHandItem())) {
             ClientPacketDistributor.sendToServer(new VanillaAttackKeyMessage());
