@@ -31,9 +31,9 @@ import punchy.client.render.PunchyArmRenderer;
 /** Punchy first-person compatibility for AV weapon models and Obsidian armor. */
 @Mixin(value = PunchyArmRenderer.class, remap = false)
 public abstract class PunchyArmRendererMixin {
-    // Start in THIRD_PERSON just as Punchy 1.21.1 did. Punchy's renderItem hook
-    // decides whether the authored FIRST_PERSON orientation is needed. Do not
-    // force one context for all weapons or compensate with guessed offsets.
+    // Start in THIRD_PERSON just as Punchy 1.21.1 did. The legacy AV weapon
+    // profiles retain that hand-space display; other items keep Punchy's normal
+    // context selection. Model offsets and animation profiles stay untouched.
 
     @WrapOperation(
             method = "renderItemInHand",
@@ -72,13 +72,14 @@ public abstract class PunchyArmRendererMixin {
                     "Lpunchy/client/render/PunchyArmRenderer;setForceVanillaDisplay(Z)V"),
             require = 1
     )
-    private static void av$keepPolearmHandDisplay(boolean force, Operation<Void> original,
+    private static void av$keepLegacyHandDisplay(boolean force, Operation<Void> original,
                                                   @Local(name = "stack") ItemStack stack) {
         // Punchy's orientation heuristic otherwise switches these models from
         // THIRD_PERSON to FIRST_PERSON inside ItemInHandRenderer.renderItem.
         // That camera-space transform moves the shaft away from the animated
         // hand and tilts the blade inward. Keep the authored hand-space pose for
-        // these two AV models only; preserve Punchy's decision for every other item.
+        // the legacy AV weapon set, including both hands and alternate forms.
+        // Preserve Punchy's decision for every item outside that set.
         original.call(force && !PunchyItemRenderContext.keepAuthoredHandDisplay(stack));
     }
 
