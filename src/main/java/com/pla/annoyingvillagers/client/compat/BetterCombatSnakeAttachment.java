@@ -1,21 +1,17 @@
 package com.pla.annoyingvillagers.client.compat;
 
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.client.renderer.SnakeBladeRenderer;
 import com.pla.annoyingvillagers.entity.SnakeBladeEntity;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.mixin.client.SnakeAttachmentGameRendererAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.Projection;
 import net.minecraft.client.renderer.SubmitNodeStorage;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -23,7 +19,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -42,6 +37,7 @@ public final class BetterCombatSnakeAttachment {
     private static final Deque<ItemCapture> ITEM_CAPTURES = new ArrayDeque<>();
     private static final Matrix4f WORLD_PROJECTION = new Matrix4f();
     private static final Matrix4f INVERSE_VIEW = new Matrix4f();
+    private static final Projection HAND_PROJECTION = new Projection();
     private static boolean drawingSnakes;
     private static boolean samplingHand;
     private static Vec3 cameraPosition = Vec3.ZERO;
@@ -85,6 +81,10 @@ public final class BetterCombatSnakeAttachment {
         boolean leftHand = context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                 || context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
         if (leftHand != (itemOwner.getMainArm() == HumanoidArm.LEFT)) return;
+        // Display context describes the MODEL, not the render pass. Punchy uses
+        // THIRD_PERSON transforms for its first-person hand. Only our sampling
+        // pass may publish that hand's socket; the later HUD pass must not replace it.
+        if (!samplingHand && (context.firstPerson() || PunchyItemRenderContext.isActive())) return;
 
         // End of the retained blade in custom/demoniac_voltage_reaver_snake.json.
         // Its tip cubes are rotated -45 degrees about Z around (-2, 7, 2).
@@ -92,16 +92,16 @@ public final class BetterCombatSnakeAttachment {
         Vector3f socket = new Vector3f((-2.0F + 21.0F * diagonal) / 16.0F,
                 (7.0F + 5.0F * diagonal) / 16.0F, 8.0F / 16.0F);
         pose.last().pose().transformPosition(socket);
-        if (context.firstPerson()) {
-            if (!(itemOwner instanceof Player)) return;
-            if (!samplingHand) return;
-            // The ordinary hand pass uses a different FOV from the world pass.
+        if (samplingHand) {
+            // The sampling PoseStack starts in view space, even when Punchy
+            // selected a THIRD_PERSON model. Match GameRenderer's HUD projection,
+            // including the graphics backend's depth convention.
             Minecraft mc = Minecraft.getInstance();
-            float handFov = mc.gameRenderer.getGameRenderState()
-                    .levelRenderState.cameraRenderState.hudFov;
-            float aspect = (float) mc.getWindow().getWidth() / (float) mc.getWindow().getHeight();
-            Matrix4f handProjection = new Matrix4f().perspective(
-                    handFov * Mth.DEG_TO_RAD, aspect, 0.05F, 1000.0F);
+            var renderState = mc.gameRenderer.getGameRenderState();
+            HAND_PROJECTION.setupPerspective(0.05F, 100.0F,
+                    renderState.levelRenderState.cameraRenderState.hudFov,
+                    renderState.windowRenderState.width, renderState.windowRenderState.height);
+            Matrix4f handProjection = HAND_PROJECTION.getMatrix(new Matrix4f());
             new Matrix4f(WORLD_PROJECTION).invert().mul(handProjection).transformProject(socket);
             // First-person items are rendered in view space. Third-person
             // entity items are already world-oriented in their local PoseStack.
@@ -126,10 +126,10 @@ public final class BetterCombatSnakeAttachment {
         if (PENDING.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
         float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        // Better Combat's punch supplies a third-person-model socket even in first person.
-        // After the animation fades, sample the normal hand transforms without drawing them.
+        // Prefer the visible hand over any world-player socket. If Better Combat
+        // owns first person and suppresses the hand pass, the world socket remains.
         if (mc.player != null && mc.options.getCameraType().isFirstPerson()
-                && !SOCKETS.containsKey(mc.player) && !mc.options.hideGui
+                && !mc.options.hideGui
                 && !mc.player.isSpectator() && !mc.player.isSleeping()
                 && PENDING.stream().anyMatch(p -> p.snake.getRenderFromEntity() == mc.player)) {
             PoseStack handPose = new PoseStack();
@@ -141,7 +141,7 @@ public final class BetterCombatSnakeAttachment {
             samplingHand = true;
             try {
                 mc.gameRenderer.itemInHandRenderer.renderHandsWithItems(partialTick, handPose,
-                        SamplingCollector.INSTANCE, mc.player,
+                        new SubmitNodeStorage(), mc.player,
                         mc.getEntityRenderDispatcher().getPackedLightCoords(mc.player, partialTick));
             } finally {
                 samplingHand = false;
@@ -175,8 +175,4 @@ public final class BetterCombatSnakeAttachment {
 
     private record ItemCapture(LivingEntity owner, ItemStack stack, ItemDisplayContext context) {}
 
-    /** Transform-only sampling must never flush the world's buffers or submit duplicate geometry. */
-    private static final class SamplingCollector {
-        private static final SubmitNodeStorage INSTANCE = new SubmitNodeStorage();
-    }
 }

@@ -22,19 +22,21 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import punchy.client.access.TransformablePart;
 import punchy.client.render.PunchyArmRenderer;
 
-/** Punchy first-person compatibility for AV weapon models and Obsidian armor. */
+/**
+ * Legacy Obsidian armor rendering plus the three 26.1-only weapon bridges:
+ * PAL arm attachment, authored hand-display selection, and scoped model resolution.
+ * The compatibility pack owns model replacement and animation selection; these
+ * hooks only bridge renderer behavior that the pack cannot configure.
+ */
 @Mixin(value = PunchyArmRenderer.class, remap = false)
 public abstract class PunchyArmRendererMixin {
-    // Start in THIRD_PERSON just as Punchy 1.21.1 did. The legacy AV weapon
-    // profiles retain that hand-space display; other items keep Punchy's normal
-    // context selection. Model offsets and animation profiles stay untouched.
-
     @WrapOperation(
             method = "renderItemInHand",
             at = @At(value = "INVOKE", target =
@@ -121,9 +123,7 @@ public abstract class PunchyArmRendererMixin {
             int light,
             CallbackInfo ci
     ) {
-        if (player != null && PunchyItemRenderContext.isAvItem(player.getItemBySlot(EquipmentSlot.CHEST))
-                && HerobrineObsidianArmorCharge.isChestplate(
-                player.getItemBySlot(EquipmentSlot.CHEST))) {
+        if (av$hasObsidianChestplate(player)) {
             ci.cancel();
         }
     }
@@ -154,8 +154,7 @@ public abstract class PunchyArmRendererMixin {
         // Epic Fight owns the whole first-person armor pass when its compatibility
         // add-on is present, so drawing here as well would duplicate the tiles.
         if (arm != HumanoidArm.RIGHT || ModList.get().isLoaded("epicfight")
-                || !PunchyItemRenderContext.isAvItem(player.getItemBySlot(EquipmentSlot.CHEST))
-                || !HerobrineObsidianArmorCharge.isChestplate(player.getItemBySlot(EquipmentSlot.CHEST))) return;
+                || !av$hasObsidianChestplate(player)) return;
 
         poseStack.pushPose();
         try {
@@ -164,5 +163,12 @@ public abstract class PunchyArmRendererMixin {
         } finally {
             poseStack.popPose();
         }
+    }
+
+    @Unique
+    private static boolean av$hasObsidianChestplate(AbstractClientPlayer player) {
+        if (player == null) return false;
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        return PunchyItemRenderContext.isAvItem(chest) && HerobrineObsidianArmorCharge.isChestplate(chest);
     }
 }

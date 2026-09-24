@@ -59,7 +59,7 @@
     "client.SnakeAttachmentItemInHandLayerMixin",
     "client.SnakeAttachmentItemLayerStateMixin",
     "client.SnakeAttachmentGameRendererAccessor",
-    "client.SnakeAttachmentLevelRendererMixin",
+    "client.SnakeAttachmentGameRendererMixin",
     "client.ArrowLayerMixin",
     "client.FishingHookRendererMixin",
     "client.MinecraftAttackMixin",

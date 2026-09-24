@@ -90,16 +90,27 @@ public class SnakeBladeRenderer extends LegacyEntityRenderer<SnakeBladeEntity> {
 
     public void submitGeometry(SnakeBladeEntity entity, float partialTicks, PoseStack poseStack,
                                SubmitNodeCollector collector) {
+        Entity owner = entity.getRenderFromEntity();
+        if (owner == null) return;
+        // Geometry executes later in 26.1. Freeze the sampled attachment now so
+        // both passes use the same socket, not a value changed by a later hand pass.
+        Vec3 swordPos = DemoniacVoltageReaverItem.getToolTipPos(owner, partialTicks,
+                entity.isGuard() ? 1.8F : 2.2F);
+        boolean renderedToolSocket = owner instanceof LivingEntity living
+                && BetterCombatSnakeAttachment.getToolTipPos(living) != null;
         collector.submitCustomGeometry(poseStack,
                 net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(FRAGMENT_CHAIN_TEXTURE),
-                (rootPose, vertices) -> renderGeometry(entity, partialTicks, rootPose, vertices, true, false));
+                (rootPose, vertices) -> renderGeometry(entity, partialTicks, rootPose, vertices,
+                        swordPos, renderedToolSocket, true, false));
         collector.submitCustomGeometry(poseStack,
                 net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(SNAKE_BLADE_TEXTURE),
-                (rootPose, vertices) -> renderGeometry(entity, partialTicks, rootPose, vertices, false, true));
+                (rootPose, vertices) -> renderGeometry(entity, partialTicks, rootPose, vertices,
+                        swordPos, renderedToolSocket, false, true));
     }
 
     private void renderGeometry(SnakeBladeEntity snakeBladeEntity, float partialTicks,
                                 PoseStack.Pose rootPose, VertexConsumer geometryConsumer,
+                                Vec3 swordPos, boolean renderedToolSocket,
                                 boolean renderFragments, boolean renderBlade) {
         PoseStack poseStack = new PoseStack();
         poseStack.last().set(rootPose);
@@ -116,11 +127,6 @@ public class SnakeBladeRenderer extends LegacyEntityRenderer<SnakeBladeEntity> {
             float progress =
                     (snakeBladeEntity.prevProgress + (snakeBladeEntity.getProgress() - snakeBladeEntity.prevProgress) * partialTicks)
                             / SnakeBladeEntity.MAX_EXTEND_TIME;
-
-            float tipOffset = snakeBladeEntity.isGuard() ? 1.8F : 2.2F;
-            Vec3 swordPos = DemoniacVoltageReaverItem.getToolTipPos(fromEntity, partialTicks, tipOffset);
-            boolean renderedToolSocket = fromEntity instanceof LivingEntity living
-                    && BetterCombatSnakeAttachment.getToolTipPos(living) != null;
 
             Vec3 distVec = (swordPos != null)
                     ? swordPos.subtract(x, renderedToolSocket ? y : y + 1.2F, z)

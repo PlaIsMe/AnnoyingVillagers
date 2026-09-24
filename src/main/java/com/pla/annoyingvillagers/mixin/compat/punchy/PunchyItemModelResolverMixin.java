@@ -17,7 +17,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import punchy.mixin.client.accessor.ItemStackRenderStateAccessor;
 import punchy.mixin.client.accessor.ItemStackRenderStateLayerAccessor;
 
-/** Retains the selected model's display transform, as the 1.21.1 renderer did. */
+/**
+ * Retains the selected model's per-layer display transforms, as 1.21.1 did.
+ * Punchy's replacement-model exclusions do NOT disable its Item/context-only
+ * transform cache. This bridge is still required for changing Reaver forms and
+ * composite Hook Gun layers, and runs only inside Punchy's AV held-item call.
+ */
 @Mixin(value = ItemModelResolver.class, priority = 500)
 public abstract class PunchyItemModelResolverMixin {
     @Unique

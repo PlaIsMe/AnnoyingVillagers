@@ -627,7 +627,7 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
             tag.putLong(VANILLA_AWAKEN_EXPIRES_TAG, player.level().getGameTime() + VANILLA_AWAKEN_DURATION_TICKS);
         });
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
+        swingSnakeAttack(player);
         HerobrineUtil.spawnEliteEffect(player.level(), player.getX(), player.getY(), player.getZ(), player);
         return true;
     }
@@ -637,7 +637,7 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof DemoniacVoltageReaverItem) || !isVanillaAwakened(stack, player.level())) return;
         if (!tryStartSnakeAnimation(stack, player, false)) return;
-        VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
+        swingSnakeAttack(player);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
     }
 
@@ -647,10 +647,22 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || !isVanillaAwakened(stack, level)) return InteractionResult.PASS;
         if (!level.isClientSide()) {
             tryStartSnakeAnimation(stack, player, true);
-            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
+            swingSnakeAttack(player);
             VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         }
         return InteractionResult.SUCCESS;
+    }
+
+    private static void swingSnakeAttack(Player player) {
+        if (VanillaWeaponAbilityUtil.isBetterCombatLoaded()) {
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
+        } else {
+            // Punchy may be installed only on the client. Send the same named
+            // ability without requiring Better Combat on the server; otherwise
+            // Punchy sees only a vanilla swing and chooses the normal axe combo.
+            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK,
+                    player.getCurrentItemAttackStrengthDelay());
+        }
     }
 
     public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
