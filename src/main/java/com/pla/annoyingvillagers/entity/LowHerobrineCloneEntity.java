@@ -112,7 +112,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
         this.setCustomNameVisible(false);
     }
 
-        @Override
+    @Override
     public boolean shouldIgnoreBurstProtection(LivingEntity self,DamageSource source) {
         return true;
     }
@@ -165,7 +165,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
         return Component.literal("§5Low Herobrine Clone§r");
     }
 
-        protected void registerGoals() {
+    protected void registerGoals() {
         this.goalSelector.getAvailableGoals().clear();
         this.targetSelector.getAvailableGoals().clear();
         this.goalSelector.addGoal(1, new Goal() {
@@ -223,7 +223,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
         CommonGoals.registerGoalForHostileNpc(this);
     }
 
-        public boolean removeWhenFarAway(double d0) {
+    public boolean removeWhenFarAway(double d0) {
         return false;
     }
 

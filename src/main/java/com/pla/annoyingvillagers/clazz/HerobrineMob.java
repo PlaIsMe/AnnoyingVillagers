@@ -1156,7 +1156,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
 
             if (this.tickCount == 1) {
                 if (this.renderPortal) {
-                    ClientboundHerobrinePortalFx.sendToNearby(this, this.getOnPos().getCenter().add(0.0, 1.5, 0.0));
+                    ClientboundHerobrinePortalFx.sendToNearby(this, this.getOnPos().getCenter().add(0.0, 2.5, 0.0));
                     this.renderPortal = false;
                 }
                 if (this.initialSpawn) {

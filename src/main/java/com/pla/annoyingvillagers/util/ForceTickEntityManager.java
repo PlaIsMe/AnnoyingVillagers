@@ -8,8 +8,10 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -83,9 +85,13 @@ public final class ForceTickEntityManager {
 
     @SubscribeEvent
     public static void allowDespawn(MobDespawnEvent event) {
-        if (AnnoyingVillagersConfig.FORCE_TICK_MOBS.get() && eligible(event.getEntity())) {
+        Mob entity = event.getEntity();
+        boolean peacefulRemoval = entity.level().getDifficulty() == Difficulty.PEACEFUL
+                && entity.getType().getCategory() == MobCategory.MONSTER;
+        if (!peacefulRemoval && AnnoyingVillagersConfig.FORCE_TICK_MOBS.get() && eligible(entity)) {
             // Do not persist PersistenceRequired: disabling the feature must restore normal
-            // distance-despawn rules. Explicit death/recall/discard remains entity-owned.
+            // distance-despawn rules. Peaceful removal and explicit death/recall/discard
+            // remain entity-owned.
             event.setResult(MobDespawnEvent.Result.DENY);
         }
     }
