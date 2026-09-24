@@ -1,6 +1,7 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -27,8 +28,12 @@ public final class LegacyTooltipFormattingEvent {
     public static void onTooltip(ItemTooltipEvent event) {
         List<Component> tooltip = event.getToolTip();
         if (tooltip.stream().noneMatch(LegacyTooltipFormattingEvent::isModDescription)) return;
-        var minecraft = Minecraft.getInstance();
-        int width = Math.max(80, Math.min(320, minecraft.getWindow().getGuiScaledWidth() - 32));
+        // Creative search builds tooltip text on a worker thread. In 26.1 font
+        // measurement can bake/upload glyphs, so only wrap visual tooltips on the
+        // render thread. Search still receives all the normalized description text.
+        boolean wrap = RenderSystem.isOnRenderThread();
+        var minecraft = wrap ? Minecraft.getInstance() : null;
+        int width = wrap ? Math.max(80, Math.min(320, minecraft.getWindow().getGuiScaledWidth() - 32)) : 0;
         List<Component> formatted = new ArrayList<>();
         for (Component line : tooltip) {
             if (!isModDescription(line)) {
@@ -41,7 +46,10 @@ public final class LegacyTooltipFormattingEvent {
                 return true;
             });
             runs.flush();
-            for (FormattedText wrapped : minecraft.font.getSplitter().splitLines(runs.text, width, Style.EMPTY)) {
+            List<? extends FormattedText> lines = wrap
+                    ? minecraft.font.getSplitter().splitLines(runs.text, width, Style.EMPTY)
+                    : List.of(runs.text);
+            for (FormattedText wrapped : lines) {
                 MutableComponent component = Component.empty();
                 wrapped.visit((style, text) -> {
                     component.append(Component.literal(text).setStyle(style));

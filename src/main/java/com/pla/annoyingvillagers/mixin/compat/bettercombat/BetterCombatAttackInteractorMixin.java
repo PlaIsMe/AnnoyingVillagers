@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.mixin.compat.bettercombat;
 
+import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.item.DemoniacVoltageReaverItem;
 import com.pla.annoyingvillagers.item.EnderSlayerScytheItem;
 import com.pla.annoyingvillagers.network.VanillaAttackKeyMessage;
@@ -7,6 +8,7 @@ import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.bettercombat.api.WeaponAttributes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -22,6 +24,8 @@ public abstract class BetterCombatAttackInteractorMixin {
     private void annoyingVillagers$startWeaponAbilityInstead(WeaponAttributes attributes, CallbackInfo ci) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
+        if (!AnnoyingVillagers.MODID.equals(BuiltInRegistries.ITEM.getKey(
+                player.getMainHandItem().getItem()).getNamespace())) return;
 
         boolean activeScythe = player.getMainHandItem().getItem() instanceof EnderSlayerScytheItem
                 && EnderSlayerScytheItem.isDragonActive(player.getMainHandItem());

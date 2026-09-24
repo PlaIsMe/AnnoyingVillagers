@@ -1,96 +1,107 @@
 package com.pla.annoyingvillagers.mixin.compat.punchy;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.pla.annoyingvillagers.AnnoyingVillagers;
+import com.pla.annoyingvillagers.client.compat.PunchyItemRenderContext;
 import com.pla.annoyingvillagers.client.renderer.ObsidianArmorExtensionRenderer;
 import com.pla.annoyingvillagers.item.HerobrineObsidianArmorCharge;
-import com.pla.annoyingvillagers.item.LegacySwordItem;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.HoeItem;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShovelItem;
 import net.neoforged.fml.ModList;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import punchy.client.access.TransformablePart;
 import punchy.client.render.PunchyArmRenderer;
 
 /** Punchy first-person compatibility for AV weapon models and Obsidian armor. */
 @Mixin(value = PunchyArmRenderer.class, remap = false)
 public abstract class PunchyArmRendererMixin {
-    /**
-     * Punchy anchors items to its animated player arm and normally asks the item
-     * model for a third-person transform. AV's oversized weapon models have
-     * deliberately different first-person transforms, however. Applying their
-     * NPC/third-person transform in camera space makes great weapons fill the
-     * screen and can move the flat wooden weapons completely behind the camera.
-     *
-     * Change only the model display context. Punchy's arm pose, combat animation,
-     * tuning and physics remain active, while the AV model supplies the transform
-     * authored for first person. The local index is Punchy 2.8a's sole
-     * ItemDisplayContext local (named "context" in its debug table).
-     */
-    @ModifyVariable(
-            method = "renderItemInHand",
-            at = @At("STORE"),
-            index = 36,
-            require = 1,
-            allow = 1
-    )
-    private static ItemDisplayContext av$useFirstPersonItemTransform(
-            ItemDisplayContext context,
-            ItemInHandRenderer handRenderer,
-            PlayerModel playerModel,
-            AvatarRenderState renderState,
-            LocalPlayer player,
-            HumanoidArm arm,
-            PoseStack poseStack,
-            SubmitNodeCollector collector,
-            int light,
-            Matrix4f rootWorld,
-            ModelPart geoArm,
-            ModelPart geoItem,
-            ModelPart geoGrip,
-            float partialTick
-    ) {
-        InteractionHand hand = arm == player.getMainArm()
-                ? InteractionHand.MAIN_HAND
-                : InteractionHand.OFF_HAND;
-        ItemStack stack = player.getItemInHand(hand);
-        Identifier itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-        if (itemId == null
-                || !AnnoyingVillagers.MODID.equals(itemId.getNamespace())
-                || !av$usesAuthoredWeaponTransform(stack)) {
-            return context;
-        }
+    // Start in THIRD_PERSON just as Punchy 1.21.1 did. Punchy's renderItem hook
+    // decides whether the authored FIRST_PERSON orientation is needed. Do not
+    // force one context for all weapons or compensate with guessed offsets.
 
-        return arm == HumanoidArm.LEFT
-                ? ItemDisplayContext.FIRST_PERSON_LEFT_HAND
-                : ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
+    @WrapOperation(
+            method = "renderItemInHand",
+            at = @At(value = "INVOKE", target =
+                    "Lnet/minecraft/client/model/player/PlayerModel;translateToHand(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V"),
+            require = 1
+    )
+    private static void av$followPunchyArm(PlayerModel model, AvatarRenderState state,
+                                          HumanoidArm arm, PoseStack poseStack, Operation<Void> original,
+                                          @Local(name = "stack") ItemStack stack) {
+        // Use Punchy's resolved visual stack, not the player's current slot:
+        // equip transitions can still be drawing the previous item.
+        if (!PunchyItemRenderContext.isAvItem(stack)) {
+            original.call(model, state, arm, poseStack);
+            return;
+        }
+        ModelPart part = arm == HumanoidArm.RIGHT ? model.rightArm : model.leftArm;
+        if ((Object) part instanceof TransformablePart animatedPart
+                && animatedPart.punchy$getExplicitTransform() != null) {
+            // PAL's PlayerModel.translateToHand wrapper skips translateAndRotate
+            // whenever a Better Combat pose is active (notably two-handed weapons).
+            // That also skips Punchy's explicit-matrix hook on ModelPart, attaching
+            // the weapon to the old vanilla arm instead of the arm actually drawn.
+            // Use the same ModelPart path as Punchy's arm rendering. Keep this
+            // scoped to Punchy's item pass; normal PAL/third-person poses stay intact.
+            // renderArm submits this part directly, without the model root.
+            part.translateAndRotate(poseStack);
+        } else {
+            original.call(model, state, arm, poseStack);
+        }
     }
 
-    private static boolean av$usesAuthoredWeaponTransform(ItemStack stack) {
-        return stack.getItem() instanceof LegacySwordItem
-                || stack.getItem() instanceof AxeItem
-                || stack.getItem() instanceof HoeItem
-                || stack.getItem() instanceof ShovelItem;
+    @WrapOperation(
+            method = "renderItemInHand",
+            at = @At(value = "INVOKE", target =
+                    "Lpunchy/client/render/PunchyArmRenderer;setForceVanillaDisplay(Z)V"),
+            require = 1
+    )
+    private static void av$keepPolearmHandDisplay(boolean force, Operation<Void> original,
+                                                  @Local(name = "stack") ItemStack stack) {
+        // Punchy's orientation heuristic otherwise switches these models from
+        // THIRD_PERSON to FIRST_PERSON inside ItemInHandRenderer.renderItem.
+        // That camera-space transform moves the shaft away from the animated
+        // hand and tilts the blade inward. Keep the authored hand-space pose for
+        // these two AV models only; preserve Punchy's decision for every other item.
+        original.call(force && !PunchyItemRenderContext.keepAuthoredHandDisplay(stack));
+    }
+
+    @WrapOperation(
+            method = "renderItemInHand",
+            at = @At(value = "INVOKE", target =
+                    "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V"),
+            require = 1
+    )
+    private static void av$renderWithCurrentModelTransform(ItemInHandRenderer renderer, LivingEntity entity,
+                                                           ItemStack stack, ItemDisplayContext context,
+                                                           PoseStack poses, SubmitNodeCollector collector,
+                                                           int light, Operation<Void> original) {
+        if (!PunchyItemRenderContext.isAvItem(stack)) {
+            original.call(renderer, entity, stack, context, poses, collector, light);
+            return;
+        }
+        PunchyItemRenderContext.begin();
+        try {
+            original.call(renderer, entity, stack, context, poses, collector, light);
+        } finally {
+            PunchyItemRenderContext.end();
+        }
     }
 
     // Punchy 2.8 adds a vanilla sleeve pass that bypasses Forge's custom armor
@@ -109,7 +120,8 @@ public abstract class PunchyArmRendererMixin {
             int light,
             CallbackInfo ci
     ) {
-        if (player != null && HerobrineObsidianArmorCharge.isChestplate(
+        if (player != null && PunchyItemRenderContext.isAvItem(player.getItemBySlot(EquipmentSlot.CHEST))
+                && HerobrineObsidianArmorCharge.isChestplate(
                 player.getItemBySlot(EquipmentSlot.CHEST))) {
             ci.cancel();
         }
@@ -140,7 +152,9 @@ public abstract class PunchyArmRendererMixin {
     ) {
         // Epic Fight owns the whole first-person armor pass when its compatibility
         // add-on is present, so drawing here as well would duplicate the tiles.
-        if (arm != HumanoidArm.RIGHT || ModList.get().isLoaded("epicfight")) return;
+        if (arm != HumanoidArm.RIGHT || ModList.get().isLoaded("epicfight")
+                || !PunchyItemRenderContext.isAvItem(player.getItemBySlot(EquipmentSlot.CHEST))
+                || !HerobrineObsidianArmorCharge.isChestplate(player.getItemBySlot(EquipmentSlot.CHEST))) return;
 
         poseStack.pushPose();
         try {

@@ -7,7 +7,6 @@ import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -310,10 +309,9 @@ public class HookGunItem extends Item {
             return;
         }
 
-        CompoundTag tag = LegacyItemData.get(hookGunStack);
-        if (tag != null) {
-            tag.remove(TAG_VISUAL_HOOK_OUT);
-        }
+        // CUSTOM_DATA exposes a copy; persist the removal so clients can show
+        // the bound item again after the hook returns.
+        LegacyItemData.update(hookGunStack, tag -> tag.remove(TAG_VISUAL_HOOK_OUT));
     }
 
     public static void clearBoundItem(ItemStack hookGunStack) {
@@ -322,11 +320,10 @@ public class HookGunItem extends Item {
             return;
         }
 
-        CompoundTag tag = LegacyItemData.get(hookGunStack);
-        if (tag != null) {
+        LegacyItemData.update(hookGunStack, tag -> {
             tag.remove(TAG_BOUND_ITEM);
             tag.remove(TAG_VISUAL_HOOK_OUT);
-        }
+        });
     }
 
     public static boolean tryBindFromSpecialAttack(Player player) {

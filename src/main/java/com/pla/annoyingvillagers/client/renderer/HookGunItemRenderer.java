@@ -4,87 +4,110 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.item.HookGunItem;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.item.ModelRenderProperties;
+import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
+import net.minecraft.client.renderer.special.NoDataSpecialModelRenderer;
+import net.minecraft.client.resources.model.ResolvableModel;
+import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.ItemOwner;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
-/** Dynamic hook-gun attachment implemented with the 26.1 special item-model API. */
-public final class HookGunItemRenderer implements SpecialModelRenderer<ItemStack> {
+/** The attachment needs per-stack bounds and a GUI cache identity, not a static special-model box. */
+public final class HookGunItemRenderer implements ItemModel {
     public static final Identifier TYPE = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "hook_gun_attachment");
-    private final ItemModelResolver itemModelResolver;
+    private static final Identifier BASE = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "item/hook_gun");
+    private final ModelRenderProperties properties;
+    private final Matrix4fc transformation;
 
-    public HookGunItemRenderer() {
-        this.itemModelResolver = Minecraft.getInstance().getItemModelResolver();
+    private HookGunItemRenderer(ModelRenderProperties properties, Matrix4fc transformation) {
+        this.properties = properties;
+        this.transformation = new Matrix4f(transformation);
     }
 
     @Override
-    public @Nullable ItemStack extractArgument(ItemStack hookGun) {
+    public void update(ItemStackRenderState output, ItemStack hookGun, ItemModelResolver resolver,
+                       ItemDisplayContext displayContext, @Nullable ClientLevel level,
+                       @Nullable ItemOwner owner, int seed) {
         ItemStack boundItem = HookGunItem.getBoundItem(hookGun);
-        if (boundItem.isEmpty() || HookGunItem.isVisualHookOut(hookGun) || isHookingWithRenderedStack(hookGun)) {
-            return null;
+        // Use this gun's synchronized state, not a comparison with the local
+        // player's hands (which could hide another entity's identical gun).
+        if (boundItem.isEmpty() || boundItem.getItem() instanceof HookGunItem
+                || HookGunItem.isVisualHookOut(hookGun)) return;
+
+        TrackingItemStackRenderState boundState = new TrackingItemStackRenderState();
+        resolver.updateForTopItem(boundState, boundItem,
+                HookItemRenderTransforms.getHookGunAttachmentDisplayContext(boundItem, displayContext),
+                level, owner, seed);
+
+        PoseStack attachmentPose = new PoseStack();
+        attachmentPose.mulPose(this.transformation);
+        HookItemRenderTransforms.applyHookGunAttachment(attachmentPose, boundItem, displayContext);
+
+        // Resolve once during extraction. Submission and GUI clipping must use
+        // the same bound model, including its own display transform and animation.
+        AttachmentRenderer renderer = new AttachmentRenderer(boundState);
+        List<Vector3fc> extents = new ArrayList<>();
+        renderer.getExtents(extents::add);
+        Vector3fc[] bounds = extents.toArray(Vector3fc[]::new);
+        ItemStackRenderState.LayerRenderState layer = output.newLayer();
+        layer.setExtents(() -> bounds);
+        layer.setLocalTransform(attachmentPose.last().pose());
+        layer.setupSpecialModel(renderer, null);
+        this.properties.applyToLayer(layer, displayContext);
+
+        output.appendModelIdentityElement(this);
+        output.appendModelIdentityElement(boundState.getModelIdentity());
+        if (boundState.isAnimated()) output.setAnimated();
+    }
+
+    private record AttachmentRenderer(ItemStackRenderState state) implements NoDataSpecialModelRenderer {
+        @Override
+        public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, int overlay,
+                           boolean hasFoil, int outlineColor) {
+            this.state.submit(poseStack, collector, light, overlay, outlineColor);
         }
-        return boundItem.copy();
+
+        @Override
+        public void getExtents(Consumer<Vector3fc> output) {
+            // visitExtents reuses its scratch vector, so retain a copy of each point.
+            this.state.visitExtents(point -> output.accept(new Vector3f(point)));
+        }
     }
 
-    @Override
-    public void submit(@Nullable ItemStack boundItem, PoseStack poseStack, SubmitNodeCollector submitNodeCollector,
-                       int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor) {
-        if (boundItem == null || boundItem.isEmpty()) return;
-
-        poseStack.pushPose();
-        HookItemRenderTransforms.applyHookGunAttachment(poseStack, boundItem,
-                net.minecraft.world.item.ItemDisplayContext.GUI);
-        ItemStackRenderState boundState = new ItemStackRenderState();
-        this.itemModelResolver.updateForTopItem(boundState, boundItem,
-                HookItemRenderTransforms.getHookGunAttachmentDisplayContext(
-                        boundItem, net.minecraft.world.item.ItemDisplayContext.GUI),
-                Minecraft.getInstance().level, null, 0);
-        boundState.submit(poseStack, submitNodeCollector, lightCoords, OverlayTexture.NO_OVERLAY, outlineColor);
-        poseStack.popPose();
-    }
-
-    @Override
-    public void getExtents(Consumer<Vector3fc> output) {
-        // The body model supplies the composite model extents; the attachment is dynamic.
-    }
-
-    private static boolean isHookingWithRenderedStack(ItemStack stack) {
-        Minecraft minecraft = Minecraft.getInstance();
-        Player player = minecraft.player;
-        if (player == null || minecraft.level == null) return false;
-
-        ItemStack mainHand = player.getMainHandItem();
-        ItemStack offHand = player.getOffhandItem();
-        if (stack == mainHand) return HookGunItem.hasActiveHook(minecraft.level, player, true);
-        if (stack == offHand) return HookGunItem.hasActiveHook(minecraft.level, player, false);
-        boolean matchesMainHand = ItemStack.matches(stack, mainHand);
-        boolean matchesOffHand = ItemStack.matches(stack, offHand);
-        if (matchesMainHand && !matchesOffHand) return HookGunItem.hasActiveHook(minecraft.level, player, true);
-        if (matchesOffHand && !matchesMainHand) return HookGunItem.hasActiveHook(minecraft.level, player, false);
-        return matchesMainHand && HookGunItem.hasActiveHook(minecraft.level, player);
-    }
-
-    public record Unbaked() implements SpecialModelRenderer.Unbaked<ItemStack> {
+    public record Unbaked() implements ItemModel.Unbaked {
         public static final Unbaked INSTANCE = new Unbaked();
         public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(INSTANCE);
 
         @Override
-        public SpecialModelRenderer<ItemStack> bake(SpecialModelRenderer.BakingContext context) {
-            return new HookGunItemRenderer();
+        public void resolveDependencies(ResolvableModel.Resolver resolver) {
+            resolver.markDependency(BASE);
         }
 
         @Override
-        public MapCodec<? extends SpecialModelRenderer.Unbaked<ItemStack>> type() {
+        public ItemModel bake(ItemModel.BakingContext context, Matrix4fc transformation) {
+            ResolvedModel base = context.blockModelBaker().getModel(BASE);
+            return new HookGunItemRenderer(ModelRenderProperties.fromResolvedModel(
+                    context.blockModelBaker(), base, base.getTopTextureSlots()), transformation);
+        }
+
+        @Override
+        public MapCodec<? extends ItemModel.Unbaked> type() {
             return MAP_CODEC;
         }
     }

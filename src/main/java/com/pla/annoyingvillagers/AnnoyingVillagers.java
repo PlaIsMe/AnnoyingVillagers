@@ -53,7 +53,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterRangeSelectItemModelPropertyEvent;
-import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
+import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -122,7 +122,7 @@ public class AnnoyingVillagers {
         }
 
         @SubscribeEvent
-        public static void registerSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {
+        public static void registerItemModels(RegisterItemModelsEvent event) {
             event.register(HookGunItemRenderer.TYPE, HookGunItemRenderer.Unbaked.MAP_CODEC);
         }
 

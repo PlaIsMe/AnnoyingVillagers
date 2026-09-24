@@ -43,6 +43,7 @@
     "compat.punchy.UseItemStateMachineMixin",
     "compat.punchy.SpearStateMachineMixin",
     "compat.punchy.PunchyArmRendererMixin",
+    "compat.punchy.PunchyItemModelResolverMixin",
     "client.ModelPartMixin",
     "client.ModelMixin",
     "client.LivingEntityRendererStateMixin",
