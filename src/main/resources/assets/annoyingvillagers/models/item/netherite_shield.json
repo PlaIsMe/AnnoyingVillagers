@@ -3,5 +3,9 @@
   "textures": {
     "0": "annoyingvillagers:item/netherite_shield",
     "particle": "annoyingvillagers:item/netherite_shield"
-  }
+  },
+  "overrides": [{
+    "predicate": { "annoyingvillagers:blocking": 1.0 },
+    "model": "annoyingvillagers:item/netherite_shield_blocking"
+  }]
 }

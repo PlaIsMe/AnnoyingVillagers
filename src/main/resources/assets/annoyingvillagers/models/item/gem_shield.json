@@ -3,5 +3,9 @@
   "textures": {
     "0": "annoyingvillagers:item/gem_shield",
     "particle": "annoyingvillagers:item/gem_shield"
-  }
+  },
+  "overrides": [{
+    "predicate": { "annoyingvillagers:blocking": 1.0 },
+    "model": "annoyingvillagers:item/gem_shield_blocking"
+  }]
 }

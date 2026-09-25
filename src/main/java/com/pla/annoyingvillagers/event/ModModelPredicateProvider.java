@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -26,22 +28,13 @@ public class ModModelPredicateProvider {
     public static void init(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             addShieldPropertyOverrides(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "blocking"),
-                    (stack, world, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F,
-                    AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get()
+                    (stack, world, entity, seed) -> isBlockingShield(stack, entity),
+                    AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get(),
+                    AnnoyingVillagersModItems.HEATER_SHIELD.get(),
+                    AnnoyingVillagersModItems.GEM_SHIELD.get(),
+                    AnnoyingVillagersModItems.NETHERITE_SHIELD.get(),
+                    AnnoyingVillagersModItems.ENDER_AEGIS.get()
             );
-            addShieldPropertyOverrides(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "blocking"),
-                    (stack, world, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F,
-                    AnnoyingVillagersModItems.HEATER_SHIELD.get()
-            );
-            addShieldPropertyOverrides(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "blocking"),
-                    (stack, world, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F,
-                    AnnoyingVillagersModItems.GEM_SHIELD.get()
-            );
-            addShieldPropertyOverrides(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "blocking"),
-                    (stack, world, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F,
-                    AnnoyingVillagersModItems.NETHERITE_SHIELD.get()
-            );
-            addShieldPropertyOverrides(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID,"blocking"),(stack,world,entity,seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F,AnnoyingVillagersModItems.ENDER_AEGIS.get());
             addShieldPropertyOverrides(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID,"second_form"),(stack,world,entity,seed) -> EnderAegisItem.isSecondForm(stack) ? 1.0F : 0.0F,AnnoyingVillagersModItems.ENDER_AEGIS.get());
             if (VanillaWeaponAbilityUtil.abilitiesEnabled()) ItemProperties.register(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_PILLAR.get(), ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "burst"), (stack, world, entity, seed) -> ShadowObsidianPillarItem.isBurst(stack) ? 1.0F : 0.0F);
             if (VanillaWeaponAbilityUtil.abilitiesEnabled()) ItemProperties.register(AnnoyingVillagersModItems.SHADOW_OBSIDIAN_SWORD.get(), ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "straight_form"), (stack, world, entity, seed) -> ShadowObsidianSwordItem.isStraightForm(stack) ? 1.0F : 0.0F);
@@ -53,6 +46,13 @@ public class ModModelPredicateProvider {
         for (ItemLike shield : shields) {
             ItemProperties.register(shield.asItem(), override, propertyGetter);
         }
+    }
+
+    private static float isBlockingShield(ItemStack stack, LivingEntity entity) {
+        if (entity == null || !entity.isUsingItem()) return 0.0F;
+        ItemStack used = entity.getUseItem();
+        // Punchy can render a copy of the active hand stack during animation.
+        return (used == stack || ItemStack.isSameItemSameComponents(used, stack)) ? 1.0F : 0.0F;
     }
 
     public static final Material LOCATION_JESSICA_THE_DARK_SHIELD = material("item/jessica_the_dark_shield");
