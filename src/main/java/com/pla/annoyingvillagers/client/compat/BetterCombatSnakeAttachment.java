@@ -22,6 +22,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -42,6 +43,7 @@ public final class BetterCombatSnakeAttachment {
     private static LivingEntity itemOwner;
     private static boolean drawingSnakes;
     private static boolean samplingHand;
+    private static boolean sampledLocalHand;
     private static Vec3 cameraPosition = Vec3.ZERO;
 
     private BetterCombatSnakeAttachment() {}
@@ -50,6 +52,7 @@ public final class BetterCombatSnakeAttachment {
         SOCKETS.clear();
         PENDING.clear();
         itemOwner = null;
+        sampledLocalHand = false;
         INVERSE_VIEW.set(view).invert();
         WORLD_PROJECTION.set(projection);
         cameraPosition = camera;
@@ -70,6 +73,11 @@ public final class BetterCombatSnakeAttachment {
         boolean leftHand = context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                 || context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
         if (leftHand != (itemOwner.getMainArm() == HumanoidArm.LEFT)) return;
+        // Keep the world-model socket as a fallback until a hand sample actually
+        // succeeds. Punchy can use a THIRD_PERSON model context in first person.
+        Minecraft mc = Minecraft.getInstance();
+        if (itemOwner == mc.player && sampledLocalHand && !samplingHand) return;
+        if (context.firstPerson() && !samplingHand) return;
 
         // End of the retained blade in custom/demoniac_voltage_reaver_snake.json.
         // Its tip cubes are rotated -45 degrees about Z around (-2, 7, 2).
@@ -77,20 +85,22 @@ public final class BetterCombatSnakeAttachment {
         Vector3f socket = new Vector3f((-2.0F + 21.0F * diagonal) / 16.0F,
                 (7.0F + 5.0F * diagonal) / 16.0F, 8.0F / 16.0F);
         pose.last().pose().transformPosition(socket);
-        if (context.firstPerson()) {
+        if (samplingHand) {
             if (!(itemOwner instanceof Player)) return;
-            if (!samplingHand) return;
             // The ordinary hand pass uses a different FOV from the world pass.
-            Minecraft mc = Minecraft.getInstance();
             var accessor = (SnakeAttachmentGameRendererAccessor) mc.gameRenderer;
             Matrix4f handProjection = mc.gameRenderer.getProjectionMatrix(
                     accessor.av$handFov(mc.gameRenderer.getMainCamera(), mc.getTimer().getGameTimeDeltaPartialTick(false), false));
             new Matrix4f(WORLD_PROJECTION).invert().mul(handProjection).transformProject(socket);
-            // First-person items are rendered in view space. Third-person
-            // entity items are already world-oriented in their local PoseStack.
+        }
+        if (itemOwner instanceof Player) {
+            // The 1.20.1 attachment applied this to both third-person and hand
+            // sockets. Omitting it for Punchy's third-person context displaced
+            // the snake root by the camera transform.
             INVERSE_VIEW.transformPosition(socket);
         }
         SOCKETS.put(itemOwner, cameraPosition.add(socket.x, socket.y, socket.z));
+        if (samplingHand && itemOwner == mc.player) sampledLocalHand = true;
     }
 
     public static Vec3 getToolTipPos(LivingEntity entity) {
@@ -109,10 +119,10 @@ public final class BetterCombatSnakeAttachment {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES || PENDING.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
         float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
-        // Better Combat's punch supplies a third-person-model socket even in first person.
-        // After the animation fades, sample the normal hand transforms without drawing them.
+        // Prefer the hand if available; retain the world socket if it is not.
         if (mc.player != null && mc.options.getCameraType().isFirstPerson()
-                && !SOCKETS.containsKey(mc.player) && !mc.options.hideGui
+                && (ModList.get().isLoaded("punchy") || !SOCKETS.containsKey(mc.player))
+                && !mc.options.hideGui
                 && !mc.player.isSpectator() && !mc.player.isSleeping()
                 && PENDING.stream().anyMatch(p -> p.snake.getRenderFromEntity() == mc.player)) {
             PoseStack handPose = new PoseStack();
