@@ -626,6 +626,9 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
             tag.putBoolean("SecondForm", true);
             tag.putLong(VANILLA_AWAKEN_EXPIRES_TAG, player.level().getGameTime() + VANILLA_AWAKEN_DURATION_TICKS);
         });
+        // The cooldown is the active-form timer shown in the hotbar. The
+        // ItemCooldowns exemption keeps right-click snake attacks usable.
+        player.getCooldowns().addCooldown(new ItemStack(stack.getItem()), VANILLA_AWAKEN_DURATION_TICKS);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
         swingSnakeAttack(player);
         HerobrineUtil.spawnEliteEffect(player.level(), player.getX(), player.getY(), player.getZ(), player);
@@ -707,15 +710,14 @@ public class DemoniacVoltageReaverItem extends LegacySwordItem implements RigCom
             if (entity instanceof Player player) releaseSnakeProfileAttackLock(player);
         }
         if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !level.isClientSide() && entity instanceof Player player && LegacyItemData.has(itemstack) && LegacyItemData.get(itemstack) != null) {
-            // An ItemCooldown now prevents Item.use from being called on both the client
-            // and server. Keep it for the recovery period only; SecondForm and its expiry
-            // tag already gate reactivation while allowing snake-blade guard on right-click.
+            // The ItemCooldowns exemption allows use while the active-form
+            // timer is visible; the expiry tags still gate reactivation.
             boolean awakened = isVanillaAwakened(itemstack, level);
             long cooldownUntil = awakened
-                    ? 0L
+                    ? LegacyItemData.get(itemstack).getLongOr(VANILLA_AWAKEN_EXPIRES_TAG, 0L)
                     : LegacyItemData.get(itemstack).getLongOr(VANILLA_RECOVERY_UNTIL_TAG, 0L);
             long remaining = cooldownUntil - level.getGameTime();
-            if (!awakened && remaining > 0L && player.getCooldowns().getCooldownPercent(new net.minecraft.world.item.ItemStack(itemstack.getItem()), 0.0F) <= 0.0F) {
+            if (remaining > 0L && player.getCooldowns().getCooldownPercent(new net.minecraft.world.item.ItemStack(itemstack.getItem()), 0.0F) <= 0.0F) {
                 player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(itemstack.getItem()), (int)Math.min(Integer.MAX_VALUE, remaining));
             }
             if (!awakened && LegacyItemData.get(itemstack).contains(VANILLA_RECOVERY_UNTIL_TAG) && remaining <= 0L) {

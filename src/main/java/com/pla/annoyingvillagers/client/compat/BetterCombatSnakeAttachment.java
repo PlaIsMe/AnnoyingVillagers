@@ -12,12 +12,14 @@ import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -40,6 +42,7 @@ public final class BetterCombatSnakeAttachment {
     private static final Projection HAND_PROJECTION = new Projection();
     private static boolean drawingSnakes;
     private static boolean samplingHand;
+    private static boolean sampledLocalHand;
     private static Vec3 cameraPosition = Vec3.ZERO;
 
     private BetterCombatSnakeAttachment() {}
@@ -48,6 +51,7 @@ public final class BetterCombatSnakeAttachment {
         SOCKETS.clear();
         PENDING.clear();
         ITEM_CAPTURES.clear();
+        sampledLocalHand = false;
         INVERSE_VIEW.set(view).invert();
         WORLD_PROJECTION.set(projection);
         cameraPosition = camera;
@@ -81,10 +85,11 @@ public final class BetterCombatSnakeAttachment {
         boolean leftHand = context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                 || context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
         if (leftHand != (itemOwner.getMainArm() == HumanoidArm.LEFT)) return;
-        // Display context describes the MODEL, not the render pass. Punchy uses
-        // THIRD_PERSON transforms for its first-person hand. Only our sampling
-        // pass may publish that hand's socket; the later HUD pass must not replace it.
-        if (!samplingHand && (context.firstPerson() || PunchyItemRenderContext.isActive())) return;
+        // Keep a world-model socket until the first-person hand sample succeeds.
+        // Punchy can use a THIRD_PERSON model context in its first-person pass.
+        Minecraft mc = Minecraft.getInstance();
+        if (itemOwner == mc.player && sampledLocalHand && !samplingHand) return;
+        if (context.firstPerson() && !samplingHand) return;
 
         // End of the retained blade in custom/demoniac_voltage_reaver_snake.json.
         // Its tip cubes are rotated -45 degrees about Z around (-2, 7, 2).
@@ -96,18 +101,21 @@ public final class BetterCombatSnakeAttachment {
             // The sampling PoseStack starts in view space, even when Punchy
             // selected a THIRD_PERSON model. Match GameRenderer's HUD projection,
             // including the graphics backend's depth convention.
-            Minecraft mc = Minecraft.getInstance();
+            if (!(itemOwner instanceof Player)) return;
             var renderState = mc.gameRenderer.getGameRenderState();
             HAND_PROJECTION.setupPerspective(0.05F, 100.0F,
                     renderState.levelRenderState.cameraRenderState.hudFov,
                     renderState.windowRenderState.width, renderState.windowRenderState.height);
             Matrix4f handProjection = HAND_PROJECTION.getMatrix(new Matrix4f());
             new Matrix4f(WORLD_PROJECTION).invert().mul(handProjection).transformProject(socket);
-            // First-person items are rendered in view space. Third-person
-            // entity items are already world-oriented in their local PoseStack.
+        }
+        if (itemOwner instanceof Player) {
+            // Match the legacy player socket transform for both third-person
+            // held models and first-person hand samples.
             INVERSE_VIEW.transformPosition(socket);
         }
         SOCKETS.put(itemOwner, cameraPosition.add(socket.x, socket.y, socket.z));
+        if (samplingHand && itemOwner == mc.player) sampledLocalHand = true;
     }
 
     public static Vec3 getToolTipPos(LivingEntity entity) {
@@ -129,6 +137,7 @@ public final class BetterCombatSnakeAttachment {
         // Prefer the visible hand over any world-player socket. If Better Combat
         // owns first person and suppresses the hand pass, the world socket remains.
         if (mc.player != null && mc.options.getCameraType().isFirstPerson()
+                && (ModList.get().isLoaded("punchy") || !SOCKETS.containsKey(mc.player))
                 && !mc.options.hideGui
                 && !mc.player.isSpectator() && !mc.player.isSleeping()
                 && PENDING.stream().anyMatch(p -> p.snake.getRenderFromEntity() == mc.player)) {

@@ -8,6 +8,7 @@ import com.pla.annoyingvillagers.network.ClientboundEnderAegisSparkFx;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import com.pla.annoyingvillagers.util.HerobrineUtil;
+import com.pla.annoyingvillagers.util.LegacyShieldProperties;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -39,11 +40,13 @@ public class EnderAegisItem extends ShieldItem implements RigCombatProfileProvid
     private static final int SECOND_FORM_DURATION_TICKS = 20 * 60;
     private static final int SPECIAL_COOLDOWN_TICKS = 20;
     public EnderAegisItem() {
-        super(com.pla.annoyingvillagers.util.LegacyItemProperties.create().stacksTo(1).durability(1561).fireResistant().attributes(
-                ItemAttributeModifiers.builder()
-                        .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, ATTACK_DAMAGE_MODIFIER, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-                        .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, ATTACK_SPEED_MODIFIER, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-                        .build()));
+        super(LegacyShieldProperties.withBlocking(com.pla.annoyingvillagers.util.LegacyItemProperties.create()
+                .stacksTo(1).durability(1561).fireResistant())
+                .attributes(
+                        ItemAttributeModifiers.builder()
+                                .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, ATTACK_DAMAGE_MODIFIER, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                                .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, ATTACK_SPEED_MODIFIER, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                                .build()));
     }
 
     public static boolean isSecondForm(ItemStack stack) {

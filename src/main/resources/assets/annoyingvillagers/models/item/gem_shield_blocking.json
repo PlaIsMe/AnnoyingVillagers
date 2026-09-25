@@ -1,0 +1,13 @@
+{
+  "parent": "annoyingvillagers:item/gem_shield",
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [-27.68, -47.28, -20.15],
+      "translation": [-1, 2.75, -1]
+    },
+    "firstperson_lefthand": {
+      "rotation": [-29.39, -41.01, -33.88],
+      "translation": [0, 5.25, -1]
+    }
+  }
+}

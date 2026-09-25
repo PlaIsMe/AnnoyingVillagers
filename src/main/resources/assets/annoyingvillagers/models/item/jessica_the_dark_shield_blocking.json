@@ -1,0 +1,15 @@
+{
+  "parent": "annoyingvillagers:item/jessica_the_dark_shield",
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [7, 5.25, -10],
+      "translation": [0.45, 2.11, 5.34],
+      "scale": [1.1, 1.1, 1.1]
+    },
+    "firstperson_lefthand": {
+      "rotation": [7, 5.25, -10],
+      "translation": [0.45, 5.3, 5.34],
+      "scale": [1.1, 1.1, 1.1]
+    }
+  }
+}

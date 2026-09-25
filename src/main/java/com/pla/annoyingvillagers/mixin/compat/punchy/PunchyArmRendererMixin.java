@@ -48,7 +48,9 @@ public abstract class PunchyArmRendererMixin {
                                           @Local(name = "stack") ItemStack stack) {
         // Use Punchy's resolved visual stack, not the player's current slot:
         // equip transitions can still be drawing the previous item.
-        if (!PunchyItemRenderContext.isAvItem(stack)) {
+        // Shields already have Punchy's own guard pose. Only legacy weapons
+        // need the PAL arm-attachment correction.
+        if (!PunchyItemRenderContext.keepAuthoredHandDisplay(stack)) {
             original.call(model, state, arm, poseStack);
             return;
         }

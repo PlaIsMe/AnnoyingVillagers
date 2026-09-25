@@ -1,0 +1,15 @@
+{
+  "parent": "annoyingvillagers:item/netherite_shield",
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [9, -1, -55],
+      "translation": [31.33, -4.25, 3.17],
+      "scale": [3, 3, 3]
+    },
+    "firstperson_lefthand": {
+      "rotation": [15, -1, 37],
+      "translation": [3.33, -4.83, 4.42],
+      "scale": [3, 3, 3]
+    }
+  }
+}

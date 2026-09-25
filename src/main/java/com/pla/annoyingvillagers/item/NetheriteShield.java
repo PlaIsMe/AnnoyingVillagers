@@ -1,12 +1,12 @@
 package com.pla.annoyingvillagers.item;
 
+import com.pla.annoyingvillagers.util.LegacyShieldProperties;
 import net.minecraft.world.item.ShieldItem;
 
 public class NetheriteShield extends ShieldItem {
     public NetheriteShield() {
-        super(com.pla.annoyingvillagers.util.LegacyItemProperties.create()
+        super(LegacyShieldProperties.withBlocking(com.pla.annoyingvillagers.util.LegacyItemProperties.create()
                 .stacksTo(1)
-                .durability(1561)
-        );
+                .durability(1561)));
     }
 }
