@@ -75,7 +75,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     implementation fg.deobf("libs:SmartNpc-1.20.1:1.0.0")
 
-    implementation fg.deobf("curse.maven:aaa-particles-979809:8983664")
+    implementation fg.deobf("curse.maven:aaa-particles-979809:8082320")
     implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
     compileOnly fg.deobf("curse.maven:photon-871522:7501597")
     compileOnly fg.deobf("curse.maven:ldlib-626676:7809449")
