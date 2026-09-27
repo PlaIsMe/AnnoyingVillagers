@@ -1,7 +1,8 @@
 package com.pla.annoyingvillagers.client.engine;
 
 import com.pla.annoyingvillagers.block.FractureBlock;
-import com.pla.annoyingvillagers.block.FractureBlockState;
+import com.pla.annoyingvillagers.blockentity.FractureBlockEntity;
+import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.network.ClientboundGroundFracture;
 import net.minecraft.client.Minecraft;
@@ -124,7 +125,7 @@ public final class GroundFractureClient {
             Vec3 centerToBlock = blockCenter.subtract(center);
             double distance = centerToBlock.horizontalDistance();
             if (length < distance) continue;
-            if (!canTransferShockWave(level, blockPos, blockState) || blockState instanceof FractureBlockState || blockState.getBlock() instanceof EntityBlock) continue;
+            if (!canTransferShockWave(level, blockPos, blockState) || blockState.getBlock() instanceof EntityBlock) continue;
 
             Vec3 rotationAxis = IMPACT_DIRECTION.cross(centerToBlock);
             if (rotationAxis.lengthSqr() < 1.0E-8D) rotationAxis = new Vec3(1.0D, 0.0D, 0.0D);
@@ -138,12 +139,14 @@ public final class GroundFractureClient {
             int lifeTime = 30 + level.random.nextInt(Math.max(1, (int) length * 80));
             double bouncing = distance * distance * bounceExponentCoef;
 
-            FractureBlockState fractureState = FractureBlock.getDefaultFractureBlockState(null);
-            if (fractureState == null) return;
-            fractureState.setFractureInfo(blockPos, blockState, translator, rotator, bouncing, lifeTime);
+            BlockState fractureState = AnnoyingVillagersModBlocks.FRACTURE_BLOCK.get().defaultBlockState();
             // ClientLevel needs a visible block update in 1.21 so the newly
             // created block entity is added to the render dispatcher.
-            level.setBlock(blockPos, fractureState, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+            if (level.setBlock(blockPos, fractureState, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)
+                    && level.getBlockEntity(blockPos) instanceof FractureBlockEntity fracture) {
+                fracture.setFractureInfo(blockState, translator, rotator, bouncing, lifeTime);
+                level.getChunkSource().getLightEngine().checkBlock(blockPos);
+            }
             if (!noParticle && !blockState.isAir()) createParticle(level, blockPos, blockState);
         }
     }
@@ -162,7 +165,7 @@ public final class GroundFractureClient {
     }
 
     private static boolean canTransferShockWave(ClientLevel level, BlockPos blockPos, BlockState blockState) {
-        return Block.isFaceFull(blockState.getCollisionShape(level, blockPos, CollisionContext.empty()), Direction.DOWN) || blockState instanceof FractureBlockState;
+        return blockState.getBlock() instanceof FractureBlock || Block.isFaceFull(blockState.getCollisionShape(level, blockPos, CollisionContext.empty()), Direction.DOWN);
     }
 
     private static Vec3 snapSlamCenter(Vec3 center) {
