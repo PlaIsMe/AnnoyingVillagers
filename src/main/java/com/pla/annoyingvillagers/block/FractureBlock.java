@@ -21,7 +21,9 @@ import javax.annotation.Nullable;
 public class FractureBlock extends BaseEntityBlock {
     public static final MapCodec<FractureBlock> CODEC = simpleCodec(FractureBlock::new);
     public FractureBlock(Properties properties) {
-        super(properties);
+        // Chunk packets must contain states from Block.BLOCK_STATE_REGISTRY.
+        // Per-position animation data belongs in the block entity, not a second StateDefinition.
+        super(properties.noOcclusion().dynamicShape());
     }
 
     @Override
@@ -46,22 +48,29 @@ public class FractureBlock extends BaseEntityBlock {
     }
 
     @Override
-    public VoxelShape getCollisionShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos,
-                                        CollisionContext collisionContext) {
-        // Fracture blocks are a client-side visual replacement. The server still has
-        // the original block, so using an empty client collision shape causes movement
-        // prediction to fall through it and fight the server's position corrections.
-        if (blockGetter.getBlockEntity(blockPos) instanceof FractureBlockEntity fracture) {
-            BlockState original = fracture.getOriginalBlockState();
-            if (original != null && !original.is(this)) {
-                return original.getCollisionShape(blockGetter, blockPos, collisionContext);
-            }
-        }
-        return Shapes.block();
+    public RenderShape getRenderShape(BlockState blockState) {
+        return RenderShape.INVISIBLE;
     }
 
     @Override
-    public RenderShape getRenderShape(BlockState blockState) {
-        return RenderShape.MODEL;
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        BlockState original = getOriginalState(level, pos);
+        return original == null ? Shapes.block() : original.getCollisionShape(level, pos, context);
+    }
+
+    @Override
+    public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return Shapes.empty();
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        BlockState original = getOriginalState(level, pos);
+        return original == null ? 0 : original.getLightEmission(level, pos);
+    }
+
+    @Nullable
+    private static BlockState getOriginalState(BlockGetter level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof FractureBlockEntity fracture ? fracture.getOriginalBlockState() : null;
     }
 }

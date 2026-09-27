@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.client.engine;
 
 import com.pla.annoyingvillagers.block.FractureBlock;
-import com.pla.annoyingvillagers.block.FractureBlockState;
+import com.pla.annoyingvillagers.blockentity.FractureBlockEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlocks;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModParticleTypes;
 import com.pla.annoyingvillagers.network.ClientboundGroundFracture;
@@ -137,11 +137,14 @@ public final class GroundFractureClient {
             int lifeTime = 30 + level.getRandom().nextInt(Math.max(1, (int) length * 80));
             double bouncing = distance * distance * bounceExponentCoef;
 
-            FractureBlockState.prepare(blockPos, blockState, translator, rotator, bouncing, lifeTime);
-            // ClientLevel needs a visible block update in 1.21 so the newly
+            BlockState fractureState = AnnoyingVillagersModBlocks.FRACTURE_BLOCK.get().defaultBlockState();
+            // ClientLevel needs a visible block update so the newly
             // created block entity is added to the render dispatcher.
-            level.setBlock(blockPos, AnnoyingVillagersModBlocks.FRACTURE_BLOCK.get().defaultBlockState(),
-                    Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+            if (level.setBlock(blockPos, fractureState, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)
+                    && level.getBlockEntity(blockPos) instanceof FractureBlockEntity fracture) {
+                fracture.setFractureInfo(blockState, translator, rotator, bouncing, lifeTime);
+                level.getChunkSource().getLightEngine().checkBlock(blockPos);
+            }
             if (!noParticle && !blockState.isAir()) createParticle(level, blockPos, blockState);
         }
     }
