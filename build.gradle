@@ -83,7 +83,7 @@ repositories {
 dependencies {
     implementation "libs:SmartNpc-1.21.1:2.0.0"
 
-    compileOnly "curse.maven:aaa-particles-979809:8402817"
+    compileOnly "curse.maven:aaa-particles-979809:8983699"
     compileOnly "curse.maven:architectury-api-419699:8492726"
     compileOnly "curse.maven:photon-871522:8824095"
     compileOnly "curse.maven:ldlib-626676:8866144"
