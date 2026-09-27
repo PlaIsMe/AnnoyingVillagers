@@ -28,6 +28,7 @@
     "compat.smartnpc.PlayerNpcEntityMixin",
     "compat.smartnpc.ProgressionEventMixin",
     "compat.smartnpc.ProgressionUtilMixin",
+    "compat.aaa_particles.ForgePlatformMethodsMixin",
     "PlayerMixin"
   ],
   "client": [
