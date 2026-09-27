@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.client.particle;
 
-import com.pla.annoyingvillagers.block.FractureBlockState;
+import com.pla.annoyingvillagers.blockentity.FractureBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.NoRenderParticle;
@@ -37,8 +37,8 @@ public class GroundSlamParticle extends NoRenderParticle {
             blockState = level.getBlockState(blockPos);
         }
 
-        if (blockState instanceof FractureBlockState fractureBlockState) {
-            BlockState originalState = fractureBlockState.getOriginalBlockState(blockPos);
+        if (level.getBlockEntity(blockPos) instanceof FractureBlockEntity fracture) {
+            BlockState originalState = fracture.getOriginalBlockState();
             if (originalState != null) blockState = originalState;
         }
 

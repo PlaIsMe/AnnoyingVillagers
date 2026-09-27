@@ -1,13 +1,19 @@
 package com.pla.annoyingvillagers.blockentity;
 
-import com.pla.annoyingvillagers.block.FractureBlockState;
+import com.pla.annoyingvillagers.block.FractureBlock;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlockEntities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -27,13 +33,56 @@ public class FractureBlockEntity extends BlockEntity {
         super(AnnoyingVillagersModBlockEntities.FRACTURE_BLOCK.get(), blockPos, blockState);
     }
 
-    public FractureBlockEntity(BlockPos blockPos, BlockState blockState, FractureBlockState fractureBlockState) {
-        super(AnnoyingVillagersModBlockEntities.FRACTURE_BLOCK.get(), blockPos, blockState);
-        this.originalBlockState = fractureBlockState.getOriginalBlockState(blockPos);
-        this.bouncing = fractureBlockState.getBouncing();
-        this.translate = new Vector3f(fractureBlockState.getTranslate());
-        this.rotation = new Quaternionf(fractureBlockState.getRotation());
-        this.maxLifeTime = fractureBlockState.getLifeTime();
+    public void setFractureInfo(BlockState originalState, Vector3f translate, Quaternionf rotation, double bouncing, int maxLifeTime) {
+        this.originalBlockState = originalState.getBlock() instanceof FractureBlock ? null : originalState;
+        this.bouncing = bouncing;
+        this.translate = new Vector3f(translate);
+        this.rotation = new Quaternionf(rotation);
+        this.maxLifeTime = maxLifeTime;
+        this.lifeTime = 0;
+        setChanged();
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        if (originalBlockState != null) tag.put("OriginalBlockState", NbtUtils.writeBlockState(originalBlockState));
+        tag.putFloat("TranslateX", translate.x());
+        tag.putFloat("TranslateY", translate.y());
+        tag.putFloat("TranslateZ", translate.z());
+        tag.putFloat("RotationX", rotation.x());
+        tag.putFloat("RotationY", rotation.y());
+        tag.putFloat("RotationZ", rotation.z());
+        tag.putFloat("RotationW", rotation.w());
+        tag.putDouble("Bouncing", bouncing);
+        tag.putInt("MaxLifeTime", maxLifeTime);
+        tag.putInt("LifeTime", lifeTime);
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        BlockState original = tag.contains("OriginalBlockState", Tag.TAG_COMPOUND)
+                ? NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("OriginalBlockState")) : null;
+        originalBlockState = original != null && !(original.getBlock() instanceof FractureBlock) ? original : null;
+        translate = new Vector3f(tag.getFloat("TranslateX"), tag.getFloat("TranslateY"), tag.getFloat("TranslateZ"));
+        rotation = tag.contains("RotationW", Tag.TAG_ANY_NUMERIC)
+                ? new Quaternionf(tag.getFloat("RotationX"), tag.getFloat("RotationY"), tag.getFloat("RotationZ"), tag.getFloat("RotationW"))
+                : new Quaternionf();
+        bouncing = tag.getDouble("Bouncing");
+        maxLifeTime = tag.getInt("MaxLifeTime");
+        lifeTime = tag.getInt("LifeTime");
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        // Replay snapshots use chunk block-entity update tags, not just disk saves.
+        return saveWithoutMetadata();
+    }
+
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     public BlockState getOriginalBlockState() { return this.originalBlockState; }
@@ -46,8 +95,7 @@ public class FractureBlockEntity extends BlockEntity {
     @OnlyIn(Dist.CLIENT)
     public static void lifeTimeTick(Level level, BlockPos blockPos, BlockState blockState, FractureBlockEntity blockEntity) {
         if (blockEntity.originalBlockState == null) {
-            level.removeBlockEntity(blockPos);
-            FractureBlockState.remove(blockPos);
+            // A chunk's block entity can tick before its update tag arrives.
             return;
         }
 
@@ -59,9 +107,7 @@ public class FractureBlockEntity extends BlockEntity {
         }
 
         if (blockEntity.lifeTime++ > blockEntity.maxLifeTime) {
-            level.removeBlockEntity(blockPos);
-            FractureBlockState.remove(blockPos);
-            level.setBlock(blockPos, blockEntity.originalBlockState, 0);
+            level.setBlock(blockPos, blockEntity.originalBlockState, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
         }
     }
 }

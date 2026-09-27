@@ -1,44 +1,27 @@
 package com.pla.annoyingvillagers.block;
 
-import com.google.common.collect.ImmutableMap;
 import com.pla.annoyingvillagers.blockentity.FractureBlockEntity;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
-import java.util.function.Function;
 
 public class FractureBlock extends BaseEntityBlock {
-    protected final StateDefinition<Block, BlockState> stateDefinition;
-    private static FractureBlockState fractureBlockState;
-
     public FractureBlock(Properties properties) {
-        super(properties);
-        StateDefinition.Builder<Block, BlockState> builder = new StateDefinition.Builder<>(this);
-        this.stateDefinition = builder.create(FractureBlock::getDefaultFractureBlockState, FractureBlockState::new);
-        fractureBlockState = (FractureBlockState) this.stateDefinition.any();
-    }
-
-    public static FractureBlockState getDefaultFractureBlockState(Block block) {
-        return fractureBlockState;
-    }
-
-    @Override
-    protected ImmutableMap<BlockState, VoxelShape> getShapeForEachState(Function<BlockState, VoxelShape> shapeFunction) {
-        return this.stateDefinition.getPossibleStates().stream().collect(ImmutableMap.toImmutableMap(Function.identity(), shapeFunction));
+        // Chunk packets must contain states from Block.BLOCK_STATE_REGISTRY.
+        // Per-position animation data belongs in the block entity, not a second StateDefinition.
+        super(properties.noOcclusion().dynamicShape());
     }
 
     @Nullable
@@ -49,7 +32,7 @@ public class FractureBlock extends BaseEntityBlock {
 
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return blockState instanceof FractureBlockState fractureState ? new FractureBlockEntity(blockPos, blockState, fractureState) : null;
+        return new FractureBlockEntity(blockPos, blockState);
     }
 
     @Override
@@ -59,6 +42,28 @@ public class FractureBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState blockState) {
-        return RenderShape.MODEL;
+        return RenderShape.INVISIBLE;
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        BlockState original = getOriginalState(level, pos);
+        return original == null ? Shapes.block() : original.getCollisionShape(level, pos, context);
+    }
+
+    @Override
+    public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return Shapes.empty();
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        BlockState original = getOriginalState(level, pos);
+        return original == null ? 0 : original.getLightEmission(level, pos);
+    }
+
+    @Nullable
+    private static BlockState getOriginalState(BlockGetter level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof FractureBlockEntity fracture ? fracture.getOriginalBlockState() : null;
     }
 }
