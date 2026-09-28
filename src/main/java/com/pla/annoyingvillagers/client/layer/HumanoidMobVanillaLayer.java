@@ -1,15 +1,12 @@
 package com.pla.annoyingvillagers.client.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 
@@ -29,7 +26,8 @@ public class HumanoidMobVanillaLayer<S extends HumanoidRenderState, M extends Hu
         RenderType renderType = VanillaOverlayTexturePicker.isBloodTexture(texture)
                 ? net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture)
                 : net.minecraft.client.renderer.rendertype.RenderTypes.eyes(texture);
-        collector.submitModel(this.getParentModel(), state, poseStack, renderType, packedLight,
+        // Match vanilla EyesLayer: draw the overlay after the base entity model.
+        collector.order(1).submitModel(this.getParentModel(), state, poseStack, renderType, packedLight,
                 OverlayTexture.NO_OVERLAY, state.outlineColor, null);
     }
 }

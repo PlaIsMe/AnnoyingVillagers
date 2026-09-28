@@ -5,6 +5,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.entity.Mob;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,9 +19,12 @@ public abstract class HumanoidMobRendererMixin<T extends Mob, S extends Humanoid
         super(context, model, shadowRadius);
     }
 
-    @Inject(method = "<init>", at = @At("TAIL"))
+    // Every humanoid constructor delegates here, including the adult/baby model overload.
+    @Inject(method = "<init>(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;Lnet/minecraft/client/model/HumanoidModel;Lnet/minecraft/client/model/HumanoidModel;FLnet/minecraft/client/renderer/entity/layers/CustomHeadLayer$Transforms;)V",
+            at = @At("TAIL"), require = 1)
     private void annoyingVillagers$addOverlayLayer(EntityRendererProvider.Context context, M model,
-                                                    float shadowRadius, CallbackInfo ci) {
+                                                    M babyModel, float shadowRadius,
+                                                    CustomHeadLayer.Transforms customHeadTransforms, CallbackInfo ci) {
         this.addLayer(new HumanoidMobVanillaLayer<>(this));
     }
 }
