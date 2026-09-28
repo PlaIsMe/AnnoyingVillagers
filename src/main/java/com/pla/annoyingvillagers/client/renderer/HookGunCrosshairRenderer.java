@@ -15,12 +15,11 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
 
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID, value = Dist.CLIENT)
 public final class HookGunCrosshairRenderer {
-    private static final ResourceLocation GUI_ICONS =
-            ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/icons.png");
+    private static final ResourceLocation CROSSHAIR_SPRITE =
+            ResourceLocation.fromNamespaceAndPath("minecraft", "hud/crosshair");
 
     private HookGunCrosshairRenderer() {
     }
@@ -66,13 +65,16 @@ public final class HookGunCrosshairRenderer {
     }
 
     private static void drawCrosshair(GuiGraphics graphics, int x, int y) {
+        // Vanilla disables blending before this post-layer event runs.
+        RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
                 GlStateManager.SourceFactor.ONE,
                 GlStateManager.DestFactor.ZERO
         );
-        graphics.blit(GUI_ICONS, x - 7, y - 7, 0, 0, 15, 15);
+        graphics.blitSprite(CROSSHAIR_SPRITE, x - 7, y - 7, 15, 15);
         RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
     }
 }
