@@ -20,11 +20,11 @@ import javax.annotation.Nullable;
 
 @Mixin(value = {AbstractSkeleton.class}, remap = true)
 public class SkeletonMixin {
-    @Inject(method = "registerGoals", at = @At("HEAD"))
+    @Inject(method = "registerGoals", at = @At("TAIL"))
     private void monsterTargetNpc(CallbackInfo ci) {
         AbstractSkeleton self = (AbstractSkeleton) (Object) this;
         if (!(self instanceof WitherSkeleton)) {
-            CommonGoals.registerGoalForHostileNpc(self);
+            CommonGoals.registerTargetGoalForVanillaMonster(self);
         }
     }
 
@@ -33,12 +33,7 @@ public class SkeletonMixin {
         AbstractSkeleton self = (AbstractSkeleton) (Object) this;
         if (!self.level().isClientSide() && self.getServer() != null) {
             TeamUtil.addOrJoinTeam(self, "herobrine");
-            try {
-                self.getServer().getCommands().getDispatcher().execute(
-                        "data merge entity @s {CanPickUpLoot: 1b}",
-                        self.createCommandSourceStack().withSuppressedOutput().withPermission(4));
-            } catch (CommandSyntaxException e) {
-            }
+            self.setCanPickUpLoot(true);
         }
     }
 }

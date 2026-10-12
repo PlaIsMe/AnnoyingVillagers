@@ -1,6 +1,5 @@
 package com.pla.annoyingvillagers.mixin;
 
-import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import com.pla.annoyingvillagers.entity.TridentLightningBolt;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModDamageTypes;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;

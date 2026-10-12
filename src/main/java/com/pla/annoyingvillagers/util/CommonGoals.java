@@ -81,6 +81,22 @@ public class CommonGoals {
         mob.goalSelector.addGoal(-6, new KeepPositionGoal(mob));
     }
 
+    public static void registerTargetGoalForVanillaMonster(Monster monster) {
+        monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, LivingEntity.class, true, target ->
+                target instanceof SteveEntity ||
+                        target instanceof AngrySteveEntity ||
+                        target instanceof ChrisEntity ||
+                        target instanceof AlexEntity ||
+                        target instanceof JevEntity ||
+                        target instanceof BlueDemonEntity ||
+                        target instanceof VillagerArmyEntity
+        ));
+
+        if (ModList.get().isLoaded("smart_npc")) {
+            SmartNpc.targetPlayerNpc(monster, 2);
+        }
+    }
+
     public static void registerGoalForHostileNpc(PathfinderMob monster) {
         monster.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
         monster.targetSelector.addGoal(1, new HurtByTargetGoal(monster));
