@@ -91,20 +91,6 @@ public abstract class ExplosionMixin {
             method = "explode",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/Entity;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V"
-            )
-    )
-    private void noKnockbackFromTridentLightning(Entity instance, Vec3 pDeltaMovement) {
-        if (this.source instanceof TridentLightningBolt) {
-            return;
-        }
-        instance.setDeltaMovement(pDeltaMovement);
-    }
-
-    @Redirect(
-            method = "explode",
-            at = @At(
-                    value = "INVOKE",
                     target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"
             )
     )
