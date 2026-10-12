@@ -675,7 +675,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
 
     @Override
     public boolean hurt(@NotNull DamageSource damageSource, float amount) {
-        if (damageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+        if (damageSource.is(DamageTypes.GENERIC_KILL) || damageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             return super.hurt(damageSource, amount);
         }
 

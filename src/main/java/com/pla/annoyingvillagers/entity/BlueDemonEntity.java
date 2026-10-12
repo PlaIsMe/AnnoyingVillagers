@@ -1021,6 +1021,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
     }
 
     public boolean hurt(DamageSource damagesource, float f) {
+        if (this.level().isClientSide) return false;
         if (damagesource.is(DamageTypes.FALL)) return false;
         if (damagesource.is(DamageTypes.CACTUS)) return false;
         if (damagesource.is(DamageTypes.DROWN)) return false;
@@ -1030,10 +1031,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         if (damagesource.is(DamageTypes.WITHER_SKULL)) return false;
         if (damagesource.getDirectEntity() instanceof ThrownPoisonEggEntity) return false;
 
-        // Keep void damage as the one hard escape hatch. Everything else, including
-        // /kill (GENERIC_KILL), must respect rig-animation invulnerability and the
-        // Blue Demon phase-transition locks below.
-        if (damagesource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+        if (damagesource.is(DamageTypes.GENERIC_KILL)) {
             boolean result = super.hurt(damagesource, f);
             if (result) {
                 this.sayHurtSound(this, damagesource);
@@ -1060,7 +1058,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             return false;
         }
 
-        if (damagesource.is(DamageTypes.GENERIC_KILL)) {
+        if (damagesource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             boolean result = super.hurt(damagesource, f);
             if (result) {
                 this.sayHurtSound(this, damagesource);
@@ -1755,7 +1753,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
     @Override
     protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
-        if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+        if (pDamageSource.is(DamageTypes.GENERIC_KILL) || pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             super.actuallyHurt(pDamageSource, pDamageAmount);
             return;
         }

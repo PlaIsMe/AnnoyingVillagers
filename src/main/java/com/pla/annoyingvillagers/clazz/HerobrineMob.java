@@ -610,7 +610,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     }
 
     public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        if (this.getPersistentData().getBoolean(NBT_RISING) || this.getPersistentData().getBoolean(NBT_SINKING) || this.sacrificing) {
+        if (!damageSource.is(DamageTypes.GENERIC_KILL) && (this.getPersistentData().getBoolean(NBT_RISING) || this.getPersistentData().getBoolean(NBT_SINKING) || this.sacrificing)) {
             if (this.level() instanceof ServerLevel serverLevel) {
                 CommonUtil.damageBlocked(damageSource, this, serverLevel);
             }
@@ -680,7 +680,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
 
     @Override
     protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
-        if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+        if (pDamageSource.is(DamageTypes.GENERIC_KILL) || pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             super.actuallyHurt(pDamageSource, pDamageAmount);
             return;
         }
