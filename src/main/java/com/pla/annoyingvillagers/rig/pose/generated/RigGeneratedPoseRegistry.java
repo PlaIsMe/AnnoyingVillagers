@@ -23,6 +23,7 @@ public final class RigGeneratedPoseRegistry {
         RigBlueDemonPoseData5.register(clips);
         RigDaggerPoseData1.register(clips);
         RigDaggerPoseData2.register(clips);
+        RigEmotePoseData1.register(clips);
         RigGlaiveHerobrinePoseData1.register(clips);
         RigGlaiveHerobrinePoseData2.register(clips);
         RigGlaiveHerobrinePoseData3.register(clips);
