@@ -44,9 +44,9 @@ public final class RigStunCombatEvent {
 
         DamageSource source = event.getSource();
         LivingEntity victim = event.getEntity();
-        if (victim instanceof Mob mobVictim && RigAnimationController.isInvulnerable(mobVictim)) {
+        if (source.is(DamageTypes.GENERIC_KILL) || !(victim.level() instanceof ServerLevel)) return;
+        if (blocksAnimationDamage(victim, source)) {
             event.setCanceled(true);
-            if (victim.level() instanceof ServerLevel serverLevel && (source.getEntity() != null || source.getDirectEntity() != null)) CommonUtil.damageBlocked(source, victim, serverLevel);
             return;
         }
         if (RigStunController.isKnockdown(victim) && blocksAttackDuringKnockdown(source)) {
@@ -56,6 +56,18 @@ public final class RigStunCombatEvent {
 
         Entity attacker = source.getEntity();
         if (attacker instanceof Mob mobAttacker && source.getDirectEntity() == attacker && RigStunController.isStunned(mobAttacker)) event.setCanceled(true);
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onIncomingHurt(LivingHurtEvent event) {
+        // Protect modded damage paths that enter actuallyHurt without LivingAttackEvent.
+        if (!event.isCanceled() && blocksAnimationDamage(event.getEntity(), event.getSource())) event.setCanceled(true);
+    }
+
+    private static boolean blocksAnimationDamage(LivingEntity victim, DamageSource source) {
+        if (source.is(DamageTypes.GENERIC_KILL) || !(victim.level() instanceof ServerLevel serverLevel) || !(victim instanceof Mob mobVictim) || !RigAnimationController.isInvulnerable(mobVictim)) return false;
+        CommonUtil.damageBlocked(source, victim, serverLevel);
+        return true;
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

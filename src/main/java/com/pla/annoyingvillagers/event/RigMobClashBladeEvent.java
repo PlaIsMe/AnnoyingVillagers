@@ -1,7 +1,6 @@
 package com.pla.annoyingvillagers.event;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import com.pla.annoyingvillagers.config.AnnoyingVillagersConfig;
 import com.pla.annoyingvillagers.entity.GolemArms;
 import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigOrientedBox;
@@ -9,33 +8,23 @@ import com.pla.annoyingvillagers.rig.armor.ObsidianArmorController;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationController;
 import com.pla.annoyingvillagers.entity.goal.HerobrineEscapeHoleGoal;
 import com.pla.annoyingvillagers.util.CommonUtil;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.item.DiggerItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class RigMobClashBladeEvent {
@@ -47,53 +36,50 @@ public final class RigMobClashBladeEvent {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onLivingAttack(LivingAttackEvent event) {
-        if (event.isCanceled()) {
-            return;
-        }
+        if (!event.isCanceled() && tryClash(event.getEntity(), event.getSource())) event.setCanceled(true);
+    }
 
-        if (!(event.getEntity().level() instanceof ServerLevel serverLevel)) {
-            return;
-        }
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onLivingHurt(LivingHurtEvent event) {
+        // Some integrations enter actuallyHurt directly, bypassing LivingAttackEvent.
+        if (!event.isCanceled() && tryClash(event.getEntity(), event.getSource())) event.setCanceled(true);
+    }
 
-        DamageSource damageSource = event.getSource();
+    private static boolean tryClash(LivingEntity victim, DamageSource damageSource) {
+        if (!(victim.level() instanceof ServerLevel serverLevel) || damageSource.is(DamageTypes.GENERIC_KILL)) return false;
         Entity attacker = damageSource.getEntity();
-        if (attacker == null || attacker == event.getEntity() || !canRegularClash(damageSource)) {
-            return;
-        }
+        if (attacker == null) attacker = damageSource.getDirectEntity();
 
-        List<RigOrientedBox> armorBoxes = ObsidianArmorController.activeAttackCollisionBoxes(event.getEntity());
-        if (!armorBoxes.isEmpty() && clashesWithArmor(armorBoxes, attacker, damageSource.getDirectEntity(), serverLevel)) {
-            event.setCanceled(true);
+        List<RigOrientedBox> armorBoxes = ObsidianArmorController.activeAttackCollisionBoxes(victim);
+        if (attacker != null && attacker != victim && canRegularClash(damageSource) && !armorBoxes.isEmpty() && clashesWithArmor(armorBoxes, attacker, damageSource.getDirectEntity(), serverLevel)) {
             applyClashRecoil(attacker);
-            applyClashRecoil(event.getEntity());
-            CommonUtil.damageBlockedForce(event.getEntity(), attacker, serverLevel);
-            return;
+            applyClashRecoil(victim);
+            CommonUtil.damageBlockedForce(victim, attacker, serverLevel);
+            return true;
         }
 
         // GolemArms are intentionally non-attackable entities, so an incoming attack normally
         // reaches their owner instead. During an Arms attack window, compare the actual oriented
         // attack boxes. If an enemy rig/special attack box meets an Arms box first, treat that as
         // a weapon clash and cancel the damage to the owner.
-        GolemArms clashingArms = findClashingArms(event.getEntity(), attacker, serverLevel);
+        GolemArms clashingArms = attacker != null && attacker != victim && canRegularClash(damageSource) ? findClashingArms(victim, attacker, serverLevel) : null;
         if (clashingArms != null) {
-            event.setCanceled(true);
             applyClashRecoil(attacker);
-            applyClashRecoil(event.getEntity());
+            applyClashRecoil(victim);
             CommonUtil.damageBlockedForce(clashingArms, attacker, serverLevel);
-            return;
+            return true;
         }
 
-        if (!(event.getEntity() instanceof Mob defender)
-                || !hasClashWeapon(defender)
+        if (!(victim instanceof Mob defender)
                 || !RigAnimationController.isInActiveAttackWindow(defender)
-                || !isAttackerInFront(defender, attacker)) {
-            return;
+                || !isDamageInFront(defender, damageSource)) {
+            return false;
         }
 
-        event.setCanceled(true);
-        applyClashRecoil(attacker);
+        if (attacker != null && attacker != defender) applyClashRecoil(attacker);
         applyClashRecoil(defender);
-        CommonUtil.damageBlockedForce(defender, attacker, serverLevel);
+        CommonUtil.damageBlocked(damageSource, defender, serverLevel);
+        return true;
     }
 
     @SubscribeEvent
@@ -168,16 +154,15 @@ public final class RigMobClashBladeEvent {
                 && !damageSource.is(DamageTypes.FALL);
     }
 
-    private static boolean hasClashWeapon(Mob defender) {
-        ItemStack stack = defender.getItemInHand(InteractionHand.MAIN_HAND);
-        return stack.getItem() instanceof SwordItem
-                || stack.getItem() instanceof DiggerItem
-                || stack.getItem() instanceof TridentItem;
-    }
-
-    private static boolean isAttackerInFront(Mob defender, Entity attacker) {
+    static boolean isDamageInFront(Mob defender, DamageSource damageSource) {
+        // Projectiles are checked at contact, not at their shooter's position.
+        Entity directEntity = damageSource.getDirectEntity();
+        Vec3 sourcePosition = directEntity != null ? directEntity.position() : damageSource.getSourcePosition();
+        if (sourcePosition == null && damageSource.getEntity() != null) sourcePosition = damageSource.getEntity().position();
+        // Environmental damage has no incoming direction, but is still clashable.
+        if (sourcePosition == null) return true;
         Vec3 defenderLook = horizontal(defender.getViewVector(1.0F));
-        Vec3 toAttacker = horizontal(attacker.position().subtract(defender.position()));
+        Vec3 toAttacker = horizontal(sourcePosition.subtract(defender.position()));
 
         return defenderLook.lengthSqr() > 1.0E-7D
                 && toAttacker.lengthSqr() > 1.0E-7D

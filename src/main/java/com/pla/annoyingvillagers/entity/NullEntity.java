@@ -521,6 +521,7 @@ public class NullEntity extends HerobrineMob {
     }
 
     public boolean hurt(@NotNull DamageSource damageSource, float f) {
+        if (damageSource.is(DamageTypes.GENERIC_KILL)) return super.hurt(damageSource, f);
         if (damageSource.is(DamageTypes.FALL)) return false;
         if (damageSource.is(DamageTypes.CACTUS)) return false;
         if (damageSource.is(DamageTypes.WITHER)) return false;

@@ -239,7 +239,7 @@ public class LowShadowHerobrineCloneEntity extends Monster implements RigStunnab
     }
 
     public boolean hurt(@NotNull DamageSource damageSource, float f) {
-        if (damageSource.is(DamageTypes.FALL)) return super.hurt(damageSource, f);
+        if (damageSource.is(DamageTypes.GENERIC_KILL) || damageSource.is(DamageTypes.FALL)) return super.hurt(damageSource, f);
         if (sacrificing || healing) {
             if (new Random().nextBoolean()
                     && this.level() instanceof ServerLevel serverLevel) {

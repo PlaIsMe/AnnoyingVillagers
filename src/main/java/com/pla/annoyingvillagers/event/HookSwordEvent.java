@@ -13,7 +13,6 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,8 +20,6 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = AnnoyingVillagers.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class HookSwordEvent {
-    private static final double FRONT_DOT_THRESHOLD = 0.0D;
-
     private HookSwordEvent() {}
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -37,7 +34,7 @@ public final class HookSwordEvent {
         if (isIgnoredDamageSource(damageSource)) return;
 
         LivingEntity attacker = getLivingAttacker(damageSource, defender);
-        if (attacker == null || !attacker.isAlive() || !isAttackerInFront(defender, attacker)) return;
+        if (attacker == null || !attacker.isAlive() || !RigMobClashBladeEvent.isDamageInFront(defender, damageSource)) return;
 
         event.setCanceled(true);
         CommonUtil.damageBlockedForce(defender, attacker, serverLevel);
@@ -77,17 +74,7 @@ public final class HookSwordEvent {
         return null;
     }
 
-    private static boolean isAttackerInFront(LivingEntity defender, LivingEntity attacker) {
-        Vec3 defenderLook = horizontal(defender.getViewVector(1.0F));
-        Vec3 toAttacker = horizontal(attacker.position().subtract(defender.position()));
-        return defenderLook.lengthSqr() > 1.0E-7D && toAttacker.lengthSqr() > 1.0E-7D && defenderLook.normalize().dot(toAttacker.normalize()) > FRONT_DOT_THRESHOLD;
-    }
-
-    private static Vec3 horizontal(Vec3 vector) {
-        return new Vec3(vector.x, 0.0D, vector.z);
-    }
-
     private static boolean isIgnoredDamageSource(DamageSource damageSource) {
-        return damageSource.is(DamageTypes.MAGIC) || damageSource.is(DamageTypeTags.IS_EXPLOSION) || damageSource.is(DamageTypes.ON_FIRE) || damageSource.is(DamageTypes.IN_FIRE) || damageSource.is(DamageTypes.FALL);
+        return damageSource.is(DamageTypes.GENERIC_KILL) || damageSource.is(DamageTypes.MAGIC) || damageSource.is(DamageTypeTags.IS_EXPLOSION) || damageSource.is(DamageTypes.ON_FIRE) || damageSource.is(DamageTypes.IN_FIRE) || damageSource.is(DamageTypes.FALL);
     }
 }
