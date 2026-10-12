@@ -194,12 +194,7 @@ public class NullSkeletonEntity extends AbstractSkeleton {
         if (this.nullEntity != null) {
             TeamUtil.addOrJoinTeam(this, "herobrine");
         }
-        try {
-            Objects.requireNonNull(this.getServer()).getCommands().getDispatcher().execute(
-                    "data merge entity @s {CanPickUpLoot: 1b}",
-                    this.createCommandSourceStack().withSuppressedOutput().withPermission(4));
-        } catch (CommandSyntaxException ignored) {
-        }
+        this.setCanPickUpLoot(true);
         return super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawngroupdata, compoundtag);
     }
 

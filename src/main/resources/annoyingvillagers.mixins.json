@@ -13,7 +13,6 @@
     "SkeletonMixin",
     "ZombieMixin",
     "ExplosionMixin",
-    "RaiderMixin",
     "RenderBuffersMixin",
     "VillagerMixin",
     "VindicatorMixin",
@@ -28,7 +27,8 @@
     "compat.smartnpc.PlayerNpcEntityMixin",
     "compat.smartnpc.ProgressionEventMixin",
     "compat.smartnpc.ProgressionUtilMixin",
-    "PlayerMixin"
+    "PlayerMixin",
+    "CreeperMixin"
   ],
   "client": [
     "client.PlayerInfoMixin",

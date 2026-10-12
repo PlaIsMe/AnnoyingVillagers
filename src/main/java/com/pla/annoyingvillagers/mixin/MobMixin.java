@@ -1,6 +1,5 @@
 package com.pla.annoyingvillagers.mixin;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -27,4 +26,3 @@ public class MobMixin {
         }
     }
 }
-

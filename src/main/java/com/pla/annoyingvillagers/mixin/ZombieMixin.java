@@ -30,11 +30,11 @@ import java.util.Random;
 
 @Mixin(value = {Zombie.class}, remap = true)
 public class ZombieMixin {
-    @Inject(method = "registerGoals", at = @At("HEAD"))
+    @Inject(method = "registerGoals", at = @At("TAIL"))
     private void monsterTargetNpc(CallbackInfo ci) {
         Zombie self = (Zombie) (Object) this;
-        if (!(self instanceof Drowned) && !(self instanceof ZombifiedPiglin)) {
-            CommonGoals.registerGoalForHostileNpc(self);
+        if (!(self instanceof ZombifiedPiglin)) {
+            CommonGoals.registerTargetGoalForVanillaMonster(self);
         }
     }
 
@@ -44,13 +44,7 @@ public class ZombieMixin {
         if (!self.level().isClientSide() && self.getServer() != null) {
             TeamUtil.addOrJoinTeam(self, "herobrine");
 
-            try {
-                self.getServer().getCommands().getDispatcher().execute(
-                        "data merge entity @s {CanPickUpLoot: 1b}",
-                        self.createCommandSourceStack().withSuppressedOutput().withPermission(4));
-            } catch (CommandSyntaxException ignored) {
-
-            }
+            self.setCanPickUpLoot(true);
             Random random = new Random();
 
             if (random.nextFloat() < 0.2f) {
