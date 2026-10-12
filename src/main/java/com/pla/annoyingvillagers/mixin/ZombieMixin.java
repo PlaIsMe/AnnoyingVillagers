@@ -31,11 +31,11 @@ import java.util.Random;
 
 @Mixin(value = {Zombie.class}, remap = true)
 public class ZombieMixin {
-    @Inject(method = "registerGoals", at = @At("HEAD"))
+    @Inject(method = "registerGoals", at = @At("TAIL"))
     private void monsterTargetNpc(CallbackInfo ci) {
         Zombie self = (Zombie) (Object) this;
-        if (!(self instanceof Drowned) && !(self instanceof ZombifiedPiglin)) {
-            CommonGoals.registerGoalForHostileNpc(self);
+        if (!(self instanceof ZombifiedPiglin)) {
+            CommonGoals.registerTargetGoalForVanillaMonster(self);
         }
     }
 

@@ -9,9 +9,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = {AbstractIllager.class}, remap = true)
 public class IllagerMixin {
-    @Inject(method = "registerGoals", at = @At("HEAD"))
+    @Inject(method = "registerGoals", at = @At("TAIL"))
     private void monsterTargetNpc(CallbackInfo ci) {
         AbstractIllager self = (AbstractIllager) (Object) this;
-        CommonGoals.registerGoalForHostileNpc(self);
+        CommonGoals.registerTargetGoalForVanillaMonster(self);
     }
 }

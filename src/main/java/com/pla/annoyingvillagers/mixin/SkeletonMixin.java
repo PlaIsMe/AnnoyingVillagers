@@ -20,11 +20,11 @@ import javax.annotation.Nullable;
 
 @Mixin(value = {AbstractSkeleton.class}, remap = true)
 public class SkeletonMixin {
-    @Inject(method = "registerGoals", at = @At("HEAD"))
+    @Inject(method = "registerGoals", at = @At("TAIL"))
     private void monsterTargetNpc(CallbackInfo ci) {
         AbstractSkeleton self = (AbstractSkeleton) (Object) this;
         if (!(self instanceof WitherSkeleton)) {
-            CommonGoals.registerGoalForHostileNpc(self);
+            CommonGoals.registerTargetGoalForVanillaMonster(self);
         }
     }
 
