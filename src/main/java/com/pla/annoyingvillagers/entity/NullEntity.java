@@ -521,6 +521,7 @@ public class NullEntity extends HerobrineMob {
     }
 
     public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
+        if (damageSource.is(DamageTypes.GENERIC_KILL)) return super.hurtServer(serverLevel, damageSource, f);
         if (damageSource.is(DamageTypes.FALL)) return false;
         if (damageSource.is(DamageTypes.CACTUS)) return false;
         if (damageSource.is(DamageTypes.WITHER)) return false;

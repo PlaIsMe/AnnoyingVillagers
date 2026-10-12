@@ -118,7 +118,7 @@ public class LowHerobrineCloneEntity extends FakePlayer implements BurstProtectE
     }
 
     public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
-        if (damageSource.is(DamageTypes.FALL)) return super.hurtServer(serverLevel, damageSource, f);
+        if (damageSource.is(DamageTypes.GENERIC_KILL) || damageSource.is(DamageTypes.FALL)) return super.hurtServer(serverLevel, damageSource, f);
         if (healing) {
             if (new Random().nextBoolean()
                     && true) {

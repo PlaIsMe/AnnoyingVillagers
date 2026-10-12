@@ -17,6 +17,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
@@ -54,16 +55,16 @@ public class CommonUtil {
             livingentity.playSound(AnnoyingVillagersModSounds.CLASH.get(), 0.5F, 1.0F);
         }
         AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(level, livingentity, damagesource.getEntity());
-        if (damagesource.getEntity() instanceof Player player) {
-            ScreenShakeUtil.applyScreenShake(level, player.getOnPos().getCenter(), 0.5F, 20, 4);
+        if (damagesource.getEntity() instanceof ServerPlayer player) {
+            ScreenShakeUtil.applyScreenShake(player, 20, 4);
         }
     }
 
     public static void damageBlockedForce(Entity defender, Entity attacker, ServerLevel level) {
         defender.playSound(AnnoyingVillagersModSounds.CLASH.get(), 1.0F, 1.0F);
         AnnoyingVillagersModParticleTypes.HIT_BLUNT.get().spawnParticleWithArgument(level, defender, attacker);
-        if (attacker instanceof Player player) {
-            ScreenShakeUtil.applyScreenShake(level, player.getOnPos().getCenter(), 1.0, 20, 4);
+        if (attacker instanceof ServerPlayer player) {
+            ScreenShakeUtil.applyScreenShake(player, 20, 4);
         }
     }
 

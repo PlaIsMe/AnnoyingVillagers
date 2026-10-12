@@ -207,6 +207,10 @@ public final class RigAnimationController {
     }
 
     private static ActiveAnimationState getActiveAnimationState(Mob mob) {
+        // Client and integrated server share this static map, but not entity instances.
+        // A client hit/particle lookup must not treat its copy as a reloaded server mob
+        // and remove the server's attack windows, invulnerability and scheduled actions.
+        if (mob.level().isClientSide()) return null;
         ActiveAnimationState state = ACTIVE_ANIMATIONS.get(mob.getUUID());
         if (state == null) return null;
         // Integrated-server leave/rejoin replaces the entity instance while retaining its UUID.

@@ -611,10 +611,8 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
     }
 
     public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float f) {
-        if (this.getPersistentData().getBooleanOr(NBT_RISING, false) || this.getPersistentData().getBooleanOr(NBT_SINKING, false) || this.sacrificing) {
-            if (true) {
-                CommonUtil.damageBlocked(damageSource, this, serverLevel);
-            }
+        if (!damageSource.is(DamageTypes.GENERIC_KILL) && (this.getPersistentData().getBooleanOr(NBT_RISING, false) || this.getPersistentData().getBooleanOr(NBT_SINKING, false) || this.sacrificing)) {
+            CommonUtil.damageBlocked(damageSource, this, serverLevel);
             return false;
         }
         boolean result = super.hurtServer(serverLevel, damageSource, f);
@@ -681,7 +679,7 @@ public class HerobrineMob extends Monster implements ForceTickEntity, BurstProte
 
     @Override
     protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
-        if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+        if (pDamageSource.is(DamageTypes.GENERIC_KILL) || pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }

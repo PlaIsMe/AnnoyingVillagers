@@ -1030,10 +1030,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
         if (damagesource.is(DamageTypes.WITHER_SKULL)) return false;
         if (damagesource.getDirectEntity() instanceof ThrownPoisonEggEntity) return false;
 
-        // Keep void damage as the one hard escape hatch. Everything else, including
-        // /kill (GENERIC_KILL), must respect rig-animation invulnerability and the
-        // Blue Demon phase-transition locks below.
-        if (damagesource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+        if (damagesource.is(DamageTypes.GENERIC_KILL)) {
             boolean result = super.hurtServer(serverLevel, damagesource, f);
             if (result) {
                 this.sayHurtSound(this, damagesource);
@@ -1060,7 +1057,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
             return false;
         }
 
-        if (damagesource.is(DamageTypes.GENERIC_KILL)) {
+        if (damagesource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             boolean result = super.hurtServer(serverLevel, damagesource, f);
             if (result) {
                 this.sayHurtSound(this, damagesource);
@@ -1759,7 +1756,7 @@ public class BlueDemonEntity extends Monster implements ForceTickEntity, BurstPr
 
     @Override
     protected void actuallyHurt(net.minecraft.server.level.ServerLevel serverLevel, DamageSource pDamageSource, float pDamageAmount) {
-        if (pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+        if (pDamageSource.is(DamageTypes.GENERIC_KILL) || pDamageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             super.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
             return;
         }

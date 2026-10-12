@@ -675,7 +675,7 @@ public class TransporterHerobrineCloneEntity extends HerobrineMob implements Her
 
     @Override
     public boolean hurtServer(net.minecraft.server.level.ServerLevel serverLevel, DamageSource damageSource, float amount) {
-        if (damageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+        if (damageSource.is(DamageTypes.GENERIC_KILL) || damageSource.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             return super.hurtServer(serverLevel, damageSource, amount);
         }
 
