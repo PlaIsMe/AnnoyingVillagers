@@ -382,7 +382,7 @@ public abstract class BlueDemonChestplateItem extends LegacyArmorItem {
             MutableComponent meter = Component.empty();
 
             meter.append(
-                    Component.literal("â›¨ ")
+                    Component.literal("\u26A1 ")
                             .withStyle(style -> style.withColor(TextColor.fromRgb(CHEST_CHARGE_COLOR)))
             );
 

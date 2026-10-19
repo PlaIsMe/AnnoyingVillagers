@@ -86,7 +86,7 @@ public abstract class HerobrineObsidianDiamondArmorChestplateItem extends Legacy
     private static Component buildChargeMeter(int charge, int max) {
         int filledSteps = Mth.clamp(Math.round((charge / (float)max) * CHARGE_METER_STEPS), 0, CHARGE_METER_STEPS);
         MutableComponent meter = Component.empty();
-        meter.append(Component.literal("â’ ").withStyle(style -> style.withColor(TextColor.fromRgb(CHARGE_COLOR))));
+        meter.append(Component.literal("\u26A1 ").withStyle(style -> style.withColor(TextColor.fromRgb(CHARGE_COLOR))));
         for (int i = 0; i < CHARGE_METER_STEPS; i++) {
             int finalI = i;
             meter.append(Component.literal(i < filledSteps ? "\u25B0" : "\u25B1").withStyle(style -> style.withColor(TextColor.fromRgb(finalI < filledSteps ? CHARGE_COLOR : CHARGE_DIM_COLOR))));
