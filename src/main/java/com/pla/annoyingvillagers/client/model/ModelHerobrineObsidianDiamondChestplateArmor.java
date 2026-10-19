@@ -3,10 +3,7 @@ package com.pla.annoyingvillagers.client.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.client.animation.ObsidianArmorClientAnimationState;
-import com.pla.annoyingvillagers.client.animation.SpecialAnimationClientUtil;
-import com.pla.annoyingvillagers.client.animation.SpecialAnimationResolver;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPart;
-import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPoseClip;
 import com.pla.annoyingvillagers.rig.armor.ObsidianArmorPoseLibrary;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -41,22 +38,13 @@ public final class ModelHerobrineObsidianDiamondChestplateArmor extends Humanoid
     }
 
     private void applyArmorAnimation() {
-        this.geometry.resetAnimationPose();
-        if (this.wearer == null) return;
-        ObsidianArmorClientAnimationState.State state = ObsidianArmorClientAnimationState.get(this.wearer, ObsidianArmorPart.CHESTPLATE);
-        if (state == null) return;
-
-        ObsidianArmorPoseClip poseClip = ObsidianArmorPoseLibrary.clip(state.animationId());
-        showTrackedTiles(poseClip);
-        SpecialAnimationClientUtil.apply(this.geometry, SpecialAnimationResolver.resolve(state.animationId()), state.elapsedTicks());
-    }
-
-    private void showTrackedTiles(ObsidianArmorPoseClip clip) {
-        for (String boneName : clip.trackedBones()) {
-            if (!boneName.contains("_tile_")) continue;
-            ModelPart part = this.geometry.animationPart(boneName);
-            if (part != null) part.visible = true;
+        ObsidianArmorClientAnimationState.State state = this.wearer == null ? null : ObsidianArmorClientAnimationState.get(this.wearer, ObsidianArmorPart.CHESTPLATE);
+        if (state == null) {
+            this.geometry.resetAnimationPose();
+            return;
         }
+        // Direct part references avoid a recursive model-tree search for every tile.
+        this.geometry.applyAnimationPose(ObsidianArmorPoseLibrary.clip(state.animationId()), state.elapsedTicks());
     }
 
     private static ModelPart createHumanoidRoot(ModelPart bakedRoot) {
