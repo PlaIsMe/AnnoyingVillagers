@@ -1948,17 +1948,9 @@ public final class RigAnimationSpecs {
 
         if (origin == null) origin = mob.getEyePosition(1.0F);
 
-        Vec3 destination = mob.getEyePosition(1.0F).add(mob.getLookAngle().scale(16.0D));
-        LivingEntity target = mob.getTarget();
-        if (target != null && target.isAlive()) destination = target.getEyePosition(1.0F);
-
         BlockProjectileEntity projectile = new BlockProjectileEntity(serverLevel, mob, state);
         projectile.setPos(origin.x, origin.y, origin.z);
-
-        Vec3 direction = destination.subtract(origin);
-        if (direction.lengthSqr() < 1.0E-6D) direction = mob.getLookAngle();
-
-        projectile.setDeltaMovement(direction.normalize().scale(2.0D));
+        projectile.setDeltaMovement(mob.getLookAngle().normalize().scale(2.0D));
         serverLevel.addFreshEntity(projectile);
     }
 

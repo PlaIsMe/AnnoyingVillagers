@@ -28,6 +28,7 @@ import java.util.EnumSet;
 
 public class RigAnimatedMeleeAttackGoal extends Goal {
     private static final int PATH_RECALCULATION_BASE_TICKS = 4;
+    private static final int NORMAL_ATTACKS_PER_CHAIN = 3;
 
     private final PathfinderMob mob;
     private final double speedModifier;
@@ -36,6 +37,8 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     private Path path;
     private int ticksUntilNextPathRecalculation;
     private int normalComboIndex;
+    private int normalAttackChainLength;
+    private int previousAnimationStartTick = -1;
     private Item lastWeaponItem;
     private RigAnimationId previousAnimation;
 
@@ -84,7 +87,10 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     @Override
     public boolean canContinueToUse() {
         LivingEntity target = this.mob.getTarget();
-        if (!isValidMeleeState(target) || isMovementLocked()) return false;
+        if (!isValidMeleeActorState() || isMovementLocked()) return false;
+        // Losing the target must not cancel the finishing swing. Higher-priority
+        // recovery goals and real animation interruptions can still take over.
+        if (!isValidTarget(target)) return !isProfileAttackLocked() && ownsActiveAnimation() && this.previousAnimation.isAttack();
         if (isProfileAttackLocked()) return canMoveWhileProfileAttackLocked();
 
         RigCombatProfile profile = RigCombatProfiles.getCombatProfile(this.mob);
@@ -111,10 +117,12 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         // AvNpc utilities own higher goal priorities. Cancel only the clip this goal
         // started; a stun or scripted action may already have replaced it.
         if (canYieldProfileAttackToHoleRecovery()
-                && this.previousAnimation == RigAnimationController.getActiveAnimationId(this.mob)
+                && ownsActiveAnimation()
                 && RigAnimationController.hasActiveProfileAttack(this.mob)) {
             RigAnimationController.stop(this.mob, this.previousAnimation);
         }
+        this.normalAttackChainLength = 0;
+        this.previousAnimationStartTick = -1;
         this.mob.setAggressive(false);
         RidingUtil.stopNavigation(this.mob);
         this.path = null;
@@ -135,6 +143,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
             return true;
         }
         return RigAnimationController.hasActiveProfileAttack(this.mob)
+                && (!ownsActiveAnimation() || this.normalAttackChainLength < NORMAL_ATTACKS_PER_CHAIN)
                 && RigAnimationController.isAttackChainReady(this.mob);
     }
 
@@ -150,7 +159,10 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     @Override
     public void tick() {
         LivingEntity target = this.mob.getTarget();
-        if (target == null) return;
+        if (!isValidTarget(target)) {
+            RidingUtil.stopNavigation(this.mob);
+            return;
+        }
         if (isMovementLocked()) {
             RidingUtil.stopNavigation(this.mob);
             return;
@@ -178,7 +190,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
         RigAnimationId selectedAnimation = isNormalAttackChainReady(profile) ? selectQueuedNormalAttack(target, profile) : selectAnimation(target, profile);
         if (selectedAnimation != null) {
-            playAnimationAttack(target, selectedAnimation);
+            playAnimationAttack(target, selectedAnimation, profile);
             return;
         }
         repathToTarget(target);
@@ -216,10 +228,17 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         return normal;
     }
 
-    private void playAnimationAttack(LivingEntity target, RigAnimationId animationId) {
+    private void playAnimationAttack(LivingEntity target, RigAnimationId animationId, RigCombatProfile profile) {
         RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
+        boolean continuingNormalChain = isNormalAttackChainReady(profile);
+        int previousStartTick = RigAnimationController.getActiveAnimationStartTick(this.mob);
         RigAnimationController.play(this.mob, spec, target);
+        int startTick = RigAnimationController.getActiveAnimationStartTick(this.mob);
+        // Playback can be rejected by a lock or the cancellable AVNpc event.
+        if (RigAnimationController.getActiveAnimationId(this.mob) != animationId || startTick == previousStartTick) return;
+        this.normalAttackChainLength = profile.normalAttacks().contains(animationId) ? (continuingNormalChain ? this.normalAttackChainLength + 1 : 1) : 0;
         this.previousAnimation = animationId;
+        this.previousAnimationStartTick = startTick;
     }
 
     private boolean hasBlockingAnimation(RigCombatProfile profile) {
@@ -228,9 +247,15 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     }
 
     private boolean isNormalAttackChainReady(RigCombatProfile profile) {
+        if (!ownsActiveAnimation() || this.normalAttackChainLength >= NORMAL_ATTACKS_PER_CHAIN) return false;
         if (!RigAnimationController.isAttackChainReady(this.mob)) return false;
         RigAnimationId activeAnimation = RigAnimationController.getActiveAnimationId(this.mob);
         return activeAnimation != null && profile.normalAttacks().contains(activeAnimation);
+    }
+
+    private boolean ownsActiveAnimation() {
+        return this.previousAnimation != null && this.previousAnimation == RigAnimationController.getActiveAnimationId(this.mob)
+                && this.previousAnimationStartTick == RigAnimationController.getActiveAnimationStartTick(this.mob);
     }
 
     private void repathToTarget(LivingEntity target) {
@@ -339,7 +364,9 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         if (currentWeapon == this.lastWeaponItem) return;
         this.lastWeaponItem = currentWeapon;
         this.normalComboIndex = 0;
+        this.normalAttackChainLength = 0;
         this.previousAnimation = null;
+        this.previousAnimationStartTick = -1;
     }
 
     private boolean isMovementLocked() {
@@ -355,11 +382,19 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     }
 
     private boolean isValidMeleeState(LivingEntity target) {
+        return isValidMeleeActorState() && isValidTarget(target);
+    }
+
+    private boolean isValidTarget(LivingEntity target) {
+        return target != null && target.isAlive() && !target.isRemoved() && !target.isDeadOrDying();
+    }
+
+    private boolean isValidMeleeActorState() {
         if (this.mob instanceof ReaperHerobrineEntity reaper && reaper.isSecondFormDragonRider()) {
             return false;
         }
         return !this.mob.level().isClientSide && this.mob.isAlive() && !this.mob.isRemoved() && !this.mob.isDeadOrDying() && !this.mob.isNoAi()
-                && !(this.mob.getMainHandItem().getItem() instanceof BowItem) && target != null && target.isAlive() && !target.isRemoved() && !target.isDeadOrDying();
+                && !(this.mob.getMainHandItem().getItem() instanceof BowItem);
     }
 
     private boolean canStartNormalAttack(LivingEntity target, RigCombatProfile profile) {
