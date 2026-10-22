@@ -131,7 +131,6 @@ public class GreenVillagerKnightEntity extends VillagerArmyEntity {
                 .add(Attributes.MAX_HEALTH, 30.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.35D)
                 .add(Attributes.ATTACK_DAMAGE, 0.0D)
-                .add(Attributes.FOLLOW_RANGE, 32.0D)
-                .add(Attributes.ARMOR, 30.0D);
+                .add(Attributes.FOLLOW_RANGE, 32.0D);
     }
 }
