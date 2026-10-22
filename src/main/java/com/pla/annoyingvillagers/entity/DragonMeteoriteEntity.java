@@ -340,7 +340,6 @@ public class DragonMeteoriteEntity extends PathfinderMob {
 
         builder = builder.add(Attributes.MOVEMENT_SPEED, 0.3D);
         builder = builder.add(Attributes.MAX_HEALTH, 10.0D);
-        builder = builder.add(Attributes.ARMOR, 0.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 3.0D);
         builder = builder.add(Attributes.FOLLOW_RANGE, 200.0D);
         return builder;

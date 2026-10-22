@@ -418,7 +418,6 @@ public class EliteHerobrineKnockedEntity extends PathfinderMob implements ForceT
 
         builder = builder.add(Attributes.MOVEMENT_SPEED, 0.06D);
         builder = builder.add(Attributes.MAX_HEALTH, 20.0D);
-        builder = builder.add(Attributes.ARMOR, 0.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 1.0D);
         builder = builder.add(Attributes.FOLLOW_RANGE, 24.0D);
         builder = builder.add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);

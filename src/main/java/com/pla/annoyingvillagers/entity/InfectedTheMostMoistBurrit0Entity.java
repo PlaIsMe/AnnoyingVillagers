@@ -109,7 +109,6 @@ public class InfectedTheMostMoistBurrit0Entity extends PathfinderMob implements 
 
         builder = builder.add(Attributes.MOVEMENT_SPEED, 0.26D);
         builder = builder.add(Attributes.MAX_HEALTH, 10.0D);
-        builder = builder.add(Attributes.ARMOR, 0.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 1.0D);
         builder = builder.add(Attributes.FOLLOW_RANGE, 32.0D);
         return builder;
