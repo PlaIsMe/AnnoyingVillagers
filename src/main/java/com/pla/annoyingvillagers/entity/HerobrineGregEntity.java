@@ -1896,7 +1896,6 @@ public class HerobrineGregEntity extends Monster implements ForceTickEntity, Rig
 
         builder = builder.add(Attributes.MOVEMENT_SPEED, 0.5D);
         builder = builder.add(Attributes.MAX_HEALTH, 40.0D);
-        builder = builder.add(Attributes.ARMOR, 0.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 0.0D);
         builder = builder.add(Attributes.FOLLOW_RANGE, 48.0D);
         builder = builder.add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);

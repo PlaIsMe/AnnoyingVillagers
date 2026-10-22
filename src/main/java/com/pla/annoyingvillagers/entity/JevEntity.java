@@ -514,7 +514,6 @@ public class JevEntity extends AVNpc implements ForceTickEntity, BurstProtectEnt
 
         builder = builder.add(Attributes.MOVEMENT_SPEED, 0.35D);
         builder = builder.add(Attributes.MAX_HEALTH, 50.0D);
-        builder = builder.add(Attributes.ARMOR, 20.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 0.0D);
         builder = builder.add(Attributes.FOLLOW_RANGE, 48.0D);
         builder = builder.add(Attributes.KNOCKBACK_RESISTANCE, 5.0D);

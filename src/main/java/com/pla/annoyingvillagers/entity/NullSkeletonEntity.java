@@ -336,7 +336,6 @@ public class NullSkeletonEntity extends AbstractSkeleton {
 
         builder = builder.add(Attributes.MOVEMENT_SPEED, 0.35D);
         builder = builder.add(Attributes.MAX_HEALTH, 30.0D);
-        builder = builder.add(Attributes.ARMOR, 10.0D);
         builder = builder.add(Attributes.ATTACK_DAMAGE, 0.0D);
         builder = builder.add(Attributes.FOLLOW_RANGE, 24.0D);
         return builder;
