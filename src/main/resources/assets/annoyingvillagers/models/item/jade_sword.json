@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/jade_sword",
-  "textures": {
-    "0": "annoyingvillagers:item/jade_sword",
-    "particle": "annoyingvillagers:item/jade_sword"
-  }
-}

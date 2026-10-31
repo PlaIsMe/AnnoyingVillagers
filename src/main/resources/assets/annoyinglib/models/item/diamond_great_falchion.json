@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/diamond_great_falchion",
+  "textures": {
+    "0": "annoyinglib:item/diamond_great_falchion",
+    "particle": "annoyinglib:item/diamond_great_falchion"
+  }
+}

@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "IH ",
+        " P ",
+        " P "
+    ],
+    "key": {
+        "P": {
+            "item": "minecraft:stick"
+        },
+        "H": {
+            "item": "minecraft:iron_hoe"
+        },
+        "I": {
+            "item": "minecraft:iron_ingot"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:iron_sickle",
+        "count": 1
+    }
+}

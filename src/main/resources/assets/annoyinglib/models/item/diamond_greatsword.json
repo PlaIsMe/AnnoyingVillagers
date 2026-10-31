@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/diamond_durandal",
+  "textures": {
+    "1": "annoyinglib:item/diamond_durandal",
+    "particle": "annoyinglib:item/diamond_durandal"
+  }
+}

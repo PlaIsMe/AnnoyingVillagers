@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " D ",
+        "DDD",
+        "FSF"
+    ],
+    "key": {
+        "D": {
+            "item": "minecraft:diamond"
+        },
+        "F": {
+            "item": "minecraft:flint"
+        },
+        "S": {
+            "item": "minecraft:diamond_sword"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:diamond_laevateinn",
+        "count": 1
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/double_diamond_glaive",
+  "textures": {
+    "0": "annoyinglib:item/double_diamond_glaive",
+    "particle": "annoyinglib:item/double_diamond_glaive"
+  }
+}

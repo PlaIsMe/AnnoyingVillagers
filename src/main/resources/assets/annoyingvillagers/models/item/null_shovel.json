@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/null_shovel",
-  "textures": {
-    "0": "annoyingvillagers:item/null_shovel",
-    "particle": "annoyingvillagers:item/null_shovel"
-  }
-}

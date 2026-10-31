@@ -1,8 +1,0 @@
-{
-  "variants": {
-    "facing=north": { "model": "annoyingvillagers:block/shadow_obsidian_long_pillar", "y": 0,   "uvlock": true },
-    "facing=east":  { "model": "annoyingvillagers:block/shadow_obsidian_long_pillar", "y": 90,  "uvlock": true },
-    "facing=south": { "model": "annoyingvillagers:block/shadow_obsidian_long_pillar", "y": 180, "uvlock": true },
-    "facing=west":  { "model": "annoyingvillagers:block/shadow_obsidian_long_pillar", "y": 270, "uvlock": true }
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/hacker_sword",
-  "textures": {
-    "0": "annoyingvillagers:item/hacker_sword",
-    "particle": "annoyingvillagers:item/hacker_sword"
-  }
-}

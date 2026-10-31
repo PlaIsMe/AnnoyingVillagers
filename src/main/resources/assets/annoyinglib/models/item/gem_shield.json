@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/gem_shield",
+  "textures": {
+    "0": "annoyinglib:item/gem_shield",
+    "particle": "annoyinglib:item/gem_shield"
+  }
+}

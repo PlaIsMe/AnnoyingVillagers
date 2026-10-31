@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "   ",
+        " N ",
+        " S "
+    ],
+    "key": {
+        "S": {
+            "item": "annoyinglib:paladin_sword"
+        },
+        "N": {
+            "item": "annoyinglib:dark_netherite"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:netherite_knife",
+        "count": 1
+    }
+}

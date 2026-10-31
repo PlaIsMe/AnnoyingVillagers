@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/diamond_laevateinn",
-  "textures": {
-    "0": "annoyingvillagers:item/diamond_laevateinn",
-    "particle": "annoyingvillagers:item/diamond_laevateinn"
-  }
-}

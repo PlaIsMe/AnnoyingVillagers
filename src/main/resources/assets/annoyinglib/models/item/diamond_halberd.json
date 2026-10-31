@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/diamond_halberd",
+  "textures": {
+    "0": "annoyinglib:item/diamond_halberd",
+    "particle": "annoyinglib:item/diamond_halberd"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/netherite_shield",
+  "textures": {
+    "0": "annoyinglib:item/netherite_shield",
+    "particle": "annoyinglib:item/netherite_shield"
+  }
+}

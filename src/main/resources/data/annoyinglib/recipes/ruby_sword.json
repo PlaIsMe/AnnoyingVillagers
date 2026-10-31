@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " R ",
+        " R ",
+        " P "
+    ],
+    "key": {
+        "R": {
+            "item": "annoyinglib:ruby"
+        },
+        "P": {
+            "item": "minecraft:stick"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:ruby_sword",
+        "count": 1
+    }
+}

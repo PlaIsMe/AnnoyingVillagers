@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/giant_red_axe",
+  "textures": {
+    "0": "annoyinglib:item/giant_red_axe",
+    "particle": "annoyinglib:item/giant_red_axe"
+  }
+}

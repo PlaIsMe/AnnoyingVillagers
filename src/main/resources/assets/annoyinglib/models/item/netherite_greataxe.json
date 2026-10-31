@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/netherite_greataxe",
+  "textures": {
+    "layer0": "annoyinglib:item/netherite_greataxe",
+    "particle": "annoyinglib:item/netherite_greataxe"
+  }
+}

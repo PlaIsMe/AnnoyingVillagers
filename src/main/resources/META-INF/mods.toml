@@ -8,13 +8,13 @@ displayName="${mod_name}"
 authors="${mod_authors}"
 credits="See NOTICE.md for the full credit list."
 description='''${mod_description}'''
-[[dependencies.annoyingvillagers]]
+[[dependencies.${mod_id}]]
     modId="forge"
     mandatory=true
     versionRange="${forge_version_range}"
     ordering="NONE"
     side="BOTH"
-[[dependencies.annoyingvillagers]]
+[[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
     versionRange="${minecraft_version_range}"

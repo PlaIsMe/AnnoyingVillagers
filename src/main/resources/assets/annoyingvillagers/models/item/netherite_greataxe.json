@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/netherite_greataxe",
-  "textures": {
-    "layer0": "annoyingvillagers:item/netherite_greataxe",
-    "particle": "annoyingvillagers:item/netherite_greataxe"
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/woopie_the_sword",
-  "textures": {
-    "0": "annoyingvillagers:item/ruby_knight_sword",
-    "particle": "annoyingvillagers:item/ruby_knight_sword"
-  }
-}

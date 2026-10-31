@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "0 2",
+    "345",
+    "678"
+  ],
+  "key": {
+    "0": {
+      "item": "annoyinglib:ruby"
+    },
+    "2": {
+      "item": "annoyinglib:ruby"
+    },
+    "3": {
+      "item": "annoyinglib:ruby"
+    },
+    "4": {
+      "item": "annoyinglib:ruby"
+    },
+    "5": {
+      "item": "annoyinglib:ruby"
+    },
+    "6": {
+      "item": "annoyinglib:ruby"
+    },
+    "7": {
+      "item": "annoyinglib:ruby"
+    },
+    "8": {
+      "item": "annoyinglib:ruby"
+    }
+  },
+  "result": {
+    "item": "annoyinglib:ruby_chestplate",
+    "count": 1
+  }
+}

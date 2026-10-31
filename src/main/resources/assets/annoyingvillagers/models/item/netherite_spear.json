@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/netherite_spear",
-  "textures": {
-    "0": "annoyingvillagers:item/netherite_spear",
-    "particle": "annoyingvillagers:item/netherite_spear"
-  }
-}

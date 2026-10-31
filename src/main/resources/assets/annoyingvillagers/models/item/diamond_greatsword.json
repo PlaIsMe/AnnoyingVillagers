@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/diamond_durandal",
-  "textures": {
-    "1": "annoyingvillagers:item/diamond_durandal",
-    "particle": "annoyingvillagers:item/diamond_durandal"
-  }
-}

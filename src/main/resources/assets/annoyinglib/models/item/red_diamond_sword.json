@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/red_diamond_sword",
+  "textures": {
+    "0": "annoyinglib:item/red_diamond_sword",
+    "particle": "annoyinglib:item/red_diamond_sword"
+  }
+}

@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/shadow_obsidian_burst",
-  "textures": {
-    "0": "annoyingvillagers:block/shadow_obsidian",
-    "particle": "annoyingvillagers:block/shadow_obsidian"
-  }
-}

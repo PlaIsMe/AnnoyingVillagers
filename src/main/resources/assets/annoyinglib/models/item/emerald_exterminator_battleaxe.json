@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/emerald_exterminator_battleaxe",
+  "textures": {
+    "layer0": "annoyinglib:item/emerald_exterminator_battleaxe",
+    "particle": "annoyinglib:item/emerald_exterminator_battleaxe"
+  }
+}

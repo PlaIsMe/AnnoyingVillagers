@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/ruby_greatsword",
-  "textures": {
-    "0": "annoyingvillagers:item/ruby_greatsword",
-    "particle": "annoyingvillagers:item/ruby_greatsword"
-  }
-}

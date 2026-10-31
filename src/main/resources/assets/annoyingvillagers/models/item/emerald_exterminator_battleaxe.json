@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/emerald_exterminator_battleaxe",
-  "textures": {
-    "layer0": "annoyingvillagers:item/emerald_exterminator_battleaxe",
-    "particle": "annoyingvillagers:item/emerald_exterminator_battleaxe"
-  }
-}

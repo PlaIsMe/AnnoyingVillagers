@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/diamond_battleaxe",
+  "textures": {
+    "0": "annoyinglib:item/diamond_battleaxe",
+    "particle": "annoyinglib:item/diamond_battleaxe"
+  }
+}

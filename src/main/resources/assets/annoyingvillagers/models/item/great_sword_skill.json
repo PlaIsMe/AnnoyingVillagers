@@ -1,8 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/great_sword_skill",
-  "textures": {
-    "1": "annoyingvillagers:item/great_sword",
-    "2": "annoyingvillagers:item/great_sword_skill",
-    "particle": "annoyingvillagers:item/great_sword"
-  }
-}

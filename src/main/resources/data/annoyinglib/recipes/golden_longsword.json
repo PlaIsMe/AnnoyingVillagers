@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " D ",
+        " D ",
+        " S "
+    ],
+    "key": {
+        "D": {
+            "item": "minecraft:gold_ingot"
+        },
+        "S": {
+            "item": "minecraft:golden_sword"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:golden_longsword",
+        "count": 1
+    }
+}

@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/null_axe",
-  "textures": {
-    "0": "annoyingvillagers:item/null_axe",
-    "particle": "annoyingvillagers:item/null_axe"
-  }
-}

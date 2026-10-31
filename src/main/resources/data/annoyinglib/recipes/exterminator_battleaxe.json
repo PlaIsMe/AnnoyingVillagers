@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "DDD",
+        "DAD",
+        " P "
+    ],
+    "key": {
+        "D": {
+            "item": "minecraft:diamond_block"
+        },
+        "A": {
+            "item": "minecraft:diamond_axe"
+        },
+        "P": {
+            "item": "minecraft:stick"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:exterminator_battleaxe",
+        "count": 1
+    }
+}

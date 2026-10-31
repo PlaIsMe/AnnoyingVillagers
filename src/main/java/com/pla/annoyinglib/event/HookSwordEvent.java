@@ -1,0 +1,80 @@
+package com.pla.annoyinglib.event;
+
+import com.pla.annoyinglib.AnnoyingLib;
+import com.pla.annoyinglib.clazz.HookDisarmLaunch;
+import com.pla.annoyinglib.rig.RigAnimationController;
+import com.pla.annoyinglib.rig.RigAnimationId;
+import com.pla.annoyinglib.rig.RigStunController;
+import com.pla.annoyinglib.util.CommonUtil;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+
+@Mod.EventBusSubscriber(modid = AnnoyingLib.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+public final class HookSwordEvent {
+    private HookSwordEvent() {}
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onLivingAttack(LivingAttackEvent event) {
+        if (event.isCanceled()) return;
+        if (!(event.getEntity() instanceof Mob defender) || !(defender.level() instanceof ServerLevel serverLevel)) return;
+
+        RigAnimationId animationId = RigAnimationController.getActiveAnimationId(defender);
+        if (!isHookClashAnimation(animationId) || !RigAnimationController.isInActiveAttackWindow(defender)) return;
+
+        DamageSource damageSource = event.getSource();
+        if (isIgnoredDamageSource(damageSource)) return;
+
+        LivingEntity attacker = getLivingAttacker(damageSource, defender);
+        if (attacker == null || !attacker.isAlive() || !RigMobClashBladeEvent.isDamageInFront(defender, damageSource)) return;
+
+        event.setCanceled(true);
+        CommonUtil.damageBlockedForce(defender, attacker, serverLevel);
+        CommonUtil.applyHookClashDisarmLogic(defender, attacker, serverLevel, getLaunchDirection(animationId));
+
+        if (attacker instanceof Mob attackerMob && RigStunController.supports(attackerMob)) applyRigKnockdown(attackerMob, animationId);
+    }
+
+    private static boolean isHookClashAnimation(RigAnimationId animationId) {
+        return animationId == RigAnimationId.HOOK_SWORD_ULT1 || animationId == RigAnimationId.HOOK_SWORD_ULT2 || animationId == RigAnimationId.FLANKER_HOOK_SWORD_ULT || animationId == RigAnimationId.HOOK_SWORD_DUAL_ULT;
+    }
+
+    private static void applyRigKnockdown(Mob attacker, RigAnimationId defenderAnimation) {
+        if (defenderAnimation == RigAnimationId.HOOK_SWORD_ULT1) {
+            RigStunController.applyKnockdown(attacker, RigAnimationId.KNOCKDOWN_RIGHT);
+            return;
+        }
+        if (defenderAnimation == RigAnimationId.HOOK_SWORD_ULT2) {
+            RigStunController.applyKnockdown(attacker, RigAnimationId.KNOCKDOWN_LEFT);
+            return;
+        }
+        RigStunController.applyKnockdown(attacker);
+    }
+
+    private static HookDisarmLaunch getLaunchDirection(RigAnimationId animationId) {
+        if (animationId == RigAnimationId.HOOK_SWORD_ULT1) return HookDisarmLaunch.RIGHT;
+        if (animationId == RigAnimationId.HOOK_SWORD_ULT2) return HookDisarmLaunch.LEFT;
+        return HookDisarmLaunch.BACKWARD;
+    }
+
+    private static LivingEntity getLivingAttacker(DamageSource damageSource, LivingEntity defender) {
+        Entity attacker = damageSource.getEntity();
+        if (attacker instanceof LivingEntity livingAttacker && livingAttacker != defender) return livingAttacker;
+
+        Entity directAttacker = damageSource.getDirectEntity();
+        if (directAttacker instanceof LivingEntity livingAttacker && livingAttacker != defender) return livingAttacker;
+        return null;
+    }
+
+    private static boolean isIgnoredDamageSource(DamageSource damageSource) {
+        return damageSource.is(DamageTypes.GENERIC_KILL) || damageSource.is(DamageTypes.MAGIC) || damageSource.is(DamageTypeTags.IS_EXPLOSION) || damageSource.is(DamageTypes.ON_FIRE) || damageSource.is(DamageTypes.IN_FIRE) || damageSource.is(DamageTypes.FALL);
+    }
+}

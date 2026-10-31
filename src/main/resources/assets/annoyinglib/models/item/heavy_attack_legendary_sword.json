@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/yellow_legendary_sword",
+  "textures": {
+    "0": "annoyinglib:item/yellow_glow_legendary_sword",
+    "particle": "annoyinglib:item/yellow_glow_legendary_sword"
+  }
+}

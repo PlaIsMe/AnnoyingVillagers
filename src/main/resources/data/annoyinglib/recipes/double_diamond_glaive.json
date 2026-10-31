@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "  S",
+        " P ",
+        "S  "
+    ],
+    "key": {
+        "S": {
+            "item": "minecraft:diamond_sword"
+        },
+        "P": {
+            "item": "minecraft:stick"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:double_diamond_glaive",
+        "count": 1
+    }
+}

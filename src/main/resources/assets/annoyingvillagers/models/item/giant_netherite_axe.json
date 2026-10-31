@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/giant_netherite_axe",
-  "textures": {
-    "0": "annoyingvillagers:item/giant_netherite_axe",
-    "particle": "annoyingvillagers:item/giant_netherite_axe"
-  }
-}

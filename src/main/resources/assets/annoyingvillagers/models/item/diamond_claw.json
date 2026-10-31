@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/diamond_claw",
-  "textures": {
-    "0": "annoyingvillagers:item/diamond_shear",
-    "particle": "annoyingvillagers:item/diamond_shear"
-  }
-}

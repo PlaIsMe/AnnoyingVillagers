@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " A ",
+        " P ",
+        " I "
+    ],
+    "key": {
+        "I": {
+            "item": "minecraft:iron_ingot"
+        },
+        "P": {
+            "item": "minecraft:stick"
+        },
+        "A": {
+            "item": "minecraft:iron_axe"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:spear_axe",
+        "count": 1
+    }
+}

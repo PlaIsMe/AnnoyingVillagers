@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/trapdoor",
+  "textures": {
+    "0": "annoyinglib:item/trapdoor",
+    "particle": "annoyinglib:item/trapdoor"
+  }
+}

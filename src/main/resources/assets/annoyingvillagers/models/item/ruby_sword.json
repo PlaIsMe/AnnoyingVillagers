@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/ruby_sword",
-  "textures": {
-    "0": "annoyingvillagers:item/ruby_sword",
-    "particle": "annoyingvillagers:item/ruby_sword"
-  }
-}

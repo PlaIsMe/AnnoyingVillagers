@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/paladin_sword",
-  "textures": {
-    "0": "annoyingvillagers:item/paladin_sword",
-    "particle": "annoyingvillagers:item/paladin_sword"
-  }
-}

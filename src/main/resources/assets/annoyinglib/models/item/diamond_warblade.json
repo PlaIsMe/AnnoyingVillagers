@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/diamond_warblade",
+  "textures": {
+    "0": "annoyinglib:item/diamond_warblade",
+    "particle": "annoyinglib:item/diamond_warblade"
+  }
+}

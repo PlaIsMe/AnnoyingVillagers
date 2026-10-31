@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/diamond_halberd",
-  "textures": {
-    "0": "annoyingvillagers:item/diamond_halberd",
-    "particle": "annoyingvillagers:item/diamond_halberd"
-  }
-}

@@ -1,0 +1,8 @@
+{
+  "parent": "annoyinglib:custom/wooden_door",
+  "textures": {
+    "1": "annoyinglib:item/wooden_door",
+    "2": "annoyinglib:item/wooden_door",
+    "particle": "annoyinglib:item/wooden_door"
+  }
+}

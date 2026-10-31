@@ -1,0 +1,9 @@
+{
+  "parent": "annoyinglib:custom/villagerhead3",
+  "textures": {
+    "1": "annoyinglib:item/villagerhead2",
+    "2": "annoyinglib:item/villagerhead3",
+    "missing": "annoyinglib:item/villagerhead2",
+    "particle": "annoyinglib:item/villagerhead3"
+  }
+}

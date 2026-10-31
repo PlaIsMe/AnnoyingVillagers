@@ -1,0 +1,119 @@
+package com.pla.annoyinglib.entity;
+
+import com.pla.annoyinglib.init.AnnoyingLibModEntities;
+import com.pla.annoyinglib.init.AnnoyingLibModItems;
+import com.pla.annoyinglib.util.GlintColorHelper;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+
+public class EnchantedArrowEntity extends Arrow {
+    private static final EntityDataAccessor<Integer> COLOR_GLINT =
+            SynchedEntityData.defineId(EnchantedArrowEntity.class, EntityDataSerializers.INT);
+
+    public EnchantedArrowEntity(EntityType<? extends EnchantedArrowEntity> type, Level level) {
+        super(type, level);
+    }
+
+    public EnchantedArrowEntity(@NotNull Level level, @NotNull LivingEntity shooter) {
+        this(AnnoyingLibModEntities.ENCHANTED_ARROW.get(), level);
+        this.setOwner(shooter);
+        this.setPos(shooter.getX(), shooter.getEyeY() - 0.1D, shooter.getZ());
+
+        if (shooter instanceof Player player) {
+            this.pickup = player.getAbilities().instabuild
+                    ? AbstractArrow.Pickup.CREATIVE_ONLY
+                    : AbstractArrow.Pickup.ALLOWED;
+        } else {
+            this.pickup = AbstractArrow.Pickup.ALLOWED;
+        }
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(COLOR_GLINT, GlintColorHelper.NONE);
+    }
+
+    public void setColorGlint(int mode) {
+        this.entityData.set(COLOR_GLINT, GlintColorHelper.sanitize(mode));
+    }
+
+    public int getColorGlint() {
+        return this.entityData.get(COLOR_GLINT);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putInt(GlintColorHelper.TAG_COLOR_GLINT, this.getColorGlint());
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (this.level().isClientSide) {
+            int amount = this.inGround ? (this.inGroundTime % 5 == 0 ? 1 : 0) : 2;
+            if (amount > 0) {
+                spawnColoredParticles(amount);
+            }
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+
+        if (tag.contains(GlintColorHelper.TAG_COLOR_GLINT, Tag.TAG_INT)) {
+            this.setColorGlint(tag.getInt(GlintColorHelper.TAG_COLOR_GLINT));
+        } else if (tag.contains(GlintColorHelper.TAG_COLOR_GLINT, Tag.TAG_STRING)) {
+            this.setColorGlint(GlintColorHelper.fromName(tag.getString(GlintColorHelper.TAG_COLOR_GLINT)));
+        }
+    }
+
+    private void spawnColoredParticles(int amount) {
+        Vec3 rgb = GlintColorHelper.getParticleColor(this.getColorGlint());
+
+        for (int i = 0; i < amount; i++) {
+            this.level().addParticle(
+                    ParticleTypes.ENTITY_EFFECT,
+                    this.getRandomX(0.5D),
+                    this.getRandomY(),
+                    this.getRandomZ(0.5D),
+                    rgb.x, rgb.y, rgb.z
+            );
+        }
+    }
+
+    @Override
+    public @NotNull ItemStack getPickupItem() {
+        ItemStack stack = new ItemStack(AnnoyingLibModItems.ENCHANTED_ARROW.get());
+        GlintColorHelper.setColor(stack, this.getColorGlint());
+        return stack;
+    }
+
+    @Override
+    protected boolean tryPickup(@NotNull Player pPlayer) {
+        ItemStack stack = this.getPickupItem();
+        GlintColorHelper.clearColor(stack);
+
+        return switch (this.pickup) {
+            case ALLOWED -> pPlayer.getInventory().add(stack);
+            case CREATIVE_ONLY -> pPlayer.getAbilities().instabuild;
+            default -> false;
+        };
+    }
+}

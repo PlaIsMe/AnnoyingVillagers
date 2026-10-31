@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/ruby_greatsword",
+  "textures": {
+    "0": "annoyinglib:item/ruby_greatsword",
+    "particle": "annoyinglib:item/ruby_greatsword"
+  }
+}

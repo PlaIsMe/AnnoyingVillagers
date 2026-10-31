@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "SRS",
+        "RDR",
+        "SRS"
+    ],
+    "key": {
+        "S": {
+            "item": "minecraft:netherite_scrap"
+        },
+        "D": {
+            "item": "minecraft:diamond"
+        },
+        "R": {
+            "item": "annoyinglib:ruby"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:purple_gem",
+        "count": 1
+    }
+}

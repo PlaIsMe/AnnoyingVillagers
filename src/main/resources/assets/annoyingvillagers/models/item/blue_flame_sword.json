@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/blue_flame_sword",
-  "textures": {
-    "0": "annoyingvillagers:item/blue_flame_sword",
-    "particle": "annoyingvillagers:item/blue_flame_sword"
-  }
-}

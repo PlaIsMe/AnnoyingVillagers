@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/book",
+  "textures": {
+    "2": "annoyinglib:item/book",
+    "particle": "annoyinglib:item/book"
+  }
+}

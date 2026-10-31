@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " PD",
+        " P ",
+        "P  "
+    ],
+    "key": {
+        "P": {
+            "item": "minecraft:stick"
+        },
+        "D": {
+            "item": "minecraft:diamond"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:twin_diamond_spear",
+        "count": 1
+    }
+}

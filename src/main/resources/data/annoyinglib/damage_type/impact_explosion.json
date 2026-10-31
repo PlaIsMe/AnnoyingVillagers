@@ -1,0 +1,7 @@
+{
+  "message_id": "annoyinglib.impact_explosion",
+  "scaling": "never",
+  "exhaustion": 0.0,
+  "effects": "hurt",
+  "death_message_type": "default"
+}

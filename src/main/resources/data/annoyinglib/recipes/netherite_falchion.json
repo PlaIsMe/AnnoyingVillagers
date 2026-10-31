@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " N ",
+        " N ",
+        "FGF"
+    ],
+    "key": {
+        "F": {
+            "item": "minecraft:flint"
+        },
+        "G": {
+            "item": "annoyinglib:diamond_great_falchion"
+        },
+        "N": {
+            "item": "annoyinglib:dark_netherite"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:netherite_falchion",
+        "count": 1
+    }
+}

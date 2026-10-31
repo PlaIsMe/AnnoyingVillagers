@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/iron_cleaver",
+  "textures": {
+    "0": "annoyinglib:item/iron_cleaver",
+    "particle": "annoyinglib:item/iron_cleaver"
+  }
+}

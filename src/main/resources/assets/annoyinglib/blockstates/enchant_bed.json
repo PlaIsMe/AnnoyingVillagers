@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "annoyinglib:block/enchant_bed"
+    },
+    "facing=east": {
+      "model": "annoyinglib:block/enchant_bed",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "annoyinglib:block/enchant_bed",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "annoyinglib:block/enchant_bed",
+      "y": 270
+    }
+  }
+}

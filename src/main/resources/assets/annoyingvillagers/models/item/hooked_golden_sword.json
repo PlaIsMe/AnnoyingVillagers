@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/hooked_golden_sword",
-  "textures": {
-    "0": "annoyingvillagers:item/hooked_golden_sword",
-    "particle": "annoyingvillagers:item/hooked_golden_sword"
-  }
-}

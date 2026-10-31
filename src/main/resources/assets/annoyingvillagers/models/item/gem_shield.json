@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/gem_shield",
-  "textures": {
-    "0": "annoyingvillagers:item/gem_shield",
-    "particle": "annoyingvillagers:item/gem_shield"
-  }
-}

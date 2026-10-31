@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "BBB",
+        "BEB",
+        "BBB"
+    ],
+    "key": {
+        "B": {
+            "item": "minecraft:arrow"
+        },
+        "E": {
+            "item": "minecraft:enchanted_book"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:enchanted_arrow",
+        "count": 1
+    }
+}

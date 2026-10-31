@@ -1,9 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/shadow_obsidian_middle_pillar",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "all": "annoyingvillagers:block/shadow_obsidian",
-    "particle": "annoyingvillagers:block/shadow_obsidian",
-    "1": "annoyingvillagers:block/shadow_obsidian"
-  }
-}

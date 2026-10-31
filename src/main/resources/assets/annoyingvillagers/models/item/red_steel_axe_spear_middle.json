@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/red_steel_axe_spear_middle",
-  "textures": {
-    "1": "annoyingvillagers:item/red_steel_axe_spear",
-    "particle": "annoyingvillagers:item/red_steel_axe_spear"
-  }
-}

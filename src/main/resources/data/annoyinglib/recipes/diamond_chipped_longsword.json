@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "BB ",
+        "B  ",
+        "L  "
+    ],
+    "key": {
+        "B": {
+            "item": "minecraft:diamond_block"
+        },
+        "L": {
+            "item": "annoyinglib:diamond_longsword"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:diamond_chipped_longsword",
+        "count": 1
+    }
+}

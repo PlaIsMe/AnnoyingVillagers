@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "annoyinglib:item/spawn_egg/alex_spawn_egg"
+  }
+}

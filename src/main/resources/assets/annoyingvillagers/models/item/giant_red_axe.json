@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/giant_red_axe",
-  "textures": {
-    "0": "annoyingvillagers:item/giant_red_axe",
-    "particle": "annoyingvillagers:item/giant_red_axe"
-  }
-}

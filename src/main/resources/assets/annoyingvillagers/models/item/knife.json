@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/knife",
-  "textures": {
-    "0": "annoyingvillagers:item/knife",
-    "particle": "annoyingvillagers:item/knife"
-  }
-}

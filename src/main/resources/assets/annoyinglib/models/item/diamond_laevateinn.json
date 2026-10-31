@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/diamond_laevateinn",
+  "textures": {
+    "0": "annoyinglib:item/diamond_laevateinn",
+    "particle": "annoyinglib:item/diamond_laevateinn"
+  }
+}

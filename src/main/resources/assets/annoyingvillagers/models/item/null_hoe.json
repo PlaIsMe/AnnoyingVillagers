@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/null_hoe",
-  "textures": {
-    "0": "annoyingvillagers:item/null_hoe",
-    "particle": "annoyingvillagers:item/null_hoe"
-  }
-}

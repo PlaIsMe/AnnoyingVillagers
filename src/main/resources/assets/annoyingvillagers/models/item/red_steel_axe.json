@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/red_steel_axe_base",
-  "textures": {
-    "0": "annoyingvillagers:item/red_steel_axe_base",
-    "particle": "annoyingvillagers:item/red_steel_axe_base"
-  }
-}

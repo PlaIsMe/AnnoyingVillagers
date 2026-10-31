@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/jessica_the_dark_shield",
+  "textures": {
+    "0": "annoyinglib:item/jessica_the_dark_shield",
+    "particle": "annoyinglib:item/jessica_the_dark_shield"
+  }
+}

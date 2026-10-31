@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "IA ",
+        "IP ",
+        " P "
+    ],
+    "key": {
+        "I": {
+            "item": "minecraft:iron_ingot"
+        },
+        "A": {
+            "item": "minecraft:iron_axe"
+        },
+        "P": {
+            "item": "minecraft:stick"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:iron_halberd",
+        "count": 1
+    }
+}

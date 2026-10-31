@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " R ",
+        " R ",
+        " S "
+    ],
+    "key": {
+        "R": {
+            "item": "annoyinglib:ruby"
+        },
+        "S": {
+            "item": "annoyinglib:ruby_sword"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:ruby_longsword",
+        "count": 1
+    }
+}

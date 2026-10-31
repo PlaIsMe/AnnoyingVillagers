@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "BBB",
+        "BBB",
+        "BBB"
+    ],
+    "key": {
+        "B": {
+            "item": "minecraft:diamond_block"
+        }
+    },
+    "result": {
+        "item": "annoyinglib:compressed_diamond",
+        "count": 1
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/diamond_sickle",
+  "textures": {
+    "0": "annoyinglib:item/diamond_sickle",
+    "particle": "annoyinglib:item/diamond_sickle"
+  }
+}

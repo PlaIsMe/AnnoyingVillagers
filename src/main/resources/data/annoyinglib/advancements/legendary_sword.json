@@ -1,0 +1,33 @@
+{
+    "display": {
+        "icon": {
+            "item": "annoyinglib:legendary_sword"
+        },
+        "title": {
+            "translate": "advancements.annoyinglib.legendary_sword.title",
+            "color": "light_purple"
+        },
+        "description": {
+            "translate": "advancements.annoyinglib.legendary_sword.description"
+        },
+        "frame": "challenge",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "criteria": {
+        "get_item": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "items": [
+                            "annoyinglib:legendary_sword"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "parent": "annoyinglib:compressed_diamond"
+}

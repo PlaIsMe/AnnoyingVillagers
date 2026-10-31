@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/diamond_knife",
-  "textures": {
-    "0": "annoyingvillagers:item/diamond_dagger",
-    "particle": "annoyingvillagers:item/diamond_dagger"
-  }
-}

@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/diamond_spear",
+  "textures": {
+    "0": "annoyinglib:item/diamond_spear",
+    "particle": "annoyinglib:item/diamond_spear"
+  }
+}

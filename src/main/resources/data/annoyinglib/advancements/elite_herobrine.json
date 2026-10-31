@@ -1,0 +1,35 @@
+{
+    "display": {
+        "icon": {
+            "item": "annoyingvillagers:elite_obsidian"
+        },
+        "title": {
+            "translate": "advancements.annoyinglib.elite_herobrine.title",
+            "color": "light_purple"
+        },
+        "description": {
+            "translate": "advancements.annoyinglib.elite_herobrine.description"
+        },
+        "frame": "challenge",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "criteria": {
+        "kill": {
+            "trigger": "minecraft:player_killed_entity",
+            "conditions": {
+                "entity": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "type": "annoyingvillagers:elite_herobrine_knocked"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "parent": "annoyinglib:compressed_diamond"
+}

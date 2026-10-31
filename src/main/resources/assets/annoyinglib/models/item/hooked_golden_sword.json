@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/hooked_golden_sword",
+  "textures": {
+    "0": "annoyinglib:item/hooked_golden_sword",
+    "particle": "annoyinglib:item/hooked_golden_sword"
+  }
+}

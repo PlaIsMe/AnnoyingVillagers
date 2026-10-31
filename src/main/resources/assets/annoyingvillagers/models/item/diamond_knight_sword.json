@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/woopie_the_sword",
-  "textures": {
-    "0": "annoyingvillagers:item/woopie_the_sword",
-    "particle": "annoyingvillagers:item/woopie_the_sword"
-  }
-}

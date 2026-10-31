@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/knife",
+  "textures": {
+    "0": "annoyinglib:item/knife",
+    "particle": "annoyinglib:item/knife"
+  }
+}

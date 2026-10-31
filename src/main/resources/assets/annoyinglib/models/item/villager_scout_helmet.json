@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/villager_scout_helmet_fix",
+  "textures": {
+    "0": "annoyinglib:item/villager_scout_helmet_fix",
+    "particle": "annoyinglib:item/villager_scout_helmet_fix"
+  }
+}

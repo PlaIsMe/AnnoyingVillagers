@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/elite_obsidian_big",
-  "textures": {
-    "1": "annoyingvillagers:block/crying_obsidian",
-    "particle": "annoyingvillagers:block/crying_obsidian"
-  }
-}

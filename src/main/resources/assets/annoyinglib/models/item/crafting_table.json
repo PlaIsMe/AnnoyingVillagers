@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/crafting_table",
+  "textures": {
+    "0": "annoyinglib:item/crafting_table",
+    "particle": "annoyinglib:item/crafting_table"
+  }
+}

@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/diamond_battleaxe",
-  "textures": {
-    "0": "annoyingvillagers:item/diamond_battleaxe",
-    "particle": "annoyingvillagers:item/diamond_battleaxe"
-  }
-}

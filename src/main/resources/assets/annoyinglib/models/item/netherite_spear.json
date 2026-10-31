@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/netherite_spear",
+  "textures": {
+    "0": "annoyinglib:item/netherite_spear",
+    "particle": "annoyinglib:item/netherite_spear"
+  }
+}

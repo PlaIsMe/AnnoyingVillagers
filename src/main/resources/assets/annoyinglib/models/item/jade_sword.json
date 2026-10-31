@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/jade_sword",
+  "textures": {
+    "0": "annoyinglib:item/jade_sword",
+    "particle": "annoyinglib:item/jade_sword"
+  }
+}

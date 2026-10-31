@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/diamond_greataxe",
-  "textures": {
-    "0": "annoyingvillagers:item/diamond_greataxe",
-    "particle": "annoyingvillagers:item/diamond_greataxe"
-  }
-}

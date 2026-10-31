@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/jessica_the_dark_shield",
-  "textures": {
-    "0": "annoyingvillagers:item/jessica_the_dark_shield",
-    "particle": "annoyingvillagers:item/jessica_the_dark_shield"
-  }
-}

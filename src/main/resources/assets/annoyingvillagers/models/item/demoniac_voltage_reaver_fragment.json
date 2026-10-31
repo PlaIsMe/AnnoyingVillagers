@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/demoniac_voltage_reaver_fragment",
-  "textures": {
-    "0": "annoyingvillagers:item/demoniac_voltage_reaver_fragment",
-    "particle": "annoyingvillagers:item/demoniac_voltage_reaver_fragment"
-  }
-}

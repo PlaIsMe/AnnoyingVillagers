@@ -1,7 +1,0 @@
-{
-  "parent": "annoyingvillagers:custom/obsidian_sledgehammer",
-  "textures": {
-    "0": "annoyingvillagers:item/obsidian_sledgehammer",
-    "particle": "annoyingvillagers:item/obsidian_sledgehammer"
-  }
-}

@@ -1,0 +1,8 @@
+{
+  "parent": "annoyinglib:custom/great_sword_skill",
+  "textures": {
+    "1": "annoyinglib:item/great_sword",
+    "2": "annoyinglib:item/great_sword_skill",
+    "particle": "annoyinglib:item/great_sword"
+  }
+}
