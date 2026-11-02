@@ -1,20 +1,30 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        " R ",
-        " R ",
-        " S "
-    ],
-    "key": {
-        "R": {
-            "item": "annoyinglib:ruby"
-        },
-        "S": {
-            "item": "annoyinglib:ruby_sword"
-        }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " R ",
+    " R ",
+    " S "
+  ],
+  "key": {
+    "R": {
+      "item": "villager_kingdom:ruby"
     },
-    "result": {
-        "item": "annoyinglib:ruby_longsword",
-        "count": 1
+    "S": {
+      "item": "the_creators:ruby_sword"
     }
+  },
+  "result": {
+    "item": "annoyinglib:ruby_longsword",
+    "count": 1
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "villager_kingdom"
+    },
+    {
+      "type": "forge:mod_loaded",
+      "modid": "the_creators"
+    }
+  ]
 }

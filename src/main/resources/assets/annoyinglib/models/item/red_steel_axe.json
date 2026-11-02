@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/red_steel_axe_base",
-  "textures": {
-    "0": "annoyinglib:item/red_steel_axe_base",
-    "particle": "annoyinglib:item/red_steel_axe_base"
-  }
-}

@@ -20,7 +20,7 @@ public enum NpcTabSkin {
     NpcTabSkin(String key) {
         this.key = key;
         this.texture = ResourceLocation.fromNamespaceAndPath(
-                "annoyinglib", "textures/entities/" + key + ".png");
+                "legendary_npcs", "textures/entities/" + key + ".png");
     }
 
     public ResourceLocation texture() { return texture; }

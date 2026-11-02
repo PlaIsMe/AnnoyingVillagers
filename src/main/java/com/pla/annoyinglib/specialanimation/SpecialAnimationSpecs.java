@@ -1,5 +1,7 @@
 package com.pla.annoyinglib.specialanimation;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.util.CommonUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -47,12 +49,12 @@ public final class SpecialAnimationSpecs {
         put(SpecialAnimationId.WARDEN_ATK_4_2, 2.5F, 0.8F, windows(window(25, 30, wardenLeft(), wardenRight())), slam(30, 2.5D, 4.0D, false));
         put(SpecialAnimationId.WARDEN_SKILL_1, 2.5F, 0.8F, windows(window(51, 55, wardenLeft(), wardenRight())), slam(55, 1.0D, 5.0D, false));
         put(SpecialAnimationId.WARDEN_SKILL_2, 2.85F, 0.4F, windows(window(65, 70, wardenLeft(), wardenRight())), List.of(SpecialAnimationSpec.TimedHook.at(frameToTick(70), mob -> {
-             // add this in herobrine_vessels
-            // if (mob instanceof AvWarden warden) warden.fireAvSonicBoom(15.0F);
+            if (ModList.get().isLoaded("herobrine_vessels")) {
+                HerobrineVessels.wardenSonicBoom(mob);
+            }
         })));
         put(SpecialAnimationId.WARDEN_SONIC_BOOM, 2.0F, 0.4F, windows(window(40, 50, wardenLeft(), wardenRight())), List.of(SpecialAnimationSpec.TimedHook.at(frameToTick(45), mob -> {
-             // add this in herobrine_vessels
-            // if (mob instanceof AvWarden warden) warden.fireAvSonicBoom(15.0F);
+            if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.wardenSonicBoom(mob);
         })));
     }
 

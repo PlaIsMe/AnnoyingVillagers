@@ -1,11 +1,11 @@
 package com.pla.annoyinglib.util;
-
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
 import com.mojang.authlib.GameProfile;
 import com.pla.annoyinglib.AnnoyingLib;
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.clazz.PersistentPlayerNpc;
 import com.pla.annoyinglib.config.AnnoyingLibConfig;
-import com.pla.annoyinglib.spawnhandler.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
@@ -139,11 +139,7 @@ public final class PersistentPlayerNpcManager {
                 || npc.getRemovalReason() == Entity.RemovalReason.DISCARDED) {
             SESSIONS.remove(npc.getUUID());
             PersistentPlayerNpcData.get(level.getServer()).remove(npc.getUUID());
-            for (ServerLevel previous : level.getServer().getAllLevels()) switch (session.identity) {
-                case "Steve" -> SteveData.get(previous).releaseIfMatches(previous, session.id);
-                case "Alex" -> AlexData.get(previous).releaseIfMatches(previous, session.id);
-                case "Chris" -> ChrisData.get(previous).releaseIfMatches(previous, session.id);
-            }
+            if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.release(level, session.identity, session.id);
         }
         // CHANGED_DIMENSION and unload retain identity. The destination join or restoration
         // refresh reattaches the runtime ticket, without freeing the singleton slot.
@@ -266,20 +262,11 @@ public final class PersistentPlayerNpcManager {
     }
 
     private static void claim(ServerLevel level, String identity, UUID id) {
-        switch (identity) {
-            case "Steve" -> SteveData.get(level).forceClaim(level, id);
-            case "Alex" -> AlexData.get(level).forceClaim(level, id);
-            case "Chris" -> ChrisData.get(level).forceClaim(level, id);
-        }
+        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.claim(level, identity, id);
     }
 
     private static void vacate(ServerLevel level, String identity, UUID id) {
-        // Clear matching claims in any previous dimension too.
-        for (ServerLevel previous : level.getServer().getAllLevels()) switch (identity) {
-            case "Steve" -> SteveData.get(previous).vacateIfMatches(id);
-            case "Alex" -> AlexData.get(previous).vacateIfMatches(id);
-            case "Chris" -> ChrisData.get(previous).vacateIfMatches(id);
-        }
+        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.vacate(level, identity, id);
     }
 
     private static final class Session {
@@ -308,7 +295,10 @@ public final class PersistentPlayerNpcManager {
             }
             ensureTicket(server);
             PersistentPlayerNpcData.get(server).put(id, dimension, center, identity);
-            if (!listed) {
+            // FakePlayer's constructor checks the spawn chunk. During initial
+            // world generation this can re-enter the chunk currently being loaded.
+            // The normal started/tick reconciliation creates the row once ready.
+            if (!listed && server.isReady()) {
                 // A packet-only fake player, never inserted into PlayerList or the world.
                 GameProfile profile = new GameProfile(id,
                         ("zzAVN" + id.toString().replace("-", "")).substring(0, 16));

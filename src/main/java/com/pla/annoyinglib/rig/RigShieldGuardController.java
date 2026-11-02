@@ -1,5 +1,6 @@
 package com.pla.annoyinglib.rig;
 
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.task.DelayedTask;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -8,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
+import net.minecraftforge.fml.ModList;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -81,13 +83,9 @@ public final class RigShieldGuardController {
         mob.setAggressive(false);
         damageShield(mob, blockedAmount, state.guardMode);
 
-        // add this in herobrine_vessels
-        // if (state.guardMode == GuardMode.AEGIS_MAINHAND
-        //         && mob instanceof AegisHerobrineEntity aegisHerobrineEntity) {
-        //     // State 1 spends one limited second-form action per successful block;
-        //     // state 2 deliberately shoots on every successful block without decrementing.
-        //     aegisHerobrineEntity.fireSecondFormShieldShot();
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.onAegisBlock(mob, state.guardMode == GuardMode.AEGIS_MAINHAND);
+        }
 
         state.remainingHitBudget--;
 
@@ -159,10 +157,7 @@ public final class RigShieldGuardController {
 
     public static boolean hasAegisMainhand(Mob mob) {
         ItemStack mainhand = mob.getMainHandItem();
-        // add this in herobrine_vessels
-        // return mob instanceof AegisHerobrineEntity
-        //         && !mainhand.isEmpty()
-        //         && mainhand.getItem() instanceof EnderAegisItem;
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.hasAegisMainhand(mob, mainhand);
         return false;
     }
 

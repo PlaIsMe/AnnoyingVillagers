@@ -12,14 +12,7 @@ public class AnnoyingLibModParticles {
 
     @SubscribeEvent
     public static void registerParticles(RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(AnnoyingLibModParticleTypes.ELECTRIC_SPARK.get(), ElectricSparkParticle::provider);
         event.registerSpriteSet(AnnoyingLibModParticleTypes.SPARK.get(), SparkParticle::provider);
-
-
-
-
-
-
 
         event.registerSpriteSet(AnnoyingLibModParticleTypes.BIG_SPLASH.get(), BigSplashParticle::provider);
         event.registerSpriteSet(AnnoyingLibModParticleTypes.HIT_BLUNT.get(), HitBluntParticle::provider);

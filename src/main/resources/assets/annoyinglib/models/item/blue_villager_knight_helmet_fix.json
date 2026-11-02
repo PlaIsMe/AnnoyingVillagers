@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/villager_knight_helmet_fix",
-  "textures": {
-    "0": "annoyinglib:item/blue_villager_knight_helmet_fix",
-    "particle": "annoyingvillager:item/blue_villager_knight_helmet_fix"
-  }
-}

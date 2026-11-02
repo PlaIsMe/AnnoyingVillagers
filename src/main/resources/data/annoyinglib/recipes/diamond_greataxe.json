@@ -1,23 +1,23 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        "BHB",
-        "B B",
-        " P "
-    ],
-    "key": {
-        "B": {
-            "item": "minecraft:diamond_block"
-        },
-        "H": {
-            "item": "annoyinglib:diamond_halberd"
-        },
-        "P": {
-            "item": "minecraft:stick"
-        }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BHB",
+    "B B",
+    " P "
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:diamond_block"
     },
-    "result": {
-        "item": "annoyinglib:diamond_greataxe",
-        "count": 1
+    "H": {
+      "item": "annoyinglib:diamond_halberd"
+    },
+    "P": {
+      "item": "minecraft:stick"
     }
+  },
+  "result": {
+    "item": "annoyinglib:diamond_greataxe",
+    "count": 1
+  }
 }

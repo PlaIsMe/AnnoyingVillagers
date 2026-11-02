@@ -1,6 +1,7 @@
 package com.pla.annoyinglib.rig.armor;
 
-import com.pla.annoyinglib.AnnoyingLib;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.init.AnnoyingLibModSounds;
 import com.pla.annoyinglib.rig.LockableRigAttackAnimation;
 import com.pla.annoyinglib.rig.RigAnimationController;
@@ -21,7 +22,6 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
-import net.minecraftforge.network.PacketDistributor;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -44,17 +44,9 @@ public final class ObsidianArmorController {
 
     private ObsidianArmorController() {}
 
-    // add this in herobrine_vessels
-    // public static boolean activateChargedArmor(ServerPlayer player) {
-    //     EnumMap<ObsidianArmorPart, SpecialAnimationId> parts = new EnumMap<>(ObsidianArmorPart.class);
-    //     for (ObsidianArmorPart part : ObsidianArmorPart.values()) {
-    //         ItemStack stack = player.getItemBySlot(part.slot());
-    //         if (isMatchingArmor(stack, part) && HerobrineObsidianArmorCharge.isFullyCharged(stack)) {
-    //             parts.put(part, randomAnimation(player, part));
-    //         }
-    //     }
-    //     return !parts.isEmpty() && start(player, parts, true, false);
-    // }
+    public static boolean activateChargedArmor(ServerPlayer player) {
+        return ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.activateChargedArmor(player);
+    }
 
     public static boolean activateArmoredHerobrine(Mob mob) {
         EnumMap<ObsidianArmorPart, SpecialAnimationId> parts = new EnumMap<>(ObsidianArmorPart.class);
@@ -115,7 +107,7 @@ public final class ObsidianArmorController {
         ACTIVE.clear();
     }
 
-    private static boolean start(LivingEntity wearer, EnumMap<ObsidianArmorPart, SpecialAnimationId> parts,
+    public static boolean start(LivingEntity wearer, EnumMap<ObsidianArmorPart, SpecialAnimationId> parts,
                                  boolean consumeCharge, boolean allowConcurrentAttack) {
         if (wearer.level().isClientSide || !wearer.isAlive() || wearer.isRemoved() || ACTIVE.containsKey(wearer.getUUID())) return false;
         if (!allowConcurrentAttack && wearer instanceof Mob mob
@@ -133,8 +125,9 @@ public final class ObsidianArmorController {
         for (ObsidianArmorPart part : parts.keySet()) equipment.put(part, wearer.getItemBySlot(part.slot()));
         ActiveState state = new ActiveState(wearer, new EnumMap<>(parts), equipment, wearer.tickCount, new HashSet<>(), locked);
         ACTIVE.put(wearer.getUUID(), state);
-        // add this in herobrine_vessels
-        // if (consumeCharge) for (ObsidianArmorPart part : parts.keySet()) HerobrineObsidianArmorCharge.setCharge(wearer.getItemBySlot(part.slot()), 0);
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.consumeArmorCharge(wearer, parts.keySet(), consumeCharge);
+        }
         if (wearer.level() instanceof ServerLevel serverLevel) serverLevel.playSound(null, wearer.getX(), wearer.getY(), wearer.getZ(), AnnoyingLibModSounds.OB_PLACE.get(), wearer instanceof ServerPlayer ? SoundSource.PLAYERS : SoundSource.HOSTILE, 1.0F, 1.0F);
         for (SpecialAnimationId animationId : parts.values()) sendAnimation(wearer, animationId, DURATION_TICKS);
         return true;
@@ -267,14 +260,12 @@ public final class ObsidianArmorController {
         entity.hurtMarked = true;
     }
 
-    private static SpecialAnimationId randomAnimation(LivingEntity wearer, ObsidianArmorPart part) {
+    public static SpecialAnimationId randomAnimation(LivingEntity wearer, ObsidianArmorPart part) {
         return part.animationId(1 + wearer.getRandom().nextInt(part.animationCount()));
     }
 
     private static boolean isMatchingArmor(ItemStack stack, ObsidianArmorPart part) {
-        // add this in herobrine_vessels
-        // return part == ObsidianArmorPart.HELMET
-        //         ? HerobrineObsidianArmorCharge.isHelmet(stack) : HerobrineObsidianArmorCharge.isChestplate(stack);
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.isMatchingArmor(stack, part);
         return false;
     }
 
@@ -298,8 +289,9 @@ public final class ObsidianArmorController {
     }
 
     private static void sendAnimation(LivingEntity wearer, SpecialAnimationId animationId, int durationTicks) {
-        // add this in herobrine_vessels
-        // HerobrineVessels.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> wearer), new ClientboundObsidianArmorAnimation(wearer.getId(), animationId, durationTicks));
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.sendArmorAnimation(wearer, animationId, durationTicks);
+        }
     }
 
     private record ActiveState(LivingEntity wearer, EnumMap<ObsidianArmorPart, SpecialAnimationId> animations,

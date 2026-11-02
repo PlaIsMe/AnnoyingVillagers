@@ -1,5 +1,8 @@
 package com.pla.annoyinglib.util;
-
+import net.minecraft.world.item.ItemStack;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.MobSupremacy;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.AnnoyingLib;
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.clazz.HookDisarmLaunch;
@@ -419,23 +422,17 @@ public class CommonUtil {
     }
 
     public static boolean isAvDamageableEfnWeaponsMob(Entity livingEntity) {
-        return livingEntity instanceof BlueDemonEntity
-                || livingEntity instanceof AngrySteveEntity;
-                // add this in herobrine_vessels
-                // || livingEntity instanceof HerobrineMob
-                // || livingEntity instanceof HerobrineGregEntity
-                // || livingEntity instanceof LowHerobrineCloneEntity
-                // || livingEntity instanceof LowShadowHerobrineCloneEntity;
+        return (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonEntity(livingEntity))
+                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAngrySteveEntity(livingEntity))
+                || (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isEfnCombatMob(livingEntity));
+
     }
 
     public static boolean isAvRunawayJudgementCutEndMob(Entity livingEntity) {
-        return livingEntity instanceof BlueDemonEntity
-                || livingEntity instanceof AVNpc;
-                // add this in herobrine_vessels
-                // || livingEntity instanceof HerobrineMob
-                // || livingEntity instanceof HerobrineGregEntity
-                // || livingEntity instanceof LowHerobrineCloneEntity
-                // || livingEntity instanceof LowShadowHerobrineCloneEntity;
+        return (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonEntity(livingEntity))
+                || livingEntity instanceof AVNpc
+                || (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isEfnCombatMob(livingEntity));
+
     }
 
     public static void forceRotate(LivingEntity entity, LivingEntity lookAtEntity) {

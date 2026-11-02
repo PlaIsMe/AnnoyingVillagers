@@ -14,16 +14,8 @@ import org.jetbrains.annotations.NotNull;
 public class AnnoyingLibModParticleTypes {
 
     public static final DeferredRegister<ParticleType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, AnnoyingLib.MODID);
-    public static final RegistryObject<SimpleParticleType> ELECTRIC_SPARK =
-            REGISTRY.register("electric_spark", () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> SPARK =
             REGISTRY.register("spark", () -> new SimpleParticleType(true));
-
-
-
-
-
-
 
     public static final RegistryObject<SimpleParticleType> BIG_SPLASH =
             REGISTRY.register("big_splash", () -> new SimpleParticleType(true));

@@ -1,0 +1,7 @@
+{
+  "parent": "annoyinglib:custom/diamond_claw",
+  "textures": {
+    "0": "annoyinglib:item/diamond_shear",
+    "particle": "annoyinglib:item/diamond_shear"
+  }
+}

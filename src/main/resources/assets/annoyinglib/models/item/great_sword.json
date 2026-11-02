@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/great_sword",
-  "textures": {
-    "0": "annoyinglib:item/great_sword",
-    "particle": "annoyinglib:item/great_sword"
-  }
-}

@@ -1,6 +1,5 @@
 {
   "credit": "Made with Blockbench",
-  "parent": "zuanshijujian",
   "texture_size": [
     32,
     32
@@ -5271,14 +5270,38 @@
       ]
     },
     "firstperson_righthand": {
-      "rotation": [-75, 0, 0],
-      "translation": [0, 4, 0.75],
-      "scale": [0.85, 0.85, 0.85]
+      "rotation": [
+        -75,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        4,
+        0.75
+      ],
+      "scale": [
+        0.85,
+        0.85,
+        0.85
+      ]
     },
     "firstperson_lefthand": {
-      "rotation": [-75, 0, 0],
-      "translation": [0, 4, 0.75],
-      "scale": [0.85, 0.85, 0.85]
+      "rotation": [
+        -75,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        4,
+        0.75
+      ],
+      "scale": [
+        0.85,
+        0.85,
+        0.85
+      ]
     },
     "ground": {
       "rotation": [

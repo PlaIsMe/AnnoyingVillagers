@@ -1,20 +1,14 @@
 package com.pla.annoyinglib.rig;
-
-import com.pla.annoyinglib.AnnoyingLib;
+import com.pla.annoyinglib.util.SharedWeaponHooks;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.clazz.TridentMode;
 import com.pla.annoyinglib.entity.*;
-import com.pla.annoyinglib.init.AnnoyingLibModBlocks;
-import com.pla.annoyinglib.init.AnnoyingLibModEntities;
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import com.pla.annoyinglib.init.AnnoyingLibModParticleTypes;
 import com.pla.annoyinglib.init.AnnoyingLibModSounds;
-import com.pla.annoyinglib.item.*;
-import com.pla.annoyinglib.network.ClientboundDiamondAttractorFx;
-import com.pla.annoyinglib.network.ClientboundMuteExplosionAtPos;
-import com.pla.annoyinglib.network.ClientboundWoopieSwordWindFx;
 import com.pla.annoyinglib.potion.ObedienceMobEffect;
-import com.pla.annoyinglib.task.DelayedTask;
-import com.pla.annoyinglib.util.BlueDemonUtil;
 import com.pla.annoyinglib.util.CommonUtil;
 import com.pla.annoyinglib.util.RigPoseUtil;
 import com.pla.annoyinglib.util.ScreenShakeUtil;
@@ -31,17 +25,12 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -109,18 +98,12 @@ public final class RigAnimationSpecs {
                 .criticalChance(0.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.BASIC_ULT, 33, false,
-                        hookAt(2, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-                            if (mob.getMainHandItem().getItem() instanceof ThunderDiamondBladeItem) {
-                                ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, mob, false);
-                            }
-                        }),
+                        hookAt(2, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction1(mob); }),
                         RigAttackWindow.of(5, 15, RIGHT_SWORD))
                 .damageMultiplier(2.0F)
                 .criticalChance(0.5F)
                 .onHit((attacker, target, critical) -> {
-                    if (!(attacker.getMainHandItem().getItem() instanceof DNAxHookedSwordItem)) return;
+                    if (!((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isDNAxHookedSwordItem(attacker.getMainHandItem().getItem())))) return;
                     if (!(target instanceof Mob targetMob)) return;
                     ObedienceMobEffect.applyObedience(targetMob, attacker, 20 * 5);
                 }));
@@ -142,27 +125,17 @@ public final class RigAnimationSpecs {
                 .criticalChance(0.2F)
         );
         put(RigAnimationSpec.attack(RigAnimationId.DUAL_BASIC_ULT, 33, false,
-                        hookAt(2, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-                            if (mob.getMainHandItem().getItem() instanceof ThunderDiamondBladeItem) {
-                                ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, mob, false);
-                            }
-
-                            if (mob.getOffhandItem().getItem() instanceof ThunderDiamondBladeItem) {
-                                ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, mob, true);
-                            }
-                        }),
+                        hookAt(2, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction2(mob); }),
                         RigAttackWindow.of(5, 8, RIGHT_SWORD),
                         RigAttackWindow.of(8, 13, LEFT_SWORD),
                         RigAttackWindow.of(13, 18, RIGHT_SWORD))
                 .damageMultiplier(2.0F)
                 .criticalChance(0.5F)
                 .onHit((attacker, target, critical) -> {
-                    if (!(attacker.getMainHandItem().getItem() instanceof DNAxHookedSwordItem)) return;
+                    if (!((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isDNAxHookedSwordItem(attacker.getMainHandItem().getItem())))) return;
                     if (!(target instanceof Mob targetMob)) return;
 
-                    int durationTicks = attacker.getOffhandItem().getItem() instanceof DNAxHookedSwordItem ? 20 * 10 : 20 * 5;
+                    int durationTicks = (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isDNAxHookedSwordItem(attacker.getOffhandItem().getItem())) ? 20 * 10 : 20 * 5;
                     ObedienceMobEffect.applyObedience(targetMob, attacker, durationTicks);
                 }));
 
@@ -180,17 +153,16 @@ public final class RigAnimationSpecs {
                     if (!(mob.level() instanceof ServerLevel serverLevel)) return;
                     BlockState state = getObsidianFistState(mob);
                     if (state == null) return;
-                    // add this in herobrine_vessels
-                //     HerobrineUtil.summonObsidianVerticalColumnInFront(serverLevel, mob, state, 3);
+                    if (ModList.get().isLoaded("herobrine_vessels")) {
+                        HerobrineVessels.summonFistColumn(serverLevel, mob, state);
+                    }
                 }),
                 RigAttackWindow.of(9, 17, RIGHT_FIST)));
         put(RigAnimationSpec.attack(RigAnimationId.FIST_ATTACK5, 37, false,
                 hookAt(12, mob -> {
-                        // add this in herobrine_vessels
-                //     if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                //     BlockState state = getObsidianFistState(mob);
-                //     if (state == null) return;
-                //     HerobrineUtil.summonObsidianArcInFront(serverLevel, mob, state);
+                        if (ModList.get().isLoaded("herobrine_vessels")) {
+                            HerobrineVessels.summonFistArc(mob);
+                        }
                 }),
                 RigAttackWindow.of(12, 20, LEFT_FIST)));
         put(RigAnimationSpec.attack(RigAnimationId.FIST_DASH_ATTACK, 27, false,
@@ -290,21 +262,9 @@ public final class RigAnimationSpecs {
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EARTH_AXE_ULT, 33, RigAnimationPlaybackType.DEFAULT,
-                hookAt(4, mob -> {
-                    if (mob.level() instanceof ServerLevel serverLevel) {
-                        EarthAxeItem.summonEarthWall(serverLevel, mob);
-                    }
-                })));
+                hookAt(4, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction3(mob); })));
         put(RigAnimationSpec.attack(RigAnimationId.EARTH_AXE_EXTRA_ATTACK, 33, false,
-                hookAt(20, mob -> {
-                    if (mob.level() instanceof ServerLevel serverLevel) {
-                        Vec3 bladePos = RigPoseUtil.getPartPosition(mob, RigAnimationId.EARTH_AXE_EXTRA_ATTACK, 20.0F, RigPart.RIGHT_WEAPON, Vec3.ZERO, 0.5D, 0.0D);
-                        BlockPos liftPos = EarthAxeItem.findLiftableBlockUnderPoint(serverLevel, bladePos, 6, 1);
-                        if (liftPos != null) {
-                            EarthAxeItem.liftBlockAt(serverLevel, liftPos, mob);
-                        }
-                    }
-                }),
+                hookAt(20, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction4(mob); }),
                 RigAttackWindow.of(6, 8, RIGHT_AXE)));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.GREATSWORD_IDLE, 60));
@@ -629,20 +589,10 @@ public final class RigAnimationSpecs {
         );
 
         put(RigAnimationSpec.attack(RigAnimationId.BLACK_FIRE_SWORD_ULT, 30, false,
-                hookAt(8, mob -> {
-                    if (mob.level() instanceof ServerLevel serverLevel) {
-                        BlackFireEntity.shootFromOwnerLook(serverLevel, mob);
-                    }
-                }),
+                hookAt(8, mob -> { SharedWeaponHooks.rigAction5(mob); }),
                 RigAttackWindow.of(2, 4)));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.DIAMOND_ATTRACTOR_ULT, 33, RigAnimationPlaybackType.DEFAULT,
-                hookAt(2, mob -> {
-                    if (mob.level() instanceof ServerLevel serverLevel) {
-                        serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingLibModSounds.DIAMOND_ATTRACTOR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
-                        AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundDiamondAttractorFx(mob));
-                        DiamondAttractorSwordItem.pullWeapons(mob);
-                    }
-                })));
+                hookAt(2, mob -> { SharedWeaponHooks.rigAction6(mob); })));
         put(RigAnimationSpec.attack(RigAnimationId.DIAMOND_BLASTER_ULT, 17, false,
                         RigAttackWindow.of(1, 15, RIGHT_SWORD))
                 .onHit((attacker, target, critical) -> {
@@ -683,18 +633,7 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(5, 15, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.WOOPIE_THE_SWORD_FLY, 13, false,
                         List.of(
-                                RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
-                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                                    mob.setDeltaMovement(Vec3.ZERO);
-                                    mob.hasImpulse = true;
-                                    mob.hurtMarked = true;
-
-                                    Vec3 offHandPos = RigPoseUtil.getLeftWeaponPosition(mob, RigAnimationId.WOOPIE_THE_SWORD_FLY, 0.0F);
-                                    Vec3 windPos = new Vec3(offHandPos.x, mob.getY() + 0.05D, offHandPos.z);
-                                    AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
-                                    serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-                                    AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundWoopieSwordWindFx(windPos));
-                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction7(mob); }),
                                 RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> RigAnimationController.play(mob, RigAnimationId.LEGENDARY_SWORD_ULT))
                         ),
                         RigAttackWindow.of(0, 10, LEFT_SWORD)).withVerticalMotion()
@@ -702,16 +641,7 @@ public final class RigAnimationSpecs {
                 .dangerous()
         );
         put(RigAnimationSpec.attack(RigAnimationId.WOOPIE_THE_SWORD_ULT, 39, false,
-                        hookAt(15, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                            Vec3 windPos = RigPoseUtil.getPartPosition(mob, RigAnimationId.WOOPIE_THE_SWORD_ULT,
-                                    4.0F, RigPart.RIGHT_WEAPON, Vec3.ZERO, 4.3D, 0.5D);
-                            AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
-                                    new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
-                            serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-                            AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
-                                    new ClientboundWoopieSwordWindFx(windPos));
-                        }),
+                        hookAt(15, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction8(mob); }),
                         RigAttackWindow.of(9, 20, RIGHT_SWORD))
                 .damageMultiplier(2.1F));
 
@@ -751,28 +681,21 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.SPINNING_WEAPON, 16, RigAnimationPlaybackType.MAIN_HAND));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.POINT_LEFT_HAND_TOWARD, 10, RigAnimationPlaybackType.LEFT_HAND,
                 hookAt(5, mob -> {
-                    // add this in herobrine_vessels
-                    // if (mob instanceof ReaperHerobrineEntity reaper) {
-                    //     reaper.castThunderFromSecondForm();
-                    // } else if (mob instanceof ShadowHerobrineEntity shadowHerobrine) {
-                    //     shadowHerobrine.shootDarkObsAtTarget(2.0D);
-                    // }
+                    if (ModList.get().isLoaded("herobrine_vessels")) {
+                        HerobrineVessels.pointLeftToward(mob);
+                    }
                 })));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.POINT_LEFT_HAND_MIDDLE, 10, RigAnimationPlaybackType.LEFT_HAND,
                 hookAt(5, mob -> {
-                    // add this in herobrine_vessels
-                    // if (mob instanceof ReaperHerobrineEntity reaper) {
-                    //     reaper.respawnHealingCrystalFromSecondForm();
-                    // } else if (mob instanceof ShadowHerobrineEntity shadowHerobrine) {
-                    //     shadowHerobrine.spawnDarkObEntities();
-                    // }
+                    if (ModList.get().isLoaded("herobrine_vessels")) {
+                        HerobrineVessels.pointLeftMiddle(mob);
+                    }
                 })));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.POINT_LEFT_HAND_UP, 10, RigAnimationPlaybackType.LEFT_HAND,
                 hookAt(5, mob -> {
-                    // add this in herobrine_vessels
-                    // if (mob instanceof ReaperHerobrineEntity reaper) {
-                    //     reaper.castMeteoriteFromSecondForm();
-                    // }
+                    if (ModList.get().isLoaded("herobrine_vessels")) {
+                        HerobrineVessels.pointLeftUp(mob);
+                    }
                 })));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HOOK_GUN, 23));
@@ -791,13 +714,7 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_ASSISTANCE, 54));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_RUN, 11));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.FLY_UP, 20, RigAnimationPlaybackType.DEFAULT,
-                List.of(
-                        // add this in herobrine_vessels
-                        // RigAnimationSpec.RigTimedAnimationHook.at(3, mob -> HerobrineEscapeHoleGoal.placeFlyUpPillarBlock(mob, 0)),
-                        // RigAnimationSpec.RigTimedAnimationHook.at(6, mob -> HerobrineEscapeHoleGoal.placeFlyUpPillarBlock(mob, 1)),
-                        // RigAnimationSpec.RigTimedAnimationHook.at(9, mob -> HerobrineEscapeHoleGoal.placeFlyUpPillarBlock(mob, 2)),
-                        // RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> HerobrineEscapeHoleGoal.placeFlyUpPillarBlock(mob, 3))
-                )).withVerticalMotion());
+                ModList.get().isLoaded("herobrine_vessels") ? HerobrineVessels.flyUpHooks() : List.of()).withVerticalMotion());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_SACRIFICING, 54));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_STAGE_CHANGE, 54));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.KNOCKED_ELITE, 27));
@@ -827,48 +744,18 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_STATE_TRANSFORM_END, 20).invulnerable().dangerous());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 100, RigAnimationPlaybackType.DEFAULT,
                         List.of(
-                                new RigAnimationSpec.RigTimedAnimationHook(RigAnimationSpec.RigTimedAnimationHook.START, mob -> {
-                                    if (!(mob.level() instanceof ServerLevel)) return;
-                                    if (!(mob instanceof BlueDemonEntity blueDemonEntity)) return;
-                                    blueDemonEntity.setState(1);
-                                }),
-                                RigAnimationSpec.RigTimedAnimationHook.at(2, mob -> {
-                                    if (!(mob.level() instanceof ServerLevel)) return;
-                                    if (!(mob instanceof BlueDemonEntity blueDemonEntity)) return;
-                                    blueDemonEntity.playSound(AnnoyingLibModSounds.BLUE_DEMON_SAY_TRIDENT_FESTIVAL.get(), 1.0F, 1.0F);
-                                }),
+                                new RigAnimationSpec.RigTimedAnimationHook(RigAnimationSpec.RigTimedAnimationHook.START, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction9(mob); }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(2, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction10(mob); }),
                                 blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
-                                RigAnimationSpec.RigTimedAnimationHook.at(6, mob -> {
-                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                                    if (mob instanceof BlueDemonEntity) BlueDemonTridentItem.summonMissingTridentAndAnimate(serverLevel, mob);
-                                    ScreenShakeUtil.applyScreenShake(serverLevel, mob.blockPosition().getCenter(), 12.0D, 80, 8);
-                                }),
-                                RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> {
-                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                                    BlueDemonTridentItem.spawnDamageZones(serverLevel, mob);
-                                    BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob, true);
-                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(6, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction11(mob); }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction12(mob); }),
                                 blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
-                                RigAnimationSpec.RigTimedAnimationHook.at(24, mob -> {
-                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                                    BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob, true);
-                                    playBlueDemonTridentEffect(mob, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 24, RigPart.RIGHT_HAND);
-                                    playBlueDemonTridentEffect(mob, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL, 24, RigPart.LEFT_HAND);
-                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(24, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction13(mob); }),
                                 blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
                                 blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
                                 blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
                                 blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL),
-                                RigAnimationSpec.RigTimedAnimationHook.at(70, mob -> {
-                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                                    BlueDemonTridentItem.summonSuperLightningAtGroundedTridents(serverLevel, mob);
-                                    BlueDemonTridentItem.setStormEnergy(mob.getMainHandItem(), 0);
-                                    BlueDemonTridentItem.setStormEnergy(mob.getOffhandItem(), 0);
-                                    if (mob instanceof BlueDemonEntity blueDemonEntity) {
-                                        blueDemonEntity.beginStateTwoTransform();
-                                        RigAnimationController.play(blueDemonEntity, RigAnimationId.BLUE_DEMON_STATE_TRANSFORM);
-                                    }
-                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(70, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction14(mob); }),
                                 blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_TRIDENT_FESTIVAL)))
                 .invulnerable()
                 .dangerous()
@@ -929,21 +816,7 @@ public final class RigAnimationSpecs {
                         blueDemonHandEffectHook(4, RigAnimationId.BLUE_DEMON_ATTACK5, RigPart.RIGHT_HAND),
                         blueDemonSoundHook(7, SoundEvents.TRIDENT_RETURN, 1.0F, 1.0F),
                         blueDemonHandEffectHook(7, RigAnimationId.BLUE_DEMON_ATTACK5, RigPart.RIGHT_HAND),
-                        RigAnimationSpec.RigTimedAnimationHook.at(16, mob -> {
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-                            Vec3 tridentTip = RigPoseUtil.getRightWeaponPosition(mob, RigAnimationId.BLUE_DEMON_ATTACK5, 16, 1.2D);
-                            if (tridentTip == null) return;
-
-                            BlockPos.MutableBlockPos checkPos = BlockPos.containing(tridentTip).mutable();
-                            while (checkPos.getY() > serverLevel.getMinBuildHeight() && !serverLevel.getBlockState(checkPos).isSolidRender(serverLevel, checkPos)) checkPos.move(0, -1, 0);
-                            if (!serverLevel.getBlockState(checkPos).isSolidRender(serverLevel, checkPos)) return;
-
-                            TridentLightningBolt lightningBolt = new TridentLightningBolt(AnnoyingLibModEntities.TRIDENT_LIGHTNING_BOLT.get(), serverLevel);
-                            lightningBolt.setOwner(mob);
-                            lightningBolt.moveTo(checkPos.getX() + 0.5D, checkPos.getY() + 1.0D, checkPos.getZ() + 0.5D);
-                            serverLevel.addFreshEntity(lightningBolt);
-                        })),
+                        RigAnimationSpec.RigTimedAnimationHook.at(16, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction15(mob); })),
                 RigAttackWindow.of(15, 25, RIGHT_SPEAR)));
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_ATTACK6, 44, false,
                 List.of(
@@ -967,9 +840,7 @@ public final class RigAnimationSpecs {
                         List.of(
                                 blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_ULT),
                                 blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_ULT),
-                                RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> {
-                                    if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.spawnDamageZones(serverLevel, mob);
-                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction16(mob); }),
                                 blueDemonBothHandEffectHook(24, RigAnimationId.BLUE_DEMON_ULT),
                                 blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_ULT),
                                 blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_ULT),
@@ -995,13 +866,7 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.BLUE_DEMON_THROW_ATTACK3, 23, false,
                 List.of(
                         blueDemonHandEffectHook(2, RigAnimationId.BLUE_DEMON_THROW_ATTACK3, RigPart.RIGHT_WEAPON),
-                        RigAnimationSpec.RigTimedAnimationHook.at(6, mob -> {
-                            playBlueDemonTridentEffect(mob, RigAnimationId.BLUE_DEMON_THROW_ATTACK3, 6, RigPart.RIGHT_WEAPON);
-                            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                            BlueDemonThunderBeamEntity beam = new BlueDemonThunderBeamEntity(AnnoyingLibModEntities.BLUE_DEMON_THUNDER_BEAM.get(), serverLevel, mob, 10, 6, 7.5F);
-                            beam.initSpawnState();
-                            serverLevel.addFreshEntity(beam);
-                        }),
+                        RigAnimationSpec.RigTimedAnimationHook.at(6, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction17(mob); }),
                         blueDemonHandEffectHook(10, RigAnimationId.BLUE_DEMON_THROW_ATTACK3, RigPart.RIGHT_WEAPON)),
                 RigAttackWindow.of(6, 10, RIGHT_FIST),
                 RigAttackWindow.of(10, 14, RIGHT_SPEAR)));
@@ -1045,18 +910,14 @@ public final class RigAnimationSpecs {
                         List.of(
                                 blueDemonBothHandEffectHook(4, RigAnimationId.BLUE_DEMON_THROW_ULT),
                                 blueDemonBothHandEffectHook(16, RigAnimationId.BLUE_DEMON_THROW_ULT),
-                                RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> {
-                                    if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.relaunchGroundedTridents(serverLevel, mob);
-                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction18(mob); }),
                                 blueDemonBothHandEffectHook(24, RigAnimationId.BLUE_DEMON_THROW_ULT),
                                 blueDemonBothHandEffectHook(36, RigAnimationId.BLUE_DEMON_THROW_ULT),
                                 blueDemonBothHandEffectHook(44, RigAnimationId.BLUE_DEMON_THROW_ULT),
                                 blueDemonBothHandEffectHook(56, RigAnimationId.BLUE_DEMON_THROW_ULT),
                                 blueDemonBothHandEffectHook(64, RigAnimationId.BLUE_DEMON_THROW_ULT),
                                 blueDemonBothHandEffectHook(76, RigAnimationId.BLUE_DEMON_THROW_ULT),
-                                RigAnimationSpec.RigTimedAnimationHook.at(80, mob -> {
-                                    if (mob.level() instanceof ServerLevel serverLevel) BlueDemonTridentItem.summonLightningAtGroundedTridents(serverLevel, mob);
-                                })))
+                                RigAnimationSpec.RigTimedAnimationHook.at(80, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction19(mob); })))
                 .invulnerable()
                 .dangerous()
         );
@@ -1110,43 +971,16 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(3, 16, RIGHT_GREATSWORD)).invulnerable());
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ULT, 40, false,
                         List.of(
-                                RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> {
-                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-                                    serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingLibModSounds.HEAVY_ATTACK_START.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-                                    serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingLibModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-                                    serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingLibModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-                                    serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mob.getX(), mob.getY(), mob.getZ(), 15, 0.0D, 0.0D, 0.0D, 0.2D);
-                                    serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mob.getX(), mob.getEyeY(), mob.getZ(), 100, 0.0D, 0.0D, 0.0D, 0.5D);
-                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction20(mob); }),
                                 groundSlamTimedHook(10, RigAnimationId.LEGENDARY_SWORD_ULT, 2.0D, 0.8D, 50, 0.6D, 2.5D),
-                                RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> {
-                                    if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-                                    Vec3 legendarySwordPos = RigPoseUtil.getRightWeaponPosition(mob, RigAnimationId.LEGENDARY_SWORD_ULT, 10, 1.5D);
-
-                                    BlockPos centerPos = BlockPos.containing(legendarySwordPos);
-                                    for (int radius = 1; radius <= 6; radius++) {
-                                        int delayTicks = (radius - 1) * 2;
-                                        int ringRadius = radius;
-                                        new DelayedTask(delayTicks) {
-                                            @Override
-                                            public void run() {
-                                                if (mob.isRemoved()) return;
-                                                LegendarySwordItem.spawnCircleRing(serverLevel, centerPos, ringRadius, mob);
-                                            }
-                                        };
-                                    }
-                                })),
+                                RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction21(mob); })),
                         RigAttackWindow.of(10, 20, RIGHT_GREATSWORD))
                 .invulnerable()
                 .dangerous()
         );
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT, 45, false,
                         List.of(
-                                RigAnimationSpec.RigTimedAnimationHook.at(11, mob -> {
-                                    if (mob instanceof AngrySteveEntity angrySteve) angrySteve.startLegendaryAwakening();
-                                })),
+                                RigAnimationSpec.RigTimedAnimationHook.at(11, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction22(mob); })),
                         RigAttackWindow.of(11, 15, RIGHT_GREATSWORD))
                 .invulnerable()
                 .dangerous()
@@ -1195,10 +1029,9 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.AEGIS_HEROBRINE_ULT, 13, RigAnimationPlaybackType.DEFAULT,
                 hookAt(2, mob -> {
                     if (!(mob.level() instanceof ServerLevel)) return;
-                    // add this in herobrine_vessels
-                    // if (mob instanceof AegisHerobrineEntity aegisHerobrineEntity) {
-                    //     aegisHerobrineEntity.fireSecondFormShieldShot();
-                    // }
+                    if (ModList.get().isLoaded("herobrine_vessels")) {
+                        HerobrineVessels.aegisUltimate(mob);
+                    }
                 })
         ).dangerous().invulnerable());
         put(RigAnimationSpec.attack(RigAnimationId.AEGIS_HEROBRINE_EXTRA_ATTACK, 33, false,
@@ -1258,9 +1091,9 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_ULT,49,false,
                         hookAt(23,mob -> {
                             if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                            // add this in herobrine_vessels
-                        //     EnderGlaiveItem.spawnVacumSlise(serverLevel, mob, EnderGlaiveItem.DEFAULT_DAMAGE);
-                        //     if (mob instanceof GlaiveHerobrineEntity glaiveHerobrineEntity && glaiveHerobrineEntity.getState() == 1) glaiveHerobrineEntity.consumeSecondFormAction();
+                            if (ModList.get().isLoaded("herobrine_vessels")) {
+                                HerobrineVessels.glaiveUltimate(serverLevel, mob);
+                            }
                         }),
                         RigAttackWindow.of(17,22,RIGHT_GLAIVE))
                 .damageMultiplier(2.0F)
@@ -1271,9 +1104,7 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.GLAIVE_HEROBRINE_EXTRA_ULT,54,false,
                         hookAt(27,mob -> {
                             if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                            // add this in herobrine_vessels
-                            // EnderGlaiveItem.spawnVacumSlise(serverLevel, mob, EnderGlaiveItem.DEFAULT_DAMAGE);
-                            // if (mob instanceof GlaiveHerobrineEntity glaiveHerobrineEntity && glaiveHerobrineEntity.getState() == 1) glaiveHerobrineEntity.consumeSecondFormAction();
+                            if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.glaiveUltimate(serverLevel, mob);
                         }),
                         RigAttackWindow.of(23,26,RIGHT_GLAIVE))
                 .damageMultiplier(2.0F)
@@ -1316,11 +1147,9 @@ public final class RigAnimationSpecs {
         );
         put(RigAnimationSpec.attack(RigAnimationId.REAPER_HEROBRINE_ULT, 58, false,
                         hookAt(22, mob -> {
-                            // add this in herobrine_vessels
-                            // if (!(mob instanceof ReaperHerobrineEntity reaper) || !(mob.level() instanceof ServerLevel serverLevel)) return;
-                            // CommonUtil.spawnGroundSlamFracture(reaper, serverLevel, reaper.position(),
-                            //         1.25D, 60, 1.0D, 5.0D);
-                            // reaper.completePendingDragonSummon();
+                            if (ModList.get().isLoaded("herobrine_vessels")) {
+                                HerobrineVessels.reaperSummonDragon(mob);
+                            }
                         }),
                         RigAttackWindow.of(20, 26))
                 .dangerous()
@@ -1383,15 +1212,13 @@ public final class RigAnimationSpecs {
                                 groundSlamTimedHook(20, RigAnimationId.SLEDGEHAMMER_HEROBRINE_ULT,
                                         1.6D, 0.9D, 48, 0.8D, 2.5D),
                                 RigAnimationSpec.RigTimedAnimationHook.at(20, mob -> {
-                                    // add this in herobrine_vessels
-                                    // if (mob instanceof SledgehammerHerobrineEntity sledgehammer
-                                    //         && sledgehammer.canUseSecondFormAction()) {
-                                    //     sledgehammer.consumeSecondFormAction();
-                                    // }
+                                    if (ModList.get().isLoaded("herobrine_vessels")) {
+                                        HerobrineVessels.consumeSledgehammerAction(mob);
+                                    }
                                 })
                         ),
                         RigAttackWindow.of(11, 20, RIGHT_SLEDGEHAMMER))
-                // .onHit((attacker, target, critical) -> GroundStuckMobEffect.apply(target))
+                .onHit((attacker, target, critical) -> { if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.applyGroundStuck(target); })
                 .dangerous()
                 .invulnerable()
                 .damageMultiplier(2.5F)
@@ -1399,19 +1226,22 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.nonDamaging(RigAnimationId.SLEDGEHAMMER_HEROBRINE_EXTRA_ULT, 91, RigAnimationPlaybackType.DEFAULT,
                         List.of(
                                 RigAnimationSpec.RigTimedAnimationHook.at(30, mob -> {
-                                        // add this in herobrine_vessels
-                                //     if (!(mob instanceof SledgehammerHerobrineEntity sledgehammer)) return;
-                                //     sledgehammer.playSound(AnnoyingLibModSounds.SLEDGE_HAMMER.get(), 1.0F, 1.0F);
-                                //     if (sledgehammer.canUseSecondFormAction()) sledgehammer.consumeSecondFormAction();
+                                        if (ModList.get().isLoaded("herobrine_vessels")) {
+                                            HerobrineVessels.startSledgehammerWaves(mob);
+                                        }
+                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(34, mob -> {
+                                    if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.sledgehammerWave(mob, 0.0F, 4.0F, 18);
+                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(36, mob -> {
+                                    if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.sledgehammerWave(mob, 4.0F, 8.0F, 24);
+                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(38, mob -> {
+                                    if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.sledgehammerWave(mob, 8.0F, 12.0F, 30);
+                                }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(40, mob -> {
+                                    if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.sledgehammerWave(mob, 12.0F, 16.0F, 36);
                                 })
-                                // RigAnimationSpec.RigTimedAnimationHook.at(34, mob ->
-                                //         ObsidianSledgehammerItem.spawnWave(mob, mob.getYRot(), 0.0F, 4.0F, 18)),
-                                // RigAnimationSpec.RigTimedAnimationHook.at(36, mob ->
-                                //         ObsidianSledgehammerItem.spawnWave(mob, mob.getYRot(), 4.0F, 8.0F, 24)),
-                                // RigAnimationSpec.RigTimedAnimationHook.at(38, mob ->
-                                //         ObsidianSledgehammerItem.spawnWave(mob, mob.getYRot(), 8.0F, 12.0F, 30)),
-                                // RigAnimationSpec.RigTimedAnimationHook.at(40, mob ->
-                                //         ObsidianSledgehammerItem.spawnWave(mob, mob.getYRot(), 12.0F, 16.0F, 36))
                         ))
                 .dangerous()
                 .invulnerable());
@@ -1465,21 +1295,17 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(7, 18, RIGHT_GREATSWORD)));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.SWORDSMAN_HEROBRINE_ULT, 82, RigAnimationPlaybackType.UPPER_BODY,
                         hookAt(0, mob -> {
-                                // add this in herobrine_vessels
-                        //     DemoniacVoltageReaverItem.tryStartSnakeAnimation(mob.getMainHandItem(), mob, false);
-                        //     if (mob instanceof HerobrineMob herobrineMob) {
-                        //         herobrineMob.consumeSecondFormAction();
-                        //     }
+                                if (ModList.get().isLoaded("herobrine_vessels")) {
+                                    HerobrineVessels.startSnakeAttack(mob);
+                                }
                         }))
                 .dangerous()
                 .invulnerable());
         put(RigAnimationSpec.nonDamaging(RigAnimationId.SWORDSMAN_HEROBRINE_EXTRA_ULT, 81, RigAnimationPlaybackType.UPPER_BODY,
                         hookAt(0, mob -> {
-                            // add this in herobrine_vessels
-                        //     DemoniacVoltageReaverItem.tryStartSnakeAnimation(mob.getMainHandItem(), mob, true);
-                        //     if (mob instanceof HerobrineMob herobrineMob) {
-                        //         herobrineMob.consumeSecondFormAction();
-                        //     }
+                            if (ModList.get().isLoaded("herobrine_vessels")) {
+                                HerobrineVessels.startSnakeUltimate(mob);
+                            }
                         }))
                 .dangerous()
                 .invulnerable());
@@ -1507,10 +1333,9 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.NULL_ATTACK5, 60, false,
                         List.of(
                                 RigAnimationSpec.RigTimedAnimationHook.at(1, mob -> {
-                                        // add this in herobrine_vessels
-                                //     if (!(mob.level() instanceof ServerLevel)) return;
-                                //     mob.level().playSound(null, mob.blockPosition(), AnnoyingLibModSounds.BLACK_HOLE_CHARGE.get(), SoundSource.HOSTILE, 2.0F, 0.85F);
-                                //     spawnNullBlackHoleChargeParticles(mob, 1);
+                                        if (ModList.get().isLoaded("herobrine_vessels")) {
+                                            HerobrineVessels.startNullBlackHole(mob);
+                                        }
                                 }),
                                 RigAnimationSpec.RigTimedAnimationHook.at(4, mob -> spawnNullBlackHoleChargeParticles(mob, 4)),
                                 RigAnimationSpec.RigTimedAnimationHook.at(8, mob -> spawnNullBlackHoleChargeParticles(mob, 8)),
@@ -1529,10 +1354,9 @@ public final class RigAnimationSpecs {
                                     if (!(mob.level() instanceof ServerLevel serverLevel)) return;
                                     LivingEntity target = getNullCombatTarget(mob);
                                     Vec3 spawnPosition = getNullBlackHoleSpawnPosition(serverLevel, mob, target);
-                                    // add this in herobrine_vessels
-                                //     serverLevel.addFreshEntity(new BlackHoleEntity(serverLevel, mob, spawnPosition));
-                                //     serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, spawnPosition.x, spawnPosition.y, spawnPosition.z, 48, 0.8D, 0.8D, 0.8D, 0.18D);
-                                //     serverLevel.sendParticles(AnnoyingLibModParticleTypes.NULL.get(), spawnPosition.x, spawnPosition.y, spawnPosition.z, 64, 1.4D, 1.4D, 1.4D, 0.12D);
+                                    if (ModList.get().isLoaded("herobrine_vessels")) {
+                                        HerobrineVessels.spawnNullBlackHole(serverLevel, mob, spawnPosition);
+                                    }
                                     serverLevel.playSound(null, BlockPos.containing(spawnPosition), SoundEvents.WITHER_BREAK_BLOCK, SoundSource.HOSTILE, 1.0F, 0.5F);
                                 })
                         ),
@@ -1615,10 +1439,9 @@ public final class RigAnimationSpecs {
         );
         put(RigAnimationSpec.attack(RigAnimationId.NULL_EXTRA_ATTACK, 20, false,
                 List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, mob -> {
-                    // add this in herobrine_vessels
-                    //     if (!(mob instanceof NullEntity nullEntity)) return;
-                    //     LivingEntity target = getNullCombatTarget(nullEntity);
-                    //     if (target != null) nullEntity.releaseRandomNullWeapon(target);
+                    if (ModList.get().isLoaded("herobrine_vessels")) {
+                        HerobrineVessels.releaseNullWeapon(mob);
+                    }
                 })),
                 RigAttackWindow.of(1, 4, LEFT_FIST)));
         put(RigAnimationSpec.attack(RigAnimationId.NULL_EXTRA_ULT, 57, false,
@@ -1631,12 +1454,9 @@ public final class RigAnimationSpecs {
 
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_MACHINE_GUN, 50, false,
                 hookAt(2, mob -> {
-                        // add this in herobrine_vessels
-                //     if (!(mob instanceof ShadowHerobrineEntity shadowHerobrine)) return;
-                //     if (!(mob.level() instanceof ServerLevel)) return;
-
-                //     shadowHerobrine.setObsidianMachineGunTick();
-                //     shadowHerobrine.playSound(AnnoyingLibModSounds.SHADOW_HEROBRINE_SAY_OBSIDIAN_MACHINE_GUN.get(), 1.0F, 1.0F);
+                        if (ModList.get().isLoaded("herobrine_vessels")) {
+                            HerobrineVessels.startObsidianMachineGun(mob);
+                        }
                 }),
                 RigAttackWindow.of(0, 12))
                 .invulnerable()
@@ -1649,21 +1469,9 @@ public final class RigAnimationSpecs {
                             if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
                             Item item = mob.getMainHandItem().getItem();
-                            BlockState state;
-                            // add this in herobrine_vessels
-                            //     if (item instanceof ShadowObsidianWeaponItem) {
-                            //         state = AnnoyingLibModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-                            //     } else if (item instanceof ShadowObsidianPillarItem) {
-                            //         state = AnnoyingLibModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false).setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
-                            //     } else if (item instanceof ShadowObsidianSwordItem || mob.getOffhandItem().getItem() instanceof ShadowObsidianSwordItem) {
-                            //         state = AnnoyingLibModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false).setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
-                            //     } else if (item instanceof ObsidianWeaponItem) {
-                            //         state = AnnoyingLibModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-                            //     } else {
-                            //         return;
-                            //     }
-
-                        //     HerobrineUtil.summonObsidianSmallCross(serverLevel, mob, state);
+                            if (ModList.get().isLoaded("herobrine_vessels")) {
+                                HerobrineVessels.summonSmallObsidianCross(serverLevel, mob, item);
+                            }
                         })
                 ),
                 RigAttackWindow.of(6, 20, RIGHT_FOOT)));
@@ -1673,23 +1481,9 @@ public final class RigAnimationSpecs {
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_EXTRA_ULT, 30, false,
                 hookAt(10, mob -> {
                     if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                    // add this in herobrine_vessels
-                //     Item item = mob.getMainHandItem().getItem();
-                //     if (item instanceof ShadowObsidianPillarItem) {
-                //         HerobrineUtil.summonShadowObsidianLongPillarDefenseWide(serverLevel, mob);
-                //         return;
-                //     }
-
-                //     BlockState state;
-                //     if (item instanceof ShadowObsidianWeaponItem) {
-                //         state = AnnoyingLibModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-                //     } else if (item instanceof ObsidianWeaponItem) {
-                //         state = AnnoyingLibModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-                //     } else {
-                //         return;
-                //     }
-
-                //     HerobrineUtil.summonObsidianCross(serverLevel, mob, state);
+                    if (ModList.get().isLoaded("herobrine_vessels")) {
+                        HerobrineVessels.summonObsidianCross(serverLevel, mob);
+                    }
                 }),
                 RigAttackWindow.of(10, 18, RIGHT_ELBOW, LEFT_ELBOW))
                 .invulnerable()
@@ -1708,23 +1502,9 @@ public final class RigAnimationSpecs {
                 hookAt(2, mob -> {
                     if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
-                    // add this in herobrine_vessels
-                //     Item item = mob.getMainHandItem().getItem();
-                //     if (item instanceof ShadowObsidianPillarItem || item instanceof ShadowObsidianSwordItem) {
-                //         HerobrineUtil.summonShadowObsidianLongPillarShootToward(serverLevel, mob);
-                //         return;
-                //     }
-
-                //     BlockState state;
-                //     if (item instanceof ShadowObsidianWeaponItem) {
-                //         state = AnnoyingLibModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-                //     } else if (item instanceof ObsidianWeaponItem) {
-                //         state = AnnoyingLibModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-                //     } else {
-                //         return;
-                //     }
-
-                //     HerobrineUtil.summonObsidianPillarAtTarget(serverLevel, mob, state);
+                    if (ModList.get().isLoaded("herobrine_vessels")) {
+                        HerobrineVessels.summonObsidianPillar(serverLevel, mob);
+                    }
                 }),
                 RigAttackWindow.of(0, 12))
                 .invulnerable()
@@ -1732,10 +1512,9 @@ public final class RigAnimationSpecs {
         );
         put(RigAnimationSpec.attack(RigAnimationId.OBSIDIAN_ULT2, 26, false,
                 hookAt(13, mob -> {
-                        // add this in herobrine_vessels
-                //     if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-                //     BlockState state = getObsidianWallState(mob);
-                //     if (state != null) HerobrineUtil.summonObsidianCube3x3x3(serverLevel, mob, state);
+                        if (ModList.get().isLoaded("herobrine_vessels")) {
+                            HerobrineVessels.summonObsidianCube(mob);
+                        }
                 }),
                 RigAttackWindow.of(10, 22, RIGHT_ELBOW, LEFT_ELBOW))
                 .invulnerable()
@@ -1803,16 +1582,9 @@ public final class RigAnimationSpecs {
                 List.of(
                         smallGroundSlamTimedHook(25, 1.0D),
                         RigAnimationSpec.RigTimedAnimationHook.at(25, mob -> {
-                            // add this in herobrine_vessels
-                        //     if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-                        //     Item item = mob.getMainHandItem().getItem();
-                        //     if (item instanceof ShadowObsidianPillarItem) {
-                        //         HerobrineUtil.summonShadowObsidianLongPillarCircle(serverLevel, mob, mob.getOnPos());
-                        //         HerobrineUtil.summonShadowObsidianLongPillarShootToward(serverLevel, mob);
-                        //     } else if (item instanceof ShadowObsidianSwordItem) {
-                        //         HerobrineUtil.summonShadowObsidianLongPillarCircle(serverLevel, mob, mob.getOnPos());
-                        //     }
+                            if (ModList.get().isLoaded("herobrine_vessels")) {
+                                HerobrineVessels.summonDualSwordPillars(mob);
+                            }
                         })
                 ),
                 RigAttackWindow.of(22, 32, RIGHT_SWORD, LEFT_SWORD))
@@ -1871,62 +1643,19 @@ public final class RigAnimationSpecs {
 
     private static BlockState getObsidianFistState(Mob mob) {
         Item item = mob.getMainHandItem().getItem();
-        // add this in herobrine_vessels
-        // if (!(item instanceof ObsidianWeaponItem || item instanceof ShadowObsidianWeaponItem || item instanceof ShadowObsidianPillarItem)) return null;
-        // if (item instanceof ShadowObsidianPillarItem) {
-        //     return AnnoyingLibModBlocks.SHADOW_OBSIDIAN_SHORT_PILLAR.get().defaultBlockState()
-        //             .setValue(HerobrineObsidianBlock.FROM_PLAYER, false)
-        //             .setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
-        // }
-        // if (item instanceof ShadowObsidianWeaponItem) {
-        //     return AnnoyingLibModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState()
-        //             .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-        // }
-        // return AnnoyingLibModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState()
-        //         .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.getObsidianFistState(mob);
         return null;
     }
 
     private static BlockState getObsidianWallState(Mob mob) {
         Item item = mob.getMainHandItem().getItem();
-        // add this in herobrine_vessels
-        // if (item instanceof ShadowObsidianPillarItem || item instanceof ShadowObsidianSwordItem) {
-        //     return AnnoyingLibModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState()
-        //             .setValue(HerobrineObsidianBlock.FROM_PLAYER, false)
-        //             .setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
-        // }
-        // if (item instanceof ShadowObsidianWeaponItem) {
-        //     return AnnoyingLibModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState()
-        //             .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-        // }
-        // if (item instanceof ObsidianWeaponItem) {
-        //     return AnnoyingLibModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState()
-        //             .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.getObsidianWallState(mob);
         return null;
     }
 
     private static BlockState getObsidianProjectileState(Mob mob) {
         Item item = mob.getMainHandItem().getItem();
-        // add this in herobrine_vessels
-        // if (item instanceof ShadowObsidianWeaponItem) {
-        //     return AnnoyingLibModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState()
-        //             .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-        // }
-        // if (item instanceof ShadowObsidianSwordItem) {
-        //     return AnnoyingLibModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get().defaultBlockState()
-        //             .setValue(HerobrineObsidianBlock.FROM_PLAYER, false)
-        //             .setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
-        // }
-        // if (item instanceof ShadowObsidianPillarItem) {
-        //     return AnnoyingLibModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState()
-        //             .setValue(HerobrineObsidianBlock.FROM_PLAYER, false)
-        //             .setValue(BlockStateProperties.HORIZONTAL_FACING, mob.getDirection());
-        // }
-        // if (item instanceof ObsidianWeaponItem) {
-        //     return AnnoyingLibModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState()
-        //             .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.getObsidianProjectileState(mob);
         return null;
     }
 
@@ -1940,22 +1669,18 @@ public final class RigAnimationSpecs {
                 : RigPoseUtil.getRightHandPosition(mob, animationId, tick);
         if (handPosition == null) return;
 
-        // add this in herobrine_vessels
-        // HerobrineUtil.summonObsidianBlocksFromPosition(serverLevel, mob, state, amount, handPosition);
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.summonObsidianFromHand(serverLevel, mob, state, amount, handPosition);
+        }
     }
 
     private static void summonObsidianWallForWeapon(Mob mob) {
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
         Item item = mob.getMainHandItem().getItem();
-        // add this in herobrine_vessels
-        // if (item instanceof ShadowObsidianPillarItem || item instanceof ShadowObsidianSwordItem) {
-        //     HerobrineUtil.summonShadowObsidianLongPillarDefense(serverLevel, mob);
-        //     return;
-        // }
-
-        // BlockState state = getObsidianWallState(mob);
-        // if (state != null) HerobrineUtil.summonObsidianWall3x3(serverLevel, mob, state);
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.summonObsidianWall(serverLevel, mob, item);
+        }
     }
 
     private static void throwObsidianProjectile(Mob mob, RigAnimationId animationId, int tick, boolean offhand) {
@@ -1998,48 +1723,7 @@ public final class RigAnimationSpecs {
     }
 
     private static List<RigAnimationSpec.RigTimedAnimationHook> woopieRushStartHook(RigAnimationId animationId) {
-        return List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, mob -> {
-            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-            boolean mainHandWoopie = mob.getMainHandItem().is(AnnoyingLibModItems.WOOPIE_THE_SWORD.get());
-            boolean offHandWoopie = mob.getOffhandItem().is(AnnoyingLibModItems.WOOPIE_THE_SWORD.get());
-            if (!mainHandWoopie && !offHandWoopie) return;
-
-            Vec3 windPos = offHandWoopie ? RigPoseUtil.getLeftWeaponPosition(mob, animationId, 0.0F) : RigPoseUtil.getRightWeaponPosition(mob, animationId, 0.0F);
-            if (windPos == null) return;
-
-            AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
-            serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-            AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundWoopieSwordWindFx(windPos));
-
-            Vec3 dashDir = mob.getLookAngle();
-            LivingEntity target = mob.getTarget();
-
-            if (target != null && target.isAlive()) {
-                Vec3 toTarget = target.position().subtract(mob.position());
-                dashDir = new Vec3(toTarget.x, 0.0D, toTarget.z);
-            }
-
-            dashDir = new Vec3(dashDir.x, 0.0D, dashDir.z);
-            if (dashDir.lengthSqr() < 1.0E-6D) dashDir = Vec3.directionFromRotation(0.0F, mob.getYRot());
-
-            Vec3 dash = dashDir.normalize().scale(2.2D);
-
-            for (int tick = 1; tick <= 3; tick++) {
-                new DelayedTask(tick) {
-                    @Override
-                    public void run() {
-                        if (!mob.isAlive() || mob.isRemoved() || mob.isDeadOrDying()) return;
-                        if (RigAnimationController.getActiveAnimationId(mob) != animationId) return;
-
-                        Vec3 currentMotion = mob.getDeltaMovement();
-                        mob.setDeltaMovement(dash.x, currentMotion.y, dash.z);
-                        mob.hasImpulse = true;
-                        mob.hurtMarked = true;
-                    }
-                };
-            }
-        }));
+        return List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction23(mob, animationId); }));
     }
 
     private static RigAnimationSpec.RigTimedAnimationHook blueDemonHandEffectHook(int tick, RigAnimationId animationId, RigPart part) {
@@ -2053,18 +1737,18 @@ public final class RigAnimationSpecs {
         });
     }
 
-    private static void playBlueDemonTridentEffect(Mob mob, RigAnimationId animationId, int tick, RigPart part) {
+    public static void playBlueDemonTridentEffect(Mob mob, RigAnimationId animationId, int tick, RigPart part) {
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-        if (!(mob.getMainHandItem().getItem() instanceof BlueDemonTridentItem)) return;
+        if (!((ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonTridentItem(mob.getMainHandItem().getItem())))) return;
 
         double forwardOffset = serverLevel.random.nextFloat() * 2.0F - 1.0F;
         Vec3 effectPos = RigPoseUtil.getPartPosition(mob, animationId, tick, part, Vec3.ZERO, forwardOffset, 0.0D);
         if (effectPos == null) return;
 
-        BlueDemonUtil.spawnBlueDemonEffect(serverLevel, mob, effectPos, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.blueDemonUtil_spawnBlueDemonEffect(serverLevel, mob, effectPos, 1, 0.0D, 0.0D, 0.0D, 0.0D);
         float volume = (float)Mth.nextDouble(serverLevel.random, 0.05D, 0.5D);
         float pitch = (float)Mth.nextDouble(serverLevel.random, 0.8D, 1.1D);
-        serverLevel.playSound(null, BlockPos.containing(effectPos), AnnoyingLibModSounds.ELECTRIFY.get(), SoundSource.NEUTRAL, volume, pitch);
+        serverLevel.playSound(null, BlockPos.containing(effectPos), (ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.getSounds_ELECTRIFY() : SoundEvents.EMPTY), SoundSource.NEUTRAL, volume, pitch);
     }
 
     private static RigAnimationSpec.RigTimedAnimationHook blueDemonSpinHook(int tick) {
@@ -2081,31 +1765,7 @@ public final class RigAnimationSpecs {
     }
 
     private static RigAnimationSpec.RigTimedAnimationHook blueDemonThrowTridentHook(int tick, RigAnimationId animationId, InteractionHand hand, TridentMode mode) {
-        return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> {
-            if (!(mob.level() instanceof ServerLevel serverLevel)) return;
-
-            ItemStack stack = mob.getItemInHand(hand);
-            if (!(stack.getItem() instanceof BlueDemonTridentItem)) return;
-
-            Vec3 spawnPos = hand == InteractionHand.MAIN_HAND
-                    ? RigPoseUtil.getRightHandPosition(mob, animationId, tick)
-                    : RigPoseUtil.getLeftHandPosition(mob, animationId, tick);
-            if (spawnPos == null) return;
-
-            Vec3 direction = BlueDemonTridentItem.getTridentThrowDirection(mob, spawnPos);
-            if (direction == null || direction.lengthSqr() < 1.0E-7D) return;
-
-            BlueDemonThrownTridentEntity trident = new BlueDemonThrownTridentEntity(serverLevel, mob, stack.copy());
-            trident.assignSpawnSequence(mob);
-            trident.trimOldGroundedTridentsAroundOwnerOnSpawn();
-            trident.setMode(mode);
-            trident.setPos(spawnPos.x, spawnPos.y, spawnPos.z);
-            trident.setYRot((float)(Mth.atan2(direction.x, direction.z) * (180.0D / Math.PI)));
-            trident.setXRot((float)(Mth.atan2(direction.y, Math.sqrt(direction.x * direction.x + direction.z * direction.z)) * (180.0D / Math.PI)));
-            trident.pickup = AbstractArrow.Pickup.DISALLOWED;
-            trident.shoot(direction.x, direction.y, direction.z, 2.5F, 1.0F);
-            serverLevel.addFreshEntity(trident);
-        });
+        return RigAnimationSpec.RigTimedAnimationHook.at(tick, mob -> { if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.rigAction24(mob, tick, animationId, hand, mode); });
     }
 
     private static List<RigAnimationSpec.RigTimedAnimationHook> emptyHooks(int... ticks) {
@@ -2115,7 +1775,7 @@ public final class RigAnimationSpecs {
     }
 
 
-    private static void spawnNullBlackHoleChargeParticles(Mob mob, int tick) {
+    public static void spawnNullBlackHoleChargeParticles(Mob mob, int tick) {
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
         Vec3 handPosition = RigPoseUtil.getRightHandPosition(mob, RigAnimationId.NULL_ATTACK5, tick);
@@ -2131,8 +1791,9 @@ public final class RigAnimationSpecs {
             Vec3 velocity = offset.scale(-0.12D - progress * 0.08D);
             Vec3 particlePosition = handPosition.add(offset);
 
-            // add this in herobrine_vessels
-        //     serverLevel.sendParticles(AnnoyingLibModParticleTypes.NULL.get(), particlePosition.x, particlePosition.y, particlePosition.z, 0, velocity.x, velocity.y, velocity.z, 1.0D);
+            if (ModList.get().isLoaded("herobrine_vessels")) {
+                HerobrineVessels.spawnNullChargeParticle(serverLevel, particlePosition, velocity);
+            }
         }
     }
 
@@ -2156,7 +1817,7 @@ public final class RigAnimationSpecs {
         return hitResult.getLocation().subtract(direction.normalize().scale(0.35D));
     }
 
-    private static LivingEntity getNullCombatTarget(Mob mob) {
+    public static LivingEntity getNullCombatTarget(Mob mob) {
         LivingEntity target = mob.getTarget();
         if (target == null || !target.isAlive()) target = mob.getLastHurtMob();
         if (target == null || !target.isAlive()) target = mob.getLastHurtByMob();

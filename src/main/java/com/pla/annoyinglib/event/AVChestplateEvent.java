@@ -1,11 +1,10 @@
 package com.pla.annoyinglib.event;
-
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.AnnoyingLib;
-import com.pla.annoyinglib.init.AnnoyingLibModMobEffects;
-import com.pla.annoyinglib.item.BlueDemonChestplateItem;
 import com.pla.annoyinglib.rig.armor.ObsidianArmorController;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,9 +26,10 @@ public final class AVChestplateEvent {
         // Forge also reports NBT updates (charge consumption and durability) as
         // equipment changes. Only replacing the armor item should cancel its ability.
         if (event.getFrom().getItem() == event.getTo().getItem()) return;
-        if (event.getSlot() == EquipmentSlot.CHEST && BlueDemonChestplateItem.isBlueDemonChestplate(event.getFrom())) BlueDemonChestplateItem.stopBuff(event.getFrom());
-          // add this in herobrine_vessels
-        // if ((event.getSlot() == EquipmentSlot.HEAD || event.getSlot() == EquipmentSlot.CHEST) && HerobrineObsidianArmorCharge.isObsidianArmor(event.getFrom())) ObsidianArmorController.clear(event.getEntity());
+        if (event.getSlot() == EquipmentSlot.CHEST && (ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.blueDemonChestplateItem_isBlueDemonChestplate(event.getFrom()) : false)) if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.blueDemonChestplateItem_stopBuff(event.getFrom());
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.onArmorChanged(event);
+        }
     }
 
     @SubscribeEvent
@@ -56,21 +56,12 @@ public final class AVChestplateEvent {
         int gainedCharge = Math.max(1, Mth.ceil(finalDamage));
         ItemStack helmet = wearer.getItemBySlot(EquipmentSlot.HEAD);
         ItemStack chest = wearer.getItemBySlot(EquipmentSlot.CHEST);
-          // add this in herobrine_vessels
-        // if (HerobrineObsidianArmorCharge.isHelmet(helmet) && !HerobrineObsidianArmorCharge.isFullyCharged(helmet)) HerobrineObsidianArmorCharge.addCharge(helmet, gainedCharge);
-        // if (HerobrineObsidianArmorCharge.isChestplate(chest) && !HerobrineObsidianArmorCharge.isFullyCharged(chest)) HerobrineObsidianArmorCharge.addCharge(chest, gainedCharge);
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.chargeArmor(helmet, chest, gainedCharge);
+        }
     }
 
     private static void handleBlueDemonDamage(LivingEntity wearer, ItemStack chest, float finalDamage, Entity sourceEntity) {
-        if (!BlueDemonChestplateItem.isBlueDemonChestplate(chest)) return;
-        if (BlueDemonChestplateItem.isBuffActive(chest)) {
-            if (sourceEntity instanceof LivingEntity attacker && attacker != wearer) {
-                float chance = wearer.getRandom().nextFloat();
-                if (chance <= 0.2F) attacker.addEffect(new MobEffectInstance(AnnoyingLibModMobEffects.ELECTRIFY.get(), 20, 2));
-                else if (chance <= 0.6F) attacker.addEffect(new MobEffectInstance(AnnoyingLibModMobEffects.ELECTRIFY.get(), 20, 1));
-            }
-            return;
-        }
-        if (!BlueDemonChestplateItem.isFullyCharged(chest)) BlueDemonChestplateItem.addStoredCharge(chest, Math.max(1, Mth.ceil(finalDamage)));
+        if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.handleBlueDemonDamage(wearer, chest, finalDamage, sourceEntity);
     }
 }

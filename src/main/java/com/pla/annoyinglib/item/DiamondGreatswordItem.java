@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.item;
+import com.pla.annoyinglib.util.ContentRegistry;
 
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import com.pla.annoyinglib.rig.RigCombatProfileProvider;
 import com.pla.annoyinglib.rig.RigCombatStyle;
 import net.minecraft.world.item.*;
@@ -32,7 +32,7 @@ public class DiamondGreatswordItem extends SwordItem implements RigCombatProfile
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(AnnoyingLibModItems.COMPRESSED_DIAMOND.get()));
+                return Ingredient.of(new ItemStack(ContentRegistry.item("legendary_npcs:compressed_diamond")));
             }
         }, 3, -2.5F, (new Properties()));
     }

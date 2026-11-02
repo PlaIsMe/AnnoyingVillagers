@@ -1,26 +1,26 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        "DA ",
-        "DS ",
-        " P "
-    ],
-    "key": {
-        "D": {
-            "item": "minecraft:diamond"
-        },
-        "A": {
-            "item": "minecraft:diamond_axe"
-        },
-        "P": {
-            "item": "minecraft:stick"
-        },
-        "S": {
-            "item": "minecraft:stick"
-        }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DA ",
+    "DS ",
+    " P "
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
     },
-    "result": {
-        "item": "annoyinglib:diamond_halberd",
-        "count": 1
+    "A": {
+      "item": "minecraft:diamond_axe"
+    },
+    "P": {
+      "item": "minecraft:stick"
+    },
+    "S": {
+      "item": "minecraft:stick"
     }
+  },
+  "result": {
+    "item": "annoyinglib:diamond_halberd",
+    "count": 1
+  }
 }

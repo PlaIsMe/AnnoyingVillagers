@@ -1,7 +1,7 @@
 package com.pla.annoyinglib.util;
 
 import com.pla.annoyinglib.AnnoyingLib;
-import com.pla.annoyinglib.compat.BetterCombatCompat;
+import com.pla.annoyinglib.compat.BetterCombat;
 import com.pla.annoyinglib.network.ClientboundBetterCombatAnimation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -83,7 +83,7 @@ public final class VanillaWeaponAbilityUtil {
 
         float swingDurationTicks;
         try {
-            swingDurationTicks = BetterCombatCompat.getAttackCooldownTicks(player);
+            swingDurationTicks = BetterCombat.getAttackCooldownTicks(player);
         } catch (LinkageError error) {
             return false;
         }

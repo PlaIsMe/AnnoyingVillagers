@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/ruby_sword",
-  "textures": {
-    "0": "annoyinglib:item/ruby_sword",
-    "particle": "annoyinglib:item/ruby_sword"
-  }
-}

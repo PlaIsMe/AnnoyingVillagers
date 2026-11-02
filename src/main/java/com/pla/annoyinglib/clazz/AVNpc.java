@@ -1,8 +1,11 @@
 package com.pla.annoyinglib.clazz;
-
-import com.pla.annoyinglib.entity.*;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.VillagerKingdom;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.entity.goal.*;
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import com.pla.annoyinglib.rig.LockableRigAttackAnimation;
 import com.pla.annoyinglib.rig.RigAnimationController;
 import com.pla.annoyinglib.rig.RigStunController;
@@ -29,7 +32,6 @@ import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -307,42 +309,8 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     public ItemStack getBowItem() {
         ItemStack bow = new ItemStack(Items.BOW);
-
-        if (this instanceof VillagerScoutCaptainEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 1);
-            bow.enchant(Enchantments.PUNCH_ARROWS, 1);
-        }
-        if (this instanceof RedVillagerKnightEntity) {
-            bow.enchant(Enchantments.FLAMING_ARROWS, 2);
-        }
-        if (this instanceof BlueVillagerKnightEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-        }
-        if (this instanceof GreenVillagerKnightEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 1);
-            bow.enchant(Enchantments.FLAMING_ARROWS, 1);
-        }
-        if (this instanceof PurpleVillagerKnightEntity) {
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
-        }
-        if ((this instanceof SteveEntity steveEntity && steveEntity.getState() == 1)
-                || this instanceof AngrySteveEntity) {
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
-            if (this instanceof AngrySteveEntity) {
-                bow.enchant(Enchantments.FLAMING_ARROWS, 2);
-            }
-        }
-        if (this instanceof AlexEntity alexEntity && alexEntity.getState() == 1) {
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-            bow.enchant(Enchantments.FLAMING_ARROWS, 1);
-        }
-        if (this instanceof ChrisEntity chrisEntity && chrisEntity.getState() == 1) {
-            bow.enchant(Enchantments.POWER_ARROWS, 2);
-            bow.enchant(Enchantments.PUNCH_ARROWS, 2);
-        }
-
+        if (ModList.get().isLoaded("villager_kingdom")) VillagerKingdom.enchantNpcBow(this, bow);
+        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.enchantNpcBow(this, bow);
         return bow;
     }
 
@@ -565,14 +533,14 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
 
     private boolean shouldDropVillagerCombatEquipment() {
         return this.isVillagerKnight()
-                || this instanceof VillagerScoutCaptainEntity;
+                || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isVillagerScoutCaptainEntity(this));
     }
 
     protected boolean isVillagerKnight() {
-        return this instanceof BlueVillagerKnightEntity
-                || this instanceof GreenVillagerKnightEntity
-                || this instanceof RedVillagerKnightEntity
-                || this instanceof PurpleVillagerKnightEntity;
+        return (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isBlueVillagerKnightEntity(this))
+                || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isGreenVillagerKnightEntity(this))
+                || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isRedVillagerKnightEntity(this))
+                || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isPurpleVillagerKnightEntity(this));
     }
 
     private void tryDropVillagerEquipmentSlot(EquipmentSlot slot, float baseChance, int looting) {
@@ -650,16 +618,16 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     private ItemStack convertVillagerHelmetFixItem(ItemStack equipped) {
         Item replacement = null;
 
-        if (equipped.is(AnnoyingLibModItems.VILLAGER_SCOUT_HELMET_FIX.get())) {
-            replacement = AnnoyingLibModItems.VILLAGER_SCOUT_HELMET.get();
-        } else if (equipped.is(AnnoyingLibModItems.BLUE_VILLAGER_KNIGHT_HELMET_FIX.get())) {
-            replacement = AnnoyingLibModItems.BLUE_VILLAGER_KNIGHT_HELMET.get();
-        } else if (equipped.is(AnnoyingLibModItems.RED_VILLAGER_KNIGHT_HELMET_FIX.get())) {
-            replacement = AnnoyingLibModItems.RED_VILLAGER_KNIGHT_HELMET.get();
-        } else if (equipped.is(AnnoyingLibModItems.GREEN_VILLAGER_KNIGHT_HELMET_FIX.get())) {
-            replacement = AnnoyingLibModItems.GREEN_VILLAGER_KNIGHT_HELMET.get();
-        } else if (equipped.is(AnnoyingLibModItems.PURPLE_VILLAGER_KNIGHT_HELMET_FIX.get())) {
-            replacement = AnnoyingLibModItems.PURPLE_VILLAGER_KNIGHT_HELMET.get();
+        if (equipped.is((ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_VILLAGER_SCOUT_HELMET_FIX() : Items.AIR))) {
+            replacement = (ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_VILLAGER_SCOUT_HELMET() : Items.AIR);
+        } else if (equipped.is((ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_BLUE_VILLAGER_KNIGHT_HELMET_FIX() : Items.AIR))) {
+            replacement = (ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_BLUE_VILLAGER_KNIGHT_HELMET() : Items.AIR);
+        } else if (equipped.is((ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_RED_VILLAGER_KNIGHT_HELMET_FIX() : Items.AIR))) {
+            replacement = (ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_RED_VILLAGER_KNIGHT_HELMET() : Items.AIR);
+        } else if (equipped.is((ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_GREEN_VILLAGER_KNIGHT_HELMET_FIX() : Items.AIR))) {
+            replacement = (ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_GREEN_VILLAGER_KNIGHT_HELMET() : Items.AIR);
+        } else if (equipped.is((ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_PURPLE_VILLAGER_KNIGHT_HELMET_FIX() : Items.AIR))) {
+            replacement = (ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_PURPLE_VILLAGER_KNIGHT_HELMET() : Items.AIR);
         }
 
         if (replacement == null) {
@@ -722,9 +690,8 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             return;
         }
 
-        // add this in herobrine_vessels
-        // boolean shouldUseEnchantedArrow = this.getTarget() instanceof HerobrineMob;
-        boolean shouldUseEnchantedArrow = false;
+
+        boolean shouldUseEnchantedArrow = ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isHerobrineMob(this.getTarget());
         ItemStack itemstack = InventoryUtils.consumeArrowAmmo(this, shouldUseEnchantedArrow).orElse(ItemStack.EMPTY);
         if (itemstack.isEmpty()) {
             return;
@@ -823,8 +790,8 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             return false;
         }
         InventoryUtils.addItem(this.inventory, this.getBowItem());
-        boolean diamondTools = this instanceof SteveEntity || this instanceof AngrySteveEntity
-                || this instanceof AlexEntity || this instanceof ChrisEntity;
+        boolean diamondTools = (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isSteveEntity(this)) || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAngrySteveEntity(this))
+                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAlexEntity(this)) || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isChrisEntity(this));
         InventoryUtils.addItem(this.inventory, new ItemStack(diamondTools ? Items.DIAMOND_PICKAXE : Items.IRON_PICKAXE));
         InventoryUtils.addItem(this.inventory, new ItemStack(diamondTools ? Items.DIAMOND_AXE : Items.IRON_AXE));
         return true;

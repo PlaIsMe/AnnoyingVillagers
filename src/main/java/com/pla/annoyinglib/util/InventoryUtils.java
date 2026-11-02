@@ -1,8 +1,7 @@
 package com.pla.annoyinglib.util;
-
+import com.pla.annoyinglib.compat.VillagerKingdom;
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.compat.SmartNpc;
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
@@ -319,7 +318,7 @@ public class InventoryUtils {
     }
 
     private static boolean isEnchantedArrowStack(ItemStack stack) {
-        return stack.is(AnnoyingLibModItems.ENCHANTED_ARROW.get());
+        return stack.is((ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.getItems_ENCHANTED_ARROW() : Items.AIR));
     }
 
     private static boolean isPlaceableBlockStack(ItemStack stack) {

@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.mixin.compat.punchy;
-
-import com.pla.annoyinglib.item.BlueDemonTridentItem;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.MobSupremacy;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,6 +13,6 @@ public abstract class TridentStateMachineMixin {
     @ModifyVariable(method = "tick", at = @At("STORE"), ordinal = 0, require = 1, allow = 1)
     private boolean av$recognizeBlueDemonTrident(boolean isTrident, Minecraft client) {
         return isTrident || (client.player != null
-                && BlueDemonTridentItem.isBlueDemonTrident(client.player.getUseItem()));
+                && (ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.blueDemonTridentItem_isBlueDemonTrident(client.player.getUseItem()) : false));
     }
 }

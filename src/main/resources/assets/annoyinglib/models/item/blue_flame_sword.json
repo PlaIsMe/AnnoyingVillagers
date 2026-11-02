@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/blue_flame_sword",
-  "textures": {
-    "0": "annoyinglib:item/blue_flame_sword",
-    "particle": "annoyinglib:item/blue_flame_sword"
-  }
-}

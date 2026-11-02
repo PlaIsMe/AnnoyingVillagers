@@ -1,7 +1,9 @@
 package com.pla.annoyinglib.entity.goal;
+import com.pla.annoyinglib.compat.MobSupremacy;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.clazz.AVNpc;
-import com.pla.annoyinglib.entity.BlueDemonEntity;
 import com.pla.annoyinglib.event.MobTargetRedirectEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -36,9 +38,8 @@ public class RetargetCloserThreatGoal extends TargetGoal {
     @Override
     public boolean canUse() {
         if (this.mob instanceof AVNpc npc && npc.isRecoveryActionActive()
-                 // add this in herobrine_vessels
-                // || this.mob instanceof HerobrineMob herobrine && herobrine.isHoleEscapeActive()
-                || this.mob instanceof BlueDemonEntity blueDemon && blueDemon.isBbqHoleEscapeActive()) return false;
+                || (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isHoleEscapeActive(this.mob))
+                || (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBbqEscapeActive(this.mob))) return false;
         if (this.mob.level().isClientSide
                 || this.mob.tickCount % this.scanInterval != 0
                 || MobTargetRedirectEvent.shouldPreserveRedirectTarget(this.mob)) {

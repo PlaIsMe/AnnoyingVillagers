@@ -1,8 +1,9 @@
 package com.pla.annoyinglib.util;
-
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
-import com.pla.annoyinglib.entity.BlueDemonEntity;
 import com.pla.annoyinglib.init.AnnoyingLibModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -158,7 +159,7 @@ public final class HookUtil {
             }
         }
 
-        if (boundStack.is(Items.WATER_BUCKET) && target.isOnFire() && !EndFireUtil.isEndFireBurning(target)) {
+        if (boundStack.is(Items.WATER_BUCKET) && target.isOnFire() && !(ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isEndFireBurning(target))) {
             target.clearFire();
             level.playSound(null, target.getX(), target.getY(), target.getZ(),
                     SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS, 0.8F, 1.0F);
@@ -668,10 +669,8 @@ public final class HookUtil {
     }
 
     private static boolean isArmorTargetBlacklisted(LivingEntity target) {
-        return target instanceof BlueDemonEntity;
-        // add this in herobrine_vessels
-        //  || target instanceof NullWeapon
-        //         || target instanceof ArmoredHerobrineEntity;
+        return (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonEntity(target)) || (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isArmorHookBlacklisted(target));
+
     }
 
     private static HitResult applyPotion(Level level, ItemStack boundStack, Entity projectile, @Nullable LivingEntity owner, LivingEntity target) {

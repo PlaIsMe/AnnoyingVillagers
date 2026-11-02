@@ -15,12 +15,6 @@ public final class AnnoyingLibModBlockEntities {
 
     public static final RegistryObject<BlockEntityType<FractureBlockEntity>> FRACTURE_BLOCK = REGISTRY.register("fracture_block", () -> BlockEntityType.Builder.of(FractureBlockEntity::new, AnnoyingLibModBlocks.FRACTURE_BLOCK.get()).build(null));
 
-
-
-
-
-
-
     public static void register(IEventBus modEventBus) {
         REGISTRY.register(modEventBus);
     }

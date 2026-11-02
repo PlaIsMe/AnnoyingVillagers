@@ -1,9 +1,8 @@
 package com.pla.annoyinglib.specialanimation;
-
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.VillagerKingdom;
 import com.pla.annoyinglib.AnnoyingLib;
-import com.pla.annoyinglib.entity.GolemArms;
 import com.pla.annoyinglib.init.AnnoyingLibModSounds;
-import com.pla.annoyinglib.item.DestructionEyeItem;
 import com.pla.annoyinglib.network.ClientboundSpecialAnimation;
 import com.pla.annoyinglib.rig.RigOrientedBox;
 import com.pla.annoyinglib.specialanimation.pose.SpecialPoseLibrary;
@@ -45,7 +44,7 @@ public final class SpecialAnimationController {
         if (target != null && target.isAlive()) faceTarget(mob, target);
         if (spec.attackWindows().length > 0) {
             mob.swing(InteractionHand.MAIN_HAND, true);
-            if (!(mob instanceof GolemArms)) playSwingSound(mob);
+            if (!((ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isGolemArms(mob)))) playSwingSound(mob);
         }
         ActiveAnimationState state = new ActiveAnimationState(mob, spec, mob.tickCount);
         ACTIVE.put(mob.getUUID(), state);
@@ -172,7 +171,7 @@ public final class SpecialAnimationController {
     }
 
     private static void scheduleWindow(Mob mob, ActiveAnimationState state, SpecialAttackWindow window, boolean multiWindow) {
-        if (mob instanceof GolemArms) {
+        if ((ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isGolemArms(mob))) {
             new DelayedTask(window.startTickInclusive()) {
                 @Override
                 public void run() {
@@ -198,9 +197,9 @@ public final class SpecialAnimationController {
     }
 
     private static void hurt(Mob mob, LivingEntity target, float multiplier, boolean resetHurtCooldown) {
-        LivingEntity owner = mob instanceof GolemArms arms ? arms.getOwnerLiving() : mob;
+        LivingEntity owner = (ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.armsOwner(mob) : mob);
         if (owner == null) owner = mob;
-        LivingEntity damageOwner = mob instanceof GolemArms && owner != null ? owner : mob;
+        LivingEntity damageOwner = (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isGolemArms(mob)) && owner != null ? owner : mob;
         double baseDamage = damageOwner.getAttribute(Attributes.ATTACK_DAMAGE) == null ? 1.0D : damageOwner.getAttributeValue(Attributes.ATTACK_DAMAGE);
         DamageSource source = owner instanceof ServerPlayer player ? mob.level().damageSources().playerAttack(player) : mob.level().damageSources().mobAttack(mob);
         int previousInvulnerableTime = target.invulnerableTime;
@@ -208,7 +207,7 @@ public final class SpecialAnimationController {
         boolean hurt = target.hurt(source, (float)(baseDamage * multiplier));
         if (resetHurtCooldown) target.invulnerableTime = previousInvulnerableTime;
         if (!hurt) return;
-        if (mob instanceof GolemArms arms) DestructionEyeItem.damageForArmsHit(arms);
+        if (ModList.get().isLoaded("villager_kingdom")) VillagerKingdom.damageArmsItem(mob);
         mob.setLastHurtMob(target);
         if (owner instanceof Mob ownerMob) {
             ownerMob.setLastHurtMob(target);
@@ -220,7 +219,7 @@ public final class SpecialAnimationController {
     }
 
     private static void playSwingSound(Mob mob) {
-        boolean golemArms = mob instanceof GolemArms;
+        boolean golemArms = (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isGolemArms(mob));
         SoundSource source = golemArms ? SoundSource.PLAYERS : SoundSource.HOSTILE;
         float volume = golemArms ? 1.2F : 1.0F;
         float pitch = golemArms
@@ -240,7 +239,7 @@ public final class SpecialAnimationController {
 
     private static boolean canDamage(Mob mob, LivingEntity target) {
         if (!target.isAlive() || target.isRemoved() || target.isDeadOrDying()) return false;
-        LivingEntity owner = mob instanceof GolemArms arms ? arms.getOwnerLiving() : mob;
+        LivingEntity owner = (ModList.get().isLoaded("villager_kingdom") ? VillagerKingdom.armsOwner(mob) : mob);
         if (target == owner || target == mob || target == mob.getVehicle()) return false;
         if (owner != null && areAllied(owner, target)) return false;
         return owner == null || owner.canAttack(target);

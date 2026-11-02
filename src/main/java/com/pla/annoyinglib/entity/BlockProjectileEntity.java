@@ -1,5 +1,7 @@
 package com.pla.annoyinglib.entity;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.init.AnnoyingLibModEntities;
 
 import com.pla.annoyinglib.init.AnnoyingLibModParticleTypes;
@@ -58,12 +60,7 @@ public class BlockProjectileEntity extends ThrowableProjectile {
             return this.damageOverride;
         }
 
-        // add this in herobrine_vessels
-        // if (getCarriedBlock().is(HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_SHORT_PILLAR.get())
-        //         || getCarriedBlock().is(HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_BLOCK.get())
-        //         || getCarriedBlock().is(HerobrineVesselsModBlocks.OBSIDIAN_BLOCK.get())) {
-        //     return 10.0F;
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.blockProjectileDamage(getCarriedBlock());
 
         return 2.0F;
     }
@@ -133,12 +130,10 @@ public class BlockProjectileEntity extends ThrowableProjectile {
         if (this.notReadyForShoot) return;
         Entity target = result.getEntity();
         final UUID ownerId = this.ownerUUID;
-         // add this in herobrine_vessels
-        // final boolean isHerobrine = HerobrineUtil.isHerobrineFaction(target);
+        final boolean isHerobrine = ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isHerobrineFaction(target);
 
         boolean blockDamage =
-         // add this in herobrine_vessels
-                // (ownerId == null && isHerobrine) ||
+                (ownerId == null && isHerobrine) ||
                  (ownerId != null && target instanceof Player p
                         && p.getUUID().equals(ownerId));
 
@@ -257,39 +252,14 @@ public class BlockProjectileEntity extends ThrowableProjectile {
     }
 
     private BlockState getPlacementState(UUID owner, int replaceByLiquid) {
-        BlockState placeState;
-         // add this in herobrine_vessels
-        // if (getCarriedBlock().is(HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_SHORT_PILLAR.get())
-        //         || getCarriedBlock().is(HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_MIDDLE_PILLAR.get())) {
-        //     placeState = HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState();
-        // } else if (getCarriedBlock().is(HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_BLOCK.get())) {
-        //     placeState = HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState();
-        // } else if (getCarriedBlock().is(HerobrineVesselsModBlocks.OBSIDIAN_BLOCK.get())) {
-        //     placeState = HerobrineVesselsModBlocks.OBSIDIAN_BLOCK.get().defaultBlockState();
-        // } else {
-            placeState = getCarriedBlock();
-        // }
-
-        // if (owner != null && placeState.hasProperty(HerobrineObsidianBlock.FROM_PLAYER)) {
-        //     placeState = placeState.setValue(HerobrineObsidianBlock.FROM_PLAYER, true);
-        // }
-
-        // if (replaceByLiquid != 0 && placeState.hasProperty(HerobrineObsidianBlock.REPLACE_BY_LIQUID)) {
-        //     placeState = placeState.setValue(HerobrineObsidianBlock.REPLACE_BY_LIQUID, replaceByLiquid);
-        // }
-
-        return placeState;
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.blockPlacementState(getCarriedBlock(), owner, replaceByLiquid);
+        return getCarriedBlock();
     }
 
     private void setBlockEntityOwner(BlockEntity blockEntity, UUID owner) {
-         // add this in herobrine_vessels
-        // if (blockEntity instanceof ObsidianBlockEntity obsidianBlockEntity) {
-        //     obsidianBlockEntity.setOwner(owner);
-        // } else if (blockEntity instanceof ShadowObsidianBlockEntity shadowObsidianBlockEntity) {
-        //     shadowObsidianBlockEntity.setOwner(owner);
-        // } else if (blockEntity instanceof ShadowObsidianLongPillarBlockEntity shadowObsidianLongPillarBlockEntity) {
-        //     shadowObsidianLongPillarBlockEntity.setOwner(owner);
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.setBlockOwner(blockEntity, owner);
+        }
 
         blockEntity.setChanged();
     }

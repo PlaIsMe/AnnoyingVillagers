@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/ladder",
-  "textures": {
-    "0": "annoyinglib:item/ladder",
-    "particle": "annoyinglib:item/ladder"
-  }
-}

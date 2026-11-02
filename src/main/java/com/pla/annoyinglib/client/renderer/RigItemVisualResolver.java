@@ -1,9 +1,9 @@
 package com.pla.annoyinglib.client.renderer;
-
+import net.minecraft.world.item.Items;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.client.animation.RigClientAnimationState;
-import com.pla.annoyinglib.entity.AngrySteveEntity;
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
-import com.pla.annoyinglib.item.*;
 import com.pla.annoyinglib.rig.RigAnimationId;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -12,9 +12,8 @@ public final class RigItemVisualResolver {
     private RigItemVisualResolver() {}
 
     public static ItemStack resolve(Entity entity, ItemStack originalStack, boolean leftHand) {
-        if (originalStack.getItem() instanceof LegendarySwordItem
-                && entity instanceof AngrySteveEntity angrySteve
-                && angrySteve.isLegendaryAwakened()) {
+        if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isLegendarySwordItem(originalStack.getItem()))
+                && ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isLegendaryAwakened(entity)) {
             ItemStack awakenedStack = originalStack.copy();
             awakenedStack.getOrCreateTag().putInt("CustomModelData", 1);
             return awakenedStack;
@@ -26,80 +25,24 @@ public final class RigItemVisualResolver {
         RigAnimationId animationId = active.animationId();
         float animationTick = active.elapsedTicks(entity.tickCount);
 
-        if (originalStack.getItem() instanceof RedAxeItem
+        if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isRedAxeItem(originalStack.getItem()))
                 && animationId == RigAnimationId.GREATAXE_ULT) {
-            return new ItemStack(AnnoyingLibModItems.GIANT_RED_AXE.get());
+            return new ItemStack((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_GIANT_RED_AXE() : Items.AIR));
         }
 
-        if (originalStack.getItem() instanceof DNAxHookedSwordItem
+        if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isDNAxHookedSwordItem(originalStack.getItem()))
                 && (animationId == RigAnimationId.BASIC_ULT || animationId == RigAnimationId.DUAL_BASIC_ULT)) {
-            return new ItemStack(AnnoyingLibModItems.DNAX_HOOKED_SWORD_ABILITY.get());
+            return new ItemStack((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_DNAX_HOOKED_SWORD_ABILITY() : Items.AIR));
         }
 
-        if (originalStack.getItem() instanceof LegendarySwordItem
+        if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isLegendarySwordItem(originalStack.getItem()))
                 && (animationId == RigAnimationId.LEGENDARY_SWORD_ULT || animationId == RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT)) {
-            return new ItemStack(AnnoyingLibModItems.HEAVY_ATTACK_LEGENDARY_SWORD.get());
+            return new ItemStack((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_HEAVY_ATTACK_LEGENDARY_SWORD() : Items.AIR));
         }
 
-//        add this in herobrine_vessels
-//        if ((originalStack.getItem() instanceof ObsidianWeaponItem
-//                || originalStack.getItem() instanceof ShadowObsidianWeaponItem)
-//                && (animationId == RigAnimationId.HEROBRINE_RUN
-//                || animationId == RigAnimationId.FIST_ATTACK1 || animationId == RigAnimationId.FIST_ATTACK2
-//                || animationId == RigAnimationId.FIST_ATTACK3 || animationId == RigAnimationId.FIST_ATTACK4
-//                || animationId == RigAnimationId.FIST_ATTACK5 || animationId == RigAnimationId.FIST_EXTRA_ATTACK
-//                || animationId == RigAnimationId.OBSIDIAN_EXTRA_ULT)) {
-//            return ItemStack.EMPTY;
-//        }
-//
-//        if (originalStack.getItem() instanceof ShadowObsidianPillarItem
-//                && (animationId == RigAnimationId.FIST_ATTACK1 || animationId == RigAnimationId.FIST_ATTACK3
-//                || animationId == RigAnimationId.FIST_ATTACK5 || animationId == RigAnimationId.OBSIDIAN_ULT1
-//                || animationId == RigAnimationId.OBSIDIAN_ULT2 || animationId == RigAnimationId.FIST_EXTRA_ATTACK
-//                || animationId == RigAnimationId.OBSIDIAN_EXTRA_ULT)) {
-//            return ItemStack.EMPTY;
-//        }
-//
-//        if (originalStack.getItem() instanceof ShadowObsidianPillarItem
-//                && animationId == RigAnimationId.FIST_ATTACK2
-//                && animationTick >= 4.0F) {
-//            return new ItemStack(AnnoyingLibModItems.SHADOW_OBSIDIAN_BURST.get());
-//        }
-//
-//        if (originalStack.getItem() instanceof ShadowObsidianPillarItem
-//                && animationId == RigAnimationId.FIST_ATTACK4
-//                && animationTick >= 10.0F) {
-//            return new ItemStack(AnnoyingLibModItems.SHADOW_OBSIDIAN_BURST.get());
-//        }
-//
-//        if (originalStack.getItem() instanceof ShadowObsidianPillarItem
-//                && animationId == RigAnimationId.OBSIDIAN_PILLAR_EXTRA_ATTACK
-//                && animationTick >= 12.0F) {
-//            return new ItemStack(AnnoyingLibModItems.SHADOW_OBSIDIAN_BURST.get());
-//        }
-//
-//        if (originalStack.getItem() instanceof ShadowObsidianSwordItem
-//                && animationId == RigAnimationId.OBSIDIAN_PILLAR_EXTRA_ATTACK
-//                && animationTick >= 12.0F) {
-//            return new ItemStack(AnnoyingLibModItems.SHADOW_OBSIDIAN_STRAIGHT.get());
-//        }
-//
-//        if (originalStack.getItem() instanceof ShadowObsidianSwordItem
-//                && animationId == RigAnimationId.OBSIDIAN_SWORD_ULT
-//                && animationTick >= 9.0F) {
-//            return new ItemStack(AnnoyingLibModItems.SHADOW_OBSIDIAN_STRAIGHT.get());
-//        }
-//
-//        if (originalStack.getItem() instanceof ShadowObsidianSwordItem
-//                && (animationId == RigAnimationId.DUAL_OBSIDIAN_SWORD_ATTACK2 || animationId == RigAnimationId.DUAL_OBSIDIAN_SWORD_ATTACK3
-//                || animationId == RigAnimationId.DUAL_OBSIDIAN_SWORD_JUMP_ATTACK || animationId == RigAnimationId.DUAL_OBSIDIAN_SWORD_ULT)) {
-//            return new ItemStack(AnnoyingLibModItems.SHADOW_OBSIDIAN_STRAIGHT.get());
-//        }
-//
-//        if (entity instanceof ShadowHerobrineEntity
-//                && leftHand && animationId == RigAnimationId.OBSIDIAN_MACHINE_GUN) {
-//            return new ItemStack(AnnoyingLibModItems.HEROBRINE_ENDER_EYE.get());
-//        }
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            return HerobrineVessels.Client.resolveRigItem(entity, originalStack, animationId, animationTick, leftHand);
+        }
 
         return originalStack;
     }

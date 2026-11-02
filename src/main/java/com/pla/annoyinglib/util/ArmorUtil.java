@@ -21,7 +21,7 @@ public class ArmorUtil {
         if (living instanceof Player p) {
             p.getInventory().setChanged();
             if (!p.level().isClientSide()) {
-                p.displayClientMessage(Component.literal("§eThe " + preventArmor + " rejects this piece!"), true);
+                p.displayClientMessage(Component.literal("Â§eThe " + preventArmor + " rejects this piece!"), true);
             }
         }
     }

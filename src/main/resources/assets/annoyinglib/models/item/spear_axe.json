@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/spear_axe",
-  "textures": {
-    "0": "annoyinglib:item/spear_axe",
-    "particle": "annoyinglib:item/spear_axe"
-  }
-}

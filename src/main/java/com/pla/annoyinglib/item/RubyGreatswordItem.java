@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.item;
+import com.pla.annoyinglib.util.ContentRegistry;
 
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import com.pla.annoyinglib.rig.RigCombatProfileProvider;
 import com.pla.annoyinglib.rig.RigCombatStyle;
 import net.minecraft.world.item.*;
@@ -32,7 +32,7 @@ public class RubyGreatswordItem extends SwordItem implements RigCombatProfilePro
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(AnnoyingLibModItems.RUBY.get()));
+                return Ingredient.of(new ItemStack(ContentRegistry.item("villager_kingdom:ruby")));
             }
         }, 3, -2.5F, (new Properties()));
     }

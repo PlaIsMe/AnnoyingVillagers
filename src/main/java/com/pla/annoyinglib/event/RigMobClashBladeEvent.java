@@ -1,7 +1,8 @@
 package com.pla.annoyinglib.event;
-
+import com.pla.annoyinglib.compat.VillagerKingdom;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.AnnoyingLib;
-import com.pla.annoyinglib.entity.GolemArms;
 import com.pla.annoyinglib.rig.RigAnimationController;
 import com.pla.annoyinglib.rig.RigOrientedBox;
 import com.pla.annoyinglib.rig.armor.ObsidianArmorController;
@@ -61,7 +62,7 @@ public final class RigMobClashBladeEvent {
         // reaches their owner instead. During an Arms attack window, compare the actual oriented
         // attack boxes. If an enemy rig/special attack box meets an Arms box first, treat that as
         // a weapon clash and cancel the damage to the owner.
-        GolemArms clashingArms = attacker != null && attacker != victim && canRegularClash(damageSource) ? findClashingArms(victim, attacker, serverLevel) : null;
+        Mob clashingArms = attacker != null && attacker != victim && canRegularClash(damageSource) ? findClashingArms(victim, attacker, serverLevel) : null;
         if (clashingArms != null) {
             applyClashRecoil(attacker);
             applyClashRecoil(victim);
@@ -86,27 +87,17 @@ public final class RigMobClashBladeEvent {
         RigAnimationController.clearActiveAnimations();
         SpecialAnimationController.clearActiveAnimations();
         ObsidianArmorController.clearAll();
-         // add this in herobrine_vessels
-        // HerobrineEscapeHoleGoal.clearActivePillarCycles();
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.clearPillarCycles();
+        }
     }
 
-    private static GolemArms findClashingArms(LivingEntity defender, Entity attacker, ServerLevel serverLevel) {
-        List<RigOrientedBox> attackingBoxes = activeAttackBoxes(attacker, serverLevel);
-        if (attackingBoxes.isEmpty()) return null;
-
-        for (GolemArms arms : serverLevel.getEntitiesOfClass(
-                GolemArms.class,
-                defender.getBoundingBox().inflate(3.0D),
-                candidate -> candidate.isAlive() && !candidate.isRemoved() && candidate.getOwnerLiving() == defender
-        )) {
-            List<RigOrientedBox> armsBoxes = SpecialAnimationController.activeAttackCollisionBoxes(arms);
-            if (armsBoxes.isEmpty()) continue;
-            if (intersectsAny(armsBoxes, attackingBoxes)) return arms;
-        }
+    private static Mob findClashingArms(LivingEntity defender, Entity attacker, ServerLevel serverLevel) {
+        if (ModList.get().isLoaded("villager_kingdom")) return VillagerKingdom.findClashingArms(defender, attacker, serverLevel);
         return null;
     }
 
-    private static List<RigOrientedBox> activeAttackBoxes(Entity attacker, ServerLevel serverLevel) {
+    public static List<RigOrientedBox> activeAttackBoxes(Entity attacker, ServerLevel serverLevel) {
         List<RigOrientedBox> boxes = new ArrayList<>();
         if (attacker instanceof Mob attackingMob) {
             boxes.addAll(RigAnimationController.activeAttackCollisionBoxes(attackingMob));
@@ -117,13 +108,7 @@ public final class RigMobClashBladeEvent {
         // player rather than the floating Arms entity. Recover those active Arms boxes here too.
         if (attacker instanceof LivingEntity livingAttacker) {
             boxes.addAll(ObsidianArmorController.activeAttackCollisionBoxes(livingAttacker));
-            for (GolemArms arms : serverLevel.getEntitiesOfClass(
-                    GolemArms.class,
-                    livingAttacker.getBoundingBox().inflate(3.0D),
-                    candidate -> candidate.isAlive() && !candidate.isRemoved() && candidate.getOwnerLiving() == livingAttacker
-            )) {
-                boxes.addAll(SpecialAnimationController.activeAttackCollisionBoxes(arms));
-            }
+            if (ModList.get().isLoaded("villager_kingdom")) VillagerKingdom.addArmsAttackBoxes(serverLevel, livingAttacker, boxes);
         }
         return boxes.isEmpty() ? List.of() : List.copyOf(boxes);
     }
@@ -137,7 +122,7 @@ public final class RigMobClashBladeEvent {
         return false;
     }
 
-    private static boolean intersectsAny(List<RigOrientedBox> first, List<RigOrientedBox> second) {
+    public static boolean intersectsAny(List<RigOrientedBox> first, List<RigOrientedBox> second) {
         for (RigOrientedBox a : first) {
             for (RigOrientedBox b : second) {
                 if (a.intersects(b)) return true;
@@ -154,7 +139,7 @@ public final class RigMobClashBladeEvent {
                 && !damageSource.is(DamageTypes.FALL);
     }
 
-    static boolean isDamageInFront(Mob defender, DamageSource damageSource) {
+    public static boolean isDamageInFront(Mob defender, DamageSource damageSource) {
         // Projectiles are checked at contact, not at their shooter's position.
         Entity directEntity = damageSource.getDirectEntity();
         Vec3 sourcePosition = directEntity != null ? directEntity.position() : damageSource.getSourcePosition();

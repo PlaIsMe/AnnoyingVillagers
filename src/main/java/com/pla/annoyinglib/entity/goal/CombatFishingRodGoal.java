@@ -1,10 +1,11 @@
 package com.pla.annoyinglib.entity.goal;
-
+import com.pla.annoyinglib.util.SharedWeaponHooks;
+import net.minecraft.world.item.Items;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.clazz.FishingRodUser;
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import com.pla.annoyinglib.item.FishingRodGrappleUtil;
-import com.pla.annoyinglib.item.TonyTheFishingRod;
 import com.pla.annoyinglib.rig.RigAnimationController;
 import com.pla.annoyinglib.rig.RigAnimationId;
 import com.pla.annoyinglib.rig.RigShieldGuardController;
@@ -159,7 +160,7 @@ public class CombatFishingRodGoal extends Goal {
 
         ItemStack stuckItem = ItemStack.EMPTY;
         if (castAction == Action.JESSICA_PULL_TARGET) {
-            stuckItem = new ItemStack(AnnoyingLibModItems.JESSICA_THE_DARK_SHIELD.get());
+            stuckItem = new ItemStack(SharedWeaponHooks.getItems_JESSICA_THE_DARK_SHIELD());
             FishingRodGrappleUtil.attachNpcCombatFishingHookPayload(hook, this.mob, stuckItem);
         }
 
@@ -271,7 +272,7 @@ public class CombatFishingRodGoal extends Goal {
         }
 
         Item rodItem = this.fishingRodUser.getCombatFishingRodItem();
-        if (rodItem instanceof TonyTheFishingRod) {
+        if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(rodItem))) {
             if (roll < 0.30D) return Action.PULL_TARGET;
             if (roll < 0.70D || distance > 8.0D) return Action.SELF_TO_TARGET;
             return Action.AROUND;

@@ -1,14 +1,13 @@
 package com.pla.annoyinglib.mixin.client;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.pla.annoyinglib.entity.EnchantedArrowEntity;
-import com.pla.annoyinglib.init.AnnoyingLibModEntities;
 import com.pla.annoyinglib.util.GlintColorHelper;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -27,33 +26,9 @@ public abstract class ArrowLayerMixin<T extends LivingEntity, M extends PlayerMo
     @Inject(method = "renderStuckItem", at = @At("HEAD"), cancellable = true)
     private void av$renderColoredStuckArrow(PoseStack poseStack, MultiBufferSource buffer, int packedLight, Entity entity,
          float x, float y, float z, float partialTick, CallbackInfo ci) {
-         // add this in herobrine_vessels
-        // if (entity instanceof HerobrineMob) {
-        //     float f = Mth.sqrt(x * x + z * z);
-
-        //     EnchantedArrowEntity arrow =
-        //             new EnchantedArrowEntity(AnnoyingLibModEntities.ENCHANTED_ARROW.get(), entity.level());
-
-        //     arrow.setPos(entity.getX(), entity.getY(), entity.getZ());
-        //     arrow.setYRot((float) (Math.atan2((double) x, (double) z) * (180F / Math.PI)));
-        //     arrow.setXRot((float) (Math.atan2((double) y, (double) f) * (180F / Math.PI)));
-        //     arrow.yRotO = arrow.getYRot();
-        //     arrow.xRotO = arrow.getXRot();
-
-        //     arrow.setColorGlint(annoyingLib$pickMode(entity, x, y, z));
-
-        //     this.dispatcher.render(
-        //             arrow,
-        //             0.0D, 0.0D, 0.0D,
-        //             0.0F,
-        //             partialTick,
-        //             poseStack,
-        //             buffer,
-        //             packedLight
-        //     );
-
-        //     ci.cancel();
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.Client.renderStuckArrow(poseStack, buffer, packedLight, entity, x, y, z, partialTick, this.dispatcher, annoyingLib$pickMode(entity, x, y, z), ci);
+        }
     }
 
     @Unique

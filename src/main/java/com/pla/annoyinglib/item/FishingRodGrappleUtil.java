@@ -1,8 +1,12 @@
 package com.pla.annoyinglib.item;
-
+import com.pla.annoyinglib.util.SharedWeaponHooks;
+import com.pla.annoyinglib.compat.VillagerKingdom;
+import net.minecraft.world.item.Items;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.clazz.FishingRodUser;
 import com.pla.annoyinglib.entity.ItemProjectile;
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import com.pla.annoyinglib.mixin.FishingHookAccessor;
 import java.util.Optional;
 import net.minecraft.sounds.SoundEvents;
@@ -36,7 +40,7 @@ import net.minecraftforge.common.ToolActions;
 import javax.annotation.Nullable;
 
 public final class FishingRodGrappleUtil {
-    private enum HerobrineEscapeHookResult {
+    public enum HerobrineEscapeHookResult {
         NONE,
         CANCELLED,
         FAILED
@@ -116,7 +120,7 @@ public final class FishingRodGrappleUtil {
         boolean disablePlunge = player.isShiftKeyDown();
 
         if (hook != null) {
-            if (item instanceof TonyTheFishingRod || item instanceof AdvancedFishingRod) {
+            if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(item)) || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(item))) {
                 if (hook.getPersistentData().getBoolean(KEY_RETURNING)) {
                     level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
                     if (!level.isClientSide) {
@@ -132,7 +136,7 @@ public final class FishingRodGrappleUtil {
 
                 if (!level.isClientSide) {
                     int damage;
-                    if (item instanceof TonyTheFishingRod) {
+                    if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(item))) {
                         if (disablePlunge) {
                             if (!handleTonySneakItemTargetOnPull(player, hook)) {
                                 releaseTonyPlungePayloads(hook, player);
@@ -386,7 +390,7 @@ public final class FishingRodGrappleUtil {
             return false;
         }
 
-        if (stuckItem.is(AnnoyingLibModItems.JESSICA_THE_DARK_SHIELD.get())) {
+        if (stuckItem.is(SharedWeaponHooks.getItems_JESSICA_THE_DARK_SHIELD())) {
             target.playSound(SoundEvents.SHIELD_BLOCK, 1.0F, 0.8F);
         }
 
@@ -459,7 +463,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static float calculateNpcHookedFishingRodItemDamage(ItemStack stuckItem) {
-        if (stuckItem.is(AnnoyingLibModItems.JESSICA_THE_DARK_SHIELD.get())) {
+        if (stuckItem.is(SharedWeaponHooks.getItems_JESSICA_THE_DARK_SHIELD())) {
             return 10.0F;
         }
         if (stuckItem.getItem() instanceof ShieldItem) {
@@ -533,7 +537,7 @@ public final class FishingRodGrappleUtil {
 
     public static boolean shouldForceOffhandFishingRodRender(LivingEntity entity) {
         Item offhandItem = entity.getOffhandItem().getItem();
-        return offhandItem instanceof TonyTheFishingRod || offhandItem instanceof AdvancedFishingRod;
+        return (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(offhandItem)) || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(offhandItem));
     }
 
     private static void startHookReturn(FishingHook hook) {
@@ -545,7 +549,7 @@ public final class FishingRodGrappleUtil {
 
     private static void recastHookFromReturn(Item item, Level level, Player player, ItemStack stack, FishingHook returningHook, boolean disablePlunge) {
         Vec3 start = returningHook.position();
-        boolean tonyRod = item instanceof TonyTheFishingRod;
+        boolean tonyRod = (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(item));
         Entity stickyTarget = tonyRod ? getStickyTarget(returningHook) : null;
         ItemProjectile stickyProjectile = tonyRod ? getStickyItemProjectile(returningHook) : null;
         boolean collectReturningItem = tonyRod && returningHook.getPersistentData().getBoolean(KEY_COLLECT_RETURNING_ITEM);
@@ -622,15 +626,15 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean isHoldingTonyRod(LivingEntity owner) {
-        return owner.getMainHandItem().getItem() instanceof TonyTheFishingRod
-                || owner.getOffhandItem().getItem() instanceof TonyTheFishingRod;
+        return (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(owner.getMainHandItem().getItem()))
+                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(owner.getOffhandItem().getItem()));
     }
 
     private static boolean isHoldingGrappleRod(LivingEntity owner) {
-        return owner.getMainHandItem().getItem() instanceof TonyTheFishingRod
-                || owner.getOffhandItem().getItem() instanceof TonyTheFishingRod
-                || owner.getMainHandItem().getItem() instanceof AdvancedFishingRod
-                || owner.getOffhandItem().getItem() instanceof AdvancedFishingRod;
+        return (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(owner.getMainHandItem().getItem()))
+                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(owner.getOffhandItem().getItem()))
+                || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(owner.getMainHandItem().getItem()))
+                || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(owner.getOffhandItem().getItem()));
     }
 
     private static Vec3 getNpcCombatHookCastOrigin(LivingEntity owner) {
@@ -757,7 +761,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean handleTonyReturningStickyLivingTargetOnPull(Item item, LivingEntity owner, FishingHook hook, boolean disablePlunge) {
-        if (disablePlunge || !(item instanceof TonyTheFishingRod)) {
+        if (disablePlunge || !((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(item)))) {
             return false;
         }
 
@@ -775,7 +779,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean handleTonyStickyLivingTargetOnPull(Item item, LivingEntity owner, FishingHook hook) {
-        if (!(item instanceof TonyTheFishingRod)) {
+        if (!((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(item)))) {
             return false;
         }
 
@@ -994,7 +998,7 @@ public final class FishingRodGrappleUtil {
         return owner == null || target != owner && !target.getUUID().equals(owner.getUUID());
     }
 
-    private static void setVanillaHookedEntity(FishingHook hook, Entity target) {
+    public static void setVanillaHookedEntity(FishingHook hook, Entity target) {
         ((FishingHookAccessor) hook).annoyingLib$invokeSetHookedEntity(target);
     }
 
@@ -1252,26 +1256,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static HerobrineEscapeHookResult tryCancelHerobrineEscapeWithFishingHook(FishingHook hook, Entity target) {
-         // add this in herobrine_vessels
-        // if (target instanceof HerobrineGregEntity greg && greg.canFishingHookCancelEscape()) {
-        //     if (greg.tryFishingHookCancelEscape()) {
-        //         setVanillaHookedEntity(hook, greg);
-        //         return HerobrineEscapeHookResult.CANCELLED;
-        //     }
-
-        //     setVanillaHookedEntity(hook, null);
-        //     return HerobrineEscapeHookResult.FAILED;
-        // }
-
-        // if (target instanceof TransporterHerobrineCloneEntity transporter && transporter.canFishingHookCancelEscape()) {
-        //     if (transporter.tryFishingHookCancelEscape()) {
-        //         setVanillaHookedEntity(hook, transporter);
-        //         return HerobrineEscapeHookResult.CANCELLED;
-        //     }
-
-        //     setVanillaHookedEntity(hook, null);
-        //     return HerobrineEscapeHookResult.FAILED;
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.cancelFishingEscape(hook, target);
 
         return HerobrineEscapeHookResult.NONE;
     }
@@ -1354,7 +1339,7 @@ public final class FishingRodGrappleUtil {
         }
 
         double maxPower = getTargetPlungePower(item, grounded);
-        double distancePowerScale = item instanceof AdvancedFishingRod
+        double distancePowerScale = (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(item))
                 ? ADVANCED_TARGET_DISTANCE_POWER_SCALE
                 : TONY_TARGET_DISTANCE_POWER_SCALE;
         double power = Math.min(maxPower, plungeDistance * distancePowerScale);
@@ -1365,7 +1350,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static double getPlayerPlungePower(Item item, boolean grounded) {
-        if (item instanceof AdvancedFishingRod) {
+        if ((ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(item))) {
             return grounded ? ADVANCED_PLAYER_GROUNDED_PLUNGE_POWER : ADVANCED_PLAYER_AIRBORNE_PLUNGE_POWER;
         }
 
@@ -1373,7 +1358,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static double getTargetPlungePower(Item item, boolean grounded) {
-        if (item instanceof AdvancedFishingRod) {
+        if ((ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(item))) {
             return grounded ? ADVANCED_TARGET_GROUNDED_PLUNGE_POWER : ADVANCED_TARGET_AIRBORNE_PLUNGE_POWER;
         }
 

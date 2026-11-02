@@ -1,9 +1,8 @@
 package com.pla.annoyinglib.event;
+import com.pla.annoyinglib.init.AnnoyingLibModItems;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.pla.annoyinglib.AnnoyingLib;
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -19,7 +18,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
-@EventBusSubscriber(value = Dist.CLIENT, modid = AnnoyingLib.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, modid = "annoyinglib", bus = EventBusSubscriber.Bus.MOD)
 public class ShieldRendererEvent extends BlockEntityWithoutLevelRenderer {
     public static ShieldRendererEvent instance;
 
@@ -43,12 +42,6 @@ public class ShieldRendererEvent extends BlockEntityWithoutLevelRenderer {
         Item shield = stack.getItem();
         if (shield == AnnoyingLibModItems.JESSICA_THE_DARK_SHIELD.get()) {
             renderMaterial = ModModelPredicateProvider.LOCATION_JESSICA_THE_DARK_SHIELD;
-        } else if (shield == AnnoyingLibModItems.HEATER_SHIELD.get()) {
-            renderMaterial = ModModelPredicateProvider.LOCATION_HEATER_SHIELD;
-        } else if (shield == AnnoyingLibModItems.GEM_SHIELD.get()) {
-            renderMaterial = ModModelPredicateProvider.LOCATION_GEM_SHIELD;
-        } else if (shield == AnnoyingLibModItems.NETHERITE_SHIELD.get()) {
-            renderMaterial = ModModelPredicateProvider.LOCATION_NETHERITE_SHIELD;
         }
         VertexConsumer ivertexBuilder = renderMaterial.sprite().wrap(ItemRenderer.getFoilBufferDirect(buffer, shieldModel.renderType(renderMaterial.atlasLocation()), true, stack.hasFoil()));
         this.shieldModel.handle().render(matrixStack, ivertexBuilder, combinedLight, combinedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);

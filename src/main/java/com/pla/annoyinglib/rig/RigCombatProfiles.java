@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.rig;
-
-import com.pla.annoyinglib.entity.AngrySteveEntity;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
@@ -884,7 +884,7 @@ public final class RigCombatProfiles {
             }
 
             RigCombatStyle mainStyle = mainProvider.getRigCombatStyle(mainHand);
-            if (mob instanceof AngrySteveEntity && mainStyle == RigCombatStyle.LEGENDARY_SWORD) {
+            if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAngrySteveEntity(mob)) && mainStyle == RigCombatStyle.LEGENDARY_SWORD) {
                 return getProfile(RigCombatStyle.LEGENDARY_SWORD_ANGRY_STEVE);
             }
             return getProfile(mainStyle);

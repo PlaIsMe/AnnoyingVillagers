@@ -1,23 +1,23 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        "DDD",
-        "DLD",
-        "DSD"
-    ],
-    "key": {
-        "D": {
-            "item": "minecraft:diamond"
-        },
-        "L": {
-            "item": "minecraft:lodestone"
-        },
-        "S": {
-            "item": "minecraft:diamond_sword"
-        }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DDD",
+    "DLD",
+    "DSD"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
     },
-    "result": {
-        "item": "annoyinglib:diamond_blaster_sword",
-        "count": 1
+    "L": {
+      "item": "minecraft:lodestone"
+    },
+    "S": {
+      "item": "minecraft:diamond_sword"
     }
+  },
+  "result": {
+    "item": "annoyinglib:diamond_blaster_sword",
+    "count": 1
+  }
 }

@@ -1,11 +1,10 @@
 package com.pla.annoyinglib.item;
-
-
+import com.pla.annoyinglib.init.AnnoyingLibModSounds;
 import com.pla.annoyinglib.AnnoyingLib;
+
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.compat.SmartNpc;
 import com.pla.annoyinglib.entity.ItemProjectile;
-import com.pla.annoyinglib.init.AnnoyingLibModSounds;
 import com.pla.annoyinglib.network.ClientboundDiamondAttractorFx;
 import com.pla.annoyinglib.rig.RigAnimationId;
 import com.pla.annoyinglib.rig.RigCombatProfileProvider;
@@ -70,7 +69,7 @@ public class DiamondAttractorSwordItem extends SwordItem implements RigCombatPro
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), AnnoyingLibModSounds.DIAMOND_ATTRACTOR.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
-            AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientboundDiamondAttractorFx(player));
+            com.pla.annoyinglib.AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new ClientboundDiamondAttractorFx(player));
             pullWeapons(player);
             player.getCooldowns().addCooldown(this, 20 * 60);
         }

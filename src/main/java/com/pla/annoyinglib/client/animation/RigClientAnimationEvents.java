@@ -1,5 +1,7 @@
 package com.pla.annoyinglib.client.animation;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.AnnoyingLib;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.level.LevelEvent;
@@ -16,8 +18,9 @@ public final class RigClientAnimationEvents {
         if (event.getLevel().isClientSide()) {
             RigClientAnimationState.clear();
             SpecialClientAnimationState.clear();
-            // add this in herobrine_vessels
-            // ObsidianArmorClientAnimationState.clear();
+            if (ModList.get().isLoaded("herobrine_vessels")) {
+                HerobrineVessels.Client.clearArmorAnimations();
+            }
         }
     }
 }

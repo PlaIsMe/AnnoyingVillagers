@@ -1,5 +1,7 @@
 package com.pla.annoyinglib.network;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.AnnoyingLib;
 import com.pla.annoyinglib.util.VanillaWeaponAbilityUtil;
 import net.minecraft.network.FriendlyByteBuf;
@@ -28,12 +30,9 @@ public VanillaAttackKeyMessage() {
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
             if (player == null || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
-            // add this in herobrine_vessels
-            // if (EnderSlayerScytheItem.isDragonActive(player.getMainHandItem())) {
-            //     EnderSlayerScytheItem.commandThunder(player, null);
-            //     return;
-            // }
-            // DemoniacVoltageReaverItem.activateVanillaNormalAttack(player);
+            if (ModList.get().isLoaded("herobrine_vessels")) {
+                HerobrineVessels.onAttackKey(player);
+            }
         });
         context.setPacketHandled(true);
     }

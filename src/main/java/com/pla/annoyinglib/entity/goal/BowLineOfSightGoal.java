@@ -1,5 +1,7 @@
 package com.pla.annoyinglib.entity.goal;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.clazz.DangerousReaction;
 import com.pla.annoyinglib.util.BowFunction;
@@ -89,10 +91,9 @@ public class BowLineOfSightGoal extends Goal {
                 && !DangerousReaction.hasDangerousTarget(this.mob)
                 && target != null
                 && target.isAlive()
-                && (!(this.mob instanceof AVNpc));
-                // add this in herobrine_vessels
-                // || InventoryUtils.hasArrowAmmo(this.mob, target instanceof HerobrineMob))
-                // && needsBetterBowPosition(target);
+                && (!(this.mob instanceof AVNpc)
+                || (ModList.get().isLoaded("herobrine_vessels") ? HerobrineVessels.hasArrowAmmo(this.mob, target) : InventoryUtils.hasArrowAmmo(this.mob, false)))
+                && needsBetterBowPosition(target);
     }
 
     private boolean needsBetterBowPosition(LivingEntity target) {
@@ -194,8 +195,7 @@ public class BowLineOfSightGoal extends Goal {
     }
 
     private double getMaxShootDistance(LivingEntity target) {
-        // add this in herobrine_vessels
-        // return target instanceof HerobrineDragonEntity ? 80.0D : this.maxShootDistance;
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.maxBowDistance(target, this.maxShootDistance);
         return this.maxShootDistance;
     }
 

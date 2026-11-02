@@ -1,7 +1,7 @@
 package com.pla.annoyinglib.clazz;
-
-import com.pla.annoyinglib.entity.AngrySteveEntity;
-import com.pla.annoyinglib.entity.SteveEntity;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.util.DangerousReactionAnimations;
 import com.pla.annoyinglib.rig.RigAnimationId;
 import com.pla.annoyinglib.task.DelayedTask;
@@ -98,7 +98,7 @@ public interface DangerousReaction {
             }
         };
 
-        if ((mob instanceof SteveEntity || mob instanceof AngrySteveEntity)
+        if (((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isSteveEntity(mob)) || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAngrySteveEntity(mob)))
                 && mob instanceof AVNpc avNpc
                 && InventoryUtils.hasPlaceableBlock(avNpc)) {
             new DelayedTask(1) {
@@ -138,8 +138,7 @@ public interface DangerousReaction {
                 && !mob.isRemoved()
                 && !mob.isDeadOrDying()
                 && !mob.isNoAi()
-//                add this in herobrine_vessels
-//                && !(mob instanceof ReaperHerobrineEntity reaper && reaper.isSecondFormDragonRider())
+                && !(ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isDragonRider(mob))
                 && !DangerousReactionAnimations.isStunned(mob)
                 && target != null
                 && target.isAlive()

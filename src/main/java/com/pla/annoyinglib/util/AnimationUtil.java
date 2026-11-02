@@ -1,5 +1,7 @@
 package com.pla.annoyinglib.util;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.client.animation.rig_animation.aegis_herobrine.AegisHerobrineAnimations1;
 import com.pla.annoyinglib.client.animation.rig_animation.greatsword.GreatswordAnimations1;
 import com.pla.annoyinglib.client.animation.rig_animation.legendary_sword.LegendarySwordAnimations1;
@@ -118,14 +120,10 @@ public class AnimationUtil {
     }
 
     public static AnimationDefinition getIdleAnimation(Mob mob) {
-        // add this in herobrine_vessels
-        // if (mob instanceof EliteHerobrineKnockedEntity) {
-        //     return HerobrineLivingAnimations.KNOCKED_ELITE;
-        // } else if (mob instanceof InfectedPlayerNpcEntity
-        //         || mob instanceof InfectedChrisEntity
-        //         || mob instanceof InfectedTheMostMoistBurrit0Entity) {
-        //     return LivingAnimations.LAYING_DEATH;
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            AnimationDefinition animation = HerobrineVessels.Client.idleAnimation(mob);
+            if (animation != null) return animation;
+        }
 
         ItemStack mainHand = mob.getMainHandItem();
         ItemStack offHand = mob.getOffhandItem();

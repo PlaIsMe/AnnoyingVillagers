@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.util;
-
-import com.pla.annoyinglib.entity.*;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.VillagerKingdom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -126,9 +126,9 @@ public class RidingUtil {
                     null,
                     null
             );
-            if (entity instanceof VillagerScoutEntity || entity instanceof VillagerScoutCaptainEntity
-                    || entity instanceof RedVillagerKnightEntity || entity instanceof BlueVillagerKnightEntity
-                    || entity instanceof GreenVillagerKnightEntity || entity instanceof PurpleVillagerKnightEntity) {
+            if ((ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isVillagerScoutEntity(entity)) || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isVillagerScoutCaptainEntity(entity))
+                    || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isRedVillagerKnightEntity(entity)) || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isBlueVillagerKnightEntity(entity))
+                    || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isGreenVillagerKnightEntity(entity)) || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isPurpleVillagerKnightEntity(entity))) {
                 TeamUtil.addOrJoinTeam(mount, "villagers");
             }
             serverLevel.addFreshEntity(mount);

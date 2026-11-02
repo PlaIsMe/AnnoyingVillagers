@@ -1,7 +1,7 @@
 package com.pla.annoyinglib.mixin;
-
-import com.pla.annoyinglib.entity.TridentLightningBolt;
-import com.pla.annoyinglib.init.AnnoyingLibModBlocks;
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.util.ExplosionFxMute;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -79,10 +79,7 @@ public abstract class ExplosionMixin {
         LivingEntity owner = this.getIndirectSourceEntity();
         if (owner != null && owner.isAlive()) {
             ItemStack stack = owner.getMainHandItem();
-            // add this in herobrine_vessels
-            // if (stack.getItem() instanceof EnderGlaiveItem) {
-            //     return AnnoyingLibModBlocks.END_FIRE.get().defaultBlockState();
-            // }
+            if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.explosionFire(stack, originalState);
         }
         return originalState;
     }
@@ -95,7 +92,7 @@ public abstract class ExplosionMixin {
             )
     )
     private Object noPlayerExplosionVector(Map<?, ?> map, Object key, Object value) {
-        if (this.source instanceof TridentLightningBolt) {
+        if ((ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isTridentLightningBolt(this.source))) {
             return null;
         }
         return ((Map<Object, Object>) map).put(key, value);

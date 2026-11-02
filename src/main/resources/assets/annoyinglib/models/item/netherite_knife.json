@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/netherite_knife",
-  "textures": {
-    "0": "annoyinglib:item/netherite_knife",
-    "particle": "annoyinglib:item/netherite_knife"
-  }
-}

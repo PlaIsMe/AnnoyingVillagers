@@ -1,11 +1,10 @@
 package com.pla.annoyinglib.event;
-
+import com.pla.annoyinglib.compat.MobSupremacy;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.AnnoyingLib;
-import com.pla.annoyinglib.entity.TridentLightningBolt;
-import com.pla.annoyinglib.entity.BlueDemonThrownTridentEntity;
-import com.pla.annoyinglib.item.LegendarySwordItem;
 import com.pla.annoyinglib.util.VanillaWeaponAbilityUtil;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
@@ -25,27 +24,24 @@ public final class VanillaWeaponCombatEvent {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onCriticalHit(CriticalHitEvent event) {
         Player player = event.getEntity();
-        if (com.pla.annoyinglib.item.HackerSwordItem.isComboAttack(player)) {
+        if ((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.hackerSwordItem_isComboAttack(player) : false)) {
             event.setResult(net.minecraftforge.eventbus.api.Event.Result.ALLOW);
             event.setDamageModifier(1.5F);
         }
         if (!event.isVanillaCritical() || player.level().isClientSide() || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
         ItemStack stack = player.getMainHandItem();
-        // add this in herobrine_vessels
-        // if (stack.getItem() instanceof ShadowObsidianPillarItem) ShadowObsidianPillarItem.onVanillaCriticalHit(stack, player);
-        // else if (stack.getItem() instanceof ShadowObsidianSwordItem) ShadowObsidianSwordItem.onVanillaCriticalHit(stack, player);
-        // else if (stack.getItem() instanceof ShadowObsidianWeaponItem) ShadowObsidianWeaponItem.onVanillaCriticalHit(player);
-        // else if (stack.getItem() instanceof ObsidianWeaponItem) ObsidianWeaponItem.onVanillaCriticalHit(player);
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.onCriticalHit(stack, player);
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onAttackEntity(AttackEntityEvent event) {
         Player player = event.getEntity();
         if (player.level().isClientSide() || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
-         // add this in herobrine_vessels
-        // if (!(player.getMainHandItem().getItem() instanceof EnderSlayerScytheItem)) return;
-        // LivingEntity target = event.getTarget() instanceof LivingEntity livingEntity ? livingEntity : null;
-        // if (EnderSlayerScytheItem.commandThunder(player, target)) event.setCanceled(true);
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.onAttackEntity(event, player);
+        }
     }
 
 
@@ -53,31 +49,27 @@ public final class VanillaWeaponCombatEvent {
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
         if (event.phase != TickEvent.Phase.END || player.level().isClientSide() || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
-        // add this in herobrine_vessels
-        // TransporterFragmentItem.tickPendingSavedTeleport(player);
-        if (!LegendarySwordItem.hasActiveVanillaAwakening(player)) LegendarySwordItem.clearVanillaAttackSpeed(player);
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.tickSavedTeleport(player);
+        }
+        if (!(ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.legendarySwordItem_hasActiveVanillaAwakening(player) : false)) if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.legendarySwordItem_clearVanillaAttackSpeed(player);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onShieldBlock(ShieldBlockEvent event) {
         if (!(event.getEntity() instanceof Player player) || player.level().isClientSide() || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
         ItemStack stack = player.getUseItem();
-        // add this in herobrine_vessels    
-        // if (!(stack.getItem() instanceof EnderAegisItem)) return;
-        // boolean wasSecondForm = EnderAegisItem.isSecondForm(stack);
-        // if (wasSecondForm) EnderAegisItem.shieldShoot(player.level(), player);
-        // else EnderAegisItem.addBlockedCharge(stack, player, event.getBlockedDamage());
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.onShieldBlock(event, player, stack);
+        }
     }
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingHurt(LivingHurtEvent event) {
-         // add this in herobrine_vessels
-        // if (!event.getEntity().level().isClientSide() && event.getSource().getEntity() instanceof Player attacker && event.getSource().getDirectEntity() == attacker && event.getEntity() != attacker) NullWeaponItem.onPlayerMeleeHit(attacker);
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (event.getSource().getDirectEntity() instanceof BlueDemonThrownTridentEntity trident && trident.getOwner() == player) {
-            event.setCanceled(true);
-            return;
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.onLivingHurt(event);
         }
-        if (event.getSource().getDirectEntity() instanceof TridentLightningBolt lightning && lightning.getOwner() == player) event.setCanceled(true);
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.cancelOwnedTridentDamage(event, player);
     }
 
 }

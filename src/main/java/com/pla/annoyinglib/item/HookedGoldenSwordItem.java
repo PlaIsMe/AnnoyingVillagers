@@ -3,7 +3,7 @@ package com.pla.annoyinglib.item;
 import com.pla.annoyinglib.rig.RigCombatProfileProvider;
 import com.pla.annoyinglib.rig.RigCombatStyle;
 import com.pla.annoyinglib.rig.RigDualWieldGroup;
-import com.pla.annoyinglib.util.HookSwordVanillaAbilityUtil;
+import com.pla.annoyinglib.util.HookSwordAbilityUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -44,7 +44,7 @@ public class HookedGoldenSwordItem extends SwordItem implements RigCombatProfile
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        return HookSwordVanillaAbilityUtil.useHookSword(level, player, hand);
+        return HookSwordAbilityUtil.useHookSword(level, player, hand);
     }
 
     @Override

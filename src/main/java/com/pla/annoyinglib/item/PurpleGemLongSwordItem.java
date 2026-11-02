@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.item;
+import com.pla.annoyinglib.util.ContentRegistry;
 
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import com.pla.annoyinglib.rig.RigCombatProfileProvider;
 import com.pla.annoyinglib.rig.RigCombatStyle;
 import com.pla.annoyinglib.rig.RigDualWieldGroup;
@@ -35,7 +35,7 @@ public class PurpleGemLongSwordItem extends SwordItem implements RigCombatProfil
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(AnnoyingLibModItems.RUBY.get()));
+                return Ingredient.of(new ItemStack(ContentRegistry.item("villager_kingdom:ruby")));
             }
         }, 3, -2.0F, (new Properties()));
     }

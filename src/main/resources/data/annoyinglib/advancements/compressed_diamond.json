@@ -1,24 +1,63 @@
 {
-    "display": {
-        "icon": {
-            "item": "annoyinglib:compressed_diamond"
-        },
-        "title": {
+  "advancements": [
+    {
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "legendary_npcs"
+        }
+      ],
+      "advancement": {
+        "display": {
+          "icon": {
+            "item": "legendary_npcs:compressed_diamond"
+          },
+          "title": {
             "translate": "advancements.annoyinglib.compressed_diamond.title",
             "color": "green"
-        },
-        "description": {
+          },
+          "description": {
             "translate": "advancements.annoyinglib.compressed_diamond.description"
+          },
+          "frame": "task",
+          "show_toast": false,
+          "announce_to_chat": false,
+          "hidden": false,
+          "background": "minecraft:textures/block/obsidian.png"
         },
-        "frame": "task",
-        "show_toast": false,
-        "announce_to_chat": false,
-        "hidden": false,
-        "background": "minecraft:textures/block/obsidian.png"
-    },
-    "criteria": {
-        "auto": {
+        "criteria": {
+          "auto": {
             "trigger": "minecraft:tick"
+          }
         }
+      }
+    },
+    {
+      "conditions": [],
+      "advancement": {
+        "display": {
+          "icon": {
+            "item": "minecraft:diamond"
+          },
+          "title": {
+            "translate": "advancements.annoyinglib.compressed_diamond.title",
+            "color": "green"
+          },
+          "description": {
+            "translate": "advancements.annoyinglib.compressed_diamond.description"
+          },
+          "frame": "task",
+          "show_toast": false,
+          "announce_to_chat": false,
+          "hidden": false,
+          "background": "minecraft:textures/block/obsidian.png"
+        },
+        "criteria": {
+          "auto": {
+            "trigger": "minecraft:tick"
+          }
+        }
+      }
     }
+  ]
 }

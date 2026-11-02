@@ -1,5 +1,7 @@
 package com.pla.annoyinglib.client.model;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyinglib.AnnoyingLib;
 import com.pla.annoyinglib.client.animation.RigAnimationResolver;
@@ -246,11 +248,8 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         if (entity.isDeadOrDying() || entity.deathTime > 0) {
             float partialTick = Math.max(0.0F, Math.min(1.0F, ageInTicks - entity.tickCount));
             float deathElapsedTicks = Math.max(0.0F, entity.deathTime - 1.0F + partialTick);
-//            add this in herobrine_vessels
-//            if (entity instanceof InfectedPlayerNpcEntity
-//                    || entity instanceof InfectedChrisEntity
-//                    || entity instanceof InfectedTheMostMoistBurrit0Entity) {
-            if (false) {
+
+            if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.Client.isInfectedCorpse(entity)) {
                 this.applyAnimationFromStart(LivingAnimations.LAYING_DEATH_DEAD, deathElapsedTicks, 1.0F, 1.0F);
             } else {
                 this.applyAnimationFromStart(LivingAnimations.DEATH, deathElapsedTicks, 1.0F, 1.0F);

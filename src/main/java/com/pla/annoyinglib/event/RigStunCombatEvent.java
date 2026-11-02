@@ -1,7 +1,8 @@
 package com.pla.annoyinglib.event;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.AnnoyingLib;
-import com.pla.annoyinglib.init.AnnoyingLibModMobEffects;
 import com.pla.annoyinglib.rig.RigAnimationController;
 import com.pla.annoyinglib.rig.RigAnimationId;
 import com.pla.annoyinglib.rig.RigCriticalUtil;
@@ -82,8 +83,7 @@ public final class RigStunCombatEvent {
         DamageSource source = event.getSource();
         if (event.getAmount() <= 0.0F || !(victim instanceof Mob mobVictim) || !RigStunController.supports(mobVictim)) return;
 
-         // add this in herobrine_vessels
-        // if (victim.hasEffect(HerobrineVesselsModMobEffects.GROUND_STUCK.get())) return;
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isGroundStuck(victim)) return;
 
         if (source.is(DamageTypes.FALL) && event.getAmount() > 1.0F) {
             RigAnimationController.stop(mobVictim, RigAnimationId.FALL);

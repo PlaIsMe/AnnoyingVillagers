@@ -1,11 +1,11 @@
 package com.pla.annoyinglib.util;
-
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.MobSupremacy;
+import com.pla.annoyinglib.compat.VillagerKingdom;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.clazz.DangerousReaction;
-import com.pla.annoyinglib.clazz.FakePlayer;
 import com.pla.annoyinglib.clazz.AVNpc;
-import com.pla.annoyinglib.clazz.VillagerArmyEntity;
 import com.pla.annoyinglib.compat.SmartNpc;
-import com.pla.annoyinglib.entity.*;
 import com.pla.annoyinglib.entity.goal.DangerousReactionGoal;
 import com.pla.annoyinglib.entity.goal.KeepPositionGoal;
 import com.pla.annoyinglib.entity.goal.RigAnimatedMeleeAttackGoal;
@@ -29,7 +29,7 @@ public class CommonGoals {
         return target != null && target.isAlive();
     }
 
-    private static Goal createMeleeAttackGoal(PathfinderMob mob, double speedModifier, boolean followingTargetEvenIfNotSeen) {
+    public static Goal createMeleeAttackGoal(PathfinderMob mob, double speedModifier, boolean followingTargetEvenIfNotSeen) {
         if (supportsRigCombat(mob)) {
             return new RigAnimatedMeleeAttackGoal(mob, speedModifier, followingTargetEvenIfNotSeen);
         }
@@ -37,17 +37,15 @@ public class CommonGoals {
         return new MeleeAttackGoal(mob, speedModifier, followingTargetEvenIfNotSeen);
     }
 
-    private static void addRigShieldGuardGoal(PathfinderMob mob, int priority) {
+    public static void addRigShieldGuardGoal(PathfinderMob mob, int priority) {
         if (supportsRigCombat(mob)) {
             mob.goalSelector.addGoal(priority, new RigShieldGuardGoal(mob));
         }
     }
 
     private static boolean supportsRigCombat(Mob mob) {
-        return mob instanceof AVNpc || mob instanceof BlueDemonEntity;
-        // add this in herobrine_vessels
-        //  || mob instanceof HerobrineMob 
-        //         || mob instanceof LowHerobrineCloneEntity || mob instanceof LowShadowHerobrineCloneEntity;
+        return mob instanceof AVNpc || (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonEntity(mob)) || (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.supportsRigCombat(mob));
+
     }
 
     private static Goal createRandomStrollGoal(PathfinderMob mob, double speedModifier) {
@@ -72,24 +70,23 @@ public class CommonGoals {
 
     public static void registerDangerousReactionGoals(Mob mob) {
         if (!(mob instanceof DangerousReaction dangerousReaction)) return;
-        // add this in herobrine_vessels
-        // if (mob instanceof HerobrinePortalSupportCaster supportCaster) {
-        //     mob.goalSelector.addGoal(-7, new HerobrinePortalDangerousReactionGoal(mob, dangerousReaction, supportCaster));
-        // } else {
-        //     mob.goalSelector.addGoal(-7, new DangerousReactionGoal(mob, dangerousReaction));
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.addDangerousReactionGoal(mob, dangerousReaction);
+        } else {
+            mob.goalSelector.addGoal(-7, new DangerousReactionGoal(mob, dangerousReaction));
+        }
         mob.goalSelector.addGoal(-6, new KeepPositionGoal(mob));
     }
 
     public static void registerTargetGoalForVanillaMonster(Monster monster) {
         monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, LivingEntity.class, true, target ->
-                target instanceof SteveEntity ||
-                        target instanceof AngrySteveEntity ||
-                        target instanceof ChrisEntity ||
-                        target instanceof AlexEntity ||
-                        target instanceof JevEntity ||
-                        target instanceof BlueDemonEntity ||
-                        target instanceof VillagerArmyEntity
+                (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isSteveEntity(target)) ||
+                        (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAngrySteveEntity(target)) ||
+                        (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isChrisEntity(target)) ||
+                        (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAlexEntity(target)) ||
+                        (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isJevEntity(target)) ||
+                        (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonEntity(target)) ||
+                        (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isVillagerArmyEntity(target))
         ));
 
         if (ModList.get().isLoaded("smart_npc")) {
@@ -104,25 +101,26 @@ public class CommonGoals {
         if (ModList.get().isLoaded("smart_npc")) {
             SmartNpc.targetPlayerNpc(monster, 1);
         }
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, SteveEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, AngrySteveEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, ChrisEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, AlexEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, JevEntity.class, true, false));
+        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.registerGoalForHostileNpcTargets(monster);
+        
+        
+        
+        
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, Villager.class, true, false));
         monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, IronGolem.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, BlueDemonEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, VillagerScoutEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, VillagerScoutCaptainEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, RedVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, BlueVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
-        // add this in herobrine_vessels
-        // if (!(monster instanceof TransporterHerobrineCloneEntity)) {
-        //     addRigShieldGuardGoal(monster, 1);
-        //     monster.goalSelector.addGoal(2, createMeleeAttackGoal(monster, 1.2D, false));
-        // }
+        if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.registerGoalForHostileNpcTargets(monster);
+        if (ModList.get().isLoaded("villager_kingdom")) VillagerKingdom.registerGoalForHostileNpcTargets(monster);
+        
+        
+        
+        
+        
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.addHostileMeleeGoals(monster);
+        } else {
+            addRigShieldGuardGoal(monster, 1);
+            monster.goalSelector.addGoal(2, createMeleeAttackGoal(monster, 1.2D, false));
+        }
         monster.goalSelector.addGoal(3, createRandomStrollGoal(monster, 1.0D));
         monster.goalSelector.addGoal(4, new RandomLookAroundGoal(monster));
         monster.goalSelector.addGoal(5, new FloatGoal(monster));
@@ -131,23 +129,20 @@ public class CommonGoals {
     public static void registerGoalForBlueDemonNpc(Monster monster) {
         monster.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
         monster.targetSelector.addGoal(1, new HurtByTargetGoal(monster));
-       // add this in herobrine_vessels
-        // monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, HerobrineMob.class, true, false));
-        // monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, LowHerobrineCloneEntity.class, true, false));
-        // monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, LowShadowHerobrineCloneEntity.class, true, false));
-        // monster.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(monster, EliteHerobrineKnockedEntity.class, true, false));
-        // monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, Player.class, true, false));
+    if (ModList.get().isLoaded("herobrine_vessels")) {
+        HerobrineVessels.addBlueDemonTargets(monster);
+    }
         if (ModList.get().isLoaded("smart_npc")) {
             SmartNpc.targetPlayerNpc(monster, 2);
         }
-        monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, AngrySteveEntity.class, true, false));
+        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.registerGoalForBlueDemonNpcTargets(monster);
         monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, Villager.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, VillagerScoutEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, VillagerScoutCaptainEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, RedVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, BlueVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, GreenVillagerKnightEntity.class, true, false));
-        monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, PurpleVillagerKnightEntity.class, true, false));
+        if (ModList.get().isLoaded("villager_kingdom")) VillagerKingdom.registerGoalForBlueDemonNpcTargets(monster);
+        
+        
+        
+        
+        
         monster.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(monster, AbstractIllager.class, true, false));
         addRigShieldGuardGoal(monster, 2);
         monster.goalSelector.addGoal(3, createMeleeAttackGoal(monster, 1.2D, false));
@@ -158,14 +153,13 @@ public class CommonGoals {
 
     public static void registerGoalForVillagerKnightNpc(PathfinderMob mob) {
         mob.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
-        if (!(mob instanceof VillagerArmyEntity)) {
+        if (!((ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isVillagerArmyEntity(mob)))) {
             mob.targetSelector.addGoal(1, (new HurtByTargetGoal(mob)).setAlertOthers());
         }
 
-        // add this in herobrine_vessels
-        // mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, HerobrineMob.class, true, false));
-        // mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowHerobrineCloneEntity.class, true, false));
-        // mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowShadowHerobrineCloneEntity.class, true, false));
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.addKnightTargets(mob);
+        }
 
         if (ModList.get().isLoaded("smart_npc")) {
             SmartNpc.targetPlayerNpc(mob, 2);
@@ -173,12 +167,12 @@ public class CommonGoals {
         mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, Player.class, true, false));
         mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, Monster.class, true, false));
         mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, AbstractIllager.class, true, false));
-        mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, BlueDemonEntity.class, true, false));
+        if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.registerGoalForVillagerKnightNpcTargets(mob);
 
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, SteveEntity.class, true, false));
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AngrySteveEntity.class, true, false));
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AlexEntity.class, true, false));
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, ChrisEntity.class, true, false));
+        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.registerGoalForVillagerKnightNpcTargets(mob);
+        
+        
+        
         addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(5, createMeleeAttackGoal(mob, 1.2D, false));
         mob.goalSelector.addGoal(6, new RandomStrollGoal(mob, 1.0D) {
@@ -238,33 +232,15 @@ public class CommonGoals {
     public static void registerGoalForNeutralNpc(PathfinderMob mob) {
         mob.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
 
-        // add this in herobrine_vessels
-        // mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, HerobrineMob.class, true, false));
-        // mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowHerobrineCloneEntity.class, true, false));
-        // mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowShadowHerobrineCloneEntity.class, true, false));
-        // mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, EliteHerobrineKnockedEntity.class, true, false));
-        // mob.targetSelector.addGoal(2, new HurtByTargetGoal(mob));
-        // mob.goalSelector.addGoal(2, createMeleeAttackGoal(mob, 1.2D, false));
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.addNeutralTargets(mob);
+        } else {
+            mob.targetSelector.addGoal(2, new HurtByTargetGoal(mob));
+            mob.goalSelector.addGoal(2, createMeleeAttackGoal(mob, 1.2D, false));
+        }
 
-        if (!(mob.getTarget() instanceof VillagerScoutEntity)) {
-            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, VillagerScoutEntity.class, 12.0F, 1.2D, 1.4D));
-        }
-        if (!(mob.getTarget() instanceof VillagerScoutCaptainEntity)) {
-            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, VillagerScoutCaptainEntity.class, 12.0F, 1.2D, 1.4D));
-        }
-        if (!(mob.getTarget() instanceof BlueVillagerKnightEntity)) {
-            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, BlueVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
-        }
-        if (!(mob.getTarget() instanceof GreenVillagerKnightEntity)) {
-            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, GreenVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
-        }
-        if (!(mob.getTarget() instanceof RedVillagerKnightEntity)) {
-            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, RedVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
-        }
-        if (!(mob.getTarget() instanceof PurpleVillagerKnightEntity)) {
-            mob.goalSelector.addGoal(2, new AvoidEntityGoal<>(mob, PurpleVillagerKnightEntity.class, 12.0F, 1.2D, 1.4D));
-        }
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, Monster.class, false, (target) -> !(target instanceof FakePlayer || target instanceof BlueDemonEntity)));
+        if (ModList.get().isLoaded("villager_kingdom")) VillagerKingdom.registerGoalForNeutralNpcTargets(mob);
+        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, Monster.class, false, (target) -> !((ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isFakePlayer(target)) || (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonEntity(target)))));
         mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, AbstractIllager.class, true, false));
         addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(3, createMeleeAttackGoal(mob, 1.2D, false));
@@ -280,24 +256,24 @@ public class CommonGoals {
         mob.getNavigation().getNodeEvaluator().setCanOpenDoors(true);
         mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, Monster.class, false, false));
         mob.targetSelector.addGoal(1, new HurtByTargetGoal(mob));
-        // add this in herobrine_vessels
-        // mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, HerobrineMob.class, true, false));
-        // mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowHerobrineCloneEntity.class, true, false));
-        // mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, LowShadowHerobrineCloneEntity.class, true, false));
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.addCrazyTargets(mob);
+        }
         if (ModList.get().isLoaded("smart_npc")) {
             SmartNpc.targetPlayerNpc(mob, 2);
         }
-        mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, VillagerScoutEntity.class, false, false));
-        mob.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(mob, VillagerScoutCaptainEntity.class, false, false));
-        mob.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(mob, RedVillagerKnightEntity.class, false, false));
-        mob.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(mob, BlueVillagerKnightEntity.class, false, false));
-        mob.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(mob, GreenVillagerKnightEntity.class, false, false));
-        mob.targetSelector.addGoal(8, new NearestAttackableTargetGoal<>(mob, PurpleVillagerKnightEntity.class, false, false));
-        mob.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(mob, BlueDemonEntity.class, false, false));
-        // add this in herobrine_vessels
-        // mob.targetSelector.addGoal(8, new NearestAttackableTargetGoal<>(mob, EliteHerobrineKnockedEntity.class, true, false));
-        mob.targetSelector.addGoal(20, new NearestAttackableTargetGoal<>(mob, AlexEntity.class, false, false));
-        mob.targetSelector.addGoal(20, new NearestAttackableTargetGoal<>(mob, ChrisEntity.class, false, false));
+        if (ModList.get().isLoaded("villager_kingdom")) VillagerKingdom.addCrazyNpcTargets(mob);
+        
+        
+        
+        
+        
+        if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.addCrazyNpcTargets(mob);
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.addKnockedEliteTarget(mob);
+        }
+        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.addCrazyNpcTargets(mob);
+        
         mob.targetSelector.addGoal(21, new NearestAttackableTargetGoal<>(mob, Player.class, true, true));
         addRigShieldGuardGoal(mob, 0);
         mob.goalSelector.addGoal(22, createMeleeAttackGoal(mob, 1.2D, false));

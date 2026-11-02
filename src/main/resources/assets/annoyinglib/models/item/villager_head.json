@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/villagerhead",
-  "textures": {
-    "0": "annoyinglib:item/villagerhead",
-    "particle": "annoyinglib:item/villagerhead"
-  }
-}

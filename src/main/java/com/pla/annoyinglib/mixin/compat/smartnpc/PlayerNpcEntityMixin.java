@@ -31,11 +31,10 @@ public abstract class PlayerNpcEntityMixin {
         }
     }
 
-     // add this in herobrine_vessels
-    // @Inject(method = "isSmartNpcCompatHighDangerThreat", at = @At("HEAD"), cancellable = true)
-    // private void annoyingLib$isSmartNpcCompatHighDangerThreat(LivingEntity target, CallbackInfoReturnable<Boolean> cir) {
-    //     if (SmartNpc.isHighDangerThreat(target)) {
-    //         cir.setReturnValue(true);
-    //     }
-    // }
+    @Inject(method = "isSmartNpcCompatHighDangerThreat", at = @At("HEAD"), cancellable = true)
+    private void annoyingLib$isSmartNpcCompatHighDangerThreat(LivingEntity target, CallbackInfoReturnable<Boolean> cir) {
+        if (SmartNpc.isHighDangerThreat(target)) {
+            cir.setReturnValue(true);
+        }
+    }
 }

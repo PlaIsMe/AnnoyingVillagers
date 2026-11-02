@@ -182,15 +182,15 @@ public class ShockWaveBlockEntity extends Entity {
     }
 
     public static void playTriedAnimation(Entity target) {
-//      ADD THIS CODE IN AV_EFM
-//        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
-//        if (targetPatch != null) {
-//            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(targetPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-//            if (dynamicAnimation != null && !EpicfightUtil.isLongHitAnimation(dynamicAnimation, targetPatch)) {
-//                targetPatch.playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_KNOCKDOWN, 0.0F);
-//            }
-//        }
-//        Create VANILLA_ANIMATION
+//      ADD THIS CODE IN AV_EFM
+//        LivingEntityPatch<?> targetPatch = EpicFightCapabilities.getEntityPatch(target, LivingEntityPatch.class);
+//        if (targetPatch != null) {
+//            AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(targetPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
+//            if (dynamicAnimation != null && !EpicfightUtil.isLongHitAnimation(dynamicAnimation, targetPatch)) {
+//                targetPatch.playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_KNOCKDOWN, 0.0F);
+//            }
+//        }
+//        Create VANILLA_ANIMATION
         if (target.level().isClientSide) {
             return;
         }

@@ -3,55 +3,55 @@
     {
       "name": "annoyinglib_axes",
       "items": [
-        "annoyingvillagers:demoniac_voltage_reaver",
+        "herobrine_vessels:demoniac_voltage_reaver",
         "annoyinglib:diamond_battleaxe",
         "annoyinglib:diamond_greataxe",
         "annoyinglib:diamond_greatsword",
         "annoyinglib:diamond_mace",
-        "annoyinglib:earth_axe",
-        "annoyinglib:exterminator_battleaxe",
-        "annoyinglib:exterminator_battleaxe_green",
-        "annoyinglib:giant_netherite_axe",
+        "legendary_npcs:earth_axe",
+        "legendary_npcs:exterminator_battleaxe",
+        "legendary_npcs:exterminator_battleaxe_green",
+        "mob_supremacy:giant_netherite_axe",
         "annoyinglib:golden_mace",
-        "annoyinglib:iron_greataxe",
-        "annoyinglib:legendary_sword",
-        "annoyinglib:netherite_greataxe",
-        "annoyingvillagers:null_axe",
-        "annoyinglib:red_axe",
-        "annoyinglib:red_steel_axe",
+        "mob_supremacy:iron_greataxe",
+        "legendary_npcs:legendary_sword",
+        "mob_supremacy:netherite_greataxe",
+        "herobrine_vessels:null_axe",
+        "legendary_npcs:red_axe",
+        "mob_supremacy:red_steel_axe",
         "annoyinglib:ruby_greatsword",
-        "annoyinglib:samantha_the_killer_axe",
-        "annoyingvillagers:warden_axe"
+        "legendary_npcs:samantha_the_killer_axe",
+        "herobrine_vessels:warden_axe"
       ]
     },
     {
       "name": "annoyinglib_fists",
       "items": [
-        "annoyingvillagers:bedrock_weapon",
+        "herobrine_vessels:bedrock_weapon",
         "annoyinglib:diamond_armblade",
-        "annoyingvillagers:diamond_claw",
+        "annoyinglib:diamond_claw",
         "annoyinglib:diamond_moon_blade",
         "annoyinglib:golden_moon_blade",
-        "annoyingvillagers:null_weapon",
-        "annoyingvillagers:obsidian_weapon",
-        "annoyingvillagers:shadow_obsidian_pillar",
-        "annoyingvillagers:shadow_obsidian_weapon"
+        "herobrine_vessels:null_weapon",
+        "herobrine_vessels:obsidian_weapon",
+        "herobrine_vessels:shadow_obsidian_pillar",
+        "herobrine_vessels:shadow_obsidian_weapon"
       ]
     },
     {
       "name": "annoyinglib_hammers",
       "items": [
-        "annoyinglib:crafting_table",
-        "annoyinglib:holy_llama_hammer",
-        "annoyinglib:ladder",
-        "annoyingvillagers:obsidian_sledgehammer",
-        "annoyinglib:wooden_door"
+        "legendary_npcs:crafting_table",
+        "mob_supremacy:holy_llama_hammer",
+        "legendary_npcs:ladder",
+        "herobrine_vessels:obsidian_sledgehammer",
+        "legendary_npcs:wooden_door"
       ]
     },
     {
       "name": "annoyinglib_pickaxes",
       "items": [
-        "annoyingvillagers:null_pickaxe"
+        "herobrine_vessels:null_pickaxe"
       ]
     },
     {
@@ -61,36 +61,36 @@
         "annoyinglib:diamond_halberd",
         "annoyinglib:diamond_longsword",
         "annoyinglib:double_diamond_glaive",
-        "annoyingvillagers:ender_glaive",
-        "annoyingvillagers:ender_slayer_scythe",
+        "herobrine_vessels:ender_glaive",
+        "herobrine_vessels:ender_slayer_scythe",
         "annoyinglib:golden_longsword",
-        "annoyinglib:iron_double_bladed_halberd",
-        "annoyinglib:iron_halberd",
+        "mob_supremacy:iron_double_bladed_halberd",
+        "mob_supremacy:iron_halberd",
         "annoyinglib:iron_longsword",
-        "annoyinglib:iron_twin_blade_katana",
+        "legendary_npcs:iron_twin_blade_katana",
         "annoyinglib:ruby_longsword",
-        "annoyinglib:spear_axe"
+        "mob_supremacy:spear_axe"
       ]
     },
     {
       "name": "annoyinglib_spears",
       "items": [
-        "annoyinglib:blackscratcher",
-        "annoyingvillagers:diamond_bolt",
-        "annoyinglib:diamond_spear",
-        "annoyinglib:netherite_spear",
-        "annoyingvillagers:shadow_obsidian_sword",
+        "legendary_npcs:blackscratcher",
+        "mob_supremacy:diamond_bolt",
+        "legendary_npcs:diamond_spear",
+        "mob_supremacy:netherite_spear",
+        "herobrine_vessels:shadow_obsidian_sword",
         "annoyinglib:twin_diamond_spear"
       ]
     },
     {
       "name": "annoyinglib_swords",
       "items": [
-        "annoyinglib:black_fire_sword",
-        "annoyinglib:blue_flame_sword",
-        "annoyinglib:centranos_sword",
-        "annoyinglib:clow_sword",
-        "annoyinglib:darkness_sword",
+        "legendary_npcs:black_fire_sword",
+        "legendary_npcs:blue_flame_sword",
+        "legendary_npcs:centranos_sword",
+        "legendary_npcs:clow_sword",
+        "the_creators:darkness_sword",
         "annoyinglib:diamond_attractor_sword",
         "annoyinglib:diamond_blaster_sword",
         "annoyinglib:diamond_falchion",
@@ -101,10 +101,10 @@
         "annoyinglib:diamond_sabre",
         "annoyinglib:diamond_sickle",
         "annoyinglib:diamond_warblade",
-        "annoyinglib:dnax_hooked_sword",
-        "annoyinglib:flanker_hooked_sword",
-        "annoyinglib:great_sword",
-        "annoyinglib:hacker_sword",
+        "legendary_npcs:dnax_hooked_sword",
+        "legendary_npcs:flanker_hooked_sword",
+        "legendary_npcs:great_sword",
+        "legendary_npcs:hacker_sword",
         "annoyinglib:hooked_diamond_sword",
         "annoyinglib:hooked_golden_sword",
         "annoyinglib:hooked_iron_sword",
@@ -112,23 +112,23 @@
         "annoyinglib:iron_sickle",
         "annoyinglib:jade_sword",
         "annoyinglib:knife",
-        "annoyinglib:netherite_falchion",
-        "annoyinglib:netherite_knife",
-        "annoyinglib:netherite_sabre",
-        "annoyingvillagers:null_sword",
-        "annoyinglib:paladin_sword",
+        "mob_supremacy:netherite_falchion",
+        "mob_supremacy:netherite_knife",
+        "mob_supremacy:netherite_sabre",
+        "herobrine_vessels:null_sword",
+        "legendary_npcs:paladin_sword",
         "annoyinglib:red_diamond_sword",
-        "annoyinglib:ruby_knight_sword",
-        "annoyinglib:ruby_sword",
-        "annoyinglib:thunder_diamond_blade",
-        "annoyinglib:trapdoor",
-        "annoyinglib:woopie_the_sword"
+        "the_creators:ruby_knight_sword",
+        "the_creators:ruby_sword",
+        "legendary_npcs:thunder_diamond_blade",
+        "legendary_npcs:trapdoor",
+        "legendary_npcs:woopie_the_sword"
       ]
     },
     {
       "name": "annoyinglib_tridents",
       "items": [
-        "annoyinglib:blue_demon_trident"
+        "mob_supremacy:blue_demon_trident"
       ]
     }
   ],
@@ -383,7 +383,7 @@
     }
   },
   "itemSpecific": {
-    "annoyinglib:black_fire_sword": {
+    "legendary_npcs:black_fire_sword": {
       "customAnimation": [
         {
           "type": "attack",
@@ -408,7 +408,7 @@
         }
       ]
     },
-    "annoyingvillagers:demoniac_voltage_reaver": {
+    "herobrine_vessels:demoniac_voltage_reaver": {
       "customAnimation": [
         {
           "type": "attack",
@@ -483,7 +483,7 @@
         }
       ]
     },
-    "annoyinglib:dnax_hooked_sword": {
+    "legendary_npcs:dnax_hooked_sword": {
       "customAnimation": [
         {
           "type": "attack",
@@ -508,7 +508,7 @@
         }
       ]
     },
-    "annoyinglib:earth_axe": {
+    "legendary_npcs:earth_axe": {
       "customAnimation": [
         {
           "type": "attack",
@@ -533,7 +533,7 @@
         }
       ]
     },
-    "annoyingvillagers:ender_glaive": {
+    "herobrine_vessels:ender_glaive": {
       "customAnimation": [
         {
           "type": "attack",
@@ -558,7 +558,7 @@
         }
       ]
     },
-    "annoyingvillagers:ender_slayer_scythe": {
+    "herobrine_vessels:ender_slayer_scythe": {
       "customAnimation": [
         {
           "type": "attack",
@@ -583,7 +583,7 @@
         }
       ]
     },
-    "annoyinglib:flanker_hooked_sword": {
+    "legendary_npcs:flanker_hooked_sword": {
       "customAnimation": [
         {
           "type": "attack",
@@ -683,7 +683,7 @@
         }
       ]
     },
-    "annoyinglib:legendary_sword": {
+    "legendary_npcs:legendary_sword": {
       "customAnimation": [
         {
           "type": "attack",
@@ -708,7 +708,7 @@
         }
       ]
     },
-    "annoyingvillagers:null_weapon": {
+    "herobrine_vessels:null_weapon": {
       "customAnimation": [
         {
           "type": "attack",
@@ -733,7 +733,7 @@
         }
       ]
     },
-    "annoyingvillagers:obsidian_sledgehammer": {
+    "herobrine_vessels:obsidian_sledgehammer": {
       "customAnimation": [
         {
           "type": "attack",
@@ -758,7 +758,7 @@
         }
       ]
     },
-    "annoyingvillagers:obsidian_weapon": {
+    "herobrine_vessels:obsidian_weapon": {
       "customAnimation": [
         {
           "type": "attack",
@@ -783,7 +783,7 @@
         }
       ]
     },
-    "annoyinglib:red_axe": {
+    "legendary_npcs:red_axe": {
       "customAnimation": [
         {
           "type": "attack",
@@ -808,7 +808,7 @@
         }
       ]
     },
-    "annoyingvillagers:shadow_obsidian_pillar": {
+    "herobrine_vessels:shadow_obsidian_pillar": {
       "customAnimation": [
         {
           "type": "attack",
@@ -833,7 +833,7 @@
         }
       ]
     },
-    "annoyingvillagers:shadow_obsidian_sword": {
+    "herobrine_vessels:shadow_obsidian_sword": {
       "customAnimation": [
         {
           "type": "attack",
@@ -858,7 +858,7 @@
         }
       ]
     },
-    "annoyingvillagers:shadow_obsidian_weapon": {
+    "herobrine_vessels:shadow_obsidian_weapon": {
       "customAnimation": [
         {
           "type": "attack",
@@ -883,7 +883,7 @@
         }
       ]
     },
-    "annoyinglib:thunder_diamond_blade": {
+    "legendary_npcs:thunder_diamond_blade": {
       "customAnimation": [
         {
           "type": "attack",
@@ -908,7 +908,7 @@
         }
       ]
     },
-    "annoyinglib:woopie_the_sword": {
+    "legendary_npcs:woopie_the_sword": {
       "customAnimation": [
         {
           "type": "attack",

@@ -1,8 +1,9 @@
 package com.pla.annoyinglib.client.renderer;
-
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
-import com.pla.annoyinglib.item.BlueDemonChestplateItem;
-import com.pla.annoyinglib.item.BlueDemonTridentItem;
+import net.minecraft.world.item.Items;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.util.GlintColorHelper;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -34,24 +35,22 @@ public final class ColoredGlintState {
         int mode = GlintColorHelper.getColor(stack);
 
         if (mode == NONE) {
-//        add this in herobrine_vessels
-//            if (stack.is(AnnoyingLibModItems.HEROBRINE_ENDER_EYE.get())) {
-//                mode = ORANGE;
-//            } else
-                if (stack.is(AnnoyingLibModItems.RED_AXE.get()) || stack.is(AnnoyingLibModItems.GIANT_RED_AXE.get())) {
+
+                if (stack.is((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_RED_AXE() : Items.AIR)) || stack.is((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_GIANT_RED_AXE() : Items.AIR))) {
                 mode = RED;
-//            } else if (HerobrineObsidianArmorCharge.isObsidianArmor(stack) && (HerobrineObsidianArmorCharge.isFullyCharged(stack) || HerobrineObsidianArmorCharge.hasForcedPurpleFoil(stack) || wearer instanceof ArmoredHerobrineEntity)) {
-//                mode = PURPLE;
+
             } else if (
-                    (stack.is(AnnoyingLibModItems.BLUE_DEMON_TRIDENT.get()) && BlueDemonTridentItem.isFullyCharged(stack))
-                            || (stack.is(AnnoyingLibModItems.BLUE_DEMON_CHESTPLATE.get())
-                            && (BlueDemonChestplateItem.isFullyCharged(stack)
-                            || BlueDemonChestplateItem.isBuffActive(stack)
-                            || BlueDemonChestplateItem.hasBlueDemonHealingFoil(stack)))
+                    (stack.is((ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.getItems_BLUE_DEMON_TRIDENT() : Items.AIR)) && (ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.blueDemonTridentItem_isFullyCharged(stack) : false))
+                            || (stack.is((ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.getItems_BLUE_DEMON_CHESTPLATE() : Items.AIR))
+                            && ((ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.blueDemonChestplateItem_isFullyCharged(stack) : false)
+                            || (ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.blueDemonChestplateItem_isBuffActive(stack) : false)
+                            || (ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.blueDemonChestplateItem_hasBlueDemonHealingFoil(stack) : false)))
             ) {
                 mode = CYAN;
             }
         }
+
+        if (mode == NONE && ModList.get().isLoaded("herobrine_vessels")) mode = HerobrineVessels.Client.herobrineGlint(stack, wearer);
 
         MODE.set(mode);
     }

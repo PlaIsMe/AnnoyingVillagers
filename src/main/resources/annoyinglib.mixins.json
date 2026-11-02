@@ -9,12 +9,9 @@
     "DistanceManagerAccessor",
     "ServerChunkCacheAccessor",
     "MobMixin",
-    "EndFireEntityMixin",
     "SkeletonMixin",
-    "ZombieMixin",
     "ExplosionMixin",
     "RenderBuffersMixin",
-    "VillagerMixin",
     "VindicatorMixin",
     "IllagerMixin",
     "ItemCooldownsMixin",
@@ -37,16 +34,13 @@
     "compat.punchy.UseItemStateMachineMixin",
     "compat.punchy.SpearStateMachineMixin",
     "compat.punchy.PunchyArmRendererMixin",
-    "client.EndFireEntityRenderDispatcherMixin",
-    "client.EndFireScreenEffectRendererMixin",
     "client.HumanoidMobRendererMixin",
     "client.IllagerRendererMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ItemRendererMixin",
     "client.ArrowLayerMixin",
     "client.FishingHookRendererMixin",
-    "client.MinecraftAttackMixin",
-    "client.PlayerRendererBlueDemonPoseMixin"
+    "client.MinecraftAttackMixin"
   ],
   "minVersion": "0.8"
 }

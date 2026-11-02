@@ -1,8 +1,10 @@
 package com.pla.annoyinglib.entity.goal;
+import com.pla.annoyinglib.compat.MobSupremacy;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.clazz.DangerousReaction;
-import com.pla.annoyinglib.entity.BlueDemonEntity;
 import com.pla.annoyinglib.rig.LockableRigAttackAnimation;
 import com.pla.annoyinglib.rig.RigAnimationController;
 import com.pla.annoyinglib.rig.RigAnimationId;
@@ -75,11 +77,10 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
             this.path = null;
             return canStartAnyAttack(target, profile);
         }
-        // add this in herobrine_vessels
-        // if (this.mob instanceof NullEntity) {
-        //     this.path = null;
-        //     return true;
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isNull(this.mob)) {
+            this.path = null;
+            return true;
+        }
         this.path = RidingUtil.createNavigationPath(this.mob, target);
         return this.path != null || canStartAnyAttack(target, profile);
     }
@@ -97,8 +98,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         if (DangerousReaction.hasDangerousTarget(this.mob)) {
             return RigAnimationController.hasActiveAnimation(this.mob) || canStartAnyAttack(target, profile);
         }
-        // add this in herobrine_vessels
-        // if (this.mob instanceof NullEntity) return true;
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isNull(this.mob)) return true;
         return this.followingTargetEvenIfNotSeen || !RidingUtil.isNavigationDone(this.mob) || RigAnimationController.hasActiveAnimation(this.mob) || canStartAnyAttack(target, profile);
     }
 
@@ -107,11 +107,10 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
         if (this.path != null && !DangerousReaction.hasDangerousTarget(this.mob)) RidingUtil.moveToPath(this.mob, this.path, this.speedModifier);
         this.mob.setAggressive(true);
         this.ticksUntilNextPathRecalculation = 0;
-         // add this in herobrine_vessels
-        // if (this.mob instanceof NullEntity) {
-        //     this.nullFlightModeTicks = 0;
-        //     this.nullFlightSpeedTicks = 0;
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isNull(this.mob)) {
+            this.nullFlightModeTicks = 0;
+            this.nullFlightSpeedTicks = 0;
+        }
     }
 
     @Override
@@ -152,10 +151,8 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     private boolean canYieldProfileAttackToHoleRecovery() {
         if (RigStunController.isStunned(this.mob)) return false;
         if (this.mob instanceof AVNpc npc) return !npc.isLocked();
-         // add this in herobrine_vessels
-        // if (this.mob instanceof HerobrineMob herobrine
-        //         && !(this.mob instanceof NullEntity)) return !herobrine.isLocked();
-        if (this.mob instanceof BlueDemonEntity blueDemon) return !blueDemon.isLocked();
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.canYieldAttackToHoleRecovery(this.mob)) return true;
+        if (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonEntity(this.mob)) return MobSupremacy.isBlueDemonUnlocked(this.mob);
         return false;
     }
 
@@ -217,8 +214,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     }
 
     private RigAnimationId selectNullExtraAttackWithoutApproach(LivingEntity target, RigCombatProfile profile) {
-         // add this in herobrine_vessels
-        // if (!(this.mob instanceof NullEntity)) return null;
+        if (!(ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isNull(this.mob))) return null;
         if (!profile.ultimateAttacks().contains(RigAnimationId.NULL_EXTRA_ATTACK)) return null;
         if (this.previousAnimation == RigAnimationId.NULL_EXTRA_ATTACK) return null;
         if (this.mob.getRandom().nextDouble() >= profile.ultimateAttackChance()) return null;
@@ -267,11 +263,10 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
             RidingUtil.stopNavigation(this.mob);
             return;
         }
-         // add this in herobrine_vessels
-        // if (this.mob instanceof NullEntity) {
-        //     this.tickNullCombatFlight(target);
-        //     return;
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isNull(this.mob)) {
+            this.tickNullCombatFlight(target);
+            return;
+        }
         if (--this.ticksUntilNextPathRecalculation > 0 && !RidingUtil.isNavigationDone(this.mob)) return;
         this.ticksUntilNextPathRecalculation = PATH_RECALCULATION_BASE_TICKS + this.mob.getRandom().nextInt(7);
         RidingUtil.moveTo(this.mob, target, this.speedModifier);
@@ -314,8 +309,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
             flightSpeed += 0.65D;
         }
 
-         // add this in herobrine_vessels
-        // if (this.mob instanceof NullEntity nullEntity && nullEntity.getState() >= 2) flightSpeed *= 1.15D;
+        if (ModList.get().isLoaded("herobrine_vessels")) flightSpeed = HerobrineVessels.nullFlightSpeed(this.mob, flightSpeed);
         flightSpeed = Mth.clamp(flightSpeed, 1.25D, 5.0D);
         this.mob.getMoveControl().setWantedPosition(predictedTarget.x, predictedTarget.y, predictedTarget.z, flightSpeed);
     }
@@ -352,8 +346,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
 
         if (verticalDelta > 0.75D) orbitSpeed = Math.min(1.8D, orbitSpeed);
         if (verticalDelta < -0.75D) orbitSpeed = Math.max(3.0D, orbitSpeed + 0.8D);
-         // add this in herobrine_vessels
-        // if (this.mob instanceof NullEntity nullEntity && nullEntity.getState() >= 2) orbitSpeed *= 1.12D;
+        if (ModList.get().isLoaded("herobrine_vessels")) orbitSpeed = HerobrineVessels.nullOrbitSpeed(this.mob, orbitSpeed);
 
         this.mob.getMoveControl().setWantedPosition(x, y, z, Mth.clamp(orbitSpeed, 1.2D, 4.25D));
     }
@@ -385,8 +378,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     }
 
     private boolean canMoveWhileProfileAttackLocked() {
-         // add this in herobrine_vessels
-        // return DemoniacVoltageReaverItem.hasSnakeProfileAttackLock(this.mob);
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.canMoveWithSnakeAttackLock(this.mob);
         return false;
     }
 
@@ -399,10 +391,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     }
 
     private boolean isValidMeleeActorState() {
-        // add this in herobrine_vessels
-        // if (this.mob instanceof ReaperHerobrineEntity reaper && reaper.isSecondFormDragonRider()) {
-        //     return false;
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isDragonRider(this.mob)) return false;
         return !this.mob.level().isClientSide && this.mob.isAlive() && !this.mob.isRemoved() && !this.mob.isDeadOrDying() && !this.mob.isNoAi()
                 && !(this.mob.getMainHandItem().getItem() instanceof BowItem);
     }
@@ -422,11 +411,7 @@ public class RigAnimatedMeleeAttackGoal extends Goal {
     private boolean canStartAttack(LivingEntity target, RigAnimationId animationId) {
         RigAnimationSpec spec = RigAnimationSpecs.get(animationId);
         if (!spec.damagesTarget()) return false;
-         // add this in herobrine_vessels
-        // if (this.mob instanceof NullEntity) {
-        //     if (animationId == RigAnimationId.NULL_EXTRA_ATTACK) return RigColliderSystem.canStartAttackWithinDistance(this.mob, target, 24.0D);
-        //     return RigColliderSystem.canStartAttack3D(this.mob, target, spec);
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isNull(this.mob)) return HerobrineVessels.canStartNullAttack(this.mob, target, animationId, spec);
         return RigColliderSystem.canStartAttack(this.mob, target, spec);
     }
 }

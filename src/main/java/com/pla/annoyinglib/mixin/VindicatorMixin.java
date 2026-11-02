@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.mixin;
-
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -27,7 +27,7 @@ public class VindicatorMixin {
             Random random = new Random();
             if (random.nextBoolean()) {
                 if (random.nextBoolean()) {
-                    self.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(AnnoyingLibModItems.SPEAR_AXE.get()));
+                    self.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack((ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.getItems_SPEAR_AXE() : Items.AIR)));
                 } else {
                     self.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.IRON_AXE));
                 }

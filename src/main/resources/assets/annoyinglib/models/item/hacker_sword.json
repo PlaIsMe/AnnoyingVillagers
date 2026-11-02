@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/hacker_sword",
-  "textures": {
-    "0": "annoyinglib:item/hacker_sword",
-    "particle": "annoyinglib:item/hacker_sword"
-  }
-}

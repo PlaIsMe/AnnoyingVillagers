@@ -1,20 +1,20 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        " I ",
-        " I ",
-        " S "
-    ],
-    "key": {
-        "I": {
-            "item": "minecraft:iron_ingot"
-        },
-        "S": {
-            "item": "minecraft:iron_sword"
-        }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " I ",
+    " I ",
+    " S "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
     },
-    "result": {
-        "item": "annoyinglib:iron_longsword",
-        "count": 1
+    "S": {
+      "item": "minecraft:iron_sword"
     }
+  },
+  "result": {
+    "item": "annoyinglib:iron_longsword",
+    "count": 1
+  }
 }

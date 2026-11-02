@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/darkness_sword",
-  "textures": {
-    "0": "annoyinglib:item/darkness_sword",
-    "particle": "annoyinglib:item/darkness_sword"
-  }
-}

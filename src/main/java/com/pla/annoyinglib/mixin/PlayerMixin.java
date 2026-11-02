@@ -1,8 +1,9 @@
 package com.pla.annoyinglib.mixin;
-
-import com.pla.annoyinglib.entity.TridentLightningBolt;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.init.AnnoyingLibModDamageTypes;
-import com.pla.annoyinglib.util.VanillaWeaponAbilityUtil;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
@@ -19,7 +20,7 @@ public abstract class PlayerMixin {
     @Inject(method = "getAttackStrengthScale", at = @At("HEAD"), cancellable = true)
     private void av$fullStrengthHackerCombo(float partialTicks,
             org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Float> cir) {
-        if (com.pla.annoyinglib.item.HackerSwordItem.isComboAttack((Player)(Object)this)) {
+        if ((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.hackerSwordItem_isComboAttack((Player)(Object)this) : false)) {
             cir.setReturnValue(1.0F);
         }
     }
@@ -38,18 +39,16 @@ public abstract class PlayerMixin {
         if (DamageTypeTags.BYPASSES_INVULNERABILITY.equals(tag)
                 && self.getAbilities().invulnerable
                 && source.is(AnnoyingLibModDamageTypes.IMPACT_EXPLOSION)
-                && source.getDirectEntity() instanceof TridentLightningBolt) {
+                && (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isTridentLightningBolt(source.getDirectEntity()))) {
             return false;
         }
 
         return original;
     }
 
-    // add this in herobrine_vessels
-    // @Inject(method = "disableShield", at = @At("HEAD"), cancellable = true)
-    // private void annoyingLib$keepEnderAegisUsable(boolean guaranteedDisable, CallbackInfo ci) {
-    //     Player self = (Player)(Object)this;
-    //     if (VanillaWeaponAbilityUtil.abilitiesEnabled() && self.getUseItem().getItem() instanceof EnderAegisItem) ci.cancel();
-    // }
+    @Inject(method = "disableShield", at = @At("HEAD"), cancellable = true)
+    private void annoyingLib$keepEnderAegisUsable(boolean guaranteedDisable, CallbackInfo ci) {
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.keepAegisUsable((Player)(Object)this)) ci.cancel();
+    }
 
 }

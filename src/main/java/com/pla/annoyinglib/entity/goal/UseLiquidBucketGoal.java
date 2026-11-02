@@ -1,9 +1,10 @@
 package com.pla.annoyinglib.entity.goal;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.rig.RigAnimationController;
 import com.pla.annoyinglib.rig.RigStunController;
-import com.pla.annoyinglib.util.EndFireUtil;
 import com.pla.annoyinglib.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -65,7 +66,7 @@ public class UseLiquidBucketGoal extends Goal {
                 || RigStunController.isStunned(this.avNpc)
                 || this.avNpc.isPassenger()
                 || this.avNpc.isHealing()
-                || EndFireUtil.isEndFireBurning(this.avNpc)
+                || (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isEndFireBurning(this.avNpc))
                 || RigAnimationController.hasActiveProfileAttack(this.avNpc)
                 || !this.avNpc.onGround()
                 || this.avNpc.getWaterBucketCooldown() > 0
@@ -127,7 +128,7 @@ public class UseLiquidBucketGoal extends Goal {
     public boolean canContinueToUse() {
         return this.pickupLiquid
                 && !this.finished
-                && !EndFireUtil.isEndFireBurning(this.avNpc)
+                && !(ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isEndFireBurning(this.avNpc))
                 && this.placedLiquidPos != null
                 && this.pickupTicks < MAX_PICKUP_TICKS
                 && this.avNpc.isAlive()
@@ -139,7 +140,7 @@ public class UseLiquidBucketGoal extends Goal {
 
     @Override
     public void start() {
-        if (EndFireUtil.isEndFireBurning(this.avNpc)) {
+        if ((ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isEndFireBurning(this.avNpc))) {
             this.reset();
             return;
         }

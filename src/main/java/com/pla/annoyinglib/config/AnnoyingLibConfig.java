@@ -17,12 +17,12 @@ public class AnnoyingLibConfig {
     public static ForgeConfigSpec.ConfigValue<Double> HEROBRINE_POSSESS_RATE;
     public static ForgeConfigSpec.ConfigValue<Integer> HEROBRINE_RECALL_MIN_TIME;
     public static ForgeConfigSpec.ConfigValue<Integer> HEROBRINE_RECALL_MAX_TIME;
-    public static ForgeConfigSpec.ConfigValue<Double> ANGRY_STEVE_CHANCE;
-    public static ForgeConfigSpec.ConfigValue<Integer> ANGRY_STEVE_LEAVE_MIN_TIME;
-    public static ForgeConfigSpec.ConfigValue<Integer> ANGRY_STEVE_LEAVE_MAX_TIME;
-    public static ForgeConfigSpec.ConfigValue<Integer> BLUE_DEMON_LEAVE_MIN_TIME;
-    public static ForgeConfigSpec.ConfigValue<Integer> BLUE_DEMON_LEAVE_MAX_TIME;
-    public static ForgeConfigSpec.ConfigValue<Boolean> TRIDENT_FESTIVAL_CAN_BREAK_BLOCK;
+    
+    
+    
+    
+    
+    
     public static ForgeConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_CHAT;
     public static ForgeConfigSpec.ConfigValue<Boolean> TURN_ON_NPC_VOICE;
     public static ForgeConfigSpec.ConfigValue<Boolean> AV_MOB_CAN_BURN_ITEM;
@@ -63,33 +63,17 @@ public class AnnoyingLibConfig {
                                 "After a random time between min and max, Herobrine will vanish and return to the Herobrine dimension.")
                 .defineInRange("herobrineRecallMaxTime", 300, 1, 10080);
 
-        ANGRY_STEVE_CHANCE = BUILDER.comment(
-                        "Chance for Steve to be Angry after getting killed")
-                .defineInRange("angrySteveChance", 0.2, 0, 1);
+        
 
-        ANGRY_STEVE_LEAVE_MIN_TIME = BUILDER.comment(
-                        "The minimum value (in minutes) for Angry Steve's random leave time. This value should be lower than or equal the maximum. " +
-                                "After a random time between min and max, Angry Steve will feel exhausted and leave the game.")
-                .defineInRange("angrySteveLeaveMinTime", 60, 1, 10080);
+        
 
-        ANGRY_STEVE_LEAVE_MAX_TIME = BUILDER.comment(
-                        "The maximum value (in minutes) for Angry Steve's random leave time. This value should be greater than or equal to the minimum. " +
-                                "After a random time between min and max, Angry Steve will feel exhausted and leave the game.")
-                .defineInRange("angrySteveLeaveMaxTime", 300, 1, 10080);
+        
 
-        BLUE_DEMON_LEAVE_MIN_TIME = BUILDER.comment(
-                        "The minimum value (in minutes) for Blue Demon's random leave time. This value should be lower than or equal the maximum. " +
-                                "After a random time between min and max, Blue Demon will feel bored and go away.\"")
-                .defineInRange("blueDemonLeaveMinTime", 60, 1, 10080);
+        
 
-        BLUE_DEMON_LEAVE_MAX_TIME = BUILDER.comment(
-                        "The maximum value (in minutes) for Blue Demon's random leave time. This value should be greater than or equal to the minimum. " +
-                                "After a random time between min and max, Blue Demon will feel bored and go away.")
-                .defineInRange("blueDemonLeaveMaxTime", 300, 1, 10080);
+        
 
-        TRIDENT_FESTIVAL_CAN_BREAK_BLOCK = BUILDER.comment(
-                        "Make Trident Festival can break block")
-                .define("tridentFestivalCanBreakBlock", true);
+        
 
         TURN_ON_NPC_CHAT = BUILDER.comment(
                         "Turn on all chatting for NPC")
@@ -112,14 +96,14 @@ public class AnnoyingLibConfig {
                                 "minecraft:zombie",
                                 "minecraft:skeleton",
                                 "smart_npc:player_npc",
-                                "annoyingvillagers:low_herobrine_clone",
-                                "annoyingvillagers:low_shadow_herobrine_clone",
-                                "annoyinglib:villager_scout",
-                                "annoyinglib:villager_scout_captain",
-                                "annoyinglib:blue_villager_knight",
-                                "annoyinglib:green_villager_knight",
-                                "annoyinglib:red_villager_knight",
-                                "annoyinglib:purple_villager_knight"
+                                "herobrine_vessels:low_herobrine_clone",
+                                "herobrine_vessels:low_shadow_herobrine_clone",
+                                "villager_kingdom:villager_scout",
+                                "villager_kingdom:villager_scout_captain",
+                                "villager_kingdom:blue_villager_knight",
+                                "villager_kingdom:green_villager_knight",
+                                "villager_kingdom:red_villager_knight",
+                                "villager_kingdom:purple_villager_knight"
                         ),
                         AnnoyingLibConfig::validResourceOrTagOrNamespace
                 );
@@ -139,28 +123,28 @@ public class AnnoyingLibConfig {
                                 "minecraft:stone_pickaxe",
                                 "minecraft:stone_axe",
                                 "minecraft:stone_hoe",
-                                "annoyinglib:legendary_sword",
-                                "annoyingvillagers:demoniac_voltage_reaver",
-                                "annoyingvillagers:shadow_obsidian_weapon",
-                                "annoyingvillagers:obsidian_weapon",
-                                "annoyingvillagers:bedrock_weapon",
-                                "annoyinglib:crafting_table",
-                                "annoyinglib:wooden_door",
-                                "annoyinglib:ladder",
-                                "annoyinglib:trapdoor",
-                                "annoyingvillagers:null_weapon",
-                                "annoyingvillagers:shadow_obsidian_pillar",
-                                "annoyingvillagers:ender_glaive",
-                                "annoyingvillagers:ender_slayer_scythe",
-                                "annoyingvillagers:demoniac_voltage_reaver",
-                                "annoyingvillagers:obsidian_sledgehammer",
-                                "annoyingvillagers:shadow_obsidian_sword",
-                                "annoyingvillagers:warden_axe",
-                                "annoyinglib:blue_demon_trident",
-                                "annoyinglib:darkness_sword",
-                                "annoyinglib:red_steel_axe",
-                                "annoyinglib:holy_llama_hammer",
-                                "annoyinglib:woopie_the_sword",
+                                "legendary_npcs:legendary_sword",
+                                "herobrine_vessels:demoniac_voltage_reaver",
+                                "herobrine_vessels:shadow_obsidian_weapon",
+                                "herobrine_vessels:obsidian_weapon",
+                                "herobrine_vessels:bedrock_weapon",
+                                "legendary_npcs:crafting_table",
+                                "legendary_npcs:wooden_door",
+                                "legendary_npcs:ladder",
+                                "legendary_npcs:trapdoor",
+                                "herobrine_vessels:null_weapon",
+                                "herobrine_vessels:shadow_obsidian_pillar",
+                                "herobrine_vessels:ender_glaive",
+                                "herobrine_vessels:ender_slayer_scythe",
+                                "herobrine_vessels:demoniac_voltage_reaver",
+                                "herobrine_vessels:obsidian_sledgehammer",
+                                "herobrine_vessels:shadow_obsidian_sword",
+                                "herobrine_vessels:warden_axe",
+                                "mob_supremacy:blue_demon_trident",
+                                "the_creators:darkness_sword",
+                                "mob_supremacy:red_steel_axe",
+                                "mob_supremacy:holy_llama_hammer",
+                                "legendary_npcs:woopie_the_sword",
                                 "annoyinglib:jessica_the_dark_shield"
                         ),
                         AnnoyingLibConfig::validResourceOrTagOrNamespace

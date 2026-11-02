@@ -1,5 +1,6 @@
 package com.pla.annoyinglib.entity.goal;
-
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import com.pla.annoyinglib.clazz.AVNpc;
 
 import net.minecraft.sounds.SoundEvents;

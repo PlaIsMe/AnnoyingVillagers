@@ -1,7 +1,7 @@
 package com.pla.annoyinglib.network;
-
-import com.pla.annoyinglib.item.BlueDemonChestplateItem;
-import com.pla.annoyinglib.rig.armor.ObsidianArmorController;
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -23,12 +23,13 @@ public final class ServerboundActivateArmor {
             ServerPlayer player = context.getSender();
             if (player != null && player.isAlive() && !player.isRemoved() && !player.isSpectator()) {
                 ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-                if (BlueDemonChestplateItem.isBlueDemonChestplate(chest)
-                        && BlueDemonChestplateItem.isFullyCharged(chest)) {
-                    BlueDemonChestplateItem.activateBuff(chest);
+                if ((ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.blueDemonChestplateItem_isBlueDemonChestplate(chest) : false)
+                        && (ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.blueDemonChestplateItem_isFullyCharged(chest) : false)) {
+                    if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.blueDemonChestplateItem_activateBuff(chest);
                 }
-                // add this in herobrine_vessels
-                // ObsidianArmorController.activateChargedArmor(player);
+                if (ModList.get().isLoaded("herobrine_vessels")) {
+                    HerobrineVessels.activateArmor(player);
+                }
             }
         });
         context.setPacketHandled(true);

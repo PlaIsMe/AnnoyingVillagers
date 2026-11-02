@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "annoyinglib:item/spawn_egg/chris_spawn_egg"
-  }
-}

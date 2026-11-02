@@ -12,12 +12,5 @@ public class AnnoyingLibModBlocks {
 
     public static final DeferredRegister<Block> REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCKS, AnnoyingLib.MODID);
     public static final RegistryObject<FractureBlock> FRACTURE_BLOCK = REGISTRY.register("fracture_block", () -> new FractureBlock(BlockBehaviour.Properties.of()));
-    public static final RegistryObject<Block> ENCHANT_BED = AnnoyingLibModBlocks.REGISTRY.register("enchant_bed", EnchantBedBlock::new);
-
-
-
-
-
-
 
 }

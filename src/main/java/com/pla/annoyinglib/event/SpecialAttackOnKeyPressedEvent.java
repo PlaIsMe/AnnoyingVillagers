@@ -1,6 +1,8 @@
 package com.pla.annoyinglib.event;
-
-import com.pla.annoyinglib.item.*;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.task.DelayedTask;
 import com.pla.annoyinglib.util.VanillaWeaponAbilityUtil;
 import net.minecraft.world.entity.Entity;
@@ -10,30 +12,30 @@ import net.minecraft.world.phys.Vec3;
 
 public class SpecialAttackOnKeyPressedEvent {
     private static void playHookGunAnimation(Player player) {
-//        Add this in AV_EFM
-//        LivingEntityPatch<?> freshPatch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
-//                if (freshPatch != null) {
-//                    freshPatch.playAnimationSynchronized(AVAnimations.HOOK_GUN, 0.0F);
-//                }
-//        create VANILLA_ANIMATION
+//        Add this in AV_EFM
+//        LivingEntityPatch<?> freshPatch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
+//                if (freshPatch != null) {
+//                    freshPatch.playAnimationSynchronized(AVAnimations.HOOK_GUN, 0.0F);
+//                }
+//        create VANILLA_ANIMATION
     }
 
     private static void playPortalSummonAnimation(Player player) {
-//        Add this in AV_EFM
-//        LivingEntityPatch<?> freshPatch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
-//                if (freshPatch != null) {
-//                    livingEntityPatch.playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
-//                }
-//        create VANILLA_ANIMATION
+//        Add this in AV_EFM
+//        LivingEntityPatch<?> freshPatch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
+//                if (freshPatch != null) {
+//                    livingEntityPatch.playAnimationSynchronized(AVAnimations.PORTAL_SUMMON, 0.0F);
+//                }
+//        create VANILLA_ANIMATION
     }
 
     private static void playSinglePortalSummonAnimation(Player player) {
-//        Add this in AV_EFM
-//        LivingEntityPatch<?> freshPatch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
-//                if (freshPatch != null) {
-//                    livingEntityPatch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
-//                }
-//        create VANILLA_ANIMATION
+//        Add this in AV_EFM
+//        LivingEntityPatch<?> freshPatch = EpicFightCapabilities.getEntityPatch(player, LivingEntityPatch.class);
+//                if (freshPatch != null) {
+//                    livingEntityPatch.playAnimationSynchronized(AVAnimations.POINT_LEFT_HAND_TOWARD, 0.0F);
+//                }
+//        create VANILLA_ANIMATION
     }
 
     public static void playHookGunBindAnimationAfterHandRefresh(Player player) {
@@ -49,32 +51,24 @@ public class SpecialAttackOnKeyPressedEvent {
         };
     }
 
-     // add this in herobrine_vessels
-    // public static void playTransporterFragmentAnimation(Player player, TransporterFragmentItem.UseMode useMode) {
-    //     switch (useMode) {
-    //         case BOTH_HANDS, MAIN_HAND -> {
-    //             playPortalSummonAnimation(player);
-    //         }
-    //         case OFF_HAND -> playSinglePortalSummonAnimation(player);
-    //         case NONE -> {
-    //         }
-    //     }
-    // }
+    public static void playTransporterFragmentAnimation(Player player, Enum<?> useMode) {
+        if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.playTransporterFragmentAnimation(player, useMode, SpecialAttackOnKeyPressedEvent::playPortalSummonAnimation, SpecialAttackOnKeyPressedEvent::playSinglePortalSummonAnimation);
+    }
 
     private static boolean efmConditionToExecute(Entity entity) {
-//        Add this in AV_EFM
-//        PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(entity, PlayerPatch.class);
-//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
-//        if (livingEntityPatch == null) return false;
-//        AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
-//        if (EpicfightUtil.isLongHitAnimation(dynamicAnimation, livingEntityPatch)) {
-//            return false;
-//        }
-//        if (entity.level() instanceof ServerLevel) {
-//            if (dynamicAnimation != Animations.EMPTY_ANIMATION) {
-//                return;
-//            }
-//        }
+//        Add this in AV_EFM
+//        PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(entity, PlayerPatch.class);
+//        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class);
+//        if (livingEntityPatch == null) return false;
+//        AssetAccessor<? extends StaticAnimation> dynamicAnimation = Objects.requireNonNull(livingEntityPatch.getAnimator().getPlayerFor(null)).getRealAnimation();
+//        if (EpicfightUtil.isLongHitAnimation(dynamicAnimation, livingEntityPatch)) {
+//            return false;
+//        }
+//        if (entity.level() instanceof ServerLevel) {
+//            if (dynamicAnimation != Animations.EMPTY_ANIMATION) {
+//                return;
+//            }
+//        }
         return true;
     }
 
@@ -87,7 +81,7 @@ public class SpecialAttackOnKeyPressedEvent {
 
         if (entity instanceof Player player
                 && !player.level().isClientSide()
-                && HookGunItem.tryBindFromSpecialAttack(player)) {
+                && (ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.hookGunItem_tryBindFromSpecialAttack(player) : false)) {
             playHookGunBindAnimationAfterHandRefresh(player);
             return;
         }
@@ -99,26 +93,19 @@ public class SpecialAttackOnKeyPressedEvent {
 
     private static void addVanillaSpecialAttack(Entity entity) {
         if (!(entity instanceof Player player) || player.level().isClientSide() || !VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
-        if (player.getMainHandItem().getItem() instanceof BlueDemonTridentItem) {
-            if (player.isShiftKeyDown()) BlueDemonTridentItem.activateVanillaThunderAttack(player);
-            else BlueDemonTridentItem.activateVanillaElectricField(player);
+        if ((ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonTridentItem(player.getMainHandItem().getItem()))) {
+            if (player.isShiftKeyDown()) if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.blueDemonTridentItem_activateVanillaThunderAttack(player);
+            else if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.blueDemonTridentItem_activateVanillaElectricField(player);
             return;
         }
-        if (EarthAxeItem.activateVanillaSpecial(player)) return;
-        if (WoopieTheSwordItem.activateVanillaSpecial(player)) return;
-         // add this in herobrine_vessels
-        // if (ShadowObsidianSwordItem.activateVanillaSpecial(player)) return;
-        // if (EnderSlayerScytheItem.activateVanillaSpecial(player)) return;
-        // if (DemoniacVoltageReaverItem.activateVanillaSpecial(player)) return;
-        // if (ObsidianSledgehammerItem.activateVanillaSpecial(player)) return;
-        // if (ShadowObsidianPillarItem.activateVanillaSpecial(player)) return;
-        // if (ShadowObsidianWeaponItem.activateVanillaSpecial(player)) return;
-        // if (ObsidianWeaponItem.activateVanillaSpecial(player)) return;
-        LegendarySwordItem.activateVanillaSpecial(player);
+        if ((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.earthAxeItem_activateVanillaSpecial(player) : false)) return;
+        if ((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.woopieTheSwordItem_activateVanillaSpecial(player) : false)) return;
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.activateSpecial(player)) return;
+        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.legendarySwordItem_activateVanillaSpecial(player);
     }
 
     private static void addEfmSpecialAttackCompat(Entity entity) {
-//       Add this code in AV_EFM
+//       Add this code in AV_EFM
 
 //        if (entity != null) {
 //            PlayerPatch<?> playerpatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(entity, PlayerPatch.class);
@@ -152,7 +139,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                        Player player = (Player)entity;
 //                        ItemStack holdingItem = player.getMainHandItem();
 //                        ItemStack offHandItem = player.getOffhandItem();
-//                        if (holdingItem.getItem().equals(AnnoyingLibModItems.BLACK_FIRE_SWORD.get())) {
+//                        if (holdingItem.getItem().equals((true ? SharedWeaponHooks.getItems_BLACK_FIRE_SWORD() : Items.AIR))) {
 //                            PlayerPatch<?> playerPatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 //                            if (playerPatch instanceof ServerPlayerPatch) {
 //                                ServerPlayerPatch serverPlayerPatch = (ServerPlayerPatch)playerPatch;
@@ -170,7 +157,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                            }
 //                        }
 //
-//                        if (holdingItem.getItem().equals(AnnoyingLibModItems.THUNDER_DIAMOND_BLADE.get())) {
+//                        if (holdingItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_THUNDER_DIAMOND_BLADE() : Items.AIR))) {
 //                            PlayerPatch<?> playerPatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 //                            if (playerPatch instanceof ServerPlayerPatch) {
 //                                ServerPlayerPatch serverPlayerPatch = (ServerPlayerPatch)playerPatch;
@@ -195,7 +182,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                        if (skillContainer.getResource() >= 10.0F) {
 //                                            Skill.setSkillConsumptionSynchronize(skillContainer, skillContainer.getResource() - 10.0F);
 //                                            ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, player);
-//                                            if (offHandItem.getItem().equals(AnnoyingLibModItems.THUNDER_DIAMOND_BLADE.get())) {
+//                                            if (offHandItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_THUNDER_DIAMOND_BLADE() : Items.AIR))) {
 //                                                ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, player, true);
 //                                            }
 //
@@ -235,8 +222,8 @@ public class SpecialAttackOnKeyPressedEvent {
 //                            Player player = (Player)entity;
 //                            ItemStack holdingItem = player.getMainHandItem();
 //                            ItemStack offHandItem = player.getOffhandItem();
-//                            if (holdingItem.getItem().equals(AnnoyingLibModItems.BLUE_DEMON_TRIDENT.get()) && entity.level() instanceof ServerLevel) {
-//                                if (offHandItem.getItem().equals(AnnoyingLibModItems.BLUE_DEMON_TRIDENT.get())) {
+//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.getItems_BLUE_DEMON_TRIDENT() : Items.AIR)) && entity.level() instanceof ServerLevel) {
+//                                if (offHandItem.getItem().equals((ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.getItems_BLUE_DEMON_TRIDENT() : Items.AIR))) {
 //                                    livingEntityPatch.playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_SPECIAL, 0.0F);
 //                                    PlayerPatch<?> playerPatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 //                                    if (playerPatch instanceof ServerPlayerPatch) {
@@ -262,7 +249,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                return;
 //                            }
 //
-//                            if (holdingItem.getItem().equals(AnnoyingLibModItems.EARTH_AXE.get()) && entity.level() instanceof ServerLevel) {
+//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_EARTH_AXE() : Items.AIR)) && entity.level() instanceof ServerLevel) {
 //                                livingEntityPatch.playAnimationSynchronized(AnimsAVAxe.EARTH_AXE_SPECIAL, 0.0F);
 //                                return;
 //                            }
@@ -490,7 +477,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                return;
 //                            }
 //
-//                            if (holdingItem.getItem().equals(AnnoyingLibModItems.LEGENDARY_SWORD.get()) && entity.level() instanceof ServerLevel) {
+//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_LEGENDARY_SWORD() : Items.AIR)) && entity.level() instanceof ServerLevel) {
 //                                boolean success = false;
 //                                PlayerPatch<?> playerPatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 //                                if (playerPatch instanceof ServerPlayerPatch) {
@@ -501,13 +488,13 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                        if (lookedPos instanceof LegendarySwordSkill) {
 //                                            LegendarySwordSkill legendarySwordSkill = (LegendarySwordSkill)lookedPos;
 //                                            if (player.level() instanceof ServerLevel) {
-//                                                if (LegendarySwordSkill.isAwakened(skillContainer) && offHandItem.getItem().equals(AnnoyingLibModItems.WOOPIE_THE_SWORD.get())) {
+//                                                if (LegendarySwordSkill.isAwakened(skillContainer) && offHandItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_WOOPIE_THE_SWORD() : Items.AIR))) {
 //                                                    livingEntityPatch.playAnimationSynchronized(AnimsAVSword.WOOPIE_INNATE_SPECIAL_LEGENDARY, 0.0F);
 //                                                    return;
 //                                                }
 //
 //                                                if (skillContainer.getStack() >= 1) {
-//                                                    if (offHandItem.getItem().equals(AnnoyingLibModItems.BLUE_DEMON_TRIDENT.get())) {
+//                                                    if (offHandItem.getItem().equals((ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.getItems_BLUE_DEMON_TRIDENT() : Items.AIR))) {
 //                                                        livingEntityPatch.playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_ELECTRIC_FIELD, 0.0F);
 //                                                        legendarySwordSkill.getResourceType().consumer.consume(skillContainer, serverPlayerPatch, legendarySwordSkill.getDefaultConsumptionAmount(serverPlayerPatch));
 //                                                    } else {
@@ -522,7 +509,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                }
 //
 //                                if (!success) {
-//                                    if (offHandItem.getItem().equals(AnnoyingLibModItems.BLUE_DEMON_TRIDENT.get())) {
+//                                    if (offHandItem.getItem().equals((ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.getItems_BLUE_DEMON_TRIDENT() : Items.AIR))) {
 //                                        livingEntityPatch.playAnimationSynchronized(AnimsBlueDemonTrident.BLUE_DEMON_TRIDENT_SPECIAL_LEGENDARY, 0.0F);
 //                                    } else {
 //                                        livingEntityPatch.playAnimationSynchronized(AnimsLegendarySword.LEGENDARY_SWORD_SPECIAL, 0.0F);
@@ -532,7 +519,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                return;
 //                            }
 //
-//                            if (holdingItem.getItem().equals(AnnoyingLibModItems.WOOPIE_THE_SWORD.get()) && entity.level() instanceof ServerLevel) {
+//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_WOOPIE_THE_SWORD() : Items.AIR)) && entity.level() instanceof ServerLevel) {
 //                                PlayerPatch<?> playerPatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 //                                if (playerPatch instanceof ServerPlayerPatch) {
 //                                    ServerPlayerPatch serverPlayerPatch = (ServerPlayerPatch)playerPatch;
@@ -549,7 +536,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                }
 //                            }
 //
-//                            if (holdingItem.getItem().equals(AnnoyingLibModItems.BLUE_FLAME_SWORD.get()) && entity.level() instanceof ServerLevel) {
+//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_BLUE_FLAME_SWORD() : Items.AIR)) && entity.level() instanceof ServerLevel) {
 //                                Level playerPatch = player.level();
 //                                if (playerPatch instanceof ServerLevel) {
 //                                    ServerLevel level = (ServerLevel)playerPatch;

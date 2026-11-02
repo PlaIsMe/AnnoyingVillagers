@@ -1,5 +1,7 @@
 package com.pla.annoyinglib;
-
+import com.pla.annoyinglib.init.AnnoyingLibModSounds;
+import com.pla.annoyinglib.init.AnnoyingLibModEntities;
+import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import com.pla.annoyinglib.network.ClientboundDiamondAttractorFx;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -12,15 +14,11 @@ import com.pla.annoyinglib.config.AnnoyingLibClientConfig;
 import com.pla.annoyinglib.config.AnnoyingLibSpawnConfig;
 import com.pla.annoyinglib.config.AnnoyingLibConfig;
 import com.pla.annoyinglib.init.*;
-import com.pla.annoyinglib.item.FishingRodGrappleUtil;
-import com.pla.annoyinglib.item.HookGunItem;
 import com.pla.annoyinglib.network.*;
 import com.pla.annoyinglib.world.AVMobSpawnBiomeModifier;
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.world.BiomeModifier;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -46,7 +44,7 @@ public class AnnoyingLib {
     public static final Logger LOGGER = LogManager.getLogger(AnnoyingLib.class);
     public static final String MODID = "annoyinglib";
     public static final SimpleChannel PACKET_HANDLER = NetworkRegistry
-            .newSimpleChannel(ResourceLocation.fromNamespaceAndPath(AnnoyingLib.MODID, "main"), () -> "5", "5"::equals, "5"::equals);
+            .newSimpleChannel(ResourceLocation.fromNamespaceAndPath(AnnoyingLib.MODID, "main"), () -> "8", "8"::equals, "8"::equals);
     private static int messageID = 0;
 
     public AnnoyingLib(FMLJavaModLoadingContext context) {
@@ -56,15 +54,12 @@ public class AnnoyingLib {
         AnnoyingLibModBlocks.REGISTRY.register(modEventBus);
         AnnoyingLibModBlockEntities.REGISTRY.register(modEventBus);
         AnnoyingLibModItems.REGISTRY.register(modEventBus);
-        AnnoyingLibModItems.RETURNED_ITEMS_REGISTRY.register(modEventBus);
+        AnnoyingLibModCreativeTabs.register(modEventBus);
         AnnoyingLibModMenus.REGISTRY.register(modEventBus);
         AnnoyingLibModEntities.REGISTRY.register(modEventBus);
-        AnnoyingLibModEntities.DIAMOND_BOLT_REGISTRY.register(modEventBus);
-        AnnoyingLibModEntities.GOLEM_ARMS_REGISTRY.register(modEventBus);
         AnnoyingLibModEntities.BLOCK_PROJECTILE_REGISTRY.register(modEventBus);
         AnnoyingLibModMobEffects.REGISTRY.register(modEventBus);
         AnnoyingLibModParticleTypes.REGISTRY.register(modEventBus);
-        AnnoyingLibModCreativeTabs.register(modEventBus);
         AnnoyingLibModSounds.register(modEventBus);
         context.registerConfig(ModConfig.Type.COMMON, AnnoyingLibConfig.SPEC, "annoyinglib-server.toml");
         DeferredRegister<Codec<? extends BiomeModifier>> biomeModifiers =
@@ -106,37 +101,11 @@ public class AnnoyingLib {
                     ClientboundMuteExplosionAtPos::decode,
                     ClientboundMuteExplosionAtPos::handle
             );
-
-            AnnoyingLib.addNetworkMessage(
-                    ClientboundWoopieSwordWindFx.class,
-                    ClientboundWoopieSwordWindFx::encode,
-                    ClientboundWoopieSwordWindFx::decode,
-                    ClientboundWoopieSwordWindFx::handle
-            );
-            AnnoyingLib.addNetworkMessage(
-                    ClientboundBlackFireFx.class,
-                    ClientboundBlackFireFx::encode,
-                    ClientboundBlackFireFx::decode,
-                    ClientboundBlackFireFx::handle
-            );
             AnnoyingLib.addNetworkMessage(
                     CPApplyShake.class,
                     CPApplyShake::encode,
                     CPApplyShake::new,
                     CPApplyShake::handle
-            );
-            AnnoyingLib.addNetworkMessage(
-                    ClientboundDiamondAttractorFx.class,
-                    ClientboundDiamondAttractorFx::encode,
-                    ClientboundDiamondAttractorFx::decode,
-                    ClientboundDiamondAttractorFx::handle
-            );
-
-            AnnoyingLib.addNetworkMessage(
-                    ClientboundBlueDemonEffectFx.class,
-                    ClientboundBlueDemonEffectFx::encode,
-                    ClientboundBlueDemonEffectFx::decode,
-                    ClientboundBlueDemonEffectFx::handle
             );
 
             AnnoyingLib.addNetworkMessage(
@@ -151,6 +120,7 @@ public class AnnoyingLib {
                     ClientboundRigAnimation::decode,
                     ClientboundRigAnimation::handle
             );
+            AnnoyingLib.addNetworkMessage(ClientboundDiamondAttractorFx.class, ClientboundDiamondAttractorFx::encode, ClientboundDiamondAttractorFx::decode, ClientboundDiamondAttractorFx::handle);
             AnnoyingLib.addNetworkMessage(ClientboundSpecialAnimation.class, ClientboundSpecialAnimation::encode, ClientboundSpecialAnimation::decode, ClientboundSpecialAnimation::handle);
 
             AnnoyingLib.addNetworkMessage(ServerboundActivateArmor.class, ServerboundActivateArmor::encode, ServerboundActivateArmor::decode, ServerboundActivateArmor::handle);
@@ -167,7 +137,6 @@ public class AnnoyingLib {
                     ClientboundGroundFracture::decode,
                     ClientboundGroundFracture::handle
             );
-            AnnoyingLib.addNetworkMessage(ServerboundDestructionEyeAttack.class, ServerboundDestructionEyeAttack::encode, ServerboundDestructionEyeAttack::decode, ServerboundDestructionEyeAttack::handle);
 
         }
     }
@@ -175,36 +144,4 @@ public class AnnoyingLib {
     private void commonSetup(final FMLCommonSetupEvent event) {
     }
 
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event) {
-            event.enqueueWork(() -> {
-
-
-
-                ItemProperties.register(
-                        AnnoyingLibModItems.ADVANCED_FISHING_ROD.get(),
-                        ResourceLocation.fromNamespaceAndPath("minecraft", "cast"),
-                        (stack, level, entity, seed) -> FishingRodGrappleUtil.getCastProperty(stack, entity)
-                );
-                ItemProperties.register(
-                        AnnoyingLibModItems.TONY_THE_FISHING_ROD.get(),
-                        ResourceLocation.fromNamespaceAndPath("minecraft", "cast"),
-                        (stack, level, entity, seed) -> FishingRodGrappleUtil.getCastProperty(stack, entity)
-                );
-                ItemProperties.register(
-                        AnnoyingLibModItems.HOOK_GUN.get(),
-                        ResourceLocation.fromNamespaceAndPath(MODID, "hook"),
-                        (stack, level, entity, seed) -> stack.hasTag() && stack.getTag().contains("hook") ? 1.0F : 0.0F
-                );
-                ItemProperties.register(
-                        AnnoyingLibModItems.HOOK_GUN.get(),
-                        ResourceLocation.fromNamespaceAndPath(MODID, "attached"),
-                        (stack, level, entity, seed) -> entity != null
-                                && HookGunItem.hasAttachedHook(entity.level(), entity) ? 1.0F : 0.0F
-                );
-            });
-        }
-    }
 }

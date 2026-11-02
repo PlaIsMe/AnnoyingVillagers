@@ -14,14 +14,14 @@ import net.minecraftforge.event.ForgeEventFactory;
 import javax.annotation.Nullable;
 
 /** Forge-safe progressive breaker for the exact swept volume of a scripted escape. */
-final class RigEscapeObstructionBreaker {
+public final class RigEscapeObstructionBreaker {
     @Nullable private BlockPos pos;
     @Nullable private BlockState state;
     private int ticks;
     private int stage = -1;
 
     /** @return true while an obstruction exists and movement/animation must wait. */
-    boolean clear(Mob breaker, AABB volume) {
+    public boolean clear(Mob breaker, AABB volume) {
         if (!(breaker.level() instanceof ServerLevel level)) return true;
         BlockPos obstruction = firstCollision(level, volume);
         if (obstruction == null) {
@@ -58,7 +58,7 @@ final class RigEscapeObstructionBreaker {
         return true;
     }
 
-    void reset(Mob breaker) {
+    public void reset(Mob breaker) {
         if (this.pos != null && this.stage >= 0) breaker.level().destroyBlockProgress(breaker.getId(), this.pos, -1);
         this.pos = null;
         this.state = null;

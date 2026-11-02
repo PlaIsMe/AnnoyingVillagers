@@ -1,6 +1,5 @@
 package com.pla.annoyinglib.event;
 
-import com.pla.annoyinglib.AnnoyingLib;
 import com.pla.annoyinglib.clazz.HookDisarmLaunch;
 import com.pla.annoyinglib.rig.RigAnimationController;
 import com.pla.annoyinglib.rig.RigAnimationId;
@@ -18,7 +17,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AnnoyingLib.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = "annoyinglib", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class HookSwordEvent {
     private HookSwordEvent() {}
 

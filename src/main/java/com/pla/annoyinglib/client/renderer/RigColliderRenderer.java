@@ -1,5 +1,7 @@
 package com.pla.annoyinglib.client.renderer;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyinglib.AnnoyingLib;
@@ -10,8 +12,6 @@ import com.pla.annoyinglib.rig.RigAnimationSpecs;
 import com.pla.annoyinglib.rig.RigAttackWindow;
 import com.pla.annoyinglib.rig.RigColliderSystem;
 import com.pla.annoyinglib.rig.RigOrientedBox;
-import com.pla.annoyinglib.rig.armor.ObsidianArmorColliderSystem;
-import com.pla.annoyinglib.rig.armor.ObsidianArmorController;
 import com.pla.annoyinglib.specialanimation.SpecialAnimationSpec;
 import com.pla.annoyinglib.specialanimation.SpecialAnimationSpecs;
 import com.pla.annoyinglib.specialanimation.SpecialAttackWindow;
@@ -21,7 +21,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -82,18 +81,9 @@ public final class RigColliderRenderer {
             renderSpecialBoxes(poseStack, lines, mob, active.animationId(), spec, elapsed, bodyYaw);
         }
 
-//        add this in herobrine_vessels
-//        for (var entry : ObsidianArmorClientAnimationState.snapshot().entrySet()) {
-//            Entity entity = mc.level.getEntity(entry.getKey().entityId());
-//            if (!(entity instanceof LivingEntity living)) continue;
-//            ObsidianArmorClientAnimationState.State active = ObsidianArmorClientAnimationState.get(living, entry.getKey().part());
-//            if (active == null) continue;
-//            float elapsed = active.elapsedTicks();
-//            boolean attackTime = elapsed >= ObsidianArmorController.ATTACK_START_TICK && elapsed < ObsidianArmorController.ATTACK_END_TICK_EXCLUSIVE;
-//            float green = attackTime ? 0.0F : 1.0F;
-//            float blue = attackTime ? 0.0F : 1.0F;
-//            for (RigOrientedBox box : ObsidianArmorColliderSystem.collisionBoxes(living, active.animationId(), elapsed)) renderBox(poseStack, lines, box, 1.0F, green, blue);
-//        }
+        if (ModList.get().isLoaded("herobrine_vessels")) {
+            HerobrineVessels.Client.renderArmorColliders(mc, poseStack, lines);
+        }
 
         poseStack.popPose();
         buffer.endBatch(RenderType.lines());
@@ -121,7 +111,7 @@ public final class RigColliderRenderer {
         }
     }
 
-    private static void renderBox(PoseStack poseStack, VertexConsumer consumer, RigOrientedBox box, float red, float green, float blue) {
+    public static void renderBox(PoseStack poseStack, VertexConsumer consumer, RigOrientedBox box, float red, float green, float blue) {
         Vec3[] corners = box.corners();
         PoseStack.Pose pose = poseStack.last();
 

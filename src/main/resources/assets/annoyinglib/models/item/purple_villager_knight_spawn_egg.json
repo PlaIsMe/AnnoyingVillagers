@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "annoyinglib:item/spawn_egg/purple_villager_knight_spawn_egg"
-  }
-}

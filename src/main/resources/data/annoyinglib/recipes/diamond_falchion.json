@@ -1,23 +1,23 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        " D ",
-        " D ",
-        "FPF"
-    ],
-    "key": {
-        "D": {
-            "item": "minecraft:diamond"
-        },
-        "F": {
-            "item": "minecraft:flint"
-        },
-        "P": {
-            "item": "minecraft:stick"
-        }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " D ",
+    " D ",
+    "FPF"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
     },
-    "result": {
-        "item": "annoyinglib:diamond_falchion",
-        "count": 1
+    "F": {
+      "item": "minecraft:flint"
+    },
+    "P": {
+      "item": "minecraft:stick"
     }
+  },
+  "result": {
+    "item": "annoyinglib:diamond_falchion",
+    "count": 1
+  }
 }

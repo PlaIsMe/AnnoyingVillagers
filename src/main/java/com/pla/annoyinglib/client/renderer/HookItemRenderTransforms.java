@@ -15,7 +15,7 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraftforge.common.ToolActions;
 import org.jetbrains.annotations.Nullable;
 
-final class HookItemRenderTransforms {
+public final class HookItemRenderTransforms {
     private static final float SWORD_PROJECTILE_ROLL = -45.0F;
     private static final float CUSTOM_3D_FIXED_POSITIVE_Y_ROLL = -45.0F;
     private static final float CUSTOM_3D_FIXED_NEGATIVE_Y_ROLL = -135.0F;
@@ -36,11 +36,11 @@ final class HookItemRenderTransforms {
     private HookItemRenderTransforms() {
     }
 
-    static void applyProjectileFacing(PoseStack poseStack, ItemStack stack, float yaw, float pitch) {
+    public static void applyProjectileFacing(PoseStack poseStack, ItemStack stack, float yaw, float pitch) {
         applyProjectileFacing(poseStack, stack, null, yaw, pitch);
     }
 
-    static void applyProjectileFacing(PoseStack poseStack, ItemStack stack, @Nullable BakedModel model, float yaw, float pitch) {
+    public static void applyProjectileFacing(PoseStack poseStack, ItemStack stack, @Nullable BakedModel model, float yaw, float pitch) {
         poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90.0F));
         poseStack.mulPose(Axis.ZP.rotationDegrees(-pitch));
         if (HookUtil.shouldAlignSharpEdge(stack)) {
@@ -48,11 +48,11 @@ final class HookItemRenderTransforms {
         }
     }
 
-    static ItemDisplayContext getProjectileDisplayContext(ItemStack stack) {
+    public static ItemDisplayContext getProjectileDisplayContext(ItemStack stack) {
         return getProjectileDisplayContext(stack, null);
     }
 
-    static ItemDisplayContext getProjectileDisplayContext(ItemStack stack, @Nullable BakedModel model) {
+    public static ItemDisplayContext getProjectileDisplayContext(ItemStack stack, @Nullable BakedModel model) {
         if (isCustom3DSharpModel(stack, model)) {
             return ItemDisplayContext.FIXED;
         }
@@ -60,11 +60,11 @@ final class HookItemRenderTransforms {
         return HookUtil.shouldAlignSharpEdge(stack) ? ItemDisplayContext.NONE : ItemDisplayContext.FIXED;
     }
 
-    static boolean shouldUseDisplayAttachmentRenderer(ItemStack stack, ItemDisplayContext context) {
+    public static boolean shouldUseDisplayAttachmentRenderer(ItemStack stack, ItemDisplayContext context) {
         return true;
     }
 
-    static ItemDisplayContext getHookGunAttachmentDisplayContext(ItemStack stack, ItemDisplayContext context) {
+    public static ItemDisplayContext getHookGunAttachmentDisplayContext(ItemStack stack, ItemDisplayContext context) {
         if (HookUtil.shouldUseShieldFacing(stack)) {
             return ItemDisplayContext.NONE;
         }
@@ -72,12 +72,12 @@ final class HookItemRenderTransforms {
         return ItemDisplayContext.GUI;
     }
 
-    static void applyHookGunAttachment(PoseStack poseStack, ItemStack stack, ItemDisplayContext context) {
+    public static void applyHookGunAttachment(PoseStack poseStack, ItemStack stack, ItemDisplayContext context) {
         double zOffset = HookUtil.shouldUseShieldFacing(stack) ? SHIELD_HOOK_GUN_ATTACHMENT_Z_OFFSET : 0.0D;
         applyHookGunAttachmentTransform(poseStack, zOffset);
     }
 
-    static ItemDisplayContext getHookGunProjectileDisplayContext(ItemStack stack, @Nullable BakedModel model) {
+    public static ItemDisplayContext getHookGunProjectileDisplayContext(ItemStack stack, @Nullable BakedModel model) {
         if (HookUtil.shouldUseShieldFacing(stack)) {
             return ItemDisplayContext.NONE;
         }
@@ -85,13 +85,13 @@ final class HookItemRenderTransforms {
         return getProjectileDisplayContext(stack, model);
     }
 
-    static float getHookGunProjectileScale(ItemStack stack) {
+    public static float getHookGunProjectileScale(ItemStack stack) {
         return HookUtil.shouldUseShieldFacing(stack)
                 ? SHIELD_HOOK_GUN_PROJECTILE_SCALE
                 : HOOK_GUN_PROJECTILE_SCALE;
     }
 
-    static void applyShieldProjectileTransform(PoseStack poseStack, @Nullable BakedModel model) {
+    public static void applyShieldProjectileTransform(PoseStack poseStack, @Nullable BakedModel model) {
         if (model == null || !model.getTransforms().hasTransform(ItemDisplayContext.FIXED)) {
             return;
         }

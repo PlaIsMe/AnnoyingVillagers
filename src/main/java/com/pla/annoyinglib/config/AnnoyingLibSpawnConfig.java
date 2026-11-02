@@ -23,27 +23,7 @@ public final class AnnoyingLibSpawnConfig {
     private static final int COUNT_MIN  = 1;
     private static final int COUNT_MAX  = 64;
 
-    public static final List<Entry> ENTRIES = List.of(
-            configurableGroupEntry("villager_scout", 4, 1, 4, "Villager Scout"),
-            configurableGroupEntry("villager_scout_captain", 3, 1, 2, "Villager Scout Captain"),
-            configurableGroupEntry("purple_villager_knight", 3, 1, 2, "Purple Villager Knight"),
-            configurableGroupEntry("red_villager_knight", 3, 1, 2, "Red Villager Knight"),
-            configurableGroupEntry("blue_villager_knight", 3, 1, 2, "Blue Villager Knight"),
-            configurableGroupEntry("green_villager_knight", 3, 1, 2, "Green Villager Knight"),
-
-            fixedGroupEntry("steve", 1, "Steve"),
-            fixedGroupEntry("alex", 1, "Alex"),
-            fixedGroupEntry("chris", 1, "Chris"),
-            fixedGroupEntry("blue_demon", 1, "Blue Demon"),
-
-            fixedGroupEntry("low_shadow_herobrine_clone", 1, "Netherite Herobrine"),
-            fixedGroupEntry("herobrine_clone", 1, "Herobrine Clone"),
-            fixedGroupEntry("shadow_herobrine_clone", 1, "Shadow Herobrine Clone"),
-            fixedGroupEntry("transporter_herobrine_clone", 1, "Transporter Herobrine Clone"),
-            fixedGroupEntry("armored_herobrine", 1, "Armored Herobrine"),
-            fixedGroupEntry("herobrine_7", 1, "Herobrine 7"),
-            fixedGroupEntry("herobrine_greg", 1, "Herobrine Greg")
-    );
+    public static final List<Entry> ENTRIES = List.of();
 
     public static final ForgeConfigSpec SPEC;
 

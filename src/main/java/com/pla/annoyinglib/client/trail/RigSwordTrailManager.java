@@ -1,5 +1,9 @@
 package com.pla.annoyinglib.client.trail;
-
+import net.minecraft.world.item.Items;
+import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.VillagerKingdom;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -12,9 +16,6 @@ import com.pla.annoyinglib.AnnoyingLib;
 import com.pla.annoyinglib.client.animation.RigClientAnimationState;
 import com.pla.annoyinglib.client.animation.SpecialClientAnimationState;
 import com.pla.annoyinglib.client.renderer.RigItemVisualResolver;
-import com.pla.annoyinglib.entity.AngrySteveEntity;
-import com.pla.annoyinglib.entity.AvGolem;
-import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import com.pla.annoyinglib.rig.RigAnimationId;
 import com.pla.annoyinglib.rig.RigAnimationSpec;
 import com.pla.annoyinglib.rig.RigAnimationSpecs;
@@ -109,10 +110,9 @@ public final class RigSwordTrailManager {
                 }
                 if (definition == null || itemId == null) continue;
 
-                if (mob instanceof AngrySteveEntity angrySteve
-                        && angrySteve.isLegendaryAwakened()
+                if (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isLegendaryAwakened(mob)
                         && arm == mob.getMainArm()
-                        && original.is(AnnoyingLibModItems.LEGENDARY_SWORD.get())) {
+                        && original.is((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_LEGENDARY_SWORD() : Items.AIR))) {
                     definition = definition.withColor(253, 255, 118);
                 }
 
@@ -125,7 +125,7 @@ public final class RigSwordTrailManager {
 
         for (var entry : SpecialClientAnimationState.snapshot().entrySet()) {
             Entity entity = mc.level.getEntity(entry.getKey());
-            if (!(entity instanceof AvGolem golem) || !golem.isAlive() || golem.isRemoved()) continue;
+            if (!(entity instanceof Mob golem) || !(ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAvGolem(entity)) || !golem.isAlive() || golem.isRemoved()) continue;
             SpecialClientAnimationState.Active active = SpecialClientAnimationState.getActive(golem, golem.tickCount);
             if (active == null || active.animationId().family() != SpecialAnimationFamily.AV_GOLEM) continue;
 
@@ -403,10 +403,8 @@ public final class RigSwordTrailManager {
             boolean identityChanged = !Objects.equals(this.animationIdentity, playback.identity())
                     || this.itemId == null || !this.itemId.equals(newItemId)
                     || this.definition == null;
-            // add this in herobrine_vessels
-            // double maxContinuousMoveSqr = mob instanceof NullWeapon
-            //         ? NULL_WEAPON_MAX_CONTINUOUS_MOVE_SQR : MAX_CONTINUOUS_MOVE_SQR;
-            double maxContinuousMoveSqr = MAX_CONTINUOUS_MOVE_SQR;
+
+            double maxContinuousMoveSqr = ModList.get().isLoaded("herobrine_vessels") ? HerobrineVessels.Client.maxContinuousTrailMove(mob, NULL_WEAPON_MAX_CONTINUOUS_MOVE_SQR, MAX_CONTINUOUS_MOVE_SQR) : MAX_CONTINUOUS_MOVE_SQR;
             boolean teleported = this.lastOwnerPosition != null
                     && this.lastOwnerPosition.distanceToSqr(mob.position()) > maxContinuousMoveSqr;
 

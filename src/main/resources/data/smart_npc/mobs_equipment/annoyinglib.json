@@ -1,59 +1,100 @@
 {
   "MAINHAND": [
-    { "id": "knife", "min_difficulty": "EASY" },
-    { "id": "golden_longsword", "min_difficulty": "MEDIUM" },
-    { "id": "golden_mace", "min_difficulty": "MEDIUM" },
-    { "id": "hooked_golden_sword", "min_difficulty": "MEDIUM" },
-    { "id": "hooked_iron_sword", "min_difficulty": "MEDIUM" },
-    { "id": "iron_cleaver", "min_difficulty": "MEDIUM" },
-    { "id": "iron_double_bladed_halberd", "min_difficulty": "MEDIUM" },
-    { "id": "iron_longsword", "min_difficulty": "MEDIUM" },
-    { "id": "iron_sickle", "min_difficulty": "MEDIUM" },
-    { "id": "iron_twin_blade_katana", "min_difficulty": "MEDIUM" },
-    { "id": "jade_sword", "min_difficulty": "MEDIUM" },
-    { "id": "red_axe", "min_difficulty": "MEDIUM" },
-    { "id": "black_fire_sword", "min_difficulty": "HARD" },
-    { "id": "blackscratcher", "min_difficulty": "HARD" },
-    { "id": "blue_flame_sword", "min_difficulty": "HARD" },
-    { "id": "centranos_sword", "min_difficulty": "HARD" },
-    { "id": "clow_sword", "min_difficulty": "HARD" },
-    { "id": "diamond_armblade", "min_difficulty": "HARD" },
-    { "id": "diamond_blaster_sword", "min_difficulty": "HARD" },
-    { "id": "diamond_chipped_longsword", "min_difficulty": "HARD" },
-    { "id": "diamond_falchion", "min_difficulty": "HARD" },
-    { "id": "diamond_great_falchion", "min_difficulty": "HARD" },
-    { "id": "diamond_laevateinn", "min_difficulty": "HARD" },
-    { "id": "diamond_longsword", "min_difficulty": "HARD" },
-    { "id": "diamond_mace", "min_difficulty": "HARD" },
-    { "id": "diamond_moon_blade", "min_difficulty": "HARD" },
-    { "id": "diamond_sabre", "min_difficulty": "HARD" },
-    { "id": "diamond_sickle", "min_difficulty": "HARD" },
-    { "id": "diamond_spear", "min_difficulty": "HARD" },
-    { "id": "diamond_warblade", "min_difficulty": "HARD" },
-    { "id": "dnax_hooked_sword", "min_difficulty": "HARD" },
-    { "id": "earth_axe", "min_difficulty": "HARD" },
-    { "id": "exterminator_battleaxe", "min_difficulty": "HARD" },
-    { "id": "flanker_hooked_sword", "min_difficulty": "HARD" },
-    { "id": "golden_moon_blade", "min_difficulty": "HARD" },
-    { "id": "red_diamond_sword", "min_difficulty": "HARD" },
-    { "id": "twin_diamond_spear", "min_difficulty": "HARD" }
-  ],
-  "OFFHAND": [
-  ],
-  "FEET": [
-    { "id": "ruby_boots", "min_difficulty": "HARD" },
-    { "id": "unlight_diamond_boots", "min_difficulty": "HARD" }
-  ],
-  "LEGS": [
-    { "id": "ruby_leggings", "min_difficulty": "HARD" },
-    { "id": "unlight_diamond_leggings", "min_difficulty": "HARD" }
-  ],
-  "CHEST": [
-    { "id": "ruby_chestplate", "min_difficulty": "HARD" },
-    { "id": "unlight_diamond_chestplate", "min_difficulty": "HARD" }
-  ],
-  "HEAD": [
-    { "id": "ruby_helmet", "min_difficulty": "HARD" },
-    { "id": "unlight_diamond_helmet", "min_difficulty": "HARD" }
+    {
+      "id": "diamond_falchion",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "knife",
+      "min_difficulty": "EASY"
+    },
+    {
+      "id": "golden_longsword",
+      "min_difficulty": "MEDIUM"
+    },
+    {
+      "id": "golden_mace",
+      "min_difficulty": "MEDIUM"
+    },
+    {
+      "id": "hooked_golden_sword",
+      "min_difficulty": "MEDIUM"
+    },
+    {
+      "id": "hooked_iron_sword",
+      "min_difficulty": "MEDIUM"
+    },
+    {
+      "id": "iron_cleaver",
+      "min_difficulty": "MEDIUM"
+    },
+    {
+      "id": "iron_longsword",
+      "min_difficulty": "MEDIUM"
+    },
+    {
+      "id": "iron_sickle",
+      "min_difficulty": "MEDIUM"
+    },
+    {
+      "id": "jade_sword",
+      "min_difficulty": "MEDIUM"
+    },
+    {
+      "id": "diamond_armblade",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "diamond_blaster_sword",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "diamond_chipped_longsword",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "diamond_great_falchion",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "diamond_laevateinn",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "diamond_longsword",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "diamond_mace",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "diamond_moon_blade",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "diamond_sabre",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "diamond_sickle",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "diamond_warblade",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "golden_moon_blade",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "red_diamond_sword",
+      "min_difficulty": "HARD"
+    },
+    {
+      "id": "twin_diamond_spear",
+      "min_difficulty": "HARD"
+    }
   ]
 }

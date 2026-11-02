@@ -1,7 +1,8 @@
 package com.pla.annoyinglib.mixin;
-
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.clazz.AVNpc;
-import com.pla.annoyinglib.entity.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,14 +23,10 @@ public abstract class MinecartMixin {
 
     @Unique
     private static boolean annoyingLib$shouldIgnoreMinecart(Entity entity) {
-        return entity instanceof BlueDemonEntity
+        return (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonEntity(entity))
                 || entity instanceof AVNpc
-                || entity instanceof BbqEntity;
-                // add this in herobrine_vessels
-                // || entity instanceof HerobrineMob
-                // || entity instanceof HerobrineGregEntity
-                // || entity instanceof NullSkeletonEntity
-                // || entity instanceof LowHerobrineCloneEntity
-                // || entity instanceof LowShadowHerobrineCloneEntity;
+                || (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBbqEntity(entity))
+                || (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.blocksVehicle(entity));
+
     }
 }

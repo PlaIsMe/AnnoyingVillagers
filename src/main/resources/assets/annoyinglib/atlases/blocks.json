@@ -1,0 +1,8 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "annoyinglib:item/jessica_the_dark_shield"
+    }
+  ]
+}

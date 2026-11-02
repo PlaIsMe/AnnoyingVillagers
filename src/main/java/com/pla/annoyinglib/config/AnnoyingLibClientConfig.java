@@ -123,7 +123,6 @@ public final class AnnoyingLibClientConfig {
         ELITE_HEROBRINE("spawnEliteEffect", "spawnEliteEffect / Elite Herobrine lightning", false),
         BLUE_DEMON_LIGHTNING("blueDemonLightning", "Blue Demon lightning", false),
         WOOPIE_SWORD_WIND("woopieSwordWind", "Woopie Sword wind", true),
-        BLACK_FIRE("blackFire", "Black Fire", true),
         DIAMOND_ATTRACTOR("diamondAttractor", "Diamond Attractor", true),
         TELEPORT_PORTAL("teleportPortal", "Teleport Portal (Photon: snakeportal)", true),
         DRAGON_BEAM("dragonBeam", "Herobrine Dragon beam", true),

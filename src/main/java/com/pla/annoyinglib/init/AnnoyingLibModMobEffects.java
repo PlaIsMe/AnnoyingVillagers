@@ -10,8 +10,6 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class AnnoyingLibModMobEffects {
     public static final DeferredRegister<MobEffect> REGISTRY = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, AnnoyingLib.MODID);
-    public static final RegistryObject<MobEffect> ENCHANT_BED_EFFECT = AnnoyingLibModMobEffects.REGISTRY.register("enchant_bed_effect", EnchantBedEffectMobEffect::new);
-    public static final RegistryObject<MobEffect> ELECTRIFY = AnnoyingLibModMobEffects.REGISTRY.register("electrify", ElectrifyMobEffect::new);
 
     public static final RegistryObject<MobEffect> CAPTIVE = AnnoyingLibModMobEffects.REGISTRY.register("captive", CaptiveMobEffect::new);
 

@@ -1,5 +1,6 @@
 package com.pla.annoyinglib.mixin.client;
 
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyinglib.client.renderer.ColoredGlintRenderTypes;
@@ -21,27 +22,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin {
 
-     // add this in herobrine_vessels
-    // @Inject(method = "renderStatic(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;III)V", at = @At("HEAD"))
-    // private void av$setSnakeItemOwner(LivingEntity entity, ItemStack stack, ItemDisplayContext context,
-    //                                   boolean leftHand, PoseStack pose, MultiBufferSource buffer,
-    //                                   Level level, int light, int overlay, int seed, CallbackInfo ci) {
-    //     if (ModList.get().isLoaded("bettercombat")) BetterCombatSnakeAttachment.setItemOwner(entity);
-    // }
+    @Inject(method = "renderStatic(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;III)V", at = @At("HEAD"))
+    private void av$setSnakeItemOwner(LivingEntity entity, ItemStack stack, ItemDisplayContext context,
+                                      boolean leftHand, PoseStack pose, MultiBufferSource buffer,
+                                      Level level, int light, int overlay, int seed, CallbackInfo ci) {
+        if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.Client.setSnakeItemOwner(entity);
+    }
 
-    // @Inject(method = "renderStatic(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;III)V", at = @At("RETURN"))
-    // private void av$clearSnakeItemOwner(LivingEntity entity, ItemStack stack, ItemDisplayContext context,
-    //                                     boolean leftHand, PoseStack pose, MultiBufferSource buffer,
-    //                                     Level level, int light, int overlay, int seed, CallbackInfo ci) {
-    //     if (ModList.get().isLoaded("bettercombat")) BetterCombatSnakeAttachment.setItemOwner(null);
-    // }
+    @Inject(method = "renderStatic(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;III)V", at = @At("RETURN"))
+    private void av$clearSnakeItemOwner(LivingEntity entity, ItemStack stack, ItemDisplayContext context,
+                                        boolean leftHand, PoseStack pose, MultiBufferSource buffer,
+                                        Level level, int light, int overlay, int seed, CallbackInfo ci) {
+        if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.Client.setSnakeItemOwner(null);
+    }
 
-    // @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/model/BakedModel;isCustomRenderer()Z"))
-    // private void av$captureSnakeSocket(ItemStack stack, ItemDisplayContext context, boolean leftHand,
-    //                                    PoseStack pose, MultiBufferSource buffer, int light, int overlay,
-    //                                    BakedModel model, CallbackInfo ci) {
-    //     if (ModList.get().isLoaded("bettercombat")) BetterCombatSnakeAttachment.capture(stack, context, pose);
-    // }
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/model/BakedModel;isCustomRenderer()Z"))
+    private void av$captureSnakeSocket(ItemStack stack, ItemDisplayContext context, boolean leftHand,
+                                       PoseStack pose, MultiBufferSource buffer, int light, int overlay,
+                                       BakedModel model, CallbackInfo ci) {
+        if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.Client.captureSnakeSocket(stack, context, pose);
+    }
 
     @Inject(method = "render", at = @At("HEAD"))
     private void setTargetStack(ItemStack stack, ItemDisplayContext ctx, boolean leftHand,

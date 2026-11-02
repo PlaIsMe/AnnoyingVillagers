@@ -1,7 +1,0 @@
-{
-  "parent": "annoyinglib:custom/woopie_the_sword",
-  "textures": {
-    "0": "annoyinglib:item/ruby_knight_sword",
-    "particle": "annoyinglib:item/ruby_knight_sword"
-  }
-}

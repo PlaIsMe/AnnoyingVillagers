@@ -1,9 +1,0 @@
-{
-  "parent": "annoyinglib:custom/enchant_bed_model",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "all": "annoyinglib:block/bed",
-    "particle": "annoyinglib:block/bed",
-    "0": "annoyinglib:block/bed"
-  }
-}

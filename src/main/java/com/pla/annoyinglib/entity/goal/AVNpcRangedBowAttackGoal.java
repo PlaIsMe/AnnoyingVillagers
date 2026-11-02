@@ -1,5 +1,7 @@
 package com.pla.annoyinglib.entity.goal;
 
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.clazz.DangerousReaction;
 import com.pla.annoyinglib.rig.RigAnimationController;
@@ -212,24 +214,17 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
                 && target.isAlive()
                 && !target.isRemoved()
                 && !target.isDeadOrDying()
-                && !isMeleeSwitchRange(target);
-                // add this in herobrine_vessels
-                // && InventoryUtils.hasArrowAmmo(this.avNpc, target instanceof HerobrineMob);
+                && !isMeleeSwitchRange(target)
+                && (ModList.get().isLoaded("herobrine_vessels") ? HerobrineVessels.hasArrowAmmo(this.avNpc, target) : InventoryUtils.hasArrowAmmo(this.avNpc, false));
     }
 
     private boolean isMeleeSwitchRange(LivingEntity target) {
-        // add this in herobrine_vessels
-        // if (target instanceof HerobrineDragonEntity) {
-        //     return false;
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isDragon(target)) return false;
         return this.avNpc.distanceToSqr(target) <= MELEE_SWITCH_DISTANCE_BLOCKS * MELEE_SWITCH_DISTANCE_BLOCKS;
     }
 
     private void considerVoluntaryMeleeSwap(LivingEntity target) {
-        // add this in herobrine_vessels
-        // if (target instanceof HerobrineDragonEntity) {
-        //     return;
-        // }
+        if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isDragon(target)) return;
 
         this.shotsSinceMeleeRoll++;
         if (this.shotsSinceMeleeRoll < MIN_BOW_SHOTS_BEFORE_MELEE_ROLL) {

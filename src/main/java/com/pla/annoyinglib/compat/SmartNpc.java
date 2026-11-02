@@ -1,21 +1,13 @@
 package com.pla.annoyinglib.compat;
 
-import com.pla.annoyinglib.entity.BbqEntity;
-import com.pla.annoyinglib.clazz.VillagerArmyEntity;
-import com.pla.annoyinglib.entity.AlexEntity;
-import com.pla.annoyinglib.entity.AngrySteveEntity;
-import com.pla.annoyinglib.entity.BlueDemonEntity;
-import com.pla.annoyinglib.entity.ChrisEntity;
-import com.pla.annoyinglib.entity.JevEntity;
-import com.pla.annoyinglib.entity.SteveEntity;
-import com.pla.annoyinglib.entity.goal.EscapeAvoidGoal;
+import net.minecraftforge.fml.ModList;
 import com.pla.smart_npc.entity.PlayerNpcEntity;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
@@ -50,28 +42,21 @@ public class SmartNpc {
         }
     }
 
-    public static void bbqEscapeAvoid(BbqEntity self) {
-        self.goalSelector.addGoal(1, new EscapeAvoidGoal<>(self, PlayerNpcEntity.class, 12.0F, 2.0D, 2.0D));
+    public static void bbqEscapeAvoid(PathfinderMob self) {
+        if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.addSmartNpcEscapeGoal(self);
     }
 
-    // add this in herobrine_vessels
-    // public static void gregAvoid(HerobrineGregEntity self) {
-    //     self.goalSelector.addGoal(2, new AvoidEntityGoal<>(self, PlayerNpcEntity.class, 12.0F, 1.0D, 1.35D));
-    // }
+    public static void gregAvoid(PathfinderMob self) {
+        if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.gregAvoid(self);
+    }
 
     public static boolean isSmartNpc(Entity mob) {
         return mob instanceof PlayerNpcEntity;
     }
 
-    // add this in herobrine_vessels
-    // public static void copyPlayerNpcIdentity(Entity entity, LowHerobrineCloneEntity lowHerobrineCloneEntity) {
-    //     if (!(entity instanceof PlayerNpcEntity playerNpcEntity)) return;
-
-    //     String username = playerNpcEntity.getUsername().getCombinedNames();
-    //     if (username != null && !username.isBlank()) lowHerobrineCloneEntity.setUsername(username);
-    //     var profile = playerNpcEntity.getProfile();
-    //     if (profile != null) lowHerobrineCloneEntity.setProfile(profile);
-    // }
+    public static void copyPlayerNpcIdentity(Entity entity, Entity clone) {
+        if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.copyPlayerNpcIdentity(entity, clone);
+    }
 
     public static SimpleContainer getInventory(Entity entity) {
         if (entity instanceof PlayerNpcEntity playerNpcEntity) {
@@ -135,35 +120,25 @@ public class SmartNpc {
     }
 
     public static boolean isPlayerLikeTarget(LivingEntity target) {
-        return target instanceof SteveEntity
-                || target instanceof AngrySteveEntity
-                || target instanceof AlexEntity
-                || target instanceof ChrisEntity
-                || target instanceof JevEntity;
+        return (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isSteveEntity(target))
+                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAngrySteveEntity(target))
+                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAlexEntity(target))
+                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isChrisEntity(target))
+                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isJevEntity(target));
     }
 
     public static boolean isMonsterTarget(LivingEntity target) {
-        // add this in herobrine_vessels
-        return target instanceof BlueDemonEntity;
-                // || target instanceof HerobrineGregEntity
-                // || target instanceof LowHerobrineCloneEntity
-                // || target instanceof LowShadowHerobrineCloneEntity
-                // || target instanceof HerobrineMob
-                // || target instanceof EliteHerobrineKnockedEntity;
+        return (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonEntity(target)) || (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.isMonsterTarget(target));
     }
 
     public static boolean isVillagerTarget(LivingEntity target) {
-        return target instanceof VillagerArmyEntity;
+        return (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isVillagerArmyEntity(target));
     }
 
-    // add this in herobrine_vessels
-    // public static boolean isHighDangerThreat(LivingEntity target) {
-    //     return target instanceof HerobrineMob
-    //             || target instanceof HerobrineGregEntity
-    //             || target instanceof LowHerobrineCloneEntity
-    //             || target instanceof LowShadowHerobrineCloneEntity
-    //             || target instanceof VillagerArmyEntity;
-    // }
+    public static boolean isHighDangerThreat(LivingEntity target) {
+        if (ModList.get().isLoaded("herobrine_vessels")) return HerobrineVessels.isHighDangerThreat(target);
+        return (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isVillagerArmyEntity(target));
+    }
 
     public static void increaseStunEscapeCooldown(Entity entity) {
         if (entity instanceof PlayerNpcEntity playerNpcEntity) {

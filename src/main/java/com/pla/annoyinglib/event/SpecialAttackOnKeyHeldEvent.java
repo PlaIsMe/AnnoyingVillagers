@@ -1,8 +1,7 @@
 package com.pla.annoyinglib.event;
-
-import com.pla.annoyinglib.item.BlueDemonChestplateItem;
-import com.pla.annoyinglib.item.BlueDemonTridentItem;
-import com.pla.annoyinglib.util.VanillaWeaponAbilityUtil;
+import com.pla.annoyinglib.compat.MobSupremacy;
+import net.minecraftforge.fml.ModList;
+import com.pla.annoyinglib.compat.HerobrineVessels;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -51,24 +50,13 @@ public class SpecialAttackOnKeyHeldEvent {
         }
 
         if (entity instanceof Player player && !player.level().isClientSide()) {
-             // add this in herobrine_vessels
-            // if (EnderSlayerScytheItem.activateMountedDragonDescent(player)) return;
-            // if (HerobrineEnderEyeItem.activateVanillaHeldSpecial(player)) return;
-            // TransporterFragmentItem.UseResult transporterUseResult = TransporterFragmentItem.tryUseHeldSpecialAttack(player, crosshairTarget);
-            // if (transporterUseResult.consumed()) {
-            //     if (transporterUseResult.activated()) {
-            //         if (transporterUseResult.mode() == TransporterFragmentItem.UseMode.OFF_HAND) VanillaWeaponAbilityUtil.swingOffHand(player);
-            //         else VanillaWeaponAbilityUtil.swingMainHand(player);
-            //         playPortalSummonAnimation();
-            //     }
-            //     return;
-            // }
-            if (BlueDemonTridentItem.activateVanillaFestival(player)) return;
-            // if (NullWeaponItem.activateHeldSpecial(player)) return;
+            if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.activateHeldSpecial(player, crosshairTarget, SpecialAttackOnKeyHeldEvent::playPortalSummonAnimation)) return;
+            if ((ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.blueDemonTridentItem_activateVanillaFestival(player) : false)) return;
+            if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.activateNullHeldSpecial(player)) return;
         }
 
         if (entity instanceof Player player) {
-            if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof BlueDemonChestplateItem && BlueDemonChestplateItem.isBlueDemonChestplate(player.getItemBySlot(EquipmentSlot.CHEST))) {
+            if ((ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonChestplateItem(player.getItemBySlot(EquipmentSlot.CHEST).getItem())) && (ModList.get().isLoaded("mob_supremacy") ? MobSupremacy.blueDemonChestplateItem_isBlueDemonChestplate(player.getItemBySlot(EquipmentSlot.CHEST)) : false)) {
                 if (entity.level() instanceof ServerLevel) {
                 playChestplateActivationAnimation();
                 }
