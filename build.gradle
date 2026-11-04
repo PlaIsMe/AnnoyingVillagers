@@ -81,10 +81,11 @@ repositories {
 }
 
 dependencies {
-    implementation "libs:SmartNpc-1.21.1:2.0.0"
+    implementation "libs:SmartNPC-neoforge-1.21.1:2.0.3"
 
     compileOnly "curse.maven:aaa-particles-979809:8983699"
-    compileOnly "curse.maven:architectury-api-419699:8492726"
+
+    implementation "curse.maven:architectury-api-419699:8492726"
     compileOnly "curse.maven:photon-871522:8824095"
     compileOnly "curse.maven:ldlib-626676:8866144"
 
@@ -120,7 +121,7 @@ sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
 
 tasks.named('jar', Jar).configure {
-    destinationDirectory = file('C:/Users/Admin/Desktop/Minecraft/delivery')
+    destinationDirectory = file('C:/Users/Admin/Desktop/Minecraft/delivery/annoyingvillagers')
     manifest {
         attributes([
                 'Specification-Title'      : mod_id,
