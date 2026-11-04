@@ -80,7 +80,7 @@ dependencies {
     implementation fg.deobf("local:VillagerKingdom-1.20.1:1.0")
     implementation fg.deobf("local:HerobrineVessels-1.20.1:1.0.0")
 
-    compileOnly fg.deobf("curse.maven:smart-npc-1709932:9379069")
+    compileOnly fg.deobf("curse.maven:smart-npc-1709932:9424489")
 
     compileOnly fg.deobf("curse.maven:aaa-particles-979809:8082320")
     compileOnly fg.deobf("curse.maven:architectury-api-419699:5137938")
