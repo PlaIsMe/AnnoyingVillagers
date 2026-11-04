@@ -17,7 +17,7 @@ import punchy.client.render.PunchyArmRenderer;
 /** Keeps Obsidian chestplate tiles in the same pose and render pass as Punchy's skin arm. */
 @Mixin(value = PunchyArmRenderer.class, remap = false)
 public abstract class PunchyArmRendererMixin {
-    @Inject(method = "renderArmArmor", at = @At("HEAD"), cancellable = true, require = 0)
+    @Inject(method = "renderArmArmor", at = @At("HEAD"), cancellable = true, require = 1)
     private static void av$skipVanillaObsidianSleeve(
             PlayerModel<AbstractClientPlayer> model,
             AbstractClientPlayer player,
@@ -32,8 +32,9 @@ public abstract class PunchyArmRendererMixin {
         if (ModList.get().isLoaded("herobrine_vessels")) HerobrineVessels.Client.skipObsidianSleeve(player, ci);
     }
 
+    // Punchy 3.1b's renderArm is an API wrapper; the mesh pose lives in original$renderArm.
     @Inject(
-            method = "renderArm",
+            method = "original$renderArm",
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V",
