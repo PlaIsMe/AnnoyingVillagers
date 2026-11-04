@@ -14,6 +14,8 @@ public abstract class LivingEntityRendererStateMixin {
     @Inject(method = "extractRenderState", at = @At("TAIL"))
     private void annoyingVillagers$extractOverlay(LivingEntity entity, LivingEntityRenderState state,
                                                    float partialTick, CallbackInfo ci) {
+        // Direct extraction (for example YSM display proxies) skips NeoForge modifiers.
+        // Normal dispatcher extraction repopulates these keys through the registered modifier.
         VanillaOverlayRenderStateCache.update(entity, state);
     }
 }
