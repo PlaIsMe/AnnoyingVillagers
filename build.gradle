@@ -73,10 +73,10 @@ mixin {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    implementation fg.deobf("libs:SmartNpc-1.20.1:1.0.0")
+    implementation fg.deobf("curse.maven:smart-npc-1709932:9424489")
 
     compileOnly fg.deobf("curse.maven:aaa-particles-979809:8082320")
-    compileOnly fg.deobf("curse.maven:architectury-api-419699:5137938")
+    implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
     compileOnly fg.deobf("curse.maven:photon-871522:7501597")
     compileOnly fg.deobf("curse.maven:ldlib-626676:7809449")
 
@@ -105,7 +105,7 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 tasks.named('jar', Jar).configure {
-    destinationDirectory = file("C:/Users/Admin/Desktop/Minecraft/delivery")
+    destinationDirectory = file("C:/Users/Admin/Desktop/Minecraft/delivery/annoyingvillagers")
     manifest {
         attributes([
                 'Specification-Title'     : mod_id,
