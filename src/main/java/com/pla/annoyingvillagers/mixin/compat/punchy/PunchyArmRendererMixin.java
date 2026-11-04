@@ -112,8 +112,7 @@ public abstract class PunchyArmRendererMixin {
     // Punchy 2.8 adds a vanilla sleeve pass that bypasses Forge's custom armor
     // model/texture hooks. Obsidian's custom UVs turn that sleeve solid black.
     // Its animated arm tiles are already drawn by av$renderObsidianRightArm.
-    // Older Punchy versions have no renderArmArmor method.
-    @Inject(method = "renderArmArmor", at = @At("HEAD"), cancellable = true, require = 0)
+    @Inject(method = "renderArmArmor", at = @At("HEAD"), cancellable = true, require = 1)
     private static void av$skipVanillaObsidianSleeve(
             AvatarRenderer<AbstractClientPlayer> renderer,
             AvatarRenderState renderState,
@@ -130,8 +129,9 @@ public abstract class PunchyArmRendererMixin {
         }
     }
 
+    // Punchy 3.1b's renderArm is an API wrapper; the mesh pose lives in original$renderArm.
     @Inject(
-            method = "renderArm",
+            method = "original$renderArm",
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V",
