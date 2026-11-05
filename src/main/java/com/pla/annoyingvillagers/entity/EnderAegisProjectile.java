@@ -12,7 +12,7 @@ import com.pla.annoyingvillagers.rig.RigStunController;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -22,7 +22,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.ItemStack;
@@ -31,12 +31,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
-@OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class)
 public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier {
     private static final int SLAM_PULSE_INTERVAL_TICKS = 20;
     private static final int ELITE_FX_INTERVAL_TICKS = 4;
@@ -55,7 +53,7 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
         super(entitytype, livingentity, level, ItemStack.EMPTY, null);
     }
 
-        @OnlyIn(Dist.CLIENT)
+    @Override
     public @NotNull ItemStack getItem() {
         return new ItemStack(Blocks.AIR);
     }
@@ -86,7 +84,7 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
 
     public void tick() {
         super.tick();
-        if (this.inGround || this.tickCount >= MAX_LIFETIME_TICKS) {
+        if (this.isInGround() || this.tickCount >= MAX_LIFETIME_TICKS) {
             this.discard();
             return;
         }
@@ -120,7 +118,7 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
         enderAegisProjectile.setBaseDamage(d0);
         enderAegisProjectile.setKnockback(i);
         level.addFreshEntity(enderAegisProjectile);
-        level.playSound(null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft","entity.arrow.shoot"))), SoundSource.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.5F + 1.0F) + f / 2.0F);
+        level.playSound(null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft","entity.arrow.shoot"))), SoundSource.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.5F + 1.0F) + f / 2.0F);
         return enderAegisProjectile;
     }
 
@@ -136,7 +134,7 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
         enderAegisProjectile.setKnockback(7);
         enderAegisProjectile.setCritArrow(false);
         livingentity.level().addFreshEntity(enderAegisProjectile);
-        livingentity.level().playSound(null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.arrow.shoot"))), SoundSource.PLAYERS, 1.0F, 1.0F / ((new Random()).nextFloat() * 0.5F + 1.0F));
+        livingentity.level().playSound(null, livingentity.getX(), livingentity.getY(), livingentity.getZ(), Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.arrow.shoot"))), SoundSource.PLAYERS, 1.0F, 1.0F / ((new Random()).nextFloat() * 0.5F + 1.0F));
         return enderAegisProjectile;
     }
 
@@ -154,10 +152,10 @@ public class EnderAegisProjectile extends AbstractArrow implements ItemSupplier 
 //            if (livingEntityPatch != null) {
 //                livingEntityPatch.playAnimationSynchronized(AVAnimations.SUPER_KNOCK_BACK, 0.0F);
 //            }
-        if (!this.level().isClientSide && victim instanceof LivingEntity livingVictim && livingVictim.isAlive()) {
+        if (!this.level().isClientSide() && victim instanceof LivingEntity livingVictim && livingVictim.isAlive()) {
             if (livingVictim instanceof Player player) {
-                player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 0));
-                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 2));
+                player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 40, 0));
+                player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 40, 2));
                 player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 40, 0));
             } else if (livingVictim instanceof Mob mob && RigStunController.supports(mob)) {
                 RigStunController.applySuperKnockback(mob);

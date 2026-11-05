@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "id": "annoyingvillagers:ender_aegis"
+    },
+    "title": {
+      "translate": "advancements.annoyingvillagers.ender_aegis.title",
+      "color": "light_purple"
+    },
+    "description": {
+      "translate": "advancements.annoyingvillagers.ender_aegis.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "get_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "annoyingvillagers:ender_aegis"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "annoyingvillagers:compressed_diamond"
+}

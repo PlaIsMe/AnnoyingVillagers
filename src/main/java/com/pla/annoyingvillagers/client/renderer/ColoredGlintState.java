@@ -60,6 +60,10 @@ public final class ColoredGlintState {
         return MODE.get();
     }
 
+    public static void setMode(int mode) {
+        MODE.set(mode);
+    }
+
     public static void clear() {
         MODE.remove();
     }

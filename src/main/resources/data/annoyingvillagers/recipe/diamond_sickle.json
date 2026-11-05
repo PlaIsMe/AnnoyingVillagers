@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DH ",
+    " P ",
+    " P "
+  ],
+  "key": {
+    "P": "minecraft:stick",
+    "H": "minecraft:diamond_hoe",
+    "D": "minecraft:diamond"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_sickle"
+  }
+}

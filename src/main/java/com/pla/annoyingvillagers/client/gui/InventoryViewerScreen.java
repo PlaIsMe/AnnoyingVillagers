@@ -3,14 +3,15 @@ package com.pla.annoyingvillagers.client.gui;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.inventory.InventoryViewerMenu;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 public class InventoryViewerScreen extends AbstractContainerScreen<InventoryViewerMenu> {
-    private static final ResourceLocation ARMOR_EDITOR_TEXTURE = ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID , "textures/gui/armor.png");
+    private static final Identifier ARMOR_EDITOR_TEXTURE = Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID , "textures/gui/armor.png");
 
     public InventoryViewerScreen(InventoryViewerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -19,18 +20,12 @@ public class InventoryViewerScreen extends AbstractContainerScreen<InventoryView
     }
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
-    }
-
-    @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    public void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int left = this.leftPos;
         int top = this.topPos;
 
-        guiGraphics.blit(ARMOR_EDITOR_TEXTURE, left, top, 0, 0, this.imageWidth, InventoryViewerMenu.TOP_PANEL_HEIGHT);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, ARMOR_EDITOR_TEXTURE, left, top, 0, 0,
+                this.imageWidth, InventoryViewerMenu.TOP_PANEL_HEIGHT, 256, 256);
         guiGraphics.fill(left, top + InventoryViewerMenu.TOP_PANEL_HEIGHT, left + this.imageWidth, top + this.imageHeight, 0xFFC6C6C6);
         guiGraphics.fill(left, top + this.imageHeight - 1, left + this.imageWidth, top + this.imageHeight, 0xFF555555);
         guiGraphics.fill(left, top + InventoryViewerMenu.TOP_PANEL_HEIGHT, left + 1, top + this.imageHeight, 0xFF555555);
@@ -48,7 +43,7 @@ public class InventoryViewerScreen extends AbstractContainerScreen<InventoryView
                 this.title,
                 (this.imageWidth - this.font.width(this.title)) / 2,
                 6,
-                0x404040,
+                0xFF404040,
                 false
         );
     }

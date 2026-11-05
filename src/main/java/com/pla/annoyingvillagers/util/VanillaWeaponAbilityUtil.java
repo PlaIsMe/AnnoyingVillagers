@@ -1,7 +1,5 @@
 package com.pla.annoyingvillagers.util;
 
-import com.pla.annoyingvillagers.util.LegacyItemData;
-import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.compat.BetterCombatCompat;
 import com.pla.annoyingvillagers.network.ClientboundBetterCombatAnimation;
 import net.minecraft.nbt.CompoundTag;
@@ -38,6 +36,10 @@ public final class VanillaWeaponAbilityUtil {
         return !ModList.get().isLoaded(EPIC_FIGHT_COMPAT_MOD_ID);
     }
 
+    public static boolean isBetterCombatLoaded() {
+        return ModList.get().isLoaded(BETTER_COMBAT_MOD_ID);
+    }
+
     public static void swingMainHand(Player player) {
         player.swing(InteractionHand.MAIN_HAND, true);
     }
@@ -53,7 +55,7 @@ public final class VanillaWeaponAbilityUtil {
     }
 
     public static void swingMainHand(Player player, String animation, float durationTicks) {
-        if (!ModList.get().isLoaded(BETTER_COMBAT_MOD_ID)) swingMainHand(player);
+        if (!isBetterCombatLoaded()) swingMainHand(player);
         if (player instanceof ServerPlayer) {
             // Also send without Better Combat: client-only Punchy can animate every combo strike.
             PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new ClientboundBetterCombatAnimation(player.getId(),
@@ -74,7 +76,7 @@ public final class VanillaWeaponAbilityUtil {
     }
 
     private static boolean playBetterCombatAnimation(Player player, InteractionHand hand, String animation) {
-        if (!ModList.get().isLoaded(BETTER_COMBAT_MOD_ID)
+        if (!isBetterCombatLoaded()
                 || animation == null
                 || animation.isBlank()
                 || !(player instanceof ServerPlayer)) {
@@ -101,11 +103,11 @@ public final class VanillaWeaponAbilityUtil {
         if (amount <= 0) return;
         ItemStack stack = player.getItemInHand(hand);
         if (stack.isEmpty()) return;
-        stack.hurtAndBreak(amount, player, LivingEntity.getSlotForHand(hand));
+        stack.hurtAndBreak(amount, player, hand.asEquipmentSlot());
     }
 
     public static boolean isInternalCooldownReady(Player player, String tag) {
-        return player.level().getGameTime() >= player.getPersistentData().getLong(tag);
+        return player.level().getGameTime() >= player.getPersistentData().getLongOr(tag, 0L);
     }
 
     public static void setInternalCooldown(Player player, String tag, int ticks) {
@@ -113,7 +115,7 @@ public final class VanillaWeaponAbilityUtil {
     }
 
     public static int getInternalCooldownTicks(Player player, String tag) {
-        return (int)Math.max(0L, player.getPersistentData().getLong(tag) - player.level().getGameTime());
+        return (int)Math.max(0L, player.getPersistentData().getLongOr(tag, 0L) - player.level().getGameTime());
     }
 
     public static void clearInternalCooldown(Player player, String tag) {
@@ -184,7 +186,7 @@ public final class VanillaWeaponAbilityUtil {
 
     public static int getCharge(ItemStack stack, String tag, int max) {
         CompoundTag data = LegacyItemData.get(stack);
-        return Math.max(0, Math.min(max, data == null ? 0 : data.getInt(tag)));
+        return Math.max(0, Math.min(max, data == null ? 0 : data.getIntOr(tag, 0)));
     }
 
     public static int addCharge(ItemStack stack, String tag, int amount, int max) {
@@ -201,6 +203,6 @@ public final class VanillaWeaponAbilityUtil {
 
     public static boolean hasPersistentFlag(Entity entity, String tag) {
         CompoundTag data = entity.getPersistentData();
-        return data.getBoolean(tag);
+        return data.getBooleanOr(tag, false);
     }
 }

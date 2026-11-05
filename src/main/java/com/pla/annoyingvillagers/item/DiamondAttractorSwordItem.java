@@ -14,7 +14,7 @@ import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.Mob;
@@ -57,23 +57,23 @@ public class DiamondAttractorSwordItem extends LegacySwordItem implements RigCom
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.DIAMOND));
+                return Ingredient.of(Items.DIAMOND);
             }
-        }, 3, -2.8F, (new Properties()));
+        }, 3, -2.8F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) return InteractionResult.PASS;
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
             serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), AnnoyingVillagersModSounds.DIAMOND_ATTRACTOR.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
             PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new ClientboundDiamondAttractorFx(player));
             pullWeapons(player);
-            player.getCooldowns().addCooldown(this, 20 * 60);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), 20 * 60);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -177,7 +177,7 @@ public class DiamondAttractorSwordItem extends LegacySwordItem implements RigCom
                 }
 
                 InteractionHand chosenHand = candidateHands.get(
-                        level.random.nextInt(candidateHands.size())
+                        level.getRandom().nextInt(candidateHands.size())
                 );
 
                 ItemStack chosenStack = target.getItemInHand(chosenHand);

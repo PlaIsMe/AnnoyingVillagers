@@ -1,7 +1,7 @@
 package com.pla.annoyingvillagers.mixin;
 
 import com.pla.annoyingvillagers.util.CommonGoals;
-import net.minecraft.world.entity.monster.AbstractIllager;
+import net.minecraft.world.entity.monster.illager.AbstractIllager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

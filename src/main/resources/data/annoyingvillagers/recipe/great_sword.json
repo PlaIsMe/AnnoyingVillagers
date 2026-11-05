@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " B ",
+    "DND",
+    "BSB"
+  ],
+  "key": {
+    "B": "minecraft:diamond_block",
+    "S": "minecraft:diamond_sword",
+    "N": "minecraft:netherite_block",
+    "D": "minecraft:diamond"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:great_sword"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "B B",
+    "BMB",
+    "DHD"
+  ],
+  "key": {
+    "H": "minecraft:heart_of_the_sea",
+    "D": "minecraft:diamond",
+    "B": "minecraft:diamond_block",
+    "M": "minecraft:milk_bucket"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_claw"
+  }
+}

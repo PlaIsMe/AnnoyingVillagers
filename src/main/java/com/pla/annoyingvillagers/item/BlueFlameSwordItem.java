@@ -28,11 +28,11 @@ public class BlueFlameSwordItem extends LegacySwordItem implements RigCombatProf
     }
 
     @Override
-    public boolean hurtEnemy(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
+    public void hurtEnemy(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
         if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !pAttacker.level().isClientSide() && new Random().nextFloat() < 0.1F) {
             pTarget.igniteForSeconds(2);
         }
-        return super.hurtEnemy(pStack, pTarget, pAttacker);
+        super.hurtEnemy(pStack, pTarget, pAttacker);
     }
 
     public BlueFlameSwordItem() {
@@ -58,8 +58,8 @@ public class BlueFlameSwordItem extends LegacySwordItem implements RigCombatProf
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.DIAMOND));
+                return Ingredient.of(Items.DIAMOND);
             }
-        }, 3, -2.4F, (new Properties()));
+        }, 3, -2.4F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 }

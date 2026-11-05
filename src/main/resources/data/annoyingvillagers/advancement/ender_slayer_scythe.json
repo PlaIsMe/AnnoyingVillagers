@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "id": "annoyingvillagers:ender_slayer_scythe"
+    },
+    "title": {
+      "translate": "advancements.annoyingvillagers.ender_slayer_scythe.title",
+      "color": "light_purple"
+    },
+    "description": {
+      "translate": "advancements.annoyingvillagers.ender_slayer_scythe.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "get_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "annoyingvillagers:ender_slayer_scythe"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "annoyingvillagers:compressed_diamond"
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  D",
+    " S ",
+    "P  "
+  ],
+  "key": {
+    "P": "minecraft:stick",
+    "S": "minecraft:diamond_shovel",
+    "D": "minecraft:diamond"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_bolt"
+  }
+}

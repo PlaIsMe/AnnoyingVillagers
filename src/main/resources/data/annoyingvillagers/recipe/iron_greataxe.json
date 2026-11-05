@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " I ",
+    "IHB",
+    " F "
+  ],
+  "key": {
+    "F": "minecraft:flint",
+    "H": "annoyingvillagers:iron_halberd",
+    "B": "minecraft:iron_block",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:iron_greataxe"
+  }
+}

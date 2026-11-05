@@ -54,7 +54,7 @@ public enum ProjectileBreakableBlocks {
 
     PLANTS(
             s -> neverBreak(s) && (s.is(BlockTags.LEAVES)
-                    || s.is(BlockTags.FLOWERS) || s.is(BlockTags.SMALL_FLOWERS) || s.is(BlockTags.TALL_FLOWERS)
+                    || s.is(BlockTags.FLOWERS) || s.is(BlockTags.SMALL_FLOWERS)
                     || s.is(BlockTags.CROPS)
                     || s.is(BlockTags.SAPLINGS)
                     || s.is(BlockTags.CAVE_VINES)

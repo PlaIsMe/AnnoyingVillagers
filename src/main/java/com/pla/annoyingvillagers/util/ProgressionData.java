@@ -14,17 +14,16 @@ public class ProgressionData extends SavedData {
     private boolean manualDifficulty;
 
     public static ProgressionData get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(ProgressionData::new, (tag, provider) -> ProgressionData.load(tag)), DATA_NAME);
+        return com.pla.annoyingvillagers.util.LegacySavedData.computeIfAbsent(server.overworld().getDataStorage(), DATA_NAME, ProgressionData::new, ProgressionData::load, (value, provider) -> value.save(new CompoundTag(), provider));
     }
 
     public static ProgressionData load(CompoundTag tag) {
         ProgressionData data = new ProgressionData();
-        data.difficulty = Difficulty.byName(tag.getString(DIFFICULTY_TAG));
-        data.manualDifficulty = tag.getBoolean(MANUAL_DIFFICULTY_TAG);
+        data.difficulty = Difficulty.byName(tag.getStringOr(DIFFICULTY_TAG, ""));
+        data.manualDifficulty = tag.getBooleanOr(MANUAL_DIFFICULTY_TAG, false);
         return data;
     }
 
-    @Override
     public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
         tag.putString(DIFFICULTY_TAG, this.difficulty.id());
         tag.putBoolean(MANUAL_DIFFICULTY_TAG, this.manualDifficulty);

@@ -1,0 +1,10 @@
+{
+  "oversized_in_gui": true,
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      { "type": "minecraft:model", "model": "annoyingvillagers:item/hook_gun_body" },
+      { "type": "annoyingvillagers:hook_gun_attachment" }
+    ]
+  }
+}

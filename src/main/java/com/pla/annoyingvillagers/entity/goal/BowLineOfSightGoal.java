@@ -81,7 +81,7 @@ public class BowLineOfSightGoal extends Goal {
 
     private boolean shouldReposition() {
         LivingEntity target = this.mob.getTarget();
-        return !this.mob.level().isClientSide
+        return !this.mob.level().isClientSide()
                 && this.mob.isAlive()
                 && !this.mob.isRemoved()
                 && !this.mob.isDeadOrDying()

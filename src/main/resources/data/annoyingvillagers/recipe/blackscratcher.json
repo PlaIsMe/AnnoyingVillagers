@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IP ",
+    "  S",
+    "IP "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:stick",
+    "S": "minecraft:string"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:blackscratcher"
+  }
+}

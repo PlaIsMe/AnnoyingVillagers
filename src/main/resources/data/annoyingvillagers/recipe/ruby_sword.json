@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " R ",
+    " R ",
+    " P "
+  ],
+  "key": {
+    "R": "annoyingvillagers:ruby",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:ruby_sword"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "0 2",
+    "345",
+    "678"
+  ],
+  "key": {
+    "0": "annoyingvillagers:ruby",
+    "2": "annoyingvillagers:ruby",
+    "3": "annoyingvillagers:ruby",
+    "4": "annoyingvillagers:ruby",
+    "5": "annoyingvillagers:ruby",
+    "6": "annoyingvillagers:ruby",
+    "7": "annoyingvillagers:ruby",
+    "8": "annoyingvillagers:ruby"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:ruby_chestplate"
+  }
+}

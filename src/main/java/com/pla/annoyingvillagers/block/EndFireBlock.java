@@ -11,6 +11,9 @@
     import net.minecraft.world.level.BlockGetter;
     import net.minecraft.world.level.Level;
     import net.minecraft.world.level.LevelAccessor;
+    import net.minecraft.world.level.LevelReader;
+    import net.minecraft.world.level.ScheduledTickAccess;
+    import net.minecraft.world.entity.InsideBlockEffectApplier;
     import net.minecraft.world.level.block.BaseFireBlock;
     import net.minecraft.world.level.block.Block;
     import net.minecraft.world.level.block.Blocks;
@@ -40,13 +43,14 @@
             return CODEC;
         }
 
-        @Override public ItemStack getCloneItemStack(net.minecraft.world.level.LevelReader g, BlockPos p, BlockState s) {
+        @Override protected ItemStack getCloneItemStack(LevelReader g, BlockPos p, BlockState s, boolean includeData) {
             return ItemStack.EMPTY;
         }
 
         @Override
-        public BlockState updateShape(BlockState state, Direction facing, BlockState facingState,
-                                      LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
+        protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks,
+                                         BlockPos currentPos, Direction facing, BlockPos facingPos,
+                                         BlockState facingState, RandomSource random) {
             return state.canSurvive(level, currentPos) ? state : Blocks.AIR.defaultBlockState();
         }
 
@@ -56,16 +60,17 @@
         }
 
         @Override
-        public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+        protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity,
+                                    InsideBlockEffectApplier effectApplier, boolean isPrecise) {
             if (!entity.fireImmune()) {
                 EndFireUtil.setEndFireBurning(entity, true);
 
-                if (!level.isClientSide && entity.getRemainingFireTicks() < 160) {
+                if (!level.isClientSide() && entity.getRemainingFireTicks() < 160) {
                     entity.igniteForSeconds(8.0F);
                 }
             }
 
-            super.entityInside(state, level, pos, entity);
+            super.entityInside(state, level, pos, entity, effectApplier, isPrecise);
         }
 
         private static int getEndFireTickDelay(RandomSource random) {
@@ -75,8 +80,8 @@
         @Override
         public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
             super.onPlace(state, level, pos, oldState, isMoving);
-            if (!level.isClientSide) {
-                level.scheduleTick(pos, this, getEndFireTickDelay(level.random));
+            if (!level.isClientSide()) {
+                level.scheduleTick(pos, this, getEndFireTickDelay(level.getRandom()));
             }
         }
 

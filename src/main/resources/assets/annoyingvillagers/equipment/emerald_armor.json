@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "annoyingvillagers:emerald_armor_layer_1"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "annoyingvillagers:emerald_armor_layer_2"
+      }
+    ]
+  }
+}

@@ -30,9 +30,9 @@ public class IronGreataxeItem extends LegacySwordItem implements RigCombatProfil
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.IRON_INGOT));
+                return Ingredient.of(Items.IRON_INGOT);
             }
-        }, 3, -3.0F, (new Properties()));
+        }, 3, -3.0F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

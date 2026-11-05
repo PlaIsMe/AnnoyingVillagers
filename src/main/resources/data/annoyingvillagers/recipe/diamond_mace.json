@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DDD",
+    "DPD",
+    " P "
+  ],
+  "key": {
+    "P": "minecraft:stick",
+    "D": "minecraft:diamond"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_mace"
+  }
+}

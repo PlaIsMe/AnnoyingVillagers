@@ -3,16 +3,14 @@ package com.pla.annoyingvillagers.client.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
+
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
-@OnlyIn(Dist.CLIENT)
-public class BigSplashParticle extends TextureSheetParticle {
+public class BigSplashParticle extends SingleQuadParticle {
 
     private final SpriteSet spriteSet;
 
@@ -21,7 +19,7 @@ public class BigSplashParticle extends TextureSheetParticle {
     }
 
     protected BigSplashParticle(ClientLevel clientlevel, double d0, double d1, double d2, double d3, double d4, double d5, SpriteSet spriteset) {
-        super(clientlevel, d0, d1, d2);
+        super(clientlevel, d0, d1, d2, spriteset.first());
         this.spriteSet = spriteset;
         this.setSize(0.2F, 0.2F);
         this.lifetime = Math.max(1, 30 + (this.random.nextInt(40) - 20));
@@ -33,8 +31,8 @@ public class BigSplashParticle extends TextureSheetParticle {
         this.setSpriteFromAge(spriteset);
     }
 
-    public @NotNull ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    protected SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.TRANSLUCENT;
     }
 
     public float getQuadSize(float f) {
@@ -57,7 +55,7 @@ public class BigSplashParticle extends TextureSheetParticle {
             this.spriteSet = spriteset;
         }
 
-        public Particle createParticle(@NotNull SimpleParticleType simpleParticleType, @NotNull ClientLevel clientLevel, double d0, double d1, double d2, double d3, double d4, double d5) {
+        public Particle createParticle(@NotNull SimpleParticleType simpleParticleType, @NotNull ClientLevel clientLevel, double d0, double d1, double d2, double d3, double d4, double d5, net.minecraft.util.RandomSource random) {
             return new BigSplashParticle(clientLevel, d0, d1, d2, d3, d4, d5, this.spriteSet);
         }
     }

@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.config;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
@@ -178,18 +178,18 @@ public class AnnoyingVillagersConfig {
         }
 
         if (value.startsWith("#")) {
-            return ResourceLocation.tryParse(value.substring(1)) != null;
+            return Identifier.tryParse(value.substring(1)) != null;
         }
 
         if (value.endsWith(":*")) {
             String namespace = value.substring(0, value.length() - 2);
-            return ResourceLocation.isValidNamespace(namespace);
+            return Identifier.isValidNamespace(namespace);
         }
 
         if (!value.contains(":")) {
-            return ResourceLocation.isValidNamespace(value);
+            return Identifier.isValidNamespace(value);
         }
 
-        return ResourceLocation.tryParse(value) != null;
+        return Identifier.tryParse(value) != null;
     }
 }

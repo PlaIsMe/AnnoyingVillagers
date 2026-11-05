@@ -21,24 +21,22 @@ public class GregData extends SavedData {
     }
 
     public static GregData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(GregData::new, (tag, provider) -> GregData.load(tag)), ID);
+        return com.pla.annoyingvillagers.util.LegacySavedData.computeIfAbsent(serverLevel.getDataStorage(), ID, GregData::new, GregData::load, (value, provider) -> value.save(new CompoundTag(), provider));
     }
 
     public static GregData load(CompoundTag compoundTag) {
         GregData gregData = new GregData();
-        if (compoundTag.hasUUID("activeId")) {
-            gregData.activeId = compoundTag.getUUID("activeId");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(compoundTag, "activeId")) {
+            gregData.activeId = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(compoundTag, "activeId");
         }
-        if (compoundTag.contains("claimTick", Tag.TAG_LONG)) {
-            gregData.claimTick = compoundTag.getLong("claimTick");
+        if (compoundTag.contains("claimTick")) {
+            gregData.claimTick = compoundTag.getLongOr("claimTick", 0L);
         }
         return gregData;
     }
-
-    @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null) {
-            compoundTag.putUUID("activeId", activeId);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(compoundTag, "activeId", activeId);
         }
         compoundTag.putLong("claimTick", claimTick);
         return compoundTag;

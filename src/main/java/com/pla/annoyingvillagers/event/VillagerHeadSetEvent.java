@@ -52,14 +52,14 @@ public class VillagerHeadSetEvent {
         if (hasVillagerHead) {
             TeamUtil.addOrJoinTeam(entity, "villagers");
             if (entity instanceof Player player && !player.level().isClientSide()) {
-                player.displayClientMessage(Component.literal("You have put on the villager helmet. Villager soldiers will no longer attack you."), false);
+                com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(player, Component.literal("You have put on the villager helmet. Villager soldiers will no longer attack you."), false);
             }
             return;
         }
 
         TeamUtil.leaveTeam(entity, "villagers");
         if (entity instanceof Player player && !player.level().isClientSide()) {
-            player.displayClientMessage(Component.literal("You have removed your helmet. Villager soldiers will now attack you."), false);
+            com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(player, Component.literal("You have removed your helmet. Villager soldiers will now attack you."), false);
         }
     }
 
@@ -83,22 +83,14 @@ public class VillagerHeadSetEvent {
                 if (itemstack.getItem() == AnnoyingVillagersModItems.VILLAGER_HEAD.get()) {
                     Player player;
 
-                    if (!entity.getPersistentData().getBoolean(VILLAGER_HEAD_MODE_KEY)) {
-                        if (!entity.getPersistentData().getBoolean(VILLAGER_HEAD_COOLDOWN_KEY)) {
-                            if (!entity.level().isClientSide() && entity.getServer() != null) {
-                                try {
-                                    entity.getServer().getCommands().getDispatcher().execute(
-                                            "team leave @s[team=villagers]",
-                                            entity.createCommandSourceStack().withSuppressedOutput().withPermission(4));
-                                } catch (CommandSyntaxException e) {
-                                    
-                                }
-                            }
+                    if (!entity.getPersistentData().getBooleanOr(VILLAGER_HEAD_MODE_KEY, false)) {
+                        if (!entity.getPersistentData().getBooleanOr(VILLAGER_HEAD_COOLDOWN_KEY, false)) {
+                            com.pla.annoyingvillagers.util.TeamUtil.leaveTeam(entity, "villagers");
 
                             if (entity instanceof Player) {
                                 player = (Player)entity;
                                 if (!player.level().isClientSide()) {
-                                    player.displayClientMessage(Component.literal("Switched to Attack Mode"), false);
+                                    com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(player, Component.literal("Switched to Attack Mode"), false);
                                 }
                             }
 
@@ -113,25 +105,17 @@ public class VillagerHeadSetEvent {
                         } else if (entity instanceof Player) {
                             player = (Player)entity;
                             if (!player.level().isClientSide()) {
-                                player.displayClientMessage(Component.literal("On Cooldown"), true);
+                                com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(player, Component.literal("On Cooldown"), true);
                             }
                         }
-                    } else if (entity.getPersistentData().getBoolean(VILLAGER_HEAD_MODE_KEY)) {
-                        if (!entity.getPersistentData().getBoolean(VILLAGER_HEAD_COOLDOWN_KEY)) {
-                            if (!entity.level().isClientSide() && entity.getServer() != null) {
-                                try {
-                                    entity.getServer().getCommands().getDispatcher().execute(
-                                            "team join villagers @s",
-                                            entity.createCommandSourceStack().withSuppressedOutput().withPermission(4));
-                                } catch (CommandSyntaxException e) {
-                                    
-                                }
-                            }
+                    } else if (entity.getPersistentData().getBooleanOr(VILLAGER_HEAD_MODE_KEY, false)) {
+                        if (!entity.getPersistentData().getBooleanOr(VILLAGER_HEAD_COOLDOWN_KEY, false)) {
+                            com.pla.annoyingvillagers.util.TeamUtil.addOrJoinTeam(entity, "villagers");
 
                             if (entity instanceof Player) {
                                 player = (Player)entity;
                                 if (!player.level().isClientSide()) {
-                                    player.displayClientMessage(Component.literal("Switched to Disguise Mode"), false);
+                                    com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(player, Component.literal("Switched to Disguise Mode"), false);
                                 }
                             }
 
@@ -147,7 +131,7 @@ public class VillagerHeadSetEvent {
                         } else if (entity instanceof Player) {
                             player = (Player)entity;
                             if (!player.level().isClientSide()) {
-                                player.displayClientMessage(Component.literal("On Cooldown"), true);
+                                com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(player, Component.literal("On Cooldown"), true);
                             }
                         }
                     }

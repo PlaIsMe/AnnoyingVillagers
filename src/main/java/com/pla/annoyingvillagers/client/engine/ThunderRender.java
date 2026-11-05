@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joml.Matrix4f;
@@ -27,8 +27,12 @@ public class ThunderRender {
     private final Map<Object, BoltOwnerData> boltOwners = new Object2ObjectOpenHashMap<>();
 
     public void render(float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn) {
-        VertexConsumer buffer = bufferIn.getBuffer(RenderType.lightning());
-        Matrix4f matrix = matrixStackIn.last().pose();
+        VertexConsumer buffer = bufferIn.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.lightning());
+        render(partialTicks, matrixStackIn.last(), buffer);
+    }
+
+    public void render(float partialTicks, PoseStack.Pose pose, VertexConsumer buffer) {
+        Matrix4f matrix = pose.pose();
         assert minecraft.level != null;
         Timestamp timestamp = new Timestamp(minecraft.level.getGameTime(), partialTicks);
         boolean refresh = timestamp.isPassed(refreshTimestamp, (1 / REFRESH_TIME));

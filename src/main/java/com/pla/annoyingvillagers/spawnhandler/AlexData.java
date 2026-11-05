@@ -18,27 +18,25 @@ public class AlexData extends SavedData {
     private static final long COOLDOWN_TICKS = 20L * 60L * 10L;
 
     public static AlexData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(AlexData::new, (tag, provider) -> AlexData.load(tag)), ID);
+        return com.pla.annoyingvillagers.util.LegacySavedData.computeIfAbsent(serverLevel.getDataStorage(), ID, AlexData::new, AlexData::load, (value, provider) -> value.save(new CompoundTag(), provider));
     }
 
     public static AlexData load(CompoundTag compoundTag) {
         AlexData alexData = new AlexData();
-        if (compoundTag.hasUUID("activeId")) {
-            alexData.activeId = compoundTag.getUUID("activeId");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(compoundTag, "activeId")) {
+            alexData.activeId = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(compoundTag, "activeId");
         }
-        if (compoundTag.contains("claimTick", Tag.TAG_LONG)) {
-            alexData.claimTick = compoundTag.getLong("claimTick");
+        if (compoundTag.contains("claimTick")) {
+            alexData.claimTick = compoundTag.getLongOr("claimTick", 0L);
         }
         // Legacy records describe an existing singleton but contain no chunk coordinates.
         alexData.confirmed = compoundTag.contains("confirmed")
-                ? compoundTag.getBoolean("confirmed") : alexData.activeId != null;
+                ? compoundTag.getBooleanOr("confirmed", false) : alexData.activeId != null;
         return alexData;
     }
-
-    @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null) {
-            compoundTag.putUUID("activeId", activeId);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(compoundTag, "activeId", activeId);
         }
         compoundTag.putLong("claimTick", claimTick);
         compoundTag.putBoolean("confirmed", confirmed);

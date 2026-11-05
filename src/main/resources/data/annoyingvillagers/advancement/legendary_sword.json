@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "id": "annoyingvillagers:legendary_sword"
+    },
+    "title": {
+      "translate": "advancements.annoyingvillagers.legendary_sword.title",
+      "color": "light_purple"
+    },
+    "description": {
+      "translate": "advancements.annoyingvillagers.legendary_sword.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "get_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "annoyingvillagers:legendary_sword"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "annoyingvillagers:compressed_diamond"
+}

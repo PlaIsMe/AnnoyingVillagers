@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BBB",
+    "BEB",
+    "BBB"
+  ],
+  "key": {
+    "B": "minecraft:arrow",
+    "E": "minecraft:enchanted_book"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:enchanted_arrow"
+  }
+}

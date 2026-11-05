@@ -38,9 +38,9 @@ public class DiamondClawItem extends LegacySwordItem implements RigCombatProfile
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.DIAMOND));
+                return Ingredient.of(Items.DIAMOND);
             }
-        }, 3, 0.8F, (new Properties()));
+        }, 3, 0.8F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override
@@ -51,16 +51,16 @@ public class DiamondClawItem extends LegacySwordItem implements RigCombatProfile
 
         if (!player.level().isClientSide()) {
             target.removeAllEffects();
-            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+            stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
         }
 
-        return InteractionResult.sidedSuccess(player.level().isClientSide());
+        return player.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemStack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemStack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.diamond_claw"));
+    public void appendHoverText(@NotNull ItemStack itemStack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemStack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.diamond_claw"));
     }
 
     @Override

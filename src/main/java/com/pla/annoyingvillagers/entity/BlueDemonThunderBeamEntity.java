@@ -1,11 +1,7 @@
 package com.pla.annoyingvillagers.entity;
 
-import com.pla.annoyingvillagers.client.engine.ClientVfxRouter;
-import com.pla.annoyingvillagers.compat.photon.PhotonClientFxUtil;
-import com.pla.annoyingvillagers.config.AnnoyingVillagersClientConfig.VfxEffect;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModMobEffects;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModSounds;
-import com.pla.annoyingvillagers.util.AAAParticlesUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -14,6 +10,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -26,8 +23,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -36,6 +31,11 @@ import java.util.Optional;
 
 public class BlueDemonThunderBeamEntity extends Entity {
     public LivingEntity caster;
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        return false;
+    }
 
     public double collidePosX, collidePosY, collidePosZ;
     public double prevCollidePosX, prevCollidePosY, prevCollidePosZ;
@@ -73,7 +73,6 @@ public class BlueDemonThunderBeamEntity extends Entity {
 
     private static final EntityDataAccessor<Boolean> USE_NO_VFX_THUNDER = SynchedEntityData.defineId(BlueDemonThunderBeamEntity.class, EntityDataSerializers.BOOLEAN);
 
-    @OnlyIn(Dist.CLIENT)
     private Vec3[] attractorPos;
 
     private boolean renderBeam = false;
@@ -81,8 +80,7 @@ public class BlueDemonThunderBeamEntity extends Entity {
 
     public BlueDemonThunderBeamEntity(EntityType<? extends BlueDemonThunderBeamEntity> type, Level level) {
         super(type, level);
-        this.noCulling = true;
-        if (level.isClientSide) this.attractorPos = new Vec3[]{Vec3.ZERO};
+        if (level.isClientSide()) this.attractorPos = new Vec3[]{Vec3.ZERO};
     }
 
     public BlueDemonThunderBeamEntity(EntityType<? extends BlueDemonThunderBeamEntity> type,
@@ -100,7 +98,7 @@ public class BlueDemonThunderBeamEntity extends Entity {
         this.entityData.set(LAST_DIR_X, 1.0F);
         this.entityData.set(LAST_DIR_Z, 0.0F);
 
-        if (!level.isClientSide && caster != null) {
+        if (!level.isClientSide() && caster != null) {
             this.setCasterID(caster.getId());
         }
     }
@@ -126,8 +124,12 @@ public class BlueDemonThunderBeamEntity extends Entity {
         builder.define(USE_NO_VFX_THUNDER, false);
     }
 
-    @Override protected void readAdditionalSaveData(@NotNull CompoundTag tag) {}
-    @Override protected void addAdditionalSaveData(@NotNull CompoundTag tag) {}
+    @Override protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);}
+    @Override protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
+    }
 
     public void setUseNoVfxThunder(boolean noVfxThunder) {
         this.entityData.set(USE_NO_VFX_THUNDER, noVfxThunder);
@@ -183,10 +185,6 @@ public class BlueDemonThunderBeamEntity extends Entity {
         entityData.set(LAST_DIR_Z, (float) dir.z);
     }
 
-    private boolean isPhotonBeamAlive() {
-        return this.on && this.isAlive() && !this.isRemoved() && this.caster != null && this.caster.isAlive();
-    }
-
     public void initSpawnState() {
         if (caster == null) return;
 
@@ -195,7 +193,7 @@ public class BlueDemonThunderBeamEntity extends Entity {
 
         setStartPos(fallbackStart);
         setEndPos(fallbackEnd);
-        moveTo(fallbackStart.x, fallbackStart.y, fallbackStart.z, caster.getYRot(), caster.getXRot());
+        snapTo(fallbackStart.x, fallbackStart.y, fallbackStart.z, caster.getYRot(), caster.getXRot());
     }
 
     private void updateBeamFromHands() {
@@ -303,7 +301,7 @@ public class BlueDemonThunderBeamEntity extends Entity {
         prevCollidePosY = collidePosY;
         prevCollidePosZ = collidePosZ;
 
-        if (tickCount == 1 && level().isClientSide) {
+        if (tickCount == 1 && level().isClientSide()) {
             Entity e = level().getEntity(getCasterID());
             if (e instanceof LivingEntity living) caster = living;
         }
@@ -323,46 +321,9 @@ public class BlueDemonThunderBeamEntity extends Entity {
         Vec3 start = getStartPos();
         Vec3 end = getEndPos();
 
-        if (level().isClientSide && tickCount >= 2) {
-            ClientVfxRouter.run(
-                    VfxEffect.BLUE_DEMON_THUNDER_BEAM,
-                    () -> {
-                        if (!PhotonClientFxUtil.isLoaded()) {
-                            return false;
-                        }
-                        if (caster == null) {
-                            return true;
-                        }
-
-                        boolean handled = PhotonClientFxUtil.followBeam(
-                                "blue_demon_thunder_beam:" + getId(),
-                                level(),
-                                "bluedemonbeam",
-                                this,
-                                partialTicks -> getStartPos(),
-                                partialTicks -> getEndPos(),
-                                this::isPhotonBeamAlive,
-                                getDuration() + 5);
-                        if (handled) {
-                            renderBeam = true;
-                        }
-                        return handled;
-                    },
-                    () -> {
-                        if (renderBeam) {
-                            return true;
-                        }
-
-                        renderBeam = true;
-                        AAAParticlesUtil.sendBlueDemonThunderBeam(level(), this);
-                        return true;
-                    },
-                    () -> {
-                        if (!renderBeam) {
-                            renderBeam = true;
-                            setUseNoVfxThunder(true);
-                        }
-                    });
+        if (level().isClientSide() && tickCount >= 2 && !renderBeam) {
+            renderBeam = true;
+            setUseNoVfxThunder(true);
         }
 
         if (!playSound) {
@@ -374,8 +335,8 @@ public class BlueDemonThunderBeamEntity extends Entity {
 
         if (level() instanceof ServerLevel) {
             for (LivingEntity target : hit) {
-                if (caster != null) target.hurt(damageSources().indirectMagic(this, caster), (float) power);
-                else target.hurt(damageSources().magic(), (float) power);
+                if (caster != null) target.hurtOrSimulate(damageSources().indirectMagic(this, caster), (float) power);
+                else target.hurtOrSimulate(damageSources().magic(), (float) power);
 
                 target.hurtMarked = true;
                 target.addEffect(new MobEffectInstance(

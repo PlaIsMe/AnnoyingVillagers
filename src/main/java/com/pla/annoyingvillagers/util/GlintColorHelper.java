@@ -67,14 +67,11 @@ public final class GlintColorHelper {
         }
 
         if (mode == NONE) {
-            CompoundTag tag = LegacyItemData.get(stack);
-            if (tag != null) {
-                tag.remove(TAG_COLOR_GLINT);
-            }
+            clearColor(stack);
             return;
         }
 
-        LegacyItemData.getOrCreate(stack).putString(TAG_COLOR_GLINT, toName(mode));
+        LegacyItemData.update(stack, tag -> tag.putString(TAG_COLOR_GLINT, toName(mode)));
     }
 
     public static void clearColor(ItemStack stack) {
@@ -82,11 +79,7 @@ public final class GlintColorHelper {
             return;
         }
 
-        LegacyItemData.get(stack).remove(TAG_COLOR_GLINT);
-
-        if (LegacyItemData.get(stack).isEmpty()) {
-            LegacyItemData.set(stack, null);
-        }
+        LegacyItemData.update(stack, tag -> tag.remove(TAG_COLOR_GLINT));
     }
 
     public static int getColor(ItemStack stack) {
@@ -95,15 +88,8 @@ public final class GlintColorHelper {
             return NONE;
         }
 
-        if (tag.contains(TAG_COLOR_GLINT, Tag.TAG_INT)) {
-            return sanitize(tag.getInt(TAG_COLOR_GLINT));
-        }
-
-        if (tag.contains(TAG_COLOR_GLINT, Tag.TAG_STRING)) {
-            return fromName(tag.getString(TAG_COLOR_GLINT));
-        }
-
-        return NONE;
+        return tag.getInt(TAG_COLOR_GLINT).map(GlintColorHelper::sanitize)
+                .orElseGet(() -> fromName(tag.getStringOr(TAG_COLOR_GLINT, "")));
     }
 
     public static boolean hasColor(ItemStack stack) {

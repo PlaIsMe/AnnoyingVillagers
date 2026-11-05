@@ -420,5 +420,10 @@
   "tooltip.annoyingvillagers.vanilla_combat.diamond_blaster_sword.right_click": "Right Click: Release a repulsive blast that pushes enemies away on hit. • 1 minute cooldown",
   "tooltip.annoyingvillagers.vanilla_combat.hook_sword.right_click": "Right Click: Hook the enemy's weapon and force it out of their hands. • 45 seconds cooldown",
   "tooltip.annoyingvillagers.vanilla_combat.dnax_hooked_sword.right_click": "Right Click: Obedience hostile mobs • 15 seconds cooldown",
-  "tooltip.annoyingvillagers.vanilla_combat.hacker_sword.right_click": "Right Click: Release 4 critical-hit attacks • 12 seconds cooldown"
+  "tooltip.annoyingvillagers.vanilla_combat.hacker_sword.right_click": "Right Click: Release 4 critical-hit attacks • 12 seconds cooldown",
+  "subtitles.entity.dragon.step": "Dragon steps",
+  "subtitles.muffled_boom": "Muffled explosion",
+  "subtitles.entity.dragon.ambient": "Dragon growls",
+  "subtitles.entity.dragon.death": "Dragon dies",
+  "subtitles.entity.dragon.thunder_shoot": "Dragon fires thunder"
 }

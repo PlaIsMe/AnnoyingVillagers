@@ -20,7 +20,7 @@ public class ObsidianMachineGunGoal extends AnimatedMobGoal {
     public boolean canUse() {
         this.target = this.shadowHerobrine.getTarget();
 
-        return !this.shadowHerobrine.level().isClientSide
+        return !this.shadowHerobrine.level().isClientSide()
                 && this.shadowHerobrine.isAlive()
                 && !this.shadowHerobrine.isNoAi()
                 && !this.shadowHerobrine.isPassenger()

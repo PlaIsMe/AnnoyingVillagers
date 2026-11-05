@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GG ",
+    "G  ",
+    "P  "
+  ],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:hooked_golden_sword"
+  }
+}

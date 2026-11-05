@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " R ",
+    " R ",
+    " S "
+  ],
+  "key": {
+    "R": "annoyingvillagers:ruby",
+    "S": "annoyingvillagers:ruby_sword"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:ruby_longsword"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "II ",
+    "I  ",
+    "P  "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:hooked_iron_sword"
+  }
+}

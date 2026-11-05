@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "IPI",
+    " P "
+  ],
+  "key": {
+    "P": "minecraft:stick",
+    "G": "minecraft:gold_ingot",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:golden_mace"
+  }
+}

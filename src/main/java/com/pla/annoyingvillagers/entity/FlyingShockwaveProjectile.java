@@ -131,12 +131,12 @@ public class FlyingShockwaveProjectile extends Projectile
                     }
                 }
                 entity.invulnerableTime = 0;
-                entity.hurt(this.getVanillaDamageSource(entity1), this.damage);
-                entity.playSound(AnnoyingVillagersModSounds.HEAVY_HIT.get(), 1.0F, 0.9F + this.random.nextFloat() * 0.2F);
+                entity.hurtOrSimulate(this.getVanillaDamageSource(entity1), this.damage);
+                entity.playSound(AnnoyingVillagersModSounds.HEAVY_HIT.get(), 1.0F, 0.9F + this.getRandom().nextFloat() * 0.2F);
                 this.spawnShockwaveHitParticles(entity);
                 this.discard();
             } else {
-                entity.hurt(this.damageSources().magic(), this.damage);
+                entity.hurtOrSimulate(this.damageSources().magic(), this.damage);
             }
         }
     }

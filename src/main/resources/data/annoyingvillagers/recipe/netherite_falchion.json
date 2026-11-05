@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " N ",
+    " N ",
+    "FGF"
+  ],
+  "key": {
+    "F": "minecraft:flint",
+    "G": "annoyingvillagers:diamond_great_falchion",
+    "N": "annoyingvillagers:dark_netherite"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:netherite_falchion"
+  }
+}

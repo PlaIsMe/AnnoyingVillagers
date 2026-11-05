@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.mixin.compat.punchy;
 
+import com.pla.annoyingvillagers.client.compat.PunchyItemRenderContext;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,6 +13,6 @@ public abstract class SpearStateMachineMixin {
     @Inject(method = "isSpearStack", at = @At("HEAD"), cancellable = true, require = 1)
     private static void av$leaveTridentToThrowAnimation(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
         // Blue Demon uses SPEAR like vanilla tridents, but is not a melee charging spear.
-        if (stack != null && BlueDemonTridentItem.isBlueDemonTrident(stack)) cir.setReturnValue(false);
+        if (PunchyItemRenderContext.isAvItem(stack) && BlueDemonTridentItem.isBlueDemonTrident(stack)) cir.setReturnValue(false);
     }
 }

@@ -70,7 +70,7 @@ public abstract class VillagerArmyEntity extends AVNpc implements FishingRodUser
             }
 
             InventoryUtils.addItem(inventory, new ItemStack(Items.IRON_INGOT, random.nextInt(1, 4)));
-        InventoryUtils.addItem(inventory, new ItemStack(Items.GOLD_INGOT, random.nextInt(1, 3)));
+            InventoryUtils.addItem(inventory, new ItemStack(Items.GOLD_INGOT, random.nextInt(1, 3)));
             InventoryUtils.addItem(inventory, new ItemStack(Items.EMERALD, random.nextInt(1, 2)));
 
             return true;

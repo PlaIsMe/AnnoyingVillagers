@@ -1,9 +1,5 @@
 {
-  "parent": "annoyingvillagers:custom/jessica_the_dark_shield",
-  "textures": {
-    "0": "annoyingvillagers:item/heater_shield",
-    "particle": "annoyingvillagers:item/heater_shield"
-  },
+  "parent": "annoyingvillagers:item/heater_shield",
   "display": {
     "firstperson_righthand": {
       "rotation": [7, 5.25, -10],

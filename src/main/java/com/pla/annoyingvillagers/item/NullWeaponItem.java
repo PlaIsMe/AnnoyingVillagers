@@ -16,8 +16,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -44,8 +43,8 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
             public float getAttackDamageBonus() { return 3.0F; }
             public int getLevel() { return 1; }
             public int getEnchantmentValue() { return 4; }
-            public @NotNull Ingredient getRepairIngredient() { return Ingredient.EMPTY; }
-        }, 3, -3.0F, new Properties());
+            public Ingredient getRepairIngredient() { return null; }
+        }, 3, -3.0F, com.pla.annoyingvillagers.util.LegacyItemProperties.create());
     }
 
     public static int getCharge(ItemStack stack) {
@@ -73,7 +72,7 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
     public static void onPlayerMeleeHit(Player player) {
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide()) return;
         ItemStack stack = player.getOffhandItem();
-        if (!(stack.getItem() instanceof NullWeaponItem item) || player.getCooldowns().isOnCooldown(item)) return;
+        if (!(stack.getItem() instanceof NullWeaponItem item) || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(item))) return;
         VanillaWeaponAbilityUtil.addCharge(stack, CHARGE_TAG, 1, 100);
         if (player.level() instanceof ServerLevel serverLevel) syncOwnedWeapons(serverLevel, player, stack);
     }
@@ -81,7 +80,7 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
     public static boolean activateHeldSpecial(Player player) {
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide() || !(player.level() instanceof ServerLevel serverLevel)) return false;
         ItemStack stack = player.getOffhandItem();
-        if (!(stack.getItem() instanceof NullWeaponItem item) || player.getCooldowns().isOnCooldown(item) || getCharge(stack) < 20) return false;
+        if (!(stack.getItem() instanceof NullWeaponItem item) || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(item)) || getCharge(stack) < 20) return false;
         syncOwnedWeapons(serverLevel, player, stack);
         List<NullWeapon> weapons = getOwnedWeapons(serverLevel, player);
         if (weapons.isEmpty()) return false;
@@ -94,7 +93,7 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
         });
         VanillaWeaponAbilityUtil.swingOffHand(player);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.OFF_HAND, 1);
-        player.getCooldowns().addCooldown(item, RELEASE_DURATION_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), RELEASE_DURATION_TICKS);
         new DelayedTask(RELEASE_DURATION_TICKS) {
             @Override public void run() {
                 if (!player.isAlive() || player.isRemoved()) return;
@@ -111,15 +110,17 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
                     if (player.getOffhandItem() == releasedStack) syncOwnedWeapons(level, player, releasedStack);
                     else discardOwnedWeapons(level, player);
                 }
-                player.getCooldowns().addCooldown(item, RECOVERY_COOLDOWN_TICKS);
+                player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), RECOVERY_COOLDOWN_TICKS);
             }
         };
         return true;
     }
 
     @Override
-    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
-        super.inventoryTick(stack, level, entity, slot, selected);
+    public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slot = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean selected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        super.inventoryTick(stack, level, entity, equipmentSlot);
         if (level.isClientSide() || !(entity instanceof Player player) || !(level instanceof ServerLevel serverLevel)) return;
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled()) {
             setCharge(stack, 0);
@@ -128,8 +129,8 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
         }
         long now = level.getGameTime();
         CompoundTag tag = LegacyItemData.get(stack);
-        long releaseUntil = tag == null ? 0L : tag.getLong(RELEASE_UNTIL_TAG);
-        long recoveryUntil = tag == null ? 0L : tag.getLong(RECOVERY_UNTIL_TAG);
+        long releaseUntil = tag == null ? 0L : tag.getLongOr(RELEASE_UNTIL_TAG, 0L);
+        long recoveryUntil = tag == null ? 0L : tag.getLongOr(RECOVERY_UNTIL_TAG, 0L);
         if (releaseUntil > 0L && now >= releaseUntil) {
             setCharge(stack, 0);
             for (NullWeapon weapon : getOwnedWeapons(serverLevel, player)) weapon.stopRelease();
@@ -144,8 +145,8 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
         }
         long cooldownUntil = releaseUntil > now ? releaseUntil : recoveryUntil;
         long remaining = cooldownUntil - now;
-        if (remaining > 0L && player.getCooldowns().getCooldownPercent(stack.getItem(), 0.0F) <= 0.0F) {
-            player.getCooldowns().addCooldown(stack.getItem(), (int)Math.min(Integer.MAX_VALUE, remaining));
+        if (remaining > 0L && player.getCooldowns().getCooldownPercent(new net.minecraft.world.item.ItemStack(stack.getItem()), 0.0F) <= 0.0F) {
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(stack.getItem()), (int)Math.min(Integer.MAX_VALUE, remaining));
         } else if (recoveryUntil > 0L && recoveryUntil <= now) {
             LegacyItemData.update(stack, data -> data.remove(RECOVERY_UNTIL_TAG));
         }
@@ -158,19 +159,18 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
     }
 
     private static ItemStack findReleasedWeapon(Player player, long releaseUntil) {
-        for (ItemStack candidate : player.getInventory().items) {
+        for (ItemStack candidate : player.getInventory().getNonEquipmentItems()) {
             if (hasReleaseMarker(candidate, releaseUntil)) return candidate;
         }
-        for (ItemStack candidate : player.getInventory().offhand) {
-            if (hasReleaseMarker(candidate, releaseUntil)) return candidate;
-        }
+        ItemStack offhand = player.getOffhandItem();
+        if (hasReleaseMarker(offhand, releaseUntil)) return offhand;
         return ItemStack.EMPTY;
     }
 
     private static boolean hasReleaseMarker(ItemStack stack, long releaseUntil) {
         if (!(stack.getItem() instanceof NullWeaponItem)) return false;
         CompoundTag tag = LegacyItemData.get(stack);
-        return tag != null && tag.getLong(RELEASE_UNTIL_TAG) == releaseUntil;
+        return tag != null && tag.getLongOr(RELEASE_UNTIL_TAG, 0L) == releaseUntil;
     }
 
     private static void syncOwnedWeapons(ServerLevel level, Player player, ItemStack stack) {
@@ -199,23 +199,23 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
         // During login the player inventory may tick before nearby saved entities are
         // inserted into ServerLevel's UUID index. Preserve their UUID briefly instead
         // of spawning a replacement in that load-order window.
-        if (player.getPersistentData().hasUUID(key)
-                && level.getGameTime() < player.getPersistentData().getLong(LOGIN_RECONCILE_UNTIL_TAG)) return;
-        NullWeapon weapon = type.create(level);
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(player.getPersistentData(), key)
+                && level.getGameTime() < player.getPersistentData().getLongOr(LOGIN_RECONCILE_UNTIL_TAG, 0L)) return;
+        NullWeapon weapon = type.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if (weapon == null) return;
         weapon.setPlayer(player);
         weapon.setPlayerUUID(player.getUUID());
-        weapon.moveTo(player.getX(), player.getY() + 1.5D, player.getZ(), player.getYRot(), 0.0F);
+        weapon.snapTo(player.getX(), player.getY() + 1.5D, player.getZ(), player.getYRot(), 0.0F);
         level.addFreshEntity(weapon);
-        player.getPersistentData().putUUID(key, weapon.getUUID());
+        com.pla.annoyingvillagers.util.LegacyNbt.putUUID(player.getPersistentData(), key, weapon.getUUID());
     }
 
     @Nullable
     private static NullWeapon getOwnedWeapon(ServerLevel level, Player player, String key) {
-        if (!player.getPersistentData().hasUUID(key)) return null;
-        Entity entity = level.getEntity(player.getPersistentData().getUUID(key));
+        if (!com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(player.getPersistentData(), key)) return null;
+        Entity entity = level.getEntity(com.pla.annoyingvillagers.util.LegacyNbt.getUUID(player.getPersistentData(), key));
         if (entity instanceof NullWeapon weapon && player.getUUID().equals(weapon.getPlayerUUID())) return weapon;
-        if (entity == null && level.getGameTime() < player.getPersistentData().getLong(LOGIN_RECONCILE_UNTIL_TAG)) return null;
+        if (entity == null && level.getGameTime() < player.getPersistentData().getLongOr(LOGIN_RECONCILE_UNTIL_TAG, 0L)) return null;
         player.getPersistentData().remove(key);
         return null;
     }
@@ -244,8 +244,8 @@ public class NullWeaponItem extends LegacySwordItem implements RigCombatProfileP
     public boolean isFoil(@NotNull ItemStack stack) { return true; }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.null_weapon_full"));
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.null_weapon_full"));
     }
 }

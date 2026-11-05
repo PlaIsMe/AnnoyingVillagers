@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " I ",
+    " I ",
+    " S "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "S": "minecraft:iron_sword"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:iron_longsword"
+  }
+}

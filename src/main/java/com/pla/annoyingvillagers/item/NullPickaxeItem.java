@@ -8,15 +8,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class NullPickaxeItem extends PickaxeItem {
+public class NullPickaxeItem extends Item {
 
     public NullPickaxeItem() {
-        super(Tiers.DIAMOND, new Item.Properties().attributes(DiggerItem.createAttributes(Tiers.DIAMOND, 1.0F, -2.8F)));
+        super(com.pla.annoyingvillagers.util.LegacyItemProperties.create().pickaxe(ToolMaterial.DIAMOND, 1.0F, -2.8F));
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.null_weapon"));
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.null_weapon"));
     }
 }

@@ -7,14 +7,13 @@ import com.pla.annoyingvillagers.rig.RigStunController;
 import com.pla.annoyingvillagers.util.CommonUtil;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -28,22 +27,22 @@ public class DiamondBlasterSwordItem extends LegacySwordItem implements RigComba
             public float getAttackDamageBonus() { return 4.4F; }
             public int getLevel() { return 5; }
             public int getEnchantmentValue() { return 21; }
-            public @NotNull Ingredient getRepairIngredient() { return Ingredient.of(new ItemStack(Items.DIAMOND)); }
-        }, 3, -2.8F, new Properties());
+            public @NotNull Ingredient getRepairIngredient() { return Ingredient.of(Items.DIAMOND); }
+        }, 3, -2.8F, com.pla.annoyingvillagers.util.LegacyItemProperties.create());
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.pass(stack);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) return InteractionResult.PASS;
         if (!level.isClientSide()) {
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_ONE_HANDED_UPPERCUT_RIGHT);
             LivingEntity target = VanillaWeaponAbilityUtil.performVanillaMeleeHit(player, 5.0D);
             if (target instanceof Mob mob && RigStunController.supports(mob)) RigStunController.applyStun(mob, RigAnimationId.SUPER_KNOCK_BACK);
             if (target != null) CommonUtil.pushEntityFromCaster(target, player);
-            player.getCooldowns().addCooldown(this, 20 * 60);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), 20 * 60);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     @Override

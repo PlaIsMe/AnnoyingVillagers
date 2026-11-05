@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "012",
+    "3 5"
+  ],
+  "key": {
+    "0": "annoyingvillagers:compressed_diamond",
+    "1": "annoyingvillagers:compressed_diamond",
+    "2": "annoyingvillagers:compressed_diamond",
+    "3": "annoyingvillagers:compressed_diamond",
+    "5": "annoyingvillagers:compressed_diamond"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:compressed_diamond_helmet"
+  }
+}

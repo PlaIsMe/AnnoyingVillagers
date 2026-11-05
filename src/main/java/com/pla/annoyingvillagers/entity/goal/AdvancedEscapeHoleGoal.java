@@ -40,7 +40,7 @@ public abstract class AdvancedEscapeHoleGoal<T extends PathfinderMob & LockableR
     public final boolean canUse() {
         if (this.mob.tickCount < this.nextCheck) return false;
         this.nextCheck = this.mob.tickCount + 20 + this.mob.getRandom().nextInt(11);
-        if (!this.canAct() || this.mob.isUsingItem() || this.mob.isInWaterOrBubble() || this.mob.isInLava()
+        if (!this.canAct() || this.mob.isUsingItem() || this.mob.isInWater() || this.mob.isInLava()
                 || !this.mob.onGround() || this.isEscapeAttackLocked() || !this.canStartSpecializedEscape()) return false;
         if (this.hasBlockingEscapeAnimation()) return false;
 

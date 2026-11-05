@@ -200,7 +200,7 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
 
     private boolean canUseBow() {
         LivingEntity target = this.avNpc.getTarget();
-        return !this.avNpc.level().isClientSide
+        return !this.avNpc.level().isClientSide()
                 && this.avNpc.isAlive()
                 && !this.avNpc.isRemoved()
                 && !this.avNpc.isDeadOrDying()
@@ -291,7 +291,7 @@ public class AVNpcRangedBowAttackGoal extends RangedBowAttackGoal<AVNpc> {
 
     private void giveOrDrop(ItemStack stack) {
         if (!InventoryUtils.addItem(this.avNpc, stack)) {
-            this.avNpc.spawnAtLocation(stack);
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(this.avNpc, stack);
         }
     }
 }

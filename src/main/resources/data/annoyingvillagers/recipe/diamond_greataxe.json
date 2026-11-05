@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BHB",
+    "B B",
+    " P "
+  ],
+  "key": {
+    "B": "minecraft:diamond_block",
+    "H": "annoyingvillagers:diamond_halberd",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_greataxe"
+  }
+}

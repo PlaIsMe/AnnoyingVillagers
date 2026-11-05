@@ -31,9 +31,9 @@ public class DiamondSickleItem extends LegacySwordItem implements RigCombatProfi
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.DIAMOND));
+                return Ingredient.of(Items.DIAMOND);
             }
-        }, 3, -2.5F, (new Properties()));
+        }, 3, -2.5F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "annoyingvillagers:blue_demon_chestplate_layer"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "annoyingvillagers:blue_demon_chestplate_layer"
+      }
+    ]
+  }
+}

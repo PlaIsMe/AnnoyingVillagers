@@ -5,8 +5,9 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.pla.annoyingvillagers.clazz.FakePlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.PlayerSkin;
+import net.minecraft.world.entity.player.PlayerModelType;
+import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public final class FakePlayerTextureUtils {
             return SkinType.DEFAULT;
         }
 
-        UUID id = profile.getId();
+        UUID id = profile.id();
         SkinType cached = SKIN_TYPE_CACHE.get(id);
         if (cached != null) {
             return cached;
@@ -35,28 +36,28 @@ public final class FakePlayerTextureUtils {
         if (resolvedSkin.isEmpty()) {
             return SkinType.DEFAULT;
         }
-        SkinType type = resolvedSkin.get().model() == PlayerSkin.Model.SLIM
+        SkinType type = resolvedSkin.get().model() == PlayerModelType.SLIM
                 ? SkinType.SLIM
                 : SkinType.DEFAULT;
         SKIN_TYPE_CACHE.put(id, type);
         return type;
     }
 
-    public static ResourceLocation getPlayerSkin(FakePlayer entity) {
+    public static Identifier getPlayerSkin(FakePlayer entity) {
         return getTexture(entity, MinecraftProfileTexture.Type.SKIN).orElseGet(() -> {
             GameProfile profile = entity.getProfile();
             if (isComplete(profile)) {
-                return DefaultPlayerSkin.get(profile).texture();
+                return DefaultPlayerSkin.get(profile).body().texturePath();
             }
-            return DefaultPlayerSkin.getDefaultTexture();
+            return DefaultPlayerSkin.getDefaultSkin().body().texturePath();
         });
     }
 
-    public static Optional<ResourceLocation> getPlayerCape(FakePlayer entity) {
+    public static Optional<Identifier> getPlayerCape(FakePlayer entity) {
         return getTexture(entity, MinecraftProfileTexture.Type.CAPE);
     }
 
-    private static Optional<ResourceLocation> getTexture(FakePlayer entity, MinecraftProfileTexture.Type type) {
+    private static Optional<Identifier> getTexture(FakePlayer entity, MinecraftProfileTexture.Type type) {
         if (entity.isTextureAvailable(type)) {
             return Optional.ofNullable(entity.getTexture(type));
         }
@@ -68,13 +69,14 @@ public final class FakePlayerTextureUtils {
 
         PlayerSkin playerSkin = getResolvedSkin(profile).orElse(null);
         if (playerSkin == null) {
-            // The lookup is asynchronous. Do not permanently cache the temporary default skin.
+            // Skin resolution and downloading are asynchronous. Never cache the temporary
+            // default returned while the real premium-account texture is still loading.
             return Optional.empty();
         }
-        ResourceLocation location = switch (type) {
-            case SKIN -> playerSkin.texture();
-            case CAPE -> playerSkin.capeTexture();
-            case ELYTRA -> playerSkin.elytraTexture();
+        Identifier location = switch (type) {
+            case SKIN -> playerSkin.body().texturePath();
+            case CAPE -> playerSkin.cape() == null ? null : playerSkin.cape().texturePath();
+            case ELYTRA -> playerSkin.elytra() == null ? null : playerSkin.elytra().texturePath();
         };
         if (location == null) {
             return Optional.empty();
@@ -84,13 +86,28 @@ public final class FakePlayerTextureUtils {
         return Optional.of(location);
     }
 
+    public static PlayerSkin getPlayerSkinData(FakePlayer entity) {
+        GameProfile profile = entity.getProfile();
+        Optional<PlayerSkin> resolvedSkin = isComplete(profile) ? getResolvedSkin(profile) : Optional.empty();
+        PlayerSkin skin = resolvedSkin.orElseGet(() -> isComplete(profile)
+                ? DefaultPlayerSkin.get(profile)
+                : DefaultPlayerSkin.getDefaultSkin());
+        if (resolvedSkin.isPresent()) {
+            entity.setTexture(MinecraftProfileTexture.Type.SKIN, skin.body().texturePath());
+            if (skin.cape() != null) entity.setTexture(MinecraftProfileTexture.Type.CAPE, skin.cape().texturePath());
+            if (skin.elytra() != null) entity.setTexture(MinecraftProfileTexture.Type.ELYTRA, skin.elytra().texturePath());
+        }
+        return skin;
+    }
+
     private static Optional<PlayerSkin> getResolvedSkin(GameProfile profile) {
-        CompletableFuture<PlayerSkin> lookup = Minecraft.getInstance().getSkinManager().getOrLoad(profile);
-        return Optional.ofNullable(lookup.getNow(null));
+        CompletableFuture<Optional<PlayerSkin>> lookup = Minecraft.getInstance().getSkinManager().get(profile);
+        Optional<PlayerSkin> resolved = lookup.getNow(null);
+        return resolved == null ? Optional.empty() : resolved;
     }
 
     private static boolean isComplete(GameProfile profile) {
-        return profile != null && profile.getId() != null && profile.getName() != null;
+        return profile != null && profile.id() != null && profile.name() != null;
     }
 
     public enum SkinType {

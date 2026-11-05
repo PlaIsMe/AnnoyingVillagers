@@ -2,16 +2,16 @@ package com.pla.annoyingvillagers.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pla.annoyingvillagers.clazz.HerobrineMob;
-import com.pla.annoyingvillagers.entity.EnchantedArrowEntity;
-import com.pla.annoyingvillagers.init.AnnoyingVillagersModEntities;
+import com.pla.annoyingvillagers.client.layer.VanillaOverlayRenderStateCache;
+import com.pla.annoyingvillagers.client.renderer.ColoredGlintRenderTypes;
 import com.pla.annoyingvillagers.util.GlintColorHelper;
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.layers.ArrowLayer;
-import net.minecraft.util.Mth;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.layers.StuckInBodyLayer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,58 +20,47 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ArrowLayer.class)
-public abstract class ArrowLayerMixin<T extends LivingEntity, M extends PlayerModel<T>> {
-    @Shadow @Final
-    private EntityRenderDispatcher dispatcher;
+/** Adds the legacy per-arrow colored foil to 26.1's stuck-arrow model submissions. */
+@Mixin(StuckInBodyLayer.class)
+public abstract class ArrowLayerMixin {
+    @Shadow @Final private Model<Object> model;
+    @Shadow @Final private Object modelState;
 
-    @Inject(method = "renderStuckItem", at = @At("HEAD"), cancellable = true)
-    private void av$renderColoredStuckArrow(
-            PoseStack poseStack,
-            MultiBufferSource buffer,
-            int packedLight,
-            Entity entity,
-            float x,
-            float y,
-            float z,
-            float partialTick,
-            CallbackInfo ci
-    ) {
-        if (entity instanceof HerobrineMob) {
-            float f = Mth.sqrt(x * x + z * z);
+    @Unique
+    private static final ThreadLocal<Entity> ANNOYINGVILLAGERS_STUCK_ARROW_OWNER = new ThreadLocal<>();
 
-            EnchantedArrowEntity arrow =
-                    new EnchantedArrowEntity(AnnoyingVillagersModEntities.ENCHANTED_ARROW.get(), entity.level());
+    @Inject(method = "submit", at = @At("HEAD"))
+    private void av$captureArrowOwner(PoseStack poseStack, SubmitNodeCollector collector, int light,
+                                      AvatarRenderState state, float yRot, float xRot, CallbackInfo ci) {
+        Entity entity = VanillaOverlayRenderStateCache.getEntity(state);
+        if (entity instanceof HerobrineMob) ANNOYINGVILLAGERS_STUCK_ARROW_OWNER.set(entity);
+        else ANNOYINGVILLAGERS_STUCK_ARROW_OWNER.remove();
+    }
 
-            arrow.setPos(entity.getX(), entity.getY(), entity.getZ());
-            arrow.setYRot((float) (Math.atan2((double) x, (double) z) * (180F / Math.PI)));
-            arrow.setXRot((float) (Math.atan2((double) y, (double) f) * (180F / Math.PI)));
-            arrow.yRotO = arrow.getYRot();
-            arrow.xRotO = arrow.getXRot();
+    @Inject(method = "submitStuckItem", at = @At("TAIL"))
+    private void av$submitColoredStuckArrow(PoseStack poseStack, SubmitNodeCollector collector,
+                                             int light, float x, float y, float z, int outlineColor,
+                                             CallbackInfo ci) {
+        Entity entity = ANNOYINGVILLAGERS_STUCK_ARROW_OWNER.get();
+        if (entity == null) return;
+        int mode = av$pickMode(entity, x, y, z);
+        collector.submitModel(model, modelState, poseStack,
+                ColoredGlintRenderTypes.getEntityGlint(mode, RenderTypes.entityGlint()),
+                light, OverlayTexture.NO_OVERLAY, -1, null, outlineColor, null);
+    }
 
-            arrow.setColorGlint(annoyingVillagers$pickMode(entity, x, y, z));
-
-            this.dispatcher.render(
-                    arrow,
-                    0.0D, 0.0D, 0.0D,
-                    0.0F,
-                    partialTick,
-                    poseStack,
-                    buffer,
-                    packedLight
-            );
-
-            ci.cancel();
-        }
+    @Inject(method = "submit", at = @At("RETURN"))
+    private void av$clearArrowOwner(PoseStack poseStack, SubmitNodeCollector collector, int light,
+                                    AvatarRenderState state, float yRot, float xRot, CallbackInfo ci) {
+        ANNOYINGVILLAGERS_STUCK_ARROW_OWNER.remove();
     }
 
     @Unique
-    private static int annoyingVillagers$pickMode(Entity entity, float x, float y, float z) {
+    private static int av$pickMode(Entity entity, float x, float y, float z) {
         int seed = entity.getId();
         seed = 31 * seed + Float.floatToIntBits(x);
         seed = 31 * seed + Float.floatToIntBits(y);
         seed = 31 * seed + Float.floatToIntBits(z);
-
         return switch (Math.floorMod(seed, 11)) {
             case 0 -> GlintColorHelper.ORANGE;
             case 1 -> GlintColorHelper.CYAN;

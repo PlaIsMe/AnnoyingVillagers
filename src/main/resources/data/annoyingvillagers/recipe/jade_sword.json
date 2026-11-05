@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " E ",
+    " E ",
+    " P "
+  ],
+  "key": {
+    "E": "minecraft:emerald",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:jade_sword"
+  }
+}

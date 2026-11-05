@@ -170,8 +170,8 @@ public class DragonAnimator
         cycleOfs = (cycleOfs * cycleOfs + cycleOfs * 2) * 0.05f;
 
         // reduce up/down amplitude
-        cycleOfs *= Mth.clampedLerp(0.5f, 1, flutter);
-        cycleOfs *= Mth.clampedLerp(1, 0.5f, ground);
+        cycleOfs *= Mth.clampedLerp(flutter, 0.5f, 1);
+        cycleOfs *= Mth.clampedLerp(ground, 1, 0.5f);
 
         // animate body parts
         animHeadAndNeck(model);
@@ -287,8 +287,8 @@ public class DragonAnimator
             float vertMulti = (i + 1) / (float) model.neckProxy.length;
 
             float baseRotX = Mth.cos((float) i * 0.45f + animBase) * 0.15f;
-            baseRotX *= Mth.clampedLerp(0.2f, 1, flutter);
-            baseRotX *= Mth.clampedLerp(1, 0.2f, sit);
+            baseRotX *= Mth.clampedLerp(flutter, 0.2f, 1);
+            baseRotX *= Mth.clampedLerp(sit, 1, 0.2f);
             float ofsRotX = Mth.sin(vertMulti * ((float) Math.PI) * 0.9f) * 0.75f;
 
             // basic up/down movement
@@ -298,12 +298,12 @@ public class DragonAnimator
             // flex neck down when hovering
             model.neck.xRot += (1 - speed) * vertMulti;
             // lower neck on low health
-            model.neck.xRot -= Mth.clampedLerp(0, ofsRotX, ground * health);
+            model.neck.xRot -= Mth.clampedLerp(ground * health, 0, ofsRotX);
             // use looking yaw
             model.neck.yRot = (float) Math.toRadians(lookYaw) * vertMulti * speed;
 
             // update scale
-            float v = Mth.clampedLerp(1.6f, 1, vertMulti);
+            float v = Mth.clampedLerp(vertMulti, 1.6f, 1);
             ((ModelPartAccess) (Object) model.neck).setRenderScale(v, v, 0.6f);
 
             // hide the first and every second scale
@@ -446,15 +446,15 @@ public class DragonAnimator
             rotYStand = (rotYStand + Mth.sin(i * 0.45f + animBase * 0.5f)) * amp * 0.4f;
             rotYSit = Mth.sin(vertMulti * ((float) Math.PI)) * ((float) Math.PI) * 1.2f - 0.5f; // curl to the left
 
-            rotXAir -= Mth.sin(i * 0.45f + animBase) * 0.04f * Mth.clampedLerp(0.3f, 1, flutter);
+            rotXAir -= Mth.sin(i * 0.45f + animBase) * 0.04f * Mth.clampedLerp(flutter, 0.3f, 1);
 
             // interpolate between sitting and standing
-            model.tail.xRot = Mth.clampedLerp(rotXStand, rotXSit, sit);
-            model.tail.yRot = Mth.clampedLerp(rotYStand, rotYSit, sit);
+            model.tail.xRot = Mth.clampedLerp(sit, rotXStand, rotXSit);
+            model.tail.yRot = Mth.clampedLerp(sit, rotYStand, rotYSit);
 
             // interpolate between flying and grounded
-            model.tail.xRot = Mth.clampedLerp(rotXAir, model.tail.xRot, ground);
-            model.tail.yRot = Mth.clampedLerp(rotYAir, model.tail.yRot, ground);
+            model.tail.xRot = Mth.clampedLerp(ground, rotXAir, model.tail.xRot);
+            model.tail.yRot = Mth.clampedLerp(ground, rotYAir, model.tail.yRot);
 
             // body movement
             float angleLimit = 160 * vertMulti;
@@ -473,7 +473,7 @@ public class DragonAnimator
             }
 
             // update scale
-            float neckScale = Mth.clampedLerp(1.5f, 0.3f, vertMulti);
+            float neckScale = Mth.clampedLerp(vertMulti, 1.5f, 0.3f);
             ((ModelPartAccess) (Object) model.tail).setRenderScale(neckScale, neckScale, neckScale);
 
             // update proxy
@@ -725,7 +725,7 @@ public class DragonAnimator
 
         public float get(float x)
         {
-            return Mth.clampedLerp(previous, current, x);
+            return Mth.clampedLerp(x, previous, current);
         }
 
         public float get()
@@ -841,7 +841,7 @@ public class DragonAnimator
         {
             int i = index - offset;
             int len = buffer.length - 1;
-            return Mth.clampedLerp(buffer[i - 1 & len], buffer[i & len], x);
+            return Mth.clampedLerp(x, buffer[i - 1 & len], buffer[i & len]);
         }
 
         public float get(float x, int offset1, int offset2)

@@ -5,6 +5,6 @@ import net.minecraft.world.item.Rarity;
 
 public class DiamondBlasterSwordAbilityItem extends Item {
     public DiamondBlasterSwordAbilityItem() {
-            super((new Properties()).stacksTo(1).rarity(Rarity.UNCOMMON));
+            super((com.pla.annoyingvillagers.util.LegacyItemProperties.create()).stacksTo(1).rarity(Rarity.UNCOMMON));
         }
 }

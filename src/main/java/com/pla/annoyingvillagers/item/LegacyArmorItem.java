@@ -1,19 +1,25 @@
 package com.pla.annoyingvillagers.item;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.equipment.ArmorType;
 
 import javax.annotation.Nullable;
 
 /** Pre-1.21 armor constructor routed into the component-backed armor implementation. */
-public class LegacyArmorItem extends ArmorItem {
+public class LegacyArmorItem extends Item {
+    private final Type type;
+
     protected LegacyArmorItem(LegacyArmorMaterial material, Type type, Properties properties) {
-        super(material.asHolder(), type, properties.durability(material.getDurabilityForType(type)));
+        super(material.applyProperties(type, properties));
+        this.type = type;
     }
+
+    public Type getType() { return type; }
+    public EquipmentSlot getEquipmentSlot() { return type.getSlot(); }
 
     /**
      * Compatibility hook retained by the generated 1.20 armor classes.
@@ -25,11 +31,16 @@ public class LegacyArmorItem extends ArmorItem {
         return null;
     }
 
-    @Override
-    @Nullable
-    public ResourceLocation getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot,
-                                            ArmorMaterial.Layer layer, boolean innerModel) {
-        String texture = this.getArmorTexture(stack, entity, slot, innerModel ? "2" : "1");
-        return texture == null ? null : ResourceLocation.parse(texture);
+    public enum Type {
+        HELMET(ArmorType.HELMET),
+        CHESTPLATE(ArmorType.CHESTPLATE),
+        LEGGINGS(ArmorType.LEGGINGS),
+        BOOTS(ArmorType.BOOTS),
+        BODY(ArmorType.BODY);
+
+        private final ArmorType armorType;
+        Type(ArmorType armorType) { this.armorType = armorType; }
+        public EquipmentSlot getSlot() { return armorType.getSlot(); }
+        public String getName() { return armorType.getName(); }
     }
 }

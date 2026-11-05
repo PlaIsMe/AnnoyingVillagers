@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BGB",
+    "BNB",
+    " P "
+  ],
+  "key": {
+    "B": "minecraft:diamond_block",
+    "N": "minecraft:netherite_block",
+    "G": "annoyingvillagers:diamond_greataxe",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_battleaxe"
+  }
+}

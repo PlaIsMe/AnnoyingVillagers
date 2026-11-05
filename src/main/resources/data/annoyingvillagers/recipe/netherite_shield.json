@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "INI",
+    "IHI",
+    " I "
+  ],
+  "key": {
+    "H": "minecraft:heart_of_the_sea",
+    "I": "minecraft:netherite_ingot",
+    "N": "annoyingvillagers:dark_netherite"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:netherite_shield"
+  }
+}

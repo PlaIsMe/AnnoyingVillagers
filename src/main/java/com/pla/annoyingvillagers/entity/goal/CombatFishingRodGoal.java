@@ -564,7 +564,7 @@ public class CombatFishingRodGoal extends Goal {
         Vec3 impulse = delta.normalize().scale(power);
         impulse = new Vec3(impulse.x, Math.max(impulse.y + yBoost, yBoost), impulse.z);
         entity.setDeltaMovement(entity.getDeltaMovement().add(impulse));
-        entity.hasImpulse = true;
+        entity.hurtMarked = true;
         entity.hurtMarked = true;
         entity.fallDistance = 0.0F;
 

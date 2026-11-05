@@ -7,14 +7,13 @@ import com.pla.annoyingvillagers.rig.RigAnimationController;
 import com.pla.annoyingvillagers.rig.RigAnimationId;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -69,39 +68,21 @@ public class HookGunItem extends Item {
     private static final double HOOK_ANIMATION_BACK_DOT = -0.20D;
 
     public HookGunItem() {
-        super(new Item.Properties().stacksTo(1).durability(384));
+        super(com.pla.annoyingvillagers.util.LegacyItemProperties.create().stacksTo(1).durability(384));
     }
 
     @Override
-    public boolean isEnchantable(@NotNull ItemStack stack) {
-        return false;
+    public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> tooltip, @NotNull TooltipFlag flag) {
+        super.appendHoverText(stack, level, display, tooltip, flag);
+        tooltip.accept(Component.translatable("tooltip.annoyingvillagers.hook_gun"));
     }
 
     @Override
-    public boolean supportsEnchantment(@NotNull ItemStack stack, @NotNull net.minecraft.core.Holder<Enchantment> enchantment) {
-        return false;
-    }
-
-    @Override
-    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
-        return false;
-    }
-
-    @Override
-    public int getEnchantmentValue() {
-        return 0;
-    }
-
-    @Override
-    public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.annoyingvillagers.hook_gun"));
-    }
-
-    @Override
-    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (level.isClientSide || !isVisualHookOut(stack) || !(entity instanceof LivingEntity owner)) {
+    public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slotId = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean isSelected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        super.inventoryTick(stack, level, entity, equipmentSlot);
+        if (level.isClientSide() || !isVisualHookOut(stack) || !(entity instanceof LivingEntity owner)) {
             return;
         }
 
@@ -116,28 +97,28 @@ public class HookGunItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if (isHoldingHookGunInBothHands(player) && hasActiveHook(level, player)) {
                 swingBothHands(player);
             } else if (!hasLaunchableBoundItem(player, hand)) {
-                return InteractionResultHolder.pass(stack);
+                return InteractionResult.PASS;
             } else if (isHoldingHookGunInBothHands(player)) {
                 swingLaunchableHands(player);
             }
-            return InteractionResultHolder.sidedSuccess(stack, true);
+            return InteractionResult.SUCCESS;
         }
 
         boolean retrievingHooks = hasActiveHook(level, player);
         if (!useHookGun(level, player, hand)) {
-            return InteractionResultHolder.pass(stack);
+            return InteractionResult.PASS;
         }
         if (!retrievingHooks) {
-            player.getCooldowns().addCooldown(this, USE_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), USE_COOLDOWN_TICKS);
         }
         player.awardStat(Stats.ITEM_USED.get(this));
-        return InteractionResultHolder.sidedSuccess(stack, false);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -146,7 +127,7 @@ public class HookGunItem extends Item {
     }
 
     public static boolean useHookGun(Level level, LivingEntity owner, InteractionHand hand) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return false;
         }
 
@@ -223,7 +204,7 @@ public class HookGunItem extends Item {
 
         ItemStack offhand = player.getOffhandItem();
         return offhand.getItem() instanceof HookGunItem
-                && !player.getCooldowns().isOnCooldown(offhand.getItem());
+                && !player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(offhand.getItem()));
     }
 
     public static double getDoubleHookAngle(LivingEntity entity) {
@@ -311,7 +292,7 @@ public class HookGunItem extends Item {
         return !hookGunStack.isEmpty()
                 && hookGunStack.getItem() instanceof HookGunItem
                 && LegacyItemData.has(hookGunStack)
-                && LegacyItemData.getOrCreate(hookGunStack).getBoolean(TAG_VISUAL_HOOK_OUT);
+                && LegacyItemData.getOrCreate(hookGunStack).getBooleanOr(TAG_VISUAL_HOOK_OUT, false);
     }
 
     public static void setVisualHookOut(ItemStack hookGunStack, boolean visualHookOut) {
@@ -320,7 +301,7 @@ public class HookGunItem extends Item {
         }
 
         if (visualHookOut) {
-            LegacyItemData.getOrCreate(hookGunStack).putBoolean(TAG_VISUAL_HOOK_OUT, true);
+            LegacyItemData.update(hookGunStack, tag -> tag.putBoolean(TAG_VISUAL_HOOK_OUT, true));
             return;
         }
 
@@ -328,10 +309,9 @@ public class HookGunItem extends Item {
             return;
         }
 
-        CompoundTag tag = LegacyItemData.get(hookGunStack);
-        if (tag != null) {
-            tag.remove(TAG_VISUAL_HOOK_OUT);
-        }
+        // CUSTOM_DATA exposes a copy; persist the removal so clients can show
+        // the bound item again after the hook returns.
+        LegacyItemData.update(hookGunStack, tag -> tag.remove(TAG_VISUAL_HOOK_OUT));
     }
 
     public static void clearBoundItem(ItemStack hookGunStack) {
@@ -340,11 +320,10 @@ public class HookGunItem extends Item {
             return;
         }
 
-        CompoundTag tag = LegacyItemData.get(hookGunStack);
-        if (tag != null) {
+        LegacyItemData.update(hookGunStack, tag -> {
             tag.remove(TAG_BOUND_ITEM);
             tag.remove(TAG_VISUAL_HOOK_OUT);
-        }
+        });
     }
 
     public static boolean tryBindFromSpecialAttack(Player player) {
@@ -424,14 +403,14 @@ public class HookGunItem extends Item {
     }
 
     private static boolean tryMoveToInventoryAwayFromSourceHand(Player player, ItemStack stack, InteractionHand sourceHand) {
-        int avoidedSlot = sourceHand == InteractionHand.MAIN_HAND ? player.getInventory().selected : -1;
+        int avoidedSlot = sourceHand == InteractionHand.MAIN_HAND ? player.getInventory().getSelectedSlot() : -1;
 
-        for (int slot = 0; slot < player.getInventory().items.size(); slot++) {
+        for (int slot = 0; slot < player.getInventory().getNonEquipmentItems().size(); slot++) {
             if (slot == avoidedSlot) {
                 continue;
             }
 
-            ItemStack target = player.getInventory().items.get(slot);
+            ItemStack target = player.getInventory().getNonEquipmentItems().get(slot);
             if (target.isEmpty()
                     || !target.isStackable()
                     || !ItemStack.isSameItemSameComponents(target, stack)) {
@@ -453,14 +432,14 @@ public class HookGunItem extends Item {
             }
         }
 
-        for (int slot = 0; slot < player.getInventory().items.size(); slot++) {
-            if (slot == avoidedSlot || !player.getInventory().items.get(slot).isEmpty()) {
+        for (int slot = 0; slot < player.getInventory().getNonEquipmentItems().size(); slot++) {
+            if (slot == avoidedSlot || !player.getInventory().getNonEquipmentItems().get(slot).isEmpty()) {
                 continue;
             }
 
             ItemStack inserted = stack.copy();
             inserted.setPopTime(5);
-            player.getInventory().items.set(slot, inserted);
+            player.getInventory().getNonEquipmentItems().set(slot, inserted);
             stack.setCount(0);
             player.getInventory().setChanged();
             return true;
@@ -493,7 +472,7 @@ public class HookGunItem extends Item {
         double horizontal = Math.sqrt(direction.x * direction.x + direction.z * direction.z);
         float hookYaw = (float) (Mth.atan2(direction.x, direction.z) * Mth.RAD_TO_DEG);
         float hookPitch = (float) (Mth.atan2(direction.y, horizontal) * Mth.RAD_TO_DEG);
-        hook.moveTo(origin.x, origin.y, origin.z, hookYaw, hookPitch);
+        hook.snapTo(origin.x, origin.y, origin.z, hookYaw, hookPitch);
 
         double extraVelocity = Math.max(0.0D, owner.getDeltaMovement().dot(direction));
         hook.shoot(direction.x, direction.y, direction.z, THROW_SPEED + (float) extraVelocity, 0.0F);
@@ -689,7 +668,7 @@ public class HookGunItem extends Item {
             return;
         }
 
-        stack.hurtAndBreak(1, owner, LivingEntity.getSlotForHand(hand));
+        stack.hurtAndBreak(1, owner, hand.asEquipmentSlot());
     }
 
     private static void swingBothHands(LivingEntity owner) {
@@ -780,7 +759,7 @@ public class HookGunItem extends Item {
         return HOOK_ANIMATION_NORMAL;
     }
 
-    private static void setHookHandAnimationState(LivingEntity owner, boolean rightHand, byte nextState) {        
+    private static void setHookHandAnimationState(LivingEntity owner, boolean rightHand, byte nextState) {
 // add this in AV_EFM
 //        LivingEntityPatch<?> livingEntityPatch = EpicFightCapabilities.getEntityPatch(owner, LivingEntityPatch.class);
 //        AssetAccessor<? extends StaticAnimation> nextEpicFightAnimation = getEpicFightHookHandAnimation(rightHand, nextState);
@@ -795,7 +774,7 @@ public class HookGunItem extends Item {
             return;
         }
 
-        byte currentState = owner.getPersistentData().getByte(tagName);
+        byte currentState = owner.getPersistentData().getByte(tagName).orElse((byte) 0);
         if (currentState == nextState && RigAnimationController.getActiveAnimationId(mob) != null) {
             return;
         }
@@ -860,7 +839,7 @@ public class HookGunItem extends Item {
         @SubscribeEvent
         public static void onLivingTick(EntityTickEvent.Post event) {
             if (!(event.getEntity() instanceof LivingEntity owner)) return;
-            if (owner.level().isClientSide) {
+            if (owner.level().isClientSide()) {
                 return;
             }
 

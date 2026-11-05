@@ -34,7 +34,7 @@ public class FractureBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
-        return level.isClientSide ? createTickerHelper(blockEntityType, AnnoyingVillagersModBlockEntities.FRACTURE_BLOCK.get(), FractureBlockEntity::lifeTimeTick) : null;
+        return level.isClientSide() ? createTickerHelper(blockEntityType, AnnoyingVillagersModBlockEntities.FRACTURE_BLOCK.get(), FractureBlockEntity::lifeTimeTick) : null;
     }
 
     @Override

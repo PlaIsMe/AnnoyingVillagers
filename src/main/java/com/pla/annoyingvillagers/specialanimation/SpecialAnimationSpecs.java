@@ -171,7 +171,7 @@ public final class SpecialAnimationSpecs {
         net.minecraft.world.phys.AABB area = new net.minecraft.world.phys.AABB(center.x - radius, center.y - radius, center.z - radius, center.x + radius, center.y + radius, center.z + radius);
         for (LivingEntity target : mob.level().getEntitiesOfClass(LivingEntity.class, area, target -> target.isAlive() && target != mob && target.distanceToSqr(center) <= radius * radius && (separateByEntityType ? target.getType() != mob.getType() : target.getType().getCategory() != mob.getType().getCategory()))) {
             target.invulnerableTime = 0;
-            target.hurt(mob.damageSources().mobAttack(mob), damage);
+            target.hurtOrSimulate(mob.damageSources().mobAttack(mob), damage);
             target.invulnerableTime = 0;
         }
     }

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IWI",
+    "WEW",
+    "IWI"
+  ],
+  "key": {
+    "E": "minecraft:emerald",
+    "I": "minecraft:iron_ingot",
+    "W": "#minecraft:planks"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:gem_shield"
+  }
+}

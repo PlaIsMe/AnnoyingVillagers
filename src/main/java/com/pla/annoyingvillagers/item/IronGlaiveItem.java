@@ -2,8 +2,7 @@ package com.pla.annoyingvillagers.item;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,8 +31,8 @@ public class IronGlaiveItem extends LegacySwordItem {
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.IRON_INGOT));
+                return Ingredient.of(Items.IRON_INGOT);
             }
-        }, 3, -2.6F, (new Properties()));
+        }, 3, -2.6F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 }

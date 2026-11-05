@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.client.renderer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.clazz.RigMobRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import com.pla.annoyingvillagers.entity.BlueDemonEntity;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,11 +13,11 @@ public class BlueDemonRenderer extends RigMobRenderer<BlueDemonEntity> {
         super(context);
     }
 
-    public @NotNull ResourceLocation getTextureLocation(@NotNull BlueDemonEntity blueDemonEntity) {
+    public @NotNull Identifier getTextureLocation(@NotNull BlueDemonEntity blueDemonEntity) {
         if (blueDemonEntity.getState() == 2) {
-            return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/blue_demon_exhausted.png");
+            return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/blue_demon_exhausted.png");
         } else {
-            return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/blue_demon.png");
+            return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/blue_demon.png");
         }
     }
 }

@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "annoyingvillagers:broken_diamond_armor_layer_1"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "annoyingvillagers:broken_diamond_armor_layer_2"
+      }
+    ]
+  }
+}

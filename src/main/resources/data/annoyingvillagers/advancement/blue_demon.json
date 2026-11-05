@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "annoyingvillagers:blue_demon_trident"
+    },
+    "title": {
+      "translate": "advancements.annoyingvillagers.blue_demon.title",
+      "color": "light_purple"
+    },
+    "description": {
+      "translate": "advancements.annoyingvillagers.blue_demon.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "kill": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "annoyingvillagers:blue_demon"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parent": "annoyingvillagers:compressed_diamond"
+}

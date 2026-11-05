@@ -10,12 +10,12 @@ import org.jetbrains.annotations.NotNull;
 public class ShadowObsidianBurstItem extends Item {
 
     public ShadowObsidianBurstItem() {
-        super((new Properties()).stacksTo(1).fireResistant().rarity(Rarity.EPIC));
+        super((com.pla.annoyingvillagers.util.LegacyItemProperties.create()).stacksTo(1).fireResistant().rarity(Rarity.EPIC));
     }
 
     @Override
     public boolean isFoil(@NotNull ItemStack stack) {
-        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean("foil");
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBooleanOr("foil", false);
     }
 
     public boolean isCorrectToolForDrops(@NotNull BlockState blockstate) {

@@ -269,7 +269,7 @@ public class EliteHerobrineSecondFormGoal<T extends HerobrineMob> extends Animat
                 || this.mob instanceof ReaperHerobrineEntity reaper
                 && reaper.isSecondFormDragonRider();
 
-        return !this.mob.level().isClientSide
+        return !this.mob.level().isClientSide()
                 && this.mob.isAlive()
                 && !this.mob.isRemoved()
                 && !this.mob.isDeadOrDying()

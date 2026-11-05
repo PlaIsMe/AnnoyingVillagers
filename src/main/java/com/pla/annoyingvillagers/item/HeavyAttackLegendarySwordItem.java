@@ -4,6 +4,6 @@ import net.minecraft.world.item.*;
 
 public class HeavyAttackLegendarySwordItem extends Item {
     public HeavyAttackLegendarySwordItem() {
-        super((new Properties()).stacksTo(1).rarity(Rarity.UNCOMMON));
+        super((com.pla.annoyingvillagers.util.LegacyItemProperties.create()).stacksTo(1).rarity(Rarity.UNCOMMON));
     }
 }

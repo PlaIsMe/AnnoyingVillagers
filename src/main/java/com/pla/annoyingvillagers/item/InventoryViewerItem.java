@@ -21,7 +21,7 @@ import java.util.List;
 
 public class InventoryViewerItem extends Item {
     public InventoryViewerItem() {
-        super(new Properties().stacksTo(1));
+        super(com.pla.annoyingvillagers.util.LegacyItemProperties.create().stacksTo(1));
     }
 
     @Override
@@ -34,10 +34,10 @@ public class InventoryViewerItem extends Item {
         SimpleContainer inventory = getNpcInventory(target);
         if (inventory == null) {
             if (!player.level().isClientSide()) {
-                player.displayClientMessage(Component.translatable("message.annoyingvillagers.inventory_viewer.unsupported")
+                com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(player, Component.translatable("message.annoyingvillagers.inventory_viewer.unsupported")
                         .withStyle(ChatFormatting.GRAY), true);
             }
-            return InteractionResult.sidedSuccess(player.level().isClientSide());
+            return player.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
 
         if (player instanceof ServerPlayer serverPlayer) {
@@ -50,18 +50,18 @@ public class InventoryViewerItem extends Item {
             );
         }
 
-        return InteractionResult.sidedSuccess(player.level().isClientSide());
+        return player.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     @Override
     public void appendHoverText(
             @NotNull ItemStack stack,
             Item.TooltipContext level,
-            @NotNull List<Component> tooltip,
+            @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> tooltip,
             @NotNull TooltipFlag flag
     ) {
-        super.appendHoverText(stack, level, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.annoyingvillagers.inventory_viewer").withStyle(ChatFormatting.GRAY));
+        super.appendHoverText(stack, level, display, tooltip, flag);
+        tooltip.accept(Component.translatable("tooltip.annoyingvillagers.inventory_viewer").withStyle(ChatFormatting.GRAY));
     }
 
     private static SimpleContainer getNpcInventory(LivingEntity target) {

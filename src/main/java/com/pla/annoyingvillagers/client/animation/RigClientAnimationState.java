@@ -6,13 +6,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@OnlyIn(Dist.CLIENT)
 public final class RigClientAnimationState {
     private static final int DEFAULT_BLEND_IN_TICKS = 2;
     private static final int DEFAULT_BLEND_OUT_TICKS = 4;

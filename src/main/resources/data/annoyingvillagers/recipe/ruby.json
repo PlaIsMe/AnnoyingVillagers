@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RRR",
+    "RDR",
+    "RRR"
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "R": "minecraft:redstone_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:ruby"
+  }
+}

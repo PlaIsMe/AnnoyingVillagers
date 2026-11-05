@@ -116,7 +116,7 @@ public class RecallLandGoal extends Goal {
 
             if (dragon.isRecallAutoMount()) {
                 if (!(owner instanceof ReaperHerobrineEntity reaper) || reaper.canRideSummonedDragon()) {
-                    owner.startRiding(dragon, true);
+                    owner.startRiding(dragon);
                 }
             }
 
@@ -166,13 +166,13 @@ public class RecallLandGoal extends Goal {
 
     @Nullable
     private Vec3 findCeilingLandingAtColumn(ServerLevel level, LivingEntity owner, double x, double z) {
-        double minY = level.getMinBuildHeight() + 6.0;
+        double minY = level.getMinY() + 6.0;
         int yStart = Mth.floor(owner.getY()) + 8;
 
         BlockPos col = BlockPos.containing(x, 0.0, z);
         int roofAirY = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, col).getY();
 
-        double maxY = Math.min(level.getMaxBuildHeight() - 2.0, roofAirY - dragon.getBbHeight() - 2.0);
+        double maxY = Math.min(level.getMaxY() - 2.0, roofAirY - dragon.getBbHeight() - 2.0);
         if (maxY < minY) maxY = minY;
 
         yStart = Math.min(yStart, Mth.floor(maxY));
@@ -192,8 +192,8 @@ public class RecallLandGoal extends Goal {
     }
 
     private double clampYForWorld(ServerLevel level, double x, double z, double y) {
-        double min = level.getMinBuildHeight() + 6.0;
-        double max = level.getMaxBuildHeight() - 6.0;
+        double min = level.getMinY() + 6.0;
+        double max = level.getMaxY() - 6.0;
 
         if (level.dimensionType().hasCeiling()) {
             BlockPos col = BlockPos.containing(x, 0.0, z);
@@ -229,8 +229,8 @@ public class RecallLandGoal extends Goal {
         double yClamped = clampYForWorld(level, x, z, desiredY);
 
         int base = Mth.floor(yClamped);
-        int min = Mth.floor(level.getMinBuildHeight() + 6.0);
-        int max = Mth.floor(level.getMaxBuildHeight() - 2.0);
+        int min = Mth.floor(level.getMinY() + 6.0);
+        int max = Mth.floor(level.getMaxY() - 2.0);
 
         if (level.dimensionType().hasCeiling()) {
             BlockPos col = BlockPos.containing(x, 0.0, z);

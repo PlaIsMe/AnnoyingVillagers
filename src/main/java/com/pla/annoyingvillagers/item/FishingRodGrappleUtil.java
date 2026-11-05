@@ -14,7 +14,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -99,7 +99,7 @@ public final class FishingRodGrappleUtil {
     }
 
     public static void inventoryTick(ItemStack stack, Level level, Entity entity) {
-        if (level.isClientSide || !(entity instanceof Player player)) {
+        if (level.isClientSide() || !(entity instanceof Player player)) {
             return;
         }
 
@@ -108,21 +108,21 @@ public final class FishingRodGrappleUtil {
         }
 
         FishingHook hook = player.fishing;
-        if (hook != null && hook.isAlive() && hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)) {
+        if (hook != null && hook.isAlive() && hook.getPersistentData().getBooleanOr(KEY_GRAPPLE_HOOK, false)) {
             latchHookIfReady(hook);
         }
     }
 
-    public static InteractionResultHolder<ItemStack> use(Item item, Level level, Player player, InteractionHand hand) {
+    public static InteractionResult use(Item item, Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         FishingHook hook = player.fishing;
         boolean disablePlunge = player.isShiftKeyDown();
 
         if (hook != null) {
             if (item instanceof TonyTheFishingRod || item instanceof AdvancedFishingRod) {
-                if (hook.getPersistentData().getBoolean(KEY_RETURNING)) {
+                if (hook.getPersistentData().getBooleanOr(KEY_RETURNING, false)) {
                     level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
-                    if (!level.isClientSide) {
+                    if (!level.isClientSide()) {
                         if (!handleTonyReturningStickyLivingTargetOnPull(item, player, hook, disablePlunge)) {
                             recastHookFromReturn(item, level, player, stack, hook, disablePlunge);
                         }
@@ -130,10 +130,10 @@ public final class FishingRodGrappleUtil {
 
                     player.awardStat(Stats.ITEM_USED.get(item));
                     player.gameEvent(GameEvent.ITEM_INTERACT_START);
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+                    return InteractionResult.SUCCESS;
                 }
 
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     int damage;
                     if (item instanceof TonyTheFishingRod) {
                         if (disablePlunge) {
@@ -154,29 +154,29 @@ public final class FishingRodGrappleUtil {
                         damage = getReturnDamage(hook);
                     }
 
-                    stack.hurtAndBreak(damage, player, LivingEntity.getSlotForHand(hand));
+                    stack.hurtAndBreak(damage, player, hand.asEquipmentSlot());
                 }
 
                 startHookReturn(hook);
                 level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL, 1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
                 player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
-                return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+                return InteractionResult.SUCCESS;
             }
 
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 if (!disablePlunge && !tryPlungeHookedTarget(item, player, hook, true)) {
                     tryPlunge(item, player, hook);
                 }
 
                 int damage = hook.retrieve(stack);
-                stack.hurtAndBreak(damage, player, LivingEntity.getSlotForHand(hand));
+                stack.hurtAndBreak(damage, player, hand.asEquipmentSlot());
             }
 
             level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL, 1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
             player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
         } else {
             level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 ServerLevel serverLevel = (ServerLevel) level;
                 int lureSpeed = (int) (EnchantmentHelper.getFishingTimeReduction(serverLevel, stack, player) * 20.0F);
                 int luck = EnchantmentHelper.getFishingLuckBonus(serverLevel, stack, player);
@@ -189,11 +189,11 @@ public final class FishingRodGrappleUtil {
             player.gameEvent(GameEvent.ITEM_INTERACT_START);
         }
 
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     public static boolean tickTonyReturningHook(FishingHook hook) {
-        if (!hook.getPersistentData().getBoolean(KEY_RETURNING) && getStickyTarget(hook) != null) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_RETURNING, false) && getStickyTarget(hook) != null) {
             if (!hasValidLivingOwner(hook)) {
                 clearTonyPayload(hook);
                 hook.discard();
@@ -209,7 +209,7 @@ public final class FishingRodGrappleUtil {
             return true;
         }
 
-        if (!hook.getPersistentData().getBoolean(KEY_RETURNING)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_RETURNING, false)) {
             return false;
         }
 
@@ -234,11 +234,11 @@ public final class FishingRodGrappleUtil {
             hook.setPos(target.x, target.y, target.z);
             moveTonyPayloadWithHook(hook, Vec3.ZERO);
 
-            if (hook.level().isClientSide) {
+            if (hook.level().isClientSide()) {
                 return true;
             }
 
-            if (hook.getPersistentData().getBoolean(KEY_COLLECT_RETURNING_ITEM)) {
+            if (hook.getPersistentData().getBooleanOr(KEY_COLLECT_RETURNING_ITEM, false)) {
                 collectReturningItemPayload(hook, owner);
                 hook.discard();
                 return true;
@@ -261,12 +261,12 @@ public final class FishingRodGrappleUtil {
         hook.setPos(current.x + step.x, current.y + step.y, current.z + step.z);
         rotateHookToward(hook, step);
         moveTonyPayloadWithHook(hook, step);
-        hook.hasImpulse = true;
+        hook.hurtMarked = true;
         return true;
     }
 
     public static void afterTonyHookVanillaTick(FishingHook hook) {
-        if (!hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_GRAPPLE_HOOK, false)) {
             return;
         }
 
@@ -277,11 +277,11 @@ public final class FishingRodGrappleUtil {
 
         resolveHerobrineEscapeHookOnHit(hook);
 
-        if (!hook.getPersistentData().getBoolean(KEY_RETURNING) && !hasTonyStickyPayload(hook)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_RETURNING, false) && !hasTonyStickyPayload(hook)) {
             stopHookAtHitItemEntity(hook);
         }
 
-        if (hook.getPersistentData().getBoolean(KEY_RETURNING) || !hasTonyStickyPayload(hook)) {
+        if (hook.getPersistentData().getBooleanOr(KEY_RETURNING, false) || !hasTonyStickyPayload(hook)) {
             return;
         }
 
@@ -289,7 +289,7 @@ public final class FishingRodGrappleUtil {
     }
 
     public static boolean shouldIgnoreHookEntityHit(FishingHook hook, Entity target) {
-        if (!hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_GRAPPLE_HOOK, false)) {
             return false;
         }
 
@@ -301,9 +301,9 @@ public final class FishingRodGrappleUtil {
         return hook != null
                 && projectile != null
                 && hook.isAlive()
-                && (hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)
-                || hook.getPersistentData().getBoolean(KEY_NPC_COMBAT_HOOK))
-                && hook.getPersistentData().getInt(KEY_STICKY_ITEM_PROJECTILE_ID) == projectile.getId();
+                && (hook.getPersistentData().getBooleanOr(KEY_GRAPPLE_HOOK, false)
+                || hook.getPersistentData().getBooleanOr(KEY_NPC_COMBAT_HOOK, false))
+                && hook.getPersistentData().getIntOr(KEY_STICKY_ITEM_PROJECTILE_ID, 0) == projectile.getId();
     }
 
     @Nullable
@@ -313,7 +313,7 @@ public final class FishingRodGrappleUtil {
 
     @Nullable
     public static FishingHook spawnNpcCombatFishingHook(LivingEntity owner, Vec3 destination, @Nullable Entity trackedTarget) {
-        if (owner.level().isClientSide || destination == null) {
+        if (owner.level().isClientSide() || destination == null) {
             return null;
         }
 
@@ -326,7 +326,7 @@ public final class FishingRodGrappleUtil {
 
         FishingHook hook = new FishingHook(EntityType.FISHING_BOBBER, owner.level());
         hook.setOwner(owner);
-        hook.moveTo(start.x, start.y, start.z, owner.getYRot(), owner.getXRot());
+        hook.snapTo(start.x, start.y, start.z, owner.getYRot(), owner.getXRot());
         Vec3 velocity = toDestination.normalize().scale(NPC_COMBAT_HOOK_CAST_SPEED);
         hook.setDeltaMovement(velocity);
         rotateHookToward(hook, velocity);
@@ -347,7 +347,7 @@ public final class FishingRodGrappleUtil {
 
     public static void attachNpcCombatFishingHookPayload(@Nullable FishingHook hook, LivingEntity owner, ItemStack stack) {
         if (hook == null || !hook.isAlive() || stack.isEmpty()
-                || !hook.getPersistentData().getBoolean(KEY_NPC_COMBAT_HOOK)) {
+                || !hook.getPersistentData().getBooleanOr(KEY_NPC_COMBAT_HOOK, false)) {
             return;
         }
 
@@ -364,12 +364,12 @@ public final class FishingRodGrappleUtil {
     public static boolean isNpcCombatFishingHookResolved(@Nullable FishingHook hook) {
         return hook == null
                 || !hook.isAlive()
-                || hook.getPersistentData().getBoolean(KEY_NPC_HOOK_RESOLVED)
-                || hook.getPersistentData().getBoolean(KEY_NPC_HOOK_TIMED_OUT);
+                || hook.getPersistentData().getBooleanOr(KEY_NPC_HOOK_RESOLVED, false)
+                || hook.getPersistentData().getBooleanOr(KEY_NPC_HOOK_TIMED_OUT, false);
     }
 
     public static void forceNpcCombatFishingHookReturn(@Nullable FishingHook hook) {
-        if (hook == null || !hook.isAlive() || !hook.getPersistentData().getBoolean(KEY_NPC_COMBAT_HOOK)) {
+        if (hook == null || !hook.isAlive() || !hook.getPersistentData().getBooleanOr(KEY_NPC_COMBAT_HOOK, false)) {
             return;
         }
 
@@ -386,12 +386,12 @@ public final class FishingRodGrappleUtil {
         }
 
         float damage = calculateNpcHookedFishingRodItemDamage(stuckItem);
-        if (!target.hurt(target.level().damageSources().mobAttack(owner), damage)) {
+        if (!target.hurtOrSimulate(target.level().damageSources().mobAttack(owner), damage)) {
             return false;
         }
 
         if (stuckItem.is(AnnoyingVillagersModItems.JESSICA_THE_DARK_SHIELD.get())) {
-            target.playSound(SoundEvents.SHIELD_BLOCK, 1.0F, 0.8F);
+            target.playSound(SoundEvents.SHIELD_BLOCK.value(), 1.0F, 0.8F);
         }
 
         return true;
@@ -399,7 +399,7 @@ public final class FishingRodGrappleUtil {
 
     public static boolean tickNpcCombatFishingHook(FishingHook hook) {
         Entity ownerEntity = hook.getOwner();
-        boolean serverHook = hook.getPersistentData().getBoolean(KEY_NPC_COMBAT_HOOK);
+        boolean serverHook = hook.getPersistentData().getBooleanOr(KEY_NPC_COMBAT_HOOK, false);
         if (!serverHook && !isNpcCombatFishingHookOwner(ownerEntity)) {
             return false;
         }
@@ -414,10 +414,10 @@ public final class FishingRodGrappleUtil {
             return true;
         }
 
-        int life = hook.getPersistentData().getInt(KEY_NPC_HOOK_LIFE) + 1;
+        int life = hook.getPersistentData().getIntOr(KEY_NPC_HOOK_LIFE, 0) + 1;
         hook.getPersistentData().putInt(KEY_NPC_HOOK_LIFE, life);
 
-        boolean returning = hook.getPersistentData().getBoolean(KEY_NPC_HOOK_RETURNING);
+        boolean returning = hook.getPersistentData().getBooleanOr(KEY_NPC_HOOK_RETURNING, false);
         if (!returning && life >= NPC_COMBAT_HOOK_MAX_LIFE) {
             markNpcCombatHookResolved(hook, true);
             returning = true;
@@ -458,7 +458,7 @@ public final class FishingRodGrappleUtil {
         hook.setPos(current.x + step.x, current.y + step.y, current.z + step.z);
         rotateHookToward(hook, step);
         moveTonyPayloadWithHook(hook, step);
-        hook.hasImpulse = true;
+        hook.hurtMarked = true;
         return true;
     }
 
@@ -496,8 +496,8 @@ public final class FishingRodGrappleUtil {
     }
 
     public static void onGrappleHookRemoved(FishingHook hook) {
-        if (!hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)
-                || hook.getPersistentData().getBoolean(KEY_SUPPRESS_STICKY_ITEM_RELEASE)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_GRAPPLE_HOOK, false)
+                || hook.getPersistentData().getBooleanOr(KEY_SUPPRESS_STICKY_ITEM_RELEASE, false)) {
             return;
         }
 
@@ -532,7 +532,7 @@ public final class FishingRodGrappleUtil {
     public static boolean shouldOffhandFishingRodTakeRightClick(Player player) {
         ItemStack offhand = player.getOffhandItem();
         return (offhand.getItem() instanceof FishingRodItem || offhand.canPerformAction(ItemAbilities.FISHING_ROD_CAST))
-                && !player.getCooldowns().isOnCooldown(offhand.getItem());
+                && !player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(offhand.getItem()));
     }
 
     public static boolean shouldForceOffhandFishingRodRender(LivingEntity entity) {
@@ -552,7 +552,7 @@ public final class FishingRodGrappleUtil {
         boolean tonyRod = item instanceof TonyTheFishingRod;
         Entity stickyTarget = tonyRod ? getStickyTarget(returningHook) : null;
         ItemProjectile stickyProjectile = tonyRod ? getStickyItemProjectile(returningHook) : null;
-        boolean collectReturningItem = tonyRod && returningHook.getPersistentData().getBoolean(KEY_COLLECT_RETURNING_ITEM);
+        boolean collectReturningItem = tonyRod && returningHook.getPersistentData().getBooleanOr(KEY_COLLECT_RETURNING_ITEM, false);
         boolean collectItemNow = tonyRod && disablePlunge && stickyProjectile != null;
         returningHook.getPersistentData().putBoolean(KEY_SUPPRESS_STICKY_ITEM_RELEASE, true);
         returningHook.discard();
@@ -568,7 +568,7 @@ public final class FishingRodGrappleUtil {
         int luck = EnchantmentHelper.getFishingLuckBonus(serverLevel, stack, player);
         FishingHook grappleHook = new FishingHook(player, level, luck, lureSpeed);
         Vec3 castVelocity = grappleHook.getDeltaMovement();
-        grappleHook.moveTo(start.x, start.y, start.z, player.getYRot(), player.getXRot());
+        grappleHook.snapTo(start.x, start.y, start.z, player.getYRot(), player.getXRot());
         grappleHook.setDeltaMovement(castVelocity);
         rotateHookToward(grappleHook, castVelocity);
         grappleHook.getPersistentData().putBoolean(KEY_GRAPPLE_HOOK, true);
@@ -597,7 +597,7 @@ public final class FishingRodGrappleUtil {
 
     private static int getTonyReturnDamage(FishingHook hook) {
         if (hook.getPersistentData().contains(KEY_PENDING_RETURN_DAMAGE)) {
-            int damage = hook.getPersistentData().getInt(KEY_PENDING_RETURN_DAMAGE);
+            int damage = hook.getPersistentData().getIntOr(KEY_PENDING_RETURN_DAMAGE, 0);
             hook.getPersistentData().remove(KEY_PENDING_RETURN_DAMAGE);
             return damage;
         }
@@ -606,7 +606,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static int getReturnDamage(FishingHook hook) {
-        if (hook.getPersistentData().getInt(KEY_STICKY_ITEM_PROJECTILE_ID) > 0) {
+        if (hook.getPersistentData().getIntOr(KEY_STICKY_ITEM_PROJECTILE_ID, 0) > 0) {
             return 3;
         }
 
@@ -649,15 +649,15 @@ public final class FishingRodGrappleUtil {
         }
 
         return new Vec3(
-                hook.getPersistentData().getDouble(KEY_NPC_HOOK_TARGET_X),
-                hook.getPersistentData().getDouble(KEY_NPC_HOOK_TARGET_Y),
-                hook.getPersistentData().getDouble(KEY_NPC_HOOK_TARGET_Z)
+                hook.getPersistentData().getDoubleOr(KEY_NPC_HOOK_TARGET_X, 0.0D),
+                hook.getPersistentData().getDoubleOr(KEY_NPC_HOOK_TARGET_Y, 0.0D),
+                hook.getPersistentData().getDoubleOr(KEY_NPC_HOOK_TARGET_Z, 0.0D)
         );
     }
 
     @Nullable
     private static Entity getNpcCombatHookTrackedTarget(FishingHook hook) {
-        int targetId = hook.getPersistentData().getInt(KEY_NPC_HOOK_TARGET_ENTITY_ID);
+        int targetId = hook.getPersistentData().getIntOr(KEY_NPC_HOOK_TARGET_ENTITY_ID, 0);
         if (targetId <= 0) {
             return null;
         }
@@ -679,7 +679,7 @@ public final class FishingRodGrappleUtil {
             hook.setDeltaMovement(movement.x * 0.98D, movement.y - TONY_DETACHED_HOOK_GRAVITY, movement.z * 0.98D);
         }
         rotateHookToward(hook, movement);
-        hook.hasImpulse = true;
+        hook.hurtMarked = true;
     }
 
     private static void rotateHookToward(FishingHook hook, Vec3 movement) {
@@ -758,7 +758,7 @@ public final class FishingRodGrappleUtil {
         hook.setDeltaMovement(Vec3.ZERO);
         hook.setPos(position.x, position.y, position.z);
         setVanillaHookedEntity(hook, itemEntity);
-        hook.hasImpulse = true;
+        hook.hurtMarked = true;
     }
 
     private static boolean handleTonyReturningStickyLivingTargetOnPull(Item item, LivingEntity owner, FishingHook hook, boolean disablePlunge) {
@@ -824,8 +824,8 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean handleTonyHookedTargetOnPull(Item item, LivingEntity owner, FishingHook hook) {
-        if (!hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)
-                || hook.getPersistentData().getBoolean(KEY_TARGET_PLUNGED)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_GRAPPLE_HOOK, false)
+                || hook.getPersistentData().getBooleanOr(KEY_TARGET_PLUNGED, false)) {
             return false;
         }
 
@@ -884,7 +884,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean handleTonySneakItemTargetOnPull(LivingEntity owner, FishingHook hook) {
-        if (!hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_GRAPPLE_HOOK, false)) {
             return false;
         }
 
@@ -929,14 +929,14 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean hasTonyStickyPayload(FishingHook hook) {
-        return hook.getPersistentData().getInt(KEY_STICKY_TARGET_ID) > 0
-                || hook.getPersistentData().getInt(KEY_STICKY_ITEM_PROJECTILE_ID) > 0
+        return hook.getPersistentData().getIntOr(KEY_STICKY_TARGET_ID, 0) > 0
+                || hook.getPersistentData().getIntOr(KEY_STICKY_ITEM_PROJECTILE_ID, 0) > 0
                 || getClientSyncedStickyTarget(hook) != null
                 || getClientSyncedStickyItemProjectile(hook) != null;
     }
 
     private static Entity getStickyTarget(FishingHook hook) {
-        int targetId = hook.getPersistentData().getInt(KEY_STICKY_TARGET_ID);
+        int targetId = hook.getPersistentData().getIntOr(KEY_STICKY_TARGET_ID, 0);
         if (targetId <= 0) {
             return getClientSyncedStickyTarget(hook);
         }
@@ -951,7 +951,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static ItemProjectile getStickyItemProjectile(FishingHook hook) {
-        int projectileId = hook.getPersistentData().getInt(KEY_STICKY_ITEM_PROJECTILE_ID);
+        int projectileId = hook.getPersistentData().getIntOr(KEY_STICKY_ITEM_PROJECTILE_ID, 0);
         if (projectileId <= 0) {
             return getClientSyncedStickyItemProjectile(hook);
         }
@@ -967,7 +967,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static Entity getClientSyncedStickyTarget(FishingHook hook) {
-        if (!hook.level().isClientSide) {
+        if (!hook.level().isClientSide()) {
             return null;
         }
 
@@ -980,7 +980,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static ItemProjectile getClientSyncedStickyItemProjectile(FishingHook hook) {
-        if (!hook.level().isClientSide) {
+        if (!hook.level().isClientSide()) {
             return null;
         }
 
@@ -1036,7 +1036,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean shouldLetStickyHookFlyWithoutRod(FishingHook hook) {
-        if (hook.getPersistentData().getBoolean(KEY_COLLECT_RETURNING_ITEM)) {
+        if (hook.getPersistentData().getBooleanOr(KEY_COLLECT_RETURNING_ITEM, false)) {
             return false;
         }
 
@@ -1078,7 +1078,7 @@ public final class FishingRodGrappleUtil {
 
     private static void releaseTonyPayloadWithoutOwner(FishingHook hook) {
         ItemProjectile projectile = getStickyItemProjectile(hook);
-        if (projectile != null && hook.getPersistentData().getBoolean(KEY_COLLECT_RETURNING_ITEM)) {
+        if (projectile != null && hook.getPersistentData().getBooleanOr(KEY_COLLECT_RETURNING_ITEM, false)) {
             projectile.dropAsItem(hook.getDeltaMovement());
         }
 
@@ -1127,7 +1127,7 @@ public final class FishingRodGrappleUtil {
 
         velocity = velocity.add(direction.scale(getTargetPlungePower(item, grounded)));
         target.setDeltaMovement(velocity);
-        target.hasImpulse = true;
+        target.hurtMarked = true;
         target.hurtMarked = true;
         target.fallDistance = 0.0F;
     }
@@ -1152,13 +1152,13 @@ public final class FishingRodGrappleUtil {
 
         velocity = velocity.add(direction.scale(getTargetPlungePower(item, grounded)));
         target.setDeltaMovement(velocity);
-        target.hasImpulse = true;
+        target.hurtMarked = true;
         target.hurtMarked = true;
         target.fallDistance = 0.0F;
     }
 
     private static void tryPlunge(Item item, Player player, FishingHook hook) {
-        if (!hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_GRAPPLE_HOOK, false)) {
             return;
         }
 
@@ -1166,7 +1166,7 @@ public final class FishingRodGrappleUtil {
             return;
         }
 
-        if (player.getCooldowns().isOnCooldown(item)) {
+        if (player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(item))) {
             return;
         }
 
@@ -1175,14 +1175,14 @@ public final class FishingRodGrappleUtil {
         }
 
         latchHookIfReady(hook);
-        if (!hook.getPersistentData().getBoolean(KEY_LATCHED)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_LATCHED, false)) {
             return;
         }
 
         Vec3 anchor = new Vec3(
-                hook.getPersistentData().getDouble(KEY_ANCHOR_X),
-                hook.getPersistentData().getDouble(KEY_ANCHOR_Y),
-                hook.getPersistentData().getDouble(KEY_ANCHOR_Z)
+                hook.getPersistentData().getDoubleOr(KEY_ANCHOR_X, 0.0D),
+                hook.getPersistentData().getDoubleOr(KEY_ANCHOR_Y, 0.0D),
+                hook.getPersistentData().getDoubleOr(KEY_ANCHOR_Z, 0.0D)
         );
         Vec3 eye = player.position().add(0.0D, player.getEyeHeight(), 0.0D);
         Vec3 direction = anchor.subtract(eye);
@@ -1206,12 +1206,12 @@ public final class FishingRodGrappleUtil {
         player.setDeltaMovement(velocity);
         player.hurtMarked = true;
         player.fallDistance = 0.0F;
-        player.getCooldowns().addCooldown(item, GRAPPLE_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), GRAPPLE_COOLDOWN_TICKS);
         hook.getPersistentData().putBoolean(KEY_LATCHED, false);
     }
 
     private static void latchHookIfReady(FishingHook hook) {
-        if (hook.getPersistentData().getBoolean(KEY_LATCHED)) {
+        if (hook.getPersistentData().getBooleanOr(KEY_LATCHED, false)) {
             return;
         }
 
@@ -1231,8 +1231,8 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean tryPlungeHookedTarget(Item item, Player player, FishingHook hook, boolean allowFallbackSearch) {
-        if (!hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)
-                || hook.getPersistentData().getBoolean(KEY_TARGET_PLUNGED)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_GRAPPLE_HOOK, false)
+                || hook.getPersistentData().getBooleanOr(KEY_TARGET_PLUNGED, false)) {
             return false;
         }
 
@@ -1281,7 +1281,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static void resolveHerobrineEscapeHookOnHit(FishingHook hook) {
-        if (!hook.getPersistentData().getBoolean(KEY_GRAPPLE_HOOK)) {
+        if (!hook.getPersistentData().getBooleanOr(KEY_GRAPPLE_HOOK, false)) {
             return;
         }
 
@@ -1291,7 +1291,7 @@ public final class FishingRodGrappleUtil {
         }
 
         int targetId = target.getId();
-        if (hook.getPersistentData().getInt(KEY_HEROBRINE_ESCAPE_HOOK_ATTEMPTED_TARGET_ID) == targetId) {
+        if (hook.getPersistentData().getIntOr(KEY_HEROBRINE_ESCAPE_HOOK_ATTEMPTED_TARGET_ID, 0) == targetId) {
             return;
         }
 
@@ -1363,7 +1363,7 @@ public final class FishingRodGrappleUtil {
                 : TONY_TARGET_DISTANCE_POWER_SCALE;
         double power = Math.min(maxPower, plungeDistance * distancePowerScale);
         target.setDeltaMovement(velocity.add(direction.scale(power)));
-        target.hasImpulse = true;
+        target.hurtMarked = true;
         target.hurtMarked = true;
         target.fallDistance = 0.0F;
     }

@@ -5,13 +5,14 @@ import com.pla.annoyingvillagers.item.DiamondSpearItem;
 import com.pla.annoyingvillagers.item.NetheriteSpearItem;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationController;
 import com.pla.annoyingvillagers.specialanimation.SpecialAnimationId;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsTargetGoal;
-import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
+import com.pla.annoyingvillagers.item.LegacySwordItem;
 import net.minecraft.world.level.Level;
 
 public abstract class AvGolem extends IronGolem {
@@ -37,8 +38,8 @@ public abstract class AvGolem extends IronGolem {
                 return AvGolemWeaponStyle.AXE;
             }
         }
-        if (mainHand.getItem() instanceof SwordItem) {
-            if (offHand.getItem() instanceof SwordItem) {
+        if (LegacySwordItem.isSword(mainHand)) {
+            if (LegacySwordItem.isSword(offHand)) {
                 return AvGolemWeaponStyle.DUAL_SWORD;
             } else {
                 return AvGolemWeaponStyle.SWORD;
@@ -55,7 +56,7 @@ public abstract class AvGolem extends IronGolem {
     }
 
     @Override
-    public boolean doHurtTarget(net.minecraft.world.entity.Entity target) {
+    public boolean doHurtTarget(net.minecraft.server.level.ServerLevel serverLevel, Entity target) {
         return false;
     }
 

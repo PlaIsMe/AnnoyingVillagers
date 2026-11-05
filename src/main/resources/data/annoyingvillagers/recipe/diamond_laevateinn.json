@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " D ",
+    "DDD",
+    "FSF"
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "F": "minecraft:flint",
+    "S": "minecraft:diamond_sword"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_laevateinn"
+  }
+}

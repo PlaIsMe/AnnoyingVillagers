@@ -182,7 +182,7 @@ public final class RigMobClashBladeEvent {
 
         Vec3 recoil = look.normalize().scale(-CLASH_RECOIL);
         entity.setDeltaMovement(recoil.x, 0.0D, recoil.z);
-        entity.hasImpulse = true;
+        entity.hurtMarked = true;
         entity.hurtMarked = true;
     }
 }

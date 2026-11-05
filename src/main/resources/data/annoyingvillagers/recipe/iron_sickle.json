@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IH ",
+    " P ",
+    " P "
+  ],
+  "key": {
+    "P": "minecraft:stick",
+    "H": "minecraft:iron_hoe",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:iron_sickle"
+  }
+}

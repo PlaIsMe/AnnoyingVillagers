@@ -8,11 +8,9 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@OnlyIn(Dist.CLIENT)
 public class HitBluntParticle extends HitParticle {
     public static HitBluntParticle.Provider provider(SpriteSet spriteSet) {
         return new HitBluntParticle.Provider(spriteSet);
@@ -72,7 +70,7 @@ public class HitBluntParticle extends HitParticle {
                 double xSpeed,
                 double ySpeed,
                 double zSpeed
-        ) {
+        , net.minecraft.util.RandomSource random) {
             return new HitBluntParticle(clientLevel, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
         }
     }

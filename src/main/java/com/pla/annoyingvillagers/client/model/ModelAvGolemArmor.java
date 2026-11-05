@@ -11,10 +11,10 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class ModelAvGolemArmor {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_av_golem_armor"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "model_av_golem_armor"), "main");
     private final ModelPart helmet;
     private final ModelPart chestplate;
 
@@ -32,10 +32,10 @@ public class ModelAvGolemArmor {
     }
 
     public void renderHelmet(PoseStack poseStack, VertexConsumer consumer, int packedLight, int overlay, float red, float green, float blue) {
-        this.helmet.render(poseStack, consumer, packedLight, overlay, net.minecraft.util.FastColor.ARGB32.colorFromFloat(1.0F, red, green, blue));
+        this.helmet.render(poseStack, consumer, packedLight, overlay, net.minecraft.util.ARGB.colorFromFloat(1.0F, red, green, blue));
     }
 
     public void renderChestplate(PoseStack poseStack, VertexConsumer consumer, int packedLight, int overlay, float red, float green, float blue) {
-        this.chestplate.render(poseStack, consumer, packedLight, overlay, net.minecraft.util.FastColor.ARGB32.colorFromFloat(1.0F, red, green, blue));
+        this.chestplate.render(poseStack, consumer, packedLight, overlay, net.minecraft.util.ARGB.colorFromFloat(1.0F, red, green, blue));
     }
 }

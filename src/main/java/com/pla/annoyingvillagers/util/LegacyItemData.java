@@ -23,7 +23,7 @@ public final class LegacyItemData {
 
     public static CompoundTag get(ItemStack stack) {
         CustomData data = stack.get(DataComponents.CUSTOM_DATA);
-        return data == null ? null : data.getUnsafe();
+        return data == null ? null : data.copyTag();
     }
 
     public static CompoundTag getOrCreate(ItemStack stack) {
@@ -32,7 +32,7 @@ public final class LegacyItemData {
             data = CustomData.of(new CompoundTag());
             stack.set(DataComponents.CUSTOM_DATA, data);
         }
-        return data.getUnsafe();
+        return data.copyTag();
     }
 
     public static void set(ItemStack stack, CompoundTag tag) {

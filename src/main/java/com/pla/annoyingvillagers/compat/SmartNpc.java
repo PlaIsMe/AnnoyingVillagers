@@ -14,6 +14,7 @@ import com.pla.annoyingvillagers.entity.LowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.entity.LowShadowHerobrineCloneEntity;
 import com.pla.annoyingvillagers.entity.SteveEntity;
 import com.pla.annoyingvillagers.entity.goal.EscapeAvoidGoal;
+import com.pla.annoyingvillagers.util.LegacyNearestAttackableTargetGoal;
 import com.pla.smart_npc.entity.PlayerNpcEntity;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -133,7 +134,7 @@ public class SmartNpc {
         }
 
         if (!com.pla.smart_npc.util.InventoryUtils.addItem(playerNpcEntity, stashedStack)) {
-            playerNpcEntity.spawnAtLocation(stashedStack);
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(playerNpcEntity, stashedStack);
         }
     }
 
@@ -176,6 +177,6 @@ public class SmartNpc {
     }
 
     public static void targetPlayerNpc(Mob mob, int priority) {
-        mob.targetSelector.addGoal(priority, new NearestAttackableTargetGoal<>(mob, PlayerNpcEntity.class, true, false));
+        mob.targetSelector.addGoal(priority, new LegacyNearestAttackableTargetGoal<>(mob, PlayerNpcEntity.class, true, false));
     }
 }

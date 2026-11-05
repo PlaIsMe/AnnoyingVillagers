@@ -15,8 +15,9 @@ import com.pla.annoyingvillagers.rig.RigBowAnimationSelector;
 import com.pla.annoyingvillagers.rig.pose.RigPoseLibrary;
 import com.pla.annoyingvillagers.util.AnimationUtil;
 import net.minecraft.client.animation.AnimationDefinition;
-import net.minecraft.client.animation.KeyframeAnimations;
-import net.minecraft.client.model.HierarchicalModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHumanoidModel;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -27,7 +28,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -46,16 +47,15 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class ModelRig<T extends Mob> extends HumanoidModel<T> {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelrig"), "main");
-    public static final ModelLayerLocation SLIM_LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelrig_slim"), "main");
+public class ModelRig<T extends Mob> extends LegacyHumanoidModel<T> {
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelrig"), "main");
+    public static final ModelLayerLocation SLIM_LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelrig_slim"), "main");
 
     private static final float TICK_TO_MILLISECONDS = 50.0F;
     private static final float MOVEMENT_THRESHOLD = 0.03F;
 
     private final ModelPart modelRoot;
     private final AnimationView animationView;
-    private final Vector3f animationVectorCache = new Vector3f();
 
     private final ModelPart head;
     private final ModelPart body;
@@ -81,6 +81,10 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
     }
 
     public ModelRig(ModelPart root, boolean slim) {
+        this(ensureHumanoidRoot(root, slim), slim, true);
+    }
+
+    private ModelRig(ModelPart root, boolean slim, boolean validated) {
         super(root);
         this.modelRoot = root;
         this.animationView = new AnimationView(root);
@@ -102,8 +106,14 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         this.leftHandPlaybackParts = collectPartTree(this.left_arm);
     }
 
+    private static ModelPart ensureHumanoidRoot(ModelPart root, boolean slim) {
+        return root.hasChild("head") && root.getChild("head").hasChild("hat") && root.hasChild("body")
+                ? root
+                : createBodyLayer(slim).bakeRoot();
+    }
+
     @Override
-    public void copyPropertiesTo(@NotNull HumanoidModel<T> pModel) {
+    public void copyPropertiesTo(@NotNull HumanoidModel<LegacyEntityRenderState<T>> pModel) {
         super.copyPropertiesTo(pModel);
         if (pModel instanceof ModelRigArmor<?> armorModel) {
             armorModel.copySegmentPoses(
@@ -130,10 +140,9 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         float rightArmWidth = slim ? 3.0F : 4.0F;
         float leftArmWidth = slim ? 3.0F : 4.0F;
 
-        PartDefinition hat = partdefinition.addOrReplaceChild("hat", CubeListBuilder.create().texOffs(32, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.5F)), PartPose.offset(0.0F, 0.0F, 0.0F));
-
         PartDefinition head = partdefinition.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
                 .texOffs(32, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.5F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
 
         PartDefinition body = partdefinition.addOrReplaceChild("body", CubeListBuilder.create().texOffs(16, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, new CubeDeformation(0.0F))
                 .texOffs(16, 32).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, new CubeDeformation(0.25F)), PartPose.offset(0.0F, 0.0F, 0.0F));
@@ -186,7 +195,7 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
     }
 
     @Override
-    public void translateToHand(@NotNull HumanoidArm side, @NotNull PoseStack poseStack) {
+    public void translateToHand(LegacyEntityRenderState<T> state, @NotNull HumanoidArm side, @NotNull PoseStack poseStack) {
         if (side == HumanoidArm.RIGHT) {
             this.rightArm.translateAndRotate(poseStack);
             this.right_hand.translateAndRotate(poseStack);
@@ -196,8 +205,8 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
         }
     }
 
-    public void translateToTool(HumanoidArm side, PoseStack poseStack) {
-        this.translateToHand(side, poseStack);
+    public void translateToTool(LegacyEntityRenderState<T> state, HumanoidArm side, PoseStack poseStack) {
+        this.translateToHand(state, side, poseStack);
         if (side == HumanoidArm.RIGHT) {
             this.right_tool.translateAndRotate(poseStack);
         } else {
@@ -210,24 +219,24 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
     }
 
     public void copyPoseTo(ModelRig<?> target) {
-        target.modelRoot.copyFrom(this.modelRoot);
-        target.head.copyFrom(this.head);
-        target.hat.copyFrom(this.hat);
-        target.body.copyFrom(this.body);
+        target.modelRoot.loadPose(this.modelRoot.storePose());
+        target.head.loadPose(this.head.storePose());
+        target.hat.loadPose(this.hat.storePose());
+        target.body.loadPose(this.body.storePose());
 
-        target.right_arm.copyFrom(this.right_arm);
-        target.right_hand.copyFrom(this.right_hand);
-        target.right_tool.copyFrom(this.right_tool);
+        target.right_arm.loadPose(this.right_arm.storePose());
+        target.right_hand.loadPose(this.right_hand.storePose());
+        target.right_tool.loadPose(this.right_tool.storePose());
 
-        target.left_arm.copyFrom(this.left_arm);
-        target.left_hand.copyFrom(this.left_hand);
-        target.left_tool.copyFrom(this.left_tool);
+        target.left_arm.loadPose(this.left_arm.storePose());
+        target.left_hand.loadPose(this.left_hand.storePose());
+        target.left_tool.loadPose(this.left_tool.storePose());
 
-        target.right_leg.copyFrom(this.right_leg);
-        target.right_lower_leg.copyFrom(this.right_lower_leg);
+        target.right_leg.loadPose(this.right_leg.storePose());
+        target.right_lower_leg.loadPose(this.right_lower_leg.storePose());
 
-        target.left_leg.copyFrom(this.left_leg);
-        target.left_lower_leg.copyFrom(this.left_lower_leg);
+        target.left_leg.loadPose(this.left_leg.storePose());
+        target.left_lower_leg.loadPose(this.left_lower_leg.storePose());
     }
 
     @Override
@@ -270,7 +279,7 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
 
         this.flattenAnimatedRootIntoTopLevelParts();
         this.compensateServerMotion(activeRigAnimation, activeWeight, ageInTicks);
-        this.hat.copyFrom(this.head);
+        this.hat.loadPose(this.head.storePose());
     }
 
     private TransitionPose updateTransitionPose(T entity, RigClientAnimationState.Active active, float ageInTicks, Map<ModelPart, ModelPartPose> previousRenderedPose) {
@@ -384,14 +393,14 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
 
     public void applyLoopingAnimation(AnimationDefinition animation, float ageInTicks, float speed, float weight) {
         long elapsedMilliseconds = (long) (ageInTicks * TICK_TO_MILLISECONDS * speed);
-        KeyframeAnimations.animate(this.animationView, animation, elapsedMilliseconds, weight, this.animationVectorCache);
+        this.animationView.applyAnimation(animation, elapsedMilliseconds, weight);
     }
 
     public void applyAnimationFromStart(AnimationDefinition animation, float elapsedTicks, float speed, float weight) {
         float safeElapsedTicks = Math.max(0.0F, elapsedTicks);
         long elapsedMilliseconds = (long) (safeElapsedTicks * TICK_TO_MILLISECONDS * speed);
 
-        KeyframeAnimations.animate(this.animationView, animation, elapsedMilliseconds, weight, this.animationVectorCache);
+        this.animationView.applyAnimation(animation, elapsedMilliseconds, weight);
     }
 
     private Map<ModelPart, ModelPartPose> capturePose() {
@@ -723,16 +732,9 @@ public class ModelRig<T extends Mob> extends HumanoidModel<T> {
 
     }
 
-    private static final class AnimationView extends HierarchicalModel<Entity> {
-        private final ModelPart root;
-
+    private static final class AnimationView extends LegacyHierarchicalModel<Entity> {
         private AnimationView(ModelPart root) {
-            this.root = root;
-        }
-
-        @Override
-        public @NotNull ModelPart root() {
-            return this.root;
+            super(root);
         }
 
         @Override

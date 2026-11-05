@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " D ",
+    " D ",
+    "FPF"
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "F": "minecraft:flint",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_falchion"
+  }
+}

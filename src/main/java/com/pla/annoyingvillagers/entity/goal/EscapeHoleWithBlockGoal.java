@@ -24,7 +24,7 @@ public final class EscapeHoleWithBlockGoal extends AbstractRecoveryGoal {
     @Override public boolean canUse() {
         if (!canCheck()) return false;
         if (!npc.onGround()) return trace("not_on_ground");
-        if (npc.isInWaterOrBubble() || npc.isInLava()) return trace("in_fluid");
+        if (npc.isInWater() || npc.isInLava()) return trace("in_fluid");
         column = npc.blockPosition();
         if (!safeFooting(column)) return trace("unsafe_footing column=" + column);
         if (recovery.blockSlot(column) == -1) return trace("no_suitable_full_block");

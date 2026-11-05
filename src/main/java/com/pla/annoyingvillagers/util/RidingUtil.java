@@ -115,14 +115,14 @@ public class RidingUtil {
         Random rand = new Random();
         EntityType<? extends LivingEntity> type = pool.get(rand.nextInt(pool.size()));
 
-        LivingEntity mount = type.create(serverLevel);
+        LivingEntity mount = type.create(serverLevel, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if (mount != null) {
-            mount.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
+            mount.snapTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
             ((Mob) mount).setPersistenceRequired();
             ((Mob) mount).finalizeSpawn(
                     serverLevel,
                     serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
-                    MobSpawnType.MOB_SUMMONED,
+                    EntitySpawnReason.MOB_SUMMONED,
                     null
             );
             if (entity instanceof VillagerScoutEntity || entity instanceof VillagerScoutCaptainEntity
@@ -132,9 +132,9 @@ public class RidingUtil {
             }
             serverLevel.addFreshEntity(mount);
             entity.startRiding(mount);
-            mount.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 99999, new Random().nextInt(1, 3), false, false));
+            mount.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 99999, new Random().nextInt(1, 3), false, false));
             mount.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 99999, 1, false, false));
-            mount.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 99999,  new Random().nextInt(1, 9), false, false));
+            mount.addEffect(new MobEffectInstance(MobEffects.SPEED, 99999,  new Random().nextInt(1, 9), false, false));
         }
     }
 

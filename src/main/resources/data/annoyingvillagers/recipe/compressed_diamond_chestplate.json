@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "0 2",
+    "345",
+    "678"
+  ],
+  "key": {
+    "0": "annoyingvillagers:compressed_diamond",
+    "2": "annoyingvillagers:compressed_diamond",
+    "3": "annoyingvillagers:compressed_diamond",
+    "4": "annoyingvillagers:compressed_diamond",
+    "5": "annoyingvillagers:compressed_diamond",
+    "6": "annoyingvillagers:compressed_diamond",
+    "7": "annoyingvillagers:compressed_diamond",
+    "8": "annoyingvillagers:compressed_diamond"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:compressed_diamond_chestplate"
+  }
+}

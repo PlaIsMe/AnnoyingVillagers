@@ -5,7 +5,7 @@ import com.pla.annoyingvillagers.clazz.HerobrineMob;
 import com.pla.annoyingvillagers.clazz.RigMobRenderer;
 import com.pla.annoyingvillagers.entity.ShadowHerobrineEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public class ShadowHerobrineRenderer extends RigMobRenderer<HerobrineMob> {
@@ -15,11 +15,11 @@ public class ShadowHerobrineRenderer extends RigMobRenderer<HerobrineMob> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull HerobrineMob herobrineMob) {
+    public @NotNull Identifier getTextureLocation(@NotNull HerobrineMob herobrineMob) {
         if (herobrineMob instanceof ShadowHerobrineEntity) {
-            return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/dark_shadow_herobrine.png");
+            return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/dark_shadow_herobrine.png");
         } else {
-            return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/shadow_herobrine.png");
+            return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/shadow_herobrine.png");
         }
     }
 }

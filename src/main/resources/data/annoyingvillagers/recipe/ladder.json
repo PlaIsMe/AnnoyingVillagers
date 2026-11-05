@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:ladder"
+  ],
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:ladder"
+  }
+}

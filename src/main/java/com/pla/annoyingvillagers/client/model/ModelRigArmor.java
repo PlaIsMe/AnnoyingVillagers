@@ -1,15 +1,17 @@
 package com.pla.annoyingvillagers.client.model;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import net.minecraft.client.model.HumanoidModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHumanoidModel;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.client.renderer.entity.ArmorModelSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -18,11 +20,11 @@ import java.util.Set;
 
 import static net.minecraft.world.entity.EquipmentSlot.*;
 
-public class ModelRigArmor<T extends Mob> extends HumanoidModel<T> {
+public class ModelRigArmor<T extends Mob> extends LegacyHumanoidModel<T> {
 
-    public static final ModelLayerLocation INNER_LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelrigarmor_inner"), "main");
+    public static final ModelLayerLocation INNER_LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelrigarmor_inner"), "main");
 
-    public static final ModelLayerLocation OUTER_LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelrigarmor_outer"), "main");
+    public static final ModelLayerLocation OUTER_LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelrigarmor_outer"), "main");
 
     private static final Set<Direction> UPPER_ARM_FACES = Set.of(
             Direction.DOWN,
@@ -48,12 +50,29 @@ public class ModelRigArmor<T extends Mob> extends HumanoidModel<T> {
         this(createRootWithOpenArms(deformation));
     }
 
+    public static <T extends Mob> ArmorModelSet<ModelRigArmor<T>> createArmorSet() {
+        ModelRigArmor<T> head = new ModelRigArmor<>(1.0F);
+        ModelRigArmor<T> chest = new ModelRigArmor<>(1.0F);
+        ModelRigArmor<T> legs = new ModelRigArmor<>(0.5F);
+        ModelRigArmor<T> feet = new ModelRigArmor<>(1.0F);
+        head.setVisibleForSlot(HEAD);
+        chest.setVisibleForSlot(CHEST);
+        legs.setVisibleForSlot(LEGS);
+        feet.setVisibleForSlot(FEET);
+        return new ArmorModelSet<>(head, chest, legs, feet);
+    }
+
     private ModelRigArmor(ModelPart root) {
         super(root);
         this.right_hand = this.rightArm.getChild("right_hand");
         this.left_hand = this.leftArm.getChild("left_hand");
         this.right_lower_leg = this.rightLeg.getChild("right_lower_leg");
         this.left_lower_leg = this.leftLeg.getChild("left_lower_leg");
+    }
+
+    @Override
+    protected boolean setupFromCapturedPose(LegacyEntityRenderState<T> state) {
+        return HumanoidArmorPoseBridge.copyWearerPose(state.entity, state, this);
     }
 
     private static ModelPart createRootWithOpenArms(float deformation) {
@@ -87,7 +106,6 @@ public class ModelRigArmor<T extends Mob> extends HumanoidModel<T> {
                 List.of(),
                 Map.of(
                         "head", bakedRoot.getChild("head"),
-                        "hat", bakedRoot.getChild("hat"),
                         "body", bakedRoot.getChild("body"),
                         "right_arm", rightArm,
                         "left_arm", leftArm,
@@ -126,20 +144,19 @@ public class ModelRigArmor<T extends Mob> extends HumanoidModel<T> {
     }
 
     public void copySegmentPoses(ModelPart sourceRightHand, ModelPart sourceLeftHand, ModelPart sourceRightLowerLeg, ModelPart sourceLeftLowerLeg) {
-        this.right_hand.copyFrom(sourceRightHand);
-        this.left_hand.copyFrom(sourceLeftHand);
+        this.right_hand.loadPose(sourceRightHand.storePose());
+        this.left_hand.loadPose(sourceLeftHand.storePose());
 
-        this.right_lower_leg.copyFrom(sourceRightLowerLeg);
-        this.left_lower_leg.copyFrom(sourceLeftLowerLeg);
+        this.right_lower_leg.loadPose(sourceRightLowerLeg.storePose());
+        this.left_lower_leg.loadPose(sourceLeftLowerLeg.storePose());
     }
 
     private static LayerDefinition createBodyLayer(CubeDeformation deformation) {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition root = meshdefinition.getRoot();
 
-        root.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
-
-        root.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, deformation), PartPose.offset(0.0F, 0.0F, 0.0F));
+        PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, deformation), PartPose.offset(0.0F, 0.0F, 0.0F));
+        head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
 
         root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(16, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, deformation), PartPose.offset(0.0F, 0.0F, 0.0F));
 
@@ -163,7 +180,11 @@ public class ModelRigArmor<T extends Mob> extends HumanoidModel<T> {
     }
 
     public void setVisibleForSlot(EquipmentSlot slot) {
-        this.setAllVisible(false);
+        this.allParts().forEach(part -> part.visible = false);
+
+        // 26.1 includes the model root in Model#allParts. Leaving it hidden
+        // suppresses every child even after the slot parts are re-enabled.
+        this.root().visible = true;
 
         this.right_hand.visible = false;
         this.left_hand.visible = false;

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DDD",
+    "DLD",
+    "DSD"
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "L": "minecraft:lodestone",
+    "S": "minecraft:diamond_sword"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_blaster_sword"
+  }
+}

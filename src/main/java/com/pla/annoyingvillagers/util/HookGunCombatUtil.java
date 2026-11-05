@@ -101,7 +101,7 @@ public final class HookGunCombatUtil {
     }
 
     public static void tickAlex(AlexEntity alex, ServerLevel serverLevel) {
-        if (RigStunController.isStunned(alex) || !alex.isAlive() || serverLevel.getGameTime() < alex.getPersistentData().getLong(KEY_ALEX_COOLDOWN_UNTIL)) {
+        if (RigStunController.isStunned(alex) || !alex.isAlive() || serverLevel.getGameTime() < alex.getPersistentData().getLongOr(KEY_ALEX_COOLDOWN_UNTIL, 0L)) {
             return;
         }
 
@@ -201,13 +201,13 @@ public final class HookGunCombatUtil {
 
         syncAlexAndJevTarget(alex, jev);
 
-        if (jev.getPersistentData().getLong(KEY_JEV_RUN_AWAY_UNTIL) > serverLevel.getGameTime()) {
+        if (jev.getPersistentData().getLongOr(KEY_JEV_RUN_AWAY_UNTIL, 0L) > serverLevel.getGameTime()) {
             tryJevHookAway(jev, alex);
         }
 
         if (isHookSessionActive(jev)
                 || HookGunItem.hasActiveHook(jev.level(), jev)
-                || serverLevel.getGameTime() < jev.getPersistentData().getLong(KEY_JEV_COOLDOWN_UNTIL)) {
+                || serverLevel.getGameTime() < jev.getPersistentData().getLongOr(KEY_JEV_COOLDOWN_UNTIL, 0L)) {
             return;
         }
 
@@ -407,7 +407,7 @@ public final class HookGunCombatUtil {
 
     private static boolean tryAlexSwordHookBurst(AlexEntity alex, LivingEntity target) {
         CompoundTag data = alex.getPersistentData();
-        int remaining = data.getInt(KEY_ALEX_SWORD_HOOK_BURST_REMAINING);
+        int remaining = data.getIntOr(KEY_ALEX_SWORD_HOOK_BURST_REMAINING, 0);
         double distanceSqr = alex.distanceToSqr(target);
         if (!canAlexUseSwordHookBurst(alex, target, distanceSqr)) {
             data.remove(KEY_ALEX_SWORD_HOOK_BURST_REMAINING);
@@ -798,7 +798,7 @@ public final class HookGunCombatUtil {
             boolean allowHookGunAnimation
     ) {
         if (boundItem.isEmpty()
-                || shooter.level().isClientSide
+                || shooter.level().isClientSide()
                 || isHookSessionActive(shooter)
                 || HookGunItem.hasActiveHook(shooter.level(), shooter)
                 || hasActiveRigProfileAttack(shooter)) {
@@ -854,7 +854,7 @@ public final class HookGunCombatUtil {
     ) {
         if (leftBoundItem.isEmpty()
                 || rightBoundItem.isEmpty()
-                || shooter.level().isClientSide
+                || shooter.level().isClientSide()
                 || isHookSessionActive(shooter)
                 || HookGunItem.hasActiveHook(shooter.level(), shooter)
                 || hasActiveRigProfileAttack(shooter)) {
@@ -981,7 +981,7 @@ public final class HookGunCombatUtil {
 
     private static void beginHookSession(LivingEntity entity, boolean saveMainHand, boolean saveOffhand) {
         CompoundTag data = entity.getPersistentData();
-        if (!data.getBoolean(KEY_SESSION_ACTIVE)) {
+        if (!data.getBooleanOr(KEY_SESSION_ACTIVE, false)) {
             data.putBoolean(KEY_SESSION_ACTIVE, true);
             data.putLong(KEY_SESSION_STARTED_AT, entity.level().getGameTime());
             if (entity instanceof Mob mob) {
@@ -1000,7 +1000,7 @@ public final class HookGunCombatUtil {
     }
 
     private static void cleanupFinishedSession(LivingEntity entity) {
-        long startedAt = entity.getPersistentData().getLong(KEY_SESSION_STARTED_AT);
+        long startedAt = entity.getPersistentData().getLongOr(KEY_SESSION_STARTED_AT, 0L);
         if (!isHookSessionActive(entity)) {
             return;
         }
@@ -1023,25 +1023,25 @@ public final class HookGunCombatUtil {
     }
 
     private static boolean isHookSessionActive(LivingEntity entity) {
-        return entity.getPersistentData().getBoolean(KEY_SESSION_ACTIVE);
+        return entity.getPersistentData().getBooleanOr(KEY_SESSION_ACTIVE, false);
     }
 
     private static void restoreHookSession(LivingEntity entity) {
         CompoundTag data = entity.getPersistentData();
-        if (!data.getBoolean(KEY_SESSION_ACTIVE)) {
+        if (!data.getBooleanOr(KEY_SESSION_ACTIVE, false)) {
             releaseHookRigAttackLock(entity);
             return;
         }
 
-        if (data.getBoolean(KEY_SAVED_MAINHAND)) {
-            ItemStack stack = data.contains(KEY_ORIGINAL_MAINHAND, Tag.TAG_COMPOUND)
-                    ? ItemStack.parseOptional(entity.registryAccess(), data.getCompound(KEY_ORIGINAL_MAINHAND))
+        if (data.getBooleanOr(KEY_SAVED_MAINHAND, false)) {
+            ItemStack stack = data.contains(KEY_ORIGINAL_MAINHAND)
+                    ? LegacyNbt.loadItem(data.getCompound(KEY_ORIGINAL_MAINHAND).orElseGet(net.minecraft.nbt.CompoundTag::new), entity.registryAccess())
                     : ItemStack.EMPTY;
             entity.setItemInHand(InteractionHand.MAIN_HAND, stack);
         }
-        if (data.getBoolean(KEY_SAVED_OFFHAND)) {
-            ItemStack stack = data.contains(KEY_ORIGINAL_OFFHAND, Tag.TAG_COMPOUND)
-                    ? ItemStack.parseOptional(entity.registryAccess(), data.getCompound(KEY_ORIGINAL_OFFHAND))
+        if (data.getBooleanOr(KEY_SAVED_OFFHAND, false)) {
+            ItemStack stack = data.contains(KEY_ORIGINAL_OFFHAND)
+                    ? LegacyNbt.loadItem(data.getCompound(KEY_ORIGINAL_OFFHAND).orElseGet(net.minecraft.nbt.CompoundTag::new), entity.registryAccess())
                     : ItemStack.EMPTY;
             entity.setItemInHand(InteractionHand.OFF_HAND, stack);
         }
@@ -1062,14 +1062,14 @@ public final class HookGunCombatUtil {
     private static void acquireHookRigAttackLock(LivingEntity entity) {
         if (!(entity instanceof LockableRigAttackAnimation lockable)) return;
         CompoundTag data = entity.getPersistentData();
-        if (data.getBoolean(KEY_RIG_ATTACK_LOCKED)) return;
+        if (data.getBooleanOr(KEY_RIG_ATTACK_LOCKED, false)) return;
         lockable.lock();
         data.putBoolean(KEY_RIG_ATTACK_LOCKED, true);
     }
 
     private static void releaseHookRigAttackLock(LivingEntity entity) {
         CompoundTag data = entity.getPersistentData();
-        if (!data.getBoolean(KEY_RIG_ATTACK_LOCKED)) return;
+        if (!data.getBooleanOr(KEY_RIG_ATTACK_LOCKED, false)) return;
         if (entity instanceof LockableRigAttackAnimation lockable) lockable.unlock();
         data.remove(KEY_RIG_ATTACK_LOCKED);
     }
@@ -1089,7 +1089,7 @@ public final class HookGunCombatUtil {
             return;
         }
 
-        data.put(key, stack.save(entity.registryAccess()));
+        data.put(key, LegacyNbt.saveItem(stack, entity.registryAccess()));
     }
 
     private static boolean shouldPlayHookGunAnimationForHand(LivingEntity entity, InteractionHand hand, ItemStack boundItem) {
@@ -1103,11 +1103,11 @@ public final class HookGunCombatUtil {
     private static ItemStack getLastHookBoundItem(LivingEntity entity, InteractionHand hand) {
         CompoundTag data = entity.getPersistentData();
         String key = getLastHookBoundItemKey(hand);
-        if (!data.contains(key, Tag.TAG_COMPOUND)) {
+        if (!data.contains(key)) {
             return ItemStack.EMPTY;
         }
 
-        return ItemStack.parseOptional(entity.registryAccess(), data.getCompound(key));
+        return LegacyNbt.loadItem(data.getCompound(key).orElseGet(net.minecraft.nbt.CompoundTag::new), entity.registryAccess());
     }
 
     private static void rememberLastHookBoundItem(LivingEntity entity, InteractionHand hand, ItemStack boundItem) {
@@ -1120,7 +1120,7 @@ public final class HookGunCombatUtil {
 
         ItemStack stored = boundItem.copy();
         stored.setCount(1);
-        data.put(key, stored.save(entity.registryAccess()));
+        data.put(key, LegacyNbt.saveItem(stored, entity.registryAccess()));
     }
 
     private static String getLastHookBoundItemKey(InteractionHand hand) {
@@ -1143,7 +1143,7 @@ public final class HookGunCombatUtil {
 
     private static boolean isConsumableHookItem(LivingEntity entity, ItemStack boundItem) {
         return !boundItem.isEmpty()
-                && (boundItem.getFoodProperties(entity) != null
+                && (boundItem.get(net.minecraft.core.component.DataComponents.FOOD) != null
                 || boundItem.getItem() instanceof ThrowablePotionItem
                 || !PotionUtil.getMobEffects(boundItem).isEmpty());
     }
@@ -1500,7 +1500,7 @@ public final class HookGunCombatUtil {
 
     private static boolean isPositiveFoodStack(ItemStack stack, LivingEntity eater) {
         return !stack.isEmpty()
-                && stack.getFoodProperties(eater) != null
+                && stack.get(net.minecraft.core.component.DataComponents.FOOD) != null
                 && !stack.is(Items.POISONOUS_POTATO)
                 && !stack.is(Items.PUFFERFISH);
     }

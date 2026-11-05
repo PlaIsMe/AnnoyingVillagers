@@ -28,11 +28,11 @@ public class ClowSwordItem extends LegacySwordItem implements RigCombatProfilePr
     }
 
     @Override
-    public boolean hurtEnemy(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
+    public void hurtEnemy(@NotNull ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
         if (VanillaWeaponAbilityUtil.abilitiesEnabled() && !pAttacker.level().isClientSide() && new Random().nextFloat() < 0.1F) {
-            pTarget.spawnAtLocation(new ItemStack(Items.LAPIS_LAZULI, new Random().nextInt(1, 3)));
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(pTarget, new ItemStack(Items.LAPIS_LAZULI, new Random().nextInt(1, 3)));
         }
-        return super.hurtEnemy(pStack, pTarget, pAttacker);
+        super.hurtEnemy(pStack, pTarget, pAttacker);
     }
 
     public ClowSwordItem() {
@@ -58,8 +58,8 @@ public class ClowSwordItem extends LegacySwordItem implements RigCombatProfilePr
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.LAPIS_LAZULI));
+                return Ingredient.of(Items.LAPIS_LAZULI);
             }
-        }, 3, -2.2F, (new Properties()));
+        }, 3, -2.2F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 }

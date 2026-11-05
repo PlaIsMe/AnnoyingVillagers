@@ -18,27 +18,25 @@ public class ChrisData extends SavedData {
     private static final long COOLDOWN_TICKS = 20L * 60L * 10L;
 
     public static ChrisData get(ServerLevel serverLevel) {
-        return serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(ChrisData::new, (tag, provider) -> ChrisData.load(tag)), ID);
+        return com.pla.annoyingvillagers.util.LegacySavedData.computeIfAbsent(serverLevel.getDataStorage(), ID, ChrisData::new, ChrisData::load, (value, provider) -> value.save(new CompoundTag(), provider));
     }
 
     public static ChrisData load(CompoundTag compoundTag) {
         ChrisData chrisData = new ChrisData();
-        if (compoundTag.hasUUID("activeId")){
-            chrisData.activeId = compoundTag.getUUID("activeId");
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(compoundTag, "activeId")){
+            chrisData.activeId = com.pla.annoyingvillagers.util.LegacyNbt.getUUID(compoundTag, "activeId");
         }
-        if (compoundTag.contains("claimTick", Tag.TAG_LONG)) {
-            chrisData.claimTick = compoundTag.getLong("claimTick");
+        if (compoundTag.contains("claimTick")) {
+            chrisData.claimTick = compoundTag.getLongOr("claimTick", 0L);
         }
         // Legacy records describe an existing singleton but contain no chunk coordinates.
         chrisData.confirmed = compoundTag.contains("confirmed")
-                ? compoundTag.getBoolean("confirmed") : chrisData.activeId != null;
+                ? compoundTag.getBooleanOr("confirmed", false) : chrisData.activeId != null;
         return chrisData;
     }
-
-    @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull net.minecraft.core.HolderLookup.Provider provider) {
         if (activeId != null){
-            compoundTag.putUUID("activeId", activeId);
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(compoundTag, "activeId", activeId);
         }
         compoundTag.putLong("claimTick", claimTick);
         compoundTag.putBoolean("confirmed", confirmed);

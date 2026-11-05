@@ -8,15 +8,13 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.world.entity.EquipmentSlot;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
+import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 
-public class RigArmorLayer<T extends Mob> extends HumanoidArmorLayer<T, ModelRig<T>, ModelRigArmor<T>> {
+public class RigArmorLayer<T extends Mob> extends HumanoidArmorLayer<LegacyEntityRenderState<T>, ModelRig<T>, ModelRigArmor<T>> {
 
-    public RigArmorLayer(RenderLayerParent<T, ModelRig<T>> renderer, ModelRigArmor<T> innerModel, ModelRigArmor<T> outerModel, ModelManager modelManager) {
-        super(renderer, innerModel, outerModel, modelManager);
-    }
-
-    @Override
-    protected void setPartVisibility(ModelRigArmor<T> model, EquipmentSlot slot) {
-        model.setVisibleForSlot(slot);
+    public RigArmorLayer(RenderLayerParent<LegacyEntityRenderState<T>, ModelRig<T>> renderer,
+                         EquipmentLayerRenderer equipmentRenderer) {
+        super(renderer, ModelRigArmor.createArmorSet(), equipmentRenderer);
     }
 }

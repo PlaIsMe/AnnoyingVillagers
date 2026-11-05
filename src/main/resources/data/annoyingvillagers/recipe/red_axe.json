@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " W ",
+    "WHE",
+    " T "
+  ],
+  "key": {
+    "T": "minecraft:oak_planks",
+    "H": "minecraft:wooden_axe",
+    "E": "minecraft:experience_bottle",
+    "W": "minecraft:oak_wood"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:red_axe"
+  }
+}

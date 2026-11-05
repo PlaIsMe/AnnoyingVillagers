@@ -36,14 +36,14 @@ public class CraftingTableItem extends LegacySwordItem implements RigCombatProfi
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Blocks.CRAFTING_TABLE));
+                return Ingredient.of(Blocks.CRAFTING_TABLE);
             }
-        }, 1, -2.8F, (new Properties()));
+        }, 1, -2.8F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
-    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.crafting_table"));
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.crafting_table"));
     }
 
     @Override

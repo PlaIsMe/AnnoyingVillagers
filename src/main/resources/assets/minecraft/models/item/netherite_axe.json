@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"textures": {
 		"0": "item/netherite_axe",
-		"particle": "item/netheriten_axe"
+		"particle": "item/netherite_axe"
 	},
 	"elements": [
 		{

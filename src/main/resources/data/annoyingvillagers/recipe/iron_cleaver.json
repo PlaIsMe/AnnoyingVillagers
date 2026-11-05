@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BB ",
+    "B  ",
+    "S  "
+  ],
+  "key": {
+    "B": "minecraft:iron_block",
+    "S": "minecraft:iron_sword"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:iron_cleaver"
+  }
+}

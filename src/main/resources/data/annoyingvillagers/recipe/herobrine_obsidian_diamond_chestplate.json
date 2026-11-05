@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": "minecraft:netherite_upgrade_smithing_template",
+  "base": "minecraft:diamond_chestplate",
+  "addition": "annoyingvillagers:shadow_obsidian_sword",
+  "result": {
+    "id": "annoyingvillagers:herobrine_obsidian_diamond_chestplate"
+  }
+}

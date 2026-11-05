@@ -5,7 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -14,7 +14,7 @@ import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-/** Registers the mod's 1.21.1 custom payloads without changing their wire data. */
+/** Registers directional custom payloads with stable identifiers and codecs. */
 public final class NetworkRegister {
     private static final String PROTOCOL_VERSION = "1";
 
@@ -34,7 +34,6 @@ public final class NetworkRegister {
         client(registrar, ClientboundEnderAegisSparkFx.class, ClientboundEnderAegisSparkFx::encode, ClientboundEnderAegisSparkFx::decode, ClientboundEnderAegisSparkFx::handle);
         client(registrar, ClientboundEliteHerobrineFx.class, ClientboundEliteHerobrineFx::encode, ClientboundEliteHerobrineFx::decode, ClientboundEliteHerobrineFx::handle);
         client(registrar, ClientboundBlueDemonEffectFx.class, ClientboundBlueDemonEffectFx::encode, ClientboundBlueDemonEffectFx::decode, ClientboundBlueDemonEffectFx::handle);
-        client(registrar, ClientboundTeleportPortalFx.class, ClientboundTeleportPortalFx::encode, ClientboundTeleportPortalFx::decode, ClientboundTeleportPortalFx::handle);
         client(registrar, ClientboundPlayerGroundTransitionPosition.class, ClientboundPlayerGroundTransitionPosition::encode, ClientboundPlayerGroundTransitionPosition::decode, ClientboundPlayerGroundTransitionPosition::handle);
         client(registrar, ClientboundRigAnimation.class, ClientboundRigAnimation::encode, ClientboundRigAnimation::decode, ClientboundRigAnimation::handle);
         client(registrar, ClientboundSpecialAnimation.class, ClientboundSpecialAnimation::encode, ClientboundSpecialAnimation::decode, ClientboundSpecialAnimation::handle);
@@ -53,7 +52,7 @@ public final class NetworkRegister {
     @SuppressWarnings({"unchecked", "rawtypes"})
     static <T extends CustomPacketPayload> CustomPacketPayload.Type<T> type(Class<?> payloadClass) {
         String path = payloadClass.getSimpleName().replaceAll("([a-z0-9])([A-Z])", "$1_$2").toLowerCase(Locale.ROOT);
-        return new CustomPacketPayload.Type(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, path));
+        return new CustomPacketPayload.Type(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, path));
     }
 
     private static <T extends AnnoyingVillagersPayload> void client(

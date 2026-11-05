@@ -2,23 +2,14 @@ package com.pla.annoyingvillagers.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.pla.annoyingvillagers.item.LegacySwordItem;
 import com.pla.annoyingvillagers.util.HookUtil;
-import net.minecraft.client.renderer.block.model.ItemTransform;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.SwordItem;
-import net.neoforged.neoforge.common.ItemAbilities;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.tags.ItemTags;
 
 final class HookItemRenderTransforms {
     private static final float SWORD_PROJECTILE_ROLL = -45.0F;
-    private static final float CUSTOM_3D_FIXED_POSITIVE_Y_ROLL = -45.0F;
-    private static final float CUSTOM_3D_FIXED_NEGATIVE_Y_ROLL = -135.0F;
     private static final float PICKAXE_HOE_ALIGNMENT_ROLL = -90.0F;
     private static final float PICKAXE_HOE_ALIGNMENT_PITCH = -45.0F;
     private static final float AXE_ALIGNMENT_YAW = 45.0F;
@@ -31,32 +22,19 @@ final class HookItemRenderTransforms {
     private static final double SHIELD_HOOK_GUN_ATTACHMENT_Z_OFFSET = 0.25D;
     private static final float HOOK_GUN_PROJECTILE_SCALE = 0.5F;
     private static final float SHIELD_HOOK_GUN_PROJECTILE_SCALE = 1.0F;
-    private static final double ITEM_DISPLAY_TRANSLATION_SCALE = 16.0D;
 
     private HookItemRenderTransforms() {
     }
 
     static void applyProjectileFacing(PoseStack poseStack, ItemStack stack, float yaw, float pitch) {
-        applyProjectileFacing(poseStack, stack, null, yaw, pitch);
-    }
-
-    static void applyProjectileFacing(PoseStack poseStack, ItemStack stack, @Nullable BakedModel model, float yaw, float pitch) {
         poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90.0F));
         poseStack.mulPose(Axis.ZP.rotationDegrees(-pitch));
         if (HookUtil.shouldAlignSharpEdge(stack)) {
-            applySharpModelAlignment(poseStack, stack, model);
+            applySharpModelAlignment(poseStack, stack);
         }
     }
 
     static ItemDisplayContext getProjectileDisplayContext(ItemStack stack) {
-        return getProjectileDisplayContext(stack, null);
-    }
-
-    static ItemDisplayContext getProjectileDisplayContext(ItemStack stack, @Nullable BakedModel model) {
-        if (isCustom3DSharpModel(stack, model)) {
-            return ItemDisplayContext.FIXED;
-        }
-
         return HookUtil.shouldAlignSharpEdge(stack) ? ItemDisplayContext.NONE : ItemDisplayContext.FIXED;
     }
 
@@ -77,12 +55,12 @@ final class HookItemRenderTransforms {
         applyHookGunAttachmentTransform(poseStack, zOffset);
     }
 
-    static ItemDisplayContext getHookGunProjectileDisplayContext(ItemStack stack, @Nullable BakedModel model) {
+    static ItemDisplayContext getHookGunProjectileDisplayContext(ItemStack stack) {
         if (HookUtil.shouldUseShieldFacing(stack)) {
             return ItemDisplayContext.NONE;
         }
 
-        return getProjectileDisplayContext(stack, model);
+        return getProjectileDisplayContext(stack);
     }
 
     static float getHookGunProjectileScale(ItemStack stack) {
@@ -91,17 +69,9 @@ final class HookItemRenderTransforms {
                 : HOOK_GUN_PROJECTILE_SCALE;
     }
 
-    static void applyShieldProjectileTransform(PoseStack poseStack, @Nullable BakedModel model) {
-        if (model == null || !model.getTransforms().hasTransform(ItemDisplayContext.FIXED)) {
-            return;
-        }
-
-        ItemTransform fixedTransform = model.getTransforms().getTransform(ItemDisplayContext.FIXED);
-        poseStack.translate(
-                -fixedTransform.translation.x() / ITEM_DISPLAY_TRANSLATION_SCALE,
-                -fixedTransform.translation.y() / ITEM_DISPLAY_TRANSLATION_SCALE,
-                -fixedTransform.translation.z() / ITEM_DISPLAY_TRANSLATION_SCALE
-        );
+    static void applyShieldProjectileTransform(PoseStack poseStack) {
+        // The 26.1 item renderer applies model transforms inside ItemStackRenderState.
+        // Shields use NONE here, so there is no FIXED transform to compensate.
     }
 
     private static void applyHookGunAttachmentTransform(PoseStack poseStack, double zOffset) {
@@ -110,12 +80,7 @@ final class HookItemRenderTransforms {
         poseStack.scale(HOOK_GUN_ATTACHMENT_SCALE, HOOK_GUN_ATTACHMENT_SCALE, HOOK_GUN_ATTACHMENT_SCALE);
     }
 
-    private static void applySharpModelAlignment(PoseStack poseStack, ItemStack stack, @Nullable BakedModel model) {
-        if (isCustom3DSharpModel(stack, model)) {
-            poseStack.mulPose(Axis.ZP.rotationDegrees(getCustom3DFixedModelRoll(model)));
-            return;
-        }
-
+    private static void applySharpModelAlignment(PoseStack poseStack, ItemStack stack) {
         if (isPickaxeLike(stack) || isHoeLike(stack)) {
             poseStack.mulPose(Axis.ZP.rotationDegrees(PICKAXE_HOE_ALIGNMENT_ROLL));
             poseStack.mulPose(Axis.XP.rotationDegrees(PICKAXE_HOE_ALIGNMENT_PITCH));
@@ -135,42 +100,24 @@ final class HookItemRenderTransforms {
         poseStack.mulPose(Axis.ZP.rotationDegrees(SWORD_PROJECTILE_ROLL));
     }
 
-    private static boolean isCustom3DSharpModel(ItemStack stack, @Nullable BakedModel model) {
-        return model != null
-                && model.isGui3d()
-                && model.getTransforms().hasTransform(ItemDisplayContext.FIXED)
-                && HookUtil.shouldAlignSharpEdge(stack);
-    }
-
-    private static float getCustom3DFixedModelRoll(BakedModel model) {
-        ItemTransform fixedTransform = model.getTransforms().getTransform(ItemDisplayContext.FIXED);
-        return fixedTransform.rotation.y() < 0.0F || Math.abs(fixedTransform.rotation.z()) >= 135.0F
-                ? CUSTOM_3D_FIXED_NEGATIVE_Y_ROLL
-                : CUSTOM_3D_FIXED_POSITIVE_Y_ROLL;
-    }
-
     private static boolean isPickaxeLike(ItemStack stack) {
         return !stack.isEmpty()
-                && (stack.getItem() instanceof PickaxeItem
-                || stack.canPerformAction(ItemAbilities.PICKAXE_DIG));
+                && stack.is(ItemTags.PICKAXES);
     }
 
     private static boolean isAxeLike(ItemStack stack) {
         return !stack.isEmpty()
-                && !(stack.getItem() instanceof SwordItem)
-                && (stack.getItem() instanceof AxeItem
-                || stack.canPerformAction(ItemAbilities.AXE_DIG));
+                && !LegacySwordItem.isSword(stack)
+                && stack.is(ItemTags.AXES);
     }
 
     private static boolean isHoeLike(ItemStack stack) {
         return !stack.isEmpty()
-                && (stack.getItem() instanceof HoeItem
-                || stack.canPerformAction(ItemAbilities.HOE_DIG));
+                && stack.is(ItemTags.HOES);
     }
 
     private static boolean isShovelLike(ItemStack stack) {
         return !stack.isEmpty()
-                && (stack.getItem() instanceof ShovelItem
-                || stack.canPerformAction(ItemAbilities.SHOVEL_DIG));
+                && stack.is(ItemTags.SHOVELS);
     }
 }

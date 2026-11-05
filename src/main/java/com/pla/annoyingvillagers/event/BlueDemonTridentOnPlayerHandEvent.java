@@ -47,7 +47,7 @@ public final class BlueDemonTridentOnPlayerHandEvent {
             return;
         }
 
-        ServerLevel serverLevel = player.serverLevel();
+        ServerLevel serverLevel = player.level();
 
         if (!isStormAttractorActive(player, serverLevel)) {
             return;
@@ -55,7 +55,7 @@ public final class BlueDemonTridentOnPlayerHandEvent {
 
         CompoundTag data = player.getPersistentData();
         long gameTime = serverLevel.getGameTime();
-        long nextAllowedRoll = data.getLong(TAG_NEXT_STORM_ROLL);
+        long nextAllowedRoll = data.getLongOr(TAG_NEXT_STORM_ROLL, 0L);
 
         if (gameTime < nextAllowedRoll) {
             return;
@@ -63,12 +63,12 @@ public final class BlueDemonTridentOnPlayerHandEvent {
 
         data.putLong(TAG_NEXT_STORM_ROLL, gameTime + STORM_CHECK_INTERVAL);
 
-        if (serverLevel.random.nextDouble() > STORM_STRIKE_CHANCE) {
+        if (serverLevel.getRandom().nextDouble() > STORM_STRIKE_CHANCE) {
             return;
         }
 
         summonNaturalLightning(serverLevel, BlockPos.containing(player.getX(), player.getY(), player.getZ()));
-        data.putLong(TAG_NEXT_STORM_ROLL, gameTime + Mth.nextInt(serverLevel.random, STRIKE_COOLDOWN_MIN, STRIKE_COOLDOWN_MAX));
+        data.putLong(TAG_NEXT_STORM_ROLL, gameTime + Mth.nextInt(serverLevel.getRandom(), STRIKE_COOLDOWN_MIN, STRIKE_COOLDOWN_MAX));
     }
 
     @SubscribeEvent
@@ -112,12 +112,12 @@ public final class BlueDemonTridentOnPlayerHandEvent {
     }
 
     private static void summonNaturalLightning(ServerLevel serverLevel, BlockPos strikePos) {
-        LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(serverLevel);
+        LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(serverLevel, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if (lightning == null) {
             return;
         }
 
-        lightning.moveTo(Vec3.atBottomCenterOf(strikePos));
+        lightning.snapTo(Vec3.atBottomCenterOf(strikePos));
         lightning.setVisualOnly(false);
         lightning.setDamage(new Random().nextFloat(1.0F, 3.0F));
         serverLevel.addFreshEntity(lightning);
@@ -144,11 +144,11 @@ public final class BlueDemonTridentOnPlayerHandEvent {
         CompoundTag data = player.getPersistentData();
         UUID lightningUUID = lightning.getUUID();
 
-        if (data.hasUUID(TAG_LAST_LIGHTNING_UUID) && lightningUUID.equals(data.getUUID(TAG_LAST_LIGHTNING_UUID))) {
+        if (com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(data, TAG_LAST_LIGHTNING_UUID) && lightningUUID.equals(com.pla.annoyingvillagers.util.LegacyNbt.getUUID(data, TAG_LAST_LIGHTNING_UUID))) {
             return true;
         }
 
-        data.putUUID(TAG_LAST_LIGHTNING_UUID, lightningUUID);
+        com.pla.annoyingvillagers.util.LegacyNbt.putUUID(data, TAG_LAST_LIGHTNING_UUID, lightningUUID);
         return false;
     }
 }

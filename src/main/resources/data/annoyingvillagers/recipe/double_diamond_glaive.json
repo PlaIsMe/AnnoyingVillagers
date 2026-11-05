@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  S",
+    " P ",
+    "S  "
+  ],
+  "key": {
+    "S": "minecraft:diamond_sword",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:double_diamond_glaive"
+  }
+}

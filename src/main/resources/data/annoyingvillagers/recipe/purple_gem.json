@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SRS",
+    "RDR",
+    "SRS"
+  ],
+  "key": {
+    "S": "minecraft:netherite_scrap",
+    "D": "minecraft:diamond",
+    "R": "annoyingvillagers:ruby"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:purple_gem"
+  }
+}

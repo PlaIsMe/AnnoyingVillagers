@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.mixin.compat.punchy;
 
+import com.pla.annoyingvillagers.client.compat.PunchyItemRenderContext;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,6 +14,7 @@ public abstract class TridentStateMachineMixin {
     @ModifyVariable(method = "tick", at = @At("STORE"), ordinal = 0, require = 1, allow = 1)
     private boolean av$recognizeBlueDemonTrident(boolean isTrident, Minecraft client) {
         return isTrident || (client.player != null
+                && PunchyItemRenderContext.isAvItem(client.player.getUseItem())
                 && BlueDemonTridentItem.isBlueDemonTrident(client.player.getUseItem()));
     }
 }

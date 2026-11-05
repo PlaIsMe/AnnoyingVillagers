@@ -394,11 +394,11 @@ public class DragonOrbitLeaderGoal extends Goal {
     }
 
     private double minY() {
-        return level.getMinBuildHeight() + 6.0;
+        return level.getMinY() + 6.0;
     }
 
     private double maxY(double x, double z) {
-        double max = level.getMaxBuildHeight() - 6.0;
+        double max = level.getMaxY() - 6.0;
 
         if (hasCeiling()) {
             BlockPos col = BlockPos.containing(x, 0.0, z);

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NN ",
+    "NHI",
+    " I "
+  ],
+  "key": {
+    "N": "annoyingvillagers:dark_netherite",
+    "H": "annoyingvillagers:diamond_halberd",
+    "I": "minecraft:netherite_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:giant_netherite_axe"
+  }
+}

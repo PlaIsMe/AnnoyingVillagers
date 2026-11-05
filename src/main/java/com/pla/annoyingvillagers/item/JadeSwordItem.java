@@ -31,9 +31,9 @@ public class JadeSwordItem extends LegacySwordItem implements RigCombatProfilePr
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.EMERALD));
+                return Ingredient.of(Items.EMERALD);
             }
-        }, 3, -2.5F, (new Properties()));
+        }, 3, -2.5F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

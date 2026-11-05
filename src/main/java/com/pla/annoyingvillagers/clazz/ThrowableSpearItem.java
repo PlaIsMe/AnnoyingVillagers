@@ -1,5 +1,6 @@
 package com.pla.annoyingvillagers.clazz;
 
+import com.pla.annoyingvillagers.item.LegacyTier;
 import com.pla.annoyingvillagers.util.EnchantmentUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
@@ -8,18 +9,18 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.AbstractArrow.Pickup;
-import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow.Pickup;
+import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -27,12 +28,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public class ThrowableSpearItem extends SwordItem {
+public class ThrowableSpearItem extends Item {
     private static final int THROW_THRESHOLD_TIME = 10;
     private static final float SHOOT_POWER = 2.5F;
 
-    protected ThrowableSpearItem(Tier tier, int attackDamageModifier, float attackSpeedModifier, Properties properties) {
-        super(tier, properties.attributes(SwordItem.createAttributes(tier, attackDamageModifier, attackSpeedModifier)));
+    protected ThrowableSpearItem(ToolMaterial material, int attackDamageModifier, float attackSpeedModifier, Properties properties) {
+        super(properties.sword(material, attackDamageModifier, attackSpeedModifier));
+    }
+
+    protected ThrowableSpearItem(LegacyTier material, int attackDamageModifier, float attackSpeedModifier, Properties properties) {
+        super(material.applySwordProperties(properties, attackDamageModifier, attackSpeedModifier));
     }
 
     protected AbstractArrow createThrownProjectile(Level level, Player player, ItemStack stack) {
@@ -40,8 +45,8 @@ public class ThrowableSpearItem extends SwordItem {
     }
 
     @Override
-    public @NotNull UseAnim getUseAnimation(@NotNull ItemStack stack) {
-        return UseAnim.SPEAR;
+    public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
+        return ItemUseAnimation.SPEAR;
     }
 
     @Override
@@ -50,35 +55,35 @@ public class ThrowableSpearItem extends SwordItem {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         if (stack.getDamageValue() >= stack.getMaxDamage() - 1) {
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
 
         if (EnchantmentUtil.getLevel(Enchantments.RIPTIDE, stack) > 0 && !player.isInWaterOrRain()) {
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
 
         player.startUsingItem(hand);
-        return InteractionResultHolder.consume(stack);
+        return InteractionResult.CONSUME;
     }
 
     @Override
-    public void releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity livingEntity, int timeLeft) {
+    public boolean releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity livingEntity, int timeLeft) {
         if (!(livingEntity instanceof Player player)) {
-            return;
+            return false;
         }
 
         int useTicks = this.getUseDuration(stack, livingEntity) - timeLeft;
         if (useTicks < THROW_THRESHOLD_TIME) {
-            return;
+            return false;
         }
 
         int riptide = EnchantmentUtil.getLevel(Enchantments.RIPTIDE, stack);
         if (riptide > 0 && !player.isInWaterOrRain()) {
-            return;
+            return false;
         }
 
         if (riptide == 0) {
@@ -86,7 +91,7 @@ public class ThrowableSpearItem extends SwordItem {
         }
 
         if (!level.isClientSide()) {
-            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(livingEntity.getUsedItemHand()));
+            stack.hurtAndBreak(1, player, livingEntity.getUsedItemHand().asEquipmentSlot());
 
             if (riptide == 0) {
                 AbstractArrow thrownProjectile = this.createThrownProjectile(level, player, stack);
@@ -110,6 +115,7 @@ public class ThrowableSpearItem extends SwordItem {
         if (riptide > 0) {
             launchRiptide(player, level, riptide);
         }
+        return true;
     }
 
     @Override

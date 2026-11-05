@@ -1,26 +1,26 @@
 package com.pla.annoyingvillagers.clazz;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.ProfileLookupCallback;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.item.component.ResolvableProfile;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,14 +32,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class FakePlayer extends PathfinderMob {
     private static final int PROFILE_RETRY_INTERVAL_TICKS = 20 * 30;
+
+    /** Keep the legacy humanoid passenger position on 26.1. */
+    @Override
+    public net.minecraft.world.phys.Vec3 getVehicleAttachmentPoint(net.minecraft.world.entity.Entity vehicle) {
+        return super.getVehicleAttachmentPoint(vehicle).add(0.0D, 0.35D, 0.0D);
+    }
     private static final EntityDataAccessor<String> NAME = SynchedEntityData.defineId(FakePlayer.class, EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<CompoundTag> PROFILE = SynchedEntityData.defineId(
+    private static final EntityDataAccessor<ResolvableProfile> PROFILE = SynchedEntityData.defineId(
             FakePlayer.class,
-            EntityDataSerializers.COMPOUND_TAG
+            EntityDataSerializers.RESOLVABLE_PROFILE
     );
     private static final List<FakePlayerName> HARDCODED_NAMES = List.of(
             new FakePlayerName("Gory_Moon"),
@@ -86,9 +91,9 @@ public class FakePlayer extends PathfinderMob {
     private static Thread profileThread;
 
     private GameProfile profile;
-    private ResourceLocation skin;
-    private ResourceLocation cape;
-    private ResourceLocation elytra;
+    private Identifier skin;
+    private Identifier cape;
+    private Identifier elytra;
     private boolean skinAvailable;
     private boolean capeAvailable;
     private boolean elytraAvailable;
@@ -111,7 +116,7 @@ public class FakePlayer extends PathfinderMob {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(NAME, "");
-        builder.define(PROFILE, new CompoundTag());
+        builder.define(PROFILE, ResolvableProfile.createUnresolved(""));
     }
 
     @Override
@@ -127,7 +132,7 @@ public class FakePlayer extends PathfinderMob {
                 this.getProfile();
             }
         } else if (PROFILE.equals(key)) {
-            this.profile = decodeProfile(this.entityData.get(PROFILE));
+            this.profile = this.entityData.get(PROFILE).partialProfile();
             this.profileUpdateQueued = false;
             this.clearTextureState();
         }
@@ -177,7 +182,7 @@ public class FakePlayer extends PathfinderMob {
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData groupData) {
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull EntitySpawnReason spawnType, @Nullable SpawnGroupData groupData) {
         SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnType, groupData);
         MinecraftServer server = level.getLevel().getServer();
         if (server == null || server.isSameThread()) {
@@ -187,26 +192,31 @@ public class FakePlayer extends PathfinderMob {
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
+        super.addAdditionalSaveData(output);
         if (this.hasUsername()) {
             tag.putString("Username", this.getUsername().getCombinedNames());
         }
         if (isCompleteProfile(this.profile)) {
-            ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, new ResolvableProfile(this.profile))
+            ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, ResolvableProfile.createResolved(this.profile))
                     .result().ifPresent(profileTag -> tag.put("Profile", profileTag));
         }
+
+        com.pla.annoyingvillagers.util.LegacyValueIO.write(output, tag);
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        String username = tag.getString("Username");
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        CompoundTag tag = com.pla.annoyingvillagers.util.LegacyValueIO.read(input);
+        super.readAdditionalSaveData(input);
+        String username = tag.getStringOr("Username", "");
         if (!StringUtil.isNullOrEmpty(username)) {
             this.setUsername(username);
         }
-        if (tag.contains("Profile", CompoundTag.TAG_COMPOUND)) {
-            GameProfile savedProfile = decodeProfile(tag.getCompound("Profile"));
+        if (tag.contains("Profile")) {
+            GameProfile savedProfile = ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag.get("Profile"))
+                    .result().map(ResolvableProfile::partialProfile).orElse(null);
             if (savedProfile != null) {
                 this.applyProfile(savedProfile);
                 this.profileRefreshRequired = !this.level().isClientSide();
@@ -286,10 +296,10 @@ public class FakePlayer extends PathfinderMob {
     public @Nullable GameProfile getProfile() {
         if (this.profile == null && this.hasUsername()) {
             String skinName = this.getUsername().getSkinName();
-            GameProfile syncedProfile = decodeProfile(this.entityData.get(PROFILE));
+            GameProfile syncedProfile = this.entityData.get(PROFILE).partialProfile();
             this.profile = isResolvedProfileForName(syncedProfile, skinName)
                     ? syncedProfile
-                    : new GameProfile(UUIDUtil.createOfflinePlayerUUID(skinName), skinName);
+                    : new GameProfile(net.minecraft.core.UUIDUtil.createOfflinePlayerUUID(skinName), skinName);
             if (!this.level().isClientSide() && !isCompleteProfile(this.profile)) {
                 requestProfileUpdate(this);
             }
@@ -308,7 +318,7 @@ public class FakePlayer extends PathfinderMob {
         this.profileUpdateQueued = false;
         this.clearTextureState();
         if (!this.level().isClientSide() && profile != null) {
-            this.entityData.set(PROFILE, encodeProfile(profile));
+            this.entityData.set(PROFILE, ResolvableProfile.createResolved(profile));
         }
     }
 
@@ -322,7 +332,7 @@ public class FakePlayer extends PathfinderMob {
         return this.capeAvailable;
     }
 
-    public @Nullable ResourceLocation getTexture(MinecraftProfileTexture.Type type) {
+    public @Nullable Identifier getTexture(MinecraftProfileTexture.Type type) {
         if (type == MinecraftProfileTexture.Type.SKIN) {
             return this.skin;
         }
@@ -332,7 +342,7 @@ public class FakePlayer extends PathfinderMob {
         return this.cape;
     }
 
-    public void setTexture(MinecraftProfileTexture.Type type, ResourceLocation location) {
+    public void setTexture(MinecraftProfileTexture.Type type, Identifier location) {
         if (type == MinecraftProfileTexture.Type.SKIN) {
             this.skin = location;
             this.skinAvailable = true;
@@ -401,10 +411,13 @@ public class FakePlayer extends PathfinderMob {
             }
             try {
                 FakePlayer target = entity;
-                MinecraftServer server = target.level().getServer();
-                if (server != null) {
-                    String requestedName = currentProfile.getName();
-                    GameProfile resolvedProfile = fetchOnlineProfile(server, requestedName);
+                if (target.level() instanceof ServerLevel serverLevel) {
+                    MinecraftServer server = serverLevel.getServer();
+                    String requestedName = currentProfile.name();
+                    GameProfile resolvedProfile = server.services().nameToIdCache().get(requestedName)
+                            .map(nameAndId -> server.services().sessionService().fetchProfile(nameAndId.id(), true))
+                            .map(result -> result.profile())
+                            .orElse(null);
                     server.execute(() -> target.finishProfileUpdate(requestedName, resolvedProfile));
                 } else {
                     target.profileUpdateQueued = false;
@@ -412,7 +425,7 @@ public class FakePlayer extends PathfinderMob {
             } catch (Exception ignored) {
                 FakePlayer target = entity;
                 MinecraftServer server = target.level().getServer();
-                String requestedName = currentProfile.getName();
+                String requestedName = currentProfile.name();
                 if (server != null) {
                     server.execute(() -> target.finishProfileUpdate(requestedName, null));
                 } else {
@@ -422,34 +435,9 @@ public class FakePlayer extends PathfinderMob {
         }
     }
 
-    private static @Nullable GameProfile fetchOnlineProfile(MinecraftServer server, String requestedName) {
-        AtomicReference<GameProfile> idProfile = new AtomicReference<>();
-        server.getProfileRepository().findProfilesByNames(new String[] {requestedName}, new ProfileLookupCallback() {
-            @Override
-            public void onProfileLookupSucceeded(GameProfile profile) {
-                idProfile.set(profile);
-            }
-
-            @Override
-            public void onProfileLookupFailed(String profileName, Exception exception) {
-                idProfile.set(null);
-            }
-        });
-
-        GameProfile profile = idProfile.get();
-        if (!isCompleteProfile(profile)) {
-            return null;
-        }
-        if (server.getProfileCache() != null) {
-            server.getProfileCache().add(profile);
-        }
-        var profileResult = server.getSessionService().fetchProfile(profile.getId(), true);
-        return profileResult == null ? null : profileResult.profile();
-    }
-
     private void finishProfileUpdate(String requestedName, @Nullable GameProfile resolvedProfile) {
         GameProfile latestProfile = this.profile;
-        if (latestProfile == null || !requestedName.equalsIgnoreCase(latestProfile.getName())) {
+        if (latestProfile == null || !requestedName.equalsIgnoreCase(latestProfile.name())) {
             return;
         }
         if (isCompleteProfile(resolvedProfile)) {
@@ -461,34 +449,16 @@ public class FakePlayer extends PathfinderMob {
         this.profileRetryTicks = PROFILE_RETRY_INTERVAL_TICKS;
     }
 
-    private static CompoundTag encodeProfile(GameProfile profile) {
-        return ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, new ResolvableProfile(profile))
-                .result()
-                .filter(CompoundTag.class::isInstance)
-                .map(CompoundTag.class::cast)
-                .orElseGet(CompoundTag::new);
-    }
-
-    private static @Nullable GameProfile decodeProfile(CompoundTag tag) {
-        if (tag.isEmpty()) {
-            return null;
-        }
-        return ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag)
-                .result()
-                .map(ResolvableProfile::gameProfile)
-                .orElse(null);
-    }
-
     private static boolean isCompleteProfile(@Nullable GameProfile profile) {
         return profile != null
-                && profile.getId() != null
-                && !StringUtil.isNullOrEmpty(profile.getName())
-                && !profile.getId().equals(UUIDUtil.createOfflinePlayerUUID(profile.getName()));
+                && profile.id() != null
+                && !StringUtil.isNullOrEmpty(profile.name())
+                && !profile.id().equals(net.minecraft.core.UUIDUtil.createOfflinePlayerUUID(profile.name()));
     }
 
     private static boolean isResolvedProfileForName(@Nullable GameProfile profile, String name) {
         return isCompleteProfile(profile)
-                && profile.getName().equalsIgnoreCase(name);
+                && profile.name().equalsIgnoreCase(name);
     }
 
     public static final class FakePlayerName {

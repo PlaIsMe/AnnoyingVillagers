@@ -31,9 +31,9 @@ public class GiantNetheriteAxeItem extends LegacySwordItem implements RigCombatP
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.NETHERITE_INGOT));
+                return Ingredient.of(Items.NETHERITE_INGOT);
             }
-        }, 3, -2.8F, (new Properties()));
+        }, 3, -2.8F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

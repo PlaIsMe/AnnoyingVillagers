@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DDD",
+    "DAD",
+    " P "
+  ],
+  "key": {
+    "D": "minecraft:emerald_block",
+    "A": "minecraft:diamond_axe",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:exterminator_battleaxe_green"
+  }
+}

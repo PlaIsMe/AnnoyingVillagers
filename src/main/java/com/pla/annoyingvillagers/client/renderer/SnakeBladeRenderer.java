@@ -14,15 +14,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.entity.EntityRenderer;
+import com.pla.annoyingvillagers.client.compat.LegacyEntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -35,11 +37,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.DoubleFunction;
 
-public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
-    private static final ResourceLocation SNAKE_BLADE_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/snake_blade.png");
-    private static final ResourceLocation FRAGMENT_CHAIN_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/fragment_chain.png");
+public class SnakeBladeRenderer extends LegacyEntityRenderer<SnakeBladeEntity> {
+    private static final Identifier SNAKE_BLADE_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/snake_blade.png");
+    private static final Identifier FRAGMENT_CHAIN_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/fragment_chain.png");
 
     public static final int MAX_NECK_SEGMENTS = 128;
     private static final float FRAGMENT_LENGTH = 0.45F;
@@ -62,11 +64,9 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
         return (snakeBladeEntity.hasBlade() || snakeBladeEntity.isRetracting()) ? HEAD_CLEAR : 0.0F;
     }
 
-    private static VertexConsumer getEntityConsumer(MultiBufferSource buffer, ResourceLocation texture, boolean enchanted) {
-        RenderType renderType = RenderType.entityCutoutNoCull(texture);
-        return enchanted
-                ? ItemRenderer.getFoilBuffer(buffer, renderType, true, true)
-                : buffer.getBuffer(renderType);
+    private static VertexConsumer getEntityConsumer(MultiBufferSource buffer, Identifier texture, boolean enchanted) {
+        RenderType renderType = net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(texture);
+        return buffer.getBuffer(renderType);
     }
 
     @Override
@@ -79,16 +79,41 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
     }
 
     @Override
-    public void render(
-            @NotNull SnakeBladeEntity snakeBladeEntity,
-            float entityYaw,
-            float partialTicks,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int packedLight
-    ) {
-        if (BetterCombatSnakeAttachment.defer(this, snakeBladeEntity, entityYaw, partialTicks, packedLight)) return;
-        super.render(snakeBladeEntity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+    public void submit(LegacyEntityRenderState<SnakeBladeEntity> state, PoseStack poseStack,
+                       SubmitNodeCollector collector, CameraRenderState camera) {
+        super.submit(state, poseStack, collector, camera);
+        SnakeBladeEntity snakeBladeEntity = state.entity;
+        float partialTicks = state.partialTick;
+        if (BetterCombatSnakeAttachment.defer(this, snakeBladeEntity, state.yRot, partialTicks, state.lightCoords)) return;
+        submitGeometry(snakeBladeEntity, partialTicks, poseStack, collector);
+    }
+
+    public void submitGeometry(SnakeBladeEntity entity, float partialTicks, PoseStack poseStack,
+                               SubmitNodeCollector collector) {
+        Entity owner = entity.getRenderFromEntity();
+        if (owner == null) return;
+        // Geometry executes later in 26.1. Freeze the sampled attachment now so
+        // both passes use the same socket, not a value changed by a later hand pass.
+        Vec3 swordPos = DemoniacVoltageReaverItem.getToolTipPos(owner, partialTicks,
+                entity.isGuard() ? 1.8F : 2.2F);
+        boolean renderedToolSocket = owner instanceof LivingEntity living
+                && BetterCombatSnakeAttachment.getToolTipPos(living) != null;
+        collector.submitCustomGeometry(poseStack,
+                net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(FRAGMENT_CHAIN_TEXTURE),
+                (rootPose, vertices) -> renderGeometry(entity, partialTicks, rootPose, vertices,
+                        swordPos, renderedToolSocket, true, false));
+        collector.submitCustomGeometry(poseStack,
+                net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(SNAKE_BLADE_TEXTURE),
+                (rootPose, vertices) -> renderGeometry(entity, partialTicks, rootPose, vertices,
+                        swordPos, renderedToolSocket, false, true));
+    }
+
+    private void renderGeometry(SnakeBladeEntity snakeBladeEntity, float partialTicks,
+                                PoseStack.Pose rootPose, VertexConsumer geometryConsumer,
+                                Vec3 swordPos, boolean renderedToolSocket,
+                                boolean renderFragments, boolean renderBlade) {
+        PoseStack poseStack = new PoseStack();
+        poseStack.last().set(rootPose);
 
         poseStack.pushPose();
         try {
@@ -103,18 +128,13 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
                     (snakeBladeEntity.prevProgress + (snakeBladeEntity.getProgress() - snakeBladeEntity.prevProgress) * partialTicks)
                             / SnakeBladeEntity.MAX_EXTEND_TIME;
 
-            float tipOffset = snakeBladeEntity.isGuard() ? 1.8F : 2.2F;
-            Vec3 swordPos = DemoniacVoltageReaverItem.getToolTipPos(fromEntity, partialTicks, tipOffset);
-            boolean renderedToolSocket = fromEntity instanceof LivingEntity living
-                    && BetterCombatSnakeAttachment.getToolTipPos(living) != null;
-
             Vec3 distVec = (swordPos != null)
                     ? swordPos.subtract(x, renderedToolSocket ? y : y + 1.2F, z)
                     : getPositionOfPriorMob(snakeBladeEntity, fromEntity, partialTicks).subtract(x, y, z);
 
             Vec3 to = distVec.scale(1.0F - progress);
 
-            VertexConsumer fragmentConsumer = getEntityConsumer(buffer, FRAGMENT_CHAIN_TEXTURE, snakeBladeEntity.isEnchanted());
+            VertexConsumer fragmentConsumer = geometryConsumer;
 
             int segmentCount = 0;
             Vec3 currentNeckButt = distVec;
@@ -130,7 +150,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
                     Vec3 next = dir.normalize().scale(step).add(currentNeckButt);
 
                     int neckLight = getLightColor(snakeBladeEntity, next.add(x, y, z));
-                    renderNeckCube(currentNeckButt, next, poseStack, fragmentConsumer, neckLight, 0.0F, renderedToolSocket);
+                    if (renderFragments) renderNeckCube(currentNeckButt, next, poseStack, fragmentConsumer, neckLight, 0.0F, renderedToolSocket);
 
                     currentNeckButt = next;
                     buildUpTo -= step;
@@ -208,7 +228,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
                         int neckLight = getLightColor(snakeBladeEntity, nextW);
 
                         float yawShake = (float) (4.0 * Math.sin(18.0 * time + 0.9 * segmentCount + phaseYaw));
-                        renderNeckCube(prevLocal, nextLocal, poseStack, fragmentConsumer, neckLight, yawShake, renderedToolSocket);
+                        if (renderFragments) renderNeckCube(prevLocal, nextLocal, poseStack, fragmentConsumer, neckLight, yawShake, renderedToolSocket);
 
                         prevW = nextW;
                         buildUpTo -= step;
@@ -228,7 +248,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
                         int neckLight = getLightColor(snakeBladeEntity, next.add(x, y, z));
                         float yawShake = (float) (3.0 * Math.sin(16.0 * time + 0.7 * segmentCount));
 
-                        renderNeckCube(currentNeckButt, next, poseStack, fragmentConsumer, neckLight, yawShake, renderedToolSocket);
+                        if (renderFragments) renderNeckCube(currentNeckButt, next, poseStack, fragmentConsumer, neckLight, yawShake, renderedToolSocket);
 
                         currentNeckButt = next;
                         buildUpTo -= step;
@@ -237,9 +257,9 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
                 }
             }
 
-            VertexConsumer bladeConsumer = getEntityConsumer(buffer, SNAKE_BLADE_TEXTURE, snakeBladeEntity.isEnchanted());
+            VertexConsumer bladeConsumer = geometryConsumer;
 
-            if (snakeBladeEntity.hasBlade() || snakeBladeEntity.isRetracting()) {
+            if (renderBlade && (snakeBladeEntity.hasBlade() || snakeBladeEntity.isRetracting())) {
                 poseStack.pushPose();
                 poseStack.translate(to.x, to.y, to.z);
 
@@ -354,7 +374,7 @@ public class SnakeBladeRenderer extends EntityRenderer<SnakeBladeEntity> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull SnakeBladeEntity snakeBladeEntity) {
+    public @NotNull Identifier getTextureLocation(@NotNull SnakeBladeEntity snakeBladeEntity) {
         return SNAKE_BLADE_TEXTURE;
     }
 }

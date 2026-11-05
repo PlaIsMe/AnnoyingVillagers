@@ -1,12 +1,12 @@
 package com.pla.annoyingvillagers.item;
 
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModItems;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import com.pla.annoyingvillagers.item.LegacyArmorItem;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -18,10 +18,10 @@ import java.util.Objects;
 
 public abstract class CompressedDiamondArmorItem extends LegacyArmorItem {
 
-    public CompressedDiamondArmorItem(ArmorItem.Type type, Properties properties) {
+    public CompressedDiamondArmorItem(LegacyArmorItem.Type type, Properties properties) {
         super(new LegacyArmorMaterial() {
             @Override
-            public int getDurabilityForType(ArmorItem.@NotNull Type type) {
+            public int getDurabilityForType(LegacyArmorItem.@NotNull Type type) {
                 return switch (type) {
                     case BOOTS      -> 13 * 71;  // 923
                     case LEGGINGS   -> 15 * 71;  // 1065
@@ -32,7 +32,7 @@ public abstract class CompressedDiamondArmorItem extends LegacyArmorItem {
             }
 
             @Override
-            public int getDefenseForType(ArmorItem.@NotNull Type type) {
+            public int getDefenseForType(LegacyArmorItem.@NotNull Type type) {
                 return switch (type) {
                     case BOOTS      -> 5;
                     case LEGGINGS   -> 8;
@@ -47,11 +47,11 @@ public abstract class CompressedDiamondArmorItem extends LegacyArmorItem {
             }
 
             public Object getEquipSound() {
-                return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
+                return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "item.armor.equip_diamond")));
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack[]{new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get()), new ItemStack(Items.DIAMOND_HELMET), new ItemStack(Items.DIAMOND)});
+                return Ingredient.of(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get(), Items.DIAMOND_HELMET, Items.DIAMOND);
             }
 
             public @NotNull String getName() {
@@ -71,7 +71,7 @@ public abstract class CompressedDiamondArmorItem extends LegacyArmorItem {
     public static class Boots extends CompressedDiamondArmorItem {
 
         public Boots() {
-            super(Type.BOOTS, (new Properties()));
+            super(Type.BOOTS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -82,7 +82,7 @@ public abstract class CompressedDiamondArmorItem extends LegacyArmorItem {
     public static class Leggings extends CompressedDiamondArmorItem {
 
         public Leggings() {
-            super(Type.LEGGINGS, (new Properties()));
+            super(Type.LEGGINGS, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -93,7 +93,7 @@ public abstract class CompressedDiamondArmorItem extends LegacyArmorItem {
     public static class Chestplate extends CompressedDiamondArmorItem {
 
         public Chestplate() {
-            super(Type.CHESTPLATE, (new Properties()));
+            super(Type.CHESTPLATE, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {
@@ -104,7 +104,7 @@ public abstract class CompressedDiamondArmorItem extends LegacyArmorItem {
     public static class Helmet extends CompressedDiamondArmorItem {
 
         public Helmet() {
-            super(Type.HELMET, (new Properties()));
+            super(Type.HELMET, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
         }
 
         public String getArmorTexture(ItemStack itemstack, Entity entity, EquipmentSlot equipmentslot, String s) {

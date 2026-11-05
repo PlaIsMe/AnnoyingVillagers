@@ -23,7 +23,7 @@ public record ServerboundDestructionEyeAttack()  implements AnnoyingVillagersPay
             if (!(context.player() instanceof ServerPlayer player)) return;
             ItemStack stack = player.getMainHandItem();
             if (!(stack.getItem() instanceof DestructionEyeItem)) return;
-            GolemArms arms = DestructionEyeItem.getOrCreateArms(player.serverLevel(), player, stack);
+            GolemArms arms = DestructionEyeItem.getOrCreateArms(player.level(), player, stack);
             if (arms != null) arms.attackFromOwner();
         });
     }

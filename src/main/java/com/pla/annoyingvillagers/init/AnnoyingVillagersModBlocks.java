@@ -14,24 +14,23 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class AnnoyingVillagersModBlocks {
 
-    public static final DeferredRegister<Block> REGISTRY = DeferredRegister.create(BuiltInRegistries.BLOCK, AnnoyingVillagers.MODID);
-    public static final DeferredHolder<Block, FractureBlock> FRACTURE_BLOCK = REGISTRY.register("fracture_block", () -> new FractureBlock(BlockBehaviour.Properties.of()));
-    public static final DeferredHolder<Block, Block> ENCHANT_BED = AnnoyingVillagersModBlocks.REGISTRY.register("enchant_bed", EnchantBedBlock::new);
-    public static final DeferredHolder<Block, Block> SHADOW_OBSIDIAN_SHORT_PILLAR = AnnoyingVillagersModBlocks.REGISTRY.register("shadow_obsidian_short_pillar", ShadowObsidianShortPillarBlock::new);
-    public static final DeferredHolder<Block, Block> SHADOW_OBSIDIAN_MIDDLE_PILLAR = AnnoyingVillagersModBlocks.REGISTRY.register("shadow_obsidian_middle_pillar", ShadowObsidianMiddlePillarBlock::new);
-    public static final DeferredHolder<Block, Block> SHADOW_OBSIDIAN_LONG_PILLAR = AnnoyingVillagersModBlocks.REGISTRY.register("shadow_obsidian_long_pillar", ShadowObsidianLongPillarBlock::new);
-    public static final DeferredHolder<Block, Block> SHADOW_OBSIDIAN_BLOCK = AnnoyingVillagersModBlocks.REGISTRY.register("shadow_obsidian", ShadowObsidianBlock::new);
-    public static final DeferredHolder<Block, Block> OBSIDIAN_BLOCK = AnnoyingVillagersModBlocks.REGISTRY.register("obsidian", ObsidianBlock::new);
-    public static final DeferredHolder<Block, Block> CRYING_OBSIDIAN_BLOCK = AnnoyingVillagersModBlocks.REGISTRY.register("crying_obsidian", CryingObsidianBlock::new);
-    public static final DeferredHolder<Block, EndFireBlock> END_FIRE = AnnoyingVillagersModBlocks.REGISTRY.register(
+    public static final DeferredRegister.Blocks REGISTRY = DeferredRegister.createBlocks(AnnoyingVillagers.MODID);
+    public static final DeferredHolder<Block, FractureBlock> FRACTURE_BLOCK = REGISTRY.registerBlock("fracture_block", FractureBlock::new);
+    public static final DeferredHolder<Block, Block> ENCHANT_BED = REGISTRY.registerBlock("enchant_bed", EnchantBedBlock::new);
+    public static final DeferredHolder<Block, Block> SHADOW_OBSIDIAN_SHORT_PILLAR = REGISTRY.registerBlock("shadow_obsidian_short_pillar", ShadowObsidianShortPillarBlock::new);
+    public static final DeferredHolder<Block, Block> SHADOW_OBSIDIAN_MIDDLE_PILLAR = REGISTRY.registerBlock("shadow_obsidian_middle_pillar", ShadowObsidianMiddlePillarBlock::new);
+    public static final DeferredHolder<Block, Block> SHADOW_OBSIDIAN_LONG_PILLAR = REGISTRY.registerBlock("shadow_obsidian_long_pillar", ShadowObsidianLongPillarBlock::new);
+    public static final DeferredHolder<Block, Block> SHADOW_OBSIDIAN_BLOCK = REGISTRY.registerBlock("shadow_obsidian", ShadowObsidianBlock::new);
+    public static final DeferredHolder<Block, Block> OBSIDIAN_BLOCK = REGISTRY.registerBlock("obsidian", ObsidianBlock::new);
+    public static final DeferredHolder<Block, Block> CRYING_OBSIDIAN_BLOCK = REGISTRY.registerBlock("crying_obsidian", CryingObsidianBlock::new);
+    public static final DeferredHolder<Block, EndFireBlock> END_FIRE = REGISTRY.registerBlock(
             "end_fire",
-            () -> new EndFireBlock(
-                    BlockBehaviour.Properties.of()
+            EndFireBlock::new,
+            properties -> properties
                             .mapColor(MapColor.COLOR_PURPLE)
-                            .replaceable().noCollission().instabreak()
+                            .replaceable().noCollision().instabreak()
                             .lightLevel(s -> 15)
                             .sound(SoundType.WOOL)
                             .pushReaction(PushReaction.DESTROY)
-            )
     );
 }

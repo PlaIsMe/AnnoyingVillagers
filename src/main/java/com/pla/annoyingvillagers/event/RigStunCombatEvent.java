@@ -32,7 +32,7 @@ public final class RigStunCombatEvent {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onCriticalHit(CriticalHitEvent event) {
-        if (event.getEntity().level().isClientSide || !event.isCriticalHit() || !(event.getTarget() instanceof LivingEntity target)) return;
+        if (event.getEntity().level().isClientSide() || !event.isCriticalHit() || !(event.getTarget() instanceof LivingEntity target)) return;
         RigCriticalUtil.markVanillaPlayerCritical(event.getEntity(), target);
     }
 
@@ -102,7 +102,7 @@ public final class RigStunCombatEvent {
 
     @SubscribeEvent
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
-        if (!event.getLevel().isClientSide && event.getEntity() instanceof Mob mob) RigStunController.restoreStaleState(mob);
+        if (!event.getLevel().isClientSide() && event.getEntity() instanceof Mob mob) RigStunController.restoreStaleState(mob);
     }
 
     @SubscribeEvent

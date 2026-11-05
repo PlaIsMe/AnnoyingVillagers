@@ -36,7 +36,7 @@ public class RetargetCloserThreatGoal extends TargetGoal {
         if (this.mob instanceof com.pla.annoyingvillagers.clazz.AVNpc npc && npc.isRecoveryActionActive()
                 || this.mob instanceof com.pla.annoyingvillagers.clazz.HerobrineMob herobrine && herobrine.isHoleEscapeActive()
                 || this.mob instanceof com.pla.annoyingvillagers.entity.BlueDemonEntity blueDemon && blueDemon.isBbqHoleEscapeActive()) return false;
-        if (this.mob.level().isClientSide
+        if (this.mob.level().isClientSide()
                 || this.mob.tickCount % this.scanInterval != 0
                 || MobTargetRedirectEvent.shouldPreserveRedirectTarget(this.mob)) {
             return false;

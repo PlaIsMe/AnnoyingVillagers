@@ -1,36 +1,36 @@
 package com.pla.annoyingvillagers.util;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class HerobrineEyesUtil {
-    private static final ResourceLocation DEFAULT_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/default/default.png");
-    private static final ResourceLocation DEFAULT_UP_1_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/default/up_1.png");
-    private static final ResourceLocation DEFAULT_DOWN_1_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/default/down_1.png");
-    private static final ResourceLocation SQUARE_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/square/default.png");
-    private static final ResourceLocation SQUARE_DOWN_1_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/square/down_1.png");
-    private static final ResourceLocation SQUARE_UP_1_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/square/up_1.png");
-    private static final ResourceLocation SQUARE_UP_2_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/square/up_2.png");
-    private static final ResourceLocation VERTICAL_FAR_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/vertical/default_far.png");
-    private static final ResourceLocation VERTICAL_CLOSE_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/vertical/default_close.png");
+    private static final Identifier DEFAULT_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/default/default.png");
+    private static final Identifier DEFAULT_UP_1_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/default/up_1.png");
+    private static final Identifier DEFAULT_DOWN_1_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/default/down_1.png");
+    private static final Identifier SQUARE_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/square/default.png");
+    private static final Identifier SQUARE_DOWN_1_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/square/down_1.png");
+    private static final Identifier SQUARE_UP_1_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/square/up_1.png");
+    private static final Identifier SQUARE_UP_2_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/square/up_2.png");
+    private static final Identifier VERTICAL_FAR_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/vertical/default_far.png");
+    private static final Identifier VERTICAL_CLOSE_TEXTURE =
+            Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/vertical/default_close.png");
 
-    private static final Map<String, ResourceLocation> eyeTextures = new HashMap<>();
+    private static final Map<String, Identifier> eyeTextures = new HashMap<>();
 
     static {
         eyeTextures.put("Gory_Moon", DEFAULT_TEXTURE);
-        eyeTextures.put("Darkosto", ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/vertical/far_down.png"));
+        eyeTextures.put("Darkosto", Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/vertical/far_down.png"));
         eyeTextures.put("016Nojr", DEFAULT_UP_1_TEXTURE);
         eyeTextures.put("BluSunrize", SQUARE_TEXTURE);
         eyeTextures.put("Buuz135", VERTICAL_FAR_TEXTURE);
@@ -60,7 +60,7 @@ public class HerobrineEyesUtil {
         eyeTextures.put("direwolf20", DEFAULT_TEXTURE);
         eyeTextures.put("dmodoomsirius", SQUARE_UP_2_TEXTURE);
         eyeTextures.put("malte0811", DEFAULT_TEXTURE);
-        eyeTextures.put("nekosune", ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/single/default_far_down_1.png"));
+        eyeTextures.put("nekosune", Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/herobrine_eyes/single/default_far_down_1.png"));
         eyeTextures.put("neptunepink", SQUARE_UP_1_TEXTURE);
         eyeTextures.put("vadis365", VERTICAL_CLOSE_TEXTURE);
         eyeTextures.put("wyld", DEFAULT_TEXTURE);
@@ -76,7 +76,7 @@ public class HerobrineEyesUtil {
         eyeTextures.put("fry_", DEFAULT_TEXTURE);
     }
 
-    public static ResourceLocation getHerobrineEyesTexture(String name) {
+    public static Identifier getHerobrineEyesTexture(String name) {
         return eyeTextures.getOrDefault(name, DEFAULT_TEXTURE);
     }
 }

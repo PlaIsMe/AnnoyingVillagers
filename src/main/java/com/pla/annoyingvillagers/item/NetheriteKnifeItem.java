@@ -32,9 +32,9 @@ public class NetheriteKnifeItem extends LegacySwordItem implements RigCombatProf
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.DARK_NETHERITE.get()));
+                return Ingredient.of(AnnoyingVillagersModItems.DARK_NETHERITE.get());
             }
-        }, 3, -1.4F, (new Properties()));
+        }, 3, -1.4F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

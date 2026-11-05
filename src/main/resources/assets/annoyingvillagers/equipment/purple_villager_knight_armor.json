@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "annoyingvillagers:purple_villager_knight_armor_layer"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "annoyingvillagers:purple_villager_knight_armor_layer"
+      }
+    ]
+  }
+}

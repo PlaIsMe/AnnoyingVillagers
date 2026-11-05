@@ -1,0 +1,24 @@
+{
+  "display": {
+    "icon": {
+      "id": "annoyingvillagers:compressed_diamond"
+    },
+    "title": {
+      "translate": "advancements.annoyingvillagers.compressed_diamond.title",
+      "color": "green"
+    },
+    "description": {
+      "translate": "advancements.annoyingvillagers.compressed_diamond.description"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false,
+    "background": "minecraft:textures/block/obsidian.png"
+  },
+  "criteria": {
+    "auto": {
+      "trigger": "minecraft:tick"
+    }
+  }
+}

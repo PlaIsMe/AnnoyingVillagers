@@ -4,7 +4,6 @@ import com.pla.annoyingvillagers.entity.AngrySteveEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -890,8 +889,8 @@ public final class RigCombatProfiles {
             return getProfile(mainStyle);
         }
 
-        if (mainHand.getItem() instanceof SwordItem) {
-            if (offHand.getItem() instanceof SwordItem) return getProfile(RigCombatStyle.DUAL_BASIC);
+        if (com.pla.annoyingvillagers.item.LegacySwordItem.isSword(mainHand)) {
+            if (com.pla.annoyingvillagers.item.LegacySwordItem.isSword(offHand)) return getProfile(RigCombatStyle.DUAL_BASIC);
             return getProfile(RigCombatStyle.BASIC);
         }
 

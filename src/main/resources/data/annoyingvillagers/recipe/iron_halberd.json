@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IA ",
+    "IP ",
+    " P "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "A": "minecraft:iron_axe",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:iron_halberd"
+  }
+}

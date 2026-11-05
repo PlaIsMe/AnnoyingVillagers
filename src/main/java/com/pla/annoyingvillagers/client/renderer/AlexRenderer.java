@@ -5,7 +5,7 @@ import com.pla.annoyingvillagers.clazz.RigMobRenderer;
 import com.pla.annoyingvillagers.client.model.ModelRig;
 import com.pla.annoyingvillagers.entity.AlexEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public class AlexRenderer extends RigMobRenderer<AlexEntity> {
@@ -15,11 +15,11 @@ public class AlexRenderer extends RigMobRenderer<AlexEntity> {
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull AlexEntity alexEntity) {
+    public @NotNull Identifier getTextureLocation(@NotNull AlexEntity alexEntity) {
         if (alexEntity.isDeadOrDying()) {
-            return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/alex_dead.png");
+            return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/alex_dead.png");
         } else {
-            return ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/alex.png");
+            return Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "textures/entities/alex.png");
         }
     }
 }

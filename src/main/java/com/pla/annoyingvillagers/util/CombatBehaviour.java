@@ -13,7 +13,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -98,11 +98,11 @@ public class CombatBehaviour {
         useStack.setCount(1);
         ItemStack remainder = useStack.getItem().finishUsingItem(useStack, entity.level(), entity);
         if (!remainder.isEmpty() && !InventoryUtils.addItem(entity, remainder.copy())) {
-            entity.spawnAtLocation(remainder.copy());
+            com.pla.annoyingvillagers.util.LegacyEntityOps.spawnAtLocation(entity, remainder.copy());
         }
         healFromRegularFood(entity, foodStack);
         entity.swing(hand, true);
-        entity.level().playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
+        entity.level().playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EAT.value(), SoundSource.NEUTRAL, 1.0F, 1.0F);
         entity.level().playSound(null, entity.blockPosition(), SoundEvents.PLAYER_BURP, SoundSource.NEUTRAL, 0.5F, 1.0F);
         return true;
     }
@@ -131,7 +131,7 @@ public class CombatBehaviour {
             return;
         }
 
-        FoodProperties foodProperties = foodStack.getFoodProperties(entity);
+        FoodProperties foodProperties = foodStack.get(net.minecraft.core.component.DataComponents.FOOD);
         if (foodProperties != null) {
             entity.heal(Math.max(2.0F, foodProperties.nutrition()));
         }

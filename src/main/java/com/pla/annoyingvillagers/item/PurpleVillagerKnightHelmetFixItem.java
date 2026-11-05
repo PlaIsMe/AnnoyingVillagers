@@ -12,7 +12,7 @@ import java.util.Random;
 
 public class PurpleVillagerKnightHelmetFixItem extends Item {
     public PurpleVillagerKnightHelmetFixItem() {
-        super((new Properties()).stacksTo(1).rarity(Rarity.COMMON));
+        super((com.pla.annoyingvillagers.util.LegacyItemProperties.create()).stacksTo(1).rarity(Rarity.COMMON));
     }
 
     private ItemStack randomDamage(ItemStack itemStack) {
@@ -21,8 +21,10 @@ public class PurpleVillagerKnightHelmetFixItem extends Item {
         return itemStack;
     }
 
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean flag) {
-        if (level.isClientSide || !(entity instanceof Player player)) return;
+    public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slotId = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean flag = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        if (level.isClientSide() || !(entity instanceof Player player)) return;
         if (stack.getItem() != this) return;
 
         ItemStack replacement = randomDamage(new ItemStack(AnnoyingVillagersModItems.PURPLE_VILLAGER_KNIGHT_HELMET.get()));

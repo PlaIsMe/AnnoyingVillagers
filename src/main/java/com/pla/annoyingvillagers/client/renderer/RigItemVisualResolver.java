@@ -19,7 +19,8 @@ public final class RigItemVisualResolver {
                 && entity instanceof AngrySteveEntity angrySteve
                 && angrySteve.isLegendaryAwakened()) {
             ItemStack awakenedStack = originalStack.copy();
-            awakenedStack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(1));
+            awakenedStack.set(DataComponents.CUSTOM_MODEL_DATA,
+                    new CustomModelData(java.util.List.of(1.0F), java.util.List.of(), java.util.List.of(), java.util.List.of()));
             return awakenedStack;
         }
 

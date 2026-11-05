@@ -1,6 +1,7 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
+	"gui_light": "front",
 	"textures": {
 		"0": "annoyingvillagers:item/hook_gun",
 		"particle": "annoyingvillagers:item/hook_gun"

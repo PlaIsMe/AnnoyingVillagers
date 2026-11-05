@@ -55,7 +55,7 @@ public final class ObsidianArmorClientAnimationState {
 
         public float elapsedTicks() {
             Minecraft minecraft = Minecraft.getInstance();
-            float partial = minecraft.getTimer().getGameTimeDeltaPartialTick(false);
+            float partial = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
             return Math.max(0.0F, currentClientTick() - this.startedAtTick + partial);
         }
     }

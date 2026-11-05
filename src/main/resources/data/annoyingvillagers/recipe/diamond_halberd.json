@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DA ",
+    "DS ",
+    " P "
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "A": "minecraft:diamond_axe",
+    "P": "minecraft:stick",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_halberd"
+  }
+}

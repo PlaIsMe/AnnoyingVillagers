@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " 01",
+    "23 ",
+    "4  "
+  ],
+  "key": {
+    "0": "annoyingvillagers:demoniac_voltage_reaver_fragment",
+    "1": "annoyingvillagers:demoniac_voltage_reaver_blade",
+    "2": "annoyingvillagers:demoniac_voltage_reaver_fragment",
+    "3": "annoyingvillagers:demoniac_voltage_reaver_fragment",
+    "4": "annoyingvillagers:demoniac_voltage_reaver_hilt"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:demoniac_voltage_reaver"
+  }
+}

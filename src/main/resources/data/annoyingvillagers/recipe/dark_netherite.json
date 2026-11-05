@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DBD",
+    "BNB",
+    "DBD"
+  ],
+  "key": {
+    "N": "minecraft:netherite_ingot",
+    "D": "minecraft:diamond",
+    "B": "minecraft:iron_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:dark_netherite"
+  }
+}

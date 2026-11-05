@@ -1,24 +1,18 @@
 package com.pla.annoyingvillagers.blockentity;
 
 import com.pla.annoyingvillagers.block.FractureBlock;
+import com.pla.annoyingvillagers.client.engine.FractureBlockEntityClient;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModBlockEntities;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -45,34 +39,32 @@ public class FractureBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        if (originalBlockState != null) tag.put("OriginalBlockState", NbtUtils.writeBlockState(originalBlockState));
-        tag.putFloat("TranslateX", translate.x());
-        tag.putFloat("TranslateY", translate.y());
-        tag.putFloat("TranslateZ", translate.z());
-        tag.putFloat("RotationX", rotation.x());
-        tag.putFloat("RotationY", rotation.y());
-        tag.putFloat("RotationZ", rotation.z());
-        tag.putFloat("RotationW", rotation.w());
-        tag.putDouble("Bouncing", bouncing);
-        tag.putInt("MaxLifeTime", maxLifeTime);
-        tag.putInt("LifeTime", lifeTime);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        if (originalBlockState != null) output.store("OriginalBlockState", BlockState.CODEC, originalBlockState);
+        output.putFloat("TranslateX", translate.x());
+        output.putFloat("TranslateY", translate.y());
+        output.putFloat("TranslateZ", translate.z());
+        output.putFloat("RotationX", rotation.x());
+        output.putFloat("RotationY", rotation.y());
+        output.putFloat("RotationZ", rotation.z());
+        output.putFloat("RotationW", rotation.w());
+        output.putDouble("Bouncing", bouncing);
+        output.putInt("MaxLifeTime", maxLifeTime);
+        output.putInt("LifeTime", lifeTime);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        BlockState original = tag.contains("OriginalBlockState", Tag.TAG_COMPOUND)
-                ? NbtUtils.readBlockState(registries.lookupOrThrow(Registries.BLOCK), tag.getCompound("OriginalBlockState")) : null;
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        BlockState original = input.read("OriginalBlockState", BlockState.CODEC).orElse(null);
         originalBlockState = original != null && !(original.getBlock() instanceof FractureBlock) ? original : null;
-        translate = new Vector3f(tag.getFloat("TranslateX"), tag.getFloat("TranslateY"), tag.getFloat("TranslateZ"));
-        rotation = tag.contains("RotationW", Tag.TAG_ANY_NUMERIC)
-                ? new Quaternionf(tag.getFloat("RotationX"), tag.getFloat("RotationY"), tag.getFloat("RotationZ"), tag.getFloat("RotationW"))
-                : new Quaternionf();
-        bouncing = tag.getDouble("Bouncing");
-        maxLifeTime = tag.getInt("MaxLifeTime");
-        lifeTime = tag.getInt("LifeTime");
+        translate = new Vector3f(input.getFloatOr("TranslateX", 0.0F), input.getFloatOr("TranslateY", 0.0F), input.getFloatOr("TranslateZ", 0.0F));
+        rotation = new Quaternionf(input.getFloatOr("RotationX", 0.0F), input.getFloatOr("RotationY", 0.0F),
+                input.getFloatOr("RotationZ", 0.0F), input.getFloatOr("RotationW", 1.0F));
+        bouncing = input.getDoubleOr("Bouncing", 0.0D);
+        maxLifeTime = input.getIntOr("MaxLifeTime", 0);
+        lifeTime = input.getIntOr("LifeTime", 0);
     }
 
     @Override
@@ -93,7 +85,6 @@ public class FractureBlockEntity extends BlockEntity {
     public int getMaxLifeTime() { return this.maxLifeTime; }
     public int getLifeTime() { return this.lifeTime; }
 
-    @OnlyIn(Dist.CLIENT)
     public static void lifeTimeTick(Level level, BlockPos blockPos, BlockState blockState, FractureBlockEntity blockEntity) {
         if (blockEntity.originalBlockState == null) {
             // A chunk's block entity can tick before its update tag arrives.
@@ -101,10 +92,7 @@ public class FractureBlockEntity extends BlockEntity {
         }
 
         if (!blockEntity.originalBlockState.isAir() && blockEntity.maxLifeTime - blockEntity.lifeTime < 10) {
-            Particle blockParticle = new TerrainParticle((ClientLevel) level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0D, 0.0D, 0.0D, blockEntity.originalBlockState, blockPos);
-            blockParticle.setParticleSpeed((Math.random() - 0.5D) * 0.3D, Math.random() * 0.5D, (Math.random() - 0.5D) * 0.3D);
-            blockParticle.setLifetime(10 + level.random.nextInt(60));
-            Minecraft.getInstance().particleEngine.add(blockParticle);
+            FractureBlockEntityClient.spawnTerrainParticle(level, blockPos, blockEntity.originalBlockState);
         }
 
         if (blockEntity.lifeTime++ > blockEntity.maxLifeTime) {

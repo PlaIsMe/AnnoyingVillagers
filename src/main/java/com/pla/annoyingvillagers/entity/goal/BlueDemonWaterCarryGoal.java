@@ -62,7 +62,7 @@ public final class BlueDemonWaterCarryGoal extends Goal {
     @Override
     public boolean canUse() {
         if (this.mob.tickCount < this.nextUseTick || !this.canAct() || this.mob.isLocked()
-                || !this.mob.isInWaterOrBubble() || !this.mob.canUseBbqHoleEscape()
+                || !this.mob.isInWater() || !this.mob.canUseBbqHoleEscape()
                 || RigAnimationController.hasActiveAnimation(this.mob) && !RigAnimationController.hasActiveProfileAttack(this.mob)
                 || (this.carrier = this.mob.findAvailableHoleEscapeSauce()) == null) return false;
         this.nextUseTick = this.mob.tickCount + 20 + this.mob.getRandom().nextInt(11);
@@ -254,7 +254,7 @@ public final class BlueDemonWaterCarryGoal extends Goal {
             return Vec3.atBottomCenterOf(best);
         }
 
-        if (RecoveryAi.validTarget(this.mob, target) && target.isInWaterOrBubble()
+        if (RecoveryAi.validTarget(this.mob, target) && target.isInWater()
                 && this.mob.distanceToSqr(target) > 9.0D) {
             Vec3 toward = target.position().subtract(this.mob.position());
             Vec3 horizontal = new Vec3(toward.x, 0.0D, toward.z);
@@ -294,7 +294,7 @@ public final class BlueDemonWaterCarryGoal extends Goal {
         if (!(this.mob.level() instanceof ServerLevel level) || this.destination == null) return false;
         if (!this.dryDestination) {
             return this.mob.getTarget() != null && this.mob.getTarget().isAlive()
-                    && this.mob.getTarget().isInWaterOrBubble() && level.noCollision(this.mob);
+                    && this.mob.getTarget().isInWater() && level.noCollision(this.mob);
         }
         return safeDryLanding(level, BlockPos.containing(this.destination));
     }
@@ -308,11 +308,11 @@ public final class BlueDemonWaterCarryGoal extends Goal {
                     || !level.isInWorldBounds(column)) return Double.NaN;
             int waterSurface = waterSurfaceAirY(level, column, this.mob.getBlockY());
             int terrain = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column).getY();
-            double obstacleTop = Math.max(terrain, waterSurface == Integer.MIN_VALUE ? level.getMinBuildHeight() : waterSurface);
+            double obstacleTop = Math.max(terrain, waterSurface == Integer.MIN_VALUE ? level.getMinY() : waterSurface);
             if (obstacleTop - this.mob.getY() > 32.0D) return Double.NaN;
             y = Math.max(y, obstacleTop + 2.5D);
         }
-        if (y + this.mob.getBbHeight() + 0.3D + this.carrier.getBbHeight() >= level.getMaxBuildHeight()) return Double.NaN;
+        if (y + this.mob.getBbHeight() + 0.3D + this.carrier.getBbHeight() >= level.getMaxY()) return Double.NaN;
         return y;
     }
 
@@ -376,8 +376,8 @@ public final class BlueDemonWaterCarryGoal extends Goal {
     }
 
     private static int waterSurfaceAirY(ServerLevel level, BlockPos column, int aroundY) {
-        int min = Math.max(level.getMinBuildHeight(), aroundY - 4);
-        int max = Math.min(level.getMaxBuildHeight() - 2, aroundY + 32);
+        int min = Math.max(level.getMinY(), aroundY - 4);
+        int max = Math.min(level.getMaxY() - 2, aroundY + 32);
         boolean sawWater = false;
         for (int y = min; y <= max; y++) {
             BlockPos pos = new BlockPos(column.getX(), y, column.getZ());

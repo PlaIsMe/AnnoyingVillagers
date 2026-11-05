@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.client.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import net.minecraft.client.model.EntityModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -12,13 +12,13 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 
-public class ModelGreenVillagerKnightArmor<T extends Entity> extends EntityModel<T> {
+public class ModelGreenVillagerKnightArmor<T extends Entity> extends LegacyHierarchicalModel<T> {
 
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelgreenvillagerknightarmor"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelgreenvillagerknightarmor"), "main");
     public final ModelPart Body;
     public final ModelPart RightArm;
     public final ModelPart LeftArm;
@@ -26,6 +26,7 @@ public class ModelGreenVillagerKnightArmor<T extends Entity> extends EntityModel
     public final ModelPart LeftLeg;
 
     public ModelGreenVillagerKnightArmor(ModelPart modelpart) {
+        super(modelpart);
         this.Body = modelpart.getChild("Body");
         this.RightArm = modelpart.getChild("RightArm");
         this.LeftArm = modelpart.getChild("LeftArm");
@@ -46,7 +47,7 @@ public class ModelGreenVillagerKnightArmor<T extends Entity> extends EntityModel
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
 
-    public void renderToBuffer(PoseStack posestack, VertexConsumer vertexconsumer, int i, int j, int color) {
+    public void renderLegacy(PoseStack posestack, VertexConsumer vertexconsumer, int i, int j, int color) {
         this.Body.render(posestack, vertexconsumer, i, j, color);
         this.RightArm.render(posestack, vertexconsumer, i, j, color);
         this.LeftArm.render(posestack, vertexconsumer, i, j, color);

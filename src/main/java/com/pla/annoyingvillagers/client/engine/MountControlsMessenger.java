@@ -39,7 +39,7 @@ public class MountControlsMessenger
             --delay;
 
             if (delay == 0)
-                player.displayClientMessage(Component.translatable("mount.dragon.vertical_controls",
+                com.pla.annoyingvillagers.util.LegacyPlayerMessages.display(player, Component.translatable("mount.dragon.vertical_controls",
                         Minecraft.getInstance().options.keyJump.getTranslatedKeyMessage(),
                         AnnoyingVillagersModKeyMappings.SPECIAL_ATTACK.getTranslatedKeyMessage()), true);
         }

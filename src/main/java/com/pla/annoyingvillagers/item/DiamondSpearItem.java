@@ -31,9 +31,9 @@ public class DiamondSpearItem extends LegacySwordItem implements RigCombatProfil
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.DIAMOND));
+                return Ingredient.of(Items.DIAMOND);
             }
-        }, 3, -2.4F, (new Properties()));
+        }, 3, -2.4F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

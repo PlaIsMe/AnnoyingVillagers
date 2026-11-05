@@ -16,6 +16,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.*;
+import net.minecraft.world.entity.monster.illager.AbstractIllager;
+import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
+import net.minecraft.world.entity.monster.spider.Spider;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -43,8 +47,8 @@ public class ObedienceMobEffect extends MobEffect {
         return "effect.annoyingvillagers.obedience";
     }
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
-        if (!entity.level().isClientSide() && entity instanceof Mob mob) {
+    public boolean applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
+        if (entity instanceof Mob mob) {
             tickObedience(mob);
         }
         return true;
@@ -62,7 +66,7 @@ public class ObedienceMobEffect extends MobEffect {
         if (!entity.level().isClientSide() && entity instanceof Mob mob) {
             syncObedienceRemoval(mob);
             CompoundTag tag = mob.getPersistentData();
-            if (tag.getBoolean(REFRESHING_KEY)) {
+            if (tag.getBooleanOr(REFRESHING_KEY, false)) {
                 return;
             }
             restoreOriginalTeamAndClear(mob);
@@ -136,7 +140,7 @@ public class ObedienceMobEffect extends MobEffect {
         try {
             captureOriginalTeamAndLeave(targetMob);
 
-            tag.putUUID(OWNER_UUID_KEY, owner.getUUID());
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, OWNER_UUID_KEY, owner.getUUID());
 
             boolean added = targetMob.addEffect(
                     new MobEffectInstance(
@@ -154,7 +158,7 @@ public class ObedienceMobEffect extends MobEffect {
                 syncObedienceUpdate(targetMob, appliedEffect, !alreadyHasObedience);
             }
             captureOriginalTeamAndLeave(targetMob);
-            tag.putUUID(OWNER_UUID_KEY, owner.getUUID());
+            com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, OWNER_UUID_KEY, owner.getUUID());
 
             if (targetMob.getTarget() == owner) {
                 targetMob.setTarget(null);
@@ -204,7 +208,7 @@ public class ObedienceMobEffect extends MobEffect {
 
     private static void syncObedienceUpdate(Mob mob, MobEffectInstance effect, boolean newEffect) {
         if (mob.level() instanceof ServerLevel serverLevel) {
-            serverLevel.getChunkSource().broadcast(
+            serverLevel.getChunkSource().sendToTrackingPlayersAndSelf(
                     mob,
                     new ClientboundUpdateMobEffectPacket(mob.getId(), effect, newEffect)
             );
@@ -213,7 +217,7 @@ public class ObedienceMobEffect extends MobEffect {
 
     private static void syncObedienceRemoval(Mob mob) {
         if (mob.level() instanceof ServerLevel serverLevel) {
-            serverLevel.getChunkSource().broadcast(
+            serverLevel.getChunkSource().sendToTrackingPlayersAndSelf(
                     mob,
                     new ClientboundRemoveMobEffectPacket(mob.getId(), AnnoyingVillagersModMobEffects.OBEDIENCE)
             );
@@ -223,7 +227,7 @@ public class ObedienceMobEffect extends MobEffect {
     private static void captureOriginalTeamAndLeave(Mob mob) {
         CompoundTag tag = mob.getPersistentData();
 
-        if (!tag.getBoolean(TEAM_CAPTURED_KEY)) {
+        if (!tag.getBooleanOr(TEAM_CAPTURED_KEY, false)) {
             tag.putBoolean(TEAM_CAPTURED_KEY, true);
 
             String originalTeamName = TeamUtil.getTeamName(mob);
@@ -238,10 +242,10 @@ public class ObedienceMobEffect extends MobEffect {
     public static void restoreOriginalTeamAndClear(Mob mob) {
         CompoundTag tag = mob.getPersistentData();
 
-        if (tag.getBoolean(TEAM_CAPTURED_KEY)
-                && tag.contains(ORIGINAL_TEAM_KEY, Tag.TAG_STRING)) {
+        if (tag.getBooleanOr(TEAM_CAPTURED_KEY, false)
+                && tag.contains(ORIGINAL_TEAM_KEY)) {
 
-            String originalTeamName = tag.getString(ORIGINAL_TEAM_KEY);
+            String originalTeamName = tag.getStringOr(ORIGINAL_TEAM_KEY, "");
 
             if (!originalTeamName.isEmpty()) {
                 TeamUtil.addOrJoinTeam(mob, originalTeamName);
@@ -344,6 +348,6 @@ public class ObedienceMobEffect extends MobEffect {
     @Nullable
     public static UUID getOwnerUUID(Entity entity) {
         CompoundTag tag = entity.getPersistentData();
-        return tag.hasUUID(OWNER_UUID_KEY) ? tag.getUUID(OWNER_UUID_KEY) : null;
+        return com.pla.annoyingvillagers.util.LegacyNbt.hasUUID(tag, OWNER_UUID_KEY) ? com.pla.annoyingvillagers.util.LegacyNbt.getUUID(tag, OWNER_UUID_KEY) : null;
     }
 }

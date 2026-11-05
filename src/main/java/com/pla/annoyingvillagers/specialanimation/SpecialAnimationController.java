@@ -41,7 +41,7 @@ public final class SpecialAnimationController {
     }
 
     public static boolean play(Mob mob, SpecialAnimationSpec spec, LivingEntity target) {
-        if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || hasActiveAnimation(mob)) return false;
+        if (mob.level().isClientSide() || !mob.isAlive() || mob.isRemoved() || hasActiveAnimation(mob)) return false;
         if (target != null && target.isAlive()) faceTarget(mob, target);
         if (spec.attackWindows().length > 0) {
             mob.swing(InteractionHand.MAIN_HAND, true);
@@ -97,7 +97,7 @@ public final class SpecialAnimationController {
 
     public static void clear(Mob mob) {
         ActiveAnimationState state = ACTIVE.remove(mob.getUUID());
-        if (state != null && state.mob() == mob && !mob.level().isClientSide) sendAnimation(mob, state.spec().animationId(), 0);
+        if (state != null && state.mob() == mob && !mob.level().isClientSide()) sendAnimation(mob, state.spec().animationId(), 0);
     }
 
     public static void clearActiveAnimations() {
@@ -149,7 +149,7 @@ public final class SpecialAnimationController {
                     Vec3 delta = SpecialPoseLibrary.worldRootMotionDelta(state.spec().animationId(), currentElapsedTick - 1.0F, currentElapsedTick, forward);
                     if (delta.lengthSqr() < 1.0E-8D) return;
                     mob.move(MoverType.SELF, delta);
-                    mob.hasImpulse = true;
+                    mob.hurtMarked = true;
                     mob.hurtMarked = true;
                 }
             };
@@ -205,7 +205,7 @@ public final class SpecialAnimationController {
         DamageSource source = owner instanceof ServerPlayer player ? mob.level().damageSources().playerAttack(player) : mob.level().damageSources().mobAttack(mob);
         int previousInvulnerableTime = target.invulnerableTime;
         if (resetHurtCooldown) target.invulnerableTime = 0;
-        boolean hurt = target.hurt(source, (float)(baseDamage * multiplier));
+        boolean hurt = target.hurtOrSimulate(source, (float)(baseDamage * multiplier));
         if (resetHurtCooldown) target.invulnerableTime = previousInvulnerableTime;
         if (!hurt) return;
         if (mob instanceof GolemArms arms) DestructionEyeItem.damageForArmsHit(arms);

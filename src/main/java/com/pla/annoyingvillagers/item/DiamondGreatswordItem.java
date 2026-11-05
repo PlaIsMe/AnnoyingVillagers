@@ -36,9 +36,9 @@ public class DiamondGreatswordItem extends LegacySwordItem implements RigCombatP
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get()));
+                return Ingredient.of(AnnoyingVillagersModItems.COMPRESSED_DIAMOND.get());
             }
-        }, 3, -2.5F, (new Properties()));
+        }, 3, -2.5F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override

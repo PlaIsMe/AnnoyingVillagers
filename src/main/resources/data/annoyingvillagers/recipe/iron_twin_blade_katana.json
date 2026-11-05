@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  S",
+    " P ",
+    "S  "
+  ],
+  "key": {
+    "S": "minecraft:iron_sword",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:iron_twin_blade_katana"
+  }
+}

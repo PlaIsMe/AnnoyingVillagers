@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " 1 ",
+    "345",
+    " 7 "
+  ],
+  "key": {
+    "1": "#minecraft:skulls",
+    "3": "minecraft:end_crystal",
+    "4": "minecraft:pink_bed",
+    "5": "minecraft:enchanted_book",
+    "7": "minecraft:nether_star"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:enchant_bed_item"
+  }
+}

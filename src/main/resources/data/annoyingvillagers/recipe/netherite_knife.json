@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    " N ",
+    " S "
+  ],
+  "key": {
+    "S": "annoyingvillagers:paladin_sword",
+    "N": "annoyingvillagers:dark_netherite"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:netherite_knife"
+  }
+}

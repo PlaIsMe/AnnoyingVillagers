@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = com.pla.smart_npc.event.ProgressionEvent.class, remap = false)
 public abstract class ProgressionEventMixin {
-    // Only cancellation is needed: Smart NPC 2.0.3 replaced NeoForge event arguments with NpcEvents wrappers.
+    // Only cancellation is needed: Smart NPC 3.0.3 replaced NeoForge event arguments with NpcEvents wrappers.
     // Callback-only handlers support both signatures without linking to either event API.
     @Inject(method = "onServerStarted", at = @At("HEAD"), cancellable = true)
     private static void annoyingVillagers$onServerStarted(CallbackInfo ci) {

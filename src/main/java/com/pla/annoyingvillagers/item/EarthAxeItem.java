@@ -8,7 +8,7 @@ import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -61,28 +61,29 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(Items.NETHERITE_INGOT));
+                return Ingredient.of(Items.NETHERITE_INGOT);
             }
-        }, 3, -2.8F, (new Properties()));
+        }, 3, -2.8F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()));
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled()
                 || hand != InteractionHand.MAIN_HAND
-                || player.getCooldowns().isOnCooldown(this)) {
+                || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) {
             return super.use(level, player, hand);
         }
 
         if (level instanceof ServerLevel serverLevel) {
-            summonEarthWall(serverLevel, player);
-            VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
-            VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-            player.getCooldowns().addCooldown(this, VANILLA_WALL_COOLDOWN_TICKS);
+            if (summonEarthWall(serverLevel, player)) {
+                VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
+                VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
+                player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_WALL_COOLDOWN_TICKS);
+            }
         }
 
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     public static boolean activateVanillaSpecial(Player player) {
@@ -94,7 +95,7 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
 
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof EarthAxeItem item)
-                || player.getCooldowns().isOnCooldown(item)) {
+                || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(item))) {
             return false;
         }
 
@@ -107,37 +108,40 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
 
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_TWO_HANDED_SLAM);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-        player.getCooldowns().addCooldown(item, VANILLA_LIFT_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), VANILLA_LIFT_COOLDOWN_TICKS);
         return true;
     }
 
-    public static void summonEarthWall(ServerLevel level, LivingEntity caster) {
+    public static boolean summonEarthWall(ServerLevel level, LivingEntity caster) {
         if (caster.isInWater()) {
-            return;
+            return false;
         }
 
-        BlockPos groundPos = caster.getOnPos();
+        // getOnPos no longer consistently identifies the supporting block for every
+        // 26.1 entity pose. Resolve the first liftable ground block below the feet.
+        BlockPos groundPos = findLiftableBlockUnderPoint(level, caster.position().add(0.0D, 0.1D, 0.0D), 3, 0);
+        if (groundPos == null) {
+            return false;
+        }
         BlockState groundState = level.getBlockState(groundPos);
 
         if (groundState.getFluidState().is(FluidTags.WATER)) {
-            return;
+            return false;
         }
 
         BlockState wallState = chooseWallBlock(groundState);
 
         if (wallState == null) {
-            return;
+            return false;
         }
 
         Direction forward = caster.getDirection();
         Direction right = forward.getClockWise();
 
-        BlockPos casterFeet = caster.blockPosition();
-
         BlockPos centerBase = new BlockPos(
-                casterFeet.getX(),
+                groundPos.getX(),
                 groundPos.getY() + 1,
-                casterFeet.getZ()
+                groundPos.getZ()
         ).relative(forward, WALL_DISTANCE);
 
         int halfWidth = WALL_WIDTH / 2;
@@ -165,7 +169,7 @@ public class EarthAxeItem extends LegacySwordItem implements RigCombatProfilePro
                 spawnedAny = true;
             }
         }
-
+        return spawnedAny;
     }
 
     private static boolean canLiftBlock(ServerLevel level, BlockPos pos, BlockState state) {

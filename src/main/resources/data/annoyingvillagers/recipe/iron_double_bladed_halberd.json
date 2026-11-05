@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BHB",
+    "IPI",
+    " P "
+  ],
+  "key": {
+    "B": "minecraft:iron_block",
+    "H": "annoyingvillagers:iron_halberd",
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:iron_double_bladed_halberd"
+  }
+}

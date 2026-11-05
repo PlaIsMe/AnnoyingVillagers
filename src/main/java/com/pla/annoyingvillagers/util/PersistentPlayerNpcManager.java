@@ -39,7 +39,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /** Owns runtime tickets and tab rows; SavedData owns only identity and restoration coordinates. */
 @EventBusSubscriber(modid = AnnoyingVillagers.MODID)
 public final class PersistentPlayerNpcManager {
-    private static final TicketType<UUID> TICKET = ForceTickEntityManager.TICKET;
     private static final Map<UUID, Session> SESSIONS = new LinkedHashMap<>();
     private static final Queue<AVNpc> PENDING_ATTACHMENTS = new ConcurrentLinkedQueue<>();
     private static volatile boolean stopping;
@@ -316,7 +315,7 @@ public final class PersistentPlayerNpcManager {
                 GameProfile profile = new GameProfile(id,
                         ("zzAVN" + id.toString().replace("-", "")).substring(0, 16));
                 NpcTabSkin skin = ((PersistentPlayerNpc) npc).tabSkin();
-                if (skin != null) skin.apply(profile);
+                if (skin != null) profile = skin.apply(profile);
                 tabPlayer = new FakePlayer(level, profile) {
                     @Override public Component getTabListDisplayName() {
                         if (AnnoyingVillagersConfig.NPC_PREFIX.get()) {
@@ -337,14 +336,14 @@ public final class PersistentPlayerNpcManager {
             if (!ticketed && level != null) {
                 // Distance 2 already gives entity ticking at the center. false avoids
                 // remote natural-spawning/random-tick work and matches removal identity.
-                level.getChunkSource().addRegionTicket(TICKET, center, 2, id, false);
+                level.getChunkSource().addTicketWithRadius(ForceTickEntityManager.ticket(), center, 2);
                 ticketed = true;
             }
         }
 
         void releaseTicket(MinecraftServer server) {
             ServerLevel level = server.getLevel(dimension);
-            if (ticketed && level != null) level.getChunkSource().removeRegionTicket(TICKET, center, 2, id, false);
+            if (ticketed && level != null) level.getChunkSource().removeTicketWithRadius(ForceTickEntityManager.ticket(), center, 2);
             ticketed = false;
         }
 

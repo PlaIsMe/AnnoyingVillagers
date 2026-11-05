@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " F ",
+    "FDF",
+    " F "
+  ],
+  "key": {
+    "F": "minecraft:flint",
+    "D": "minecraft:diamond_boots"
+  },
+  "result": {
+    "id": "annoyingvillagers:unlight_diamond_boots"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BB ",
+    "B  ",
+    "L  "
+  ],
+  "key": {
+    "B": "minecraft:diamond_block",
+    "L": "annoyingvillagers:diamond_longsword"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:diamond_chipped_longsword"
+  }
+}

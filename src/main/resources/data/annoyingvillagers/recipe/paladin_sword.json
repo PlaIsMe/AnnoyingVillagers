@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DD ",
+    "D  ",
+    "S  "
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "S": "minecraft:diamond_sword"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:paladin_sword"
+  }
+}

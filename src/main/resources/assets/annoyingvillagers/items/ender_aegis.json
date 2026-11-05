@@ -1,0 +1,22 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "annoyingvillagers:legacy",
+    "kind": "second_form",
+    "entries": [{
+      "threshold": 1.0,
+      "model": {
+        "type": "minecraft:condition",
+        "property": "minecraft:using_item",
+        "on_true": { "type": "minecraft:model", "model": "annoyingvillagers:item/ender_aegis_awakened_blocking" },
+        "on_false": { "type": "minecraft:model", "model": "annoyingvillagers:item/ender_aegis_awakened" }
+      }
+    }],
+    "fallback": {
+      "type": "minecraft:condition",
+      "property": "minecraft:using_item",
+      "on_true": { "type": "minecraft:model", "model": "annoyingvillagers:item/ender_aegis_blocking" },
+      "on_false": { "type": "minecraft:model", "model": "annoyingvillagers:item/ender_aegis" }
+    }
+  }
+}

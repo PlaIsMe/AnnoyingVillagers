@@ -1,6 +1,5 @@
 package com.pla.annoyingvillagers.mixin;
 
-import com.pla.annoyingvillagers.entity.TridentLightningBolt;
 import com.pla.annoyingvillagers.init.AnnoyingVillagersModDamageTypes;
 import com.pla.annoyingvillagers.util.VanillaWeaponAbilityUtil;
 import com.pla.annoyingvillagers.item.EnderAegisItem;
@@ -25,7 +24,7 @@ public abstract class PlayerMixin {
         }
     }
     @Redirect(
-            method = "hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z",
+            method = "hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/damagesource/DamageSource;is(Lnet/minecraft/tags/TagKey;)Z",
@@ -38,17 +37,11 @@ public abstract class PlayerMixin {
 
         if (DamageTypeTags.BYPASSES_INVULNERABILITY.equals(tag)
                 && self.getAbilities().invulnerable
-                && source.is(AnnoyingVillagersModDamageTypes.IMPACT_EXPLOSION)
-                && source.getDirectEntity() instanceof TridentLightningBolt) {
+                && source.is(AnnoyingVillagersModDamageTypes.IMPACT_EXPLOSION)) {
             return false;
         }
 
         return original;
-    }
-    @Inject(method = "disableShield", at = @At("HEAD"), cancellable = true)
-    private void annoyingVillagers$keepEnderAegisUsable(CallbackInfo ci) {
-        Player self = (Player)(Object)this;
-        if (VanillaWeaponAbilityUtil.abilitiesEnabled() && self.getUseItem().getItem() instanceof EnderAegisItem) ci.cancel();
     }
 
 }

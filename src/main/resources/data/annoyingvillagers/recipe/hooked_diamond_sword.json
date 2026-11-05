@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DD ",
+    "D  ",
+    "P  "
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "P": "minecraft:stick"
+  },
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:hooked_diamond_sword"
+  }
+}

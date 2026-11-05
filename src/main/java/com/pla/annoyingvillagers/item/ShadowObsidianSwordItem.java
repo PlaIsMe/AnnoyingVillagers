@@ -15,12 +15,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -61,19 +60,19 @@ public class ShadowObsidianSwordItem extends LegacySwordItem implements RigComba
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of();
+                return null;
             }
-        }, 3, -2.5F, new Properties());
+        }, 3, -2.5F, com.pla.annoyingvillagers.util.LegacyItemProperties.create());
     }
 
     public static boolean isStraightForm(ItemStack stack) {
-        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBoolean(STRAIGHT_FORM_TAG);
+        return LegacyItemData.has(stack) && LegacyItemData.get(stack) != null && LegacyItemData.get(stack).getBooleanOr(STRAIGHT_FORM_TAG, false);
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(this)) return super.use(level, player, hand);
+        if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || hand != InteractionHand.MAIN_HAND || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(this))) return super.use(level, player, hand);
         setStraightFormForTicks(stack, level, VANILLA_STRAIGHT_FORM_TICKS);
         if (level instanceof ServerLevel serverLevel) {
             VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
@@ -81,9 +80,9 @@ public class ShadowObsidianSwordItem extends LegacySwordItem implements RigComba
             scheduleVanillaUltStrike(serverLevel, player, stack, 10);
             scheduleVanillaUltStrike(serverLevel, player, stack, 17);
             scheduleVanillaUltStrike(serverLevel, player, stack, 28);
-            player.getCooldowns().addCooldown(this, VANILLA_ULT_COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(this), VANILLA_ULT_COOLDOWN_TICKS);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     private static void scheduleVanillaUltStrike(ServerLevel serverLevel, Player player, ItemStack stack, int delayTicks) {
@@ -112,15 +111,19 @@ public class ShadowObsidianSwordItem extends LegacySwordItem implements RigComba
     }
 
     private static void setStraightFormForTicks(ItemStack stack, Level level, int ticks) {
-        LegacyItemData.getOrCreate(stack).putBoolean(STRAIGHT_FORM_TAG, true);
-        LegacyItemData.getOrCreate(stack).putLong(STRAIGHT_FORM_UNTIL_TAG, level.getGameTime() + Math.max(1, ticks));
+        LegacyItemData.update(stack, tag -> {
+            tag.putBoolean(STRAIGHT_FORM_TAG, true);
+            tag.putLong(STRAIGHT_FORM_UNTIL_TAG, level.getGameTime() + Math.max(1, ticks));
+        });
     }
 
     @Override
-    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull net.minecraft.world.entity.Entity entity, int slot, boolean selected) {
-        super.inventoryTick(stack, level, entity, slot, selected);
-        if (!LegacyItemData.has(stack) || LegacyItemData.get(stack) == null || !LegacyItemData.get(stack).getBoolean(STRAIGHT_FORM_TAG)) return;
-        if (level.getGameTime() < LegacyItemData.get(stack).getLong(STRAIGHT_FORM_UNTIL_TAG)) return;
+    public void inventoryTick(net.minecraft.world.item.ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot equipmentSlot) {
+        int slot = com.pla.annoyingvillagers.util.LegacyItemTicks.findInventorySlot(entity, stack);
+        boolean selected = equipmentSlot == net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+        super.inventoryTick(stack, level, entity, equipmentSlot);
+        if (!LegacyItemData.has(stack) || LegacyItemData.get(stack) == null || !LegacyItemData.get(stack).getBooleanOr(STRAIGHT_FORM_TAG, false)) return;
+        if (level.getGameTime() < LegacyItemData.get(stack).getLongOr(STRAIGHT_FORM_UNTIL_TAG, 0L)) return;
         LegacyItemData.get(stack).remove(STRAIGHT_FORM_TAG);
         LegacyItemData.get(stack).remove(STRAIGHT_FORM_UNTIL_TAG);
     }
@@ -128,11 +131,11 @@ public class ShadowObsidianSwordItem extends LegacySwordItem implements RigComba
     public static boolean activateVanillaSpecial(Player player) {
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled() || player.level().isClientSide() || !(player.level() instanceof ServerLevel serverLevel)) return false;
         ItemStack stack = player.getMainHandItem();
-        if (!(stack.getItem() instanceof ShadowObsidianSwordItem item) || player.getCooldowns().isOnCooldown(item)) return false;
+        if (!(stack.getItem() instanceof ShadowObsidianSwordItem item) || player.getCooldowns().isOnCooldown(new net.minecraft.world.item.ItemStack(item))) return false;
 
         VanillaWeaponAbilityUtil.swingMainHand(player, VanillaWeaponAbilityUtil.BETTER_COMBAT_FIST_ATTACK);
         VanillaWeaponAbilityUtil.damageHeldItem(player, InteractionHand.MAIN_HAND, 1);
-        player.getCooldowns().addCooldown(item, VANILLA_PROJECTILE_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(new net.minecraft.world.item.ItemStack(item), VANILLA_PROJECTILE_COOLDOWN_TICKS);
         new DelayedTask(12) { @Override public void run() { if (player.isAlive() && !player.isRemoved() && player.level() == serverLevel) throwVanillaObsidianProjectile(serverLevel, player); } };
         return true;
     }
@@ -154,9 +157,9 @@ public class ShadowObsidianSwordItem extends LegacySwordItem implements RigComba
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull List<Component> list, @NotNull TooltipFlag tooltipflag) {
-        super.appendHoverText(itemstack, level, list, tooltipflag);
-        list.add(Component.translatable("tooltip.annoyingvillagers.shadow_obsidian_sword"));
+    public void appendHoverText(@NotNull ItemStack itemstack, net.minecraft.world.item.Item.TooltipContext level, @NotNull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, @NotNull TooltipFlag tooltipflag) {
+        super.appendHoverText(itemstack, level, display, list, tooltipflag);
+        list.accept(Component.translatable("tooltip.annoyingvillagers.shadow_obsidian_sword"));
     }
 
     @Override

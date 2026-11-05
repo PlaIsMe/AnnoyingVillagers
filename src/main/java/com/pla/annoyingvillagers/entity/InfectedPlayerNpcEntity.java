@@ -9,7 +9,7 @@ import com.pla.annoyingvillagers.util.TeamUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.DifficultyInstance;
@@ -49,11 +49,11 @@ public class InfectedPlayerNpcEntity extends FakePlayer {
     }
 
     public @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
-        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.hurt")));
     }
 
     public @NotNull SoundEvent getDeathSound() {
-        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.death")));
+        return Objects.requireNonNull(BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", "entity.generic.death")));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class InfectedPlayerNpcEntity extends FakePlayer {
     protected void dropCustomDeathLoot(net.minecraft.server.level.ServerLevel level, @NotNull DamageSource source, boolean recentlyHit) {
         int looting = 0;
         super.dropCustomDeathLoot(level, source, recentlyHit);
-        String possessedBy = this.getPersistentData().getString("possessed_by");
+        String possessedBy = this.getPersistentData().getStringOr("possessed_by", "");
         switch (possessedBy) {
             case "herobrine_clone" -> HerobrineUtil.dropHerobrineCloneLoot(this.level(), this.getX(), this.getY(), this.getZ());
             case "shadow_herobrine_clone" -> HerobrineUtil.dropShadowHerobrineCloneLoot(this.level(), this.getX(), this.getY(), this.getZ());
@@ -105,7 +105,7 @@ public class InfectedPlayerNpcEntity extends FakePlayer {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor serverLevelAccessor, @NotNull DifficultyInstance difficultyInstance, @NotNull EntitySpawnReason mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
         if (!this.level().isClientSide()) {
             TeamUtil.addOrJoinTeam(this, "herobrine");
         }

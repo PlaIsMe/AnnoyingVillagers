@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.Relative;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -44,7 +45,7 @@ public final class AnnoyingVillagersCommandEvent {
     public static void registerCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
         dispatcher.register(Commands.literal("annoyingvillagers")
-                .requires(source -> source.hasPermission(2))
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.literal("difficulty")
                         .then(Commands.literal("get")
                                 .executes(context -> getDifficulty(context.getSource())))
@@ -105,7 +106,7 @@ public final class AnnoyingVillagersCommandEvent {
             return 0;
         }
         ServerPlayer player = source.getPlayerOrException();
-        player.teleportTo((ServerLevel) npc.level(), npc.getX(), npc.getY(), npc.getZ(), player.getYRot(), player.getXRot());
+        player.teleportTo((ServerLevel) npc.level(), npc.getX(), npc.getY(), npc.getZ(), Set.of(), player.getYRot(), player.getXRot(), false);
         source.sendSuccess(() -> Component.literal("Teleported to " + commandName(npc) + "."), false);
         return 1;
     }
@@ -118,9 +119,9 @@ public final class AnnoyingVillagersCommandEvent {
         }
         npc.getNavigation().stop();
         npc.setDeltaMovement(Vec3.ZERO);
-        npc.teleportTo(player.serverLevel(), player.getX(), player.getY(), player.getZ(),
-                Set.of(), npc.getYRot(), npc.getXRot());
-        source.sendSuccess(() -> Component.literal("Teleported " + commandName(npc) + " to " + player.getGameProfile().getName() + "."), true);
+        npc.teleportTo(player.level(), player.getX(), player.getY(), player.getZ(),
+                Set.<Relative>of(), npc.getYRot(), npc.getXRot(), false);
+        source.sendSuccess(() -> Component.literal("Teleported " + commandName(npc) + " to " + player.getGameProfile().name() + "."), true);
         return 1;
     }
 

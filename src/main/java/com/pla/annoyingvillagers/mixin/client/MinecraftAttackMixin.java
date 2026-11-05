@@ -1,6 +1,6 @@
 package com.pla.annoyingvillagers.mixin.client;
 
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import com.pla.annoyingvillagers.AnnoyingVillagers;
 import com.pla.annoyingvillagers.item.BlueDemonTridentItem;
@@ -19,7 +19,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(Minecraft.class)
+// Better Combat also intercepts Minecraft.startAttack at HEAD. Run first so AV
+// ability clicks cannot begin Better Combat's ordinary weapon combo beforehand.
+@Mixin(value = Minecraft.class, priority = 2000)
 public abstract class MinecraftAttackMixin {
     private static boolean annoyingVillagers$blueDemonOffhandNext;
 
@@ -29,22 +31,26 @@ public abstract class MinecraftAttackMixin {
         LocalPlayer player = minecraft.player;
         if (player == null) return;
         if (player.getMainHandItem().getItem() instanceof DestructionEyeItem) {
-            PacketDistributor.sendToServer(new ServerboundDestructionEyeAttack());
+            ClientPacketDistributor.sendToServer(new ServerboundDestructionEyeAttack());
             player.swing(InteractionHand.MAIN_HAND);
             cir.setReturnValue(false);
             return;
         }
         if (!VanillaWeaponAbilityUtil.abilitiesEnabled()) return;
 
+        // Better Combat starts attacks through AttackInteractor rather than the
+        // vanilla swing below. Its compat mixin owns these two ability clicks.
+        if (VanillaWeaponAbilityUtil.isBetterCombatLoaded()) return;
+
         if (player.getMainHandItem().getItem() instanceof EnderSlayerScytheItem && EnderSlayerScytheItem.isDragonActive(player.getMainHandItem())) {
-            PacketDistributor.sendToServer(new VanillaAttackKeyMessage());
+            ClientPacketDistributor.sendToServer(new VanillaAttackKeyMessage());
             VanillaWeaponAbilityUtil.swingOffHand(player);
             cir.setReturnValue(false);
             return;
         }
 
         if (player.getMainHandItem().getItem() instanceof DemoniacVoltageReaverItem && DemoniacVoltageReaverItem.isVanillaAwakened(player.getMainHandItem(), player.level())) {
-            PacketDistributor.sendToServer(new VanillaAttackKeyMessage());
+            ClientPacketDistributor.sendToServer(new VanillaAttackKeyMessage());
             VanillaWeaponAbilityUtil.swingMainHand(player);
             cir.setReturnValue(false);
         }

@@ -3,8 +3,7 @@ package com.pla.annoyingvillagers.item;
 import com.pla.annoyingvillagers.rig.RigCombatProfileProvider;
 import com.pla.annoyingvillagers.rig.RigCombatStyle;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,9 +32,9 @@ public class GreatSwordItem extends LegacySwordItem implements RigCombatProfileP
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of();
+                return null;
             }
-        }, 3, -2.5F, (new Properties()).fireResistant());
+        }, 3, -2.5F, (com.pla.annoyingvillagers.util.LegacyItemProperties.create()).fireResistant());
     }
 
     @Override

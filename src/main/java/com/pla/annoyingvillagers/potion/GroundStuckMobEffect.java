@@ -12,7 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -53,7 +53,7 @@ public class GroundStuckMobEffect extends MobEffect {
 
     public GroundStuckMobEffect() {
         super(MobEffectCategory.HARMFUL, 0x594636);
-        addAttributeModifier(Attributes.MOVEMENT_SPEED, ResourceLocation.fromNamespaceAndPath("annoyingvillagers", "ground_stuck_speed"), -1.0D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+        addAttributeModifier(Attributes.MOVEMENT_SPEED, Identifier.fromNamespaceAndPath("annoyingvillagers", "ground_stuck_speed"), -1.0D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     }
 
     @Override
@@ -62,8 +62,7 @@ public class GroundStuckMobEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(@NotNull LivingEntity entity, int amplifier) {
-        if (!(entity.level() instanceof ServerLevel level)) return true;
+    public boolean applyEffectTick(ServerLevel level, @NotNull LivingEntity entity, int amplifier) {
         CompoundTag tag = entity.getPersistentData();
 
         /*
@@ -73,12 +72,12 @@ public class GroundStuckMobEffect extends MobEffect {
          * the ground. The old Ground Stuck instance is supposed to be gone once the
          * knockout succeeds.
          */
-        if (tag.getInt(NBT_KNOCKOUT_TICKS) > 0) {
+        if (tag.getIntOr(NBT_KNOCKOUT_TICKS, 0) > 0) {
             entity.removeEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK);
             return true;
         }
 
-        if (!tag.getBoolean(NBT_STUCK) && !startStuck(level, entity)) {
+        if (!tag.getBooleanOr(NBT_STUCK, false) && !startStuck(level, entity)) {
             entity.removeEffect(AnnoyingVillagersModMobEffects.GROUND_STUCK);
             return true;
         }
@@ -87,9 +86,9 @@ public class GroundStuckMobEffect extends MobEffect {
             return true;
         }
 
-        double x = tag.getDouble(NBT_ANCHOR_X);
-        double y = tag.getDouble(NBT_ANCHOR_Y);
-        double z = tag.getDouble(NBT_ANCHOR_Z);
+        double x = tag.getDoubleOr(NBT_ANCHOR_X, 0.0D);
+        double y = tag.getDoubleOr(NBT_ANCHOR_Y, 0.0D);
+        double z = tag.getDoubleOr(NBT_ANCHOR_Z, 0.0D);
         double anchorDistanceSqr = entity.distanceToSqr(x, y, z);
 
         // Keep the old escape/forced-move behavior for mobs. A ServerPlayer is different:
@@ -107,10 +106,10 @@ public class GroundStuckMobEffect extends MobEffect {
         entity.fallDistance = 0.0F;
         entity.setDeltaMovement(Vec3.ZERO);
         enforceAnchor(entity, x, y, z, anchorDistanceSqr > 1.0E-4D);
-        entity.hasImpulse = true;
+        entity.hurtMarked = true;
         entity.hurtMarked = true;
 
-        int stunTicks = tag.getInt(NBT_STUN_TICKS);
+        int stunTicks = tag.getIntOr(NBT_STUN_TICKS, 0);
         if (stunTicks <= 1) {
             tag.putInt(NBT_STUN_TICKS, 20);
             applyPeriodicStun(entity);
@@ -133,7 +132,7 @@ public class GroundStuckMobEffect extends MobEffect {
         if (!(entity.level() instanceof ServerLevel level)) return;
 
         // A fresh Ground Stuck application must not cancel an active knockout launch.
-        if (entity.getPersistentData().getInt(NBT_KNOCKOUT_TICKS) > 0) {
+        if (entity.getPersistentData().getIntOr(NBT_KNOCKOUT_TICKS, 0) > 0) {
             return;
         }
 
@@ -142,7 +141,7 @@ public class GroundStuckMobEffect extends MobEffect {
         // Start the anchor immediately instead of waiting for the next potion tick. This
         // matters most for ServerPlayer because its own client is authoritative enough to
         // keep rendering the old position until the server sends a teleport packet.
-        if (!entity.getPersistentData().getBoolean(NBT_STUCK)) {
+        if (!entity.getPersistentData().getBooleanOr(NBT_STUCK, false)) {
             startStuck(level, entity);
         }
 
@@ -202,7 +201,7 @@ public class GroundStuckMobEffect extends MobEffect {
 
         CompoundTag tag = entity.getPersistentData();
         tag.putInt(NBT_KNOCKOUT_TICKS, KNOCKOUT_TICKS);
-        if (attacker != null) tag.putUUID(NBT_KNOCKOUT_SOURCE, attacker.getUUID());
+        if (attacker != null) com.pla.annoyingvillagers.util.LegacyNbt.putUUID(tag, NBT_KNOCKOUT_SOURCE, attacker.getUUID());
 
         float yaw = attacker != null ? attacker.getYRot() : entity.getYRot();
         double radians = Math.toRadians(yaw);
@@ -217,7 +216,7 @@ public class GroundStuckMobEffect extends MobEffect {
         );
 
         entity.setDeltaMovement(requestedMotion);
-        entity.hasImpulse = true;
+        entity.hurtMarked = true;
         entity.hurtMarked = true;
         if (entity instanceof ServerPlayer player) {
             player.connection.send(new ClientboundSetEntityMotionPacket(player));
@@ -233,7 +232,7 @@ public class GroundStuckMobEffect extends MobEffect {
     }
 
     private static boolean startStuck(ServerLevel level, LivingEntity entity) {
-        if (entity.getPersistentData().getInt(NBT_KNOCKOUT_TICKS) > 0) {
+        if (entity.getPersistentData().getIntOr(NBT_KNOCKOUT_TICKS, 0) > 0) {
             return false;
         }
 
@@ -255,7 +254,7 @@ public class GroundStuckMobEffect extends MobEffect {
         entity.fallDistance = 0.0F;
         entity.setDeltaMovement(Vec3.ZERO);
         enforceAnchor(entity, x, y, z, true);
-        entity.hasImpulse = true;
+        entity.hurtMarked = true;
         entity.hurtMarked = true;
 
         // Give each successful anchor one medium ground-slam impact. This runs only
@@ -276,11 +275,11 @@ public class GroundStuckMobEffect extends MobEffect {
     private static void releasePlayerAnchor(LivingEntity entity) {
         if (!(entity instanceof ServerPlayer player)) return;
         CompoundTag tag = entity.getPersistentData();
-        if (!tag.getBoolean(NBT_STUCK) || !tag.contains(NBT_GROUND_TOP)) return;
+        if (!tag.getBooleanOr(NBT_STUCK, false) || !tag.contains(NBT_GROUND_TOP)) return;
 
-        double x = tag.contains(NBT_ANCHOR_X) ? tag.getDouble(NBT_ANCHOR_X) : player.getX();
-        double z = tag.contains(NBT_ANCHOR_Z) ? tag.getDouble(NBT_ANCHOR_Z) : player.getZ();
-        double y = tag.getDouble(NBT_GROUND_TOP) + 0.01D;
+        double x = tag.contains(NBT_ANCHOR_X) ? tag.getDoubleOr(NBT_ANCHOR_X, 0.0D) : player.getX();
+        double z = tag.contains(NBT_ANCHOR_Z) ? tag.getDoubleOr(NBT_ANCHOR_Z, 0.0D) : player.getZ();
+        double y = tag.getDoubleOr(NBT_GROUND_TOP, 0.0D) + 0.01D;
         player.connection.teleport(x, y, z, player.getYRot(), player.getXRot());
         player.setDeltaMovement(Vec3.ZERO);
         player.fallDistance = 0.0F;
@@ -301,11 +300,11 @@ public class GroundStuckMobEffect extends MobEffect {
     private static boolean isAnchorValid(ServerLevel level, LivingEntity entity) {
         CompoundTag tag = entity.getPersistentData();
         if (!tag.contains(NBT_GROUND_POS)) return false;
-        BlockPos pos = BlockPos.of(tag.getLong(NBT_GROUND_POS));
+        BlockPos pos = BlockPos.of(tag.getLongOr(NBT_GROUND_POS, 0L));
         BlockState state = level.getBlockState(pos);
         VoxelShape shape = state.getCollisionShape(level, pos, CollisionContext.of(entity));
         if (shape.isEmpty()) return false;
-        return Math.abs(pos.getY() + shape.max(Direction.Axis.Y) - tag.getDouble(NBT_GROUND_TOP)) <= 0.125D;
+        return Math.abs(pos.getY() + shape.max(Direction.Axis.Y) - tag.getDoubleOr(NBT_GROUND_TOP, 0.0D)) <= 0.125D;
     }
 
     private static void applyPeriodicStun(LivingEntity entity) {
@@ -321,9 +320,9 @@ public class GroundStuckMobEffect extends MobEffect {
 
     private static void applyVanillaFallback(LivingEntity entity) {
         if (entity.level().isClientSide()) return;
-        entity.addEffect(new MobEffectInstance(MobEffects.CONFUSION, VANILLA_FALLBACK_DURATION, 0, false, false, true));
-        entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, VANILLA_FALLBACK_DURATION, 1, false, false, true));
-        entity.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, VANILLA_FALLBACK_DURATION, 1, false, false, true));
+        entity.addEffect(new MobEffectInstance(MobEffects.NAUSEA, VANILLA_FALLBACK_DURATION, 0, false, false, true));
+        entity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, VANILLA_FALLBACK_DURATION, 1, false, false, true));
+        entity.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, VANILLA_FALLBACK_DURATION, 1, false, false, true));
     }
 
     @Nullable

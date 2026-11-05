@@ -3,9 +3,5 @@
   "textures": {
     "0": "annoyingvillagers:item/heater_shield",
     "particle": "annoyingvillagers:item/heater_shield"
-  },
-  "overrides": [{
-    "predicate": { "annoyingvillagers:blocking": 1.0 },
-    "model": "annoyingvillagers:item/heater_shield_blocking"
-  }]
+  }
 }

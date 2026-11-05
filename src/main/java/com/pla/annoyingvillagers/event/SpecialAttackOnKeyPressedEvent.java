@@ -212,7 +212,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                        if (entity instanceof Player) {
 //                            Player player = (Player)entity;
 //                            if (!player.level().isClientSide() && !player.getMainHandItem().getItem().equals(AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get()) && !player.getOffhandItem().getItem().equals(AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get())) {
-//                                player.getInventory().items.stream().filter((s) -> !s.isEmpty() && s.is((Item)AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get())).findFirst().map((stack) -> {
+//                                player.getInventory().getNonEquipmentItems().stream().filter((s) -> !s.isEmpty() && s.is((Item)AnnoyingVillagersModItems.HEROBRINE_ENDER_EYE.get())).findFirst().map((stack) -> {
 //                                    Item patt9050$temp = stack.getItem();
 //                                    if (patt9050$temp instanceof HerobrineEnderEyeItem herobrineEnderEyeItem) {
 //                                        ItemCooldowns cooldowns = player.getCooldowns();
@@ -294,7 +294,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                return;
 //                            }
 //
-//                            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get()) && entity.level() instanceof ServerLevel && LegacyItemData.get(holdingItem) != null && !LegacyItemData.get(holdingItem).getBoolean("SnakeAnimation")) {
+//                            if (holdingItem.getItem().equals(AnnoyingVillagersModItems.DEMONIAC_VOLTAGE_REAVER.get()) && entity.level() instanceof ServerLevel && LegacyItemData.get(holdingItem) != null && !LegacyItemData.get(holdingItem).getBooleanOr("SnakeAnimation", false)) {
 //                                boolean success = false;
 //                                PlayerPatch<?> playerPatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 //                                if (playerPatch instanceof ServerPlayerPatch) {
@@ -580,7 +580,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                return;
 //                            }
 //
-//                            ResourceLocation key = BuiltInRegistries.ITEM.getKey(holdingItem.getItem());
+//                            Identifier key = BuiltInRegistries.ITEM.getKey(holdingItem.getItem());
 //                            if (ModList.get().isLoaded("efn") && key.getNamespace().equals("efn")) {
 //                                return;
 //                            }
@@ -633,10 +633,10 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                } else if (!entity.getPersistentData().contains("FistCombo")) {
 //                                    livingEntityPatch.playAnimationSynchronized(AnimsAVFist.FIST_LEFT, 0.0F);
 //                                    entity.getPersistentData().putDouble("FistCombo", (double)1.0F);
-//                                } else if (entity.getPersistentData().getDouble("FistCombo") == (double)1.0F) {
+//                                } else if (entity.getPersistentData().getDoubleOr("FistCombo", 0.0D) == (double)1.0F) {
 //                                    livingEntityPatch.playAnimationSynchronized(AnimsAVFist.FIST_UP, 0.0F);
 //                                    entity.getPersistentData().putDouble("FistCombo", (double)2.0F);
-//                                } else if (entity.getPersistentData().getDouble("FistCombo") == (double)2.0F) {
+//                                } else if (entity.getPersistentData().getDoubleOr("FistCombo", 0.0D) == (double)2.0F) {
 //                                    livingEntityPatch.playAnimationSynchronized(AnimsAVFist.FIST_DASH, 0.0F);
 //                                    entity.getPersistentData().remove("FistCombo");
 //                                }

@@ -3,7 +3,7 @@ package com.pla.annoyingvillagers.client.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pla.annoyingvillagers.AnnoyingVillagers;
-import net.minecraft.client.model.EntityModel;
+import com.pla.annoyingvillagers.client.compat.LegacyHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -12,15 +12,16 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 
-public class ModelVillagerKnightArmor<T extends Entity> extends EntityModel<T> {
+public class ModelVillagerKnightArmor<T extends Entity> extends LegacyHierarchicalModel<T> {
 
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelvillagerknightarmor"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(AnnoyingVillagers.MODID, "modelvillagerknightarmor"), "main");
     public final ModelPart Head;
 
     public ModelVillagerKnightArmor(ModelPart modelpart) {
+        super(modelpart);
         this.Head = modelpart.getChild("Head");
     }
 
@@ -32,7 +33,7 @@ public class ModelVillagerKnightArmor<T extends Entity> extends EntityModel<T> {
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
 
-    public void renderToBuffer(PoseStack posestack, VertexConsumer vertexconsumer, int i, int j, int color) {
+    public void renderLegacy(PoseStack posestack, VertexConsumer vertexconsumer, int i, int j, int color) {
         this.Head.render(posestack, vertexconsumer, i, j, color);
     }
 

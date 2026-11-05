@@ -40,12 +40,12 @@ public class BlueDemonEscapeHoleGoal extends AdvancedEscapeHoleGoal<BlueDemonEnt
             this.stop();
             return;
         }
-        if (this.mob.getPersistentData().getBoolean(ESCAPE_TRANSIENT_TAG)) this.recoverAfterLoad();
+        if (this.mob.getPersistentData().getBooleanOr(ESCAPE_TRANSIENT_TAG, false)) this.recoverAfterLoad();
         else this.stopEscapeAnimation();
     }
 
     public void recoverAfterLoad() {
-        if (this.ownsLock() || !this.mob.getPersistentData().getBoolean(ESCAPE_TRANSIENT_TAG)) return;
+        if (this.ownsLock() || !this.mob.getPersistentData().getBooleanOr(ESCAPE_TRANSIENT_TAG, false)) return;
         this.stopEscapeAnimation();
         this.mob.setNoGravity(false);
         this.mob.setBbqHoleEscapeActive(false);

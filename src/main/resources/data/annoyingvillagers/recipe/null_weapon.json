@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "annoyingvillagers:null_sword",
+    "annoyingvillagers:null_axe",
+    "annoyingvillagers:null_pickaxe",
+    "annoyingvillagers:null_shovel",
+    "annoyingvillagers:null_hoe",
+    "minecraft:enchanted_book"
+  ],
+  "result": {
+    "count": 1,
+    "id": "annoyingvillagers:null_weapon"
+  }
+}
