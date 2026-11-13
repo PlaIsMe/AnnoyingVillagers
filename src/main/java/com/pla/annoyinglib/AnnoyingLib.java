@@ -6,6 +6,7 @@ import com.pla.annoyinglib.network.ClientboundDiamondAttractorFx;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.Optional;
 import com.mojang.serialization.Codec;
 import com.pla.annoyinglib.client.gui.InventoryViewerScreen;
 import com.pla.annoyinglib.client.engine.CameraEngine;
@@ -33,6 +34,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.NetworkEvent.Context;
 import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -44,7 +46,7 @@ public class AnnoyingLib {
     public static final Logger LOGGER = LogManager.getLogger(AnnoyingLib.class);
     public static final String MODID = "annoyinglib";
     public static final SimpleChannel PACKET_HANDLER = NetworkRegistry
-            .newSimpleChannel(ResourceLocation.fromNamespaceAndPath(AnnoyingLib.MODID, "main"), () -> "8", "8"::equals, "8"::equals);
+            .newSimpleChannel(ResourceLocation.fromNamespaceAndPath(AnnoyingLib.MODID, "main"), () -> "10", "10"::equals, "10"::equals);
     private static int messageID = 0;
 
     public AnnoyingLib(FMLJavaModLoadingContext context) {
@@ -95,6 +97,9 @@ public class AnnoyingLib {
     public static class initer {
         @SubscribeEvent
         public static void init(FMLCommonSetupEvent fmlCommonSetupEvent) {
+            AnnoyingLib.PACKET_HANDLER.registerMessage(AnnoyingLib.messageID++, ClientboundCinematicCamera.class,
+                    ClientboundCinematicCamera::encode, ClientboundCinematicCamera::decode,
+                    ClientboundCinematicCamera::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
             AnnoyingLib.addNetworkMessage(
                     ClientboundMuteExplosionAtPos.class,
                     ClientboundMuteExplosionAtPos::encode,

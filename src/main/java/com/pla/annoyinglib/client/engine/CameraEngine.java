@@ -1,6 +1,7 @@
 package com.pla.annoyinglib.client.engine;
 
 import com.pla.annoyinglib.AnnoyingLib;
+import com.pla.annoyinglib.client.camera.CinematicCameraController;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,7 +41,7 @@ public class CameraEngine {
             return entry.remainingTicks <= 0;
         });
 
-        if (!queue.isEmpty()) {
+        if (!queue.isEmpty() && !CinematicCameraController.active()) {
             ShakeEntry top = queue.peek();
             double ticksExistedDelta = player.tickCount + event.getPartialTick();
             double k = top.strength / 4F;

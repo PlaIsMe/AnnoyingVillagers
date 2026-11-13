@@ -175,5 +175,8 @@
   "burn_item.annoyinglib.53": "That is the end of this %s.",
   "burn_item.annoyinglib.54": "No need to leave %s for someone else.",
   "burn_item.annoyinglib.55": "One last glow for %s.",
-  "burn_item.annoyinglib.56": "Ashes take up less space than %s."
+  "burn_item.annoyinglib.56": "Ashes take up less space than %s.",
+  "screen.annoyinglib.cinematic": "Cinematic",
+  "screen.annoyinglib.cinematic.cancel": "Cancel cinematic",
+  "screen.annoyinglib.cinematic.controls": "Esc / Space to cancel"
 }

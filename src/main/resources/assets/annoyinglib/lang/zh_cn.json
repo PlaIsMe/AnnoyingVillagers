@@ -175,5 +175,8 @@
   "burn_item.annoyinglib.53": "这个%s到此为止了。",
   "burn_item.annoyinglib.54": "没必要把%s留给别人。",
   "burn_item.annoyinglib.55": "让%s最后发一次光。",
-  "burn_item.annoyinglib.56": "灰烬可比%s省地方。"
+  "burn_item.annoyinglib.56": "灰烬可比%s省地方。",
+  "screen.annoyinglib.cinematic": "过场动画",
+  "screen.annoyinglib.cinematic.cancel": "取消过场动画",
+  "screen.annoyinglib.cinematic.controls": "Esc / 空格键取消"
 }

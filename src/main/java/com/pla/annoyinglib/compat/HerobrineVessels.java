@@ -97,6 +97,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -156,14 +158,17 @@ public final class HerobrineVessels {
 
     // Legacy hook: SmartNpc.java:66
     public static void copyPlayerNpcIdentity(Entity entity, Entity clone) {
-        LowHerobrineCloneEntity lowHerobrineCloneEntity = (LowHerobrineCloneEntity) clone;
-
-            if (!(entity instanceof PlayerNpcEntity playerNpcEntity)) return;
-
-            String username = playerNpcEntity.getUsername().getCombinedNames();
-            if (username != null && !username.isBlank()) lowHerobrineCloneEntity.setUsername(username);
-            var profile = playerNpcEntity.getProfile();
-            if (profile != null) lowHerobrineCloneEntity.setProfile(profile);
+        if (!(entity instanceof PlayerNpcEntity playerNpcEntity)) return;
+        String username = playerNpcEntity.getUsername().getCombinedNames();
+        var profile = playerNpcEntity.getProfile();
+        CompoundTag identity = new CompoundTag();
+        if (username != null && !username.isBlank()) identity.putString("Username", username);
+        if (profile != null) identity.put("Profile", NbtUtils.writeGameProfile(new CompoundTag(), profile));
+        clone.getPersistentData().put("PossessionIdentity", identity);
+        if (clone instanceof LowHerobrineCloneEntity low) {
+            if (username != null && !username.isBlank()) low.setUsername(username);
+            if (profile != null) low.setProfile(profile);
+        }
     }
 
     // Legacy hook: SmartNpc.java:146

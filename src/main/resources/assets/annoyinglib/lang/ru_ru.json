@@ -175,5 +175,8 @@
   "burn_item.annoyinglib.53": "Это конец для %s.",
   "burn_item.annoyinglib.54": "Незачем оставлять %s кому-то ещё.",
   "burn_item.annoyinglib.55": "Последний огонёк для %s.",
-  "burn_item.annoyinglib.56": "Пепел занимает меньше места, чем %s."
+  "burn_item.annoyinglib.56": "Пепел занимает меньше места, чем %s.",
+  "screen.annoyinglib.cinematic": "Кинематическая сцена",
+  "screen.annoyinglib.cinematic.cancel": "Пропустить сцену",
+  "screen.annoyinglib.cinematic.controls": "Esc / Пробел: пропустить"
 }

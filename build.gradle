@@ -74,10 +74,10 @@ mixin {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation fg.deobf("local:TheCreators-1.20.1:1.0")
-    implementation fg.deobf("local:LegendaryNpcs-1.20.1:1.0")
-    implementation fg.deobf("local:MobSupremacy-1.20.1:1.0")
-    implementation fg.deobf("local:VillagerKingdom-1.20.1:1.0")
+    implementation fg.deobf("local:TheCreators-1.20.1:1.0.0")
+    implementation fg.deobf("local:LegendaryNpcs-1.20.1:1.0.0")
+    implementation fg.deobf("local:MobSupremacy-1.20.1:1.0.0")
+    implementation fg.deobf("local:VillagerKingdom-1.20.1:1.0.0")
     implementation fg.deobf("local:HerobrineVessels-1.20.1:1.0.0")
 
     compileOnly fg.deobf("curse.maven:smart-npc-1709932:9424489")
@@ -90,7 +90,7 @@ dependencies {
     implementation fg.deobf("curse.maven:cloth-config-348521:5729105")
     implementation fg.deobf("curse.maven:playeranimator-658587:4587214")
     implementation fg.deobf("curse.maven:better-combat-by-daedelus-639842:7287334")
-    implementation fg.deobf("curse.maven:punchy-1374153:9408724") // Punchy 3.1b, Forge 1.20.1
+    implementation fg.deobf("curse.maven:punchy-1374153:9537311")
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
 
