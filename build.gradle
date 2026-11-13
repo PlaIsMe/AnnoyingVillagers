@@ -76,7 +76,7 @@ repositories {
 }
 
 dependencies {
-    implementation "libs:SmartNPC-neoforge-26.1.2:3.0.3"
+    implementation "curse.maven:smart-npc-1709932:9524740"
 
     compileOnly "curse.maven:aaa-particles-979809:8984089"
     implementation "curse.maven:architectury-api-419699:9111154"
@@ -86,7 +86,7 @@ dependencies {
     implementation "curse.maven:cloth-config-348521:7817583"
     implementation "curse.maven:better-combat-by-daedelus-639842:8486482"
     implementation "curse.maven:player-animation-library-1283899:8674772"
-    implementation "curse.maven:punchy-1374153:9408712"
+    implementation "curse.maven:punchy-1374153:9537296"
 
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
 }
