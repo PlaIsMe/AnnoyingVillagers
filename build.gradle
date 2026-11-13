@@ -100,14 +100,14 @@ repositories {
 }
 
 dependencies {
-    compileOnly "curse.maven:smart-npc-1709932:9424598"
+    compileOnly "curse.maven:smart-npc-1709932:9523319"
 
     implementation "dev.architectury:architectury-neoforge:19.0.1"
 
     implementation "maven.modrinth:cloth-config:Wsus0EWg"
     implementation "maven.modrinth:player-animation-library:uue016SO"
     compileOnly "maven.modrinth:better-combat:lkzLyXbV"
-    compileOnly "curse.maven:punchy-1374153:9408716"
+    compileOnly "curse.maven:punchy-1374153:9537300"
     if (providers.gradleProperty('compatRuntime').map { it.toBoolean() }.getOrElse(true)) {
         localRuntime "curse.maven:smart-npc-1709932:9424598"
         localRuntime "maven.modrinth:better-combat:lkzLyXbV"
