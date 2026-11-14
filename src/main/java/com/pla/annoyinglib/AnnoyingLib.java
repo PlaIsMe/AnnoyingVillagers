@@ -46,7 +46,7 @@ public class AnnoyingLib {
     public static final Logger LOGGER = LogManager.getLogger(AnnoyingLib.class);
     public static final String MODID = "annoyinglib";
     public static final SimpleChannel PACKET_HANDLER = NetworkRegistry
-            .newSimpleChannel(ResourceLocation.fromNamespaceAndPath(AnnoyingLib.MODID, "main"), () -> "10", "10"::equals, "10"::equals);
+            .newSimpleChannel(ResourceLocation.fromNamespaceAndPath(AnnoyingLib.MODID, "main"), () -> "12", "12"::equals, "12"::equals);
     private static int messageID = 0;
 
     public AnnoyingLib(FMLJavaModLoadingContext context) {

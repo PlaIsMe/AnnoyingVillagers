@@ -197,7 +197,7 @@ public final class RigStunController {
     }
 
     private static boolean canStun(Mob mob) {
-        return mob != null && supports(mob) && !mob.level().isClientSide && mob.isAlive() && !mob.isRemoved() && !mob.isDeadOrDying() && !RigAnimationController.isInvulnerable(mob);
+        return mob != null && supports(mob) && !mob.level().isClientSide && mob.isAlive() && !mob.isRemoved() && !mob.isDeadOrDying() && !RigAnimationController.isInvulnerable(mob) && !RigAnimationController.hasChoreographyPose(mob);
     }
 
     private static void lockMob(Mob mob) {

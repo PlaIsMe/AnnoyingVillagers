@@ -178,5 +178,7 @@
   "burn_item.annoyinglib.56": "灰烬可比%s省地方。",
   "screen.annoyinglib.cinematic": "过场动画",
   "screen.annoyinglib.cinematic.cancel": "取消过场动画",
-  "screen.annoyinglib.cinematic.controls": "Esc / 空格键取消"
+  "screen.annoyinglib.cinematic.controls": "Esc / 空格键取消",
+  "item.annoyinglib.enchanted_totem_of_undying": "附魔不死图腾",
+  "tooltip.annoyinglib.enchanted_totem_of_undying": "主动解除附身时消耗，恢复你的身体、物品和经验。无法阻止普通死亡。"
 }

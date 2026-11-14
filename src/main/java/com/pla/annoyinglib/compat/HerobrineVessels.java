@@ -1,4 +1,6 @@
 package com.pla.annoyinglib.compat;
+
+import com.pla.annoyinglib.rig.RigAbilityItemProvider;
 import com.pla.herobrine_vessels.clazz.FakePlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -809,8 +811,13 @@ public final class HerobrineVessels {
         shadowHerobrine.playSound(HerobrineVesselsModSounds.SHADOW_HEROBRINE_SAY_OBSIDIAN_MACHINE_GUN.get(), 1.0F, 1.0F);
     }
 
+    private static Item obsidianAbilityItem(Mob mob, Item heldItem) {
+        return mob instanceof RigAbilityItemProvider provider ? provider.getRigAbilityItem() : heldItem;
+    }
+
     // Legacy hook: RigAnimationSpecs.java:1653
     public static void summonSmallObsidianCross(ServerLevel serverLevel, Mob mob, Item item) {
+        item = obsidianAbilityItem(mob, item);
         BlockState state;
         if (item instanceof ShadowObsidianWeaponItem) {
             state = HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState().setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
@@ -829,7 +836,7 @@ public final class HerobrineVessels {
 
     // Legacy hook: RigAnimationSpecs.java:1676
     public static void summonObsidianCross(ServerLevel serverLevel, Mob mob) {
-        Item item = mob.getMainHandItem().getItem();
+        Item item = obsidianAbilityItem(mob, mob.getMainHandItem().getItem());
         if (item instanceof ShadowObsidianPillarItem) {
             HerobrineUtil.summonShadowObsidianLongPillarDefenseWide(serverLevel, mob);
             return;
@@ -849,7 +856,7 @@ public final class HerobrineVessels {
 
     // Legacy hook: RigAnimationSpecs.java:1711
     public static void summonObsidianPillar(ServerLevel serverLevel, Mob mob) {
-        Item item = mob.getMainHandItem().getItem();
+        Item item = obsidianAbilityItem(mob, mob.getMainHandItem().getItem());
         if (item instanceof ShadowObsidianPillarItem || item instanceof ShadowObsidianSwordItem) {
             HerobrineUtil.summonShadowObsidianLongPillarShootToward(serverLevel, mob);
             return;
@@ -878,7 +885,7 @@ public final class HerobrineVessels {
     public static void summonDualSwordPillars(Mob mob) {
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
-        Item item = mob.getMainHandItem().getItem();
+        Item item = obsidianAbilityItem(mob, mob.getMainHandItem().getItem());
         if (item instanceof ShadowObsidianPillarItem) {
             HerobrineUtil.summonShadowObsidianLongPillarCircle(serverLevel, mob, mob.getOnPos());
             HerobrineUtil.summonShadowObsidianLongPillarShootToward(serverLevel, mob);
@@ -889,7 +896,7 @@ public final class HerobrineVessels {
 
     // Legacy hook: RigAnimationSpecs.java:1874
     public static BlockState getObsidianFistState(Mob mob) {
-        Item item = mob.getMainHandItem().getItem();
+        Item item = obsidianAbilityItem(mob, mob.getMainHandItem().getItem());
         if (!(item instanceof ObsidianWeaponItem || item instanceof ShadowObsidianWeaponItem || item instanceof ShadowObsidianPillarItem)) return null;
         if (item instanceof ShadowObsidianPillarItem) {
             return HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_SHORT_PILLAR.get().defaultBlockState()
@@ -906,7 +913,7 @@ public final class HerobrineVessels {
 
     // Legacy hook: RigAnimationSpecs.java:1892
     public static BlockState getObsidianWallState(Mob mob) {
-        Item item = mob.getMainHandItem().getItem();
+        Item item = obsidianAbilityItem(mob, mob.getMainHandItem().getItem());
         if (item instanceof ShadowObsidianPillarItem || item instanceof ShadowObsidianSwordItem) {
             return HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_LONG_PILLAR.get().defaultBlockState()
                     .setValue(HerobrineObsidianBlock.FROM_PLAYER, false)
@@ -925,7 +932,7 @@ public final class HerobrineVessels {
 
     // Legacy hook: RigAnimationSpecs.java:1911
     public static BlockState getObsidianProjectileState(Mob mob) {
-        Item item = mob.getMainHandItem().getItem();
+        Item item = obsidianAbilityItem(mob, mob.getMainHandItem().getItem());
         if (item instanceof ShadowObsidianWeaponItem) {
             return HerobrineVesselsModBlocks.SHADOW_OBSIDIAN_BLOCK.get().defaultBlockState()
                     .setValue(HerobrineObsidianBlock.FROM_PLAYER, false);
@@ -954,6 +961,7 @@ public final class HerobrineVessels {
 
     // Legacy hook: RigAnimationSpecs.java:1951
     public static void summonObsidianWall(ServerLevel serverLevel, Mob mob, Item item) {
+        item = obsidianAbilityItem(mob, item);
         if (item instanceof ShadowObsidianPillarItem || item instanceof ShadowObsidianSwordItem) {
             HerobrineUtil.summonShadowObsidianLongPillarDefense(serverLevel, mob);
             return;

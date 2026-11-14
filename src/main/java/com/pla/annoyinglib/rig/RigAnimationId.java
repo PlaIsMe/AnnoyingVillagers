@@ -382,7 +382,16 @@ public enum RigAnimationId {
     TACHI_IDLE,
     TACHI_RUN,
     TACHI_WALK,
-    TACHI_ULT;
+    TACHI_ULT,
+
+    CREATIVE_FLY_BACKWARD,
+    CREATIVE_FLY_FORWARD,
+    GOD_IDLE,
+    HEROBRINE_GOD_INIT,
+    HEROBRINE_GOD_SWING_HANDS,
+    HEROBRINE_GOD_DROP_BLACK_HOLE,
+    GOD_STRANGE_ABILITY,
+    BEING_STRANGE;
 
     private static final RigAnimationId[] VALUES = values();
 

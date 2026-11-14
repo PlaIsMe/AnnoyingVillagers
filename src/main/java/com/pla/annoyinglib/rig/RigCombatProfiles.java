@@ -865,7 +865,7 @@ public final class RigCombatProfiles {
                 .anyMatch(profile -> profile.containsAttack(animationId));
     }
 
-    private static RigCombatProfile getProfile(RigCombatStyle style) {
+    public static RigCombatProfile getProfile(RigCombatStyle style) {
         return PROFILES.get(style);
     }
 

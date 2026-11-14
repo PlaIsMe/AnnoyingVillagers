@@ -178,5 +178,7 @@
   "burn_item.annoyinglib.56": "Пепел занимает меньше места, чем %s.",
   "screen.annoyinglib.cinematic": "Кинематическая сцена",
   "screen.annoyinglib.cinematic.cancel": "Пропустить сцену",
-  "screen.annoyinglib.cinematic.controls": "Esc / Пробел: пропустить"
+  "screen.annoyinglib.cinematic.controls": "Esc / Пробел: пропустить",
+  "item.annoyinglib.enchanted_totem_of_undying": "Зачарованный тотем бессмертия",
+  "tooltip.annoyinglib.enchanted_totem_of_undying": "Расходуется при добровольном освобождении от одержимости. Возвращает тело, предметы и опыт. Не защищает от обычной смерти."
 }

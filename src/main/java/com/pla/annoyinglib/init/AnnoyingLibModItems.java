@@ -1,5 +1,6 @@
 package com.pla.annoyinglib.init;
 import com.pla.annoyinglib.item.DiamondMaceItem;
+import com.pla.annoyinglib.item.EnchantedTotemOfUndyingItem;
 import com.pla.annoyinglib.item.GoldenMaceItem;
 import com.pla.annoyinglib.item.TwinDiamondSpearItem;
 import com.pla.annoyinglib.item.IronSickleItem;
@@ -47,6 +48,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public final class AnnoyingLibModItems {
     public static final DeferredRegister<Item> REGISTRY = DeferredRegister.create(ForgeRegistries.ITEMS, AnnoyingLib.MODID);
+    public static final RegistryObject<Item> ENCHANTED_TOTEM_OF_UNDYING = REGISTRY.register("enchanted_totem_of_undying", EnchantedTotemOfUndyingItem::new);
     public static final RegistryObject<Item> INVENTORY_VIEWER = REGISTRY.register("inventory_viewer", InventoryViewerItem::new);
 
     public static final RegistryObject<Item> DIAMOND_CLAW = AnnoyingLibModItems.REGISTRY.register("diamond_claw", DiamondClawItem::new);

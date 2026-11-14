@@ -5,6 +5,7 @@ import com.pla.annoyinglib.client.animation.rig_animation.basic_attack.BasicAtta
 import com.pla.annoyinglib.client.animation.rig_animation.basic_attack.BasicAttackAnimations2;
 import com.pla.annoyinglib.client.animation.rig_animation.blue_demon.*;
 import com.pla.annoyinglib.client.animation.rig_animation.dagger.*;
+import com.pla.annoyinglib.client.animation.rig_animation.god.HerobrineGodAnimations;
 import com.pla.annoyinglib.client.animation.rig_animation.swordsman_herobrine.*;
 import com.pla.annoyinglib.client.animation.rig_animation.aegis_herobrine.*;
 import com.pla.annoyinglib.client.animation.rig_animation.glaive_herobrine.*;
@@ -375,6 +376,14 @@ public final class RigAnimationResolver {
             case LEGENDARY_SWORD_DUAL_AUTO3 -> LegendarySwordAnimations4.LEGENDARY_SWORD_DUAL_AUTO3;
 
             case NULL_IDLE -> NullAnimations1.NULL_IDLE;
+            case CREATIVE_FLY_BACKWARD -> NullAnimations1.NULL_WALK;
+            case CREATIVE_FLY_FORWARD -> NullAnimations1.NULL_RUN;
+            case GOD_IDLE -> HerobrineGodAnimations.GOD_IDLE;
+            case HEROBRINE_GOD_INIT -> HerobrineGodAnimations.HEROBRINE_GOD_INIT;
+            case HEROBRINE_GOD_SWING_HANDS -> HerobrineGodAnimations.HEROBRINE_GOD_SWING_HANDS;
+            case HEROBRINE_GOD_DROP_BLACK_HOLE -> HerobrineGodAnimations.HEROBRINE_GOD_DROP_BLACK_HOLE;
+            case GOD_STRANGE_ABILITY -> HerobrineGodAnimations.GOD_STRANGE_ABILITY;
+            case BEING_STRANGE -> HerobrineGodAnimations.BEING_STRANGE;
             case NULL_WALK -> NullAnimations1.NULL_WALK;
             case NULL_RUN -> NullAnimations1.NULL_RUN;
             case NULL_ATTACK1 -> NullAnimations1.NULL_ATTACK1;

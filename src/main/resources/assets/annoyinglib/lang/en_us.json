@@ -178,5 +178,7 @@
   "burn_item.annoyinglib.56": "Ashes take up less space than %s.",
   "screen.annoyinglib.cinematic": "Cinematic",
   "screen.annoyinglib.cinematic.cancel": "Cancel cinematic",
-  "screen.annoyinglib.cinematic.controls": "Esc / Space to cancel"
+  "screen.annoyinglib.cinematic.controls": "Esc / Space to cancel",
+  "item.annoyinglib.enchanted_totem_of_undying": "Enchanted Totem of Undying",
+  "tooltip.annoyinglib.enchanted_totem_of_undying": "Consumed when you release yourself from possession. Restores your body, items and experience. Does not prevent ordinary death."
 }

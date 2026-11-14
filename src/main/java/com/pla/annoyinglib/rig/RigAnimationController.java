@@ -35,6 +35,33 @@ public final class RigAnimationController {
     // for a hook session without risking integer overflow in client blend calculations.
     private static final int HELD_POSE_DURATION_TICKS = 20 * 60 * 60 * 24;
     private static final Map<UUID, ActiveAnimationState> ACTIVE_ANIMATIONS = new HashMap<>();
+    private record ChoreographyPose(Mob mob, RigAnimationId id, long until) {}
+    private static final Map<UUID, ChoreographyPose> CHOREOGRAPHY_POSES = new HashMap<>();
+
+    /** Reserve a short external pose, such as a paired grab, against AI/stun replacement. */
+    public static void beginChoreographyPose(Mob mob, RigAnimationId id, int ticks) {
+        if (mob.level().isClientSide || !mob.isAlive()) return;
+        endChoreographyPose(mob);
+        RigStunController.clear(mob);
+        playHeldPose(mob, id);
+        CHOREOGRAPHY_POSES.put(mob.getUUID(), new ChoreographyPose(mob, id, mob.level().getGameTime() + Math.max(1, ticks)));
+    }
+
+    public static boolean hasChoreographyPose(Mob mob) {
+        ChoreographyPose pose = CHOREOGRAPHY_POSES.get(mob.getUUID());
+        if (pose == null) return false;
+        if (pose.mob() != mob || mob.isRemoved() || !mob.isAlive() || mob.level().getGameTime() >= pose.until()) {
+            CHOREOGRAPHY_POSES.remove(mob.getUUID());
+            if (pose.mob() == mob) stop(mob, pose.id());
+            return false;
+        }
+        return true;
+    }
+
+    public static void endChoreographyPose(Mob mob) {
+        ChoreographyPose pose = CHOREOGRAPHY_POSES.remove(mob.getUUID());
+        if (pose != null) stop(mob, pose.id());
+    }
 
     private RigAnimationController() {
     }
@@ -44,6 +71,7 @@ public final class RigAnimationController {
     }
 
     public static void playHeldPose(Mob mob, RigAnimationId animationId) {
+        if (hasChoreographyPose(mob)) return;
         RigAnimationSpec baseSpec = RigAnimationSpecs.get(animationId);
         if (baseSpec.damagesTarget()) {
             throw new IllegalArgumentException("Held rig poses must be non-damaging: " + animationId);
@@ -65,6 +93,8 @@ public final class RigAnimationController {
         if (animationId == null || mob.level().isClientSide) {
             return;
         }
+        ChoreographyPose pose = CHOREOGRAPHY_POSES.get(mob.getUUID());
+        if (pose != null && pose.mob() == mob && mob.isAlive() && mob.level().getGameTime() < pose.until()) return;
 
         ActiveAnimationState state = ACTIVE_ANIMATIONS.get(mob.getUUID());
         if (state == null || state.spec().animationId() != animationId) {
@@ -108,6 +138,7 @@ public final class RigAnimationController {
     }
 
     private static void playNow(Mob mob, RigAnimationSpec spec, LivingEntity target) {
+        if (hasChoreographyPose(mob)) return;
         if (mob.level().isClientSide || !mob.isAlive() || mob.isRemoved() || !canPlayWhileMounted(mob, spec) || isProfileAttackLocked(mob, spec.animationId())) return;
         if (mob instanceof com.pla.annoyinglib.clazz.AVNpc npc
                 && net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
@@ -190,6 +221,7 @@ public final class RigAnimationController {
 
     public static void clearActiveAnimations() {
         ACTIVE_ANIMATIONS.clear();
+        CHOREOGRAPHY_POSES.clear();
     }
 
     private static boolean isProfileAttackLocked(Mob mob, RigAnimationId animationId) {

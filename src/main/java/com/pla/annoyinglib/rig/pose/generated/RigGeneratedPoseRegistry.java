@@ -9,6 +9,7 @@ public final class RigGeneratedPoseRegistry {
     private RigGeneratedPoseRegistry() {}
 
     public static void register(Map<RigAnimationId, RigPoseClip> clips) {
+        RigHerobrineGodPoseData.register(clips);
         RigRecoveryPoseData.register(clips);
         RigAegisHerobrinePoseData1.register(clips);
         RigAegisHerobrinePoseData2.register(clips);

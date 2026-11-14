@@ -1311,6 +1311,14 @@ public final class RigAnimationSpecs {
                 .invulnerable());
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.NULL_IDLE, 40));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.CREATIVE_FLY_BACKWARD, 80));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.CREATIVE_FLY_FORWARD, 80));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.GOD_IDLE, 53));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_GOD_INIT, 20).withVerticalMotion());
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_GOD_SWING_HANDS, 53));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.HEROBRINE_GOD_DROP_BLACK_HOLE, 40));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.GOD_STRANGE_ABILITY, 34));
+        put(RigAnimationSpec.nonDamaging(RigAnimationId.BEING_STRANGE, 23));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.NULL_WALK, 20));
         put(RigAnimationSpec.nonDamaging(RigAnimationId.NULL_RUN, 22));
         put(RigAnimationSpec.attack(RigAnimationId.NULL_ATTACK1, 20, false,
