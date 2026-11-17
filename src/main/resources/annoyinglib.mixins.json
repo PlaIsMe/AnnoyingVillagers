@@ -24,7 +24,9 @@
     "compat.smartnpc.ProgressionEventMixin",
     "compat.smartnpc.ProgressionUtilMixin",
     "PlayerMixin",
-    "CreeperMixin"
+    "CreeperMixin",
+    "StructureStateMixin",
+    "StructureStartMixin"
   ],
   "client": [
     "client.CinematicCameraMixin",

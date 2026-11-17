@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.util;
 import net.minecraftforge.fml.ModList;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.mojang.authlib.GameProfile;
 import com.pla.annoyinglib.AnnoyingLib;
 import com.pla.annoyinglib.clazz.AVNpc;
@@ -139,7 +139,7 @@ public final class PersistentPlayerNpcManager {
                 || npc.getRemovalReason() == Entity.RemovalReason.DISCARDED) {
             SESSIONS.remove(npc.getUUID());
             PersistentPlayerNpcData.get(level.getServer()).remove(npc.getUUID());
-            if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.release(level, session.identity, session.id);
+            if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.release(level, session.identity, session.id);
         }
         // CHANGED_DIMENSION and unload retain identity. The destination join or restoration
         // refresh reattaches the runtime ticket, without freeing the singleton slot.
@@ -262,11 +262,11 @@ public final class PersistentPlayerNpcManager {
     }
 
     private static void claim(ServerLevel level, String identity, UUID id) {
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.claim(level, identity, id);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.claim(level, identity, id);
     }
 
     private static void vacate(ServerLevel level, String identity, UUID id) {
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.vacate(level, identity, id);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.vacate(level, identity, id);
     }
 
     private static final class Session {

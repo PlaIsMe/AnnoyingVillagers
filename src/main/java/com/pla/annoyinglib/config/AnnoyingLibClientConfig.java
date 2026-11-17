@@ -21,7 +21,7 @@ public final class AnnoyingLibClientConfig {
 
         builder.comment(
                 "Client VFX selection.",
-                "DEFAULT keeps the old priority: photon > aaa_particles > vanilla.",
+                "DEFAULT uses the native animated yellow aura for Diamond Attractor; other effects prefer photon > aaa_particles > vanilla.",
                 "If the selected option is unavailable at runtime, the effect falls back to DEFAULT behavior. Example: choosing AAA_PARTICLE without aaa_particles installed will use DEFAULT routing.",
                 "All options default to DEFAULT."
         ).push("vfx");

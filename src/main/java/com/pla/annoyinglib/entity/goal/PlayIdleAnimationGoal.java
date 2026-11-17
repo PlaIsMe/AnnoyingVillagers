@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.entity.goal;
 import net.minecraftforge.fml.ModList;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.clazz.IdleAnimation;
 import net.minecraft.server.level.ServerLevel;
@@ -113,7 +113,7 @@ public class PlayIdleAnimationGoal extends Goal {
 
     private boolean baseCanRun() {
         if (avNpc.level().isClientSide) return false;
-        if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isJevEntity(avNpc))) return false;
+        if ((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isJevEntity(avNpc))) return false;
         if (avNpc.tickCount <= 30) return false;
         if (!avNpc.isAlive() || avNpc.isRemoved() || avNpc.isDeadOrDying()) return false;
         if (avNpc.isPassenger()) return false;

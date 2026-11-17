@@ -37,15 +37,37 @@ public final class CinematicCameraController {
     public record CameraPose(Vec3 position, float yaw, float pitch) {}
 
     public static void start(ClientboundCinematicCamera message) {
+        start(message, false, Vec3.ZERO, false);
+    }
+
+    /** Opt-in for scripted transformations that place the viewer in spectator mode. */
+    public static void startIncludingSpectators(ClientboundCinematicCamera message) {
+        start(message, false, Vec3.ZERO, true);
+    }
+
+    /** Two local shots across a player teleport. A skipped departure also skips the arrival. */
+    public static void startTeleport(ClientboundCinematicCamera message, boolean arrival) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null || !client.player.getUUID().equals(message.subjectUuid())) return;
+        Vec3 offset = Vec3.ZERO;
+        if (arrival) {
+            if (!active() || !current.selfTeleport || !current.request.subjectUuid().equals(message.subjectUuid())) return;
+            offset = message.focus().subtract(current.request.focus());
+            cancel();
+        }
+        start(message, true, offset, false);
+    }
+
+    private static void start(ClientboundCinematicCamera message, boolean selfTeleport, Vec3 cameraOffset, boolean allowSpectator) {
         Minecraft client = Minecraft.getInstance();
         if (client.level == null || client.player == null || client.screen != null
                 || !client.level.dimension().location().equals(message.dimension())
                 || !Double.isFinite(message.focus().x) || !Double.isFinite(message.focus().y)
                 || !Double.isFinite(message.focus().z) || !Float.isFinite(message.facingYaw())
                 || client.player.distanceToSqr(message.focus()) > 64 * 64
-                || !client.level.hasChunkAt(BlockPos.containing(message.focus()))
-                || !client.player.isAlive() || client.player.isSpectator() || client.player.hurtTime > 0) return;
-        CinematicScreen screen = new CinematicScreen(message);
+                || (!selfTeleport && !client.level.hasChunkAt(BlockPos.containing(message.focus())))
+                || !client.player.isAlive() || !allowSpectator && client.player.isSpectator() || client.player.hurtTime > 0) return;
+        CinematicScreen screen = new CinematicScreen(message, selfTeleport, cameraOffset, allowSpectator);
         current = screen;
         client.setScreen(screen);
     }
@@ -103,16 +125,21 @@ public final class CinematicCameraController {
         private final long started = Util.getMillis();
         private final long duration;
         private final long approach;
+        private final boolean selfTeleport;
+        private final boolean allowSpectator;
         private boolean sawSubject;
 
-        private CinematicScreen(ClientboundCinematicCamera request) {
+        private CinematicScreen(ClientboundCinematicCamera request, boolean selfTeleport, Vec3 cameraOffset, boolean allowSpectator) {
             super(Component.translatable("screen.annoyinglib.cinematic"));
             this.request = request;
+            this.selfTeleport = selfTeleport;
+            this.allowSpectator = allowSpectator;
             Minecraft client = Minecraft.getInstance();
             level = client.level;
             player = client.player;
             var camera = client.gameRenderer.getMainCamera();
-            initialPosition = camera.getPosition();
+            Vec3 start = camera.getPosition().add(cameraOffset);
+            initialPosition = selfTeleport ? new Vec3(start.x, Math.max(start.y, request.focus().y), start.z) : start;
             initialYaw = camera.getYRot();
             initialPitch = camera.getXRot();
             duration = Mth.clamp(request.durationTicks(), 30, 200) * 50L;
@@ -130,9 +157,10 @@ public final class CinematicCameraController {
         @Override
         public void tick() {
             if (Minecraft.getInstance().level != level || Minecraft.getInstance().player != player
-                    || !player.isAlive() || player.isSpectator() || player.hurtTime > 0
+                    || !player.isAlive() || !allowSpectator && player.isSpectator() || player.hurtTime > 0
                     || player.distanceToSqr(request.focus()) > 72 * 72
-                    || !level.hasChunkAt(BlockPos.containing(request.focus())) || elapsed() >= duration) {
+                    || (!level.hasChunkAt(BlockPos.containing(request.focus())) && (!selfTeleport || elapsed() > 1500L))
+                    || elapsed() >= duration) {
                 cancel();
                 return;
             }
@@ -153,7 +181,9 @@ public final class CinematicCameraController {
                     .add(side.scale(Mth.lerp(drift, -0.8D, 0.8D))).add(0, 0.9D, 0);
             shot = clip(request.focus(), shot);
             Vec3 position = initialPosition.lerp(shot, entering()).lerp(vanillaPosition, returning());
-            position = clip(player.getEyePosition(), position);
+            // A portal transition puts the player's eyes below solid ground. Keep the shot
+            // anchored above its portal instead of clipping the camera into that ground.
+            position = clip(selfTeleport ? request.focus() : player.getEyePosition(), position);
             Vec3 look = request.focus().subtract(position);
             float targetYaw = (float) (Math.toDegrees(Math.atan2(look.z, look.x)) - 90.0D);
             float targetPitch = (float) -Math.toDegrees(Math.atan2(look.y, look.horizontalDistance()));

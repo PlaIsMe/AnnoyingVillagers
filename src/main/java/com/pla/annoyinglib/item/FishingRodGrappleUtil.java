@@ -2,7 +2,7 @@ package com.pla.annoyinglib.item;
 import com.pla.annoyinglib.util.SharedWeaponHooks;
 import com.pla.annoyinglib.compat.VillagerKingdom;
 import net.minecraft.world.item.Items;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import net.minecraftforge.fml.ModList;
 import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.clazz.FishingRodUser;
@@ -120,7 +120,7 @@ public final class FishingRodGrappleUtil {
         boolean disablePlunge = player.isShiftKeyDown();
 
         if (hook != null) {
-            if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(item)) || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(item))) {
+            if ((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(item)) || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(item))) {
                 if (hook.getPersistentData().getBoolean(KEY_RETURNING)) {
                     level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
                     if (!level.isClientSide) {
@@ -136,7 +136,7 @@ public final class FishingRodGrappleUtil {
 
                 if (!level.isClientSide) {
                     int damage;
-                    if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(item))) {
+                    if ((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(item))) {
                         if (disablePlunge) {
                             if (!handleTonySneakItemTargetOnPull(player, hook)) {
                                 releaseTonyPlungePayloads(hook, player);
@@ -537,7 +537,7 @@ public final class FishingRodGrappleUtil {
 
     public static boolean shouldForceOffhandFishingRodRender(LivingEntity entity) {
         Item offhandItem = entity.getOffhandItem().getItem();
-        return (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(offhandItem)) || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(offhandItem));
+        return (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(offhandItem)) || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(offhandItem));
     }
 
     private static void startHookReturn(FishingHook hook) {
@@ -549,7 +549,7 @@ public final class FishingRodGrappleUtil {
 
     private static void recastHookFromReturn(Item item, Level level, Player player, ItemStack stack, FishingHook returningHook, boolean disablePlunge) {
         Vec3 start = returningHook.position();
-        boolean tonyRod = (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(item));
+        boolean tonyRod = (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(item));
         Entity stickyTarget = tonyRod ? getStickyTarget(returningHook) : null;
         ItemProjectile stickyProjectile = tonyRod ? getStickyItemProjectile(returningHook) : null;
         boolean collectReturningItem = tonyRod && returningHook.getPersistentData().getBoolean(KEY_COLLECT_RETURNING_ITEM);
@@ -626,13 +626,13 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean isHoldingTonyRod(LivingEntity owner) {
-        return (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(owner.getMainHandItem().getItem()))
-                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(owner.getOffhandItem().getItem()));
+        return (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(owner.getMainHandItem().getItem()))
+                || (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(owner.getOffhandItem().getItem()));
     }
 
     private static boolean isHoldingGrappleRod(LivingEntity owner) {
-        return (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(owner.getMainHandItem().getItem()))
-                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(owner.getOffhandItem().getItem()))
+        return (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(owner.getMainHandItem().getItem()))
+                || (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(owner.getOffhandItem().getItem()))
                 || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(owner.getMainHandItem().getItem()))
                 || (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isAdvancedFishingRod(owner.getOffhandItem().getItem()));
     }
@@ -761,7 +761,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean handleTonyReturningStickyLivingTargetOnPull(Item item, LivingEntity owner, FishingHook hook, boolean disablePlunge) {
-        if (disablePlunge || !((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(item)))) {
+        if (disablePlunge || !((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(item)))) {
             return false;
         }
 
@@ -779,7 +779,7 @@ public final class FishingRodGrappleUtil {
     }
 
     private static boolean handleTonyStickyLivingTargetOnPull(Item item, LivingEntity owner, FishingHook hook) {
-        if (!((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(item)))) {
+        if (!((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(item)))) {
             return false;
         }
 

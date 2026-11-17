@@ -1,5 +1,5 @@
 package com.pla.annoyinglib.event;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.compat.MobSupremacy;
 import net.minecraftforge.fml.ModList;
 import com.pla.annoyinglib.compat.HerobrineVessels;
@@ -81,7 +81,7 @@ public class SpecialAttackOnKeyPressedEvent {
 
         if (entity instanceof Player player
                 && !player.level().isClientSide()
-                && (ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.hookGunItem_tryBindFromSpecialAttack(player) : false)) {
+                && (ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.hookGunItem_tryBindFromSpecialAttack(player) : false)) {
             playHookGunBindAnimationAfterHandRefresh(player);
             return;
         }
@@ -98,10 +98,10 @@ public class SpecialAttackOnKeyPressedEvent {
             else if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.blueDemonTridentItem_activateVanillaElectricField(player);
             return;
         }
-        if ((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.earthAxeItem_activateVanillaSpecial(player) : false)) return;
-        if ((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.woopieTheSwordItem_activateVanillaSpecial(player) : false)) return;
+        if ((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.earthAxeItem_activateVanillaSpecial(player) : false)) return;
+        if ((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.woopieTheSwordItem_activateVanillaSpecial(player) : false)) return;
         if (ModList.get().isLoaded("herobrine_vessels") && HerobrineVessels.activateSpecial(player)) return;
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.legendarySwordItem_activateVanillaSpecial(player);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.legendarySwordItem_activateVanillaSpecial(player);
     }
 
     private static void addEfmSpecialAttackCompat(Entity entity) {
@@ -157,7 +157,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                            }
 //                        }
 //
-//                        if (holdingItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_THUNDER_DIAMOND_BLADE() : Items.AIR))) {
+//                        if (holdingItem.getItem().equals((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_THUNDER_DIAMOND_BLADE() : Items.AIR))) {
 //                            PlayerPatch<?> playerPatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 //                            if (playerPatch instanceof ServerPlayerPatch) {
 //                                ServerPlayerPatch serverPlayerPatch = (ServerPlayerPatch)playerPatch;
@@ -182,7 +182,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                        if (skillContainer.getResource() >= 10.0F) {
 //                                            Skill.setSkillConsumptionSynchronize(skillContainer, skillContainer.getResource() - 10.0F);
 //                                            ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, player);
-//                                            if (offHandItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_THUNDER_DIAMOND_BLADE() : Items.AIR))) {
+//                                            if (offHandItem.getItem().equals((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_THUNDER_DIAMOND_BLADE() : Items.AIR))) {
 //                                                ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, player, true);
 //                                            }
 //
@@ -249,7 +249,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                return;
 //                            }
 //
-//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_EARTH_AXE() : Items.AIR)) && entity.level() instanceof ServerLevel) {
+//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_EARTH_AXE() : Items.AIR)) && entity.level() instanceof ServerLevel) {
 //                                livingEntityPatch.playAnimationSynchronized(AnimsAVAxe.EARTH_AXE_SPECIAL, 0.0F);
 //                                return;
 //                            }
@@ -477,7 +477,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                return;
 //                            }
 //
-//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_LEGENDARY_SWORD() : Items.AIR)) && entity.level() instanceof ServerLevel) {
+//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_LEGENDARY_SWORD() : Items.AIR)) && entity.level() instanceof ServerLevel) {
 //                                boolean success = false;
 //                                PlayerPatch<?> playerPatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 //                                if (playerPatch instanceof ServerPlayerPatch) {
@@ -488,7 +488,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                        if (lookedPos instanceof LegendarySwordSkill) {
 //                                            LegendarySwordSkill legendarySwordSkill = (LegendarySwordSkill)lookedPos;
 //                                            if (player.level() instanceof ServerLevel) {
-//                                                if (LegendarySwordSkill.isAwakened(skillContainer) && offHandItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_WOOPIE_THE_SWORD() : Items.AIR))) {
+//                                                if (LegendarySwordSkill.isAwakened(skillContainer) && offHandItem.getItem().equals((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_WOOPIE_THE_SWORD() : Items.AIR))) {
 //                                                    livingEntityPatch.playAnimationSynchronized(AnimsAVSword.WOOPIE_INNATE_SPECIAL_LEGENDARY, 0.0F);
 //                                                    return;
 //                                                }
@@ -519,7 +519,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                return;
 //                            }
 //
-//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_WOOPIE_THE_SWORD() : Items.AIR)) && entity.level() instanceof ServerLevel) {
+//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_WOOPIE_THE_SWORD() : Items.AIR)) && entity.level() instanceof ServerLevel) {
 //                                PlayerPatch<?> playerPatch = (PlayerPatch)EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class);
 //                                if (playerPatch instanceof ServerPlayerPatch) {
 //                                    ServerPlayerPatch serverPlayerPatch = (ServerPlayerPatch)playerPatch;
@@ -536,7 +536,7 @@ public class SpecialAttackOnKeyPressedEvent {
 //                                }
 //                            }
 //
-//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_BLUE_FLAME_SWORD() : Items.AIR)) && entity.level() instanceof ServerLevel) {
+//                            if (holdingItem.getItem().equals((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_BLUE_FLAME_SWORD() : Items.AIR)) && entity.level() instanceof ServerLevel) {
 //                                Level playerPatch = player.level();
 //                                if (playerPatch instanceof ServerLevel) {
 //                                    ServerLevel level = (ServerLevel)playerPatch;

@@ -1,7 +1,7 @@
 package com.pla.annoyinglib.clazz;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.compat.VillagerKingdom;
 import net.minecraftforge.fml.ModList;
 import com.pla.annoyinglib.compat.HerobrineVessels;
@@ -310,7 +310,7 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
     public ItemStack getBowItem() {
         ItemStack bow = new ItemStack(Items.BOW);
         if (ModList.get().isLoaded("villager_kingdom")) VillagerKingdom.enchantNpcBow(this, bow);
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.enchantNpcBow(this, bow);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.enchantNpcBow(this, bow);
         return bow;
     }
 
@@ -790,8 +790,8 @@ public class AVNpc extends PathfinderMob implements RangedAttackMob, CombatVoice
             return false;
         }
         InventoryUtils.addItem(this.inventory, this.getBowItem());
-        boolean diamondTools = (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isSteveEntity(this)) || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAngrySteveEntity(this))
-                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAlexEntity(this)) || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isChrisEntity(this));
+        boolean diamondTools = (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isSteveEntity(this)) || (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isAngrySteveEntity(this))
+                || (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isAlexEntity(this)) || (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isChrisEntity(this));
         InventoryUtils.addItem(this.inventory, new ItemStack(diamondTools ? Items.DIAMOND_PICKAXE : Items.IRON_PICKAXE));
         InventoryUtils.addItem(this.inventory, new ItemStack(diamondTools ? Items.DIAMOND_AXE : Items.IRON_AXE));
         return true;

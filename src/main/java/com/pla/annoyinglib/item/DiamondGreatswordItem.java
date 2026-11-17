@@ -32,7 +32,7 @@ public class DiamondGreatswordItem extends SwordItem implements RigCombatProfile
             }
 
             public @NotNull Ingredient getRepairIngredient() {
-                return Ingredient.of(new ItemStack(ContentRegistry.item("legendary_npcs:compressed_diamond")));
+                return Ingredient.of(new ItemStack(ContentRegistry.item("player_npc_factions:compressed_diamond")));
             }
         }, 3, -2.5F, (new Properties()));
     }

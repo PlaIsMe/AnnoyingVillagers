@@ -2,7 +2,7 @@ package com.pla.annoyinglib.entity.goal;
 import com.pla.annoyinglib.util.SharedWeaponHooks;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.ModList;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.clazz.AVNpc;
 import com.pla.annoyinglib.clazz.FishingRodUser;
 import com.pla.annoyinglib.item.FishingRodGrappleUtil;
@@ -272,7 +272,7 @@ public class CombatFishingRodGoal extends Goal {
         }
 
         Item rodItem = this.fishingRodUser.getCombatFishingRodItem();
-        if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isTonyTheFishingRod(rodItem))) {
+        if ((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isTonyTheFishingRod(rodItem))) {
             if (roll < 0.30D) return Action.PULL_TARGET;
             if (roll < 0.70D || distance > 8.0D) return Action.SELF_TO_TARGET;
             return Action.AROUND;

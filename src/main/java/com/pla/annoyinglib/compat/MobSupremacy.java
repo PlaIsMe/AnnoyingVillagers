@@ -97,7 +97,7 @@ public final class MobSupremacy {
     public static void rigAction1(Mob mob) {
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
-        if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isThunderDiamondBladeItem(mob.getMainHandItem().getItem()))) {
+        if ((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isThunderDiamondBladeItem(mob.getMainHandItem().getItem()))) {
             ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, mob, false);
         }
     }
@@ -105,11 +105,11 @@ public final class MobSupremacy {
     public static void rigAction2(Mob mob) {
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
-        if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isThunderDiamondBladeItem(mob.getMainHandItem().getItem()))) {
+        if ((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isThunderDiamondBladeItem(mob.getMainHandItem().getItem()))) {
             ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, mob, false);
         }
 
-        if ((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isThunderDiamondBladeItem(mob.getOffhandItem().getItem()))) {
+        if ((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isThunderDiamondBladeItem(mob.getOffhandItem().getItem()))) {
             ElectricPhaseEntity.spawnOnOwnerSword(serverLevel, mob, true);
         }
     }

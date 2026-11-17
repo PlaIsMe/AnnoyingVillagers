@@ -2,7 +2,7 @@ package com.pla.annoyinglib.util;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.compat.MobSupremacy;
 import net.minecraftforge.fml.ModList;
 import com.pla.annoyinglib.compat.HerobrineVessels;
@@ -34,7 +34,7 @@ public class AAAParticlesUtil {
     }
 
     public static void sendWoopieWind(Level level, double x, double y, double z) {
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.sendWoopieWind(level, x, y, z);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.sendWoopieWind(level, x, y, z);
     }
 
     public static boolean sendTeleportPortal(Level level, Vec3 pos, Vec3 normal) {
@@ -61,6 +61,6 @@ public class AAAParticlesUtil {
     }
 
     public static void sendBlackFire(Level level, Entity entity) {
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.sendBlackFire(level, entity);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.sendBlackFire(level, entity);
     }
 }

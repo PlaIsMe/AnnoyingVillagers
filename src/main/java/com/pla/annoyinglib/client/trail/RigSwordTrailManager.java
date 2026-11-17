@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.client.trail;
 import net.minecraft.world.item.Items;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.compat.VillagerKingdom;
 import net.minecraftforge.fml.ModList;
 import com.pla.annoyinglib.compat.HerobrineVessels;
@@ -110,9 +110,9 @@ public final class RigSwordTrailManager {
                 }
                 if (definition == null || itemId == null) continue;
 
-                if (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isLegendaryAwakened(mob)
+                if (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isLegendaryAwakened(mob)
                         && arm == mob.getMainArm()
-                        && original.is((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_LEGENDARY_SWORD() : Items.AIR))) {
+                        && original.is((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_LEGENDARY_SWORD() : Items.AIR))) {
                     definition = definition.withColor(253, 255, 118);
                 }
 

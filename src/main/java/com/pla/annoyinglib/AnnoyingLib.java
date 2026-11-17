@@ -17,6 +17,7 @@ import com.pla.annoyinglib.config.AnnoyingLibConfig;
 import com.pla.annoyinglib.init.*;
 import com.pla.annoyinglib.network.*;
 import com.pla.annoyinglib.world.AVMobSpawnBiomeModifier;
+import com.pla.annoyinglib.world.structure.StructureWorldgen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -46,12 +47,13 @@ public class AnnoyingLib {
     public static final Logger LOGGER = LogManager.getLogger(AnnoyingLib.class);
     public static final String MODID = "annoyinglib";
     public static final SimpleChannel PACKET_HANDLER = NetworkRegistry
-            .newSimpleChannel(ResourceLocation.fromNamespaceAndPath(AnnoyingLib.MODID, "main"), () -> "12", "12"::equals, "12"::equals);
+            .newSimpleChannel(ResourceLocation.fromNamespaceAndPath(AnnoyingLib.MODID, "main"), () -> "13", "13"::equals, "13"::equals);
     private static int messageID = 0;
 
     public AnnoyingLib(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
         modEventBus.addListener(this::commonSetup);
+        StructureWorldgen.register(modEventBus);
 
         AnnoyingLibModBlocks.REGISTRY.register(modEventBus);
         AnnoyingLibModBlockEntities.REGISTRY.register(modEventBus);
@@ -97,6 +99,9 @@ public class AnnoyingLib {
     public static class initer {
         @SubscribeEvent
         public static void init(FMLCommonSetupEvent fmlCommonSetupEvent) {
+            AnnoyingLib.PACKET_HANDLER.registerMessage(AnnoyingLib.messageID++, ClientboundBossBarStyle.class,
+                    ClientboundBossBarStyle::encode, ClientboundBossBarStyle::decode,
+                    ClientboundBossBarStyle::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
             AnnoyingLib.PACKET_HANDLER.registerMessage(AnnoyingLib.messageID++, ClientboundCinematicCamera.class,
                     ClientboundCinematicCamera::encode, ClientboundCinematicCamera::decode,
                     ClientboundCinematicCamera::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));

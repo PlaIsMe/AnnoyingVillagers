@@ -4,13 +4,13 @@
       "conditions": [
         {
           "type": "forge:mod_loaded",
-          "modid": "legendary_npcs"
+          "modid": "player_npc_factions"
         }
       ],
       "advancement": {
         "display": {
           "icon": {
-            "item": "legendary_npcs:compressed_diamond"
+            "item": "player_npc_factions:compressed_diamond"
           },
           "title": {
             "translate": "advancements.annoyinglib.compressed_diamond.title",

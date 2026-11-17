@@ -1,5 +1,5 @@
 package com.pla.annoyinglib.clazz;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import net.minecraftforge.fml.ModList;
 import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.util.DangerousReactionAnimations;
@@ -98,7 +98,7 @@ public interface DangerousReaction {
             }
         };
 
-        if (((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isSteveEntity(mob)) || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAngrySteveEntity(mob)))
+        if (((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isSteveEntity(mob)) || (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isAngrySteveEntity(mob)))
                 && mob instanceof AVNpc avNpc
                 && InventoryUtils.hasPlaceableBlock(avNpc)) {
             new DelayedTask(1) {

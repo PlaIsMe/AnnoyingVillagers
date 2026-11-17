@@ -8,19 +8,19 @@
         "annoyinglib:diamond_greataxe",
         "annoyinglib:diamond_greatsword",
         "annoyinglib:diamond_mace",
-        "legendary_npcs:earth_axe",
-        "legendary_npcs:exterminator_battleaxe",
-        "legendary_npcs:exterminator_battleaxe_green",
+        "player_npc_factions:earth_axe",
+        "player_npc_factions:exterminator_battleaxe",
+        "player_npc_factions:exterminator_battleaxe_green",
         "mob_supremacy:giant_netherite_axe",
         "annoyinglib:golden_mace",
         "mob_supremacy:iron_greataxe",
-        "legendary_npcs:legendary_sword",
+        "player_npc_factions:legendary_sword",
         "mob_supremacy:netherite_greataxe",
         "herobrine_vessels:null_axe",
-        "legendary_npcs:red_axe",
+        "player_npc_factions:red_axe",
         "mob_supremacy:red_steel_axe",
         "annoyinglib:ruby_greatsword",
-        "legendary_npcs:samantha_the_killer_axe",
+        "player_npc_factions:samantha_the_killer_axe",
         "herobrine_vessels:warden_axe"
       ]
     },
@@ -41,11 +41,11 @@
     {
       "name": "annoyinglib_hammers",
       "items": [
-        "legendary_npcs:crafting_table",
+        "player_npc_factions:crafting_table",
         "mob_supremacy:holy_llama_hammer",
-        "legendary_npcs:ladder",
+        "player_npc_factions:ladder",
         "herobrine_vessels:obsidian_sledgehammer",
-        "legendary_npcs:wooden_door"
+        "player_npc_factions:wooden_door"
       ]
     },
     {
@@ -67,7 +67,7 @@
         "mob_supremacy:iron_double_bladed_halberd",
         "mob_supremacy:iron_halberd",
         "annoyinglib:iron_longsword",
-        "legendary_npcs:iron_twin_blade_katana",
+        "player_npc_factions:iron_twin_blade_katana",
         "annoyinglib:ruby_longsword",
         "mob_supremacy:spear_axe"
       ]
@@ -75,9 +75,9 @@
     {
       "name": "annoyinglib_spears",
       "items": [
-        "legendary_npcs:blackscratcher",
+        "player_npc_factions:blackscratcher",
         "mob_supremacy:diamond_bolt",
-        "legendary_npcs:diamond_spear",
+        "player_npc_factions:diamond_spear",
         "mob_supremacy:netherite_spear",
         "herobrine_vessels:shadow_obsidian_sword",
         "annoyinglib:twin_diamond_spear"
@@ -86,10 +86,10 @@
     {
       "name": "annoyinglib_swords",
       "items": [
-        "legendary_npcs:black_fire_sword",
-        "legendary_npcs:blue_flame_sword",
-        "legendary_npcs:centranos_sword",
-        "legendary_npcs:clow_sword",
+        "player_npc_factions:black_fire_sword",
+        "player_npc_factions:blue_flame_sword",
+        "player_npc_factions:centranos_sword",
+        "player_npc_factions:clow_sword",
         "the_creators:darkness_sword",
         "annoyinglib:diamond_attractor_sword",
         "annoyinglib:diamond_blaster_sword",
@@ -101,10 +101,10 @@
         "annoyinglib:diamond_sabre",
         "annoyinglib:diamond_sickle",
         "annoyinglib:diamond_warblade",
-        "legendary_npcs:dnax_hooked_sword",
-        "legendary_npcs:flanker_hooked_sword",
-        "legendary_npcs:great_sword",
-        "legendary_npcs:hacker_sword",
+        "player_npc_factions:dnax_hooked_sword",
+        "player_npc_factions:flanker_hooked_sword",
+        "player_npc_factions:great_sword",
+        "player_npc_factions:hacker_sword",
         "annoyinglib:hooked_diamond_sword",
         "annoyinglib:hooked_golden_sword",
         "annoyinglib:hooked_iron_sword",
@@ -116,13 +116,13 @@
         "mob_supremacy:netherite_knife",
         "mob_supremacy:netherite_sabre",
         "herobrine_vessels:null_sword",
-        "legendary_npcs:paladin_sword",
+        "player_npc_factions:paladin_sword",
         "annoyinglib:red_diamond_sword",
         "the_creators:ruby_knight_sword",
         "the_creators:ruby_sword",
-        "legendary_npcs:thunder_diamond_blade",
-        "legendary_npcs:trapdoor",
-        "legendary_npcs:woopie_the_sword"
+        "player_npc_factions:thunder_diamond_blade",
+        "player_npc_factions:trapdoor",
+        "player_npc_factions:woopie_the_sword"
       ]
     },
     {
@@ -383,7 +383,7 @@
     }
   },
   "itemSpecific": {
-    "legendary_npcs:black_fire_sword": {
+    "player_npc_factions:black_fire_sword": {
       "customAnimation": [
         {
           "type": "attack",
@@ -483,7 +483,7 @@
         }
       ]
     },
-    "legendary_npcs:dnax_hooked_sword": {
+    "player_npc_factions:dnax_hooked_sword": {
       "customAnimation": [
         {
           "type": "attack",
@@ -508,7 +508,7 @@
         }
       ]
     },
-    "legendary_npcs:earth_axe": {
+    "player_npc_factions:earth_axe": {
       "customAnimation": [
         {
           "type": "attack",
@@ -583,7 +583,7 @@
         }
       ]
     },
-    "legendary_npcs:flanker_hooked_sword": {
+    "player_npc_factions:flanker_hooked_sword": {
       "customAnimation": [
         {
           "type": "attack",
@@ -683,7 +683,7 @@
         }
       ]
     },
-    "legendary_npcs:legendary_sword": {
+    "player_npc_factions:legendary_sword": {
       "customAnimation": [
         {
           "type": "attack",
@@ -783,7 +783,7 @@
         }
       ]
     },
-    "legendary_npcs:red_axe": {
+    "player_npc_factions:red_axe": {
       "customAnimation": [
         {
           "type": "attack",
@@ -883,7 +883,7 @@
         }
       ]
     },
-    "legendary_npcs:thunder_diamond_blade": {
+    "player_npc_factions:thunder_diamond_blade": {
       "customAnimation": [
         {
           "type": "attack",
@@ -908,7 +908,7 @@
         }
       ]
     },
-    "legendary_npcs:woopie_the_sword": {
+    "player_npc_factions:woopie_the_sword": {
       "customAnimation": [
         {
           "type": "attack",

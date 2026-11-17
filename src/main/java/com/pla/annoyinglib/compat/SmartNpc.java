@@ -120,11 +120,11 @@ public class SmartNpc {
     }
 
     public static boolean isPlayerLikeTarget(LivingEntity target) {
-        return (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isSteveEntity(target))
-                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAngrySteveEntity(target))
-                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAlexEntity(target))
-                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isChrisEntity(target))
-                || (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isJevEntity(target));
+        return (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isSteveEntity(target))
+                || (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isAngrySteveEntity(target))
+                || (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isAlexEntity(target))
+                || (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isChrisEntity(target))
+                || (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isJevEntity(target));
     }
 
     public static boolean isMonsterTarget(LivingEntity target) {

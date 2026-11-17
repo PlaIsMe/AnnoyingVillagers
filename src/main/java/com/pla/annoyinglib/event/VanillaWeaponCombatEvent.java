@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.event;
 import com.pla.annoyinglib.compat.MobSupremacy;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import net.minecraftforge.fml.ModList;
 import com.pla.annoyinglib.compat.HerobrineVessels;
 import com.pla.annoyinglib.AnnoyingLib;
@@ -24,7 +24,7 @@ public final class VanillaWeaponCombatEvent {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onCriticalHit(CriticalHitEvent event) {
         Player player = event.getEntity();
-        if ((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.hackerSwordItem_isComboAttack(player) : false)) {
+        if ((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.hackerSwordItem_isComboAttack(player) : false)) {
             event.setResult(net.minecraftforge.eventbus.api.Event.Result.ALLOW);
             event.setDamageModifier(1.5F);
         }
@@ -52,7 +52,7 @@ public final class VanillaWeaponCombatEvent {
         if (ModList.get().isLoaded("herobrine_vessels")) {
             HerobrineVessels.tickSavedTeleport(player);
         }
-        if (!(ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.legendarySwordItem_hasActiveVanillaAwakening(player) : false)) if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.legendarySwordItem_clearVanillaAttackSpeed(player);
+        if (!(ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.legendarySwordItem_hasActiveVanillaAwakening(player) : false)) if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.legendarySwordItem_clearVanillaAttackSpeed(player);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

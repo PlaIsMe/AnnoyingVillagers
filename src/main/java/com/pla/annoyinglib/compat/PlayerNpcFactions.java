@@ -1,8 +1,8 @@
 package com.pla.annoyinglib.compat;
-import com.pla.legendary_npcs.network.ClientboundBlackFireFx;
-import com.pla.legendary_npcs.item.BlackFireSwordItem;
-import com.pla.legendary_npcs.entity.BlackFireEntity;
-import com.pla.legendary_npcs.item.DiamondSpearItem;
+import com.pla.player_npc_factions.network.ClientboundBlackFireFx;
+import com.pla.player_npc_factions.item.BlackFireSwordItem;
+import com.pla.player_npc_factions.entity.BlackFireEntity;
+import com.pla.player_npc_factions.item.DiamondSpearItem;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraftforge.fml.ModList;
 import java.util.UUID;
@@ -11,42 +11,42 @@ import com.pla.annoyinglib.network.ClientboundMuteExplosionAtPos;
 import com.pla.annoyinglib.init.AnnoyingLibModSounds;
 import com.pla.annoyinglib.task.DelayedTask;
 import net.minecraft.server.level.ServerLevel;
-import com.pla.legendary_npcs.init.LegendaryNpcsModSounds;
+import com.pla.player_npc_factions.init.PlayerNpcFactionsModSounds;
 import com.pla.annoyinglib.rig.RigPart;
 import com.pla.annoyinglib.util.RigPoseUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import com.pla.annoyinglib.rig.RigAnimationId;
-import com.pla.legendary_npcs.network.ClientboundWoopieSwordWindFx;
+import com.pla.player_npc_factions.network.ClientboundWoopieSwordWindFx;
 import net.minecraft.world.item.Item;
-import com.pla.legendary_npcs.item.HookGunItem;
+import com.pla.player_npc_factions.item.HookGunItem;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraft.core.BlockPos;
-import com.pla.legendary_npcs.spawnhandler.ChrisData;
+import com.pla.player_npc_factions.spawnhandler.ChrisData;
 import net.minecraft.sounds.SoundEvent;
 import com.pla.annoyinglib.rig.RigAnimationController;
 import net.minecraft.world.entity.player.Player;
-import com.pla.legendary_npcs.spawnhandler.AlexData;
-import com.pla.legendary_npcs.spawnhandler.SteveData;
-import com.pla.legendary_npcs.init.LegendaryNpcsModItems;
+import com.pla.player_npc_factions.spawnhandler.AlexData;
+import com.pla.player_npc_factions.spawnhandler.SteveData;
+import com.pla.player_npc_factions.init.PlayerNpcFactionsModItems;
 import net.minecraft.sounds.SoundSource;
 import com.pla.annoyinglib.AnnoyingLib;
 import com.pla.annoyinglib.clazz.AVNpc;
-import com.pla.legendary_npcs.entity.AlexEntity;
-import com.pla.legendary_npcs.entity.AngrySteveEntity;
-import com.pla.legendary_npcs.entity.ChrisEntity;
-import com.pla.legendary_npcs.entity.JevEntity;
-import com.pla.legendary_npcs.entity.SteveEntity;
-import com.pla.legendary_npcs.item.BlueFlameSwordItem;
-import com.pla.legendary_npcs.item.ClowSwordItem;
-import com.pla.legendary_npcs.item.DNAxHookedSwordItem;
-import com.pla.legendary_npcs.item.EarthAxeItem;
-import com.pla.legendary_npcs.item.FlankerHookedSwordItem;
-import com.pla.legendary_npcs.item.HackerSwordItem;
-import com.pla.legendary_npcs.item.LegendarySwordItem;
-import com.pla.legendary_npcs.item.RedAxeItem;
-import com.pla.legendary_npcs.item.ThunderDiamondBladeItem;
-import com.pla.legendary_npcs.item.TonyTheFishingRod;
-import com.pla.legendary_npcs.item.WoopieTheSwordItem;
+import com.pla.player_npc_factions.entity.AlexEntity;
+import com.pla.player_npc_factions.entity.AngrySteveEntity;
+import com.pla.player_npc_factions.entity.ChrisEntity;
+import com.pla.player_npc_factions.entity.JevEntity;
+import com.pla.player_npc_factions.entity.SteveEntity;
+import com.pla.player_npc_factions.item.BlueFlameSwordItem;
+import com.pla.player_npc_factions.item.ClowSwordItem;
+import com.pla.player_npc_factions.item.DNAxHookedSwordItem;
+import com.pla.player_npc_factions.item.EarthAxeItem;
+import com.pla.player_npc_factions.item.FlankerHookedSwordItem;
+import com.pla.player_npc_factions.item.HackerSwordItem;
+import com.pla.player_npc_factions.item.LegendarySwordItem;
+import com.pla.player_npc_factions.item.RedAxeItem;
+import com.pla.player_npc_factions.item.ThunderDiamondBladeItem;
+import com.pla.player_npc_factions.item.TonyTheFishingRod;
+import com.pla.player_npc_factions.item.WoopieTheSwordItem;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -59,8 +59,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /** Optional content bridge. Call only when its mod is loaded. */
-public final class LegendaryNpcs {
-    private LegendaryNpcs() {}
+public final class PlayerNpcFactions {
+    private PlayerNpcFactions() {}
 
     public static boolean isAngrySteveEntity(Object value) {
         return value instanceof AngrySteveEntity;
@@ -189,7 +189,7 @@ public final class LegendaryNpcs {
     }
 
     public static void sendWoopieWind(Level level, double x, double y, double z) {
-        com.pla.legendary_npcs.util.AAAParticlesUtil.sendWoopieWind(level, x, y, z);
+        com.pla.player_npc_factions.util.AAAParticlesUtil.sendWoopieWind(level, x, y, z);
     }
 
 
@@ -225,7 +225,7 @@ public final class LegendaryNpcs {
         Vec3 windPos = new Vec3(offHandPos.x, mob.getY() + 0.05D, offHandPos.z);
         com.pla.annoyinglib.AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
         serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-        com.pla.legendary_npcs.LegendaryNpcs.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundWoopieSwordWindFx(windPos));
+        com.pla.player_npc_factions.PlayerNpcFactions.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundWoopieSwordWindFx(windPos));
     }
 
     public static void rigAction8(Mob mob) {
@@ -235,7 +235,7 @@ public final class LegendaryNpcs {
         com.pla.annoyinglib.AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
                 new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
         serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-        com.pla.legendary_npcs.LegendaryNpcs.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
+        com.pla.player_npc_factions.PlayerNpcFactions.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob),
                 new ClientboundWoopieSwordWindFx(windPos));
     }
 
@@ -243,8 +243,8 @@ public final class LegendaryNpcs {
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
         serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), AnnoyingLibModSounds.HEAVY_ATTACK_START.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-        serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), LegendaryNpcsModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-        serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), LegendaryNpcsModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+        serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), PlayerNpcFactionsModSounds.HEAVY_ATTACK_LEGENDARY_SWORD.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+        serverLevel.playSound(null, mob.getX(), mob.getY(), mob.getZ(), PlayerNpcFactionsModSounds.HEAVY_ATTACK_LEGENDARY_SWORD_2.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
         serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mob.getX(), mob.getY(), mob.getZ(), 15, 0.0D, 0.0D, 0.0D, 0.2D);
         serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, mob.getX(), mob.getEyeY(), mob.getZ(), 100, 0.0D, 0.0D, 0.0D, 0.5D);
     }
@@ -275,8 +275,8 @@ public final class LegendaryNpcs {
     public static void rigAction23(Mob mob, RigAnimationId animationId) {
         if (!(mob.level() instanceof ServerLevel serverLevel)) return;
 
-        boolean mainHandWoopie = mob.getMainHandItem().is(LegendaryNpcsModItems.WOOPIE_THE_SWORD.get());
-        boolean offHandWoopie = mob.getOffhandItem().is(LegendaryNpcsModItems.WOOPIE_THE_SWORD.get());
+        boolean mainHandWoopie = mob.getMainHandItem().is(PlayerNpcFactionsModItems.WOOPIE_THE_SWORD.get());
+        boolean offHandWoopie = mob.getOffhandItem().is(PlayerNpcFactionsModItems.WOOPIE_THE_SWORD.get());
         if (!mainHandWoopie && !offHandWoopie) return;
 
         Vec3 windPos = offHandWoopie ? RigPoseUtil.getLeftWeaponPosition(mob, animationId, 0.0F) : RigPoseUtil.getRightWeaponPosition(mob, animationId, 0.0F);
@@ -284,7 +284,7 @@ public final class LegendaryNpcs {
 
         com.pla.annoyinglib.AnnoyingLib.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundMuteExplosionAtPos(BlockPos.containing(windPos), 4));
         serverLevel.explode(mob, windPos.x, windPos.y, windPos.z, 2.0F, false, Level.ExplosionInteraction.NONE);
-        com.pla.legendary_npcs.LegendaryNpcs.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundWoopieSwordWindFx(windPos));
+        com.pla.player_npc_factions.PlayerNpcFactions.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> mob), new ClientboundWoopieSwordWindFx(windPos));
 
         Vec3 dashDir = mob.getLookAngle();
         LivingEntity target = mob.getTarget();
@@ -370,11 +370,11 @@ public final class LegendaryNpcs {
 
 
     public static Item getItems_TONY_THE_FISHING_ROD() {
-        return LegendaryNpcsModItems.TONY_THE_FISHING_ROD.get();
+        return PlayerNpcFactionsModItems.TONY_THE_FISHING_ROD.get();
     }
 
     public static Item getItems_HOOK_GUN() {
-        return LegendaryNpcsModItems.HOOK_GUN.get();
+        return PlayerNpcFactionsModItems.HOOK_GUN.get();
     }
 
 
@@ -384,47 +384,47 @@ public final class LegendaryNpcs {
 
 
     public static Item getItems_RED_AXE() {
-        return LegendaryNpcsModItems.RED_AXE.get();
+        return PlayerNpcFactionsModItems.RED_AXE.get();
     }
 
 
 
     public static Item getItems_THUNDER_DIAMOND_BLADE() {
-        return LegendaryNpcsModItems.THUNDER_DIAMOND_BLADE.get();
+        return PlayerNpcFactionsModItems.THUNDER_DIAMOND_BLADE.get();
     }
 
     public static Item getItems_EARTH_AXE() {
-        return LegendaryNpcsModItems.EARTH_AXE.get();
+        return PlayerNpcFactionsModItems.EARTH_AXE.get();
     }
 
     public static Item getItems_LEGENDARY_SWORD() {
-        return LegendaryNpcsModItems.LEGENDARY_SWORD.get();
+        return PlayerNpcFactionsModItems.LEGENDARY_SWORD.get();
     }
 
     public static Item getItems_WOOPIE_THE_SWORD() {
-        return LegendaryNpcsModItems.WOOPIE_THE_SWORD.get();
+        return PlayerNpcFactionsModItems.WOOPIE_THE_SWORD.get();
     }
 
     public static Item getItems_BLUE_FLAME_SWORD() {
-        return LegendaryNpcsModItems.BLUE_FLAME_SWORD.get();
+        return PlayerNpcFactionsModItems.BLUE_FLAME_SWORD.get();
     }
 
 
 
     public static SoundEvent getSounds_WOOPIE_WIND() {
-        return LegendaryNpcsModSounds.WOOPIE_WIND.get();
+        return PlayerNpcFactionsModSounds.WOOPIE_WIND.get();
     }
 
     public static Item getItems_GIANT_RED_AXE() {
-        return LegendaryNpcsModItems.GIANT_RED_AXE.get();
+        return PlayerNpcFactionsModItems.GIANT_RED_AXE.get();
     }
 
     public static Item getItems_DNAX_HOOKED_SWORD_ABILITY() {
-        return LegendaryNpcsModItems.DNAX_HOOKED_SWORD_ABILITY.get();
+        return PlayerNpcFactionsModItems.DNAX_HOOKED_SWORD_ABILITY.get();
     }
 
     public static Item getItems_HEAVY_ATTACK_LEGENDARY_SWORD() {
-        return LegendaryNpcsModItems.HEAVY_ATTACK_LEGENDARY_SWORD.get();
+        return PlayerNpcFactionsModItems.HEAVY_ATTACK_LEGENDARY_SWORD.get();
     }
     public static boolean isLegendaryAwakened(Entity mob) {
         return mob instanceof AngrySteveEntity angrySteve && angrySteve.isLegendaryAwakened();
@@ -435,7 +435,7 @@ public final class LegendaryNpcs {
         mob.targetSelector.addGoal(20, new NearestAttackableTargetGoal<>(mob, ChrisEntity.class, false, false));
     }
 
-    public static void handleWoopieSwordWind(Object packet) { com.pla.legendary_npcs.client.engine.ClientPacketHandlers.handleWoopieSwordWind((ClientboundWoopieSwordWindFx) packet); }
+    public static void handleWoopieSwordWind(Object packet) { com.pla.player_npc_factions.client.engine.ClientPacketHandlers.handleWoopieSwordWind((ClientboundWoopieSwordWindFx) packet); }
 
 
 
@@ -444,9 +444,9 @@ public final class LegendaryNpcs {
     public static void vacate(ServerLevel level, String identity, UUID id) {
         // Clear matching claims in any previous dimension too.
         for (ServerLevel previous : level.getServer().getAllLevels()) switch (identity) {
-            case "Steve" -> (ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.steveData_get(previous) : null).vacateIfMatches(id);
-            case "Alex" -> (ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.alexData_get(previous) : null).vacateIfMatches(id);
-            case "Chris" -> (ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.chrisData_get(previous) : null).vacateIfMatches(id);
+            case "Steve" -> (ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.steveData_get(previous) : null).vacateIfMatches(id);
+            case "Alex" -> (ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.alexData_get(previous) : null).vacateIfMatches(id);
+            case "Chris" -> (ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.chrisData_get(previous) : null).vacateIfMatches(id);
         }
     }
 
@@ -489,7 +489,7 @@ public final class LegendaryNpcs {
     }
 
     public static void sendBlackFire(Level level, Entity entity) {
-        com.pla.legendary_npcs.util.AAAParticlesUtil.sendBlackFire(level, entity);
+        com.pla.player_npc_factions.util.AAAParticlesUtil.sendBlackFire(level, entity);
     }
 
     public static void rigAction5(Mob mob) {
@@ -511,8 +511,8 @@ public final class LegendaryNpcs {
     }
 
     public static Item getItems_BLACK_FIRE_SWORD() {
-        return LegendaryNpcsModItems.BLACK_FIRE_SWORD.get();
+        return PlayerNpcFactionsModItems.BLACK_FIRE_SWORD.get();
     }
 
-    public static void handleBlackFire(Object packet) { com.pla.legendary_npcs.client.engine.ClientPacketHandlers.handleBlackFire((ClientboundBlackFireFx) packet); }
+    public static void handleBlackFire(Object packet) { com.pla.player_npc_factions.client.engine.ClientPacketHandlers.handleBlackFire((ClientboundBlackFireFx) packet); }
 }

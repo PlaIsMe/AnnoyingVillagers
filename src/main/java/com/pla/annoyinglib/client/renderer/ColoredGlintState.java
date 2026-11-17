@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.client.renderer;
 import net.minecraft.world.item.Items;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.compat.MobSupremacy;
 import net.minecraftforge.fml.ModList;
 import com.pla.annoyinglib.compat.HerobrineVessels;
@@ -36,7 +36,7 @@ public final class ColoredGlintState {
 
         if (mode == NONE) {
 
-                if (stack.is((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_RED_AXE() : Items.AIR)) || stack.is((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_GIANT_RED_AXE() : Items.AIR))) {
+                if (stack.is((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_RED_AXE() : Items.AIR)) || stack.is((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_GIANT_RED_AXE() : Items.AIR))) {
                 mode = RED;
 
             } else if (

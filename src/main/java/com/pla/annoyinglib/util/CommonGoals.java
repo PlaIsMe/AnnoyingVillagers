@@ -1,5 +1,5 @@
 package com.pla.annoyinglib.util;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.compat.MobSupremacy;
 import com.pla.annoyinglib.compat.VillagerKingdom;
 import com.pla.annoyinglib.compat.HerobrineVessels;
@@ -80,11 +80,11 @@ public class CommonGoals {
 
     public static void registerTargetGoalForVanillaMonster(Monster monster) {
         monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, LivingEntity.class, true, target ->
-                (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isSteveEntity(target)) ||
-                        (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAngrySteveEntity(target)) ||
-                        (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isChrisEntity(target)) ||
-                        (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isAlexEntity(target)) ||
-                        (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isJevEntity(target)) ||
+                (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isSteveEntity(target)) ||
+                        (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isAngrySteveEntity(target)) ||
+                        (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isChrisEntity(target)) ||
+                        (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isAlexEntity(target)) ||
+                        (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isJevEntity(target)) ||
                         (ModList.get().isLoaded("mob_supremacy") && MobSupremacy.isBlueDemonEntity(target)) ||
                         (ModList.get().isLoaded("villager_kingdom") && VillagerKingdom.isVillagerArmyEntity(target))
         ));
@@ -101,7 +101,7 @@ public class CommonGoals {
         if (ModList.get().isLoaded("smart_npc")) {
             SmartNpc.targetPlayerNpc(monster, 1);
         }
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.registerGoalForHostileNpcTargets(monster);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.registerGoalForHostileNpcTargets(monster);
         
         
         
@@ -135,7 +135,7 @@ public class CommonGoals {
         if (ModList.get().isLoaded("smart_npc")) {
             SmartNpc.targetPlayerNpc(monster, 2);
         }
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.registerGoalForBlueDemonNpcTargets(monster);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.registerGoalForBlueDemonNpcTargets(monster);
         monster.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(monster, Villager.class, true, false));
         if (ModList.get().isLoaded("villager_kingdom")) VillagerKingdom.registerGoalForBlueDemonNpcTargets(monster);
         
@@ -169,7 +169,7 @@ public class CommonGoals {
         mob.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(mob, AbstractIllager.class, true, false));
         if (ModList.get().isLoaded("mob_supremacy")) MobSupremacy.registerGoalForVillagerKnightNpcTargets(mob);
 
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.registerGoalForVillagerKnightNpcTargets(mob);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.registerGoalForVillagerKnightNpcTargets(mob);
         
         
         
@@ -272,7 +272,7 @@ public class CommonGoals {
         if (ModList.get().isLoaded("herobrine_vessels")) {
             HerobrineVessels.addKnockedEliteTarget(mob);
         }
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.addCrazyNpcTargets(mob);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.addCrazyNpcTargets(mob);
         
         mob.targetSelector.addGoal(21, new NearestAttackableTargetGoal<>(mob, Player.class, true, true));
         addRigShieldGuardGoal(mob, 0);

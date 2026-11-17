@@ -1,5 +1,5 @@
 package com.pla.annoyinglib.event;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.compat.MobSupremacy;
 import com.pla.annoyinglib.compat.VillagerKingdom;
 import com.pla.annoyinglib.compat.HerobrineVessels;
@@ -38,12 +38,12 @@ public class MobTargetRedirectEvent {
     }
 
     private static boolean shouldBlockVillagerKnightJevTarget(Mob mob, @Nullable LivingEntity target) {
-        return (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isJevEntity(target)) && isVillagerKnight(mob);
+        return (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isJevEntity(target)) && isVillagerKnight(mob);
     }
 
     @Nullable
     private static LivingEntity getVillagerKnightJevReplacementTarget(Mob mob, @Nullable LivingEntity target) {
-        if (ModList.get().isLoaded("legendary_npcs")) return LegendaryNpcs.getVillagerKnightJevReplacementTarget(mob, target);
+        if (ModList.get().isLoaded("player_npc_factions")) return PlayerNpcFactions.getVillagerKnightJevReplacementTarget(mob, target);
         return null;
     }
 

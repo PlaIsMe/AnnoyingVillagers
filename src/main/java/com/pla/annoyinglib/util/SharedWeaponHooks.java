@@ -1,7 +1,7 @@
 package com.pla.annoyinglib.util;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.ModList;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.AnnoyingLib;
 import com.pla.annoyinglib.init.AnnoyingLibModItems;
 import com.pla.annoyinglib.init.AnnoyingLibModSounds;
@@ -30,7 +30,7 @@ public final class SharedWeaponHooks {
     }
 
     public static boolean isBlackFireSwordItem(Object value) {
-        return ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isBlackFireSwordItem(value);
+        return ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isBlackFireSwordItem(value);
     }
 
     public static boolean isDiamondAttractorSwordItem(Object value) {
@@ -50,7 +50,7 @@ public final class SharedWeaponHooks {
     }
 
     public static void sendBlackFire(Level level, Entity entity) {
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.sendBlackFire(level, entity);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.sendBlackFire(level, entity);
     }
 
     public static void sendDiamondAttractor(Level level, Entity entity) {
@@ -58,7 +58,7 @@ public final class SharedWeaponHooks {
     }
 
     public static void rigAction5(Mob mob) {
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction5(mob);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.rigAction5(mob);
     }
 
     public static void rigAction6(Mob mob) {
@@ -70,11 +70,11 @@ public final class SharedWeaponHooks {
     }
 
     public static Vec3 blackFireSwordItem_getBlackFireFallbackPosition(Entity entity) {
-        return ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.blackFireSwordItem_getBlackFireFallbackPosition(entity) : CommonUtil.getVanillaSwordOrBodyPosition(entity);
+        return ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.blackFireSwordItem_getBlackFireFallbackPosition(entity) : CommonUtil.getVanillaSwordOrBodyPosition(entity);
     }
 
     public static void blackFireSwordItem_startBlackFireFallback(Level level, int entityId) {
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.blackFireSwordItem_startBlackFireFallback(level, entityId);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.blackFireSwordItem_startBlackFireFallback(level, entityId);
     }
 
     public static Vec3 blackFireSwordItem_getSwordOrBodyPosition(Entity entity) {
@@ -86,11 +86,11 @@ public final class SharedWeaponHooks {
     }
 
     public static Item getItems_BLACK_FIRE_SWORD() {
-        return ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.getItems_BLACK_FIRE_SWORD() : Items.AIR;
+        return ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.getItems_BLACK_FIRE_SWORD() : Items.AIR;
     }
 
     public static void handleBlackFire(Object packet) {
-        if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.handleBlackFire(packet);
+        if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.handleBlackFire(packet);
     }
 
     public static void handleDiamondAttractor(Object packet) { com.pla.annoyinglib.client.engine.ClientPacketHandlers.handleDiamondAttractor((ClientboundDiamondAttractorFx) packet); }

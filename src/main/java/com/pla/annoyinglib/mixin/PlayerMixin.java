@@ -1,5 +1,5 @@
 package com.pla.annoyinglib.mixin;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.compat.MobSupremacy;
 import net.minecraftforge.fml.ModList;
 import com.pla.annoyinglib.compat.HerobrineVessels;
@@ -20,7 +20,7 @@ public abstract class PlayerMixin {
     @Inject(method = "getAttackStrengthScale", at = @At("HEAD"), cancellable = true)
     private void av$fullStrengthHackerCombo(float partialTicks,
             org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Float> cir) {
-        if ((ModList.get().isLoaded("legendary_npcs") ? LegendaryNpcs.hackerSwordItem_isComboAttack((Player)(Object)this) : false)) {
+        if ((ModList.get().isLoaded("player_npc_factions") ? PlayerNpcFactions.hackerSwordItem_isComboAttack((Player)(Object)this) : false)) {
             cir.setReturnValue(1.0F);
         }
     }

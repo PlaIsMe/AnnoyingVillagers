@@ -1,6 +1,6 @@
 package com.pla.annoyinglib.rig;
 import com.pla.annoyinglib.util.SharedWeaponHooks;
-import com.pla.annoyinglib.compat.LegendaryNpcs;
+import com.pla.annoyinglib.compat.PlayerNpcFactions;
 import com.pla.annoyinglib.compat.MobSupremacy;
 import net.minecraftforge.fml.ModList;
 import com.pla.annoyinglib.compat.HerobrineVessels;
@@ -103,7 +103,7 @@ public final class RigAnimationSpecs {
                 .damageMultiplier(2.0F)
                 .criticalChance(0.5F)
                 .onHit((attacker, target, critical) -> {
-                    if (!((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isDNAxHookedSwordItem(attacker.getMainHandItem().getItem())))) return;
+                    if (!((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isDNAxHookedSwordItem(attacker.getMainHandItem().getItem())))) return;
                     if (!(target instanceof Mob targetMob)) return;
                     ObedienceMobEffect.applyObedience(targetMob, attacker, 20 * 5);
                 }));
@@ -132,10 +132,10 @@ public final class RigAnimationSpecs {
                 .damageMultiplier(2.0F)
                 .criticalChance(0.5F)
                 .onHit((attacker, target, critical) -> {
-                    if (!((ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isDNAxHookedSwordItem(attacker.getMainHandItem().getItem())))) return;
+                    if (!((ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isDNAxHookedSwordItem(attacker.getMainHandItem().getItem())))) return;
                     if (!(target instanceof Mob targetMob)) return;
 
-                    int durationTicks = (ModList.get().isLoaded("legendary_npcs") && LegendaryNpcs.isDNAxHookedSwordItem(attacker.getOffhandItem().getItem())) ? 20 * 10 : 20 * 5;
+                    int durationTicks = (ModList.get().isLoaded("player_npc_factions") && PlayerNpcFactions.isDNAxHookedSwordItem(attacker.getOffhandItem().getItem())) ? 20 * 10 : 20 * 5;
                     ObedienceMobEffect.applyObedience(targetMob, attacker, durationTicks);
                 }));
 
@@ -262,9 +262,9 @@ public final class RigAnimationSpecs {
                 .criticalChance(0.3F)
         );
         put(RigAnimationSpec.nonDamaging(RigAnimationId.EARTH_AXE_ULT, 33, RigAnimationPlaybackType.DEFAULT,
-                hookAt(4, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction3(mob); })));
+                hookAt(4, mob -> { if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.rigAction3(mob); })));
         put(RigAnimationSpec.attack(RigAnimationId.EARTH_AXE_EXTRA_ATTACK, 33, false,
-                hookAt(20, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction4(mob); }),
+                hookAt(20, mob -> { if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.rigAction4(mob); }),
                 RigAttackWindow.of(6, 8, RIGHT_AXE)));
 
         put(RigAnimationSpec.nonDamaging(RigAnimationId.GREATSWORD_IDLE, 60));
@@ -633,7 +633,7 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(5, 15, RIGHT_SWORD)));
         put(RigAnimationSpec.attack(RigAnimationId.WOOPIE_THE_SWORD_FLY, 13, false,
                         List.of(
-                                RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction7(mob); }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> { if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.rigAction7(mob); }),
                                 RigAnimationSpec.RigTimedAnimationHook.at(12, mob -> RigAnimationController.play(mob, RigAnimationId.LEGENDARY_SWORD_ULT))
                         ),
                         RigAttackWindow.of(0, 10, LEFT_SWORD)).withVerticalMotion()
@@ -641,7 +641,7 @@ public final class RigAnimationSpecs {
                 .dangerous()
         );
         put(RigAnimationSpec.attack(RigAnimationId.WOOPIE_THE_SWORD_ULT, 39, false,
-                        hookAt(15, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction8(mob); }),
+                        hookAt(15, mob -> { if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.rigAction8(mob); }),
                         RigAttackWindow.of(9, 20, RIGHT_SWORD))
                 .damageMultiplier(2.1F));
 
@@ -971,16 +971,16 @@ public final class RigAnimationSpecs {
                 RigAttackWindow.of(3, 16, RIGHT_GREATSWORD)).invulnerable());
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_ULT, 40, false,
                         List.of(
-                                RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction20(mob); }),
+                                RigAnimationSpec.RigTimedAnimationHook.at(0, mob -> { if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.rigAction20(mob); }),
                                 groundSlamTimedHook(10, RigAnimationId.LEGENDARY_SWORD_ULT, 2.0D, 0.8D, 50, 0.6D, 2.5D),
-                                RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction21(mob); })),
+                                RigAnimationSpec.RigTimedAnimationHook.at(10, mob -> { if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.rigAction21(mob); })),
                         RigAttackWindow.of(10, 20, RIGHT_GREATSWORD))
                 .invulnerable()
                 .dangerous()
         );
         put(RigAnimationSpec.attack(RigAnimationId.LEGENDARY_SWORD_EXTRA_ULT, 45, false,
                         List.of(
-                                RigAnimationSpec.RigTimedAnimationHook.at(11, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction22(mob); })),
+                                RigAnimationSpec.RigTimedAnimationHook.at(11, mob -> { if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.rigAction22(mob); })),
                         RigAttackWindow.of(11, 15, RIGHT_GREATSWORD))
                 .invulnerable()
                 .dangerous()
@@ -1731,7 +1731,7 @@ public final class RigAnimationSpecs {
     }
 
     private static List<RigAnimationSpec.RigTimedAnimationHook> woopieRushStartHook(RigAnimationId animationId) {
-        return List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, mob -> { if (ModList.get().isLoaded("legendary_npcs")) LegendaryNpcs.rigAction23(mob, animationId); }));
+        return List.of(RigAnimationSpec.RigTimedAnimationHook.at(RigAnimationSpec.RigTimedAnimationHook.START, mob -> { if (ModList.get().isLoaded("player_npc_factions")) PlayerNpcFactions.rigAction23(mob, animationId); }));
     }
 
     private static RigAnimationSpec.RigTimedAnimationHook blueDemonHandEffectHook(int tick, RigAnimationId animationId, RigPart part) {
