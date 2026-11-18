@@ -8,6 +8,7 @@
     "BrainAccessor",
     "DistanceManagerAccessor",
     "ServerChunkCacheAccessor",
+    "ThrownTridentAccessor",
     "MobMixin",
     "EndFireEntityMixin",
     "SkeletonMixin",
